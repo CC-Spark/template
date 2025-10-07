@@ -1,0 +1,110 @@
+import { describe, test, expect, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ToggleCard, ToggleCardEdit, type ToggleCardProps, ToggleCardSummary } from '@/components/toggle-card';
+
+function renderCard(props: ToggleCardProps) {
+    return render(
+        <ToggleCard {...props}>
+            <ToggleCardSummary>
+                <div>Summary Content</div>
+            </ToggleCardSummary>
+            <ToggleCardEdit>
+                <div>Edit Content</div>
+            </ToggleCardEdit>
+        </ToggleCard>
+    );
+}
+
+describe('ToggleCard', () => {
+    test('renders title and summary when not editing; shows Edit button', async () => {
+        const onEdit = vi.fn();
+        renderCard({ id: 'card1', title: 'Card Title', editing: false, onEdit, editLabel: 'Edit' });
+
+        expect(screen.getByText('Card Title')).toBeInTheDocument();
+        expect(screen.getByText('Summary Content')).toBeInTheDocument();
+        expect(screen.queryByText('Edit Content')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
+
+        const user = userEvent.setup();
+        await user.click(screen.getByRole('button', { name: /edit/i }));
+        expect(onEdit).toHaveBeenCalledTimes(1);
+    });
+
+    test('renders edit content and Cancel button when editing and invokes onEditActionClick', async () => {
+        const onEditActionClick = vi.fn();
+        renderCard({ id: 'card2', title: 'Card Title', editing: true, editAction: 'Cancel', onEditActionClick });
+
+        expect(screen.getByText('Edit Content')).toBeInTheDocument();
+        expect(screen.queryByText('Summary Content')).not.toBeInTheDocument();
+
+        const user = userEvent.setup();
+        await user.click(screen.getByRole('button', { name: /cancel/i }));
+        expect(onEditActionClick).toHaveBeenCalledTimes(1);
+    });
+
+    test('focuses the title when switching into editing', async () => {
+        const { rerender } = render(
+            <ToggleCard id="card3" title="Card Title" editing={false}>
+                <ToggleCardSummary>
+                    <div>Summary Content</div>
+                </ToggleCardSummary>
+                <ToggleCardEdit>
+                    <div>Edit Content</div>
+                </ToggleCardEdit>
+            </ToggleCard>
+        );
+
+        rerender(
+            <ToggleCard id="card3" title="Card Title" editing>
+                <ToggleCardSummary>
+                    <div>Summary Content</div>
+                </ToggleCardSummary>
+                <ToggleCardEdit>
+                    <div>Edit Content</div>
+                </ToggleCardEdit>
+            </ToggleCard>
+        );
+
+        const titleEl = screen.getByText('Card Title');
+        await waitFor(() => expect(titleEl).toHaveFocus());
+    });
+
+    test('shows loading overlay when isLoading=true and hides when false', () => {
+        const { rerender } = renderCard({ id: 'card4', title: 'Card Title', editing: false, isLoading: true });
+        const card = screen.getByTestId('sf-toggle-card-card4');
+        expect(card.querySelector('.animate-spin')).toBeTruthy();
+
+        rerender(
+            <ToggleCard id="card4" title="Card Title" editing={false} isLoading={false}>
+                <ToggleCardSummary>
+                    <div>Summary Content</div>
+                </ToggleCardSummary>
+                <ToggleCardEdit>
+                    <div>Edit Content</div>
+                </ToggleCardEdit>
+            </ToggleCard>
+        );
+        expect(card.querySelector('.animate-spin')).toBeNull();
+    });
+
+    test('hides summary and edit action when disabled', () => {
+        renderCard({ id: 'card5', title: 'Card Title', editing: false, disabled: true, onEdit: vi.fn() });
+        expect(screen.queryByText('Summary Content')).toBeNull();
+        expect(screen.queryByRole('button', { name: /edit/i })).toBeNull();
+    });
+
+    test('renders description when provided', () => {
+        render(
+            <ToggleCard id="card6" title="Card Title" description="Desc" editing={false}>
+                <ToggleCardSummary>
+                    <div>Summary Content</div>
+                </ToggleCardSummary>
+                <ToggleCardEdit>
+                    <div>Edit Content</div>
+                </ToggleCardEdit>
+            </ToggleCard>
+        );
+        expect(screen.getByText('Desc')).toBeInTheDocument();
+    });
+});

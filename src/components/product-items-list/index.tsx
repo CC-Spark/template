@@ -1,0 +1,164 @@
+// React
+import { useMemo, type ReactElement } from 'react';
+
+// Commerce SDK
+import type { ShopperBasketsTypes, ShopperProductsTypes, ShopperPromotionsTypes } from 'commerce-sdk-isomorphic';
+
+// Components
+import ProductItem from '@/components/product-item';
+
+// Hooks
+
+/**
+ * Spacing constants for different display variants
+ *
+ * These constants define the vertical spacing between product items
+ * based on the display variant to ensure consistent visual hierarchy.
+ */
+/** Spacing for default variant (full product cards) */
+const DEFAULT_SPACING = 'space-y-4';
+/** Spacing for summary variant (compact list view) */
+const SUMMARY_SPACING = 'space-y-5';
+
+/**
+ * Props for the ProductItemsList component
+ *
+ * @interface ProductItemsListProps
+ * @property {ShopperBasketsTypes.ProductItem[] | undefined} productItems - Array of product items from the basket
+ * @property {Record<string, ShopperProductsTypes.Product>} [productMap] - Optional item ID to product mapping for enhanced product data
+ * @property {Record<string, ShopperPromotionsTypes.Promotion>} [promotionMap] - Optional promotions data by ID for displaying promotion information
+ * @property {'default' | 'summary'} [variant='default'] - Display variant: 'default' for full product cards, 'summary' for compact list view
+ * @property {function} [primaryAction] - Optional render prop function to generate primary action buttons for each product
+ * @property {function} [secondaryActions] - Optional render prop function to generate secondary action buttons for each product
+ */
+interface ProductItemsListProps {
+    /** Array of product items from the basket */
+    productItems: ShopperBasketsTypes.ProductItem[] | undefined;
+    /** Required item ID to product mapping for enhanced product data */
+    productMap: Record<string, ShopperProductsTypes.Product>;
+    /** Optional promotions data by ID for displaying promotion information */
+    promotionMap?: Record<string, ShopperPromotionsTypes.Promotion>;
+    /** Display variant: 'default' for full product cards, 'summary' for compact list view */
+    variant?: 'default' | 'summary';
+    /**
+     * Optional render prop function to generate primary action buttons for each product
+     * @param product - Combined product data (basket item + product details)
+     * @returns React element for primary action or undefined
+     */
+    primaryAction?: (
+        product: ShopperBasketsTypes.ProductItem & Partial<ShopperProductsTypes.Product>
+    ) => ReactElement | undefined;
+    /**
+     * Optional render prop function to generate secondary action buttons for each product
+     * @param product - Combined product data (basket item + product details)
+     * @returns React element for secondary actions or undefined
+     */
+    secondaryActions?: (
+        product: ShopperBasketsTypes.ProductItem & Partial<ShopperProductsTypes.Product>
+    ) => ReactElement | undefined;
+}
+
+/**
+ * ProductItemsList component that renders a list of product items
+ *
+ * This component handles:
+ * - Rendering multiple product items with consistent spacing
+ * - Combining basket item data with product details
+ * - Supporting different display variants (default/summary)
+ * - Applying primary and secondary actions to items via render props
+ * - Handling empty or undefined product items gracefully
+ * - Performance optimization with memoization
+ *
+ * @param props - Component props
+ * @returns JSX element containing the list of product items
+ *
+ * @example
+ * ```tsx
+ * // Basic usage with default variant
+ * <ProductItemsList
+ *   productItems={basketItems}
+ *   productMap={productMap}
+ * />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Summary variant for compact display
+ * <ProductItemsList
+ *   productItems={basketItems}
+ *   variant="summary"
+ *   productMap={productMap}
+ * />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With primary and secondary actions
+ * <ProductItemsList
+ *   productItems={basketItems}
+ *   productMap={productMap}
+ *   promotionMap={promotions}
+ *   primaryAction={(product) => (
+ *     <button onClick={() => handleUpdate(product)}>
+ *       Update Item
+ *     </button>
+ *   )}
+ *   secondaryActions={(product) => (
+ *     <button onClick={() => handleRemove(product)}>
+ *       Remove Item
+ *     </button>
+ *   )}
+ * />
+ * ```
+ */
+export default function ProductItemsList({
+    productItems,
+    productMap,
+    promotionMap,
+    variant = 'default',
+    primaryAction,
+    secondaryActions,
+}: ProductItemsListProps): ReactElement {
+    /**
+     * Memoized list of ProductItem components with combined data
+     *
+     * This memoization prevents unnecessary re-renders when data props haven't changed.
+     * Function props (primaryAction, secondaryActions) are excluded from dependencies
+     * to avoid re-computation when parent components re-render with new function references.
+     * Each product item combines basket data with product details for enhanced display.
+     */
+    const memoizedItems = useMemo(() => {
+        return (productItems || []).map((productItem, index) => {
+            // Combine basket item with product data following reference logic
+            const productData = productItem.itemId ? productMap[productItem.itemId] : undefined;
+
+            /**
+             * Combined product object that merges basket item data with product details
+             * @type {ShopperBasketsTypes.ProductItem & Partial<ShopperProductsTypes.Product> & { isProductUnavailable: boolean }}
+             */
+            const combinedProduct = {
+                ...productItem,
+                ...(productData || {}),
+                isProductUnavailable: !productData,
+                price: productItem.price ?? 0,
+                quantity: productItem.quantity ?? 1,
+            };
+
+            return (
+                <ProductItem
+                    key={productItem.itemId || `item-${index}`}
+                    product={combinedProduct}
+                    primaryAction={primaryAction}
+                    secondaryActions={secondaryActions}
+                    displayVariant={variant}
+                    promotionMap={promotionMap}
+                />
+            );
+        });
+        // Intentionally exclude primaryAction and secondaryActions from dependencies
+        // to prevent re-computation when parent components re-render with new function references
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [productItems, productMap, promotionMap, variant]);
+
+    return <div className={variant === 'summary' ? SUMMARY_SPACING : DEFAULT_SPACING}>{memoizedItems}</div>;
+}

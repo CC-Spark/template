@@ -1,0 +1,74 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import uiStringsSL from '@/extensions/store-locator/temp-ui-string-store-locator';
+
+// Mock the store provider hook to supply state and actions
+const mockStore = {
+    config: { supportedCountries: [{ countryCode: 'US', countryName: 'United States' }], geoTimeout: 1000 },
+    setDeviceCoordinates: vi.fn(),
+    setGeoError: vi.fn(),
+    searchByForm: vi.fn(),
+    searchParams: undefined as any,
+};
+
+vi.mock('@/extensions/store-locator/providers/store-locator', () => ({
+    useStoreLocator: (selector: any) => selector(mockStore),
+}));
+
+// Use real useStoreLocatorForm implementation (it depends on the mocked store above)
+import StoreLocatorForm from './form';
+
+describe('StoreLocatorForm', () => {
+    beforeEach(() => {
+        mockStore.setDeviceCoordinates.mockClear();
+        mockStore.setGeoError.mockClear();
+        mockStore.searchByForm.mockClear();
+        mockStore.searchParams = undefined;
+    });
+
+    test('renders fields and actions', () => {
+        render(<StoreLocatorForm />);
+
+        expect(screen.getByRole('combobox', { name: uiStringsSL.storeLocator.form.countryLabel })).toBeInTheDocument();
+        expect(
+            screen.getByRole('textbox', { name: uiStringsSL.storeLocator.form.postalCodeLabel })
+        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: uiStringsSL.storeLocator.form.findButton })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: uiStringsSL.storeLocator.form.useMyLocationButton })
+        ).toBeInTheDocument();
+    });
+
+    test('submits form and calls search action', async () => {
+        render(<StoreLocatorForm />);
+
+        await userEvent.selectOptions(
+            screen.getByRole('combobox', { name: uiStringsSL.storeLocator.form.countryLabel }),
+            'US'
+        );
+        await userEvent.type(
+            screen.getByRole('textbox', { name: uiStringsSL.storeLocator.form.postalCodeLabel }),
+            '94105'
+        );
+        await userEvent.click(screen.getByRole('button', { name: uiStringsSL.storeLocator.form.findButton }));
+
+        expect(mockStore.searchByForm).toHaveBeenCalledWith({ countryCode: 'US', postalCode: '94105' });
+    });
+
+    test('uses device location when available', async () => {
+        const getCurrentPosition = vi
+            .fn()
+            .mockImplementation((success) => success({ coords: { latitude: 10, longitude: 20 } }));
+        // @ts-expect-error - partial mock
+        global.navigator.geolocation = { getCurrentPosition };
+
+        render(<StoreLocatorForm />);
+
+        await userEvent.click(screen.getByRole('button', { name: uiStringsSL.storeLocator.form.useMyLocationButton }));
+
+        expect(mockStore.setGeoError).toHaveBeenCalledWith(false);
+        expect(mockStore.setDeviceCoordinates).toHaveBeenCalledWith({ latitude: 10, longitude: 20 });
+    });
+});
