@@ -1,39 +1,21 @@
 'use client';
 
-import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PasswordRequirement } from '@/components/password-requirements';
+import { usePasswordValidation } from '@/hooks/use-password-validation';
 import uiStrings from '@/temp-ui-string';
-
-// Password validation function
-import { isPasswordValid } from '@/lib/utils';
 import { type SignupFormProps } from './types';
 
 export function SignupForm({ error }: SignupFormProps) {
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [showPasswordMismatch, setShowPasswordMismatch] = useState(false);
-
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.target.value);
-        if (confirmPassword && e.target.value !== confirmPassword) {
-            setShowPasswordMismatch(true);
-        } else {
-            setShowPasswordMismatch(false);
-        }
-    };
-
-    const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setConfirmPassword(e.target.value);
-        if (password && e.target.value !== password) {
-            setShowPasswordMismatch(true);
-        } else {
-            setShowPasswordMismatch(false);
-        }
-    };
-
-    const isFormValid = isPasswordValid(password) && password === confirmPassword && password.length > 0;
+    const {
+        password,
+        confirmPassword,
+        showPasswordMismatch,
+        handlePasswordChange,
+        handleConfirmPasswordChange,
+        isFormValid,
+    } = usePasswordValidation();
 
     return (
         <>

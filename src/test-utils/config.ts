@@ -64,6 +64,10 @@ export const mockBuildConfig: Config = {
                     callbackUri: '/passwordless-login-callback',
                     landingUri: '/passwordless-login-landing',
                 },
+                resetPassword: {
+                    callbackUri: '/reset-password-callback',
+                    landingUri: '/reset-password-landing',
+                },
                 socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
                 guestCheckout: true,
             },

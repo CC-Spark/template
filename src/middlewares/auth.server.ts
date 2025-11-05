@@ -15,7 +15,7 @@ import {
     updateAuthStorageData,
     updateStorageAndCache,
 } from '@/middlewares/auth.utils';
-import { extractResponseError, getAppOrigin, isAbsoluteURL } from '@/lib/utils';
+import { getAppOrigin, isAbsoluteURL, stringToBase64 } from '@/lib/utils';
 import createClient from '@/lib/scapi';
 import uiStrings from '@/temp-ui-string';
 import { performanceTimerContext, PERFORMANCE_MARKS } from '@/middlewares/performance-metrics';
@@ -149,76 +149,148 @@ export async function loginRegisteredUser(
 /**
  * Authorize passwordless login - sends magic link via email
  */
-export const authorizePasswordless = async (
+export async function authorizePasswordless(
     context: ActionFunctionArgs['context'],
     parameters: {
         userid: string;
         callbackUri?: string;
         redirectPath?: string;
     }
-): Promise<{
-    success: boolean;
-    error?: string;
-}> => {
+): Promise<Response> {
     const performanceTimer = context.get(performanceTimerContext);
     performanceTimer?.mark(PERFORMANCE_MARKS.authAuthorizePasswordless, 'start');
 
-    try {
-        const session = getAuth(context);
-        const slasClient = await createClient(context).ShopperLogin.getInstance();
-        const userid = parameters.userid;
+    const session = getAuth(context);
+    const slasClient = await createClient(context).ShopperLogin.getInstance();
+    const userid = parameters.userid;
 
-        const appConfig = getConfig(context);
-        const passwordlessCallback = appConfig.site.features.passwordlessLogin.callbackUri;
+    const appConfig = getConfig(context);
+    const passwordlessCallback = appConfig.site.features.passwordlessLogin.callbackUri;
 
-        const passwordlessLoginCallbackUri = isAbsoluteURL(passwordlessCallback)
-            ? passwordlessCallback
-            : `${getAppOrigin()}${passwordlessCallback}`;
+    const passwordlessLoginCallbackUri = isAbsoluteURL(passwordlessCallback)
+        ? passwordlessCallback
+        : `${getAppOrigin()}${passwordlessCallback}`;
 
-        const callbackUri = parameters.callbackUri || passwordlessLoginCallbackUri;
+    const callbackUri = parameters.callbackUri || passwordlessLoginCallbackUri;
 
-        const finalCallbackUri = parameters.redirectPath
-            ? `${callbackUri}?redirectUrl=${parameters.redirectPath}`
-            : callbackUri;
+    const finalCallbackUri = parameters.redirectPath
+        ? `${callbackUri}?redirectUrl=${parameters.redirectPath}`
+        : callbackUri;
 
-        const usid = session.usid;
-        const mode = finalCallbackUri ? 'callback' : 'sms';
+    const usid = session.usid;
+    const mode = finalCallbackUri ? 'callback' : 'sms';
 
-        const { authorizePasswordless: authorizePasswordlessHelper } = await import('commerce-sdk-isomorphic/helpers');
-        const res = await authorizePasswordlessHelper({
-            slasClient,
-            credentials: {
-                clientSecret: getSlasClientSecret(),
-            },
-            parameters: {
-                ...(finalCallbackUri && { callbackURI: finalCallbackUri }),
-                ...(usid && { usid }),
-                userid,
-                mode,
-            },
-        });
-
-        if (res && res.status !== 200) {
-            const errorData = await res.json();
-            throw new Error(`${res.status} ${String(errorData.message)}`);
-        }
-
+    const { authorizePasswordless: authorizePasswordlessHelper } = await import('commerce-sdk-isomorphic/helpers');
+    return authorizePasswordlessHelper({
+        slasClient,
+        credentials: {
+            clientSecret: getSlasClientSecret(),
+        },
+        parameters: {
+            ...(finalCallbackUri && { callbackURI: finalCallbackUri }),
+            ...(usid && { usid }),
+            userid,
+            mode,
+        },
+    }).finally(() => {
         performanceTimer?.mark(PERFORMANCE_MARKS.authAuthorizePasswordless, 'end');
-        return {
-            success: true,
-        };
-    } catch (error) {
-        const { responseMessage } = await extractResponseError(error);
+    });
+}
 
-        flashAuth(context, responseMessage);
-
-        performanceTimer?.mark(PERFORMANCE_MARKS.authAuthorizePasswordless, 'end');
-        return {
-            success: false,
-            error: responseMessage,
-        };
+/**
+ * Request password reset token - sends magic link via email
+ */
+export async function getPasswordResetToken(
+    context: ActionFunctionArgs['context'],
+    parameters: {
+        email: string;
     }
-};
+): Promise<void> {
+    const performanceTimer = context.get(performanceTimerContext);
+    performanceTimer?.mark(PERFORMANCE_MARKS.authGetPasswordResetToken, 'start');
+
+    const slasClient = await createClient(context).ShopperLogin.getInstance();
+    const appConfig = getConfig(context);
+    const resetPasswordCallbackUri = appConfig.site.features.resetPassword.callbackUri;
+    const callbackUri = isAbsoluteURL(resetPasswordCallbackUri)
+        ? resetPasswordCallbackUri
+        : `${getAppOrigin()}${resetPasswordCallbackUri}`;
+
+    const options = {
+        headers: {
+            Authorization: '',
+        },
+        body: {
+            user_id: parameters.email,
+            mode: 'callback',
+            channel_id: slasClient.clientConfig.parameters.siteId,
+            client_id: slasClient.clientConfig.parameters.clientId,
+            callback_uri: callbackUri,
+            hint: 'cross_device',
+        },
+    };
+
+    // Only set authorization header if using private client
+    const isSlasPrivate = appConfig.commerce.api.privateKeyEnabled;
+    if (isSlasPrivate) {
+        const clientId = slasClient.clientConfig.parameters.clientId;
+        const clientSecret = getSlasClientSecret();
+        const basicAuth = stringToBase64(`${clientId}:${clientSecret}`);
+        options.headers.Authorization = `Basic ${basicAuth}`;
+    }
+
+    return slasClient.getPasswordResetToken(options).finally(() => {
+        performanceTimer?.mark(PERFORMANCE_MARKS.authGetPasswordResetToken, 'end');
+    });
+}
+
+/**
+ * Reset password using token from magic link
+ */
+export async function resetPasswordWithToken(
+    context: ActionFunctionArgs['context'],
+    parameters: {
+        email: string;
+        token: string;
+        newPassword: string;
+    }
+): Promise<void> {
+    const performanceTimer = context.get(performanceTimerContext);
+    performanceTimer?.mark(PERFORMANCE_MARKS.authResetPasswordWithToken, 'start');
+
+    const slasClient = await createClient(context).ShopperLogin.getInstance();
+    const appConfig = getConfig(context);
+
+    const options = {
+        headers: {
+            Authorization: '',
+        },
+        body: {
+            user_id: parameters.email,
+            new_password: parameters.newPassword,
+            pwd_action_token: parameters.token,
+            channel_id: slasClient.clientConfig.parameters.siteId,
+            client_id: slasClient.clientConfig.parameters.clientId,
+        },
+    };
+
+    // Only set authorization header if using private client
+    const isSlasPrivate = appConfig.commerce.api.privateKeyEnabled;
+    if (isSlasPrivate) {
+        const clientId = slasClient.clientConfig.parameters.clientId;
+        const clientSecret = getSlasClientSecret();
+        const basicAuth = stringToBase64(`${clientId}:${clientSecret}`);
+        options.headers.Authorization = `Basic ${basicAuth}`;
+    }
+
+    // Use type assertion to bypass SDK's code_verifier requirement since we're using cross_device hint
+    // The SDK type requires code_verifier, but SLAS doesn't need it when using hint: 'cross_device'
+    return slasClient
+        .resetPassword(options as unknown as Parameters<typeof slasClient.resetPassword>[0])
+        .finally(() => {
+            performanceTimer?.mark(PERFORMANCE_MARKS.authResetPasswordWithToken, 'end');
+        });
+}
 
 /**
  * Get passwordless access token using the token from magic link

@@ -13,21 +13,16 @@ import {
 // Re-export for backwards compatibility with tests
 export { resetMarketingCloudTokenCache };
 
-interface EmailRequest {
-    email_id: string;
-    token: string;
-}
-
 /**
  * Sends a magic link email for passwordless login
  */
 async function sendMagicLinkEmail(
     context: Readonly<RouterContextProvider>,
-    emailData: EmailRequest,
+    email_id: string,
+    token: string,
     redirectUrl?: string
 ): Promise<object> {
     const base = getAppOrigin();
-    const { email_id, token } = emailData;
 
     // Get the configured landing path from app config
     const config = getConfig(context);
@@ -69,8 +64,8 @@ export async function handlePasswordlessCallback({ request, context }: ActionFun
         await validateSlasCallbackToken(context, slasCallbackToken);
 
         // Parse request body to get email and token
-        const emailData: EmailRequest = await request.json();
-        if (!emailData.email_id || !emailData.token) {
+        const { email_id, token } = await request.json();
+        if (!email_id || !token) {
             return {
                 success: false,
                 error: uiStrings.errors.passwordless.missingRequiredFields,
@@ -78,7 +73,7 @@ export async function handlePasswordlessCallback({ request, context }: ActionFun
         }
 
         // Send magic link email
-        const result = await sendMagicLinkEmail(context, emailData, redirectUrl);
+        const result = await sendMagicLinkEmail(context, email_id, token, redirectUrl);
 
         return {
             success: true,

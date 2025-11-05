@@ -1,26 +1,44 @@
 import { type LoaderFunctionArgs, type ActionFunctionArgs, type RouterContextProvider } from 'react-router';
 import { getConfig } from '@/config';
 import { handlePasswordlessCallback, handlePasswordlessLanding } from '@/lib/passwordless-login';
+import { handleResetPasswordCallback, handleResetPasswordLanding } from '@/lib/api/auth/reset-password';
 
-type LoaderHandler = (args: LoaderFunctionArgs) => Promise<Response>;
-type ActionHandler = (args: ActionFunctionArgs) => Promise<Record<string, unknown>>;
+type LoaderHandler = (args: LoaderFunctionArgs) => Response | Promise<Response>;
+type ActionHandler = (args: ActionFunctionArgs) => Record<string, unknown> | Promise<Record<string, unknown>>;
 
 /**
  * Catch-all route that handles configurable authentication routes
  */
 
 /**
- * Get the handler for a given pathname
+ * Get the loader handler for a given pathname
  */
-function getHandler(pathname: string, context: Readonly<RouterContextProvider>): LoaderHandler | ActionHandler | null {
+function getLoaderHandler(pathname: string, context: Readonly<RouterContextProvider>): LoaderHandler | null {
     const config = getConfig(context);
 
     if (pathname === config.site.features.passwordlessLogin.landingUri) {
         return handlePasswordlessLanding;
     }
 
+    if (pathname === config.site.features.resetPassword.landingUri) {
+        return handleResetPasswordLanding;
+    }
+
+    return null;
+}
+
+/**
+ * Get the action handler for a given pathname
+ */
+function getActionHandler(pathname: string, context: Readonly<RouterContextProvider>): ActionHandler | null {
+    const config = getConfig(context);
+
     if (pathname === config.site.features.passwordlessLogin.callbackUri) {
         return handlePasswordlessCallback;
+    }
+
+    if (pathname === config.site.features.resetPassword.callbackUri) {
+        return handleResetPasswordCallback;
     }
 
     return null;
@@ -29,7 +47,7 @@ function getHandler(pathname: string, context: Readonly<RouterContextProvider>):
 // eslint-disable-next-line custom/no-async-page-loader,custom/no-universal-loaders
 export async function loader(args: LoaderFunctionArgs) {
     const url = new URL(args.request.url);
-    const handler = getHandler(url.pathname, args.context) as LoaderHandler | null;
+    const handler = getLoaderHandler(url.pathname, args.context);
 
     if (handler) {
         return handler(args);
@@ -42,7 +60,7 @@ export async function loader(args: LoaderFunctionArgs) {
 // eslint-disable-next-line custom/no-server-actions
 export async function action(args: ActionFunctionArgs) {
     const url = new URL(args.request.url);
-    const handler = getHandler(url.pathname, args.context) as ActionHandler | null;
+    const handler = getActionHandler(url.pathname, args.context);
 
     if (handler) {
         return handler(args);

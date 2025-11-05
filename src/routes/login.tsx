@@ -11,11 +11,11 @@ import uiStrings from '@/temp-ui-string';
 import StandardLoginForm from '@/components/login/standard-login-form';
 import PasswordlessLoginForm from '@/components/login/passwordless-login-form';
 import { SocialLoginButtons } from '@/components/buttons/social-login-buttons';
-import { getAppOrigin } from '@/lib/utils';
+import { getAppOrigin, extractResponseError } from '@/lib/utils';
 import { getConfig } from '@/config';
 
 // services
-import { getAuth, authorizePasswordless } from '@/middlewares/auth.server';
+import { getAuth, authorizePasswordless, flashAuth } from '@/middlewares/auth.server';
 import { updateAuth, getAuth as getClientAuth } from '@/middlewares/auth.client';
 import { updateBasket } from '@/middlewares/basket.client';
 import { loginRegisteredUser } from '@/lib/api/auth/standard-login';
@@ -98,10 +98,14 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
         if (!email) {
             return resolve('/login?mode=passwordless');
         }
-        const result = await authorizePasswordless(context, { userid: email, redirectPath });
-        if (result.success) {
+        try {
+            await authorizePasswordless(context, { userid: email, redirectPath });
             // Passwordless authorization sent - redirect to success page
             return resolve(`/login?passwordless=sent&email=${encodeURIComponent(email)}`);
+        } catch (error) {
+            const { responseMessage } = await extractResponseError(error);
+            flashAuth(context, responseMessage);
+            return resolve('/login?mode=passwordless');
         }
     } else {
         // Standard password login flow
@@ -172,7 +176,7 @@ export default function Login({ loaderData }: { loaderData: LoginLoaderData }): 
                     <Card className="p-8">
                         <div className="space-y-6 text-center">
                             <Link to="/login">
-                                <button className="w-full inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-background hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring">
+                                <button className="w-full inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-background hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring cursor-pointer">
                                     {uiStrings.login.backToLogin}
                                 </button>
                             </Link>

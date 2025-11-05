@@ -69,6 +69,12 @@ const config: StorybookConfig = {
             'process.env.PUBLIC_PASSWORDLESS_LANDING_URI': JSON.stringify(
                 process.env.PUBLIC_PASSWORDLESS_LANDING_URI || '/passwordless-login-landing'
             ),
+            'process.env.PUBLIC_RESET_PASSWORD_CALLBACK_URI': JSON.stringify(
+                process.env.PUBLIC_RESET_PASSWORD_CALLBACK_URI || '/reset-password-callback'
+            ),
+            'process.env.PUBLIC_RESET_PASSWORD_LANDING_URI': JSON.stringify(
+                process.env.PUBLIC_RESET_PASSWORD_LANDING_URI || '/reset-password-landing'
+            ),
             'process.env.MRT_PROJECT': JSON.stringify(process.env.MRT_PROJECT || ''),
             'process.env.MRT_TARGET': JSON.stringify(process.env.MRT_TARGET || ''),
         };

@@ -76,6 +76,10 @@ export default defineConfig({
                     callbackUri: process.env.PUBLIC_PASSWORDLESS_CALLBACK_URI || '/passwordless-login-callback',
                     landingUri: process.env.PUBLIC_PASSWORDLESS_LANDING_URI || '/passwordless-login-landing',
                 },
+                resetPassword: {
+                    callbackUri: process.env.PUBLIC_RESET_PASSWORD_CALLBACK_URI || '/reset-password-callback',
+                    landingUri: process.env.PUBLIC_RESET_PASSWORD_LANDING_URI || '/reset-password-landing',
+                },
                 socialLogin: {
                     enabled: true,
                     providers: parseEnvJson(process.env.PUBLIC_SOCIAL_IDPS, ['Apple', 'Google']),

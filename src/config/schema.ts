@@ -66,6 +66,10 @@ export type Config = {
                     callbackUri: string;
                     landingUri: string;
                 };
+                resetPassword: {
+                    callbackUri: string;
+                    landingUri: string;
+                };
                 socialLogin: {
                     enabled: boolean;
                     providers: Array<'Apple' | 'Google' | 'Facebook' | 'Twitter'>;

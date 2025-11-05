@@ -289,7 +289,7 @@ export const refreshAuthFromCookie = (context: Readonly<RouterContextProvider>):
     }
 
     // Get the current session from the cookie
-    const cookieSession = getCookie<AuthStorageData>(authCookieName);
+    const cookieSession = getCookie<AuthData>(authCookieName);
     const cookieAccessToken = cookieSession.access_token;
     const currentAccessToken = storage.get('access_token') || cache.ref?.access_token;
 
@@ -298,7 +298,7 @@ export const refreshAuthFromCookie = (context: Readonly<RouterContextProvider>):
     // the normal middleware flow will handle the initial token loading.
     if (cookieAccessToken && currentAccessToken && cookieAccessToken !== currentAccessToken) {
         // Use updateAuth to handle all storage, cache, and promise cache updates
-        updateAuth(context, () => cookieSession as AuthData & StorageErrorData);
+        updateAuth(context, () => cookieSession);
         return true;
     }
 

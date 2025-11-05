@@ -1,12 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loader, action } from './_empty.$';
 import { handlePasswordlessCallback, handlePasswordlessLanding } from '@/lib/passwordless-login';
+import { handleResetPasswordCallback, handleResetPasswordLanding } from '@/lib/api/auth/reset-password';
 import type { LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
 
 // Mock passwordless-login handlers
 vi.mock('@/lib/passwordless-login', () => ({
     handlePasswordlessCallback: vi.fn(),
     handlePasswordlessLanding: vi.fn(),
+}));
+
+// Mock reset-password handlers
+vi.mock('@/lib/api/auth/reset-password', () => ({
+    handleResetPasswordCallback: vi.fn(),
+    handleResetPasswordLanding: vi.fn(),
 }));
 
 // Mock config
@@ -18,6 +25,10 @@ vi.mock('@/config', () => ({
                     landingUri: '/passwordless-login-landing',
                     callbackUri: '/passwordless-login-callback',
                 },
+                resetPassword: {
+                    landingUri: '/reset-password-landing',
+                    callbackUri: '/reset-password-callback',
+                },
             },
         },
     })),
@@ -25,6 +36,8 @@ vi.mock('@/config', () => ({
 
 const mockPasswordlessCallback = vi.mocked(handlePasswordlessCallback);
 const mockPasswordlessLanding = vi.mocked(handlePasswordlessLanding);
+const mockResetPasswordCallback = vi.mocked(handleResetPasswordCallback);
+const mockResetPasswordLanding = vi.mocked(handleResetPasswordLanding);
 
 describe('_empty.$.ts - Catch-all route (no layout)', () => {
     const mockContext = {} as any;
@@ -50,6 +63,25 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
             const result = await loader(args);
 
             expect(mockPasswordlessLanding).toHaveBeenCalledWith(args);
+            expect(result).toBe(mockResponse);
+        });
+
+        it('should handle reset password landing route', async () => {
+            const mockResponse = new Response(null, {
+                status: 302,
+                headers: { Location: '/reset-password?token=test&email=test%40example.com' },
+            });
+            mockResetPasswordLanding.mockResolvedValue(mockResponse);
+
+            const args: LoaderFunctionArgs = {
+                request: new Request('http://localhost/reset-password-landing?token=test&email=test@example.com'),
+                params: {},
+                context: mockContext,
+            };
+
+            const result = await loader(args);
+
+            expect(mockResetPasswordLanding).toHaveBeenCalledWith(args);
             expect(result).toBe(mockResponse);
         });
 
@@ -87,6 +119,24 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
             const result = await action(args);
 
             expect(mockPasswordlessCallback).toHaveBeenCalledWith(args);
+            expect(result).toBe(mockResult);
+        });
+
+        it('should handle reset password callback route', async () => {
+            const mockResult = { success: true, result: {} };
+            mockResetPasswordCallback.mockResolvedValue(mockResult);
+
+            const args: ActionFunctionArgs = {
+                request: new Request('http://localhost/reset-password-callback', {
+                    method: 'POST',
+                }),
+                params: {},
+                context: mockContext,
+            };
+
+            const result = await action(args);
+
+            expect(mockResetPasswordCallback).toHaveBeenCalledWith(args);
             expect(result).toBe(mockResult);
         });
 

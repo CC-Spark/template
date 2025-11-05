@@ -10,6 +10,8 @@ import {
     loginGuestUser,
     loginRegisteredUser,
     authorizePasswordless,
+    getPasswordResetToken,
+    resetPasswordWithToken,
     getPasswordLessAccessToken,
     getAuth,
     updateAuth,
@@ -46,6 +48,8 @@ vi.mock('@/middlewares/performance-metrics', () => ({
         authLoginGuestUserPrivate: 'authLoginGuestUserPrivate',
         authLoginRegisteredUser: 'authLoginRegisteredUser',
         authAuthorizePasswordless: 'authAuthorizePasswordless',
+        authGetPasswordResetToken: 'authGetPasswordResetToken',
+        authResetPasswordWithToken: 'authResetPasswordWithToken',
         authGetPasswordLessAccessToken: 'authGetPasswordLessAccessToken',
         authRefreshToken: 'authRefreshToken',
         authGuestLogin: 'authGuestLogin',
@@ -60,6 +64,7 @@ vi.mock('@/lib/utils', () => ({
     }),
     getAppOrigin: vi.fn(() => 'https://example.com'),
     isAbsoluteURL: vi.fn((url: string) => url.startsWith('http')),
+    stringToBase64: vi.fn((str: string) => Buffer.from(str).toString('base64')),
 }));
 
 // Helper to create mock ShopperLogin client
@@ -69,8 +74,12 @@ function createMockShopperLoginClient() {
             clientConfig: {
                 parameters: {
                     redirectURI: 'https://example.com/callback',
+                    siteId: 'test-site',
+                    clientId: 'test-client-id',
                 },
             },
+            getPasswordResetToken: vi.fn().mockResolvedValue(undefined),
+            resetPassword: vi.fn().mockResolvedValue(undefined),
         }),
     };
 }
@@ -445,16 +454,19 @@ describe('auth middleware (server)', () => {
             const { provider } = mockContext(getMockAuthData());
             const userid = 'test@example.com';
 
-            mockHelpers.authorizePasswordless.mockResolvedValue({
+            const mockResponse = {
                 status: 200,
                 json: vi.fn(),
-            });
+            };
+
+            mockHelpers.authorizePasswordless.mockResolvedValue(mockResponse);
 
             const result = await authorizePasswordless(provider, {
                 userid,
             });
 
-            expect(result.success).toBe(true);
+            expect(result).toBe(mockResponse);
+            expect(result.status).toBe(200);
             expect(mockHelpers.authorizePasswordless).toHaveBeenCalledWith(
                 expect.objectContaining({
                     slasClient: expect.anything(),
@@ -472,17 +484,20 @@ describe('auth middleware (server)', () => {
             const userid = 'test@example.com';
             const redirectPath = '/dashboard';
 
-            mockHelpers.authorizePasswordless.mockResolvedValue({
+            const mockResponse = {
                 status: 200,
                 json: vi.fn(),
-            });
+            };
+
+            mockHelpers.authorizePasswordless.mockResolvedValue(mockResponse);
 
             const result = await authorizePasswordless(provider, {
                 userid,
                 redirectPath,
             });
 
-            expect(result.success).toBe(true);
+            expect(result).toBe(mockResponse);
+            expect(result.status).toBe(200);
             expect(mockHelpers.authorizePasswordless).toHaveBeenCalledWith(
                 expect.objectContaining({
                     parameters: expect.objectContaining({
@@ -492,36 +507,30 @@ describe('auth middleware (server)', () => {
             );
         });
 
-        it('should handle passwordless authorization failure', async () => {
+        it('should throw error on passwordless authorization failure', async () => {
             const { provider } = mockContext();
             const userid = 'test@example.com';
             const mockError = new Error('Authorization failed');
 
-            const mockExtractResponseError = (await import('@/lib/utils')).extractResponseError as any;
-            mockExtractResponseError.mockResolvedValue({
-                responseMessage: 'Authorization failed',
-            });
-
             mockHelpers.authorizePasswordless.mockRejectedValue(mockError);
 
-            const result = await authorizePasswordless(provider, { userid });
-
-            expect(result.success).toBe(false);
-            expect(result.error).toBe('Authorization failed');
+            await expect(authorizePasswordless(provider, { userid })).rejects.toThrow('Authorization failed');
         });
 
-        it('should handle non-200 response status', async () => {
+        it('should return response with non-200 status', async () => {
             const { provider } = mockContext();
             const userid = 'test@example.com';
 
-            mockHelpers.authorizePasswordless.mockResolvedValue({
+            const mockResponse = {
                 status: 400,
                 json: vi.fn().mockResolvedValue({ message: 'Bad request' }),
-            });
+            };
+
+            mockHelpers.authorizePasswordless.mockResolvedValue(mockResponse);
 
             const result = await authorizePasswordless(provider, { userid });
 
-            expect(result.success).toBe(false);
+            expect(result.status).toBe(400);
         });
     });
 
@@ -554,6 +563,241 @@ describe('auth middleware (server)', () => {
             mockHelpers.getPasswordLessAccessToken.mockRejectedValue(mockError);
 
             await expect(getPasswordLessAccessToken(provider, token)).rejects.toThrow('Invalid token');
+        });
+    });
+
+    describe('getPasswordResetToken', () => {
+        it('should request password reset token successfully with public SLAS', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'test@example.com';
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+
+            await getPasswordResetToken(provider, { email });
+
+            expect(mockSlasClient.getPasswordResetToken).toHaveBeenCalledWith({
+                headers: {
+                    Authorization: '',
+                },
+                body: {
+                    user_id: email,
+                    mode: 'callback',
+                    channel_id: 'test-site',
+                    client_id: 'test-client-id',
+                    callback_uri: 'https://example.com/reset-password-callback',
+                    hint: 'cross_device',
+                },
+            });
+
+            // Verify performance timer was called
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authGetPasswordResetToken', 'start');
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authGetPasswordResetToken', 'end');
+        });
+
+        it('should request password reset token with private SLAS and include authorization header', async () => {
+            const { provider } = mockContext({}, true);
+            const email = 'test@example.com';
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+
+            await getPasswordResetToken(provider, { email });
+
+            expect(mockSlasClient.getPasswordResetToken).toHaveBeenCalledWith({
+                headers: {
+                    Authorization: expect.stringMatching(/^Basic /),
+                },
+                body: {
+                    user_id: email,
+                    mode: 'callback',
+                    channel_id: 'test-site',
+                    client_id: 'test-client-id',
+                    callback_uri: 'https://example.com/reset-password-callback',
+                    hint: 'cross_device',
+                },
+            });
+        });
+
+        it('should handle absolute callback URI', async () => {
+            const { provider, appConfig } = mockContext({}, false);
+            appConfig.site.features.resetPassword.callbackUri = 'https://custom-domain.com/reset';
+            const email = 'test@example.com';
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+
+            await getPasswordResetToken(provider, { email });
+
+            expect(mockSlasClient.getPasswordResetToken).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    body: expect.objectContaining({
+                        callback_uri: 'https://custom-domain.com/reset',
+                    }),
+                })
+            );
+        });
+
+        it('should handle relative callback URI and prepend app origin', async () => {
+            const { provider, appConfig } = mockContext({}, false);
+            appConfig.site.features.resetPassword.callbackUri = '/reset-password';
+            const email = 'test@example.com';
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+
+            await getPasswordResetToken(provider, { email });
+
+            expect(mockSlasClient.getPasswordResetToken).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    body: expect.objectContaining({
+                        callback_uri: 'https://example.com/reset-password',
+                    }),
+                })
+            );
+        });
+
+        it('should handle password reset token request failure', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'test@example.com';
+            const mockError = new Error('Failed to send reset email');
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+            mockSlasClient.getPasswordResetToken.mockRejectedValue(mockError);
+
+            await expect(getPasswordResetToken(provider, { email })).rejects.toThrow('Failed to send reset email');
+        });
+
+        it('should call performance timer even on failure', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'test@example.com';
+            const mockError = new Error('Failed to send reset email');
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+            mockSlasClient.getPasswordResetToken.mockRejectedValue(mockError);
+
+            await expect(getPasswordResetToken(provider, { email })).rejects.toThrow();
+
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authGetPasswordResetToken', 'start');
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authGetPasswordResetToken', 'end');
+        });
+    });
+
+    describe('resetPasswordWithToken', () => {
+        it('should reset password successfully with public SLAS', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'test@example.com';
+            const token = 'reset-token-123';
+            const newPassword = 'NewSecurePassword123!';
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+
+            await resetPasswordWithToken(provider, { email, token, newPassword });
+
+            expect(mockSlasClient.resetPassword).toHaveBeenCalledWith({
+                headers: {
+                    Authorization: '',
+                },
+                body: {
+                    user_id: email,
+                    new_password: newPassword,
+                    pwd_action_token: token,
+                    channel_id: 'test-site',
+                    client_id: 'test-client-id',
+                },
+            });
+
+            // Verify performance timer was called
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authResetPasswordWithToken', 'start');
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authResetPasswordWithToken', 'end');
+        });
+
+        it('should reset password with private SLAS and include authorization header', async () => {
+            const { provider } = mockContext({}, true);
+            const email = 'test@example.com';
+            const token = 'reset-token-123';
+            const newPassword = 'NewSecurePassword123!';
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+
+            await resetPasswordWithToken(provider, { email, token, newPassword });
+
+            expect(mockSlasClient.resetPassword).toHaveBeenCalledWith({
+                headers: {
+                    Authorization: expect.stringMatching(/^Basic /),
+                },
+                body: {
+                    user_id: email,
+                    new_password: newPassword,
+                    pwd_action_token: token,
+                    channel_id: 'test-site',
+                    client_id: 'test-client-id',
+                },
+            });
+        });
+
+        it('should encode client credentials correctly for private SLAS', async () => {
+            const { provider } = mockContext({}, true);
+            const email = 'test@example.com';
+            const token = 'reset-token-123';
+            const newPassword = 'NewSecurePassword123!';
+            await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+            await resetPasswordWithToken(provider, { email, token, newPassword });
+
+            // Check that stringToBase64 was called with correct credentials
+            const mockUtils = await import('@/lib/utils');
+            expect(mockUtils.stringToBase64).toHaveBeenCalledWith('test-client-id:test-secret');
+        });
+
+        it('should handle password reset failure with invalid token', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'test@example.com';
+            const token = 'invalid-token';
+            const newPassword = 'NewSecurePassword123!';
+            const mockError = new Error('Invalid or expired token');
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+            mockSlasClient.resetPassword.mockRejectedValue(mockError);
+
+            await expect(resetPasswordWithToken(provider, { email, token, newPassword })).rejects.toThrow(
+                'Invalid or expired token'
+            );
+        });
+
+        it('should handle password reset failure due to weak password', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'test@example.com';
+            const token = 'reset-token-123';
+            const newPassword = 'weak';
+            const mockError = new Error('Password does not meet requirements');
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+            mockSlasClient.resetPassword.mockRejectedValue(mockError);
+
+            await expect(resetPasswordWithToken(provider, { email, token, newPassword })).rejects.toThrow(
+                'Password does not meet requirements'
+            );
+        });
+
+        it('should call performance timer even on failure', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'test@example.com';
+            const token = 'reset-token-123';
+            const newPassword = 'NewSecurePassword123!';
+            const mockError = new Error('Reset failed');
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+            mockSlasClient.resetPassword.mockRejectedValue(mockError);
+
+            await expect(resetPasswordWithToken(provider, { email, token, newPassword })).rejects.toThrow();
+
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authResetPasswordWithToken', 'start');
+            expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authResetPasswordWithToken', 'end');
+        });
+
+        it('should handle all parameters correctly', async () => {
+            const { provider } = mockContext({}, false);
+            const email = 'user+test@example.com'; // Email with special chars
+            const token = 'token-with-special-chars_123==';
+            const newPassword = 'P@ssw0rd!2024#Complex';
+            const mockSlasClient = await (await mockCreateClient(provider)).ShopperLogin.getInstance();
+
+            await resetPasswordWithToken(provider, { email, token, newPassword });
+
+            expect(mockSlasClient.resetPassword).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    body: expect.objectContaining({
+                        user_id: email,
+                        new_password: newPassword,
+                        pwd_action_token: token,
+                    }),
+                })
+            );
         });
     });
 });
