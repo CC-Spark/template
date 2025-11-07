@@ -9,8 +9,6 @@ export default defineConfig({
             exclude: [
                 'src/**/*.test.{ts,tsx}',
                 'src/**/*.spec.{ts,tsx}',
-                // Exclude Jest test files - they use memfs and different patterns
-                'src/extensibility/**/*',
                 // Exclude CLI/deployment files that don't have Vitest tests
                 'src/bundle.ts',
                 'src/cloud-api.ts',
@@ -25,13 +23,11 @@ export default defineConfig({
             thresholds: { 100: true },
             reporters: ['text', 'lcov', 'json-summary'],
         },
-        // Vitest tests - exclude Jest test files
+        // Vitest tests - now includes all test files
         include: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
         exclude: [
             '**/node_modules/**',
             '**/dist/**',
-            // Exclude Jest test files
-            'src/extensibility/**/*.test.ts',
         ],
     },
 });

@@ -1,21 +1,24 @@
 /**
- * @file Jest tests for path-util.ts
+ * @file Vitest tests for path-util.ts
  * Covers: resolvePathFromAlias, isSupportedFileExtension, FILE_EXTENSIONS
  */
-/* eslint-disable @typescript-eslint/no-require-imports */
-const path = require('path');
-const { Volume } = require('memfs');
+import { describe, it, beforeEach, expect, vi } from 'vitest';
+import { Volume } from 'memfs';
+import path from 'path';
 
 let vol: any;
 let resolvePathFromAlias: (p: string, root: string) => string;
 let isSupportedFileExtension: (f: string) => boolean;
 let FILE_EXTENSIONS: string[];
 
-function loadModuleWithFs(files: Record<string, string> = {}) {
-    jest.resetModules();
+async function loadModuleWithFs(files: Record<string, string> = {}) {
+    vi.resetModules();
     vol = Volume.fromJSON(files);
-    jest.doMock('fs', () => vol);
-    const mod = require('./path-util');
+    vi.doMock('fs', () => ({
+        default: vol,
+        ...vol,
+    }));
+    const mod = await import('./path-util');
     resolvePathFromAlias = mod.resolvePathFromAlias;
     isSupportedFileExtension = mod.isSupportedFileExtension;
     FILE_EXTENSIONS = mod.FILE_EXTENSIONS;
@@ -26,21 +29,21 @@ describe('path-util', () => {
     const tsconfigPath = path.join(mockProjectRoot, 'tsconfig.json');
 
     describe('isSupportedFileExtension', () => {
-        it('returns true for supported extensions', () => {
-            loadModuleWithFs();
+        it('returns true for supported extensions', async () => {
+            await loadModuleWithFs();
             for (const ext of FILE_EXTENSIONS) {
                 expect(isSupportedFileExtension(`file${ext}`)).toBe(true);
             }
         });
-        it('returns false for unsupported extensions', () => {
-            loadModuleWithFs();
+        it('returns false for unsupported extensions', async () => {
+            await loadModuleWithFs();
             expect(isSupportedFileExtension('file.txt')).toBe(false);
             expect(isSupportedFileExtension('file.md')).toBe(false);
         });
     });
 
     describe('resolvePathFromAlias', () => {
-        beforeEach(() => {
+        beforeEach(async () => {
             const baseFiles: Record<string, string> = {};
             baseFiles[tsconfigPath] = JSON.stringify({
                 compilerOptions: {
@@ -57,7 +60,7 @@ describe('path-util', () => {
             baseFiles[`${mockProjectRoot}/src/components/CompA.tsx`] = 'export {}';
             baseFiles[`${mockProjectRoot}/src/components/CompB/index.tsx`] = 'export {}';
             baseFiles[`${mockProjectRoot}/types/components/CompA.ts`] = 'export {}';
-            loadModuleWithFs(baseFiles);
+            await loadModuleWithFs(baseFiles);
         });
 
         it('returns the same path for relative imports', () => {
@@ -80,9 +83,9 @@ describe('path-util', () => {
             expect(result).toContain('src/components/CompB/index.tsx');
         });
 
-        it('returns the original path if no tsconfig.json exists', () => {
+        it('returns the original path if no tsconfig.json exists', async () => {
             // Recreate module without tsconfig
-            loadModuleWithFs({});
+            await loadModuleWithFs({});
             expect(resolvePathFromAlias('@components/CompA', mockProjectRoot)).toBe('@components/CompA');
         });
 
@@ -90,9 +93,9 @@ describe('path-util', () => {
             expect(resolvePathFromAlias('notAnAlias/CompA', mockProjectRoot)).toBe('notAnAlias/CompA');
         });
 
-        it('return the original path if alias matches but no file exists', () => {
+        it('return the original path if alias matches but no file exists', async () => {
             // Provide only tsconfig, but no files mapped
-            loadModuleWithFs({
+            await loadModuleWithFs({
                 [tsconfigPath]: JSON.stringify({
                     compilerOptions: { paths: { '@noMatch/*': ['src/doesnotexist/*'] } },
                 }),
@@ -100,25 +103,25 @@ describe('path-util', () => {
             expect(resolvePathFromAlias('@noMatch/DoesNotExist', mockProjectRoot)).toBe('@noMatch/DoesNotExist');
         });
 
-        it('throws if tsconfig.json is invalid', () => {
-            loadModuleWithFs({
+        it('throws if tsconfig.json is invalid', async () => {
+            await loadModuleWithFs({
                 [tsconfigPath]: 'invalid json',
             });
             expect(() => resolvePathFromAlias('@/CompA', mockProjectRoot)).toThrow(/Error parsing tsconfig.json/);
         });
 
-        it('resolves to directory if no index file exists but directory exists', () => {
+        it('resolves to directory if no index file exists but directory exists', async () => {
             const files: Record<string, string> = {};
             files[tsconfigPath] = JSON.stringify({
                 compilerOptions: { paths: { '@alias/CompB': ['src/components/CompB'] } },
             });
-            loadModuleWithFs(files);
+            await loadModuleWithFs(files);
             vol.mkdirSync(`${mockProjectRoot}/src/components/CompB`, { recursive: true });
             const result = resolvePathFromAlias('@alias/CompB', mockProjectRoot);
             expect(result).toContain('src/components/CompB');
         });
 
-        it('handles tsconfig.json with comments', () => {
+        it('handles tsconfig.json with comments', async () => {
             const commented = `{
                 // comment
                 "compilerOptions": { "paths": { "@foo/*": ["src/foo/*"] } }
@@ -126,9 +129,59 @@ describe('path-util', () => {
             const files: Record<string, string> = {};
             files[tsconfigPath] = commented;
             files[`${mockProjectRoot}/src/foo/Bar.tsx`] = 'export {}';
-            loadModuleWithFs(files);
+            await loadModuleWithFs(files);
             const result = resolvePathFromAlias('@foo/Bar', mockProjectRoot);
             expect(result).toContain('src/foo/Bar.tsx');
+        });
+
+        it('uses cache when same projectRoot is queried multiple times', async () => {
+            const files: Record<string, string> = {};
+            files[tsconfigPath] = JSON.stringify({
+                compilerOptions: { paths: { '@/*': ['./src/*'] } },
+            });
+            files[`${mockProjectRoot}/src/components/CompA.tsx`] = 'export {}';
+            await loadModuleWithFs(files);
+
+            // First call - should load and cache
+            const result1 = resolvePathFromAlias('@/components/CompA', mockProjectRoot);
+            expect(result1).toContain('src/components/CompA.tsx');
+
+            // Second call with same projectRoot - should use cache
+            // Note: This works because we don't reset modules between calls in the same test
+            const result2 = resolvePathFromAlias('@/components/CompA', mockProjectRoot);
+            expect(result2).toContain('src/components/CompA.tsx');
+        });
+
+        it('handles paths that are not an object (null or string)', async () => {
+            const files: Record<string, string> = {};
+            files[tsconfigPath] = JSON.stringify({
+                compilerOptions: { paths: null },
+            });
+            await loadModuleWithFs(files);
+            expect(resolvePathFromAlias('@/CompA', mockProjectRoot)).toBe('@/CompA');
+
+            // Test with paths as string
+            files[tsconfigPath] = JSON.stringify({
+                compilerOptions: { paths: 'invalid' },
+            });
+            await loadModuleWithFs(files);
+            expect(resolvePathFromAlias('@/CompA', mockProjectRoot)).toBe('@/CompA');
+        });
+
+        it('handles path mapping as string (not array)', async () => {
+            // When mapping is a string instead of array, it should wrap it
+            const files: Record<string, string> = {};
+            files[tsconfigPath] = JSON.stringify({
+                compilerOptions: {
+                    paths: {
+                        '@single': 'src/components/Single', // String, not array
+                    },
+                },
+            });
+            files[`${mockProjectRoot}/src/components/Single.tsx`] = 'export {}';
+            await loadModuleWithFs(files);
+            const result = resolvePathFromAlias('@single', mockProjectRoot);
+            expect(result).toContain('src/components/Single.tsx');
         });
     });
 });
