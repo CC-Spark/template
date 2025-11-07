@@ -1,6 +1,6 @@
 {
   "name": "@salesforce/storefront-next-dev",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Dev and build tools for SFCC Storefront Next",
   "private": true,
   "type": "module",
@@ -56,9 +56,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "test": "pnpm typecheck && pnpm test:jest && pnpm test:vitest",
-    "test:jest": "jest --runInBand --coverage --verbose --testLocationInResults --detectOpenHandles",
-    "test:vitest": "vitest --run --coverage",
+    "test": "pnpm typecheck && vitest --run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
@@ -128,7 +126,7 @@
     "prompts": "2.4.2"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "publishConfig": {
     "access": "restricted"

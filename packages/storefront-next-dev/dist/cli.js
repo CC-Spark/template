@@ -272,7 +272,7 @@ const createBundle = async (options) => {
 
 //#endregion
 //#region package.json
-var version = "1.0.0";
+var version = "0.0.1";
 
 //#endregion
 //#region src/cloud-api.ts
@@ -472,6 +472,11 @@ async function push(options) {
 
 //#endregion
 //#region src/extensibility/create-instructions.ts
+/**
+* This script is used to create a LLM instruction file for a given extension.
+* @author kzheng
+* @since 260
+*/
 const REL_RETAIL_RSC_APP_DIR = "packages/template-retail-rsc-app/";
 const SKIP_DIRS = [
 	"node_modules",
@@ -39357,6 +39362,10 @@ function isSupportedFileExtension(fileName) {
 
 //#endregion
 //#region src/extensibility/trim-extensions.ts
+/**
+* Utility to trim the directory to remove unused components and unused extensions.
+* This is used to reduce the size of the project by removing the code that is not part of the selected extensions.
+*/
 const traverse = import_lib$1.default.default || import_lib$1.default;
 const removeComponentCandidates = /* @__PURE__ */ new Set();
 const SEPARATOR = path.sep;
@@ -39401,7 +39410,7 @@ function processFile(projectRoot, filePath, extensions) {
 	let skippingBlock = false;
 	const source = fs$1.readFileSync(filePath, "utf-8");
 	if (source.includes(FILE_MARKER)) {
-		const markerLine = source.split("\n").find((line) => line.includes(FILE_MARKER)) || "";
+		const markerLine = source.split("\n").find((line) => line.includes(FILE_MARKER));
 		const extMatch = Object.keys(extensions).find((ext) => markerLine.includes(ext));
 		if (!extMatch) {
 			if (verbose) console.warn(`File ${filePath} is marked with ${markerLine} but it does not match any known extensions`);
@@ -39419,7 +39428,6 @@ function processFile(projectRoot, filePath, extensions) {
 		}
 	}
 	const extKeys = Object.keys(extensions);
-	if (extKeys.length === 0) return;
 	if (new RegExp(extKeys.join("|"), "g").test(source)) {
 		const lines = source.split("\n");
 		const newLines = [];

@@ -1,11 +1,10 @@
 /**
- * @file Jest tests for create-instructions.ts
+ * @file Vitest tests for create-instructions.ts
  * Uses memfs to mock the file system.
  */
-/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/require-await */
-import type { Volume as VolumeType } from 'memfs';
-const { Volume } = require('memfs');
-const path = require('path');
+import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
+import { Volume, type Volume as VolumeType } from 'memfs';
+import path from 'path';
 
 const repo = 'https://github.com/SalesforceCommerceCloud/SFCC-Odyssey.git';
 const branch = 'main';
@@ -51,27 +50,30 @@ const createTestFileSystem = (fileContents: any = {}) => {
     };
     vol.fromJSON(defaultFiles);
     // Mock fs module with memfs volume
-    jest.doMock('fs', () => vol);
+    vi.doMock('fs', () => ({
+        default: vol,
+        ...vol,
+    }));
     return vol;
 };
 
 // Import after fs is mocked
 const reloadModule = async () => {
-    jest.resetModules();
-    return require('./create-instructions');
+    vi.resetModules();
+    return await import('./create-instructions');
 };
 
 describe('create-instructions', () => {
     const markerValue = 'SFDC_EXT_featureA';
 
     beforeEach(() => {
-        jest.resetModules();
+        vi.resetModules();
         createTestFileSystem();
     });
 
     afterEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
+        vi.resetModules();
+        vi.clearAllMocks();
     });
 
     it('getContext throws if extension not found in config', async () => {
@@ -102,9 +104,9 @@ describe('create-instructions', () => {
 
     it('getFilesToCopyContext throws if file does not exist', async () => {
         const { getFilesToCopyContext } = await reloadModule();
-        expect(() =>
-            getFilesToCopyContext(TEMPLATE_RETAIL_RSC_APP_DIR, ['src/doesnotexist/file.tsx'], configPath)
-        ).toThrow(/not found/);
+        expect(() => getFilesToCopyContext(TEMPLATE_RETAIL_RSC_APP_DIR, ['src/doesnotexist/file.tsx'])).toThrow(
+            /not found/
+        );
     });
 
     it('findMarkedFiles finds files with marker', async () => {
@@ -137,7 +139,7 @@ describe('create-instructions', () => {
         createTestFileSystem();
         vol.mkdirSync(dirAbs, { recursive: true });
         const { getFilesToCopyContext } = await reloadModule();
-        const result = getFilesToCopyContext(TEMPLATE_RETAIL_RSC_APP_DIR, [dirRel], configPath);
+        const result = getFilesToCopyContext(TEMPLATE_RETAIL_RSC_APP_DIR, [dirRel]);
         expect(result[0].isDirectory).toBe(true);
     });
 
@@ -148,7 +150,16 @@ describe('create-instructions', () => {
         // ensure directory exists in memfs and write template
         vol.mkdirSync(path.join(TEMPLATE_RETAIL_RSC_APP_DIR, 'src/templates'), { recursive: true });
         vol.writeFileSync(templatePath, 'Hello {{extensionName}}');
-        genertaeAndWriteInstructions(templatePath, { extensionName: 'Feature A' }, outputPath);
+        const context = {
+            extensionName: 'Feature A',
+            pwaRepo: repo,
+            branch,
+            markerValue,
+            mergeFiles: [],
+            newFiles: [],
+            copy: [],
+        };
+        genertaeAndWriteInstructions(templatePath, context, outputPath);
         const rendered = vol.readFileSync(outputPath, 'utf8') as string;
         expect(rendered).toContain('Hello Feature A');
     });
@@ -181,6 +192,36 @@ describe('create-instructions', () => {
 
         expect(vol.readFileSync(installOut, 'utf8')).toContain('Install Feature A');
         expect(vol.readFileSync(installOut, 'utf8')).toContain('repo-url');
+        expect(vol.readFileSync(uninstallOut, 'utf8')).toContain('Uninstall Feature A');
+    });
+
+    it('generateInstructions uses default outputDir when not provided', async () => {
+        // Arrange templates at expected relative paths
+        const installTemplate = './src/extensibility/templates/install-instructions.mdc.hbs';
+        const uninstallTemplate = './src/extensibility/templates/uninstall-instructions.mdc.hbs';
+        vol.mkdirSync('src/extensibility/templates', { recursive: true });
+        vol.writeFileSync(installTemplate, 'Install {{extensionName}}');
+        vol.writeFileSync(uninstallTemplate, 'Uninstall {{extensionName}}');
+
+        const { generateInstructions } = await reloadModule();
+
+        // Call with empty string for outputDir to trigger default 'instructions'
+        generateInstructions(
+            TEMPLATE_RETAIL_RSC_APP_DIR,
+            'SFDC_EXT_featureA',
+            '',
+            'repo-url',
+            'main',
+            [],
+            configPath,
+            `${__dirname}/templates`
+        );
+
+        const outDir = path.join(TEMPLATE_RETAIL_RSC_APP_DIR, 'instructions');
+        const installOut = path.join(outDir, 'install-feature-a.mdc');
+        const uninstallOut = path.join(outDir, 'uninstall-feature-a.mdc');
+
+        expect(vol.readFileSync(installOut, 'utf8')).toContain('Install Feature A');
         expect(vol.readFileSync(uninstallOut, 'utf8')).toContain('Uninstall Feature A');
     });
 

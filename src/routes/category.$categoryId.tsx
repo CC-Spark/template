@@ -107,19 +107,19 @@ export default function CategoryPage({ loaderData: { category, refinements, sear
 
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <Suspense fallback={<CategoryHeaderSkeleton />}>
-                        <Await resolve={Promise.all([category, refinements])}>
-                            {([categoryData, refinementsData]) => (
-                                <>
-                                    <h1 className="text-3xl font-bold text-foreground">
-                                        {categoryData?.name || categoryData.id} ({refinementsData.total})
-                                    </h1>
-                                    <div className="flex-shrink-0">
-                                        {refinementsData?.sortingOptions &&
-                                            refinementsData.sortingOptions.length > 0 && (
-                                                <CategorySorting result={refinementsData} />
-                                            )}
-                                    </div>
-                                </>
+                        <h1 className="text-3xl font-bold text-foreground">
+                            <Await resolve={category}>
+                                {(categoryData) => <>{categoryData?.name || categoryData.id}</>}
+                            </Await>{' '}
+                            <Await resolve={refinements}>{(refinementsData) => <>({refinementsData.total})</>}</Await>
+                        </h1>
+                        <Await resolve={refinements}>
+                            {(refinementsData) => (
+                                <div className="flex-shrink-0">
+                                    {refinementsData?.sortingOptions && refinementsData.sortingOptions.length > 0 && (
+                                        <CategorySorting result={refinementsData} />
+                                    )}
+                                </div>
                             )}
                         </Await>
                     </Suspense>
