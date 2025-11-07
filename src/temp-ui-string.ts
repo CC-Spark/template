@@ -141,11 +141,6 @@ const additionalStrings = {
         },
     },
     socialCallback: {
-        authenticatingTitle: 'Authenticating...',
-        authenticatingDescription: 'Please wait while we complete your social login.',
-        notRedirectedPromptPrefix: 'If you are not automatically redirected, ',
-        clickHere: 'click here',
-        notRedirectedPromptSuffix: ' to return to login.',
         socialError: 'Social login was cancelled or failed. Please try again.',
     },
     errors: {

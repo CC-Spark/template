@@ -81,7 +81,8 @@ export default defineConfig({
                     landingUri: process.env.PUBLIC_RESET_PASSWORD_LANDING_URI || '/reset-password-landing',
                 },
                 socialLogin: {
-                    enabled: true,
+                    enabled: process.env.PUBLIC_SITE_SOCIAL_LOGIN === 'true',
+                    callbackUri: process.env.PUBLIC_SOCIAL_LOGIN_CALLBACK_URI || '/social-callback',
                     providers: parseEnvJson(process.env.PUBLIC_SOCIAL_IDPS, ['Apple', 'Google']),
                 },
                 guestCheckout: true,

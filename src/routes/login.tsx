@@ -11,7 +11,7 @@ import uiStrings from '@/temp-ui-string';
 import StandardLoginForm from '@/components/login/standard-login-form';
 import PasswordlessLoginForm from '@/components/login/passwordless-login-form';
 import { SocialLoginButtons } from '@/components/buttons/social-login-buttons';
-import { getAppOrigin, extractResponseError } from '@/lib/utils';
+import { getAppOrigin, extractResponseError, isAbsoluteURL } from '@/lib/utils';
 import { getConfig } from '@/config';
 
 // services
@@ -28,6 +28,7 @@ type LoginLoaderData = {
     email?: string;
     mode: string;
     isPasswordlessLoginEnabled: boolean;
+    isSocialLoginEnabled: boolean;
 };
 
 // eslint-disable-next-line react-refresh/only-export-components,custom/no-universal-loaders
@@ -54,6 +55,7 @@ export function loader({ request, context }: LoaderFunctionArgs) {
     const config = getConfig(context);
     const isSlasPrivate = config.commerce.api.privateKeyEnabled;
     const isPasswordlessLoginEnabled = config.site.features.passwordlessLogin.enabled && isSlasPrivate;
+    const isSocialLoginEnabled = Boolean(config.site.features.socialLogin?.enabled);
     const mode = url.searchParams.get('mode') || (isPasswordlessLoginEnabled ? 'passwordless' : 'password');
 
     return {
@@ -62,6 +64,7 @@ export function loader({ request, context }: LoaderFunctionArgs) {
         email,
         mode,
         isPasswordlessLoginEnabled,
+        isSocialLoginEnabled,
     };
 }
 
@@ -72,22 +75,30 @@ export function loader({ request, context }: LoaderFunctionArgs) {
  */
 // eslint-disable-next-line react-refresh/only-export-components, custom/no-server-actions
 export async function action({ request, context }: ActionFunctionArgs): Promise<[string, ReturnType<typeof getAuth>]> {
+    const config = getConfig(context);
     const formData = await request.formData();
     const email = formData.get('email')?.toString();
     const password = formData.get('password')?.toString();
     const loginMode = formData.get('loginMode')?.toString();
     const provider = formData.get('provider')?.toString();
     const redirectPath = formData.get('redirectPath')?.toString();
+    const isSocialLoginEnabled = Boolean(config.site.features.socialLogin?.enabled);
     const resolve = (target: string): [string, ReturnType<typeof getAuth>] => [target, getAuth(context)];
 
     if (loginMode === 'social') {
-        // Social login flow
-        if (!provider) {
+        if (!provider || !isSocialLoginEnabled) {
             return resolve('/login?mode=password');
         }
+        const socialCallback = config.site.features.socialLogin.callbackUri;
+        const socialLoginRedirectURI = isAbsoluteURL(socialCallback)
+            ? socialCallback
+            : `${getAppOrigin()}${socialCallback}`;
+        const finalRedirectURI = redirectPath
+            ? `${socialLoginRedirectURI}?redirectUrl=${redirectPath}`
+            : socialLoginRedirectURI;
         const result = await authorizeIDP(context, {
             hint: provider,
-            redirectURI: `${getAppOrigin()}/social-callback`,
+            redirectURI: finalRedirectURI,
         });
         if (result.success && result.redirectUrl) {
             // Redirect to social login provider
@@ -151,13 +162,21 @@ export async function clientAction({ context, serverAction }: ClientActionFuncti
         }
     }
 
+    // If target is an absolute URL (e.g., OAuth authorize endpoint), use full-page navigation
+    // This is necessary for external redirects like social login flows
+    if (typeof window !== 'undefined' && /^https?:\/\//.test(target)) {
+        window.location.assign(target);
+        return null;
+    }
+
+    // Otherwise, use React Router redirect for internal paths
     return redirect(target);
 }
 
 clientAction.hydrate = true as const;
 
 export default function Login({ loaderData }: { loaderData: LoginLoaderData }): ReactElement {
-    const { error, passwordlessSent, email, mode, isPasswordlessLoginEnabled } = loaderData;
+    const { error, passwordlessSent, email, mode, isPasswordlessLoginEnabled, isSocialLoginEnabled } = loaderData;
 
     // Show passwordless success state
     if (passwordlessSent && email) {
@@ -207,7 +226,7 @@ export default function Login({ loaderData }: { loaderData: LoginLoaderData }): 
 
                 <Card className="p-8">
                     {renderForm()}
-                    <SocialLoginButtons />
+                    {isSocialLoginEnabled ? <SocialLoginButtons /> : null}
                 </Card>
             </div>
         </div>

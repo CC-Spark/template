@@ -72,6 +72,7 @@ export type Config = {
                 };
                 socialLogin: {
                     enabled: boolean;
+                    callbackUri: string;
                     providers: Array<'Apple' | 'Google' | 'Facebook' | 'Twitter'>;
                 };
                 guestCheckout: boolean;
