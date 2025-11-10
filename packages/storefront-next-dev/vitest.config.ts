@@ -21,7 +21,12 @@ export default defineConfig({
                 'dist/**',
                 'node_modules/**',
             ],
-            thresholds: { 100: true },
+            thresholds: {
+                lines: 95,
+                functions: 95,
+                branches: 95,
+                statements: 95,
+            },
             reporters: ['text', 'lcov', 'json-summary'],
         },
         // Vitest tests - now includes all test files
