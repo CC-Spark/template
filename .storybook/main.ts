@@ -1,22 +1,27 @@
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
 import type { StorybookConfig } from '@storybook/react-vite';
 import type { InlineConfig, Plugin } from 'vite';
 
 const config: StorybookConfig = {
-    stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-    addons: ['@chromatic-com/storybook', '@storybook/addon-docs', '@storybook/addon-a11y', '@storybook/addon-vitest'],
+    stories: [
+        "../**/*.stories.@(ts|tsx)",
+        "../**/*.mdx"
+    ],
+    addons: [getAbsolutePath("@chromatic-com/storybook"), getAbsolutePath("@storybook/addon-docs"), getAbsolutePath("@storybook/addon-a11y"), getAbsolutePath("@storybook/addon-vitest")],
     core: {
         builder: {
-            name: '@storybook/builder-vite',
+            name: "@storybook/builder-vite",
             options: {
                 viteConfigPath: '.storybook/vite.config.ts', // Use dedicated Storybook Vite config
             },
         },
     },
     framework: {
-        name: '@storybook/react-vite',
+        name: "@storybook/react-vite",
         options: {},
     },
-    viteFinal(inlineConfig: InlineConfig): InlineConfig {
+    async viteFinal(inlineConfig: InlineConfig): Promise<InlineConfig> {
         // Remove project-specific plugins that conflict with Storybook
         inlineConfig.plugins = inlineConfig.plugins?.filter((plugin) => {
             const pluginName = (plugin as Plugin)?.name || '';
@@ -28,8 +33,19 @@ const config: StorybookConfig = {
             ].some((name) => pluginName.includes(name));
         });
 
-        // Remove project-specific server configuration
-        delete (inlineConfig as InlineConfig & { server?: unknown }).server;
+        // Preserve server configuration for HMR (don't delete it)
+        // Only remove proxy configuration if it exists, but keep HMR settings
+        if (inlineConfig.server) {
+            // Remove proxy config but keep HMR
+            const { proxy, ...serverConfig } = inlineConfig.server as Record<string, unknown>;
+            inlineConfig.server = {
+                ...serverConfig,
+                hmr: {
+                    ...(serverConfig.hmr as Record<string, unknown>),
+                    overlay: true,
+                },
+            } as typeof inlineConfig.server;
+        }
 
         // Remove project-specific test configuration
         delete (inlineConfig as InlineConfig & { test?: unknown }).test;
@@ -77,6 +93,8 @@ const config: StorybookConfig = {
             ),
             'process.env.MRT_PROJECT': JSON.stringify(process.env.MRT_PROJECT || ''),
             'process.env.MRT_TARGET': JSON.stringify(process.env.MRT_TARGET || ''),
+            'process.env.STORYBOOK_A11Y_TEST_MODE': JSON.stringify(process.env.STORYBOOK_A11Y_TEST_MODE || 'todo'),
+            'process.env.STORYBOOK_DISABLE_A11Y': JSON.stringify(process.env.STORYBOOK_DISABLE_A11Y || 'false'),
         };
 
         return inlineConfig;
@@ -84,3 +102,7 @@ const config: StorybookConfig = {
 };
 
 export default config;
+
+function getAbsolutePath(value: string): any {
+    return dirname(fileURLToPath(import.meta.resolve(`${value}/package.json`)));
+}

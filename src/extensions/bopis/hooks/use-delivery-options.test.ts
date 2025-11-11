@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useDeliveryOptions } from './use-delivery-options';
 import { DELIVERY_OPTIONS } from '../constants';
-import { masterProductWithInventories } from '@/components/__mock__/master-product-with-inventories';
+import { masterProductWithInventories } from '@/components/__mocks__/master-product-with-inventories';
 
 // Mock the store locator provider
 vi.mock('@/extensions/store-locator/providers/store-locator', () => ({
@@ -36,7 +36,7 @@ vi.mock('@/lib/inventory-utils', async () => {
     };
 });
 
-// Use the mock product from __mock__ directory
+// Use the mock product from __mocks__ directory
 const mockProduct = masterProductWithInventories;
 
 const mockStoreInfo = {

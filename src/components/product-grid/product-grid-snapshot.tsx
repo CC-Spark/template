@@ -1,0 +1,146 @@
+import { vi, expect, test, describe, afterEach } from 'vitest';
+
+type MockFormProps = React.PropsWithChildren<Record<string, unknown>>;
+type MockLinkProps = React.PropsWithChildren<{ to?: string; href?: string; [key: string]: unknown }>;
+
+const fetcherMock = {
+    data: null,
+    state: 'idle',
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    submit: () => {},
+    Form: (props: MockFormProps) => <form {...props}>{props.children}</form>,
+};
+
+vi.mock('react-router', () => ({
+    createContext: vi.fn().mockImplementation(() => ({})),
+    useFetcher: () => fetcherMock,
+    useFetchers: () => [],
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    useNavigate: () => () => {},
+    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+    useNavigation: () => ({
+        state: 'idle',
+        location: { pathname: '/', search: '', hash: '', state: null, key: 'test' },
+    }),
+    useSearchParams: () => [new URLSearchParams(), vi.fn()],
+    Link: (props: MockLinkProps) => {
+        const { to, href, children, ...rest } = props ?? {};
+        return (
+            <a href={to ?? href} {...rest}>
+                {children}
+            </a>
+        );
+    },
+}));
+vi.mock('react-router-dom', async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...actual,
+        useFetcher: () => fetcherMock,
+        useFetchers: () => [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        useNavigate: () => () => {},
+        useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+        useNavigation: () => ({
+            state: 'idle',
+            location: { pathname: '/', search: '', hash: '', state: null, key: 'test' },
+        }),
+        Link: (props: MockLinkProps) => {
+            const { to, href, children, ...rest } = props ?? {};
+            return (
+                <a href={to ?? href} {...rest}>
+                    {children}
+                </a>
+            );
+        },
+    };
+});
+vi.mock('@/components/toast', () => ({
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    useToast: () => ({ addToast: () => {} }),
+}));
+
+vi.mock('@/config', () => ({
+    useConfig: () => mockConfig,
+}));
+
+import { composeStories } from '@storybook/react-vite';
+// eslint-disable-next-line import/no-namespace
+import * as ProductGridStories from './index.stories';
+import { render, cleanup } from '@testing-library/react';
+
+// Mock config for useConfig hook
+const mockConfig = {
+    pages: {
+        home: { featuredProductsCount: 12 },
+        cart: {
+            quantityUpdateDebounce: 750,
+            enableRemoveConfirmation: true,
+            maxQuantityPerItem: 999,
+            enableSaveForLater: false,
+            removeAction: '/action/cart-item-remove',
+        },
+        search: {
+            placeholder: 'Search',
+            enableSearchSuggestions: true,
+            maxSuggestions: 8,
+            enableRecentSearches: true,
+            suggestionsDebounce: 100,
+        },
+    },
+    commerce: {
+        api: {
+            clientId: 'test-client',
+            organizationId: 'test-org',
+            siteId: 'test-site',
+            shortCode: 'test123',
+        },
+    },
+    site: {
+        locale: 'en-US',
+        currency: 'USD',
+        features: {
+            passwordlessLogin: false,
+            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
+            guestCheckout: true,
+        },
+    },
+    global: {
+        branding: { name: 'Test Store', logoAlt: 'Home' },
+        productListing: {
+            productsPerPage: 24,
+            enableInfiniteScroll: false,
+            sortOptions: ['relevance'],
+            enableQuickView: true,
+        },
+        carousel: { defaultItemCount: 4 },
+        badges: [
+            { propertyName: 'c_isSale', label: 'Sale', color: 'orange', priority: 1 },
+            { propertyName: 'c_isNew', label: 'New', color: 'green', priority: 2 },
+        ],
+    },
+    performance: {
+        images: { quality: 80, formats: ['webp', 'jpeg'], lazyLoading: true },
+        caching: { apiCacheTtl: 300, staticAssetCacheTtl: 31536000 },
+    },
+    development: {
+        enableDevtools: true,
+        hotReload: true,
+        strictMode: true,
+    },
+};
+
+const composed = composeStories(ProductGridStories);
+
+afterEach(() => {
+    cleanup();
+});
+
+describe('ProductGrid stories snapshot', () => {
+    for (const [storyName, Story] of Object.entries(composed)) {
+        test(`${storyName} story renders and matches snapshot`, () => {
+            const { container } = render(<Story />);
+            expect(container.firstChild).toMatchSnapshot();
+        });
+    }
+});

@@ -13,9 +13,9 @@ import {
     getEffectiveStockLevel,
     isInStock,
 } from './inventory-utils';
-import { masterProductWithInventories } from '@/components/__mock__/master-product-with-inventories';
-import { setProductWithInventories } from '@/components/__mock__/set-product-with-inventories';
-import { bundleProductWithInventories } from '@/components/__mock__/bundle-product-with-inventories';
+import { masterProductWithInventories } from '@/components/__mocks__/master-product-with-inventories';
+import { setProductWithInventories } from '@/components/__mocks__/set-product-with-inventories';
+import { bundleProductWithInventories } from '@/components/__mocks__/bundle-product-with-inventories';
 import type { ShopperProductsTypes } from 'commerce-sdk-isomorphic';
 
 const mockProduct = masterProductWithInventories;

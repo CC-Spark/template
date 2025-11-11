@@ -17,8 +17,8 @@ import ProductInfo from './product-info';
 import ProductViewProvider from '@/providers/product-view';
 import { AllProvidersWrapper } from '@/test-utils/context-provider';
 // mock data
-import { masterProduct as mockProduct } from '@/components/__mock__/master-variant-product';
-import { standardProd } from '@/components/__mock__/standard-product';
+import { masterProduct as mockProduct } from '@/components/__mocks__/master-variant-product';
+import { standardProd } from '@/components/__mocks__/standard-product';
 
 const renderProductInfo = (props: React.ComponentProps<typeof ProductInfo>) => {
     // Using createMemoryRouter in framework mode is fine

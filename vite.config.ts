@@ -124,7 +124,15 @@ export default defineConfig(({ mode }) => {
             coverage: {
                 reporter: [...new Set([...coverageConfigDefaults.reporter, 'json', 'json-summary'])], // `json-summary` and `json` are required for the CI
                 include: ['src/**/*.{ts,tsx}'],
-                exclude: ['src/**/*.d.ts', 'src/components/ui/**/*', 'src/**/*.stories.tsx'],
+                exclude: [
+                    'src/**/*.d.ts',
+                    'src/components/ui/**/*',
+                    'src/**/*.stories.{ts,tsx}',
+                    'src/**/*-snapshot.tsx',
+                    'src/**/mocks/**/*',
+                    'src/**/__mocks__/**/*',
+                    'src/**/__snapshots__/**/*',
+                ],
                 reportOnFailure: true,
                 thresholds: coverageConfigThresholds,
             },

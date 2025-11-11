@@ -1,0 +1,457 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Card stories snapshot > ContentOnly story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+    data-slot="card"
+  >
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <h3
+        class="text-lg font-semibold mb-2"
+      >
+        Content Only Card
+      </h3>
+      <p>
+        This card demonstrates content without header or footer sections.
+      </p>
+      <ul
+        class="mt-4 space-y-2"
+      >
+        <li>
+          • Feature one
+        </li>
+        <li>
+          • Feature two
+        </li>
+        <li>
+          • Feature three
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > Default story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+    data-slot="card"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+      >
+        Card Title
+      </div>
+      <div
+        class="text-muted-foreground text-sm"
+        data-slot="card-description"
+      >
+        Card description goes here
+      </div>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <p>
+        This is the main content of the card. It can contain any type of content including text, images, forms, or other components.
+      </p>
+    </div>
+    <div
+      class="flex items-center px-6 [.border-t]:pt-6"
+      data-slot="card-footer"
+    >
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3"
+        data-slot="button"
+      >
+        Action
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > HeaderOnly story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+    data-slot="card"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+      >
+        Header Only
+      </div>
+      <div
+        class="text-muted-foreground text-sm"
+        data-slot="card-description"
+      >
+        This card only has a header section
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > MultipleCards story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+  >
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+      data-slot="card"
+    >
+      <div
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+        data-slot="card-header"
+      >
+        <div
+          class="leading-none font-semibold"
+          data-slot="card-title"
+        >
+          Card 1
+        </div>
+        <div
+          class="text-muted-foreground text-sm"
+          data-slot="card-description"
+        >
+          First card in the grid
+        </div>
+      </div>
+      <div
+        class="px-6"
+        data-slot="card-content"
+      >
+        <p>
+          Content for the first card
+        </p>
+      </div>
+    </div>
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+      data-slot="card"
+    >
+      <div
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+        data-slot="card-header"
+      >
+        <div
+          class="leading-none font-semibold"
+          data-slot="card-title"
+        >
+          Card 2
+        </div>
+        <div
+          class="text-muted-foreground text-sm"
+          data-slot="card-description"
+        >
+          Second card in the grid
+        </div>
+      </div>
+      <div
+        class="px-6"
+        data-slot="card-content"
+      >
+        <p>
+          Content for the second card
+        </p>
+      </div>
+    </div>
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+      data-slot="card"
+    >
+      <div
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+        data-slot="card-header"
+      >
+        <div
+          class="leading-none font-semibold"
+          data-slot="card-title"
+        >
+          Card 3
+        </div>
+        <div
+          class="text-muted-foreground text-sm"
+          data-slot="card-description"
+        >
+          Third card in the grid
+        </div>
+      </div>
+      <div
+        class="px-6"
+        data-slot="card-content"
+      >
+        <p>
+          Content for the third card
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > ProductCard story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm max-w-sm"
+    data-slot="card"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+      >
+        Product Name
+      </div>
+      <div
+        class="text-muted-foreground text-sm"
+        data-slot="card-description"
+      >
+        $99.99
+      </div>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <div
+        class="aspect-square bg-muted rounded-lg mb-4"
+      />
+      <p
+        class="text-sm text-muted-foreground"
+      >
+        Product description goes here
+      </p>
+    </div>
+    <div
+      class="flex items-center px-6 [.border-t]:pt-6"
+      data-slot="card-footer"
+    >
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3 w-full"
+        data-slot="button"
+      >
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > SettingsCard story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+    data-slot="card"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+      >
+        Account Settings
+      </div>
+      <div
+        class="text-muted-foreground text-sm"
+        data-slot="card-description"
+      >
+        Manage your account preferences and security settings
+      </div>
+    </div>
+    <div
+      class="px-6 space-y-4"
+      data-slot="card-content"
+    >
+      <div
+        class="flex items-center justify-between"
+      >
+        <div>
+          <p
+            class="font-medium"
+          >
+            Email Notifications
+          </p>
+          <p
+            class="text-sm text-muted-foreground"
+          >
+            Receive updates about your account
+          </p>
+        </div>
+        <button
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+          data-slot="button"
+        >
+          Toggle
+        </button>
+      </div>
+      <div
+        class="flex items-center justify-between"
+      >
+        <div>
+          <p
+            class="font-medium"
+          >
+            Two-Factor Authentication
+          </p>
+          <p
+            class="text-sm text-muted-foreground"
+          >
+            Add an extra layer of security
+          </p>
+        </div>
+        <button
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+          data-slot="button"
+        >
+          Enable
+        </button>
+      </div>
+    </div>
+    <div
+      class="flex items-center px-6 [.border-t]:pt-6"
+      data-slot="card-footer"
+    >
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
+        data-slot="button"
+      >
+        Cancel
+      </button>
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3"
+        data-slot="button"
+      >
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > Simple story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+    data-slot="card"
+  >
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <p>
+        This is a simple card with just content. No header or footer needed.
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > WithAction story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+    data-slot="card"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+      >
+        Card with Action
+      </div>
+      <div
+        class="text-muted-foreground text-sm"
+        data-slot="card-description"
+      >
+        This card has an action button in the header
+      </div>
+      <div
+        class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
+        data-slot="card-action"
+      >
+        <button
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+          data-slot="button"
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <p>
+        This card demonstrates how to use the CardAction component to add action buttons to the header area.
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card stories snapshot > WithFooter story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+    data-slot="card"
+  >
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <h3
+        class="text-lg font-semibold mb-2"
+      >
+        Card with Footer
+      </h3>
+      <p>
+        This card has both content and a footer with action buttons.
+      </p>
+    </div>
+    <div
+      class="flex items-center px-6 [.border-t]:pt-6"
+      data-slot="card-footer"
+    >
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
+        data-slot="button"
+      >
+        Cancel
+      </button>
+      <button
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3"
+        data-slot="button"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+`;

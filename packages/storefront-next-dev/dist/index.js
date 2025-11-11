@@ -464,7 +464,17 @@ const createBundle = async (options) => {
 		const archive = archiver("tar");
 		archive.pipe(output);
 		const newRoot = path$1.join(projectSlug, "bld", "");
+		const storybookExclusionMatchers = [
+			"**/*.stories.tsx",
+			"**/*.stories.ts",
+			"**/*-snapshot.tsx",
+			".storybook/**/*",
+			"storybook-static/**/*",
+			"**/__mocks__/**/*",
+			"**/__snapshots__/**/*"
+		].map((pattern) => new Minimatch(pattern, { nocomment: true }));
 		archive.directory(buildDirectory, "", (entry) => {
+			if (entry.name && storybookExclusionMatchers.some((matcher) => matcher.match(entry.name))) return false;
 			if (entry.stats?.isFile() && entry.name) filesInArchive.push(entry.name);
 			entry.prefix = newRoot;
 			return entry;
@@ -628,7 +638,14 @@ const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
 			"server/**/*",
 			"loader.js",
 			"ssr.js",
-			"!static/**/*"
+			"!static/**/*",
+			"!**/*.stories.tsx",
+			"!**/*.stories.ts",
+			"!**/*-snapshot.tsx",
+			"!.storybook/**/*",
+			"!storybook-static/**/*",
+			"!**/__mocks__/**/*",
+			"!**/__snapshots__/**/*"
 		],
 		ssrShared: [
 			"client/**/*",
@@ -643,7 +660,14 @@ const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
 			"**/*.woff",
 			"**/*.woff2",
 			"**/*.ttf",
-			"**/*.eot"
+			"**/*.eot",
+			"!**/*.stories.tsx",
+			"!**/*.stories.ts",
+			"!**/*-snapshot.tsx",
+			"!.storybook/**/*",
+			"!storybook-static/**/*",
+			"!**/__mocks__/**/*",
+			"!**/__snapshots__/**/*"
 		],
 		ssrParameters: { ssrFunctionNodeVersion: "22.x" }
 	};
@@ -39432,7 +39456,7 @@ var require_lib = /* @__PURE__ */ __commonJS({ "../../node_modules/.pnpm/@babel+
 //#endregion
 //#region src/extensibility/path-util.ts
 var import_lib$1 = /* @__PURE__ */ __toESM(require_lib(), 1);
-var import_lib = /* @__PURE__ */ __toESM(require_lib$7(), 1);
+var import_lib = require_lib$7();
 let cachedTsconfigPaths = null;
 let cachedTsconfigRoot = null;
 const FILE_EXTENSIONS = [

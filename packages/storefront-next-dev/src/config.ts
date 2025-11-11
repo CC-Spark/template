@@ -24,6 +24,14 @@ export const buildMrtConfig = (_buildDirectory: string, _projectDirectory?: stri
         'loader.js', // SSR entry point
         'ssr.js', // SSR runtime
         '!static/**/*', // Exclude static assets from server
+        // Exclude Storybook and test files
+        '!**/*.stories.tsx',
+        '!**/*.stories.ts',
+        '!**/*-snapshot.tsx',
+        '!.storybook/**/*',
+        '!storybook-static/**/*',
+        '!**/__mocks__/**/*',
+        '!**/__snapshots__/**/*',
     ];
 
     // Shared files: Client bundles and static assets
@@ -42,6 +50,14 @@ export const buildMrtConfig = (_buildDirectory: string, _projectDirectory?: stri
         '**/*.woff2',
         '**/*.ttf',
         '**/*.eot',
+        // Exclude Storybook and test files
+        '!**/*.stories.tsx',
+        '!**/*.stories.ts',
+        '!**/*-snapshot.tsx',
+        '!.storybook/**/*',
+        '!storybook-static/**/*',
+        '!**/__mocks__/**/*',
+        '!**/__snapshots__/**/*',
     ];
 
     // SSR function parameters

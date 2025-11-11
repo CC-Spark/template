@@ -15,7 +15,7 @@ import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
 // Mock data
-import { bundleProd as mockedBundleProduct } from '../__mock__/bundle-product';
+import { bundleProd as mockedBundleProduct } from '../__mocks__/bundle-product';
 
 // Mock useFetchers
 vi.mock('react-router', async () => {

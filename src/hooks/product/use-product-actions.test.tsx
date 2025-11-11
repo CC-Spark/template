@@ -12,7 +12,7 @@ import type { ShopperProductsTypes, ShopperBasketsTypes } from 'commerce-sdk-iso
 import { useProductActions } from './use-product-actions';
 import BasketProvider from '@/providers/basket';
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
-import { standardProd } from '@/components/__mock__/standard-product';
+import { standardProd } from '@/components/__mocks__/standard-product';
 
 vi.mock('react-router', async () => {
     const actual = await vi.importActual('react-router');
@@ -240,7 +240,7 @@ describe('useProductActions', () => {
             const { result } = renderHook(
                 () =>
                     useProductActions({
-                        product: productWithLimitedStock as any,
+                        product: productWithLimitedStock,
                         initialQuantity: 10,
                         currentVariant: null,
                     }),
@@ -455,12 +455,9 @@ describe('useProductActions', () => {
                         { id: 'p2', inventory: { ats: 0, orderable: false } }, // Out of stock
                     ],
                 };
-                const { result } = renderHook(
-                    () => useProductActions({ product: setProduct as any, currentVariant: null }),
-                    {
-                        wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
-                    }
-                );
+                const { result } = renderHook(() => useProductActions({ product: setProduct, currentVariant: null }), {
+                    wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
+                });
 
                 expect(result.current.isInStock).toBe(false);
             });
@@ -474,12 +471,9 @@ describe('useProductActions', () => {
                         { id: 'p2', inventory: { ats: 3, orderable: true } },
                     ],
                 };
-                const { result } = renderHook(
-                    () => useProductActions({ product: setProduct as any, currentVariant: null }),
-                    {
-                        wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
-                    }
-                );
+                const { result } = renderHook(() => useProductActions({ product: setProduct, currentVariant: null }), {
+                    wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
+                });
 
                 expect(result.current.isInStock).toBe(true);
             });
@@ -502,12 +496,9 @@ describe('useProductActions', () => {
                     type: { set: true },
                     setProducts: undefined,
                 };
-                const { result } = renderHook(
-                    () => useProductActions({ product: setProduct as any, currentVariant: null }),
-                    {
-                        wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
-                    }
-                );
+                const { result } = renderHook(() => useProductActions({ product: setProduct, currentVariant: null }), {
+                    wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
+                });
 
                 // Falls back to main product inventory when setProducts is undefined
                 expect(result.current.isInStock).toBe(true);
@@ -616,7 +607,7 @@ describe('useProductActions', () => {
             test('detects master products', () => {
                 const masterProduct = { ...standardProd, type: { master: true } };
                 const { result } = renderHook(
-                    () => useProductActions({ product: masterProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: masterProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -628,7 +619,7 @@ describe('useProductActions', () => {
             test('detects variant products', () => {
                 const variantProduct = { ...standardProd, type: { variant: true } };
                 const { result } = renderHook(
-                    () => useProductActions({ product: variantProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: variantProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -650,12 +641,9 @@ describe('useProductActions', () => {
 
             test('set products are not master/variant', () => {
                 const setProduct = { ...standardProd, type: { set: true } };
-                const { result } = renderHook(
-                    () => useProductActions({ product: setProduct as any, currentVariant: null }),
-                    {
-                        wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
-                    }
-                );
+                const { result } = renderHook(() => useProductActions({ product: setProduct, currentVariant: null }), {
+                    wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
+                });
 
                 expect(result.current.isMasterOrVariantProduct).toBe(false);
             });
@@ -663,7 +651,7 @@ describe('useProductActions', () => {
             test('bundle products are not master/variant', () => {
                 const bundleProduct = { ...standardProd, type: { bundle: true } };
                 const { result } = renderHook(
-                    () => useProductActions({ product: bundleProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: bundleProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -680,7 +668,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 10, id: 'inv-1', orderable: true },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: orderableProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: orderableProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -696,12 +684,9 @@ describe('useProductActions', () => {
                     inventory: { ats: 10, id: 'inv-1', orderable: true },
                     setProducts: [{ id: 'p1', inventory: { ats: 5, id: 'inv-p1', orderable: true } }],
                 };
-                const { result } = renderHook(
-                    () => useProductActions({ product: setProduct as any, currentVariant: null }),
-                    {
-                        wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
-                    }
-                );
+                const { result } = renderHook(() => useProductActions({ product: setProduct, currentVariant: null }), {
+                    wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
+                });
 
                 expect(result.current.canAddToCart).toBe(true);
             });
@@ -713,7 +698,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 10, id: 'inv-1', orderable: true },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: bundleProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: bundleProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -728,7 +713,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 0, id: 'inv-1', orderable: false, backorderable: false },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: outOfStockProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: outOfStockProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -744,7 +729,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 10, id: 'inv-1', orderable: true },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: masterProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: masterProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -761,7 +746,7 @@ describe('useProductActions', () => {
                 const { result } = renderHook(
                     () =>
                         useProductActions({
-                            product: productWithStock as any,
+                            product: productWithStock,
                             currentVariant: null,
                             initialQuantity: 0,
                         }),
@@ -781,7 +766,7 @@ describe('useProductActions', () => {
                 const { result } = renderHook(
                     () =>
                         useProductActions({
-                            product: productWithLimitedStock as any,
+                            product: productWithLimitedStock,
                             currentVariant: null,
                             initialQuantity: 5,
                         }),
@@ -803,7 +788,7 @@ describe('useProductActions', () => {
                 const { result } = renderHook(
                     () =>
                         useProductActions({
-                            product: productWithLimitedStock as any,
+                            product: productWithLimitedStock,
                             currentVariant: null,
                             initialQuantity: 5,
                         }),
@@ -824,7 +809,7 @@ describe('useProductActions', () => {
                 const { result } = renderHook(
                     () =>
                         useProductActions({
-                            product: productWithStock as any,
+                            product: productWithStock,
                             currentVariant: null,
                             initialQuantity: 5,
                         }),
@@ -845,7 +830,7 @@ describe('useProductActions', () => {
                     setProducts: [{ id: 'p1', inventory: { ats: 0, id: 'inv-p1' } }],
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: outOfStockSet as any, currentVariant: null }),
+                    () => useProductActions({ product: outOfStockSet, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -861,7 +846,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 0, id: 'inv-1' },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: outOfStockProduct as any, currentVariant: null }),
+                    () => useProductActions({ product: outOfStockProduct, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -876,12 +861,9 @@ describe('useProductActions', () => {
                     ...standardProd,
                     inventory: { ats: 5, id: 'inv-1', orderable: true },
                 };
-                const { result } = renderHook(
-                    () => useProductActions({ product: product as any, currentVariant: null }),
-                    {
-                        wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
-                    }
-                );
+                const { result } = renderHook(() => useProductActions({ product, currentVariant: null }), {
+                    wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
+                });
 
                 expect(result.current.stockLevel).toBe(5);
                 expect(result.current.isInStock).toBe(true);
@@ -893,7 +875,7 @@ describe('useProductActions', () => {
                     inventory: undefined,
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: productNoInventory as any, currentVariant: null }),
+                    () => useProductActions({ product: productNoInventory, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -909,7 +891,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 15, id: 'inv-1', orderable: true },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: productWithInventory as any, currentVariant: null }),
+                    () => useProductActions({ product: productWithInventory, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -930,7 +912,7 @@ describe('useProductActions', () => {
                     ],
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: setWithMissingInventory as any, currentVariant: null }),
+                    () => useProductActions({ product: setWithMissingInventory, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -1303,7 +1285,7 @@ describe('useProductActions', () => {
                 const { result } = renderHook(
                     () =>
                         useProductActions({
-                            product: bundleProductNoId as any,
+                            product: bundleProductNoId,
                             itemId: 'item-bundle',
                             currentVariant: null,
                         }),
@@ -1448,7 +1430,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 10, id: 'inv-1', orderable: true },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: productNoId as any, itemId: 'item-1', currentVariant: null }),
+                    () => useProductActions({ product: productNoId, itemId: 'item-1', currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -1469,7 +1451,7 @@ describe('useProductActions', () => {
                     inventory: { ats: 10, id: 'inv-1', orderable: true },
                 };
                 const { result } = renderHook(
-                    () => useProductActions({ product: product as any, itemId: 'item-1', currentVariant: null }),
+                    () => useProductActions({ product, itemId: 'item-1', currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -1575,7 +1557,7 @@ describe('useProductActions', () => {
                 };
 
                 const { result } = renderHook(
-                    () => useProductActions({ product: productWithInventories as any, currentVariant: null }),
+                    () => useProductActions({ product: productWithInventories, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -1601,7 +1583,7 @@ describe('useProductActions', () => {
                 };
 
                 const { result } = renderHook(
-                    () => useProductActions({ product: productWithInventories as any, currentVariant: null }),
+                    () => useProductActions({ product: productWithInventories, currentVariant: null }),
                     {
                         wrapper: ({ children }) => wrapper({ children, basket: mockBasket }),
                     }
@@ -1634,7 +1616,7 @@ describe('useProductActions', () => {
                 const { result } = renderHook(
                     () =>
                         useProductActions({
-                            product: productWithInventories as any,
+                            product: productWithInventories,
                             currentVariant: null,
                             initialQuantity: 1,
                         }),
@@ -1673,7 +1655,7 @@ describe('useProductActions', () => {
                 const { result } = renderHook(
                     () =>
                         useProductActions({
-                            product: productWithInventories as any,
+                            product: productWithInventories,
                             currentVariant: null,
                             initialQuantity: 5,
                         }),

@@ -10,7 +10,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { CartItemEditModal } from './index';
 
 // Mock data
-import { variantProduct } from '@/components/__mock__/master-variant-product';
+import { variantProduct } from '@/components/__mocks__/master-variant-product';
 
 // Utils
 import uiStrings from '@/temp-ui-string';

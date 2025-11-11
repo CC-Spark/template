@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { masterProduct } from '@/components/__mock__/master-variant-product';
+import { masterProduct } from '@/components/__mocks__/master-variant-product';
 import DeliveryOptions from './delivery-options';
 
 // Mock the hooks
@@ -34,7 +34,7 @@ vi.mock('@/extensions/bopis/temp-ui-string-bopis', () => ({
     },
 }));
 
-// Use the mock product from __mock__ directory
+// Use the mock product from __mocks__ directory
 const mockProduct = masterProduct;
 
 const mockStore = {

@@ -6,8 +6,127 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
+import { action } from 'storybook/actions';
+import { expect, within } from 'storybook/test';
 import type { ShopperProductsTypes } from 'commerce-sdk-isomorphic';
+
 import InventoryMessage from './index';
+
+function ActionLogger({ children }: { children: ReactNode }): ReactElement {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const root = containerRef.current;
+        if (!root) return;
+
+        const logClick = action('inventory-message-click');
+        const logHover = action('inventory-message-hover');
+
+        const isInsideHarness = (element: Element) => root.contains(element);
+
+        const deriveLabel = (element: HTMLElement): string => {
+            const ariaLabel = element.getAttribute('aria-label')?.trim();
+            if (ariaLabel) {
+                return ariaLabel;
+            }
+
+            const textContent = element.textContent?.replace(/\s+/g, ' ').trim();
+            if (textContent) {
+                return textContent;
+            }
+
+            const testId = element.getAttribute('data-testid')?.trim();
+            if (testId) {
+                return testId;
+            }
+
+            return element.tagName.toLowerCase();
+        };
+
+        const findMessageElement = (start: Element | null): HTMLElement | null => {
+            let current: Element | null = start;
+            while (current && current !== root) {
+                if (current instanceof HTMLElement && isInsideHarness(current)) {
+                    return current;
+                }
+                current = current.parentElement;
+            }
+            return null;
+        };
+
+        let lastHoverElement: HTMLElement | null = null;
+
+        const handleClick = (event: Event) => {
+            const target = event.target as Element | null;
+            if (!target) return;
+
+            const message = findMessageElement(target);
+            if (!message) {
+                return;
+            }
+
+            const label = deriveLabel(message);
+            if (!label) {
+                return;
+            }
+
+            logClick({ label });
+        };
+
+        const handlePointerOver = (event: PointerEvent) => {
+            const target = event.target as Element | null;
+            if (!target) return;
+
+            const message = findMessageElement(target);
+            if (!message || message === lastHoverElement) {
+                return;
+            }
+
+            const label = deriveLabel(message);
+            if (!label) {
+                return;
+            }
+
+            lastHoverElement = message;
+            logHover({ label });
+        };
+
+        const handlePointerOut = (event: PointerEvent) => {
+            if (!lastHoverElement) {
+                return;
+            }
+
+            const target = event.target as Element | null;
+            if (!target) return;
+
+            const message = findMessageElement(target);
+            if (!message || message !== lastHoverElement) {
+                return;
+            }
+
+            const related = event.relatedTarget as Element | null;
+            if (related && lastHoverElement.contains(related)) {
+                return;
+            }
+
+            lastHoverElement = null;
+        };
+
+        root.addEventListener('click', handleClick, true);
+        root.addEventListener('pointerover', handlePointerOver, true);
+        root.addEventListener('pointerout', handlePointerOut, true);
+
+        return () => {
+            lastHoverElement = null;
+            root.removeEventListener('click', handleClick, true);
+            root.removeEventListener('pointerover', handlePointerOver, true);
+            root.removeEventListener('pointerout', handlePointerOut, true);
+        };
+    }, []);
+
+    return <div ref={containerRef}>{children}</div>;
+}
 
 /**
  * The InventoryMessage component displays inventory status messages for products.
@@ -15,8 +134,9 @@ import InventoryMessage from './index';
  * Each state has its own color scheme and messaging.
  */
 const meta: Meta<typeof InventoryMessage> = {
-    title: 'Components/Inventory Message',
+    title: 'PRODUCTS/Inventory Message',
     component: InventoryMessage,
+    tags: ['autodocs', 'interaction'],
     parameters: {
         layout: 'centered',
         docs: {
@@ -36,10 +156,12 @@ The component uses variant inventory when available, falling back to product-lev
         },
     },
     decorators: [
-        (Story) => (
-            <div className="p-8">
-                <Story />
-            </div>
+        (Story: React.ComponentType) => (
+            <ActionLogger>
+                <div className="p-8">
+                    <Story />
+                </div>
+            </ActionLogger>
         ),
     ],
     argTypes: {
@@ -56,23 +178,16 @@ The component uses variant inventory when available, falling back to product-lev
             control: 'text',
         },
     },
-    tags: ['autodocs'],
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Helper function to create mock product data
-const createMockProduct = (inventory: Partial<ShopperProductsTypes.Inventory>): ShopperProductsTypes.Product => ({
+const createMockProduct = (inventory?: Partial<ShopperProductsTypes.Inventory>): ShopperProductsTypes.Product => ({
     id: 'test-product-123',
     name: 'Test Product',
-    inventory: inventory as ShopperProductsTypes.Inventory,
-});
-
-// Helper function to create mock variant data
-const createMockVariant = (inventory: Partial<ShopperProductsTypes.Inventory>): ShopperProductsTypes.Variant => ({
-    productId: 'test-variant-123',
-    inventory: inventory as ShopperProductsTypes.Inventory,
+    ...(inventory ? { inventory: inventory as ShopperProductsTypes.Inventory } : {}),
 });
 
 /**
@@ -87,221 +202,93 @@ export const InStock: Story = {
             preorderable: false,
         }),
     },
-};
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
 
-/**
- * In Stock with High Inventory - Same as in stock but with higher quantity
- */
-export const InStockHighInventory: Story = {
-    args: {
-        product: createMockProduct({
-            orderable: true,
-            ats: 100,
-            backorderable: false,
-            preorderable: false,
-        }),
+        // Test that inventory message displays "In Stock" text
+        const inStockText = canvas.getByText(/in stock/i);
+        await expect(inStockText).toBeInTheDocument();
+
+        // Test that appropriate styling/color is applied (green for in stock)
+        const messageElement = inStockText.closest('[class*="text-"], [class*="bg-"]');
+        void expect(messageElement).toBeInTheDocument();
+
+        // Verify component renders correctly
+        void expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
-/**
- * Pre-Order - Blue badge indicating item is available for pre-order
- */
 export const PreOrder: Story = {
     args: {
         product: createMockProduct({
             orderable: true,
             preorderable: true,
-            ats: 0,
             backorderable: false,
+            ats: 0,
         }),
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const preOrderText = canvas.getByText(/pre-order/i);
+        await expect(preOrderText).toBeInTheDocument();
+
+        const messageElement = preOrderText.closest('div');
+        if (messageElement) {
+            void expect(messageElement).toHaveClass('text-info');
+        }
     },
 };
 
-/**
- * Back Order - Orange badge indicating item can be back-ordered
- */
 export const BackOrder: Story = {
     args: {
         product: createMockProduct({
             orderable: true,
+            preorderable: false,
             backorderable: true,
             ats: 0,
-            preorderable: false,
         }),
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const backOrderText = canvas.getByText(/back order/i);
+        await expect(backOrderText).toBeInTheDocument();
+
+        const messageElement = backOrderText.closest('div');
+        if (messageElement) {
+            void expect(messageElement).toHaveClass('text-warning');
+        }
     },
 };
 
-/**
- * Out of Stock - Red badge indicating product is unavailable
- */
 export const OutOfStock: Story = {
     args: {
         product: createMockProduct({
             orderable: false,
+            preorderable: false,
+            backorderable: false,
             ats: 0,
-            backorderable: false,
-            preorderable: false,
         }),
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const outOfStockText = canvas.getByText(/out of stock/i);
+        await expect(outOfStockText).toBeInTheDocument();
+
+        const messageElement = outOfStockText.closest('div');
+        if (messageElement) {
+            void expect(messageElement).toHaveClass('text-destructive');
+        }
     },
 };
 
-/**
- * Out of Stock with Product Name - Shows product name in the message
- */
-export const OutOfStockWithName: Story = {
+export const UnknownVisible: Story = {
     args: {
-        product: {
-            ...createMockProduct({
-                orderable: false,
-                ats: 0,
-                backorderable: false,
-                preorderable: false,
-            }),
-            name: 'Blue Cotton T-Shirt',
-        },
+        product: createMockProduct(),
+        showUnknownStatus: true,
     },
-};
-
-/**
- * With Variant - Uses variant inventory instead of product inventory
- */
-export const WithVariant: Story = {
-    args: {
-        product: createMockProduct({
-            orderable: true,
-            ats: 100,
-            backorderable: false,
-            preorderable: false,
-        }),
-        currentVariant: createMockVariant({
-            orderable: false,
-            ats: 0,
-            backorderable: false,
-            preorderable: false,
-        }),
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const unknownText = canvas.getByText(/inventory unavailable/i);
+        await expect(unknownText).toBeInTheDocument();
     },
-};
-
-/**
- * Variant Pre-Order - Variant is available for pre-order while product shows in stock
- */
-export const VariantPreOrder: Story = {
-    args: {
-        product: createMockProduct({
-            orderable: true,
-            ats: 50,
-            backorderable: false,
-            preorderable: false,
-        }),
-        currentVariant: createMockVariant({
-            orderable: true,
-            preorderable: true,
-            ats: 0,
-            backorderable: false,
-        }),
-    },
-};
-
-/**
- * Variant Back Order - Variant is available for back-order
- */
-export const VariantBackOrder: Story = {
-    args: {
-        product: createMockProduct({
-            orderable: true,
-            ats: 50,
-            backorderable: false,
-            preorderable: false,
-        }),
-        currentVariant: createMockVariant({
-            orderable: true,
-            backorderable: true,
-            ats: 0,
-            preorderable: false,
-        }),
-    },
-};
-
-/**
- * No Inventory Data - Component returns null when inventory data is missing
- */
-export const NoInventoryData: Story = {
-    args: {
-        product: {
-            id: 'test-product-no-inventory',
-            name: 'Product Without Inventory',
-        } as ShopperProductsTypes.Product,
-    },
-};
-
-/**
- * Custom Class Name - Demonstrates adding custom styling
- */
-export const WithCustomClassName: Story = {
-    args: {
-        product: createMockProduct({
-            orderable: true,
-            ats: 10,
-            backorderable: false,
-            preorderable: false,
-        }),
-        className: 'shadow-lg',
-    },
-};
-
-/**
- * All States Side by Side - Visual comparison of all inventory states
- */
-export const AllStates: Story = {
-    render: () => (
-        <div className="flex flex-col gap-4">
-            <div>
-                <h3 className="text-sm font-semibold mb-2">In Stock</h3>
-                <InventoryMessage
-                    product={createMockProduct({
-                        orderable: true,
-                        ats: 10,
-                        backorderable: false,
-                        preorderable: false,
-                    })}
-                />
-            </div>
-            <div>
-                <h3 className="text-sm font-semibold mb-2">Pre-Order</h3>
-                <InventoryMessage
-                    product={createMockProduct({
-                        orderable: true,
-                        preorderable: true,
-                        ats: 0,
-                        backorderable: false,
-                    })}
-                />
-            </div>
-            <div>
-                <h3 className="text-sm font-semibold mb-2">Back Order</h3>
-                <InventoryMessage
-                    product={createMockProduct({
-                        orderable: true,
-                        backorderable: true,
-                        ats: 0,
-                        preorderable: false,
-                    })}
-                />
-            </div>
-            <div>
-                <h3 className="text-sm font-semibold mb-2">Out of Stock</h3>
-                <InventoryMessage
-                    product={{
-                        ...createMockProduct({
-                            orderable: false,
-                            ats: 0,
-                            backorderable: false,
-                            preorderable: false,
-                        }),
-                        name: 'Premium Sneakers',
-                    }}
-                />
-            </div>
-        </div>
-    ),
 };

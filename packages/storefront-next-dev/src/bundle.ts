@@ -39,7 +39,25 @@ export const createBundle = async (options: CreateBundleOptions): Promise<Bundle
 
         const newRoot = path.join(projectSlug, 'bld', '');
 
+        // Exclude Storybook and test files from the archive
+        const storybookExclusions = [
+            '**/*.stories.tsx',
+            '**/*.stories.ts',
+            '**/*-snapshot.tsx',
+            '.storybook/**/*',
+            'storybook-static/**/*',
+            '**/__mocks__/**/*',
+            '**/__snapshots__/**/*',
+        ];
+        const storybookExclusionMatchers = storybookExclusions.map(
+            (pattern) => new Minimatch(pattern, { nocomment: true })
+        );
+
         archive.directory(buildDirectory, '', (entry) => {
+            // Skip Storybook files
+            if (entry.name && storybookExclusionMatchers.some((matcher) => matcher.match(entry.name))) {
+                return false;
+            }
             if (entry.stats?.isFile() && entry.name) {
                 filesInArchive.push(entry.name);
             }

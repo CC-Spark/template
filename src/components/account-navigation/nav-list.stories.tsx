@@ -1,0 +1,350 @@
+/*
+ * Copyright (c) 2025, Salesforce, Inc.
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
+import { action } from 'storybook/actions';
+import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
+import { expect, within, userEvent } from 'storybook/test';
+import { AccountNavList, type AccountNavItemData } from './nav-list';
+import { User, Heart, Receipt, MapPin, Settings } from 'lucide-react';
+
+function ActionLogger({ children }: { children: ReactNode }): ReactElement {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const root = containerRef.current;
+        if (!root) return;
+
+        const logNavigate = action('nav-list-navigate');
+        const logHover = action('nav-list-hover');
+        const logDisabledClick = action('nav-list-disabled-click');
+
+        const handleClick = (event: Event) => {
+            const target = event.target as HTMLElement | null;
+            if (!target) return;
+
+            const navLink = target.closest('a[href]');
+            const navButton = target.closest('button[disabled]');
+
+            if (navLink) {
+                const href = navLink.getAttribute('href') || '';
+                const text = navLink.textContent?.trim() || '';
+                event.preventDefault();
+                (event as unknown as { stopImmediatePropagation?: () => void }).stopImmediatePropagation?.();
+                logNavigate({ href, label: text });
+                return;
+            }
+
+            if (navButton) {
+                const label = navButton.textContent?.trim() || '';
+                event.preventDefault();
+                (event as unknown as { stopImmediatePropagation?: () => void }).stopImmediatePropagation?.();
+                logDisabledClick({ label });
+            }
+        };
+
+        const handleMouseOver = (event: Event) => {
+            const target = event.target as HTMLElement | null;
+            if (!target) return;
+
+            const navLink = target.closest('a[href], button');
+            if (navLink) {
+                const label = navLink.textContent?.trim() || '';
+                const href = (navLink as HTMLAnchorElement).getAttribute('href') || '';
+                logHover({ label, href });
+            }
+        };
+
+        root.addEventListener('click', handleClick, true);
+        root.addEventListener('mouseover', handleMouseOver, true);
+
+        return () => {
+            root.removeEventListener('click', handleClick, true);
+            root.removeEventListener('mouseover', handleMouseOver, true);
+        };
+    }, []);
+
+    return <div ref={containerRef}>{children}</div>;
+}
+
+const mockNavigationItems: AccountNavItemData[] = [
+    { path: '/account', icon: User, label: 'Account Details' },
+    { path: '/account/wishlist', icon: Heart, label: 'Wishlist' },
+    { path: '/account/orders', icon: Receipt, label: 'Orders' },
+    { path: '/account/addresses', icon: MapPin, label: 'Addresses' },
+];
+
+const meta: Meta<typeof AccountNavList> = {
+    title: 'ACCOUNT/Account Navigation/Nav List',
+    component: AccountNavList,
+    tags: ['autodocs', 'interaction'],
+    parameters: {
+        layout: 'padded',
+        docs: {
+            description: {
+                component: `
+Navigation list component that renders multiple account navigation items. Used in the account page sidebar to display navigation options.
+
+**Features:**
+- Renders multiple navigation items
+- Supports mobile and desktop variants
+- Handles disabled items
+- React Router integration for navigation
+                `,
+            },
+        },
+    },
+    decorators: [
+        (Story: React.ComponentType, context) => {
+            const RouterWrapper = (): ReactElement => {
+                const inRouter = useInRouterContext();
+                const content = (
+                    <ActionLogger>
+                        <Story {...(context.args as Record<string, unknown>)} />
+                    </ActionLogger>
+                );
+
+                if (inRouter) {
+                    return content;
+                }
+
+                const router = createMemoryRouter(
+                    [
+                        {
+                            path: '/account',
+                            element: content,
+                        },
+                        {
+                            path: '/account/wishlist',
+                            element: <div>Wishlist Page</div>,
+                        },
+                        {
+                            path: '/account/orders',
+                            element: <div>Orders Page</div>,
+                        },
+                        {
+                            path: '/account/addresses',
+                            element: <div>Addresses Page</div>,
+                        },
+                        {
+                            path: '/account/settings',
+                            element: <div>Settings Page</div>,
+                        },
+                    ],
+                    { initialEntries: ['/account'] }
+                );
+
+                return <RouterProvider router={router} />;
+            };
+
+            return <RouterWrapper />;
+        },
+    ],
+    argTypes: {
+        items: {
+            description: 'Array of navigation items to display',
+            control: 'object',
+        },
+        isMobile: {
+            description: 'Whether to render in mobile mode (adds border styling to items)',
+            control: 'boolean',
+        },
+    },
+};
+
+export default meta;
+type Story = StoryObj<typeof AccountNavList>;
+
+export const Default: Story = {
+    args: {
+        items: mockNavigationItems,
+        isMobile: false,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Default desktop navigation list with multiple items.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Verify all navigation items are present
+        await expect(canvas.getByRole('link', { name: 'Account Details' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Wishlist' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Orders' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Addresses' })).toBeInTheDocument();
+
+        // Verify correct hrefs
+        await expect(canvas.getByRole('link', { name: 'Account Details' })).toHaveAttribute('href', '/account');
+        await expect(canvas.getByRole('link', { name: 'Wishlist' })).toHaveAttribute('href', '/account/wishlist');
+        await expect(canvas.getByRole('link', { name: 'Orders' })).toHaveAttribute('href', '/account/orders');
+        await expect(canvas.getByRole('link', { name: 'Addresses' })).toHaveAttribute('href', '/account/addresses');
+
+        // Verify all links are present
+        const links = canvas.getAllByRole('link');
+        await expect(links).toHaveLength(4);
+    },
+};
+
+export const Mobile: Story = {
+    args: {
+        items: mockNavigationItems,
+        isMobile: true,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Mobile variant with border styling on items.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        const links = canvas.getAllByRole('link');
+        await expect(links.length).toBeGreaterThan(0);
+
+        // Verify mobile styling (border class)
+        links.forEach((link) => {
+            void expect(link).toHaveClass('border');
+        });
+    },
+};
+
+export const WithDisabledItem: Story = {
+    args: {
+        items: [
+            { path: '/account', icon: User, label: 'Account Details' },
+            { path: '/account/wishlist', icon: Heart, label: 'Wishlist' },
+            { path: '/account/orders', icon: Receipt, label: 'Orders' },
+            { path: '/account/addresses', icon: MapPin, label: 'Addresses', disabled: true },
+        ],
+        isMobile: false,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Navigation list with one disabled item.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Verify enabled items are links
+        await expect(canvas.getByRole('link', { name: 'Account Details' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Wishlist' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Orders' })).toBeInTheDocument();
+
+        // Verify disabled item is a button
+        const disabledButton = canvas.getByRole('button', { name: 'Addresses' });
+        await expect(disabledButton).toBeInTheDocument();
+        await expect(disabledButton).toBeDisabled();
+    },
+};
+
+export const Empty: Story = {
+    args: {
+        items: [],
+        isMobile: false,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Empty navigation list with no items.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Verify no links are present
+        const links = canvas.queryAllByRole('link');
+        await expect(links).toHaveLength(0);
+    },
+};
+
+export const SingleItem: Story = {
+    args: {
+        items: [{ path: '/account', icon: User, label: 'Account Details' }],
+        isMobile: false,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Navigation list with a single item.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        const link = canvas.getByRole('link', { name: 'Account Details' });
+        await expect(link).toBeInTheDocument();
+
+        const links = canvas.getAllByRole('link');
+        await expect(links).toHaveLength(1);
+    },
+};
+
+export const Interactive: Story = {
+    args: {
+        items: mockNavigationItems,
+        isMobile: false,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Interactive navigation list where items can be clicked.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        const wishlistLink = canvas.getByRole('link', { name: 'Wishlist' });
+        await expect(wishlistLink).toBeInTheDocument();
+
+        await userEvent.hover(wishlistLink);
+        await userEvent.click(wishlistLink);
+
+        const ordersLink = canvas.getByRole('link', { name: 'Orders' });
+        await expect(ordersLink).toBeInTheDocument();
+
+        await userEvent.hover(ordersLink);
+        await userEvent.click(ordersLink);
+    },
+};
+
+export const WithManyItems: Story = {
+    args: {
+        items: [
+            { path: '/account', icon: User, label: 'Account Details' },
+            { path: '/account/wishlist', icon: Heart, label: 'Wishlist' },
+            { path: '/account/orders', icon: Receipt, label: 'Orders' },
+            { path: '/account/addresses', icon: MapPin, label: 'Addresses' },
+            { path: '/account/settings', icon: Settings, label: 'Settings' },
+        ],
+        isMobile: false,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Navigation list with many items.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        const links = canvas.getAllByRole('link');
+        await expect(links.length).toBeGreaterThanOrEqual(5);
+    },
+};

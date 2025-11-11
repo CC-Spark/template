@@ -7,7 +7,11 @@ const baseConfig = await import('../../eslint.config.js');
 export default [
     ...baseConfig.default,
     {
-        // Storybook files - apply Storybook-specific rules
+        // Ignore Storybook config files from linting (they have their own TS project context)
+        ignores: ['.storybook/**/*'],
+    },
+    {
+        // Storybook story files - apply Storybook-specific rules
         files: ['**/*.stories.{ts,tsx,js,jsx}'],
         plugins: {
             storybook,

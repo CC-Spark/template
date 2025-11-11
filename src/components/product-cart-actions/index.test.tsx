@@ -17,9 +17,9 @@ import ProductCartActions from './index';
 import ProductViewProvider from '@/providers/product-view';
 import { AllProvidersWrapper } from '@/test-utils/context-provider';
 // mock data
-import { masterProduct } from '@/components/__mock__/master-variant-product';
-import { standardProd } from '@/components/__mock__/standard-product';
-import { bundleProd } from '@/components/__mock__/bundle-product';
+import { masterProduct } from '@/components/__mocks__/master-variant-product';
+import { standardProd } from '@/components/__mocks__/standard-product';
+import { bundleProd } from '@/components/__mocks__/bundle-product';
 import { createConfigWrapper } from '@/test-utils/config';
 
 // Create a wrapper with default config
