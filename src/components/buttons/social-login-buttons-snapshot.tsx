@@ -1,0 +1,103 @@
+import { vi, expect, test, describe, afterEach } from 'vitest';
+
+type MockFormProps = React.PropsWithChildren<Record<string, unknown>>;
+type MockLinkProps = React.PropsWithChildren<{ to?: string; href?: string; [key: string]: unknown }>;
+
+const fetcherMock = {
+    data: null,
+    state: 'idle',
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    submit: () => {},
+    Form: (props: MockFormProps) => <form {...props}>{props.children}</form>,
+};
+
+vi.mock('react-router', () => ({
+    createContext: vi.fn().mockImplementation(() => ({})),
+    useFetcher: () => fetcherMock,
+    useFetchers: () => [],
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    useNavigate: () => () => {},
+    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+    useNavigation: () => ({
+        state: 'idle',
+        location: { pathname: '/', search: '', hash: '', state: null, key: 'test' },
+    }),
+    useSearchParams: () => [new URLSearchParams(), vi.fn()],
+    // Add missing Form component
+    Form: (props: MockFormProps) => <form {...props}>{props.children}</form>,
+    // Add missing createMemoryRouter
+    createMemoryRouter: vi.fn().mockImplementation(() => ({
+        navigate: vi.fn(),
+        state: { location: { pathname: '/', search: '', hash: '', state: null } },
+    })),
+    // Add missing RouterProvider
+    RouterProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    Link: (props: MockLinkProps) => {
+        const { to, href, children, ...rest } = props ?? {};
+        return (
+            <a href={to ?? href} {...rest}>
+                {children}
+            </a>
+        );
+    },
+}));
+vi.mock('react-router-dom', async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...actual,
+        useFetcher: () => fetcherMock,
+        useFetchers: () => [],
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        useNavigate: () => () => {},
+        useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+        useNavigation: () => ({
+            state: 'idle',
+            location: { pathname: '/', search: '', hash: '', state: null, key: 'test' },
+        }),
+        // Add missing createMemoryRouter
+        createMemoryRouter: vi.fn().mockImplementation(() => ({
+            navigate: vi.fn(),
+            state: { location: { pathname: '/', search: '', hash: '', state: null } },
+        })),
+        Link: (props: MockLinkProps) => {
+            const { to, href, children, ...rest } = props ?? {};
+            return (
+                <a href={to ?? href} {...rest}>
+                    {children}
+                </a>
+            );
+        },
+    };
+});
+vi.mock('@/components/toast', () => ({
+    useToast: () => ({
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        addToast: () => {},
+    }),
+}));
+
+import { composeStories } from '@storybook/react-vite';
+// eslint-disable-next-line import/no-namespace
+import * as SocialLoginButtonsStories from './social-login-buttons.stories';
+import { render, cleanup } from '@testing-library/react';
+import { ConfigProvider } from '@/config';
+import { mockConfig } from '@/test-utils/config';
+
+const composed = composeStories(SocialLoginButtonsStories);
+
+afterEach(() => {
+    cleanup();
+});
+
+describe('SocialLoginButtons stories snapshot', () => {
+    for (const [storyName, Story] of Object.entries(composed)) {
+        test(`${storyName} story renders and matches snapshot`, () => {
+            const { container } = render(
+                <ConfigProvider config={mockConfig}>
+                    <Story />
+                </ConfigProvider>
+            );
+            expect(container.firstChild).toMatchSnapshot();
+        });
+    }
+});

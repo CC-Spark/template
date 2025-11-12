@@ -166,7 +166,17 @@ const createBundle = async (options) => {
 		const archive = archiver("tar");
 		archive.pipe(output);
 		const newRoot = path.join(projectSlug, "bld", "");
+		const storybookExclusionMatchers = [
+			"**/*.stories.tsx",
+			"**/*.stories.ts",
+			"**/*-snapshot.tsx",
+			".storybook/**/*",
+			"storybook-static/**/*",
+			"**/__mocks__/**/*",
+			"**/__snapshots__/**/*"
+		].map((pattern) => new Minimatch(pattern, { nocomment: true }));
 		archive.directory(buildDirectory, "", (entry) => {
+			if (entry.name && storybookExclusionMatchers.some((matcher) => matcher.match(entry.name))) return false;
 			if (entry.stats?.isFile() && entry.name) filesInArchive.push(entry.name);
 			entry.prefix = newRoot;
 			return entry;
@@ -311,6 +321,8 @@ var CloudAPIClient = class {
 
 //#endregion
 //#region src/config.ts
+const SFNEXT_BASE_CARTRIDGE_NAME = "app_storefrontnext_base";
+const SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR = `${SFNEXT_BASE_CARTRIDGE_NAME}/cartridge/experience`;
 /**
 * Build MRT SSR configuration for bundle deployment
 *
@@ -328,7 +340,14 @@ const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
 			"server/**/*",
 			"loader.js",
 			"ssr.js",
-			"!static/**/*"
+			"!static/**/*",
+			"!**/*.stories.tsx",
+			"!**/*.stories.ts",
+			"!**/*-snapshot.tsx",
+			"!.storybook/**/*",
+			"!storybook-static/**/*",
+			"!**/__mocks__/**/*",
+			"!**/__snapshots__/**/*"
 		],
 		ssrShared: [
 			"client/**/*",
@@ -343,7 +362,14 @@ const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
 			"**/*.woff",
 			"**/*.woff2",
 			"**/*.ttf",
-			"**/*.eot"
+			"**/*.eot",
+			"!**/*.stories.tsx",
+			"!**/*.stories.ts",
+			"!**/*-snapshot.tsx",
+			"!.storybook/**/*",
+			"!storybook-static/**/*",
+			"!**/__mocks__/**/*",
+			"!**/__snapshots__/**/*"
 		],
 		ssrParameters: { ssrFunctionNodeVersion: "22.x" }
 	};

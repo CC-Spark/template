@@ -33,6 +33,22 @@ export default defineConfig(({ mode }) => {
     return {
         build: {
             sourcemap: 'hidden',
+            rollupOptions: {
+                output: {
+                    // TODO: consider extracting this as a plugin instead
+                    manualChunks(id) {
+                        // Automatically name translation chunks based on language directory
+                        // Matches: /src/locales/{lang}/ and extracts the language code
+                        // This dynamically works for any language (en, es, fr, de-DE, zh-CN, etc.)
+                        // without needing to manually add each language to this config
+                        const localeMatch = id.match(/\/src\/locales\/([^/]+)\//);
+                        if (localeMatch) {
+                            const languageCode = localeMatch[1];
+                            return `locales-${languageCode}`;
+                        }
+                    },
+                },
+            },
         },
         envPrefix: ['VITE_', 'PUBLIC_'],
         define: {
@@ -108,7 +124,15 @@ export default defineConfig(({ mode }) => {
             coverage: {
                 reporter: [...new Set([...coverageConfigDefaults.reporter, 'json', 'json-summary'])], // `json-summary` and `json` are required for the CI
                 include: ['src/**/*.{ts,tsx}'],
-                exclude: ['src/**/*.d.ts', 'src/components/ui/**/*', 'src/**/*.stories.tsx'],
+                exclude: [
+                    'src/**/*.d.ts',
+                    'src/components/ui/**/*',
+                    'src/**/*.stories.{ts,tsx}',
+                    'src/**/*-snapshot.tsx',
+                    'src/**/mocks/**/*',
+                    'src/**/__mocks__/**/*',
+                    'src/**/__snapshots__/**/*',
+                ],
                 reportOnFailure: true,
                 thresholds: coverageConfigThresholds,
             },

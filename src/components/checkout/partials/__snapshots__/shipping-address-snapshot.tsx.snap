@@ -1,0 +1,2235 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ShippingAddress stories snapshot > CompletedState story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      >
+        <button
+          aria-label="Edit"
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-primary underline-offset-4 hover:underline h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 cursor-pointer"
+          data-slot="button"
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <div
+        class="space-y-3"
+      >
+        <div
+          class="rounded-lg p-3 space-y-2 bg-muted/50"
+        >
+          <p
+            class="leading-7 [&:not(:first-child)]:mt-6 text-left text-muted-foreground"
+          >
+            Shipping address not provided yet
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > Default story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r0»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«r0»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r0»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«r1»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r2»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«r2»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r2»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r3»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«r3»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r3»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r4»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«r4»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r4»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r5»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«r5»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r5»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r6»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«r6»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r6»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r7»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«r7»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r7»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            type="submit"
+          >
+            Continue to Shipping Options
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > DesktopView story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      >
+        <button
+          aria-label="Edit"
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-primary underline-offset-4 hover:underline h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 cursor-pointer"
+          data-slot="button"
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <div
+        class="space-y-3"
+      >
+        <div
+          class="rounded-lg p-3 space-y-2 bg-muted/50"
+        >
+          <p
+            class="leading-7 [&:not(:first-child)]:mt-6 text-left text-muted-foreground"
+          >
+            Shipping address not provided yet
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > DisabledState story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      >
+        <button
+          aria-label="Edit"
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-primary underline-offset-4 hover:underline h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5 cursor-pointer"
+          data-slot="button"
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <div
+        class="space-y-3"
+      >
+        <div
+          class="rounded-lg p-3 space-y-2 bg-muted/50"
+        >
+          <p
+            class="leading-7 [&:not(:first-child)]:mt-6 text-left text-muted-foreground"
+          >
+            Shipping address not provided yet
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > InternationalAddress story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r18»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«r18»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r18»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r19»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«r19»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r19»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1a»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«r1a»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1a»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1b»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«r1b»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1b»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1c»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«r1c»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1c»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1d»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«r1d»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1d»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1e»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«r1e»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1e»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1f»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«r1f»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1f»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            type="submit"
+          >
+            Continue to Shipping Options
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > LoadingState story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rg»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«rg»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rg»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rh»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«rh»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rh»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«ri»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«ri»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«ri»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«rj»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«rj»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«rj»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rk»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«rk»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rk»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rl»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«rl»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rl»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rm»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«rm»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rm»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«rn»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«rn»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«rn»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            disabled=""
+            type="submit"
+          >
+            Submitting
+          </button>
+        </div>
+      </form>
+    </div>
+    <div
+      class="absolute inset-0 z-10 rounded-xl bg-background/60"
+    >
+      <div
+        class="flex h-full w-full items-center justify-center"
+      >
+        <div
+          class="animate-spin rounded-full border-2 border-border border-t-primary size-6"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > MobileView story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1g»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«r1g»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1g»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1h»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«r1h»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1h»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1i»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«r1i»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1i»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1j»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«r1j»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1j»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1k»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«r1k»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1k»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1l»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«r1l»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1l»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1m»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«r1m»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1m»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1n»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«r1n»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1n»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            type="submit"
+          >
+            Continue to Shipping Options
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > TabletView story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1o»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«r1o»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1o»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1p»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«r1p»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1p»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1q»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«r1q»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1q»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1r»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«r1r»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1r»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1s»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«r1s»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1s»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1t»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«r1t»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1t»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r1u»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«r1u»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r1u»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r1v»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«r1v»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r1v»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            type="submit"
+          >
+            Continue to Shipping Options
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > WithExistingAddress story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r8»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«r8»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r8»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r9»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«r9»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r9»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«ra»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«ra»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«ra»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«rb»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«rb»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«rb»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rc»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«rc»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rc»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rd»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«rd»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rd»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«re»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«re»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«re»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«rf»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«rf»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«rf»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            type="submit"
+          >
+            Continue to Shipping Options
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > WithFormError story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«ro»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«ro»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«ro»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rp»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«rp»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rp»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«rq»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«rq»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«rq»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«rr»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«rr»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«rr»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rs»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«rs»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rs»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«rt»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«rt»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«rt»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«ru»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«ru»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«ru»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«rv»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«rv»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«rv»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            type="submit"
+          >
+            Continue to Shipping Options
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ShippingAddress stories snapshot > WithValidationErrors story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm relative gap-4"
+    data-slot="card"
+    data-testid="sf-toggle-card-shipping-address"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      data-slot="card-header"
+    >
+      <div
+        class="leading-none font-semibold"
+        data-slot="card-title"
+        tabindex="0"
+      >
+        <span
+          class="text-lg font-semibold text-foreground"
+        >
+          Shipping Address
+        </span>
+      </div>
+      <div
+        class="col-start-2 row-start-1 justify-self-end row-span-1 self-center"
+        data-slot="card-action"
+      />
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+      data-testid="sf-toggle-card-shipping-address-content"
+    >
+      <form
+        class="space-y-6"
+      >
+        <div
+          class="space-y-2"
+        >
+          <div
+            class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded"
+          >
+            First name is required
+          </div>
+          <div
+            class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded"
+          >
+            Last name is required
+          </div>
+          <div
+            class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded"
+          >
+            Address is required
+          </div>
+          <div
+            class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded"
+          >
+            City is required
+          </div>
+        </div>
+        <div
+          class="grid grid-cols-2 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r10»-form-item"
+            >
+              First Name
+            </label>
+            <input
+              aria-describedby="«r10»-form-item-description"
+              aria-invalid="false"
+              autocomplete="given-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r10»-form-item"
+              name="firstName"
+              placeholder="First name"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r11»-form-item"
+            >
+              Last Name
+            </label>
+            <input
+              aria-describedby="«r11»-form-item-description"
+              aria-invalid="false"
+              autocomplete="family-name"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r11»-form-item"
+              name="lastName"
+              placeholder="Last name"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r12»-form-item"
+          >
+            Address
+          </label>
+          <input
+            aria-describedby="«r12»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line1"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r12»-form-item"
+            name="address1"
+            placeholder="Street address"
+            value=""
+          />
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r13»-form-item"
+          >
+            Address Line 2
+          </label>
+          <input
+            aria-describedby="«r13»-form-item-description"
+            aria-invalid="false"
+            autocomplete="address-line2"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r13»-form-item"
+            name="address2"
+            placeholder="Apartment, suite, etc. (optional)"
+            value=""
+          />
+        </div>
+        <div
+          class="grid grid-cols-3 gap-4"
+        >
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r14»-form-item"
+            >
+              City
+            </label>
+            <input
+              aria-describedby="«r14»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level2"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r14»-form-item"
+              name="city"
+              placeholder="City"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r15»-form-item"
+            >
+              State/Province
+            </label>
+            <input
+              aria-describedby="«r15»-form-item-description"
+              aria-invalid="false"
+              autocomplete="address-level1"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r15»-form-item"
+              name="stateCode"
+              placeholder="State or province (optional)"
+              value=""
+            />
+          </div>
+          <div
+            class="grid gap-2"
+            data-slot="form-item"
+          >
+            <label
+              class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+              data-error="false"
+              data-slot="form-label"
+              for="«r16»-form-item"
+            >
+              Postal Code
+            </label>
+            <input
+              aria-describedby="«r16»-form-item-description"
+              aria-invalid="false"
+              autocomplete="postal-code"
+              class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+              data-slot="form-control"
+              id="«r16»-form-item"
+              name="postalCode"
+              placeholder="Postal code (optional)"
+              value=""
+            />
+          </div>
+        </div>
+        <div
+          class="grid gap-2"
+          data-slot="form-item"
+        >
+          <label
+            class="flex items-center gap-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive text-base font-medium text-foreground"
+            data-error="false"
+            data-slot="form-label"
+            for="«r17»-form-item"
+          >
+            Phone Number
+          </label>
+          <input
+            aria-describedby="«r17»-form-item-description"
+            aria-invalid="false"
+            autocomplete="tel"
+            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex w-full min-w-0 rounded-md bg-transparent px-3 py-1 shadow-xs outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-12 text-base border-2 focus:border-primary transition-colors"
+            data-slot="form-control"
+            id="«r17»-form-item"
+            name="phone"
+            placeholder="(555) 123-4567"
+            type="tel"
+            value=""
+          />
+        </div>
+        <div
+          class="flex justify-end pt-4"
+        >
+          <button
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 rounded-md px-6 has-[>svg]:px-4 min-w-56 h-12 text-base font-semibold"
+            data-slot="button"
+            type="submit"
+          >
+            Continue to Shipping Options
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;
