@@ -391,4 +391,172 @@ describe('useTransformSearchSuggestions', () => {
             searchPhrase: undefined,
         });
     });
+
+    describe('Einstein Suggestions Transformation', () => {
+        it('should transform Einstein suggested phrases correctly', () => {
+            const dataWithEinstein: ShopperSearchTypes.SuggestionResult = {
+                searchPhrase: 'test query',
+                einsteinSuggestedPhrases: {
+                    popularSearchPhrases: [
+                        { phrase: 'popular search 1', exactMatch: false },
+                        { phrase: 'popular search 2', exactMatch: true },
+                    ],
+                    recentSearchPhrases: [
+                        { phrase: 'recent search 1', exactMatch: false },
+                        { phrase: 'recent search 2', exactMatch: true },
+                    ],
+                },
+            };
+
+            const { result } = renderHook(() => useTransformSearchSuggestions(dataWithEinstein));
+
+            expect(result.current.popularSearchSuggestions).toEqual([
+                {
+                    type: 'popular',
+                    name: 'popular search 1',
+                    link: '/search?q=popular%20search%201',
+                    exactMatch: false,
+                },
+                {
+                    type: 'popular',
+                    name: 'popular search 2',
+                    link: '/search?q=popular%20search%202',
+                    exactMatch: true,
+                },
+            ]);
+
+            expect(result.current.recentSearchSuggestions).toEqual([
+                {
+                    type: 'recent',
+                    name: 'recent search 1',
+                    link: '/search?q=recent%20search%201',
+                    exactMatch: false,
+                },
+                {
+                    type: 'recent',
+                    name: 'recent search 2',
+                    link: '/search?q=recent%20search%202',
+                    exactMatch: true,
+                },
+            ]);
+        });
+
+        it('should handle empty Einstein suggestions', () => {
+            const dataWithEmptyEinstein: ShopperSearchTypes.SuggestionResult = {
+                searchPhrase: 'test query',
+                einsteinSuggestedPhrases: {
+                    popularSearchPhrases: [],
+                    recentSearchPhrases: [],
+                },
+            };
+
+            const { result } = renderHook(() => useTransformSearchSuggestions(dataWithEmptyEinstein));
+
+            expect(result.current.popularSearchSuggestions).toBeUndefined();
+            expect(result.current.recentSearchSuggestions).toBeUndefined();
+        });
+
+        it('should handle missing Einstein suggestions', () => {
+            const dataWithoutEinstein: ShopperSearchTypes.SuggestionResult = {
+                searchPhrase: 'test query',
+            };
+
+            const { result } = renderHook(() => useTransformSearchSuggestions(dataWithoutEinstein));
+
+            expect(result.current.popularSearchSuggestions).toBeUndefined();
+            expect(result.current.recentSearchSuggestions).toBeUndefined();
+        });
+
+        it('should handle Einstein suggestions with empty phrases', () => {
+            const dataWithEmptyPhrases: ShopperSearchTypes.SuggestionResult = {
+                searchPhrase: 'test query',
+                einsteinSuggestedPhrases: {
+                    popularSearchPhrases: [
+                        { phrase: '', exactMatch: false },
+                        { phrase: null as any, exactMatch: true },
+                    ],
+                    recentSearchPhrases: [
+                        { phrase: undefined as any, exactMatch: false },
+                        { phrase: 'valid phrase', exactMatch: true },
+                    ],
+                },
+            };
+
+            const { result } = renderHook(() => useTransformSearchSuggestions(dataWithEmptyPhrases));
+
+            expect(result.current.popularSearchSuggestions).toEqual([
+                {
+                    type: 'popular',
+                    name: '',
+                    link: '/search?q=',
+                    exactMatch: false,
+                },
+                {
+                    type: 'popular',
+                    name: '',
+                    link: '/search?q=',
+                    exactMatch: true,
+                },
+            ]);
+
+            expect(result.current.recentSearchSuggestions).toEqual([
+                {
+                    type: 'recent',
+                    name: '',
+                    link: '/search?q=',
+                    exactMatch: false,
+                },
+                {
+                    type: 'recent',
+                    name: 'valid phrase',
+                    link: '/search?q=valid%20phrase',
+                    exactMatch: true,
+                },
+            ]);
+        });
+
+        it('should only include Einstein suggestions when arrays have content', () => {
+            const dataWithOnlyPopular: ShopperSearchTypes.SuggestionResult = {
+                searchPhrase: 'test query',
+                einsteinSuggestedPhrases: {
+                    popularSearchPhrases: [{ phrase: 'popular search', exactMatch: false }],
+                    recentSearchPhrases: [],
+                },
+            };
+
+            const { result } = renderHook(() => useTransformSearchSuggestions(dataWithOnlyPopular));
+
+            expect(result.current.popularSearchSuggestions).toEqual([
+                {
+                    type: 'popular',
+                    name: 'popular search',
+                    link: '/search?q=popular%20search',
+                    exactMatch: false,
+                },
+            ]);
+            expect(result.current.recentSearchSuggestions).toBeUndefined();
+        });
+
+        it('should only include Einstein suggestions when arrays have content - recent only', () => {
+            const dataWithOnlyRecent: ShopperSearchTypes.SuggestionResult = {
+                searchPhrase: 'test query',
+                einsteinSuggestedPhrases: {
+                    popularSearchPhrases: [],
+                    recentSearchPhrases: [{ phrase: 'recent search', exactMatch: true }],
+                },
+            };
+
+            const { result } = renderHook(() => useTransformSearchSuggestions(dataWithOnlyRecent));
+
+            expect(result.current.popularSearchSuggestions).toBeUndefined();
+            expect(result.current.recentSearchSuggestions).toEqual([
+                {
+                    type: 'recent',
+                    name: 'recent search',
+                    link: '/search?q=recent%20search',
+                    exactMatch: true,
+                },
+            ]);
+        });
+    });
 });

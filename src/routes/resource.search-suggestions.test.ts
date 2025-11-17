@@ -84,4 +84,124 @@ describe('Search Suggestions API', () => {
         const result = await response.json();
         expect(result.error).toBeDefined();
     });
+
+    it('should handle includeEinsteinSuggestedPhrases parameter when true', async () => {
+        const url = new URL('http://localhost/api/search-suggestions');
+        url.searchParams.set('q', 'shoes');
+        url.searchParams.set('includeEinsteinSuggestedPhrases', 'true');
+
+        const request = {
+            params: {},
+            context: mockContext,
+            request: new Request(url.toString()),
+        };
+
+        await loader(request);
+
+        expect(fetchSearchSuggestions).toHaveBeenCalledWith(mockContext, {
+            q: 'shoes',
+            expand: [],
+            includeEinsteinSuggestedPhrases: true,
+        });
+    });
+
+    it('should handle includeEinsteinSuggestedPhrases parameter when false', async () => {
+        const url = new URL('http://localhost/api/search-suggestions');
+        url.searchParams.set('q', 'shoes');
+        url.searchParams.set('includeEinsteinSuggestedPhrases', 'false');
+
+        const request = {
+            params: {},
+            context: mockContext,
+            request: new Request(url.toString()),
+        };
+
+        await loader(request);
+
+        expect(fetchSearchSuggestions).toHaveBeenCalledWith(mockContext, {
+            q: 'shoes',
+            expand: [],
+            includeEinsteinSuggestedPhrases: false,
+        });
+    });
+
+    it('should handle includeEinsteinSuggestedPhrases parameter when not provided', async () => {
+        const url = new URL('http://localhost/api/search-suggestions');
+        url.searchParams.set('q', 'shoes');
+
+        const request = {
+            params: {},
+            context: mockContext,
+            request: new Request(url.toString()),
+        };
+
+        await loader(request);
+
+        expect(fetchSearchSuggestions).toHaveBeenCalledWith(mockContext, {
+            q: 'shoes',
+            expand: [],
+            includeEinsteinSuggestedPhrases: undefined,
+        });
+    });
+
+    it('should handle includeEinsteinSuggestedPhrases with other parameters', async () => {
+        const url = new URL('http://localhost/api/search-suggestions');
+        url.searchParams.set('q', 'accessories');
+        url.searchParams.set('expand', 'images,prices');
+        url.searchParams.set('includeEinsteinSuggestedPhrases', 'true');
+
+        const request = {
+            params: {},
+            context: mockContext,
+            request: new Request(url.toString()),
+        };
+
+        await loader(request);
+
+        expect(fetchSearchSuggestions).toHaveBeenCalledWith(mockContext, {
+            q: 'accessories',
+            expand: ['images', 'prices'],
+            includeEinsteinSuggestedPhrases: true,
+        });
+    });
+
+    it('should handle includeEinsteinSuggestedPhrases with invalid values as false', async () => {
+        const url = new URL('http://localhost/api/search-suggestions');
+        url.searchParams.set('q', 'bags');
+        url.searchParams.set('includeEinsteinSuggestedPhrases', 'invalid');
+
+        const request = {
+            params: {},
+            context: mockContext,
+            request: new Request(url.toString()),
+        };
+
+        await loader(request);
+
+        expect(fetchSearchSuggestions).toHaveBeenCalledWith(mockContext, {
+            q: 'bags',
+            expand: [],
+            includeEinsteinSuggestedPhrases: false,
+        });
+    });
+
+    it('should handle includeEinsteinSuggestedPhrases with empty string as false', async () => {
+        const url = new URL('http://localhost/api/search-suggestions');
+        url.searchParams.set('q', 'hats');
+        url.searchParams.set('includeEinsteinSuggestedPhrases', '');
+
+        const request = {
+            params: {},
+            context: mockContext,
+            request: new Request(url.toString()),
+        };
+
+        await loader(request);
+
+        expect(fetchSearchSuggestions).toHaveBeenCalledWith(mockContext, {
+            q: 'hats',
+            expand: [],
+            includeEinsteinSuggestedPhrases: false,
+        });
+    });
 });

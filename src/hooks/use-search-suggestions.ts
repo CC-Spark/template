@@ -7,6 +7,7 @@ export interface UseSearchSuggestionsOptions {
     expand?: ('images' | 'prices')[];
     limit?: number;
     currency?: string;
+    includeEinsteinSuggestedPhrases?: boolean;
     enabled?: boolean;
 }
 
@@ -25,6 +26,7 @@ export function useSearchSuggestions({
     expand,
     limit,
     currency,
+    includeEinsteinSuggestedPhrases,
     enabled = true,
 }: UseSearchSuggestionsOptions): SearchSuggestionsResult {
     // Prepare parameters for Commerce SDK getSearchSuggestions method
@@ -35,9 +37,10 @@ export function useSearchSuggestions({
                 ...(expand && { expand }),
                 ...(limit && { limit }),
                 ...(currency && { currency }),
+                ...(includeEinsteinSuggestedPhrases !== undefined && { includeEinsteinSuggestedPhrases }),
             },
         }),
-        [q, expand, limit, currency]
+        [q, expand, limit, currency, includeEinsteinSuggestedPhrases]
     );
 
     // Use useScapiFetcher hook for Commerce SDK operations

@@ -85,9 +85,10 @@ export const fetchSearchSuggestions = (
         expand?: ShopperSearch.operations['getSearchSuggestions']['parameters']['query']['expand'];
         limit?: ShopperSearch.operations['getSearchSuggestions']['parameters']['query']['limit'];
         currency?: ShopperSearch.operations['getSearchSuggestions']['parameters']['query']['currency'];
+        includeEinsteinSuggestedPhrases?: boolean;
     }
 ): Promise<ShopperSearch.schemas['SuggestionResult']> => {
-    const { q, expand, limit, currency } = parameters;
+    const { q, expand, limit, currency, includeEinsteinSuggestedPhrases } = parameters;
     const config = getConfig(context);
     const clients = createApiClients(context);
 
@@ -103,6 +104,7 @@ export const fetchSearchSuggestions = (
                     ...(expand && { expand }),
                     ...(limit && { limit }),
                     ...(currency && { currency }),
+                    ...(includeEinsteinSuggestedPhrases !== undefined && { includeEinsteinSuggestedPhrases }),
                 },
             },
         })

@@ -19,6 +19,14 @@ const additionalStrings = {
     },
     search: {
         results: 'Search Results for',
+        suggestions: {
+            didYouMean: 'Did you mean',
+            categories: 'Categories',
+            products: 'Products',
+            popularSearches: 'Popular Searches',
+            recentSearches: 'Recent Searches',
+            viewAll: 'View All',
+        },
     },
     customer: {
         defaults: {

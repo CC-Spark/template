@@ -27,6 +27,7 @@ export default function SearchBar(): ReactElement {
     const { data: suggestions, refetch } = useSearchSuggestions({
         q: query,
         expand: ['images', 'prices'],
+        includeEinsteinSuggestedPhrases: true,
         enabled: query.trim().length >= 3,
     });
 

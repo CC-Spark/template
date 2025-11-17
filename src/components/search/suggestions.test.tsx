@@ -106,8 +106,7 @@ describe('SearchSuggestionsSection Component', () => {
                 />
             );
 
-            // Should render both mobile and desktop layouts
-            expect(screen.getAllByTestId('suggestions-list')).toHaveLength(3); // 1 mobile categories + 1 mobile products + 1 desktop categories
+            expect(screen.getAllByTestId('suggestions-list')).toHaveLength(2);
             expect(screen.getByTestId('suggestions-grid')).toBeInTheDocument();
         });
 
@@ -161,7 +160,7 @@ describe('SearchSuggestionsSection Component', () => {
             );
 
             const categoriesHeaders = screen.getAllByText('Categories');
-            expect(categoriesHeaders).toHaveLength(2); // One for mobile, one for desktop
+            expect(categoriesHeaders).toHaveLength(1);
         });
 
         it('should render products section in mobile layout', () => {
@@ -769,6 +768,152 @@ describe('SearchSuggestionsSection Component', () => {
 
             // Should handle null searchPhrase gracefully
             expect(mockCloseAndNavigate).toHaveBeenCalledWith('/search?q=');
+        });
+    });
+
+    describe('Einstein Suggestions', () => {
+        const mockEinsteinSuggestions = {
+            categorySuggestions: [{ name: 'Category 1', link: '/category/1', type: 'category' }],
+            productSuggestions: [
+                { name: 'Product 1', link: '/product/1', type: 'product', image: 'image1.jpg', price: 100 },
+            ],
+            phraseSuggestions: [{ name: 'test search', link: '/search?q=test%20search', exactMatch: true }],
+            popularSearchSuggestions: [
+                { name: 'Popular 1', link: '/search?q=popular%201', type: 'popular', exactMatch: false },
+                { name: 'Popular 2', link: '/search?q=popular%202', type: 'popular', exactMatch: false },
+            ],
+            recentSearchSuggestions: [
+                { name: 'Recent 1', link: '/search?q=recent%201', type: 'recent', exactMatch: false },
+                { name: 'Recent 2', link: '/search?q=recent%202', type: 'recent', exactMatch: false },
+            ],
+            searchPhrase: 'test',
+        };
+
+        it('should render popular search suggestions on mobile and desktop', () => {
+            renderWithRouter(
+                <SearchSuggestionsSection
+                    searchSuggestions={mockEinsteinSuggestions}
+                    closeAndNavigate={mockCloseAndNavigate}
+                />
+            );
+
+            expect(screen.getAllByText('Popular Searches')).toHaveLength(2);
+            expect(screen.getAllByText('Popular 1')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.getAllByText('Popular 2')).toHaveLength(2); // Mobile + Desktop
+        });
+
+        it('should render recent search suggestions on mobile and desktop', () => {
+            renderWithRouter(
+                <SearchSuggestionsSection
+                    searchSuggestions={mockEinsteinSuggestions}
+                    closeAndNavigate={mockCloseAndNavigate}
+                />
+            );
+
+            expect(screen.getAllByText('Recent Searches')).toHaveLength(2);
+            expect(screen.getAllByText('Recent 1')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.getAllByText('Recent 2')).toHaveLength(2); // Mobile + Desktop
+        });
+
+        it('should apply Einstein suggestions limit when "Did you mean" is present', () => {
+            const suggestionsWithDidYouMean = {
+                ...mockEinsteinSuggestions,
+                phraseSuggestions: [{ name: 'corrected search', link: '/search?q=corrected', exactMatch: false }],
+                popularSearchSuggestions: [
+                    { name: 'Popular 1', link: '/search?q=popular%201', type: 'popular', exactMatch: false },
+                    { name: 'Popular 2', link: '/search?q=popular%202', type: 'popular', exactMatch: false },
+                    { name: 'Popular 3', link: '/search?q=popular%203', type: 'popular', exactMatch: false },
+                ],
+                recentSearchSuggestions: [
+                    { name: 'Recent 1', link: '/search?q=recent%201', type: 'recent', exactMatch: false },
+                    { name: 'Recent 2', link: '/search?q=recent%202', type: 'recent', exactMatch: false },
+                    { name: 'Recent 3', link: '/search?q=recent%203', type: 'recent', exactMatch: false },
+                ],
+            };
+
+            renderWithRouter(
+                <SearchSuggestionsSection
+                    searchSuggestions={suggestionsWithDidYouMean}
+                    closeAndNavigate={mockCloseAndNavigate}
+                />
+            );
+
+            // Should show "Did you mean"
+            expect(screen.getAllByText(/Did you mean/)).toHaveLength(2); // Mobile + Desktop
+
+            // Should limit Einstein suggestions to 2 when "Did you mean" is present
+            expect(screen.getAllByText('Popular 1')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.getAllByText('Popular 2')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.queryByText('Popular 3')).not.toBeInTheDocument();
+
+            expect(screen.getAllByText('Recent 1')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.getAllByText('Recent 2')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.queryByText('Recent 3')).not.toBeInTheDocument();
+        });
+
+        it('should apply Einstein suggestions limit when "Did you mean" is not present', () => {
+            const suggestionsWithoutDidYouMean = {
+                ...mockEinsteinSuggestions,
+                phraseSuggestions: [{ name: 'exact search', link: '/search?q=exact', exactMatch: true }],
+                popularSearchSuggestions: [
+                    { name: 'Popular 1', link: '/search?q=popular%201', type: 'popular', exactMatch: false },
+                    { name: 'Popular 2', link: '/search?q=popular%202', type: 'popular', exactMatch: false },
+                    { name: 'Popular 3', link: '/search?q=popular%203', type: 'popular', exactMatch: false },
+                    { name: 'Popular 4', link: '/search?q=popular%204', type: 'popular', exactMatch: false },
+                ],
+            };
+
+            renderWithRouter(
+                <SearchSuggestionsSection
+                    searchSuggestions={suggestionsWithoutDidYouMean}
+                    closeAndNavigate={mockCloseAndNavigate}
+                />
+            );
+
+            // Should not show "Did you mean" (exactMatch: true)
+            expect(screen.queryByText(/Did you mean/)).not.toBeInTheDocument();
+
+            // Should limit Einstein suggestions to 3 when "Did you mean" is not present
+            expect(screen.getAllByText('Popular 1')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.getAllByText('Popular 2')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.getAllByText('Popular 3')).toHaveLength(2); // Mobile + Desktop
+            expect(screen.queryByText('Popular 4')).not.toBeInTheDocument();
+        });
+
+        it('should not render Einstein sections when suggestions are empty', () => {
+            const suggestionsWithoutEinstein = {
+                ...mockSearchSuggestions,
+                popularSearchSuggestions: undefined,
+                recentSearchSuggestions: undefined,
+            };
+
+            renderWithRouter(
+                <SearchSuggestionsSection
+                    searchSuggestions={suggestionsWithoutEinstein}
+                    closeAndNavigate={mockCloseAndNavigate}
+                />
+            );
+
+            expect(screen.queryByText('Popular Searches')).not.toBeInTheDocument();
+            expect(screen.queryByText('Recent Searches')).not.toBeInTheDocument();
+        });
+
+        it('should not render Einstein sections when suggestions arrays are empty', () => {
+            const suggestionsWithEmptyEinstein = {
+                ...mockSearchSuggestions,
+                popularSearchSuggestions: [],
+                recentSearchSuggestions: [],
+            };
+
+            renderWithRouter(
+                <SearchSuggestionsSection
+                    searchSuggestions={suggestionsWithEmptyEinstein}
+                    closeAndNavigate={mockCloseAndNavigate}
+                />
+            );
+
+            expect(screen.queryByText('Popular Searches')).not.toBeInTheDocument();
+            expect(screen.queryByText('Recent Searches')).not.toBeInTheDocument();
         });
     });
 });

@@ -249,4 +249,104 @@ describe('useSearchSuggestions', () => {
             await expect(result.current.refetch()).rejects.toThrow('Search suggestions disabled or query is empty');
         });
     });
+
+    describe('includeEinsteinSuggestedPhrases parameter', () => {
+        it('should include includeEinsteinSuggestedPhrases when true', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: true }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: true,
+                },
+            });
+        });
+
+        it('should include includeEinsteinSuggestedPhrases when false', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: false }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: false,
+                },
+            });
+        });
+
+        it('should exclude includeEinsteinSuggestedPhrases when undefined', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: undefined }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                },
+            });
+        });
+
+        it('should exclude includeEinsteinSuggestedPhrases when not provided', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress' }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                },
+            });
+        });
+
+        it('should handle includeEinsteinSuggestedPhrases with other parameters', () => {
+            renderHook(() =>
+                useSearchSuggestions({
+                    q: 'dress',
+                    expand: ['images', 'prices'],
+                    limit: 10,
+                    currency: 'USD',
+                    includeEinsteinSuggestedPhrases: true,
+                })
+            );
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    expand: ['images', 'prices'],
+                    limit: 10,
+                    currency: 'USD',
+                    includeEinsteinSuggestedPhrases: true,
+                },
+            });
+        });
+
+        it('should update includeEinsteinSuggestedPhrases parameter on rerender', () => {
+            const { rerender } = renderHook(
+                ({ includeEinsteinSuggestedPhrases }) =>
+                    useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases }),
+                {
+                    initialProps: { includeEinsteinSuggestedPhrases: true },
+                }
+            );
+
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: true,
+                },
+            });
+
+            rerender({ includeEinsteinSuggestedPhrases: false });
+
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: false,
+                },
+            });
+
+            rerender({ includeEinsteinSuggestedPhrases: undefined });
+
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                },
+            });
+        });
+    });
 });
