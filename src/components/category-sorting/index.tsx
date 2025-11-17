@@ -43,6 +43,7 @@ export default function CategorySorting({
     const selectId = useId();
 
     const sortingOptions = useMemo(() => result?.sortingOptions || [], [result?.sortingOptions]);
+
     const navigatePage = useCallback(
         (sort: string) => {
             const params = new URLSearchParams(location.search);
@@ -55,6 +56,11 @@ export default function CategorySorting({
         },
         [location, navigate]
     );
+
+    // Return null if no sorting options available
+    if (sortingOptions.length === 0) {
+        return null;
+    }
 
     return (
         <div className="flex items-center space-x-2">

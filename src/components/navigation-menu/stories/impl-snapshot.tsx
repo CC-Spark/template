@@ -1,0 +1,103 @@
+import { vi, expect, test, describe, afterEach } from 'vitest';
+import type { AnchorHTMLAttributes, ReactNode } from 'react';
+
+type LinkProps =
+    | (AnchorHTMLAttributes<HTMLAnchorElement> & { to?: string; href?: string; children?: ReactNode })
+    | null;
+
+vi.mock('react-router', () => ({
+    createContext: vi.fn().mockImplementation(() => ({})),
+    useFetcher: () => ({
+        data: null,
+        state: 'idle',
+        submit: vi.fn(),
+    }),
+    useFetchers: () => [],
+    useNavigate: () => vi.fn(),
+    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+    useNavigation: () => ({
+        state: 'idle',
+        location: { pathname: '/', search: '', hash: '', state: null, key: 'test' },
+    }),
+    useSearchParams: () => [new URLSearchParams(), vi.fn()],
+    useInRouterContext: () => false,
+    createMemoryRouter: vi.fn().mockImplementation(() => ({
+        navigate: vi.fn(),
+        state: { location: { pathname: '/', search: '', hash: '', state: null } },
+    })),
+    RouterProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    NavLink: ({
+        to,
+        children,
+        className,
+        ...rest
+    }: LinkProps & { className?: string | ((props: { isActive: boolean }) => string) }) => {
+        const {
+            to: toProp,
+            href,
+            children: linkChildren,
+            ...linkRest
+        } = (rest ?? {}) as AnchorHTMLAttributes<HTMLAnchorElement> & {
+            to?: string;
+            href?: string;
+            children?: ReactNode;
+        };
+        const hrefValue = to ?? toProp ?? href ?? '#';
+
+        // @ts-expect-error - TypeScript has trouble inferring union types in this context
+        const resolvedClassName =
+            typeof className === 'function' ? className({ isActive: hrefValue === '/' }) : className;
+        return (
+            <a href={hrefValue} className={resolvedClassName} {...linkRest}>
+                {linkChildren ?? children}
+            </a>
+        );
+    },
+    Link: (props: LinkProps) => {
+        const { to, href, children, ...rest } = (props ?? {}) as AnchorHTMLAttributes<HTMLAnchorElement> & {
+            to?: string;
+            href?: string;
+            children?: ReactNode;
+        };
+        return (
+            <a href={to ?? href} {...rest}>
+                {children}
+            </a>
+        );
+    },
+}));
+
+vi.mock('@/config', async () => {
+    const actual = await vi.importActual('@/config');
+    return {
+        ...actual,
+        useConfig: () => ({
+            commerce: {
+                api: {
+                    organizationId: 'test-org',
+                },
+            },
+        }),
+    };
+});
+
+import { composeStories } from '@storybook/react-vite';
+// eslint-disable-next-line import/no-namespace
+import * as ImplStories from './impl.stories';
+import { render, cleanup } from '@testing-library/react';
+
+const composed = composeStories(ImplStories);
+
+afterEach(() => {
+    cleanup();
+});
+
+describe('CategoryNavigationMenu (impl) stories snapshot', () => {
+    for (const [storyName, Story] of Object.entries(composed)) {
+        if (Story?.parameters?.snapshot === false || /interactiontests?/i.test(storyName)) continue;
+        test(`${storyName} story renders and matches snapshot`, () => {
+            const { container } = render(<Story />);
+            expect(container.firstChild).toMatchSnapshot();
+        });
+    }
+});

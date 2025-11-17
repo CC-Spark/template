@@ -1,0 +1,125 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AddressDisplay stories snapshot > Default story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="space-y-1"
+  >
+    <p
+      class="leading-7 [&:not(:first-child)]:mt-6 text-left"
+    >
+      Gurpreet
+       
+      Saini
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      123 Main St
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      South Jordan
+      , UT
+       84095
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      US
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      1233211234
+    </p>
+  </div>
+</div>
+`;
+
+exports[`AddressDisplay stories snapshot > Minimal story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="space-y-1"
+  >
+    <p
+      class="leading-7 [&:not(:first-child)]:mt-6 text-left"
+    >
+      John
+       
+      Doe
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      456 Oak Avenue
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      Boston
+      , MA
+       02101
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      US
+    </p>
+  </div>
+</div>
+`;
+
+exports[`AddressDisplay stories snapshot > NoAddress story renders and matches snapshot 1`] = `
+<div>
+  <p
+    class="text-sm font-medium leading-none text-left text-muted-foreground"
+  >
+    No address provided
+  </p>
+</div>
+`;
+
+exports[`AddressDisplay stories snapshot > WithAddress2 story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="space-y-1"
+  >
+    <p
+      class="leading-7 [&:not(:first-child)]:mt-6 text-left"
+    >
+      Gurpreet
+       
+      Saini
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      123 Main St
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      Apt 4B
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      South Jordan
+      , UT
+       84095
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      US
+    </p>
+    <p
+      class="text-sm font-medium leading-none text-left text-muted-foreground"
+    >
+      1233211234
+    </p>
+  </div>
+</div>
+`;

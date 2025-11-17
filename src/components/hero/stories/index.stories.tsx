@@ -1,0 +1,140 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import Hero from '../index';
+import { action } from 'storybook/actions';
+import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
+import { expect, within } from 'storybook/test';
+
+function HeroStoryHarness({ children }: { children: ReactNode }): ReactElement {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const root = containerRef.current;
+        if (!root) return;
+
+        const logClick = action('hero-click');
+        const logHover = action('hero-hover');
+
+        const handleClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement | null;
+            if (!target || !root.contains(target)) return;
+            const link = target.closest('a');
+            if (link) {
+                logClick({ href: link.getAttribute('href') || '', text: link.textContent?.trim() || '' });
+            }
+        };
+
+        const handleMouseOver = (event: MouseEvent) => {
+            const target = event.target as HTMLElement | null;
+            if (!target || !root.contains(target)) return;
+            logHover({ element: target.textContent?.trim() || '' });
+        };
+
+        root.addEventListener('click', handleClick);
+        root.addEventListener('mouseover', handleMouseOver);
+        return () => {
+            root.removeEventListener('click', handleClick);
+            root.removeEventListener('mouseover', handleMouseOver);
+        };
+    }, []);
+
+    return <div ref={containerRef}>{children}</div>;
+}
+
+const meta: Meta<typeof Hero> = {
+    title: 'COMMON/Hero',
+    component: Hero,
+    tags: ['autodocs', 'interaction'],
+    parameters: {
+        layout: 'fullscreen',
+        docs: {
+            description: {
+                component: `
+A hero section component with background image, title, subtitle, and call-to-action button.
+
+### Features:
+- Full-width hero section
+- Background image
+- Overlay text content
+- Call-to-action button
+- Responsive design
+                `,
+            },
+        },
+    },
+    decorators: [
+        (Story) => (
+            <HeroStoryHarness>
+                <Story />
+            </HeroStoryHarness>
+        ),
+    ],
+};
+
+export default meta;
+type Story = StoryObj<typeof Hero>;
+
+export const Default: Story = {
+    render: () => (
+        <Hero
+            title="Welcome to Our Store"
+            subtitle="Discover amazing products for your everyday needs"
+            imageUrl="https://via.placeholder.com/1920x1080"
+            imageAlt="Hero background"
+            ctaText="Shop Now"
+            ctaLink="/category/all"
+        />
+    ),
+    parameters: {
+        docs: {
+            story: `
+Standard hero section with all features.
+
+### Features:
+- Title and subtitle
+- Background image
+- Call-to-action button
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Check for title
+        const title = await canvas.findByText(/welcome to our store/i, {}, { timeout: 5000 });
+        await expect(title).toBeInTheDocument();
+
+        // Check for CTA button
+        const cta = await canvas.findByRole('link', { name: /shop now/i }, { timeout: 5000 });
+        await expect(cta).toBeInTheDocument();
+    },
+};
+
+export const WithoutSubtitle: Story = {
+    render: () => (
+        <Hero
+            title="Simple Hero"
+            imageUrl="https://via.placeholder.com/1920x1080"
+            imageAlt="Hero background"
+            ctaText="Explore"
+            ctaLink="/explore"
+        />
+    ),
+    parameters: {
+        docs: {
+            story: `
+Hero section without subtitle.
+
+### Features:
+- Title only
+- Cleaner appearance
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Check for title
+        const title = await canvas.findByText(/simple hero/i, {}, { timeout: 5000 });
+        await expect(title).toBeInTheDocument();
+    },
+};
