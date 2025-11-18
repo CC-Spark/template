@@ -2,7 +2,7 @@
 
 import { type ReactElement, useCallback, useMemo, useId } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import type { ShopperSearchTypes } from 'commerce-sdk-isomorphic';
+import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 
 import { SelectNative } from '@/components/ui/select-native';
 import { PRODUCT_SEARCH_QUERY_PARAMS } from '@/lib/query-params';
@@ -36,13 +36,14 @@ import { PRODUCT_SEARCH_QUERY_PARAMS } from '@/lib/query-params';
 export default function CategorySorting({
     result,
 }: {
-    result: ShopperSearchTypes.ProductSearchResult;
+    result: ShopperSearch.schemas['ProductSearchResult'];
 }): ReactElement | null {
     const navigate = useNavigate();
     const location = useLocation();
     const selectId = useId();
 
     const sortingOptions = useMemo(() => result?.sortingOptions || [], [result?.sortingOptions]);
+
     const navigatePage = useCallback(
         (sort: string) => {
             const params = new URLSearchParams(location.search);
@@ -55,6 +56,11 @@ export default function CategorySorting({
         },
         [location, navigate]
     );
+
+    // Return null if no sorting options available
+    if (sortingOptions.length === 0) {
+        return null;
+    }
 
     return (
         <div className="flex items-center space-x-2">

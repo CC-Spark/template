@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach, type MockedFunction } from 'vitest';
-import type { ShopperSearchTypes } from 'commerce-sdk-isomorphic';
+import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { useSearchSuggestions } from './use-search-suggestions';
 import { useScapiFetcher } from './use-scapi-fetcher';
 
@@ -14,12 +14,12 @@ describe('useSearchSuggestions', () => {
     let mockFetcher: {
         state: 'idle' | 'loading' | 'submitting';
         load: MockedFunction<() => Promise<void>>;
-        data: ShopperSearchTypes.SuggestionResult | undefined;
+        data: ShopperSearch.schemas['SuggestionResult'] | undefined;
         success: boolean;
         errors: string[] | undefined;
     };
 
-    const mockSuggestionResult: ShopperSearchTypes.SuggestionResult = {
+    const mockSuggestionResult: ShopperSearch.schemas['SuggestionResult'] = {
         searchPhrase: 'dress',
         categorySuggestions: {
             categories: [{ id: 'dresses', name: 'Dresses', parentCategoryName: 'Clothing' }],
@@ -187,7 +187,7 @@ describe('useSearchSuggestions', () => {
                         q: 'dress',
                         expand: ['images'] as ('images' | 'prices')[],
                         limit: 5,
-                        currency: 'USD' as ShopperSearchTypes.CurrencyCode,
+                        currency: 'USD',
                     },
                 }
             );
@@ -247,6 +247,106 @@ describe('useSearchSuggestions', () => {
             rerender({ enabled: false });
 
             await expect(result.current.refetch()).rejects.toThrow('Search suggestions disabled or query is empty');
+        });
+    });
+
+    describe('includeEinsteinSuggestedPhrases parameter', () => {
+        it('should include includeEinsteinSuggestedPhrases when true', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: true }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: true,
+                },
+            });
+        });
+
+        it('should include includeEinsteinSuggestedPhrases when false', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: false }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: false,
+                },
+            });
+        });
+
+        it('should exclude includeEinsteinSuggestedPhrases when undefined', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: undefined }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                },
+            });
+        });
+
+        it('should exclude includeEinsteinSuggestedPhrases when not provided', () => {
+            renderHook(() => useSearchSuggestions({ q: 'dress' }));
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                },
+            });
+        });
+
+        it('should handle includeEinsteinSuggestedPhrases with other parameters', () => {
+            renderHook(() =>
+                useSearchSuggestions({
+                    q: 'dress',
+                    expand: ['images', 'prices'],
+                    limit: 10,
+                    currency: 'USD',
+                    includeEinsteinSuggestedPhrases: true,
+                })
+            );
+
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    expand: ['images', 'prices'],
+                    limit: 10,
+                    currency: 'USD',
+                    includeEinsteinSuggestedPhrases: true,
+                },
+            });
+        });
+
+        it('should update includeEinsteinSuggestedPhrases parameter on rerender', () => {
+            const { rerender } = renderHook(
+                ({ includeEinsteinSuggestedPhrases }) =>
+                    useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases }),
+                {
+                    initialProps: { includeEinsteinSuggestedPhrases: true },
+                }
+            );
+
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: true,
+                },
+            });
+
+            rerender({ includeEinsteinSuggestedPhrases: false });
+
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                    includeEinsteinSuggestedPhrases: false,
+                },
+            });
+
+            rerender({ includeEinsteinSuggestedPhrases: undefined });
+
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
+                parameters: {
+                    q: 'dress',
+                },
+            });
         });
     });
 });

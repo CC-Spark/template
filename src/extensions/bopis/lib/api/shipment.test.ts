@@ -7,24 +7,42 @@
 
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { updateShipmentForPickup } from './shipment';
-import type { ShopperBasketsTypes } from 'commerce-sdk-isomorphic';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import type { RouterContextProvider } from 'react-router';
 
-// Mock createClient
-vi.mock('@/lib/scapi', () => ({
-    default: vi.fn(),
+// Mock createApiClients and getConfig
+vi.mock('@/lib/api-clients', () => ({
+    createApiClients: vi.fn(),
+}));
+
+vi.mock('@/config', () => ({
+    getConfig: vi.fn(),
 }));
 
 describe('Shipment API utilities', () => {
-    const mockContext = {} as RouterContextProvider;
+    const mockContext = {
+        get: vi.fn(),
+        set: vi.fn(),
+    } as unknown as RouterContextProvider;
+
+    const mockConfig = {
+        commerce: {
+            api: {
+                organizationId: 'test-org',
+                siteId: 'test-site',
+            },
+        },
+    };
 
     describe('updateShipmentForPickup', () => {
-        beforeEach(() => {
+        beforeEach(async () => {
             vi.clearAllMocks();
+            const { getConfig } = await import('@/config');
+            vi.mocked(getConfig).mockReturnValue(mockConfig as any);
         });
 
         test('should update shipment with c_fromStoreId', async () => {
-            const mockBasket: Partial<ShopperBasketsTypes.Basket> = {
+            const mockBasket: Partial<ShopperBasketsV2.schemas['Basket']> = {
                 basketId: 'test-basket',
                 shipments: [
                     {
@@ -34,11 +52,11 @@ describe('Shipment API utilities', () => {
                 ],
             };
 
-            const mockUpdateShipmentForBasket = vi.fn().mockResolvedValue(mockBasket);
+            const mockUpdateShipmentForBasket = vi.fn().mockResolvedValue({ data: mockBasket });
 
-            const createClient = await import('@/lib/scapi');
-            vi.mocked(createClient.default).mockReturnValue({
-                ShopperBasketsV2: {
+            const { createApiClients } = await import('@/lib/api-clients');
+            vi.mocked(createApiClients).mockReturnValue({
+                shopperBasketsV2: {
                     updateShipmentForBasket: mockUpdateShipmentForBasket,
                 },
             } as any);
@@ -46,11 +64,18 @@ describe('Shipment API utilities', () => {
             const result = await updateShipmentForPickup(mockContext, 'test-basket', 'me', 'store-123');
 
             expect(mockUpdateShipmentForBasket).toHaveBeenCalledWith({
-                parameters: {
-                    basketId: 'test-basket',
-                    shipmentId: 'me',
+                params: {
+                    path: {
+                        organizationId: 'test-org',
+                        basketId: 'test-basket',
+                        shipmentId: 'me',
+                    },
+                    query: {
+                        siteId: 'test-site',
+                    },
                 },
                 body: {
+                    shipmentId: 'me',
                     c_fromStoreId: 'store-123',
                 },
             });
@@ -58,15 +83,15 @@ describe('Shipment API utilities', () => {
         });
 
         test('should use default shipmentId "me"', async () => {
-            const mockBasket: Partial<ShopperBasketsTypes.Basket> = {
+            const mockBasket: Partial<ShopperBasketsV2.schemas['Basket']> = {
                 basketId: 'test-basket',
             };
 
-            const mockUpdateShipmentForBasket = vi.fn().mockResolvedValue(mockBasket);
+            const mockUpdateShipmentForBasket = vi.fn().mockResolvedValue({ data: mockBasket });
 
-            const createClient = await import('@/lib/scapi');
-            vi.mocked(createClient.default).mockReturnValue({
-                ShopperBasketsV2: {
+            const { createApiClients } = await import('@/lib/api-clients');
+            vi.mocked(createApiClients).mockReturnValue({
+                shopperBasketsV2: {
                     updateShipmentForBasket: mockUpdateShipmentForBasket,
                 },
             } as any);
@@ -74,11 +99,18 @@ describe('Shipment API utilities', () => {
             await updateShipmentForPickup(mockContext, 'test-basket', undefined, 'store-456');
 
             expect(mockUpdateShipmentForBasket).toHaveBeenCalledWith({
-                parameters: {
-                    basketId: 'test-basket',
-                    shipmentId: 'me',
+                params: {
+                    path: {
+                        organizationId: 'test-org',
+                        basketId: 'test-basket',
+                        shipmentId: 'me',
+                    },
+                    query: {
+                        siteId: 'test-site',
+                    },
                 },
                 body: {
+                    shipmentId: 'me',
                     c_fromStoreId: 'store-456',
                 },
             });
@@ -88,9 +120,9 @@ describe('Shipment API utilities', () => {
             const mockError = new Error('API Error');
             const mockUpdateShipmentForBasket = vi.fn().mockRejectedValue(mockError);
 
-            const createClient = await import('@/lib/scapi');
-            vi.mocked(createClient.default).mockReturnValue({
-                ShopperBasketsV2: {
+            const { createApiClients } = await import('@/lib/api-clients');
+            vi.mocked(createApiClients).mockReturnValue({
+                shopperBasketsV2: {
                     updateShipmentForBasket: mockUpdateShipmentForBasket,
                 },
             } as any);

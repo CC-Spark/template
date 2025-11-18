@@ -2,6 +2,13 @@ name: Auto Release
 
 # This workflow automatically creates releases when stable versions are pushed
 # from release-* branches in the monorepo.
+#
+# ⚠️ FOR CUSTOMERS: After cloning this template, you can safely delete this workflow
+# file.
+#
+# Note: If you upgrade your project by merging changes from the template, you may
+# encounter merge conflicts in this file, you can safely remove these conflicts by
+# running: git rm .github/workflows/auto-release.yml
 
 on:
   push:

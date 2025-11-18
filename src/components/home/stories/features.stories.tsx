@@ -1,0 +1,95 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import Features from '../features';
+import { action } from 'storybook/actions';
+import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
+import { expect, within } from 'storybook/test';
+
+function FeaturesStoryHarness({ children }: { children: ReactNode }): ReactElement {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const root = containerRef.current;
+        if (!root) return;
+
+        const logRender = action('features-render');
+
+        // Log when component renders
+        logRender({});
+
+        return () => {
+            // Cleanup if needed
+        };
+    }, []);
+
+    return <div ref={containerRef}>{children}</div>;
+}
+
+const meta: Meta<typeof Features> = {
+    title: 'HOME/Features',
+    component: Features,
+    tags: ['autodocs', 'interaction'],
+    parameters: {
+        layout: 'fullscreen',
+        docs: {
+            description: {
+                component: `
+Features component that displays a grid of feature cards.
+
+### Features:
+- Responsive grid layout
+- Feature cards with titles and descriptions
+- Static content showcasing app features
+                `,
+            },
+        },
+    },
+    decorators: [
+        (Story) => (
+            <FeaturesStoryHarness>
+                <div className="py-16 bg-background">
+                    <Story />
+                </div>
+            </FeaturesStoryHarness>
+        ),
+    ],
+};
+
+export default meta;
+type Story = StoryObj<typeof Features>;
+
+export const Default: Story = {
+    render: () => <Features />,
+    parameters: {
+        docs: {
+            story: `
+Default features component displaying all feature cards.
+
+### Features:
+- 6 feature cards in a responsive grid
+- Cart & Checkout
+- Einstein Recommendations
+- My Account
+- Shopper Login
+- Modern Components
+- Wishlist
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Check for main heading (use role to be more specific)
+        const heading = await canvas.findByRole('heading', { name: /^features$/i }, { timeout: 5000 });
+        await expect(heading).toBeInTheDocument();
+
+        // Check for feature cards
+        const cartFeature = await canvas.findByText(/cart & checkout/i, {}, { timeout: 5000 });
+        await expect(cartFeature).toBeInTheDocument();
+
+        const einsteinFeature = await canvas.findByText(/einstein recommendations/i, {}, { timeout: 5000 });
+        await expect(einsteinFeature).toBeInTheDocument();
+
+        const accountFeature = await canvas.findByText(/my account/i, {}, { timeout: 5000 });
+        await expect(accountFeature).toBeInTheDocument();
+    },
+};

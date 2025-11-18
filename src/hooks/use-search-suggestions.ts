@@ -1,17 +1,18 @@
 import { useCallback, useMemo } from 'react';
-import type { ShopperSearchTypes } from 'commerce-sdk-isomorphic';
+import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { useScapiFetcher } from './use-scapi-fetcher';
 
 export interface UseSearchSuggestionsOptions {
     q: string;
     expand?: ('images' | 'prices')[];
     limit?: number;
-    currency?: ShopperSearchTypes.CurrencyCode;
+    currency?: string;
+    includeEinsteinSuggestedPhrases?: boolean;
     enabled?: boolean;
 }
 
 export interface SearchSuggestionsResult {
-    data?: ShopperSearchTypes.SuggestionResult;
+    data?: ShopperSearch.schemas['SuggestionResult'];
     isLoading: boolean;
     refetch: () => Promise<void>;
 }
@@ -25,6 +26,7 @@ export function useSearchSuggestions({
     expand,
     limit,
     currency,
+    includeEinsteinSuggestedPhrases,
     enabled = true,
 }: UseSearchSuggestionsOptions): SearchSuggestionsResult {
     // Prepare parameters for Commerce SDK getSearchSuggestions method
@@ -35,9 +37,10 @@ export function useSearchSuggestions({
                 ...(expand && { expand }),
                 ...(limit && { limit }),
                 ...(currency && { currency }),
+                ...(includeEinsteinSuggestedPhrases !== undefined && { includeEinsteinSuggestedPhrases }),
             },
         }),
-        [q, expand, limit, currency]
+        [q, expand, limit, currency, includeEinsteinSuggestedPhrases]
     );
 
     // Use useScapiFetcher hook for Commerce SDK operations

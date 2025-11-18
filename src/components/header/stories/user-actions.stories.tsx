@@ -1,0 +1,180 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import UserActions from '../user-actions';
+import { action } from 'storybook/actions';
+import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
+import { expect, within, userEvent } from 'storybook/test';
+import AuthProvider from '@/providers/auth';
+import type { SessionData } from '@/lib/api/types';
+
+function UserActionsStoryHarness({ children }: { children: ReactNode }): ReactElement {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const root = containerRef.current;
+        if (!root) return;
+
+        const logNavigate = action('user-actions-navigate');
+        const logClick = action('user-actions-click');
+
+        const handleClick = (event: Event) => {
+            const target = event.target as HTMLElement | null;
+            if (!target || !root.contains(target)) return;
+
+            const link = target.closest('a[href]');
+            if (link) {
+                const href = link.getAttribute('href') || '';
+                const text = link.textContent?.trim() || '';
+                event.preventDefault();
+                logNavigate({ href, text });
+                return;
+            }
+
+            const button = target.closest('button');
+            if (button) {
+                const label = button.textContent?.trim() || button.getAttribute('aria-label') || '';
+                logClick({ label });
+            }
+        };
+
+        root.addEventListener('click', handleClick, true);
+
+        return () => {
+            root.removeEventListener('click', handleClick, true);
+        };
+    }, []);
+
+    return <div ref={containerRef}>{children}</div>;
+}
+
+const guestSession: SessionData = {
+    userType: 'guest',
+};
+
+const registeredSession: SessionData = {
+    userType: 'registered',
+    customer_id: 'test-customer-1',
+};
+
+const meta: Meta<typeof UserActions> = {
+    title: 'LAYOUT/Header/User Actions',
+    component: UserActions,
+    tags: ['autodocs', 'interaction'],
+    parameters: {
+        layout: 'centered',
+        docs: {
+            description: {
+                component: `
+User Actions component that displays authentication-related actions.
+
+### Features:
+- Sign In link for guests
+- Welcome message and Logout button for authenticated users
+- Conditional rendering based on auth state
+                `,
+            },
+        },
+    },
+    decorators: [
+        (Story) => (
+            <UserActionsStoryHarness>
+                <div className="p-8">
+                    <Story />
+                </div>
+            </UserActionsStoryHarness>
+        ),
+    ],
+};
+
+export default meta;
+type Story = StoryObj<typeof UserActions>;
+
+export const Guest: Story = {
+    render: () => (
+        <AuthProvider value={guestSession}>
+            <UserActions />
+        </AuthProvider>
+    ),
+    parameters: {
+        docs: {
+            story: `
+User actions for guest users.
+
+### Features:
+- Sign In link
+- No logout button
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Check for Sign In link
+        const signInLink = await canvas.findByRole('link', { name: /sign in/i }, { timeout: 5000 });
+        await expect(signInLink).toBeInTheDocument();
+        await expect(signInLink).toHaveAttribute('href', '/login');
+
+        // Check that logout button is not present
+        const logoutButton = canvas.queryByRole('button', { name: /sign out/i });
+        await expect(logoutButton).toBeNull();
+    },
+};
+
+export const Authenticated: Story = {
+    render: () => (
+        <AuthProvider value={registeredSession}>
+            <UserActions />
+        </AuthProvider>
+    ),
+    parameters: {
+        docs: {
+            story: `
+User actions for authenticated users.
+
+### Features:
+- Welcome message
+- Logout button
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Check for welcome message
+        const welcomeText = await canvas.findByText(/welcome back/i, {}, { timeout: 5000 });
+        await expect(welcomeText).toBeInTheDocument();
+
+        // Check for logout button
+        const logoutButton = await canvas.findByRole('button', { name: /sign out/i }, { timeout: 5000 });
+        await expect(logoutButton).toBeInTheDocument();
+
+        // Check that Sign In link is not present
+        const signInLink = canvas.queryByRole('link', { name: /sign in/i });
+        await expect(signInLink).toBeNull();
+    },
+};
+
+export const Interactive: Story = {
+    render: () => (
+        <AuthProvider value={registeredSession}>
+            <UserActions />
+        </AuthProvider>
+    ),
+    parameters: {
+        docs: {
+            story: `
+Interactive user actions for testing user interactions.
+
+### Features:
+- Link clicks
+- Button interactions
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Find and click logout button
+        const logoutButton = await canvas.findByRole('button', { name: /sign out/i }, { timeout: 5000 });
+        await userEvent.click(logoutButton);
+    },
+};

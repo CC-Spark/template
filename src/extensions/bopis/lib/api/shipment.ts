@@ -6,8 +6,9 @@
  */
 
 import type { RouterContextProvider } from 'react-router';
-import type { ShopperBasketsTypes } from 'commerce-sdk-isomorphic';
-import createClient from '@/lib/scapi';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { createApiClients } from '@/lib/api-clients';
+import { getConfig } from '@/config';
 
 /**
  * Update shipment custom attributes for pickup
@@ -24,16 +25,24 @@ export async function updateShipmentForPickup(
     basketId: string,
     shipmentId: string = 'me',
     storeId: string
-): Promise<ShopperBasketsTypes.Basket> {
-    const client = createClient(context).ShopperBasketsV2;
+): Promise<ShopperBasketsV2.schemas['Basket']> {
+    const config = getConfig(context);
+    const clients = createApiClients(context);
 
     // Update shipment with custom attributes
-    const updatedBasket = await client.updateShipmentForBasket({
-        parameters: {
-            basketId,
-            shipmentId,
+    const { data: updatedBasket } = await clients.shopperBasketsV2.updateShipmentForBasket({
+        params: {
+            path: {
+                organizationId: config.commerce.api.organizationId,
+                basketId,
+                shipmentId,
+            },
+            query: {
+                siteId: config.commerce.api.siteId,
+            },
         },
         body: {
+            shipmentId,
             c_fromStoreId: storeId,
         },
     });

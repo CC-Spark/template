@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { ShopperSearchTypes } from 'commerce-sdk-isomorphic';
+import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { searchUrlBuilder } from '@/lib/url';
 
 // Simple transformation interface for UI purposes only
@@ -23,15 +23,27 @@ interface TransformedSuggestions {
         link: string;
         exactMatch?: boolean;
     }>;
+    popularSearchSuggestions?: Array<{
+        name: string;
+        link: string;
+        type: string;
+        exactMatch?: boolean;
+    }>;
+    recentSearchSuggestions?: Array<{
+        name: string;
+        link: string;
+        type: string;
+        exactMatch?: boolean;
+    }>;
     searchPhrase?: string;
 }
 
 /**
- * Hook to transform commerce-sdk-isomorphic SuggestionResult into component-ready format
+ * Hook to transform SCAPI SuggestionResult into component-ready format
  * Uses only official SDK types as input, minimal transformation for UI needs
  */
 export function useTransformSearchSuggestions(
-    data: ShopperSearchTypes.SuggestionResult | null
+    data: ShopperSearch.schemas['SuggestionResult'] | null
 ): TransformedSuggestions | null {
     return useMemo(() => {
         if (!data) return null;
@@ -61,10 +73,29 @@ export function useTransformSearchSuggestions(
                 exactMatch: phrase.exactMatch,
             })) || [];
 
+        // Einstein suggestions for popular and recent searches
+        const popularSearchSuggestions =
+            data.einsteinSuggestedPhrases?.popularSearchPhrases?.map((phrase) => ({
+                type: 'popular' as const,
+                name: phrase.phrase || '',
+                link: searchUrlBuilder(phrase.phrase || ''),
+                exactMatch: phrase.exactMatch,
+            })) || [];
+
+        const recentSearchSuggestions =
+            data.einsteinSuggestedPhrases?.recentSearchPhrases?.map((phrase) => ({
+                type: 'recent' as const,
+                name: phrase.phrase || '',
+                link: searchUrlBuilder(phrase.phrase || ''),
+                exactMatch: phrase.exactMatch,
+            })) || [];
+
         return {
             categorySuggestions,
             productSuggestions,
             phraseSuggestions,
+            ...(popularSearchSuggestions.length > 0 && { popularSearchSuggestions }),
+            ...(recentSearchSuggestions.length > 0 && { recentSearchSuggestions }),
             searchPhrase: data.searchPhrase,
         };
     }, [data]);
