@@ -10,6 +10,8 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useDeliveryOptions } from './use-delivery-options';
 import { DELIVERY_OPTIONS } from '../constants';
 import { masterProductWithInventories } from '@/components/__mocks__/master-product-with-inventories';
+import { isStoreOutOfStock, isSiteOutOfStock } from '@/lib/inventory-utils';
+import { usePickup } from '@/extensions/bopis/context/pickup-context';
 
 // Mock the pickup context
 vi.mock('@/extensions/bopis/context/pickup-context', () => ({
@@ -47,9 +49,7 @@ describe('useDeliveryOptions', () => {
         vi.clearAllMocks();
     });
 
-    it('returns default delivery option initially', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('returns default delivery option initially', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -62,9 +62,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.isStoreOutOfStock).toBe(false);
     });
 
-    it('returns pickup as available when store has inventory', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('returns pickup as available when store has inventory', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -77,9 +75,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.isStoreOutOfStock).toBe(false);
     });
 
-    it('disables pickup when store is out of stock', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('disables pickup when store is out of stock', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(true);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -92,9 +88,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.isStoreOutOfStock).toBe(true);
     });
 
-    it('disables pickup when no store is selected', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('disables pickup when no store is selected', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -106,9 +100,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.isStoreOutOfStock).toBe(false);
     });
 
-    it('disables pickup when store has no inventory ID', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('disables pickup when store has no inventory ID', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -125,9 +117,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.isStoreOutOfStock).toBe(false);
     });
 
-    it('allows changing delivery option', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('allows changing delivery option', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -142,9 +132,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.selectedDeliveryOption).toBe(DELIVERY_OPTIONS.PICKUP);
     });
 
-    it('allows manual switching between delivery options', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('allows manual switching between delivery options', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -168,9 +156,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.selectedDeliveryOption).toBe(DELIVERY_OPTIONS.DELIVERY);
     });
 
-    it('handles undefined product gracefully', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('handles undefined product gracefully', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -182,9 +168,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.isStoreOutOfStock).toBe(false);
     });
 
-    it('handles quantity parameter', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('handles quantity parameter', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -201,9 +185,7 @@ describe('useDeliveryOptions', () => {
         expect(result.current.isStoreOutOfStock).toBe(false);
     });
 
-    it('calls isStoreOutOfStock and isSiteOutOfStock with correct parameters', async () => {
-        const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+    it('calls isStoreOutOfStock and isSiteOutOfStock with correct parameters', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
 
@@ -218,10 +200,7 @@ describe('useDeliveryOptions', () => {
     });
 
     describe('handleDeliveryOptionChange', () => {
-        it('calls addItem when switching to PICKUP with product and store', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('calls addItem when switching to PICKUP with product and store', () => {
             const mockAddPickupItem = vi.fn();
             const mockRemovePickupItem = vi.fn();
 
@@ -252,10 +231,7 @@ describe('useDeliveryOptions', () => {
             expect(mockRemovePickupItem).not.toHaveBeenCalled();
         });
 
-        it('calls removeItem when switching to DELIVERY', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('calls removeItem when switching to DELIVERY', () => {
             const mockAddPickupItem = vi.fn();
             const mockRemovePickupItem = vi.fn();
 
@@ -287,10 +263,7 @@ describe('useDeliveryOptions', () => {
             expect(mockRemovePickupItem).toHaveBeenCalledWith(mockProduct.id);
         });
 
-        it('does not call addItem when switching to PICKUP without inventoryId', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('does not call addItem when switching to PICKUP without inventoryId', () => {
             const mockAddPickupItem = vi.fn();
             const mockRemovePickupItem = vi.fn();
 
@@ -322,10 +295,7 @@ describe('useDeliveryOptions', () => {
             expect(mockRemovePickupItem).not.toHaveBeenCalled();
         });
 
-        it('does not call addItem or removeItem when product is undefined', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('does not call addItem or removeItem when product is undefined', () => {
             const mockAddPickupItem = vi.fn();
             const mockRemovePickupItem = vi.fn();
 
@@ -355,9 +325,6 @@ describe('useDeliveryOptions', () => {
 
     describe('auto-switching behavior', () => {
         it('auto-switches from PICKUP to DELIVERY when pickup becomes unavailable', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
             let isStoreOOS = false;
             let isSiteOOS = false;
 
@@ -403,9 +370,6 @@ describe('useDeliveryOptions', () => {
         });
 
         it('auto-switches from DELIVERY to PICKUP when delivery becomes unavailable', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
             let isStoreOOS = false;
             let isSiteOOS = false;
 
@@ -446,9 +410,6 @@ describe('useDeliveryOptions', () => {
         });
 
         it('does not switch when both options are unavailable', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
             let isStoreOOS = true;
             let isSiteOOS = false;
 
@@ -481,9 +442,6 @@ describe('useDeliveryOptions', () => {
         });
 
         it('does not switch when current option is still available', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
             vi.mocked(usePickup).mockReturnValue({
                 addItem: vi.fn(),
                 removeItem: vi.fn(),
@@ -514,10 +472,7 @@ describe('useDeliveryOptions', () => {
     });
 
     describe('initial sync behavior', () => {
-        it('syncs pickup item when hook mounts with PICKUP selected', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('syncs pickup item when hook mounts with PICKUP selected', () => {
             const mockAddItem = vi.fn();
             const mockRemoveItem = vi.fn();
 
@@ -556,10 +511,7 @@ describe('useDeliveryOptions', () => {
             expect(mockAddItem).toHaveBeenCalledWith(mockProduct.id, mockStoreInfo.inventoryId, mockStoreInfo.id);
         });
 
-        it('does not sync when store has no inventoryId', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('does not sync when store has no inventoryId', () => {
             const mockAddItem = vi.fn();
             const mockRemoveItem = vi.fn();
 
@@ -591,10 +543,7 @@ describe('useDeliveryOptions', () => {
             expect(mockRemoveItem).not.toHaveBeenCalled();
         });
 
-        it('does not sync when product has no id', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('does not sync when product has no id', () => {
             const mockAddItem = vi.fn();
             const mockRemoveItem = vi.fn();
 
@@ -621,10 +570,7 @@ describe('useDeliveryOptions', () => {
             expect(mockRemoveItem).not.toHaveBeenCalled();
         });
 
-        it('does not sync when pickupContext is null', async () => {
-            const { usePickup } = await import('@/extensions/bopis/context/pickup-context');
-            const { isStoreOutOfStock, isSiteOutOfStock } = await import('@/lib/inventory-utils');
-
+        it('does not sync when pickupContext is null', () => {
             vi.mocked(usePickup).mockReturnValue(null);
 
             vi.mocked(isStoreOutOfStock).mockReturnValue(false);
@@ -636,6 +582,159 @@ describe('useDeliveryOptions', () => {
 
             // Should not throw and should handle null pickup context gracefully
             expect(true).toBe(true);
+        });
+    });
+
+    describe('race condition handling - inventory data during revalidation', () => {
+        it('returns false (not out of stock) when store is selected but product has no inventories array', () => {
+            // Mock the helper functions to return true (out of stock) to verify they're not called
+            vi.mocked(isStoreOutOfStock).mockReturnValue(true);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product without inventories array (race condition scenario)
+            const productWithoutInventories = {
+                ...mockProduct,
+                inventories: undefined,
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productWithoutInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Should return false (not out of stock) to avoid false negatives during race condition
+            expect(result.current.isStoreOutOfStock).toBe(false);
+            // isStoreOutOfStock helper should not be called when race condition is detected
+            expect(isStoreOutOfStock).not.toHaveBeenCalled();
+        });
+
+        it('returns false (not out of stock) when store is selected but product.inventories is empty array', () => {
+            // Mock the helper functions to return true (out of stock) to verify they're not called
+            vi.mocked(isStoreOutOfStock).mockReturnValue(true);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product with empty inventories array (race condition scenario)
+            const productWithEmptyInventories = {
+                ...mockProduct,
+                inventories: [],
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productWithEmptyInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Should return false (not out of stock) to avoid false negatives during race condition
+            expect(result.current.isStoreOutOfStock).toBe(false);
+            // isStoreOutOfStock helper should not be called when race condition is detected
+            expect(isStoreOutOfStock).not.toHaveBeenCalled();
+        });
+
+        it('calls isStoreOutOfStock helper when store is selected and product has inventories', () => {
+            vi.mocked(isStoreOutOfStock).mockReturnValue(false);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: mockProduct, // Has inventories
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Should call the helper function when inventory data is available
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(mockProduct, mockStoreInfo.inventoryId, 1);
+            expect(result.current.isStoreOutOfStock).toBe(false);
+        });
+
+        it('does not trigger race condition logic when no store is selected', () => {
+            vi.mocked(isStoreOutOfStock).mockReturnValue(false);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product without inventories, but no store selected
+            const productWithoutInventories = {
+                ...mockProduct,
+                inventories: undefined,
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productWithoutInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: null, // No store selected
+                })
+            );
+
+            // Should not trigger race condition logic when no store is selected
+            // isStoreOutOfStock should still be called (with undefined inventoryId)
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(productWithoutInventories, undefined, 1);
+            expect(result.current.isStoreOutOfStock).toBe(false);
+        });
+
+        it('does not trigger race condition logic when store has no inventoryId', () => {
+            vi.mocked(isStoreOutOfStock).mockReturnValue(false);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product without inventories, but store has no inventoryId
+            const productWithoutInventories = {
+                ...mockProduct,
+                inventories: undefined,
+            };
+
+            const storeWithoutInventoryId = {
+                ...mockStoreInfo,
+                inventoryId: undefined,
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productWithoutInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: storeWithoutInventoryId,
+                })
+            );
+
+            // Should not trigger race condition logic when store has no inventoryId
+            // isStoreOutOfStock should still be called (with undefined inventoryId)
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(productWithoutInventories, undefined, 1);
+            expect(result.current.isStoreOutOfStock).toBe(false);
+        });
+
+        it('always calls isSiteOutOfStock regardless of race condition', () => {
+            vi.mocked(isStoreOutOfStock).mockReturnValue(false);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(true);
+
+            // Product without inventories (race condition scenario)
+            const productWithoutInventories = {
+                ...mockProduct,
+                inventories: undefined,
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productWithoutInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // isSiteOutOfStock should always be called, even during race condition
+            expect(isSiteOutOfStock).toHaveBeenCalledWith(productWithoutInventories, 1);
+            expect(result.current.isSiteOutOfStock).toBe(true);
+            // Store OOS should be false due to race condition handling
+            expect(result.current.isStoreOutOfStock).toBe(false);
         });
     });
 });

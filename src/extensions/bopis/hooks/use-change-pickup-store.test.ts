@@ -1,0 +1,320 @@
+/*
+ * Copyright (c) 2025, Salesforce, Inc.
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import type { FetcherWithComponents } from 'react-router';
+import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
+import { useChangePickupStore } from './use-change-pickup-store';
+import uiStringsBopis from '@/extensions/bopis/temp-ui-string-bopis';
+
+// Mock useFetcher from react-router
+const mockSubmit = vi.fn();
+const mockFetcher = {
+    state: 'idle' as const,
+    data: undefined as { success: boolean; basket?: unknown; error?: string } | undefined,
+    submit: mockSubmit,
+    load: vi.fn(),
+    Form: vi.fn() as any,
+    formAction: undefined,
+    formData: undefined,
+    formEncType: undefined,
+    formMethod: undefined,
+    formTarget: undefined,
+    type: 'init' as const,
+    json: undefined,
+    text: undefined,
+    unstable_reset: vi.fn(),
+} as unknown as FetcherWithComponents<{ success: boolean; basket?: unknown; error?: string }>;
+
+vi.mock('react-router', async (importOriginal) => {
+    const actual = (await importOriginal()) as any;
+    return {
+        ...actual,
+        useFetcher: vi.fn(() => mockFetcher),
+    };
+});
+
+// Mock useToast
+const mockAddToast = vi.fn();
+vi.mock('@/components/toast', () => ({
+    useToast: vi.fn(() => ({ addToast: mockAddToast })),
+}));
+
+describe('useChangePickupStore', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockFetcher.state = 'idle';
+        mockFetcher.data = undefined;
+        mockSubmit.mockResolvedValue(undefined);
+    });
+
+    describe('Hook initialization', () => {
+        it('returns changeStore function', () => {
+            const { result } = renderHook(() => useChangePickupStore());
+
+            expect(result.current).toHaveProperty('changeStore');
+            expect(typeof result.current.changeStore).toBe('function');
+        });
+    });
+
+    describe('changeStore function', () => {
+        it('calls fetcher.submit with correct FormData when store has all required fields', async () => {
+            const { result } = renderHook(() => useChangePickupStore());
+
+            const store: SelectedStoreInfo = {
+                id: 'store-001',
+                inventoryId: 'inventory-001',
+                name: 'Test Store',
+            };
+
+            await act(async () => {
+                await result.current.changeStore(store);
+            });
+
+            expect(mockSubmit).toHaveBeenCalledTimes(1);
+            const [formData, options] = mockSubmit.mock.calls[0];
+
+            expect(formData).toBeInstanceOf(FormData);
+            expect(formData.get('storeId')).toBe('store-001');
+            expect(formData.get('inventoryId')).toBe('inventory-001');
+            expect(formData.get('storeName')).toBe('Test Store');
+
+            expect(options).toEqual({
+                method: 'PATCH',
+                action: '/action/cart-pickup-store-update',
+            });
+        });
+
+        it('calls fetcher.submit with FormData when store name is missing', async () => {
+            const { result } = renderHook(() => useChangePickupStore());
+
+            const store: SelectedStoreInfo = {
+                id: 'store-001',
+                inventoryId: 'inventory-001',
+            };
+
+            await act(async () => {
+                await result.current.changeStore(store);
+            });
+
+            expect(mockSubmit).toHaveBeenCalledTimes(1);
+            const [formData] = mockSubmit.mock.calls[0];
+
+            expect(formData).toBeInstanceOf(FormData);
+            expect(formData.get('storeId')).toBe('store-001');
+            expect(formData.get('inventoryId')).toBe('inventory-001');
+            expect(formData.get('storeName')).toBeNull();
+        });
+
+        it('shows error toast when store id is missing', async () => {
+            const { result } = renderHook(() => useChangePickupStore());
+
+            const store = {
+                inventoryId: 'inventory-001',
+                name: 'Test Store',
+            } as SelectedStoreInfo;
+
+            await act(async () => {
+                await result.current.changeStore(store);
+            });
+
+            expect(mockAddToast).toHaveBeenCalledWith(
+                uiStringsBopis.cart.pickupStoreInfo.missingStoreIdOrInventoryIdError,
+                'error'
+            );
+            expect(mockSubmit).not.toHaveBeenCalled();
+        });
+
+        it('shows error toast when inventory id is missing', async () => {
+            const { result } = renderHook(() => useChangePickupStore());
+
+            const store = {
+                id: 'store-001',
+                name: 'Test Store',
+            } as SelectedStoreInfo;
+
+            await act(async () => {
+                await result.current.changeStore(store);
+            });
+
+            expect(mockAddToast).toHaveBeenCalledWith(
+                uiStringsBopis.cart.pickupStoreInfo.missingStoreIdOrInventoryIdError,
+                'error'
+            );
+            expect(mockSubmit).not.toHaveBeenCalled();
+        });
+
+        it('shows error toast when both id and inventoryId are missing', async () => {
+            const { result } = renderHook(() => useChangePickupStore());
+
+            const store = {
+                name: 'Test Store',
+            } as SelectedStoreInfo;
+
+            await act(async () => {
+                await result.current.changeStore(store);
+            });
+
+            expect(mockAddToast).toHaveBeenCalledWith(
+                uiStringsBopis.cart.pickupStoreInfo.missingStoreIdOrInventoryIdError,
+                'error'
+            );
+            expect(mockSubmit).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Toast notifications on response', () => {
+        it('shows success toast when fetcher state is loading and data.success is true', async () => {
+            const { rerender } = renderHook(() => useChangePickupStore());
+
+            // Simulate loading state with success response
+            mockFetcher.state = 'loading';
+            mockFetcher.data = { success: true, basket: {} };
+
+            rerender();
+
+            await waitFor(() => {
+                expect(mockAddToast).toHaveBeenCalledWith(uiStringsBopis.cart.pickupStoreInfo.storeChanged, 'success');
+            });
+        });
+
+        it('shows error toast when fetcher state is loading and data.success is false', async () => {
+            const { rerender } = renderHook(() => useChangePickupStore());
+
+            // Simulate loading state with error response
+            mockFetcher.state = 'loading';
+            mockFetcher.data = { success: false };
+
+            rerender();
+
+            await waitFor(() => {
+                expect(mockAddToast).toHaveBeenCalledWith(
+                    uiStringsBopis.cart.pickupStoreInfo.changeStoreError,
+                    'error'
+                );
+            });
+        });
+
+        it('shows error toast with custom error message when data.error exists', async () => {
+            const { rerender } = renderHook(() => useChangePickupStore());
+
+            const customError = 'Custom error message';
+            mockFetcher.state = 'loading';
+            mockFetcher.data = { success: false, error: customError };
+
+            rerender();
+
+            await waitFor(() => {
+                expect(mockAddToast).toHaveBeenCalledWith(customError, 'error');
+            });
+        });
+
+        it('shows error toast with default message when data.success is false but no error message', async () => {
+            const { rerender } = renderHook(() => useChangePickupStore());
+
+            mockFetcher.state = 'loading';
+            mockFetcher.data = { success: false };
+
+            rerender();
+
+            await waitFor(() => {
+                expect(mockAddToast).toHaveBeenCalledWith(
+                    uiStringsBopis.cart.pickupStoreInfo.changeStoreError,
+                    'error'
+                );
+            });
+        });
+
+        it('does not show toast when fetcher state is not loading', () => {
+            const { rerender } = renderHook(() => useChangePickupStore());
+
+            mockFetcher.state = 'idle';
+            mockFetcher.data = { success: true, basket: {} };
+
+            rerender();
+
+            expect(mockAddToast).not.toHaveBeenCalled();
+        });
+
+        it('does not show toast when fetcher data is undefined', () => {
+            const { rerender } = renderHook(() => useChangePickupStore());
+
+            mockFetcher.state = 'loading';
+            mockFetcher.data = undefined;
+
+            rerender();
+
+            expect(mockAddToast).not.toHaveBeenCalled();
+        });
+
+        it('does not show toast when fetcher state is submitting', () => {
+            const { rerender } = renderHook(() => useChangePickupStore());
+
+            mockFetcher.state = 'submitting';
+            mockFetcher.data = { success: true, basket: {} };
+
+            rerender();
+
+            expect(mockAddToast).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Integration scenarios', () => {
+        it('handles complete flow: change store -> loading -> success', async () => {
+            const { result, rerender } = renderHook(() => useChangePickupStore());
+
+            const store: SelectedStoreInfo = {
+                id: 'store-001',
+                inventoryId: 'inventory-001',
+                name: 'Test Store',
+            };
+
+            // Step 1: Call changeStore
+            await act(async () => {
+                await result.current.changeStore(store);
+            });
+
+            expect(mockSubmit).toHaveBeenCalledTimes(1);
+
+            // Step 2: Simulate loading state with success
+            mockFetcher.state = 'loading';
+            mockFetcher.data = { success: true, basket: {} };
+            rerender();
+
+            await waitFor(() => {
+                expect(mockAddToast).toHaveBeenCalledWith(uiStringsBopis.cart.pickupStoreInfo.storeChanged, 'success');
+            });
+        });
+
+        it('handles complete flow: change store -> loading -> error', async () => {
+            const { result, rerender } = renderHook(() => useChangePickupStore());
+
+            const store: SelectedStoreInfo = {
+                id: 'store-001',
+                inventoryId: 'inventory-001',
+                name: 'Test Store',
+            };
+
+            // Step 1: Call changeStore
+            await act(async () => {
+                await result.current.changeStore(store);
+            });
+
+            expect(mockSubmit).toHaveBeenCalledTimes(1);
+
+            // Step 2: Simulate loading state with error
+            const errorMessage = 'Items out of stock at Test Store';
+            mockFetcher.state = 'loading';
+            mockFetcher.data = { success: false, error: errorMessage };
+            rerender();
+
+            await waitFor(() => {
+                expect(mockAddToast).toHaveBeenCalledWith(errorMessage, 'error');
+            });
+        });
+    });
+});

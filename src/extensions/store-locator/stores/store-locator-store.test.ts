@@ -257,6 +257,51 @@ describe('createStoreLocatorStore', () => {
                 // State should still be updated
                 expect(store.getState().selectedStoreInfo).toEqual(storeInfo);
             });
+
+            it('normalizes ShopperStoresTypes.Store objects and applies name fallback', () => {
+                const fullStore = {
+                    id: 'store1',
+                    name: 'Test Store',
+                    inventoryId: 'inv1',
+                    address1: '123 Main St',
+                    city: 'Boston',
+                    phone: '555-1234',
+                    email: 'store@example.com',
+                };
+
+                store.getState().setSelectedStoreInfo(fullStore);
+
+                const state = store.getState();
+                // Should only contain id, name, inventoryId (extra fields stripped)
+                expect(state.selectedStoreInfo).toEqual({
+                    id: 'store1',
+                    name: 'Test Store',
+                    inventoryId: 'inv1',
+                });
+                // Verify cookie only contains normalized data
+                expect(mockCookies.set).toHaveBeenCalledWith(
+                    'selectedStoreInfo',
+                    JSON.stringify({ id: 'store1', name: 'Test Store', inventoryId: 'inv1' }),
+                    { path: '/', secure: true }
+                );
+            });
+
+            it('applies name fallback (name || id) when name is missing', () => {
+                const storeWithoutName = {
+                    id: 'store-without-name',
+                    inventoryId: 'inv1',
+                    address1: '123 Main St',
+                };
+
+                store.getState().setSelectedStoreInfo(storeWithoutName);
+
+                const state = store.getState();
+                expect(state.selectedStoreInfo).toEqual({
+                    id: 'store-without-name',
+                    name: 'store-without-name', // Should fallback to id
+                    inventoryId: 'inv1',
+                });
+            });
         });
     });
 

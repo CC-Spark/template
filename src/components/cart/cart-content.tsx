@@ -1,5 +1,5 @@
 // React
-import type { ReactElement } from 'react';
+import { type ReactElement } from 'react';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
@@ -12,6 +12,12 @@ import CartEmpty from './cart-empty';
 import CartTitle from './cart-title';
 import OrderSummary from '@/components/order-summary';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+// @sfdc-extension-block-start SFDC_EXT_BOPIS
+import PickupStoreInfo from '@/extensions/bopis/components/pickup-store-info';
+import { usePickup } from '@/extensions/bopis/context/pickup-context';
+import { getStoreIdsFromBasket, filterPickupProductItems } from '@/extensions/bopis/lib/basket-utils';
+import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
+// @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 import tempUiString from '@/temp-ui-string';
 
@@ -47,12 +53,27 @@ interface CartContentProps {
  * @returns JSX element representing the cart content
  */
 export default function CartContent({ basket, productsByItemId, promotions }: CartContentProps): ReactElement {
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    const pickup = usePickup();
+    const pickupBasketItems = pickup?.pickupBasketItems;
+    const store = getPickupStoreFromMap(getStoreIdsFromBasket(basket)[0], pickup?.pickupStores);
+    const pickupItems = filterPickupProductItems(basket, pickupBasketItems);
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
     // Check if cart is empty using the basket prop from loader data
     if (!basket?.productItems?.length) {
         return <CartEmpty isRegistered={false} />;
     }
 
-    const productItems = basket?.productItems || [];
+    let deliveryItems = basket?.productItems || [];
+
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    // Only filter pickup items from delivery if we have a store to render them in the pickup section
+    // If no store exists, render all items as delivery items
+    deliveryItems = store
+        ? deliveryItems.filter((item) => !item.productId || !pickupBasketItems?.has(item.productId))
+        : deliveryItems;
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     // Render prop function for cart-specific secondary actions
     const cartSecondaryActions = (
@@ -101,14 +122,33 @@ export default function CartContent({ basket, productsByItemId, promotions }: Ca
 
                 <div className="grid grid-cols-1 lg:grid-cols-[66%_1fr] lg:gap-11">
                     <div className="md:order-2 lg:order-1">
-                        <div className="md:p-8 p-3 border border-border rounded-lg shadow-sm mb-3">
-                            <ProductItemsList
-                                promotions={promotions}
-                                productItems={productItems}
-                                productsByItemId={productsByItemId}
-                                secondaryActions={cartSecondaryActions}
-                            />
-                        </div>
+                        {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
+                        {/* Group store info cards with their product items */}
+                        {pickupItems.length > 0 && store && (
+                            <div key={store.id} className="md:p-8 p-3 border border-border rounded-lg shadow-sm mb-3">
+                                <PickupStoreInfo store={store} />
+                                <div className="mt-4">
+                                    <ProductItemsList
+                                        promotions={promotions}
+                                        productItems={pickupItems}
+                                        productsByItemId={productsByItemId}
+                                        secondaryActions={cartSecondaryActions}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
+                        {/* Show delivery items if any exist */}
+                        {deliveryItems.length > 0 && (
+                            <div className="md:p-8 p-3 border border-border rounded-lg shadow-sm mb-3">
+                                <ProductItemsList
+                                    promotions={promotions}
+                                    productItems={deliveryItems}
+                                    productsByItemId={productsByItemId}
+                                    secondaryActions={cartSecondaryActions}
+                                />
+                            </div>
+                        )}
                     </div>
                     <div className="hidden md:block md:order-1 lg:order-2">
                         <OrderSummary

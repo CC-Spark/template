@@ -24,14 +24,28 @@ import type { PickupItemInfo } from '../context/pickup-context';
  *
  * @example
  * ```tsx
+ * // Get basket from context
  * const basket = getBasket(context);
+ *
+ * // Extract pickup items from basket
  * const pickupItems = getPickupItemsFromBasket(basket);
  *
- * return (
- *   <PickupProvider initialItems={pickupItems}>
- *     <CartContent />
- *   </PickupProvider>
- * );
+ * // Check if a specific product is for pickup
+ * const productId = 'product-123';
+ * if (pickupItems.has(productId)) {
+ *   const pickupInfo = pickupItems.get(productId);
+ *   console.log(`Product ${productId} will be picked up from store ${pickupInfo?.storeId}`);
+ * }
+ *
+ * // Iterate through all pickup items
+ * for (const [productId, { inventoryId, storeId }] of pickupItems) {
+ *   console.log(`Product ${productId}: inventory ${inventoryId}, store ${storeId}`);
+ * }
+ *
+ * // Use with pickup context
+ * const pickup = usePickup();
+ * const basketPickupItems = getPickupItemsFromBasket(basket);
+ * // Compare or merge with pickup context items...
  * ```
  */
 export function getPickupItemsFromBasket(
@@ -48,7 +62,7 @@ export function getPickupItemsFromBasket(
     const pickupShipments = new Map<string, string>();
     basket.shipments.forEach((shipment) => {
         if (shipment.shipmentId && shipment.c_fromStoreId) {
-            pickupShipments.set(shipment.shipmentId, shipment.c_fromStoreId);
+            pickupShipments.set(shipment.shipmentId, shipment.c_fromStoreId as string);
         }
     });
 
@@ -164,12 +178,42 @@ export function getStoreIdsFromBasket(basket: ShopperBasketsV2.schemas['Basket']
     const storeIds = new Set<string>();
     basket?.shipments?.forEach((shipment) => {
         if (shipment.c_fromStoreId) {
-            storeIds.add(shipment.c_fromStoreId);
+            storeIds.add(shipment.c_fromStoreId as string);
         }
     });
 
     // Convert to array and sort
     return Array.from(storeIds).sort();
+}
+
+/**
+ * Gets the first pickup store ID (c_fromStoreId) from the basket's shipments.
+ *
+ * This function finds the first shipment with c_fromStoreId set and returns that store ID.
+ * Useful when you need to know if a basket has pickup items and which store they're from.
+ *
+ * @param basket - The shopping basket containing shipments
+ * @returns The first store ID (c_fromStoreId) found, or undefined if no pickup shipments exist
+ *
+ * @example
+ * ```tsx
+ * const basket = getBasket(context);
+ * const storeId = getFirstPickupStoreId(basket);
+ *
+ * if (storeId) {
+ *     // Basket has pickup items from this store
+ *     console.log(`Pickup store: ${storeId}`);
+ * } else {
+ *     // No pickup shipments in basket
+ *     console.log('No pickup store set');
+ * }
+ * ```
+ */
+export function getFirstPickupStoreId(
+    basket: ShopperBasketsV2.schemas['Basket'] | null | undefined
+): string | undefined {
+    const shipment = basket?.shipments?.find((s) => s.c_fromStoreId);
+    return shipment?.c_fromStoreId as string | undefined;
 }
 
 /**
@@ -208,6 +252,86 @@ export function getStoreIdForBasketItem(
 
     // Find the shipment for this item and return its store ID
     const shipment = basket?.shipments?.find((s) => s.shipmentId === productItem?.shipmentId);
+    return shipment?.c_fromStoreId as string | undefined;
+}
 
-    return shipment?.c_fromStoreId;
+/**
+ * Gets product items from the basket that belong to a specific pickup store.
+ *
+ * This function filters product items to only include those that belong to shipments
+ * with the specified storeId in c_fromStoreId. Since a basket typically has a single
+ * store pickup shipment, this is useful when you need to filter items by store.
+ *
+ * @param basket - The shopping basket containing shipments and product items
+ * @param storeId - The store ID to filter by
+ * @returns Array of product items that belong to shipments with the specified storeId, or empty array if none found
+ *
+ * @example
+ * ```tsx
+ * const basket = getBasket(context);
+ * const storeId = getFirstPickupStoreId(basket);
+ * const pickupItems = getPickupProductItemsForStore(basket, storeId);
+ *
+ * // Validate inventory for items from this specific store
+ * for (const item of pickupItems) {
+ *   const quantity = item.quantity || 1;
+ *   // Check inventory...
+ * }
+ * ```
+ */
+export function getPickupProductItemsForStore(
+    basket: ShopperBasketsV2.schemas['Basket'] | undefined,
+    storeId: string
+): ShopperBasketsV2.schemas['ProductItem'][] {
+    if (!basket?.shipments || !basket.productItems) {
+        return [];
+    }
+
+    // Build a set of shipment IDs that have the specified storeId
+    const shipmentIds = new Set<string>();
+    basket.shipments.forEach((shipment) => {
+        if (shipment.shipmentId && shipment.c_fromStoreId) {
+            const shipmentStoreId = shipment.c_fromStoreId as string;
+            if (shipmentStoreId === storeId) {
+                shipmentIds.add(shipment.shipmentId);
+            }
+        }
+    });
+
+    // If no matching shipments, return early
+    if (shipmentIds.size === 0) {
+        return [];
+    }
+
+    // Filter product items that belong to shipments with the specified storeId
+    return basket.productItems.filter((item) => {
+        return item.shipmentId && shipmentIds.has(item.shipmentId);
+    });
+}
+
+/**
+ * Filters basket product items to only include those that are in the pickup context.
+ *
+ * This function checks each product item's productId against the pickupBasketItems map
+ * to determine if it should be included in the pickup items list.
+ *
+ * @param basket - The shopping basket containing product items
+ * @param pickupBasketItems - Map of productId to PickupItemInfo for items marked for pickup
+ * @returns Array of product items that are marked for pickup, or empty array if none found
+ *
+ * @example
+ * ```tsx
+ * const pickup = usePickup();
+ * const pickupItems = filterPickupProductItems(basket, pickup?.pickupBasketItems);
+ *
+ * if (pickupItems.length > 0) {
+ *   return <PickupItemsList items={pickupItems} />;
+ * }
+ * ```
+ */
+export function filterPickupProductItems(
+    basket: ShopperBasketsV2.schemas['Basket'] | undefined,
+    pickupBasketItems?: Map<string, PickupItemInfo>
+): ShopperBasketsV2.schemas['ProductItem'][] {
+    return basket?.productItems?.filter((item) => item.productId && pickupBasketItems?.has(item.productId)) ?? [];
 }

@@ -102,11 +102,7 @@ export default function StoreLocatorList(): ReactElement | null {
                 onValueChange={(value: string) => {
                     const selectedStore = storesPaginated.find((store) => store.id === value);
                     if (selectedStore) {
-                        setSelectedStoreInfo({
-                            id: selectedStore.id,
-                            name: selectedStore.name || selectedStore.id,
-                            inventoryId: selectedStore.inventoryId,
-                        });
+                        setSelectedStoreInfo(selectedStore);
                     }
                 }}>
                 <ul>

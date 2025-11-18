@@ -57,9 +57,20 @@ export function useDeliveryOptions({ product, quantity, isInBasket, pickupStore 
 
     // Memoize site/store OOS flags together for simpler deps/readability
     const { isStoreOutOfStock, isSiteOutOfStock } = useMemo(() => {
+        // Handle race condition: if pickupStore is selected but product.inventories is empty,
+        // this likely means revalidation is in progress and new inventory data hasn't arrived yet.
+        // Return false (not out of stock) to avoid false negatives during the race condition.
+        const hasStoreSelected = Boolean(pickupStore?.inventoryId);
+        const hasInventoryData = Boolean(product?.inventories && product.inventories.length > 0);
+        const isWaitingForInventoryData = hasStoreSelected && !hasInventoryData;
+
+        const storeOOS = isWaitingForInventoryData
+            ? false
+            : storeOutOfStockFor(product, pickupStore?.inventoryId, quantity);
+        const siteOOS = siteOutOfStockFor(product, quantity);
         return {
-            isStoreOutOfStock: storeOutOfStockFor(product, pickupStore?.inventoryId, quantity),
-            isSiteOutOfStock: siteOutOfStockFor(product, quantity),
+            isStoreOutOfStock: storeOOS,
+            isSiteOutOfStock: siteOOS,
         };
     }, [product, pickupStore?.inventoryId, quantity]);
 

@@ -33,5 +33,29 @@ export const parseCartItemUpdateFromFormData = (formData: FormData) => {
     };
 };
 
+/**
+ * Schema for pickup store update form data
+ * Used when changing the pickup store for all pickup items in the basket
+ */
+export const pickupStoreUpdateSchema = z.object({
+    storeId: z.string().min(1, 'Store ID is required').trim(),
+    inventoryId: z.string().min(1, 'Inventory ID is required').trim(),
+    storeName: z.string().trim().optional(),
+});
+
+/**
+ * Parses FormData into pickup store update data object
+ * @param formData - FormData from pickup store update form submission
+ * @returns Parsed pickup store update data
+ */
+export const parsePickupStoreUpdateFromFormData = (formData: FormData) => {
+    return {
+        storeId: formData.get('storeId')?.toString() || '',
+        inventoryId: formData.get('inventoryId')?.toString() || '',
+        storeName: formData.get('storeName')?.toString() || undefined,
+    };
+};
+
 // Type exports
 export type CartItemUpdateData = z.infer<typeof cartItemUpdateSchema>;
+export type PickupStoreUpdateData = z.infer<typeof pickupStoreUpdateSchema>;

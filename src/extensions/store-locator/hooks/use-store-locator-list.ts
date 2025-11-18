@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useFetcher, useSearchParams } from 'react-router';
+import { useFetcher, useRevalidator } from 'react-router';
 import type { ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { useStoreLocator } from '@/extensions/store-locator/providers/store-locator';
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
@@ -45,8 +45,8 @@ export function useStoreLocatorList() {
     const shouldSearch = useStoreLocator((s) => s.shouldSearch);
     const setShouldSearch = useStoreLocator((s) => s.setShouldSearch);
 
-    const [urlSearchParams, setUrlSearchParams] = useSearchParams();
     const fetcher = useFetcher<SearchStoresResult>();
+    const revalidator = useRevalidator();
     const [page, setPage] = useState<number>(1);
     const [hasSearched, setHasSearched] = useState<boolean>(false);
 
@@ -101,20 +101,20 @@ export function useStoreLocatorList() {
 
     const isLoading = fetcher.state === 'loading';
 
-    // Wrapper function that updates both store and URL
+    // Wrapper function that updates store selection and triggers revalidation
+    // When inventoryId changes, we need to revalidate to refresh product data with new store inventory.
     const setSelectedStoreInfo = useCallback(
         (info: SelectedStoreInfo | null) => {
+            const previousInventoryId = selectedStoreInfo?.inventoryId;
             setSelectedStoreInfoRaw(info);
 
-            // Update URL with inventoryId parameter so that it triggers a new fetch
-            const currentInventoryId = urlSearchParams.get('inventoryId');
-            if (info?.inventoryId && currentInventoryId !== info.inventoryId) {
-                const newSearchParams = new URLSearchParams(urlSearchParams);
-                newSearchParams.set('inventoryId', info.inventoryId);
-                setUrlSearchParams(newSearchParams, { replace: true });
+            // Trigger revalidation when inventoryId changes (store selection changed)
+            // This ensures pages like PDP refresh with new inventory data
+            if (info?.inventoryId !== previousInventoryId) {
+                void revalidator.revalidate();
             }
         },
-        [setSelectedStoreInfoRaw, urlSearchParams, setUrlSearchParams]
+        [setSelectedStoreInfoRaw, selectedStoreInfo?.inventoryId, revalidator]
     );
 
     return {

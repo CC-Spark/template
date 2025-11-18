@@ -9,6 +9,8 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { updateShipmentForPickup } from './shipment';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import type { RouterContextProvider } from 'react-router';
+import { getConfig } from '@/config';
+import { createApiClients } from '@/lib/api-clients';
 
 // Mock createApiClients and getConfig
 vi.mock('@/lib/api-clients', () => ({
@@ -35,9 +37,8 @@ describe('Shipment API utilities', () => {
     };
 
     describe('updateShipmentForPickup', () => {
-        beforeEach(async () => {
+        beforeEach(() => {
             vi.clearAllMocks();
-            const { getConfig } = await import('@/config');
             vi.mocked(getConfig).mockReturnValue(mockConfig as any);
         });
 
@@ -54,7 +55,6 @@ describe('Shipment API utilities', () => {
 
             const mockUpdateShipmentForBasket = vi.fn().mockResolvedValue({ data: mockBasket });
 
-            const { createApiClients } = await import('@/lib/api-clients');
             vi.mocked(createApiClients).mockReturnValue({
                 shopperBasketsV2: {
                     updateShipmentForBasket: mockUpdateShipmentForBasket,
@@ -89,7 +89,6 @@ describe('Shipment API utilities', () => {
 
             const mockUpdateShipmentForBasket = vi.fn().mockResolvedValue({ data: mockBasket });
 
-            const { createApiClients } = await import('@/lib/api-clients');
             vi.mocked(createApiClients).mockReturnValue({
                 shopperBasketsV2: {
                     updateShipmentForBasket: mockUpdateShipmentForBasket,
@@ -120,7 +119,6 @@ describe('Shipment API utilities', () => {
             const mockError = new Error('API Error');
             const mockUpdateShipmentForBasket = vi.fn().mockRejectedValue(mockError);
 
-            const { createApiClients } = await import('@/lib/api-clients');
             vi.mocked(createApiClients).mockReturnValue({
                 shopperBasketsV2: {
                     updateShipmentForBasket: mockUpdateShipmentForBasket,

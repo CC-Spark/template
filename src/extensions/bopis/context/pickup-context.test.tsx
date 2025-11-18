@@ -7,8 +7,10 @@
 
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { useState, type PropsWithChildren } from 'react';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import PickupProvider, { usePickup } from './pickup-context';
-import type { PropsWithChildren } from 'react';
+import { createMockBasketWithPickupItems } from '../tests/__mocks__/basket';
 
 describe('PickupProvider', () => {
     const wrapper = ({ children }: PropsWithChildren) => <PickupProvider>{children}</PickupProvider>;
@@ -219,15 +221,15 @@ describe('PickupProvider', () => {
         });
     });
 
-    describe('initialItems prop', () => {
-        it('accepts initial items', () => {
-            const initialItems = new Map([
-                ['product-1', { inventoryId: 'inventory-A', storeId: 'store-1' }],
-                ['product-2', { inventoryId: 'inventory-B', storeId: 'store-2' }],
+    describe('basket prop', () => {
+        it('accepts basket with pickup items', () => {
+            const basket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+                { productId: 'product-2', inventoryId: 'inventory-B', storeId: 'store-2' },
             ]);
 
             const customWrapper = ({ children }: PropsWithChildren) => (
-                <PickupProvider initialItems={initialItems}>{children}</PickupProvider>
+                <PickupProvider basket={basket}>{children}</PickupProvider>
             );
 
             const { result } = renderHook(() => usePickup(), { wrapper: customWrapper });
@@ -245,8 +247,22 @@ describe('PickupProvider', () => {
             }
         });
 
-        it('uses empty map when initialItems is undefined', () => {
+        it('uses empty map when basket is undefined', () => {
             const { result } = renderHook(() => usePickup(), { wrapper });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(0);
+            }
+        });
+
+        it('uses empty map when basket has no pickup items', () => {
+            const basket = createMockBasketWithPickupItems([]);
+
+            const customWrapper = ({ children }: PropsWithChildren) => (
+                <PickupProvider basket={basket}>{children}</PickupProvider>
+            );
+
+            const { result } = renderHook(() => usePickup(), { wrapper: customWrapper });
 
             if (result.current) {
                 expect(result.current.pickupBasketItems.size).toBe(0);
@@ -290,14 +306,16 @@ describe('PickupProvider', () => {
             }
         });
 
-        it('accepts both initialItems and stores', () => {
-            const initialItems = new Map([['product-1', { inventoryId: 'inventory-A', storeId: 'store-1' }]]);
+        it('accepts both basket and stores', () => {
+            const basket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
             const initialStores = new Map([
                 ['store-1', { id: 'store-1', name: 'Store One', inventoryId: 'inventory-A' }],
             ]);
 
             const customWrapper = ({ children }: PropsWithChildren) => (
-                <PickupProvider initialItems={initialItems} initialPickupStores={initialStores}>
+                <PickupProvider basket={basket} initialPickupStores={initialStores}>
                     {children}
                 </PickupProvider>
             );
@@ -469,6 +487,303 @@ describe('PickupProvider', () => {
                 expect(result.current.pickupBasketItems.get('prod2')).toEqual({
                     inventoryId: 'inv2',
                     storeId: 'store2',
+                });
+            }
+        });
+    });
+
+    describe('sync items from basket prop', () => {
+        // Helper to create a testable wrapper with state
+        const createTestWrapper = (initialBasket?: ShopperBasketsV2.schemas['Basket']) => {
+            const setBasketRef = {
+                current: null as ((basket: ShopperBasketsV2.schemas['Basket'] | undefined) => void) | null,
+            };
+
+            const TestWrapper = ({ children }: PropsWithChildren) => {
+                const [basket, setBasketState] = useState<ShopperBasketsV2.schemas['Basket'] | undefined>(
+                    initialBasket
+                );
+                setBasketRef.current = setBasketState;
+                return <PickupProvider basket={basket}>{children}</PickupProvider>;
+            };
+
+            return {
+                TestWrapper,
+                setBasket: (basket: ShopperBasketsV2.schemas['Basket'] | undefined) => {
+                    if (setBasketRef.current) {
+                        setBasketRef.current(basket);
+                    }
+                },
+            };
+        };
+
+        it('clears state when basket is undefined', () => {
+            const basket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            const { TestWrapper, setBasket } = createTestWrapper(basket);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+            }
+
+            // Change basket to undefined
+            act(() => {
+                setBasket(undefined);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(0);
+            }
+        });
+
+        it('updates state when basket changes from undefined to a basket with items', () => {
+            const { TestWrapper, setBasket } = createTestWrapper(undefined);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(0);
+            }
+
+            // Change basket to one with items
+            const newBasket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            act(() => {
+                setBasket(newBasket);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+                expect(result.current.pickupBasketItems.get('product-1')).toEqual({
+                    inventoryId: 'inventory-A',
+                    storeId: 'store-1',
+                });
+            }
+        });
+
+        it('updates state when basket changes with different content', () => {
+            const basket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            const { TestWrapper, setBasket } = createTestWrapper(basket);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+                expect(result.current.pickupBasketItems.get('product-1')).toEqual({
+                    inventoryId: 'inventory-A',
+                    storeId: 'store-1',
+                });
+            }
+
+            // Change basket with different content
+            const newBasket = createMockBasketWithPickupItems([
+                { productId: 'product-2', inventoryId: 'inventory-B', storeId: 'store-2' },
+                { productId: 'product-3', inventoryId: 'inventory-C', storeId: 'store-3' },
+            ]);
+            act(() => {
+                setBasket(newBasket);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(2);
+                expect(result.current.pickupBasketItems.get('product-1')).toBeUndefined();
+                expect(result.current.pickupBasketItems.get('product-2')).toEqual({
+                    inventoryId: 'inventory-B',
+                    storeId: 'store-2',
+                });
+                expect(result.current.pickupBasketItems.get('product-3')).toEqual({
+                    inventoryId: 'inventory-C',
+                    storeId: 'store-3',
+                });
+            }
+        });
+
+        it('updates state when basket changes with same productId but different storeId', () => {
+            const basket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            const { TestWrapper, setBasket } = createTestWrapper(basket);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.get('product-1')?.storeId).toBe('store-1');
+            }
+
+            // Change basket with same productId but different storeId
+            const newBasket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-2' },
+            ]);
+            act(() => {
+                setBasket(newBasket);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+                expect(result.current.pickupBasketItems.get('product-1')).toEqual({
+                    inventoryId: 'inventory-A',
+                    storeId: 'store-2',
+                });
+            }
+        });
+
+        it('updates state when basket changes with same productId but different inventoryId', () => {
+            const basket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            const { TestWrapper, setBasket } = createTestWrapper(basket);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.get('product-1')?.inventoryId).toBe('inventory-A');
+            }
+
+            // Change basket with same productId but different inventoryId
+            const newBasket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-B', storeId: 'store-1' },
+            ]);
+            act(() => {
+                setBasket(newBasket);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+                expect(result.current.pickupBasketItems.get('product-1')).toEqual({
+                    inventoryId: 'inventory-B',
+                    storeId: 'store-1',
+                });
+            }
+        });
+
+        it('does not update state when basket has same content (different reference)', () => {
+            const basket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            const { TestWrapper, setBasket } = createTestWrapper(basket);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            if (!result.current) return;
+
+            // Change basket to a new basket with same content (cache should prevent update)
+            const newBasket = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            act(() => {
+                setBasket(newBasket);
+            });
+
+            // State should still have the same content (cache returns same Map instance)
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+                expect(result.current.pickupBasketItems.get('product-1')).toEqual({
+                    inventoryId: 'inventory-A',
+                    storeId: 'store-1',
+                });
+            }
+        });
+
+        it('syncs state when items are manually added and then basket changes', () => {
+            const { TestWrapper, setBasket } = createTestWrapper(undefined);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            // Manually add an item
+            act(() => {
+                if (result.current) {
+                    result.current.addItem('product-1', 'inventory-A', 'store-1');
+                }
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+            }
+
+            // Change basket - should override manual changes
+            const newBasket = createMockBasketWithPickupItems([
+                { productId: 'product-2', inventoryId: 'inventory-B', storeId: 'store-2' },
+            ]);
+            act(() => {
+                setBasket(newBasket);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+                expect(result.current.pickupBasketItems.get('product-1')).toBeUndefined();
+                expect(result.current.pickupBasketItems.get('product-2')).toEqual({
+                    inventoryId: 'inventory-B',
+                    storeId: 'store-2',
+                });
+            }
+        });
+
+        it('handles multiple sync updates correctly', () => {
+            const { TestWrapper, setBasket } = createTestWrapper(undefined);
+
+            const { result } = renderHook(() => usePickup(), {
+                wrapper: TestWrapper,
+            });
+
+            // First update
+            const basket1 = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+            ]);
+            act(() => {
+                setBasket(basket1);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+            }
+
+            // Second update
+            const basket2 = createMockBasketWithPickupItems([
+                { productId: 'product-1', inventoryId: 'inventory-A', storeId: 'store-1' },
+                { productId: 'product-2', inventoryId: 'inventory-B', storeId: 'store-2' },
+            ]);
+            act(() => {
+                setBasket(basket2);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(2);
+            }
+
+            // Third update - remove one item
+            const basket3 = createMockBasketWithPickupItems([
+                { productId: 'product-2', inventoryId: 'inventory-B', storeId: 'store-2' },
+            ]);
+            act(() => {
+                setBasket(basket3);
+            });
+
+            if (result.current) {
+                expect(result.current.pickupBasketItems.size).toBe(1);
+                expect(result.current.pickupBasketItems.get('product-1')).toBeUndefined();
+                expect(result.current.pickupBasketItems.get('product-2')).toEqual({
+                    inventoryId: 'inventory-B',
+                    storeId: 'store-2',
                 });
             }
         });

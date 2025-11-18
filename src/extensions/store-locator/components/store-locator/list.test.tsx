@@ -101,11 +101,13 @@ describe('StoreLocatorList', () => {
 
         const radios = screen.getAllByRole('radio');
         await userEvent.click(radios[0]);
-        expect(baseState.setSelectedStoreInfo).toHaveBeenCalledWith({
-            id: 'a',
-            name: 'A',
-            inventoryId: 'inv-a',
-        });
+        expect(baseState.setSelectedStoreInfo).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'a',
+                name: 'A',
+                inventoryId: 'inv-a',
+            })
+        );
     });
 
     test('clicking Load More requests next page', async () => {

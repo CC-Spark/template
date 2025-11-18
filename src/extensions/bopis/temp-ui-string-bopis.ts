@@ -28,4 +28,14 @@ export default {
         openStoreLocator: 'Open Store Locator to {action}',
         selectStoreLink: 'Select a Store',
     },
+    cart: {
+        pickupStoreInfo: {
+            pickupInStore: 'Pick up in {storeName}',
+            changeStore: 'Change Store',
+            storeChanged: 'Pickup store changed successfully',
+            changeStoreError: 'Failed to change pickup store',
+            itemsOutOfStock: 'Some items are out of stock at {storeName}. Please select a different store.',
+            missingStoreIdOrInventoryIdError: 'Store ID or inventory ID is missing. Please select a valid store.',
+        },
+    },
 } as const;

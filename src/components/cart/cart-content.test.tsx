@@ -1,5 +1,5 @@
 // Testing libraries
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 // React Router
@@ -34,6 +34,10 @@ const renderCartContent = (props: React.ComponentProps<typeof CartContent>) => {
 };
 
 describe('CartContent', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
     const mockBasket = {
         basketId: 'test-basket-id',
         productItems: [

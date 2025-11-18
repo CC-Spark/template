@@ -5,19 +5,20 @@ import { useStoreLocatorList, type SearchStoresResult } from './use-store-locato
 import { StoreLocatorWrapper } from '@/test-utils/context-provider';
 import type { ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 
-// Mock react-router useFetcher and useSearchParams
+// Mock react-router useFetcher and useRevalidator
 const mockFetcher = {
     state: 'idle' as 'idle' | 'loading',
     data: undefined as SearchStoresResult | undefined,
     load: vi.fn(),
 };
 
-const mockSearchParams = new URLSearchParams();
-const mockSetSearchParams = vi.fn();
+const mockRevalidator = {
+    revalidate: vi.fn(),
+};
 
 vi.mock('react-router', () => ({
     useFetcher: () => mockFetcher,
-    useSearchParams: () => [mockSearchParams, mockSetSearchParams],
+    useRevalidator: () => mockRevalidator,
     createContext: vi.fn(),
 }));
 
@@ -57,11 +58,13 @@ describe('useStoreLocatorList', () => {
         mockFetcher.state = 'idle';
         mockFetcher.data = undefined;
         mockFetcher.load.mockClear();
+        mockRevalidator.revalidate.mockClear();
         mockStore.mode = 'input';
         mockStore.searchParams = undefined;
         mockStore.deviceCoordinates = { latitude: undefined, longitude: undefined };
         mockStore.shouldSearch = false;
         mockStore.setShouldSearch.mockClear();
+        mockStore.selectedStoreInfo = null;
     });
 
     test('triggers search when shouldSearch and input params present', () => {
@@ -108,5 +111,70 @@ describe('useStoreLocatorList', () => {
         await waitFor(() => {
             expect(result.current.storesPaginated.length).toBe(15);
         });
+    });
+
+    test('triggers revalidation when store changes', () => {
+        const { result } = renderHook(() => useStoreLocatorList(), { wrapper: StoreLocatorWrapper });
+
+        // Initially no store selected
+        expect(mockRevalidator.revalidate).not.toHaveBeenCalled();
+
+        // Set a store
+        act(() => {
+            result.current.setSelectedStoreInfo({
+                id: 'store1',
+                name: 'Store 1',
+                inventoryId: 'inv1',
+            });
+        });
+
+        // Should trigger revalidation when store is set
+        expect(mockRevalidator.revalidate).toHaveBeenCalledTimes(1);
+        expect(mockStore.setSelectedStoreInfo).toHaveBeenCalledWith({
+            id: 'store1',
+            name: 'Store 1',
+            inventoryId: 'inv1',
+        });
+
+        // Change to a different store
+        mockStore.selectedStoreInfo = {
+            id: 'store1',
+            name: 'Store 1',
+            inventoryId: 'inv1',
+        };
+        mockRevalidator.revalidate.mockClear();
+
+        act(() => {
+            result.current.setSelectedStoreInfo({
+                id: 'store2',
+                name: 'Store 2',
+                inventoryId: 'inv2',
+            });
+        });
+
+        // Should trigger revalidation again when store changes
+        expect(mockRevalidator.revalidate).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not trigger revalidation when store inventoryId does not change', () => {
+        mockStore.selectedStoreInfo = {
+            id: 'store1',
+            name: 'Store 1',
+            inventoryId: 'inv1',
+        };
+
+        const { result } = renderHook(() => useStoreLocatorList(), { wrapper: StoreLocatorWrapper });
+
+        // Set the same store (same inventoryId)
+        act(() => {
+            result.current.setSelectedStoreInfo({
+                id: 'store1',
+                name: 'Store 1',
+                inventoryId: 'inv1',
+            });
+        });
+
+        // Should not trigger revalidation if inventoryId hasn't changed
+        expect(mockRevalidator.revalidate).not.toHaveBeenCalled();
     });
 });

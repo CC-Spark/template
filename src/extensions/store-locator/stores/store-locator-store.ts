@@ -50,7 +50,9 @@ type StoreLocatorActions = {
     setShouldSearch: (should: boolean) => void;
     setDeviceCoordinates: (coords: GeoCoordinates) => void;
     setGeoError: (value: boolean) => void;
-    setSelectedStoreInfo: (info: SelectedStoreInfo | null) => void;
+    setSelectedStoreInfo: (
+        info: SelectedStoreInfo | ShopperStoresTypes.Store | Partial<ShopperStoresTypes.Store> | null
+    ) => void;
 };
 
 export type StoreLocatorStore = StoreLocatorState & StoreLocatorActions;
@@ -67,6 +69,28 @@ const defaultConfig: StoreLocatorConfig = {
 };
 
 import { getSelectedStoreInfoCookieName } from '@/extensions/store-locator/utils';
+import type { ShopperStoresTypes } from 'commerce-sdk-isomorphic';
+
+/**
+ * Normalizes a store object to SelectedStoreInfo format.
+ * Strips out extra fields and applies default name logic (name || id).
+ *
+ * @param store - Store object from API or SelectedStoreInfo, or null
+ * @returns Normalized SelectedStoreInfo or null
+ */
+const normalizeStoreInfo = (
+    store: SelectedStoreInfo | ShopperStoresTypes.Store | Partial<ShopperStoresTypes.Store> | null
+): SelectedStoreInfo | null => {
+    if (!store || !store.id) {
+        return null;
+    }
+
+    return {
+        id: store.id,
+        name: store.name || store.id,
+        inventoryId: store.inventoryId,
+    };
+};
 
 /**
  * Persist the selected store info cookie (client-only). Clears cookie when info is null.
@@ -132,9 +156,10 @@ export const createStoreLocatorStore = (init?: Partial<StoreLocatorState>) => {
         setShouldSearch: (should) => set(() => ({ shouldSearch: should })),
         setSelectedStoreInfo: (info) =>
             set(() => {
-                writeSelectedStoreInfoCookie(info);
+                const normalized = normalizeStoreInfo(info);
+                writeSelectedStoreInfoCookie(normalized);
                 return {
-                    selectedStoreInfo: info,
+                    selectedStoreInfo: normalized,
                 };
             }),
     }));

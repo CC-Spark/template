@@ -26,11 +26,7 @@ import CartSkeleton from '@/components/cart/cart-skeleton';
 import createPage from '@/components/create-page';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
-import {
-    getPickupItemsFromBasket,
-    getInventoryIdsFromPickupShipments,
-    getStoreIdsFromBasket,
-} from '@/extensions/bopis/lib/basket-utils';
+import { getInventoryIdsFromPickupShipments, getStoreIdsFromBasket } from '@/extensions/bopis/lib/basket-utils';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 /**
@@ -345,10 +341,8 @@ function Cart({
 
     let finalContent = content;
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
-    // Initialize PickupProvider with existing pickup items from basket
-    const initialPickupItems = getPickupItemsFromBasket(basket);
     finalContent = (
-        <PickupProvider initialItems={initialPickupItems} initialPickupStores={storesByStoreId}>
+        <PickupProvider basket={basket} initialPickupStores={storesByStoreId}>
             {content}
         </PickupProvider>
     );

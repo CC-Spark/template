@@ -231,7 +231,15 @@ export function clientLoader({ request, params, context }: ClientLoaderFunctionA
  * https://reactrouter.com/start/data/route-object#shouldrevalidate
  * we don't want the page to show skeleton when loading variant product after first initial load
  */
-export function shouldRevalidate({ currentUrl, nextUrl }: { currentUrl: string; nextUrl: string }) {
+export function shouldRevalidate({
+    currentUrl,
+    nextUrl,
+    defaultShouldRevalidate,
+}: {
+    currentUrl: string;
+    nextUrl: string;
+    defaultShouldRevalidate: boolean;
+}) {
     const currentUrlObj = new URL(currentUrl);
     const nextUrlObj = new URL(nextUrl);
 
@@ -247,14 +255,12 @@ export function shouldRevalidate({ currentUrl, nextUrl }: { currentUrl: string; 
         return true;
     }
 
-    // @sfdc-extension-block-start SFDC_EXT_BOPIS
-    // Revalidate if inventoryId parameter changes (different store selection)
-    const currentInventoryId = currentUrlObj.searchParams.get('inventoryId');
-    const nextInventoryId = nextUrlObj.searchParams.get('inventoryId');
-    if (currentInventoryId !== nextInventoryId) {
+    // If defaultShouldRevalidate is true (e.g., from explicit revalidator.revalidate() call),
+    // allow it to proceed even if URL hasn't changed
+    // This allows store changes to trigger revalidation
+    if (defaultShouldRevalidate) {
         return true;
     }
-    // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     // Don't revalidate for other search parameter changes (color, size, etc.)
     return false;
