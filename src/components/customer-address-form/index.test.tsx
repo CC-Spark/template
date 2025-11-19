@@ -1,0 +1,578 @@
+import { describe, expect, it } from 'vitest';
+import { customerAddressFormSchema } from './index';
+
+describe('customerAddressFormSchema', () => {
+    describe('valid data', () => {
+        it('should validate when all required fields are provided for US address', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                phone: '1234567890',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should validate when all required fields are provided for Canadian address', () => {
+            const validData = {
+                addressId: 'Work',
+                firstName: 'John',
+                lastName: 'Doe',
+                phone: '1234567890',
+                countryCode: 'CA' as const,
+                address1: '123 Yonge St',
+                city: 'Toronto',
+                stateCode: 'ON',
+                postalCode: 'M5B 2H1',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should validate without phone field', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should validate with empty phone field', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                phone: '',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should validate with addressId', () => {
+            const validData = {
+                addressId: 'addr_123',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: true,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+    });
+
+    describe('addressId validation', () => {
+        it('should reject when addressId is empty', () => {
+            const invalidData = {
+                addressId: '',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('addressId'))).toBe(true);
+            }
+        });
+
+        it('should reject when addressId is missing', () => {
+            const invalidData = {
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('addressId'))).toBe(true);
+            }
+        });
+    });
+
+    describe('firstName validation', () => {
+        it('should reject when firstName is empty', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: '',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('firstName'))).toBe(true);
+            }
+        });
+
+        it('should reject when firstName is missing', () => {
+            const invalidData = {
+                addressId: 'Home',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+        });
+    });
+
+    describe('lastName validation', () => {
+        it('should reject when lastName is empty', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: '',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('lastName'))).toBe(true);
+            }
+        });
+    });
+
+    describe('countryCode validation', () => {
+        it('should reject invalid country code', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'GB' as any,
+                address1: '123 Main St',
+                city: 'London',
+                postalCode: 'SW1A 1AA',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+        });
+
+        it('should accept US country code', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should accept CA country code', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'CA' as const,
+                address1: '123 Yonge St',
+                city: 'Toronto',
+                stateCode: 'ON',
+                postalCode: 'M5B 2H1',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+    });
+
+    describe('address1 validation', () => {
+        it('should reject when address1 is empty', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+        });
+    });
+
+    describe('city validation', () => {
+        it('should reject when city is empty', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: '',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+        });
+    });
+
+    describe('stateCode validation', () => {
+        it('should reject when stateCode is missing for US', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('stateCode'))).toBe(true);
+            }
+        });
+
+        it('should reject when stateCode is missing for CA', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'CA' as const,
+                address1: '123 Yonge St',
+                city: 'Toronto',
+                postalCode: 'M5B 2H1',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+        });
+
+        it('should accept valid state code for US', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should accept valid province code for CA', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'CA' as const,
+                address1: '123 Yonge St',
+                city: 'Toronto',
+                stateCode: 'ON',
+                postalCode: 'M5B 2H1',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+    });
+
+    describe('postalCode validation', () => {
+        it('should reject when postalCode is empty', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+        });
+
+        it('should accept valid US postal code (5 digits)', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should accept valid US postal code (5+4 format)', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001-1234',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should reject invalid US postal code', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '1234',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('postalCode'))).toBe(true);
+            }
+        });
+
+        it('should accept valid Canadian postal code', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'CA' as const,
+                address1: '123 Yonge St',
+                city: 'Toronto',
+                stateCode: 'ON',
+                postalCode: 'M5B 2H1',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should accept valid Canadian postal code without space', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'CA' as const,
+                address1: '123 Yonge St',
+                city: 'Toronto',
+                stateCode: 'ON',
+                postalCode: 'M5B2H1',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should reject invalid Canadian postal code', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'CA' as const,
+                address1: '123 Yonge St',
+                city: 'Toronto',
+                stateCode: 'ON',
+                postalCode: '12345',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('postalCode'))).toBe(true);
+            }
+        });
+    });
+
+    describe('phone validation', () => {
+        it('should accept valid phone number with digits only', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                phone: '1234567890',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should accept phone number with formatting characters', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                phone: '(123) 456-7890',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should reject invalid phone format with letters', () => {
+            const invalidData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                phone: '123-ABC-7890',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.error.issues.some((issue) => issue.path.includes('phone'))).toBe(true);
+            }
+        });
+    });
+
+    describe('preferred validation', () => {
+        it('should accept preferred as true', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: true,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+
+        it('should accept preferred as false', () => {
+            const validData = {
+                addressId: 'Home',
+                firstName: 'John',
+                lastName: 'Doe',
+                countryCode: 'US' as const,
+                address1: '123 Main St',
+                city: 'New York',
+                stateCode: 'NY',
+                postalCode: '10001',
+                preferred: false,
+            };
+
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
+        });
+    });
+});
