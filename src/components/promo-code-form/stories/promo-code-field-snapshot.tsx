@@ -65,7 +65,7 @@ vi.mock('@/components/toast', () => ({
 import { composeStories } from '@storybook/react-vite';
 // eslint-disable-next-line import/no-namespace
 import * as PromoCodeFieldStories from './promo-code-field.stories';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, act } from '@testing-library/react';
 
 const composed = composeStories(PromoCodeFieldStories);
 
@@ -75,8 +75,12 @@ afterEach(() => {
 
 describe('PromoCodeField stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
-        test(`${storyName} story renders and matches snapshot`, () => {
+        test(`${storyName} story renders and matches snapshot`, async () => {
             const { container } = render(<Story />);
+            // Wait for any form validation or state updates to complete
+            await act(async () => {
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            });
             expect(container.firstChild).toMatchSnapshot();
         });
     }

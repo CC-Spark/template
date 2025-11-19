@@ -10,7 +10,7 @@ import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, within, userEvent } from 'storybook/test';
-import { AccountNavItem } from '../nav-item';
+import { AccountNavItem } from '../index';
 import { User, Heart, Receipt } from 'lucide-react';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -148,8 +148,9 @@ Navigation item component for the account navigation menu. Displays a single nav
             control: 'object',
         },
         isMobile: {
-            description: 'Whether to render in mobile mode (adds border styling)',
-            control: 'boolean',
+            table: {
+                disable: true,
+            },
         },
     },
 };
@@ -160,7 +161,6 @@ type Story = StoryObj<typeof AccountNavItem>;
 export const Default: Story = {
     args: {
         item: mockNavItem,
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -266,7 +266,6 @@ export const Disabled: Story = {
             ...mockNavItem,
             disabled: true,
         },
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -300,6 +299,9 @@ export const Mobile: Story = {
             },
         },
     },
+    globals: {
+        viewport: 'mobile2',
+    },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
@@ -316,7 +318,6 @@ export const WithDifferentIcons: Story = {
             icon: Heart,
             label: 'Wishlist',
         },
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -344,7 +345,6 @@ export const Interactive: Story = {
             icon: Receipt,
             label: 'Orders',
         },
-        isMobile: false,
     },
     parameters: {
         docs: {

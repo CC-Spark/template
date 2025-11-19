@@ -301,9 +301,6 @@ export const MobileView: Story = {
         isRegistered: false,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -318,6 +315,9 @@ The component automatically adapts its layout for mobile screens.
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -341,9 +341,6 @@ export const TabletView: Story = {
         isRegistered: false,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'tablet',
-        },
         docs: {
             description: {
                 story: `
@@ -358,6 +355,9 @@ The component provides an optimal experience on tablet-sized screens.
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -381,9 +381,6 @@ export const DesktopView: Story = {
         isRegistered: false,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -398,6 +395,9 @@ The component provides a clean, centered layout for desktop users.
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

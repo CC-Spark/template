@@ -266,14 +266,14 @@ export const MobileView: Story = {
         products: defaultProducts,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `Mobile viewport showing 2-column grid.`,
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -292,14 +292,14 @@ export const DesktopView: Story = {
         products: defaultProducts,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `Desktop viewport showing 4-column grid.`,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

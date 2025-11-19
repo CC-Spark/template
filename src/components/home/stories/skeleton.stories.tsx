@@ -102,9 +102,6 @@ Default home skeleton component displaying all loading placeholders.
 export const MobileView: Story = {
     render: () => <HomeSkeleton />,
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             story: `
 Home skeleton on mobile viewport.
@@ -114,6 +111,9 @@ Home skeleton on mobile viewport.
 - Mobile-optimized spacing
             `,
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         // Check for skeleton elements

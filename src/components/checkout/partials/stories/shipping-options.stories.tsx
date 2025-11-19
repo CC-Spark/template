@@ -897,14 +897,14 @@ export const MobileView: Story = {
         },
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for mobile viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -962,14 +962,14 @@ export const TabletView: Story = {
         },
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'tablet',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for tablet viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -1020,14 +1020,14 @@ export const DesktopView: Story = {
         },
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'responsive',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for desktop viewport in completed state.',
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 
-import { PromoCodeForm } from '../form';
-import { type PromoCodeFormProps } from '../types';
+import { PromoCodeForm, type PromoCodeFormProps } from '../index';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
 import uiStrings from '@/temp-ui-string';
@@ -394,14 +393,14 @@ export const MobileView: Story = {
         basketId: 'test-basket-123',
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for mobile viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -432,14 +431,14 @@ export const TabletView: Story = {
         basketId: 'test-basket-123',
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'tablet',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for tablet viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -470,14 +469,14 @@ export const DesktopView: Story = {
         basketId: 'test-basket-123',
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'responsive',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for desktop viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

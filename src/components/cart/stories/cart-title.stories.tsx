@@ -317,9 +317,6 @@ export const MobileView: Story = {
         basket: basketWithOneItem,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -332,6 +329,9 @@ Cart title on mobile devices. This shows:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -348,9 +348,6 @@ export const TabletView: Story = {
         basket: basketWithMultipleItems,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'tablet',
-        },
         docs: {
             description: {
                 story: `
@@ -363,6 +360,9 @@ Cart title on tablet devices. This demonstrates:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'tablet',
     },
     play: ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -379,9 +379,6 @@ export const DesktopView: Story = {
         basket: basketWithMultipleItems,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -394,6 +391,9 @@ Cart title on desktop devices. This shows:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: ({ canvasElement }) => {
         const canvas = within(canvasElement);

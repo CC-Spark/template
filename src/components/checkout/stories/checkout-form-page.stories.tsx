@@ -1305,9 +1305,6 @@ export const MobileView: Story = {
         isSubmitting: false,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -1321,6 +1318,9 @@ Checkout form on mobile devices. This demonstrates:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement, step }) => {
         const canvas = within(canvasElement);
@@ -1349,9 +1349,6 @@ export const DesktopView: Story = {
         isSubmitting: false,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -1365,6 +1362,9 @@ Checkout form on desktop devices. This demonstrates:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement, step }) => {
         const canvas = within(canvasElement);

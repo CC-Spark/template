@@ -374,9 +374,6 @@ export const MobileLayout: Story = {
         productsByItemId: createProductMap(basketWithOneItem.productItems || [], dressProductDetails),
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -389,6 +386,9 @@ The component automatically adapts its layout for mobile screens.
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         // Verify cart container is rendered
@@ -409,9 +409,6 @@ export const DesktopLayout: Story = {
         productsByItemId: createProductMap(basketWithMultipleItems.productItems || [], inBasketProductDetails),
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -424,6 +421,9 @@ The component provides a two-column layout for desktop screens.
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

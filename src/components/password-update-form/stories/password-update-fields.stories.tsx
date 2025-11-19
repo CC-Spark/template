@@ -12,9 +12,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
 import { Form } from '@/components/ui/form';
-import { PasswordUpdateFields } from '../password-update-fields';
-import { passwordUpdateFormSchema } from '../index';
-import type { PasswordUpdateFormData, PasswordUpdateFetcherData } from '../types';
+import {
+    PasswordUpdateFields,
+    passwordUpdateFormSchema,
+    type PasswordUpdateFormData,
+    type PasswordUpdateFetcherData,
+} from '../index';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import uiStrings from '@/temp-ui-string';
 

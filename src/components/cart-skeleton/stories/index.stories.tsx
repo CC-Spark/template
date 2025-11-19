@@ -192,9 +192,6 @@ Default cart skeleton loading state. This shows:
 
 export const MobileView: Story = {
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -209,6 +206,9 @@ Cart skeleton on mobile devices. This demonstrates:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -232,9 +232,6 @@ Cart skeleton on mobile devices. This demonstrates:
 
 export const TabletView: Story = {
     parameters: {
-        viewport: {
-            defaultViewport: 'tablet',
-        },
         docs: {
             description: {
                 story: `
@@ -249,6 +246,9 @@ Cart skeleton on tablet devices. This shows:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -272,9 +272,6 @@ Cart skeleton on tablet devices. This shows:
 
 export const DesktopView: Story = {
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -289,6 +286,9 @@ Cart skeleton on desktop devices. This demonstrates:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

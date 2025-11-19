@@ -1,4 +1,5 @@
-import { vi, expect, test, describe, afterEach } from 'vitest';
+import { vi, expect, test, describe, afterEach, beforeEach } from 'vitest';
+import type React from 'react';
 
 vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
@@ -55,6 +56,30 @@ vi.mock('react-router-dom', async () => {
             );
         },
     };
+});
+
+// Suppress console.error for expected error boundary errors
+// eslint-disable-next-line no-console
+const originalError = console.error;
+beforeEach(() => {
+    // eslint-disable-next-line no-console
+    console.error = vi.fn((...args: unknown[]) => {
+        // Suppress expected error boundary errors
+        const message = args.map((arg) => (typeof arg === 'string' ? arg : String(arg))).join(' ');
+        if (
+            message.includes('Test error for error boundary') ||
+            message.includes('Error handled by React Router default ErrorBoundary') ||
+            (message.includes('Error') && message.includes('error boundary'))
+        ) {
+            return;
+        }
+        originalError(...args);
+    });
+});
+
+afterEach(() => {
+    // eslint-disable-next-line no-console
+    console.error = originalError;
 });
 
 import { composeStories } from '@storybook/react-vite';

@@ -1,19 +1,43 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`ActiveFilters stories snapshot > Default story renders and matches snapshot 1`] = `
-<h2>
-  Unexpected Application Error!
-</h2>
+<div>
+  <div
+    data-active-filters-harness="true"
+  >
+    <div>
+      <div
+        data-active-filters-harness="true"
+      />
+    </div>
+  </div>
+</div>
 `;
 
 exports[`ActiveFilters stories snapshot > MultipleFilters story renders and matches snapshot 1`] = `
-<h2>
-  Unexpected Application Error!
-</h2>
+<div>
+  <div
+    data-active-filters-harness="true"
+  >
+    <div>
+      <div
+        data-active-filters-harness="true"
+      />
+    </div>
+  </div>
+</div>
 `;
 
 exports[`ActiveFilters stories snapshot > NoActiveFilters story renders and matches snapshot 1`] = `
-<h2>
-  Unexpected Application Error!
-</h2>
+<div>
+  <div
+    data-active-filters-harness="true"
+  >
+    <div>
+      <div
+        data-active-filters-harness="true"
+      />
+    </div>
+  </div>
+</div>
 `;

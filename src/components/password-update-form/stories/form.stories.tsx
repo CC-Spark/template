@@ -7,8 +7,7 @@
 
 import { useState, useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { PasswordUpdateForm } from '../form';
-import type { PasswordUpdateFetcherData, PasswordUpdateFormData } from '../types';
+import { PasswordUpdateForm, type PasswordUpdateFetcherData, type PasswordUpdateFormData } from '../index';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';

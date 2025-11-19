@@ -5,8 +5,7 @@ import { action } from 'storybook/actions';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
-import { PromoCodeFields } from '../promo-code-field';
-import { promoCodeFormSchema } from '../index';
+import { PromoCodeFields, promoCodeFormSchema } from '../index';
 
 // Mock fetcher for Storybook
 const mockFetcher = {
@@ -392,14 +391,14 @@ export const WithLongPromoCode: Story = {
 export const MobileView: Story = {
     render: () => <DefaultWrapper />,
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for mobile viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -422,14 +421,14 @@ export const MobileView: Story = {
 export const TabletView: Story = {
     render: () => <DefaultWrapper />,
     parameters: {
-        viewport: {
-            defaultViewport: 'tablet',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for tablet viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -452,14 +451,14 @@ export const TabletView: Story = {
 export const DesktopView: Story = {
     render: () => <DefaultWrapper />,
     parameters: {
-        viewport: {
-            defaultViewport: 'responsive',
-        },
         docs: {
             description: {
                 story: 'Shows the component optimized for desktop viewport.',
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

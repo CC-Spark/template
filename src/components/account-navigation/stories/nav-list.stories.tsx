@@ -10,7 +10,7 @@ import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, within, userEvent } from 'storybook/test';
-import { AccountNavList, type AccountNavItemData } from '../nav-list';
+import { AccountNavList, type AccountNavItemData } from '../index';
 import { User, Heart, Receipt, MapPin, Settings } from 'lucide-react';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -151,8 +151,9 @@ Navigation list component that renders multiple account navigation items. Used i
             control: 'object',
         },
         isMobile: {
-            description: 'Whether to render in mobile mode (adds border styling to items)',
-            control: 'boolean',
+            table: {
+                disable: true,
+            },
         },
     },
 };
@@ -163,7 +164,6 @@ type Story = StoryObj<typeof AccountNavList>;
 export const Default: Story = {
     args: {
         items: mockNavigationItems,
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -205,6 +205,9 @@ export const Mobile: Story = {
             },
         },
     },
+    globals: {
+        viewport: 'mobile2',
+    },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
@@ -226,7 +229,6 @@ export const WithDisabledItem: Story = {
             { path: '/account/orders', icon: Receipt, label: 'Orders' },
             { path: '/account/addresses', icon: MapPin, label: 'Addresses', disabled: true },
         ],
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -253,7 +255,6 @@ export const WithDisabledItem: Story = {
 export const Empty: Story = {
     args: {
         items: [],
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -274,7 +275,6 @@ export const Empty: Story = {
 export const SingleItem: Story = {
     args: {
         items: [{ path: '/account', icon: User, label: 'Account Details' }],
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -297,7 +297,6 @@ export const SingleItem: Story = {
 export const Interactive: Story = {
     args: {
         items: mockNavigationItems,
-        isMobile: false,
     },
     parameters: {
         docs: {
@@ -332,7 +331,6 @@ export const WithManyItems: Story = {
             { path: '/account/addresses', icon: MapPin, label: 'Addresses' },
             { path: '/account/settings', icon: Settings, label: 'Settings' },
         ],
-        isMobile: false,
     },
     parameters: {
         docs: {

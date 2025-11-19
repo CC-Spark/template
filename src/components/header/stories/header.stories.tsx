@@ -233,10 +233,12 @@ export const MobileView: Story = {
         </AuthProvider>
     ),
     parameters: {
-        viewport: { defaultViewport: 'mobile1' },
         docs: {
             description: { story: 'Header layout on a mobile viewport.' },
         },
+    },
+    globals: {
+        viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);

@@ -7,8 +7,7 @@
 
 import { useState, useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CustomerProfileForm } from '../form';
-import type { CustomerProfileFetcherData, CustomerProfileFormData } from '../types';
+import { CustomerProfileForm, type CustomerProfileFetcherData, type CustomerProfileFormData } from '../index';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';

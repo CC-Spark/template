@@ -415,9 +415,6 @@ export const DesktopEmptyCart: Story = {
         basket: emptyBasket,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -431,6 +428,9 @@ Desktop layout for an empty cart. This shows:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -458,9 +458,6 @@ export const DesktopWithItems: Story = {
         productsByItemId: mockProductMap,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -474,6 +471,9 @@ Desktop layout with items in the cart. This demonstrates:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -501,9 +501,6 @@ export const DesktopMultipleItems: Story = {
         productsByItemId: mockMultipleItemsProductMap,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `
@@ -518,6 +515,9 @@ Desktop layout with multiple items in the cart. This shows:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -544,9 +544,6 @@ export const MobileEmptyCart: Story = {
         basket: emptyBasket,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -571,6 +568,9 @@ Mobile layout for an empty cart. This shows:
             </div>
         ),
     ],
+    globals: {
+        viewport: 'mobile2',
+    },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
@@ -597,9 +597,6 @@ export const MobileWithItems: Story = {
         productsByItemId: mockProductMap,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -624,6 +621,9 @@ Mobile layout with items in the cart. This demonstrates:
             </div>
         ),
     ],
+    globals: {
+        viewport: 'mobile2',
+    },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
@@ -650,9 +650,6 @@ export const MobileMultipleItems: Story = {
         productsByItemId: mockMultipleItemsProductMap,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'mobile1',
-        },
         docs: {
             description: {
                 story: `
@@ -677,6 +674,9 @@ Mobile layout with multiple items in the cart. This shows:
             </div>
         ),
     ],
+    globals: {
+        viewport: 'mobile2',
+    },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
@@ -703,9 +703,6 @@ export const TabletView: Story = {
         productsByItemId: mockProductMap,
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'tablet',
-        },
         docs: {
             description: {
                 story: `
@@ -719,6 +716,9 @@ Tablet view showing desktop layout on medium screens. This demonstrates:
                 `,
             },
         },
+    },
+    globals: {
+        viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -746,9 +746,6 @@ export const WithoutProductMap: Story = {
         // productMap intentionally omitted
     },
     parameters: {
-        viewport: {
-            defaultViewport: 'desktop',
-        },
         docs: {
             description: {
                 story: `

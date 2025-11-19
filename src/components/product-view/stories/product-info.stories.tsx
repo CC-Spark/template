@@ -166,7 +166,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
 
     return <div ref={containerRef}>{children}</div>;
 }
-import ProductInfo from '../product-info';
+import { ProductInfo } from '../index';
 
 /**
  * The ProductInfo component displays comprehensive product details on the Product Detail Page (PDP).
