@@ -6,15 +6,7 @@ import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { RegionDefinition } from '@/lib/decorators';
 import heroImage from '/images/hero-cube.png';
 
-export interface HeroProps {
-    title?: string;
-    subtitle?: string;
-    imageUrl?: string;
-    imageAlt?: string;
-    ctaText?: string;
-    ctaLink?: string;
-}
-
+/* v8 ignore start - do not test decorators in unit tests, decorator functionality is tested separately*/
 @Component('hero', {
     name: 'Hero Banner',
     description: 'Prominent banner section with title, subtitle, image, and call-to-action',
@@ -44,6 +36,7 @@ export class HeroMetadata {
     })
     ctaLink?: string;
 }
+/* v8 ignore stop */
 
 type Image = {
     url: string;

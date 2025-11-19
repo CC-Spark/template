@@ -34,7 +34,7 @@ import heroNewArrivals from '/images/hero-new-arrivals.png';
 ])
 export class HomePageMetadata {}
 
-type HomePageData = {
+export type HomePageData = {
     page: Promise<ShopperExperience.schemas['Page']>;
     searchResult: Promise<ShopperSearch.schemas['ProductSearchResult']>;
     categories: Promise<ShopperProducts.schemas['Category'][]>;

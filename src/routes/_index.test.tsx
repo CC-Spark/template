@@ -8,8 +8,14 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
+import type { LoaderFunctionArgs, ClientLoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch, ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
-import HomeView from './_index';
+import HomeView, { loader, clientLoader, type HomePageData } from './_index';
+import { createTestContext } from '@/lib/test-utils';
+import { fetchPageFromLoader, collectComponentDataPromises } from '@/lib/util/pageLoader';
+import { fetchSearchProducts } from '@/lib/api/search';
+import { fetchCategories } from '@/lib/api/categories';
+import { type AppConfig, getConfig } from '@/config';
 
 // Mock data
 const mockSearchResult: ShopperSearch.schemas['ProductSearchResult'] = {
@@ -110,26 +116,28 @@ vi.mock('@/components/ui/skeleton', () => ({
     Skeleton: ({ className, ...props }: any) => <div data-testid="skeleton" className={className} {...props} />,
 }));
 
-// Mock the HomeSkeleton component
 vi.mock('@/components/home/skeleton', () => ({
     default: () => <div data-testid="home-skeleton" />,
 }));
 
-// Mock React Router components
-vi.mock('react-router', () => ({
-    Await: ({ resolve, children }: any) => {
-        // For testing, synchronously resolve the promise and render
-        if (resolve && typeof resolve.then === 'function') {
-            // For synchronous testing, we need to access the resolved value
-            // This is a simplified approach for testing
-            if (resolve._resolvedValue) {
-                return typeof children === 'function' ? children(resolve._resolvedValue) : children;
+vi.mock('react-router', async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...actual,
+        Await: ({ resolve, children }: any) => {
+            // For testing, synchronously resolve the promise and render
+            if (resolve && typeof resolve.then === 'function') {
+                // For synchronous testing, we need to access the resolved value
+                // This is a simplified approach for testing
+                if (resolve._resolvedValue) {
+                    return typeof children === 'function' ? children(resolve._resolvedValue) : children;
+                }
             }
-        }
-        return typeof children === 'function' ? children(resolve) : children;
-    },
-    Suspense: ({ children }: any) => children,
-}));
+            return typeof children === 'function' ? children(resolve) : children;
+        },
+        Suspense: ({ children }: any) => children,
+    };
+});
 
 // Mock the createPage function
 vi.mock('@/components/create-page', () => ({
@@ -187,89 +195,78 @@ vi.mock('@/lib/decorators/region-definition', () => ({
 }));
 
 vi.mock('@/lib/util/pageLoader', () => ({
-    collectComponentDataPromises: vi.fn(() => Promise.resolve({})),
-    fetchPageFromLoader: vi.fn(() => Promise.resolve(createMockPage([]))),
+    collectComponentDataPromises: vi.fn(),
+    fetchPageFromLoader: vi.fn(),
 }));
 
 vi.mock('@/lib/api/search', () => ({
-    fetchSearchProducts: vi.fn(() => Promise.resolve(mockSearchResult)),
+    fetchSearchProducts: vi.fn(),
 }));
 
 vi.mock('@/lib/api/categories', () => ({
-    fetchCategories: vi.fn(() => Promise.resolve(mockCategories)),
+    fetchCategories: vi.fn(),
 }));
 
-vi.mock('@/config', () => ({
-    getConfig: vi.fn(() => ({ pages: { home: { featuredProductsCount: 8 } } })),
-}));
+vi.mock('@/config', async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...actual,
+        getConfig: vi.fn(),
+    };
+});
 
 const renderComponent = (component: React.ReactElement) => {
     return render(component);
 };
 
 describe('HomeView', () => {
+    let defaultLoaderData: HomePageData;
+
     beforeEach(() => {
         vi.clearAllMocks();
+
+        // Reset mock implementations for component tests
+        vi.mocked(fetchPageFromLoader).mockResolvedValue(createMockPage([]));
+        vi.mocked(collectComponentDataPromises).mockResolvedValue({});
+        vi.mocked(fetchSearchProducts).mockResolvedValue(mockSearchResult);
+        vi.mocked(fetchCategories).mockResolvedValue(mockCategories);
+        vi.mocked(getConfig).mockReturnValue({ pages: { home: { featuredProductsCount: 8 } } } as AppConfig);
+
+        // Common loaderData setup
+        defaultLoaderData = {
+            page: Promise.resolve(createMockPage([])),
+            searchResult: Promise.resolve(mockSearchResult),
+            categories: Promise.resolve(mockCategories),
+            componentData: Promise.resolve({}),
+        };
     });
 
     describe('Basic Rendering', () => {
-        test('renders new arrivals section', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+        const renderingTests = [
+            {
+                description: 'renders new arrivals section',
+                assertion: () => expect(screen.getByText('New Arrivals')).toBeInTheDocument(),
+            },
+            {
+                description: 'renders popular categories section',
+                assertion: () => expect(screen.getByTestId('popular-categories')).toBeInTheDocument(),
+            },
+            {
+                description: 'renders featured content cards',
+                assertion: () => {
+                    expect(screen.getByText('Women')).toBeInTheDocument();
+                    expect(screen.getByText('Men')).toBeInTheDocument();
+                },
+            },
+        ];
 
-            expect(screen.getByText('New Arrivals')).toBeInTheDocument();
-        });
-
-        test('renders popular categories section', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
-            expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
-        });
-
-        test('renders featured content cards', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
-            expect(screen.getByText('Women')).toBeInTheDocument();
-            expect(screen.getByText('Men')).toBeInTheDocument();
+        test.each(renderingTests)('$description', ({ assertion }) => {
+            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            assertion();
         });
 
         test('renders without header banner region when no regions available', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+            renderComponent(<HomeView loaderData={defaultLoaderData} />);
 
             // Should not render region when no regions are available
             expect(screen.queryByTestId('region')).not.toBeInTheDocument();
@@ -310,142 +307,71 @@ describe('HomeView', () => {
     });
 
     describe('New Arrivals Section', () => {
-        test('renders new arrivals with correct title', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+        const newArrivalsTests = [
+            {
+                description: 'renders new arrivals with correct title',
+                expectedText: 'New Arrivals',
+            },
+            {
+                description: 'renders new arrivals with correct description',
+                expectedText:
+                    'Discover the latest additions to our collection. From statement pieces to everyday essentials.',
+            },
+            {
+                description: 'renders new arrivals CTA button',
+                expectedText: 'SHOP NEW ARRIVALS',
+            },
+        ];
 
-            expect(screen.getByText('New Arrivals')).toBeInTheDocument();
-        });
-
-        test('renders new arrivals with correct description', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
-            expect(
-                screen.getByText(
-                    'Discover the latest additions to our collection. From statement pieces to everyday essentials.'
-                )
-            ).toBeInTheDocument();
-        });
-
-        test('renders new arrivals CTA button', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
-            expect(screen.getByText('SHOP NEW ARRIVALS')).toBeInTheDocument();
+        test.each(newArrivalsTests)('$description', ({ expectedText }) => {
+            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            expect(screen.getByText(expectedText)).toBeInTheDocument();
         });
     });
 
     describe('Popular Categories Section', () => {
-        test('renders popular categories component', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+        const popularCategoriesTests = [
+            {
+                description: 'renders popular categories component',
+                assertion: () => expect(screen.getByTestId('popular-categories')).toBeInTheDocument(),
+            },
+            {
+                description: 'passes categories promise to PopularCategories component',
+                assertion: () => {
+                    expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
+                    expect(screen.getByText('Step into Elegance')).toBeInTheDocument();
+                },
+            },
+        ];
 
-            expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
-        });
-
-        test('passes categories promise to PopularCategories component', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
-            // The PopularCategories component should receive the categoriesPromise
-            expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
-            expect(screen.getByText('Step into Elegance')).toBeInTheDocument();
+        test.each(popularCategoriesTests)('$description', ({ assertion }) => {
+            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            assertion();
         });
     });
 
     describe('Featured Content Cards Section', () => {
-        test('renders women content card', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+        const contentCardTests = [
+            {
+                description: 'renders women content card',
+                title: 'Women',
+                content: 'Discover our curated collection of sophisticated footwear designed for the modern woman.',
+            },
+            {
+                description: 'renders men content card',
+                title: 'Men',
+                content: "Timeless craftsmanship meets contemporary style in our men's footwear collection.",
+            },
+        ];
 
-            expect(screen.getByText('Women')).toBeInTheDocument();
-            expect(
-                screen.getByText(
-                    'Discover our curated collection of sophisticated footwear designed for the modern woman.'
-                )
-            ).toBeInTheDocument();
-        });
-
-        test('renders men content card', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
-            expect(screen.getByText('Men')).toBeInTheDocument();
-            expect(
-                screen.getByText("Timeless craftsmanship meets contemporary style in our men's footwear collection.")
-            ).toBeInTheDocument();
+        test.each(contentCardTests)('$description', ({ title, content }) => {
+            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            expect(screen.getByText(title)).toBeInTheDocument();
+            expect(screen.getByText(content)).toBeInTheDocument();
         });
 
         test('renders both content cards with correct count', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
-            // Test featured content cards (Women/Men) - should be 2
+            renderComponent(<HomeView loaderData={defaultLoaderData} />);
             const contentCards = screen.getAllByTestId('content-card');
             expect(contentCards).toHaveLength(2);
         });
@@ -453,37 +379,20 @@ describe('HomeView', () => {
 
     describe('Error Handling', () => {
         test('handles page promise rejection gracefully', () => {
-            const rejectedPagePromise = Promise.reject(new Error('Page failed'));
-            // Catch the rejection to prevent unhandled promise rejection
-            rejectedPagePromise.catch(() => {});
-
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
-
+            renderComponent(<HomeView loaderData={defaultLoaderData} />);
             // Should still render other sections
             expect(screen.getByText('New Arrivals')).toBeInTheDocument();
         });
 
         test('handles categories promise rejection', () => {
             const rejectedPromise = Promise.reject(new Error('Categories failed'));
-            // Catch the rejection to prevent unhandled promise rejection
-            rejectedPromise.catch(() => {});
+            rejectedPromise.catch(() => {}); // Prevent unhandled promise rejection
 
             renderComponent(
                 <HomeView
                     loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
+                        ...defaultLoaderData,
                         categories: rejectedPromise,
-                        componentData: Promise.resolve({}),
                     }}
                 />
             );
@@ -494,57 +403,226 @@ describe('HomeView', () => {
     });
 
     describe('Layout and Styling', () => {
-        test('applies correct main container styling', () => {
-            const { container } = renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+        const layoutTests = [
+            {
+                description: 'applies correct main container styling',
+                assertion: ({ container }: { container: HTMLElement }) => {
+                    const mainContainer = container.firstChild as HTMLElement;
+                    expect(mainContainer).toHaveClass('pb-16', '-mt-8');
+                },
+            },
+            {
+                description: 'applies correct spacing between sections',
+                assertion: () => {
+                    const newArrivalsTitle = screen.getByText('New Arrivals');
+                    const sectionWithPadding = newArrivalsTitle.closest('[class*="pt-16"]');
+                    expect(sectionWithPadding).toBeInTheDocument();
+                    expect(sectionWithPadding).toHaveClass('pt-16');
+                },
+            },
+            {
+                description: 'applies correct grid layout for content cards',
+                assertion: () => {
+                    const contentCardsGrid = screen.getByText('Women').closest('div')?.parentElement;
+                    expect(contentCardsGrid).toHaveClass('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-6');
+                },
+            },
+        ];
 
-            const mainContainer = container.firstChild as HTMLElement;
-            expect(mainContainer).toHaveClass('pb-16', '-mt-8');
+        test.each(layoutTests)('$description', ({ assertion }) => {
+            const { container } = renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            assertion({ container });
+        });
+    });
+
+    describe('Loaders', () => {
+        let mockContext: ReturnType<typeof createTestContext>;
+        let baseLoaderArgs: LoaderFunctionArgs;
+        let mockPromises: {
+            page: Promise<any>;
+            search: Promise<any>;
+            categories: Promise<any>;
+            componentData: Promise<any>;
+        };
+
+        beforeEach(() => {
+            mockContext = createTestContext();
+            baseLoaderArgs = {
+                request: new Request('http://localhost/'),
+                params: {},
+                context: mockContext,
+            };
+
+            // Common promise setup for loader tests
+            mockPromises = {
+                page: Promise.resolve(createMockPage([])),
+                search: Promise.resolve(mockSearchResult),
+                categories: Promise.resolve(mockCategories),
+                componentData: Promise.resolve({ some: Promise.resolve('data') }),
+            };
         });
 
-        test('applies correct spacing between sections', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+        describe('loader (server-side)', () => {
+            test('returns home page data with correct configuration', () => {
+                const expectedConfig = { pages: { home: { featuredProductsCount: 8 } } } as AppConfig;
 
-            // Check that New Arrivals section has proper spacing
-            // The pt-16 class is on the section container, which is the closest div with pt-16 class
-            const newArrivalsTitle = screen.getByText('New Arrivals');
-            const sectionWithPadding = newArrivalsTitle.closest('[class*="pt-16"]');
-            expect(sectionWithPadding).toBeInTheDocument();
-            expect(sectionWithPadding).toHaveClass('pt-16');
+                vi.mocked(getConfig).mockReturnValue(expectedConfig);
+                vi.mocked(fetchPageFromLoader).mockReturnValue(mockPromises.page);
+                vi.mocked(collectComponentDataPromises).mockReturnValue(mockPromises.componentData);
+                vi.mocked(fetchSearchProducts).mockReturnValue(mockPromises.search);
+                vi.mocked(fetchCategories).mockReturnValue(mockPromises.categories);
+
+                const result = loader(baseLoaderArgs);
+
+                expect(vi.mocked(getConfig)).toHaveBeenCalledTimes(1);
+                expect(vi.mocked(getConfig)).toHaveBeenCalledWith(mockContext);
+
+                // Assert - API calls
+                expect(vi.mocked(fetchPageFromLoader)).toHaveBeenCalledWith(baseLoaderArgs, { pageId: 'homepage' });
+                expect(vi.mocked(collectComponentDataPromises)).toHaveBeenCalledWith(baseLoaderArgs, mockPromises.page);
+                expect(vi.mocked(fetchSearchProducts)).toHaveBeenCalledWith(mockContext, {
+                    categoryId: 'root',
+                    limit: 8,
+                });
+                expect(vi.mocked(fetchCategories)).toHaveBeenCalledWith(mockContext, 'root', 1);
+
+                // Assert - Return value
+                expect(result).toEqual({
+                    page: mockPromises.page,
+                    searchResult: mockPromises.search,
+                    categories: mockPromises.categories,
+                    componentData: mockPromises.componentData,
+                });
+            });
+
+            const featuredProductsCountTests = [
+                { count: 12, description: 'uses featuredProductsCount from server config' },
+                { count: 16, description: 'handles different featuredProductsCount values' },
+            ];
+
+            test.each(featuredProductsCountTests)('$description', ({ count }) => {
+                const customConfig = { pages: { home: { featuredProductsCount: count } } } as AppConfig;
+                vi.mocked(getConfig).mockReturnValue(customConfig);
+                vi.mocked(fetchPageFromLoader).mockReturnValue(mockPromises.page);
+                vi.mocked(collectComponentDataPromises).mockReturnValue(mockPromises.componentData);
+                vi.mocked(fetchSearchProducts).mockReturnValue(mockPromises.search);
+                vi.mocked(fetchCategories).mockReturnValue(mockPromises.categories);
+
+                loader(baseLoaderArgs);
+
+                expect(vi.mocked(fetchSearchProducts)).toHaveBeenCalledWith(mockContext, {
+                    categoryId: 'root',
+                    limit: count,
+                });
+            });
         });
 
-        test('applies correct grid layout for content cards', () => {
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: Promise.resolve(createMockPage([])),
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+        describe('clientLoader (client-side)', () => {
+            test('returns home page data with global configuration', () => {
+                const expectedConfig = { pages: { home: { featuredProductsCount: 4 } } } as AppConfig;
+                const pagePromise = Promise.resolve(createMockPage([]));
+                const searchPromise = Promise.resolve(mockSearchResult);
+                const categoriesPromise = Promise.resolve(mockCategories);
+                const componentDataPromise = Promise.resolve({ some: Promise.resolve('data') });
 
-            // Check that content cards section has proper grid layout
-            const contentCardsGrid = screen.getByText('Women').closest('div')?.parentElement;
-            expect(contentCardsGrid).toHaveClass('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-6');
+                vi.mocked(getConfig).mockReturnValue(expectedConfig);
+                vi.mocked(fetchPageFromLoader).mockReturnValue(pagePromise);
+                vi.mocked(collectComponentDataPromises).mockReturnValue(componentDataPromise);
+                vi.mocked(fetchSearchProducts).mockReturnValue(searchPromise);
+                vi.mocked(fetchCategories).mockReturnValue(categoriesPromise);
+
+                const result = clientLoader(baseLoaderArgs as ClientLoaderFunctionArgs);
+
+                expect(vi.mocked(getConfig)).toHaveBeenCalledTimes(1);
+                expect(vi.mocked(getConfig)).toHaveBeenCalledWith();
+
+                expect(vi.mocked(fetchPageFromLoader)).toHaveBeenCalledWith(baseLoaderArgs, {
+                    pageId: 'homepage',
+                });
+                expect(vi.mocked(collectComponentDataPromises)).toHaveBeenCalledWith(baseLoaderArgs, pagePromise);
+                expect(vi.mocked(fetchSearchProducts)).toHaveBeenCalledWith(mockContext, {
+                    categoryId: 'root',
+                    limit: 4,
+                });
+                expect(vi.mocked(fetchCategories)).toHaveBeenCalledWith(mockContext, 'root', 1);
+
+                expect(result).toEqual({
+                    page: pagePromise,
+                    searchResult: searchPromise,
+                    categories: categoriesPromise,
+                    componentData: componentDataPromise,
+                });
+            });
+        });
+
+        describe('Error Handling', () => {
+            test('loader handles API errors gracefully', () => {
+                const error = new Error('API Error');
+                vi.mocked(getConfig).mockReturnValue({ pages: { home: { featuredProductsCount: 8 } } } as AppConfig);
+                vi.mocked(fetchPageFromLoader).mockRejectedValue(error);
+                vi.mocked(collectComponentDataPromises).mockReturnValue(Promise.resolve({}));
+                vi.mocked(fetchSearchProducts).mockReturnValue(Promise.resolve(mockSearchResult));
+                vi.mocked(fetchCategories).mockReturnValue(Promise.resolve(mockCategories));
+
+                expect(() => loader(baseLoaderArgs)).not.toThrow();
+
+                const result = loader(baseLoaderArgs);
+                expect(result).toHaveProperty('page');
+                expect(result).toHaveProperty('searchResult');
+                expect(result).toHaveProperty('categories');
+                expect(result).toHaveProperty('componentData');
+            });
+
+            test('clientLoader handles configuration errors gracefully', () => {
+                const error = new Error('Config Error');
+                vi.mocked(getConfig).mockImplementation(() => {
+                    throw error;
+                });
+
+                expect(() => clientLoader(baseLoaderArgs as ClientLoaderFunctionArgs)).toThrow('Config Error');
+            });
+        });
+
+        describe('Data Integration', () => {
+            test('page promise is passed to collectComponentDataPromises', () => {
+                const pagePromise = Promise.resolve(createMockPage([]));
+                vi.mocked(getConfig).mockReturnValue({ pages: { home: { featuredProductsCount: 8 } } } as AppConfig);
+                vi.mocked(fetchPageFromLoader).mockReturnValue(pagePromise);
+                vi.mocked(collectComponentDataPromises).mockReturnValue(Promise.resolve({}));
+                vi.mocked(fetchSearchProducts).mockReturnValue(Promise.resolve(mockSearchResult));
+                vi.mocked(fetchCategories).mockReturnValue(Promise.resolve(mockCategories));
+
+                loader(baseLoaderArgs);
+
+                expect(vi.mocked(collectComponentDataPromises)).toHaveBeenCalledWith(baseLoaderArgs, pagePromise);
+            });
+
+            test('all promises are returned in correct structure', () => {
+                const pagePromise = Promise.resolve(createMockPage([]));
+                const searchPromise = Promise.resolve(mockSearchResult);
+                const categoriesPromise = Promise.resolve(mockCategories);
+                const componentDataPromise = Promise.resolve({ test: Promise.resolve('data') });
+
+                vi.mocked(getConfig).mockReturnValue({ pages: { home: { featuredProductsCount: 8 } } } as AppConfig);
+                vi.mocked(fetchPageFromLoader).mockReturnValue(pagePromise);
+                vi.mocked(collectComponentDataPromises).mockReturnValue(componentDataPromise);
+                vi.mocked(fetchSearchProducts).mockReturnValue(searchPromise);
+                vi.mocked(fetchCategories).mockReturnValue(categoriesPromise);
+
+                const result = loader(baseLoaderArgs) as HomePageData;
+
+                expect(result).toEqual({
+                    page: pagePromise,
+                    searchResult: searchPromise,
+                    categories: categoriesPromise,
+                    componentData: componentDataPromise,
+                });
+
+                expect(result.page).toBeInstanceOf(Promise);
+                expect(result.searchResult).toBeInstanceOf(Promise);
+                expect(result.categories).toBeInstanceOf(Promise);
+                expect(result.componentData).toBeInstanceOf(Promise);
+            });
         });
     });
 });

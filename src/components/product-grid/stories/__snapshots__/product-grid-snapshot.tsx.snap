@@ -9,7 +9,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
     >
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -79,7 +79,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -128,7 +128,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -216,7 +216,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 1"
@@ -265,7 +265,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -372,7 +372,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 1"
@@ -421,7 +421,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -528,7 +528,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 2"
@@ -577,7 +577,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -631,7 +631,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Product Set 1"
@@ -680,7 +680,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -750,7 +750,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -799,7 +799,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -906,7 +906,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 2"
@@ -955,7 +955,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -1062,7 +1062,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 3"
@@ -1124,7 +1124,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
     >
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -1194,7 +1194,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -1243,7 +1243,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -1331,7 +1331,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 1"
@@ -1380,7 +1380,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -1487,7 +1487,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 1"
@@ -1536,7 +1536,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -1643,7 +1643,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 2"
@@ -1692,7 +1692,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -1746,7 +1746,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Product Set 1"
@@ -1795,7 +1795,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -1865,7 +1865,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -1914,7 +1914,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2021,7 +2021,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 2"
@@ -2070,7 +2070,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2177,7 +2177,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 3"
@@ -2260,7 +2260,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
     >
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2330,7 +2330,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -2379,7 +2379,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2449,7 +2449,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -2498,7 +2498,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2568,7 +2568,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 3"
@@ -2617,7 +2617,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2687,7 +2687,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 4"
@@ -2736,7 +2736,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2806,7 +2806,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 5"
@@ -2855,7 +2855,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -2925,7 +2925,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 6"
@@ -2974,7 +2974,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3044,7 +3044,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 7"
@@ -3093,7 +3093,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3163,7 +3163,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 8"
@@ -3212,7 +3212,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3282,7 +3282,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 9"
@@ -3331,7 +3331,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3401,7 +3401,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 10"
@@ -3450,7 +3450,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3520,7 +3520,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 11"
@@ -3569,7 +3569,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3639,7 +3639,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 12"
@@ -3688,7 +3688,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3758,7 +3758,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 13"
@@ -3807,7 +3807,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3877,7 +3877,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 14"
@@ -3926,7 +3926,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -3996,7 +3996,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 15"
@@ -4045,7 +4045,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4115,7 +4115,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 16"
@@ -4164,7 +4164,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4234,7 +4234,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 17"
@@ -4283,7 +4283,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4353,7 +4353,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 18"
@@ -4402,7 +4402,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4472,7 +4472,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 19"
@@ -4521,7 +4521,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4591,7 +4591,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 20"
@@ -4640,7 +4640,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4710,7 +4710,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 21"
@@ -4759,7 +4759,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4829,7 +4829,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 22"
@@ -4878,7 +4878,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -4948,7 +4948,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 23"
@@ -4997,7 +4997,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -5067,7 +5067,7 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 24"
@@ -5129,7 +5129,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
     >
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -5199,7 +5199,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -5248,7 +5248,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -5336,7 +5336,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 1"
@@ -5385,7 +5385,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -5492,7 +5492,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 1"
@@ -5541,7 +5541,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -5648,7 +5648,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 2"
@@ -5697,7 +5697,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -5751,7 +5751,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Product Set 1"
@@ -5800,7 +5800,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -5870,7 +5870,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -5919,7 +5919,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -6026,7 +6026,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 2"
@@ -6075,7 +6075,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
         </div>
       </div>
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -6182,7 +6182,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 3"
@@ -6244,7 +6244,7 @@ exports[`ProductGrid stories snapshot > SingleProduct story renders and matches 
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
     >
       <div
-        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
+        class="bg-card text-card-foreground group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md"
         data-slot="card"
       >
         <div
@@ -6314,7 +6314,7 @@ exports[`ProductGrid stories snapshot > SingleProduct story renders and matches 
             class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
           >
             <div
-              class="relative aspect-square overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Only"

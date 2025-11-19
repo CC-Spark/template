@@ -492,6 +492,153 @@ describe('ComponentRegistry', () => {
         });
     });
 
+    describe('Region Functions', () => {
+        beforeEach(() => {
+            // Register test components and manually set metadata
+            const mockImporter = vi.fn().mockResolvedValue({
+                default: (() => null) as any,
+            });
+
+            // Component with regions
+            registry.registerImporter('with-regions', mockImporter);
+            (registry as any).registry.set('with-regions', {
+                id: 'with-regions',
+                raw: null,
+                import: mockImporter,
+                meta: {
+                    id: 'with-regions',
+                    name: 'Component With Regions',
+                    regions: [
+                        { id: 'header', name: 'Header', maxComponents: 3 },
+                        { id: 'main', name: 'Main', componentTypeExclusions: ['footer'] },
+                    ],
+                },
+            });
+
+            // Component without regions
+            registry.registerImporter('no-regions', mockImporter);
+            (registry as any).registry.set('no-regions', {
+                id: 'no-regions',
+                raw: null,
+                import: mockImporter,
+                meta: {
+                    id: 'no-regions',
+                    name: 'Component Without Regions',
+                },
+            });
+
+            // Component with empty regions
+            registry.registerImporter('empty-regions', mockImporter);
+            (registry as any).registry.set('empty-regions', {
+                id: 'empty-regions',
+                raw: null,
+                import: mockImporter,
+                meta: {
+                    id: 'empty-regions',
+                    name: 'Component With Empty Regions',
+                    regions: [],
+                },
+            });
+        });
+
+        describe('getRegions', () => {
+            const getRegionsTestCases = [
+                {
+                    description: 'returns regions array for component with regions',
+                    componentId: 'with-regions',
+                    expected: [
+                        { id: 'header', name: 'Header', maxComponents: 3 },
+                        { id: 'main', name: 'Main', componentTypeExclusions: ['footer'] },
+                    ],
+                },
+                {
+                    description: 'returns undefined for component without regions',
+                    componentId: 'no-regions',
+                    expected: undefined,
+                },
+                {
+                    description: 'returns empty array for component with empty regions',
+                    componentId: 'empty-regions',
+                    expected: [],
+                },
+                {
+                    description: 'returns undefined for non-existent component',
+                    componentId: 'non-existent',
+                    expected: undefined,
+                },
+            ];
+
+            test.each(getRegionsTestCases)('$description', ({ componentId, expected }) => {
+                const result = registry.getRegions(componentId);
+                expect(result).toEqual(expected);
+            });
+        });
+
+        describe('getRegion', () => {
+            const getRegionTestCases = [
+                {
+                    description: 'returns specific region by IDs',
+                    componentId: 'with-regions',
+                    regionId: 'header',
+                    expected: { id: 'header', name: 'Header', maxComponents: 3 },
+                },
+                {
+                    description: 'returns different region when requested',
+                    componentId: 'with-regions',
+                    regionId: 'main',
+                    expected: { id: 'main', name: 'Main', componentTypeExclusions: ['footer'] },
+                },
+                {
+                    description: 'returns undefined for non-existent region',
+                    componentId: 'with-regions',
+                    regionId: 'non-existent',
+                    expected: undefined,
+                },
+                {
+                    description: 'returns undefined for non-existent component',
+                    componentId: 'non-existent',
+                    regionId: 'any-region',
+                    expected: undefined,
+                },
+            ];
+
+            test.each(getRegionTestCases)('$description', ({ componentId, regionId, expected }) => {
+                const result = registry.getRegion(componentId, regionId);
+                expect(result).toEqual(expected);
+            });
+        });
+
+        describe('hasRegions', () => {
+            const hasRegionsTestCases = [
+                {
+                    description: 'returns true for component with regions',
+                    componentId: 'with-regions',
+                    expected: true,
+                },
+                {
+                    description: 'returns false for component without regions',
+                    componentId: 'no-regions',
+                    expected: false,
+                },
+                {
+                    description: 'returns false for component with empty regions',
+                    componentId: 'empty-regions',
+                    expected: false,
+                },
+                {
+                    description: 'returns false for non-existent component',
+                    componentId: 'non-existent',
+                    expected: false,
+                },
+            ];
+
+            test.each(hasRegionsTestCases)('$description', ({ componentId, expected }) => {
+                const result = registry.hasRegions(componentId);
+                expect(result).toBe(expected);
+            });
+        });
+    });
+
     describe('extractMeta default behavior', () => {
         test('extracts metadata from __meta property', () => {
             const TestComponent = (() => null) as any;

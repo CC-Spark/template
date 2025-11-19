@@ -32,10 +32,11 @@ type DefaultParams = unknown;
  * Vite glob import of all component modules.
  * Scans /src/components/{star}/index.tsx for component definitions.
  */
+/* v8 ignore start - ignoring this because this generates a lot of functions at compile time, which we can't and don't want to test separately in unit tests*/
 const modules = import.meta.glob<ComponentModule<DefaultProps, DefaultParams>>('/src/components/**/index.tsx', {
     eager: false,
 });
-
+/* v8 ignore stop */
 /**
  * Global component registry instance.
  * Used throughout the application to discover and load components.
