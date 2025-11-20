@@ -71,7 +71,7 @@ export async function serve(options: ServeOptions = {}): Promise<void> {
     const config = await loadProjectConfig(projectDir);
 
     // Create unified server in serve mode
-    const app = createServer({
+    const app = await createServer({
         mode: 'serve',
         projectDirectory: projectDir,
         config,

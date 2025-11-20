@@ -285,15 +285,15 @@ importers:
 
   packages/storefront-next-dev:
     dependencies:
+      '@codegenie/serverless-express':
+        specifier: 4.17.0
+        version: 4.17.0
       '@react-router/express':
         specifier: 7.9.2
         version: 7.9.2(express@4.21.2)(react-router@7.9.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(typescript@5.9.3)
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
-      aws-serverless-express:
-        specifier: 3.4.0
-        version: 3.4.0
       chalk:
         specifier: ^5.3.0
         version: 5.6.2
@@ -352,6 +352,9 @@ importers:
       '@types/archiver':
         specifier: ^6.0.2
         version: 6.0.4
+      '@types/aws-lambda':
+        specifier: 8.10.159
+        version: 8.10.159
       '@types/babel__traverse':
         specifier: 7.28.0
         version: 7.28.0
@@ -739,9 +742,9 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^9.0.0 || ^9.1.0-0 || ^9.2.0-0 || ^10.0.0-0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0
 
-  '@codegenie/serverless-express@3.4.1':
-    resolution: {integrity: sha512-PQ3v/wDflxx168B4TwuxbbKjfmvLkyRBdvHRFS8s48hDS0Wnukm+5Dp+HiLvqwXOU7PP2+FyrK47WX4WL15Rrw==}
-    engines: {node: '>=6'}
+  '@codegenie/serverless-express@4.17.0':
+    resolution: {integrity: sha512-KebLJ34yHNWFoC9D+iF1Ft+6T8hj0mdylP9d2SFERNuVPOc6UqAvgxm9mY6r2V3wCJ+BPpG2vEHihpUtCT3dEg==}
+    engines: {node: '>=18'}
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -2528,6 +2531,9 @@ packages:
   '@types/aria-query@5.0.4':
     resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
 
+  '@types/aws-lambda@8.10.159':
+    resolution: {integrity: sha512-SAP22WSGNN12OQ8PlCzGzRCZ7QDCwI85dQZbmpz7+mAk+L7j+wI7qnvmdKh+o7A5LaOp6QnOZ2NJphAZQTTHQg==}
+
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -2816,10 +2822,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@vendia/serverless-express@3.4.1':
-    resolution: {integrity: sha512-4dJJvr9vQlq9iUClpfm5iFL+neoSctUI6Zkh9F4wjk/tpcM7QVD6niJi4ptiIzyzJCWoN97ACQCXyE0O8MznLQ==}
-    engines: {node: '>=6'}
-
   '@vitejs/plugin-react@5.0.3':
     resolution: {integrity: sha512-PFVHhosKkofGH0Yzrw1BipSedTH68BFF8ZWy1kfUpCtJcouXXY0+racG8sExw7hw0HoX36813ga5o3LTWZ4FUg==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -3032,10 +3034,6 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  aws-serverless-express@3.4.0:
-    resolution: {integrity: sha512-YG9ZjAOI9OpwqDDWzkRc3kKJYJuR7gTMjLa3kAWopO17myoprxskCUyCEee+RKe34tcR4UNrVtgAwW5yDe74bw==}
-    engines: {node: '>=6'}
-
   axe-core@4.11.0:
     resolution: {integrity: sha512-ilYanEU8vxxBexpJd8cWM4ElSQq4QctCLKih0TSfjIfCQTeyH/6zVrmIJfLPrKTKJRbiG+cfnZbQIjAlJmF1jQ==}
     engines: {node: '>=4'}
@@ -3157,9 +3155,6 @@ packages:
 
   bidi-js@1.0.3:
     resolution: {integrity: sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==}
-
-  binary-case@1.1.4:
-    resolution: {integrity: sha512-9Kq8m6NZTAgy05Ryuh7U3Qc4/ujLQU1AZ5vMw4cr3igTdi5itZC6kCNrRr2X8NzPiDn2oUIFTfa71DKMnue/Zg==}
 
   birpc@2.8.0:
     resolution: {integrity: sha512-Bz2a4qD/5GRhiHSwj30c/8kC8QGj12nNDwz3D4ErQ4Xhy35dsSDvF+RA/tWpjyU0pdGtSDiEk6B5fBGE1qNVhw==}
@@ -7115,10 +7110,7 @@ snapshots:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
 
-  '@codegenie/serverless-express@3.4.1':
-    dependencies:
-      binary-case: 1.1.4
-      type-is: 1.6.18
+  '@codegenie/serverless-express@4.17.0': {}
 
   '@csstools/color-helpers@5.1.0': {}
 
@@ -9083,6 +9075,8 @@ snapshots:
 
   '@types/aria-query@5.0.4': {}
 
+  '@types/aws-lambda@8.10.159': {}
+
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.28.5
@@ -9377,12 +9371,6 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vendia/serverless-express@3.4.1':
-    dependencies:
-      '@codegenie/serverless-express': 3.4.1
-      binary-case: 1.1.4
-      type-is: 1.6.18
-
   '@vitejs/plugin-react@5.0.3(vite@7.1.7(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.20.6))':
     dependencies:
       '@babel/core': 7.28.5
@@ -9631,12 +9619,6 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  aws-serverless-express@3.4.0:
-    dependencies:
-      '@vendia/serverless-express': 3.4.1
-      binary-case: 1.1.4
-      type-is: 1.6.18
-
   axe-core@4.11.0: {}
 
   axios@1.13.2:
@@ -9798,8 +9780,6 @@ snapshots:
   bidi-js@1.0.3:
     dependencies:
       require-from-string: 2.0.2
-
-  binary-case@1.1.4: {}
 
   birpc@2.8.0: {}
 

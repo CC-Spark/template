@@ -58,7 +58,8 @@ export default defineConfig([
         outDir: 'dist/mrt',
         // This is the react-router server build entry point, it is created from the user land when running `vite build`
         // it is a relative path from within the build directory
-        external: ['./server/index.js', /node_modules/],
+        external: ['./server/index.js', 'vite'],
+        noExternal: [/.*/],
         clean: false,
         hash: false
     },

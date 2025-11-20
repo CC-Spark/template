@@ -35,7 +35,7 @@ export async function dev(options: DevOptions = {}): Promise<void> {
     });
 
     // Create unified server in development mode
-    const app = createServer({
+    const app = await createServer({
         mode: 'development',
         projectDirectory: projectDir,
         config,

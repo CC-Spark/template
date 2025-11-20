@@ -129,8 +129,8 @@ interface ServerModeFeatures {
 interface ServerOptions extends Partial<ServerModeFeatures> {
   /** Server mode: development (with Vite), serve (preview), or production (minimal) */
   mode: ServerMode;
-  /** Project root directory */
-  projectDirectory: string;
+  /** Project root directory (optional, defaults to process.cwd()) */
+  projectDirectory?: string;
   /** Server configuration (optional, will load from env vars if not provided) */
   config?: ServerConfig;
   /** Server port (optional, for logging) */
@@ -143,7 +143,7 @@ interface ServerOptions extends Partial<ServerModeFeatures> {
 /**
  * Create a unified Express server for development, serve, or production mode
  */
-declare function createServer(options: ServerOptions): Express;
+declare function createServer(options: ServerOptions): Promise<Express>;
 //#endregion
 //#region src/extensibility/extension-config.d.ts
 type ExtensionMeta = {

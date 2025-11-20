@@ -1,4 +1,3 @@
-import { tsImport } from 'tsx/esm/api';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 
@@ -91,6 +90,10 @@ export async function loadProjectConfig(projectDirectory: string): Promise<Serve
         );
     }
 
+    // We must dynamically import tsx/esm/api to avoid bundling it in production.
+    // Because the tsx package is not designed to be bundlable via build tools.
+    // This is okay because we are only using the tsImport on local development.
+    const { tsImport } = await import('tsx/esm/api');
     const loaded = await tsImport(configPath, {
         parentURL: import.meta.url,
         tsconfig: existsSync(tsconfigPath) ? tsconfigPath : undefined,

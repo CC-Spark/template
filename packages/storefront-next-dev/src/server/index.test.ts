@@ -116,42 +116,42 @@ describe('server/index', () => {
 
     describe('createServer', () => {
         describe('validation', () => {
-            it('should throw error when development mode is missing vite instance', () => {
+            it('should throw error when development mode is missing vite instance', async () => {
                 const options: ServerOptions = {
                     mode: 'development',
                     projectDirectory: '/test/project',
                 };
 
-                expect(() => createServer(options)).toThrow(
+                await expect(() => createServer(options)).rejects.toThrow(
                     'Vite dev server instance is required for development mode'
                 );
             });
 
-            it('should throw error when serve mode is missing build', () => {
+            it('should throw error when serve mode is missing build', async () => {
                 const options: ServerOptions = {
                     mode: 'serve',
                     projectDirectory: '/test/project',
                 };
 
-                expect(() => createServer(options)).toThrow(
+                await expect(() => createServer(options)).rejects.toThrow(
                     'React Router server build is required for serve/production mode'
                 );
             });
 
-            it('should throw error when production mode is missing build', () => {
+            it('should throw error when production mode is missing build', async () => {
                 const options: ServerOptions = {
                     mode: 'production',
                     projectDirectory: '/test/project',
                 };
 
-                expect(() => createServer(options)).toThrow(
+                await expect(() => createServer(options)).rejects.toThrow(
                     'React Router server build is required for serve/production mode'
                 );
             });
         });
 
         describe('development mode', () => {
-            it('should create server with all default development features', () => {
+            it('should create server with all default development features', async () => {
                 const mockVite = {
                     middlewares: vi.fn(),
                     environments: {},
@@ -163,7 +163,7 @@ describe('server/index', () => {
                     vite: mockVite,
                 };
 
-                const app = createServer(options);
+                const app = await createServer(options);
 
                 expect(app).toBe(mockExpressApp);
                 expect(mockExpressApp.disable).toHaveBeenCalledWith('x-powered-by');
@@ -171,7 +171,7 @@ describe('server/index', () => {
                 expect(vi.mocked(loadConfigFromEnv)).toHaveBeenCalled();
             });
 
-            it('should use provided config instead of loading from env', () => {
+            it('should use provided config instead of loading from env', async () => {
                 const mockVite = {
                     middlewares: vi.fn(),
                     environments: {},
@@ -196,13 +196,13 @@ describe('server/index', () => {
                     config: customConfig,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(loadConfigFromEnv)).not.toHaveBeenCalled();
                 expect(vi.mocked(createCommerceProxyMiddleware)).toHaveBeenCalledWith(customConfig);
             });
 
-            it('should apply logging middleware when enableLogging is true', () => {
+            it('should apply logging middleware when enableLogging is true', async () => {
                 const mockVite = {
                     middlewares: vi.fn(),
                     environments: {},
@@ -218,13 +218,13 @@ describe('server/index', () => {
                     enableLogging: true,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createLoggingMiddleware)).toHaveBeenCalled();
                 expect(mockExpressApp.use).toHaveBeenCalledWith(mockLoggingMiddleware);
             });
 
-            it('should not apply logging middleware when enableLogging is false', () => {
+            it('should not apply logging middleware when enableLogging is false', async () => {
                 const mockVite = {
                     middlewares: vi.fn(),
                     environments: {},
@@ -237,12 +237,12 @@ describe('server/index', () => {
                     enableLogging: false,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createLoggingMiddleware)).not.toHaveBeenCalled();
             });
 
-            it('should apply compression middleware when enableCompression is true', () => {
+            it('should apply compression middleware when enableCompression is true', async () => {
                 const mockVite = {
                     middlewares: vi.fn(),
                     environments: {},
@@ -258,13 +258,13 @@ describe('server/index', () => {
                     enableCompression: true,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createCompressionMiddleware)).toHaveBeenCalled();
                 expect(mockExpressApp.use).toHaveBeenCalledWith(mockCompressionMiddleware);
             });
 
-            it('should apply proxy middleware when enableProxy is true', () => {
+            it('should apply proxy middleware when enableProxy is true', async () => {
                 const mockVite = {
                     middlewares: vi.fn(),
                     environments: {},
@@ -280,7 +280,7 @@ describe('server/index', () => {
                     enableProxy: true,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createCommerceProxyMiddleware)).toHaveBeenCalledWith(mockConfig);
                 expect(mockExpressApp.use).toHaveBeenCalledWith('/api/commerce', mockProxyMiddleware);
@@ -288,14 +288,14 @@ describe('server/index', () => {
         });
 
         describe('serve mode', () => {
-            it('should create server with all default serve features', () => {
+            it('should create server with all default serve features', async () => {
                 const options: ServerOptions = {
                     mode: 'serve',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                 };
 
-                const app = createServer(options);
+                const app = await createServer(options);
 
                 expect(app).toBe(mockExpressApp);
                 expect(mockExpressApp.disable).toHaveBeenCalledWith('x-powered-by');
@@ -305,7 +305,7 @@ describe('server/index', () => {
                 expect(vi.mocked(createCommerceProxyMiddleware)).toHaveBeenCalledWith(mockConfig);
             });
 
-            it('should use BUNDLE_ID from environment', () => {
+            it('should use BUNDLE_ID from environment', async () => {
                 process.env.BUNDLE_ID = 'test-bundle-123';
 
                 const options: ServerOptions = {
@@ -314,13 +314,24 @@ describe('server/index', () => {
                     build: mockBuild,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(getBundlePath)).toHaveBeenCalledWith('test-bundle-123');
                 expect(vi.mocked(createStaticMiddleware)).toHaveBeenCalledWith('test-bundle-123', '/test/project');
             });
 
-            it('should not apply static middleware when enableStaticServing is false', () => {
+            it('should default to process.cwd() when projectDirectory is not provided', async () => {
+                const options: ServerOptions = {
+                    mode: 'serve',
+                    build: mockBuild,
+                };
+
+                await createServer(options);
+
+                expect(vi.mocked(createStaticMiddleware)).toHaveBeenCalledWith('local', process.cwd());
+            });
+
+            it('should not apply static middleware when enableStaticServing is false', async () => {
                 const options: ServerOptions = {
                     mode: 'serve',
                     projectDirectory: '/test/project',
@@ -328,12 +339,12 @@ describe('server/index', () => {
                     enableStaticServing: false,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createStaticMiddleware)).not.toHaveBeenCalled();
             });
 
-            it('should apply asset url patching when enableAssetUrlPatching is true', () => {
+            it('should apply asset url patching when enableAssetUrlPatching is true', async () => {
                 const patchedBuild = { ...mockBuild };
                 vi.mocked(patchReactRouterBuild).mockReturnValue(patchedBuild);
 
@@ -344,7 +355,7 @@ describe('server/index', () => {
                     enableAssetUrlPatching: true,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(patchReactRouterBuild)).toHaveBeenCalledWith(mockBuild, 'local');
                 expect(vi.mocked(createRequestHandler)).toHaveBeenCalledWith({
@@ -355,26 +366,26 @@ describe('server/index', () => {
         });
 
         describe('production mode', () => {
-            it('should create server with minimal production features', () => {
+            it('should create server with minimal production features', async () => {
                 const options: ServerOptions = {
                     mode: 'production',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                 };
 
-                const app = createServer(options);
+                const app = await createServer(options);
 
                 expect(app).toBe(mockExpressApp);
                 expect(mockExpressApp.disable).toHaveBeenCalledWith('x-powered-by');
-                // Production mode has compression enabled by default, but not logging or static serving
-                expect(vi.mocked(createLoggingMiddleware)).not.toHaveBeenCalled();
+                // Production mode has compression and logging enabled by default, but not static serving or proxy
+                expect(vi.mocked(createLoggingMiddleware)).toHaveBeenCalled();
                 expect(vi.mocked(createCompressionMiddleware)).toHaveBeenCalled();
                 expect(vi.mocked(createStaticMiddleware)).not.toHaveBeenCalled();
                 // Proxy is disabled in production mode by default
                 expect(vi.mocked(createCommerceProxyMiddleware)).not.toHaveBeenCalled();
             });
 
-            it('should respect explicit feature overrides in production mode', () => {
+            it('should respect explicit feature overrides in production mode', async () => {
                 const mockLoggingMiddleware = vi.fn() as any;
                 vi.mocked(createLoggingMiddleware).mockReturnValue(mockLoggingMiddleware);
 
@@ -386,7 +397,7 @@ describe('server/index', () => {
                     enableCompression: true,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createLoggingMiddleware)).toHaveBeenCalled();
                 expect(vi.mocked(createCompressionMiddleware)).toHaveBeenCalled();
@@ -394,7 +405,7 @@ describe('server/index', () => {
         });
 
         describe('SSR handler', () => {
-            it('should create SSR handler for all routes', () => {
+            it('should create SSR handler for all routes', async () => {
                 const mockVite = {
                     middlewares: vi.fn(),
                     environments: {},
@@ -406,7 +417,7 @@ describe('server/index', () => {
                     vite: mockVite,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(mockExpressApp.all).toHaveBeenCalledWith('*', expect.any(Function));
             });
@@ -443,7 +454,7 @@ describe('server/index', () => {
                     vite: mockVite,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 // Get the SSR handler that was registered
                 const ssrHandlerCall = mockExpressApp.all.mock.calls.find((call) => call[0] === '*');
@@ -487,7 +498,7 @@ describe('server/index', () => {
                     vite: mockVite,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 // Get the SSR handler
                 const ssrHandlerCall = mockExpressApp.all.mock.calls.find((call) => call[0] === '*');
@@ -532,7 +543,7 @@ describe('server/index', () => {
                     vite: mockVite,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 const ssrHandlerCall = mockExpressApp.all.mock.calls.find((call) => call[0] === '*');
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -551,7 +562,7 @@ describe('server/index', () => {
         });
 
         describe('serve/production mode handler', () => {
-            it('should create request handler with build in serve mode', () => {
+            it('should create request handler with build in serve mode', async () => {
                 const mockHandler = vi.fn() as any;
                 vi.mocked(createRequestHandler).mockReturnValue(mockHandler);
 
@@ -561,7 +572,7 @@ describe('server/index', () => {
                     build: mockBuild,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createRequestHandler)).toHaveBeenCalledWith({
                     build: mockBuild,
@@ -573,7 +584,7 @@ describe('server/index', () => {
                 expect(ssrHandlerCall![1]).toBe(mockHandler);
             });
 
-            it('should create request handler with build in production mode', () => {
+            it('should create request handler with build in production mode', async () => {
                 const mockHandler = vi.fn() as any;
                 vi.mocked(createRequestHandler).mockReturnValue(mockHandler);
 
@@ -583,7 +594,7 @@ describe('server/index', () => {
                     build: mockBuild,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(createRequestHandler)).toHaveBeenCalledWith({
                     build: mockBuild,
@@ -595,7 +606,7 @@ describe('server/index', () => {
                 expect(ssrHandlerCall![1]).toBe(mockHandler);
             });
 
-            it('should use patched build when enableAssetUrlPatching is true', () => {
+            it('should use patched build when enableAssetUrlPatching is true', async () => {
                 const patchedBuild = { ...mockBuild, patched: true };
                 vi.mocked(patchReactRouterBuild).mockReturnValue(patchedBuild);
 
@@ -606,7 +617,7 @@ describe('server/index', () => {
                     enableAssetUrlPatching: true,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(patchReactRouterBuild)).toHaveBeenCalledWith(mockBuild, 'local');
                 expect(vi.mocked(createRequestHandler)).toHaveBeenCalledWith({
@@ -615,7 +626,7 @@ describe('server/index', () => {
                 });
             });
 
-            it('should use original build when enableAssetUrlPatching is false', () => {
+            it('should use original build when enableAssetUrlPatching is false', async () => {
                 const options: ServerOptions = {
                     mode: 'serve',
                     projectDirectory: '/test/project',
@@ -623,7 +634,7 @@ describe('server/index', () => {
                     enableAssetUrlPatching: false,
                 };
 
-                createServer(options);
+                await createServer(options);
 
                 expect(vi.mocked(patchReactRouterBuild)).not.toHaveBeenCalled();
                 expect(vi.mocked(createRequestHandler)).toHaveBeenCalledWith({

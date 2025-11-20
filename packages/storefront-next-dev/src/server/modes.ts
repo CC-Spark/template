@@ -42,7 +42,7 @@ export const ServerModeFeatureMap: Record<ServerMode, ServerModeFeatures> = {
         enableProxy: false,
         enableStaticServing: false,
         enableCompression: true,
-        enableLogging: false,
+        enableLogging: true,
         enableAssetUrlPatching: true,
     },
 };

@@ -1,7 +1,7 @@
 import express, { type Express } from 'express';
 import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
-import { isRunnableDevEnvironment, type ViteDevServer } from 'vite';
+import type { ViteDevServer } from 'vite';
 import { loadConfigFromEnv, type ServerConfig } from './config';
 import { createCommerceProxyMiddleware } from './middleware/proxy';
 import { createStaticMiddleware } from './middleware/static';
@@ -15,8 +15,8 @@ export interface ServerOptions extends Partial<ServerModeFeatures> {
     /** Server mode: development (with Vite), serve (preview), or production (minimal) */
     mode: ServerMode;
 
-    /** Project root directory */
-    projectDirectory: string;
+    /** Project root directory (optional, defaults to process.cwd()) */
+    projectDirectory?: string;
 
     /** Server configuration (optional, will load from env vars if not provided) */
     config?: ServerConfig;
@@ -34,10 +34,10 @@ export interface ServerOptions extends Partial<ServerModeFeatures> {
 /**
  * Create a unified Express server for development, serve, or production mode
  */
-export function createServer(options: ServerOptions): Express {
+export async function createServer(options: ServerOptions): Promise<Express> {
     const {
         mode,
-        projectDirectory,
+        projectDirectory = process.cwd(),
         config: providedConfig,
         vite,
         build,
@@ -93,7 +93,7 @@ export function createServer(options: ServerOptions): Express {
 
     // SSR request handler
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    app.all('*', createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching));
+    app.all('*', await createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching));
 
     return app;
 }
@@ -101,7 +101,7 @@ export function createServer(options: ServerOptions): Express {
 /**
  * Create the SSR request handler based on mode
  */
-function createSSRHandler(
+async function createSSRHandler(
     mode: ServerMode,
     bundleId: string,
     vite: ViteDevServer | undefined,
@@ -109,7 +109,11 @@ function createSSRHandler(
     enableAssetUrlPatching: boolean
 ) {
     if (mode === 'development' && vite) {
-        // Development mode: dynamic SSR with Vite Environment API
+        // The vite package is not designed to be bundlable via build tools
+        // You will run into a lot of build errors if you try to bundle it.
+        // So, we dynamically import it here to avoid bundling it in production.
+        const { isRunnableDevEnvironment } = await import('vite');
+
         return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
             try {
                 const ssrEnvironment = vite.environments.ssr;

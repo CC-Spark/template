@@ -10,8 +10,6 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import express from "express";
 import { createRequestHandler } from "@react-router/express";
-import { isRunnableDevEnvironment } from "vite";
-import { tsImport } from "tsx/esm/api";
 import { existsSync } from "node:fs";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import compression from "compression";
@@ -750,6 +748,7 @@ async function loadProjectConfig(projectDirectory) {
 	const configPath = resolve(projectDirectory, "config.server.ts");
 	const tsconfigPath = resolve(projectDirectory, "tsconfig.json");
 	if (!existsSync(configPath)) throw new Error(`config.server.ts not found at ${configPath}.\nPlease ensure config.server.ts exists in your project root.`);
+	const { tsImport } = await import("tsx/esm/api");
 	const config = (await tsImport(configPath, {
 		parentURL: import.meta.url,
 		tsconfig: existsSync(tsconfigPath) ? tsconfigPath : void 0
@@ -942,7 +941,7 @@ const ServerModeFeatureMap = {
 		enableProxy: false,
 		enableStaticServing: false,
 		enableCompression: true,
-		enableLogging: false,
+		enableLogging: true,
 		enableAssetUrlPatching: true
 	}
 };
@@ -952,8 +951,8 @@ const ServerModeFeatureMap = {
 /**
 * Create a unified Express server for development, serve, or production mode
 */
-function createServer(options) {
-	const { mode, projectDirectory, config: providedConfig, vite, build, enableProxy = ServerModeFeatureMap[mode].enableProxy, enableStaticServing = ServerModeFeatureMap[mode].enableStaticServing, enableCompression = ServerModeFeatureMap[mode].enableCompression, enableLogging = ServerModeFeatureMap[mode].enableLogging, enableAssetUrlPatching = ServerModeFeatureMap[mode].enableAssetUrlPatching } = options;
+async function createServer(options) {
+	const { mode, projectDirectory = process.cwd(), config: providedConfig, vite, build, enableProxy = ServerModeFeatureMap[mode].enableProxy, enableStaticServing = ServerModeFeatureMap[mode].enableStaticServing, enableCompression = ServerModeFeatureMap[mode].enableCompression, enableLogging = ServerModeFeatureMap[mode].enableLogging, enableAssetUrlPatching = ServerModeFeatureMap[mode].enableAssetUrlPatching } = options;
 	if (mode === "development" && !vite) throw new Error("Vite dev server instance is required for development mode");
 	if ((mode === "serve" || mode === "production") && !build) throw new Error("React Router server build is required for serve/production mode");
 	const config = providedConfig ?? loadConfigFromEnv();
@@ -968,30 +967,32 @@ function createServer(options) {
 	}
 	if (mode === "development" && vite) app.use(vite.middlewares);
 	if (enableProxy) app.use(config.commerce.api.proxy, createCommerceProxyMiddleware(config));
-	app.all("*", createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching));
+	app.all("*", await createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching));
 	return app;
 }
 /**
 * Create the SSR request handler based on mode
 */
-function createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching) {
-	if (mode === "development" && vite) return async (req, res, next) => {
-		try {
-			const ssrEnvironment = vite.environments.ssr;
-			if (!isRunnableDevEnvironment(ssrEnvironment)) {
-				next(/* @__PURE__ */ new Error("SSR environment is not runnable. Please ensure:\n  1. \"@salesforce/storefront-next-dev\" plugin is added to vite.config.ts\n  2. \"future.unstable_viteEnvironmentApi: true\" is set in react-router.config.ts"));
-				return;
+async function createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching) {
+	if (mode === "development" && vite) {
+		const { isRunnableDevEnvironment } = await import("vite");
+		return async (req, res, next) => {
+			try {
+				const ssrEnvironment = vite.environments.ssr;
+				if (!isRunnableDevEnvironment(ssrEnvironment)) {
+					next(/* @__PURE__ */ new Error("SSR environment is not runnable. Please ensure:\n  1. \"@salesforce/storefront-next-dev\" plugin is added to vite.config.ts\n  2. \"future.unstable_viteEnvironmentApi: true\" is set in react-router.config.ts"));
+					return;
+				}
+				await createRequestHandler({
+					build: await ssrEnvironment.runner.import("virtual:react-router/server-build"),
+					mode: process.env.NODE_ENV
+				})(req, res, next);
+			} catch (error$1) {
+				vite.ssrFixStacktrace(error$1);
+				next(error$1);
 			}
-			await createRequestHandler({
-				build: await ssrEnvironment.runner.import("virtual:react-router/server-build"),
-				mode: process.env.NODE_ENV
-			})(req, res, next);
-		} catch (error$1) {
-			vite.ssrFixStacktrace(error$1);
-			next(error$1);
-		}
-	};
-	else if (build) {
+		};
+	} else if (build) {
 		let patchedBuild = build;
 		if (enableAssetUrlPatching) patchedBuild = patchReactRouterBuild(build, bundleId);
 		return createRequestHandler({
