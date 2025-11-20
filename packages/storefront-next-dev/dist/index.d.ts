@@ -108,7 +108,7 @@ declare function loadConfigFromEnv(): ServerConfig;
 declare function loadProjectConfig(projectDirectory: string): Promise<ServerConfig>;
 //#endregion
 //#region src/server/modes.d.ts
-type ServerMode = 'development' | 'serve' | 'production';
+type ServerMode = 'development' | 'preview' | 'production';
 /**
  * Feature flags for each server mode
  */
@@ -127,7 +127,7 @@ interface ServerModeFeatures {
 //#endregion
 //#region src/server/index.d.ts
 interface ServerOptions extends Partial<ServerModeFeatures> {
-  /** Server mode: development (with Vite), serve (preview), or production (minimal) */
+  /** Server mode: development (with Vite), preview (preview), or production (minimal) */
   mode: ServerMode;
   /** Project root directory (optional, defaults to process.cwd()) */
   projectDirectory?: string;
@@ -137,11 +137,11 @@ interface ServerOptions extends Partial<ServerModeFeatures> {
   port?: number;
   /** Vite dev server instance (required for development mode) */
   vite?: ViteDevServer;
-  /** React Router server build (required for serve/production modes) */
+  /** React Router server build (required for preview/production modes) */
   build?: ServerBuild;
 }
 /**
- * Create a unified Express server for development, serve, or production mode
+ * Create a unified Express server for development, preview, or production mode
  */
 declare function createServer(options: ServerOptions): Promise<Express>;
 //#endregion

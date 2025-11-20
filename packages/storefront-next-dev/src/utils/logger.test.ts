@@ -240,16 +240,16 @@ describe('logger utils', () => {
             expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('SFCC Storefront Next'));
         });
 
-        it('should print serve mode banner', () => {
-            printServerInfo('serve', 3000, Date.now() - 200, '/project/dir');
+        it('should print preview mode banner', () => {
+            printServerInfo('preview', 3000, Date.now() - 200, '/project/dir');
 
-            expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Serve (Preview) Mode'));
+            expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Preview Mode'));
         });
 
         it('should print production mode banner', () => {
             printServerInfo('production', 3000, Date.now() - 150, '/project/dir');
 
-            expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Serve (Preview) Mode'));
+            expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Preview Mode'));
         });
     });
 
@@ -288,7 +288,7 @@ describe('logger utils', () => {
 
         it('should print static serving when enabled', () => {
             printServerConfig({
-                mode: 'serve',
+                mode: 'preview',
                 port: 3000,
                 enableStaticServing: true,
             });
@@ -299,7 +299,7 @@ describe('logger utils', () => {
 
         it('should print compression when enabled', () => {
             printServerConfig({
-                mode: 'serve',
+                mode: 'preview',
                 port: 3000,
                 enableCompression: true,
             });

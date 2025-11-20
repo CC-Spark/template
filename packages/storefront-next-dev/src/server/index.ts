@@ -12,7 +12,7 @@ import { ServerModeFeatureMap, type ServerMode, type ServerModeFeatures } from '
 import { getBundlePath } from '../utils/paths';
 
 export interface ServerOptions extends Partial<ServerModeFeatures> {
-    /** Server mode: development (with Vite), serve (preview), or production (minimal) */
+    /** Server mode: development (with Vite), preview (preview), or production (minimal) */
     mode: ServerMode;
 
     /** Project root directory (optional, defaults to process.cwd()) */
@@ -27,12 +27,12 @@ export interface ServerOptions extends Partial<ServerModeFeatures> {
     /** Vite dev server instance (required for development mode) */
     vite?: ViteDevServer;
 
-    /** React Router server build (required for serve/production modes) */
+    /** React Router server build (required for preview/production modes) */
     build?: ServerBuild;
 }
 
 /**
- * Create a unified Express server for development, serve, or production mode
+ * Create a unified Express server for development, preview, or production mode
  */
 export async function createServer(options: ServerOptions): Promise<Express> {
     const {
@@ -52,8 +52,8 @@ export async function createServer(options: ServerOptions): Promise<Express> {
         throw new Error('Vite dev server instance is required for development mode');
     }
 
-    if ((mode === 'serve' || mode === 'production') && !build) {
-        throw new Error('React Router server build is required for serve/production mode');
+    if ((mode === 'preview' || mode === 'production') && !build) {
+        throw new Error('React Router server build is required for preview/production mode');
     }
 
     // Use provided config or load from environment variables

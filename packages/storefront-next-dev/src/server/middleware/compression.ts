@@ -29,7 +29,7 @@ function getCompressionLevel(): number {
 
 /**
  * Create compression middleware for gzip/brotli compression
- * Used in serve mode to optimize response sizes
+ * Used in preview mode to optimize response sizes
  */
 export function createCompressionMiddleware(): RequestHandler {
     const compressionLevel = getCompressionLevel();

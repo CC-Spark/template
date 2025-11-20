@@ -77,7 +77,7 @@ export function printServerInfo(mode: ServerMode, port: number, startTime: numbe
     const reactVersion = getPackageVersion('react', projectDir);
     const reactRouterVersion = getPackageVersion('react-router', projectDir);
 
-    const modeLabel = mode === 'development' ? 'Development Mode' : 'Serve (Preview) Mode';
+    const modeLabel = mode === 'development' ? 'Development Mode' : 'Preview Mode';
 
     console.log();
     console.log(`  ${chalk.cyan.bold('⚡ SFCC Storefront Next')} ${chalk.dim(`v${sfnextVersion}`)}`);

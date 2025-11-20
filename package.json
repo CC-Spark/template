@@ -9,7 +9,7 @@
         "bundlesize:analyze": "cross-env BUNDLES_SIZE_ANALYZE=true pnpm build",
         "dev": "sfnext dev",
         "dev:debug": "NODE_OPTIONS='--inspect' sfnext dev",
-        "start": "sfnext serve",
+        "start": "sfnext preview",
         "preview": "pnpm start",
         "push": "sfnext push --project-directory .",
         "typecheck": "react-router typegen && tsc --noEmit",

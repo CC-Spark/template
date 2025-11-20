@@ -1,4 +1,4 @@
-export type ServerMode = 'development' | 'serve' | 'production';
+export type ServerMode = 'development' | 'preview' | 'production';
 
 /**
  * Feature flags for each server mode
@@ -31,7 +31,7 @@ export const ServerModeFeatureMap: Record<ServerMode, ServerModeFeatures> = {
         enableLogging: true,
         enableAssetUrlPatching: false,
     },
-    serve: {
+    preview: {
         enableProxy: true,
         enableStaticServing: true,
         enableCompression: true,

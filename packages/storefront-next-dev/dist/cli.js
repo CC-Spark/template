@@ -86,7 +86,7 @@ function printServerInfo(mode, port, startTime, projectDir) {
 	const sfnextVersion = version;
 	const reactVersion = getPackageVersion("react", projectDir);
 	const reactRouterVersion = getPackageVersion("react-router", projectDir);
-	const modeLabel = mode === "development" ? "Development Mode" : "Serve (Preview) Mode";
+	const modeLabel = mode === "development" ? "Development Mode" : "Preview Mode";
 	console.log();
 	console.log(`  ${chalk.cyan.bold("⚡ SFCC Storefront Next")} ${chalk.dim(`v${sfnextVersion}`)}`);
 	console.log(`  ${chalk.green.bold(modeLabel)}`);
@@ -678,7 +678,7 @@ function getCompressionLevel() {
 }
 /**
 * Create compression middleware for gzip/brotli compression
-* Used in serve mode to optimize response sizes
+* Used in preview mode to optimize response sizes
 */
 function createCompressionMiddleware() {
 	return compression({
@@ -711,7 +711,7 @@ const SKIP_PATTERNS = [
 ];
 /**
 * Create request logging middleware
-* Used in dev and serve modes for request visibility
+* Used in dev and preview modes for request visibility
 */
 function createLoggingMiddleware() {
 	morgan.token("status-colored", (req, res) => {
@@ -752,7 +752,7 @@ function createLoggingMiddleware() {
 //#region src/server/utils.ts
 /**
 * Patch React Router build to rewrite asset URLs with the correct bundle path
-* This is needed because the build output uses /assets/ but we serve at /mobify/bundle/{BUNDLE_ID}/client/assets/
+* This is needed because the build output uses /assets/ but we preview at /mobify/bundle/{BUNDLE_ID}/client/assets/
 */
 function patchReactRouterBuild(build, bundleId) {
 	const bundlePath = getBundlePath(bundleId);
@@ -777,7 +777,7 @@ const ServerModeFeatureMap = {
 		enableLogging: true,
 		enableAssetUrlPatching: false
 	},
-	serve: {
+	preview: {
 		enableProxy: true,
 		enableStaticServing: true,
 		enableCompression: true,
@@ -796,12 +796,12 @@ const ServerModeFeatureMap = {
 //#endregion
 //#region src/server/index.ts
 /**
-* Create a unified Express server for development, serve, or production mode
+* Create a unified Express server for development, preview, or production mode
 */
 async function createServer$1(options) {
 	const { mode, projectDirectory = process.cwd(), config: providedConfig, vite, build, enableProxy = ServerModeFeatureMap[mode].enableProxy, enableStaticServing = ServerModeFeatureMap[mode].enableStaticServing, enableCompression = ServerModeFeatureMap[mode].enableCompression, enableLogging = ServerModeFeatureMap[mode].enableLogging, enableAssetUrlPatching = ServerModeFeatureMap[mode].enableAssetUrlPatching } = options;
 	if (mode === "development" && !vite) throw new Error("Vite dev server instance is required for development mode");
-	if ((mode === "serve" || mode === "production") && !build) throw new Error("React Router server build is required for serve/production mode");
+	if ((mode === "preview" || mode === "production") && !build) throw new Error("React Router server build is required for preview/production mode");
 	const config = providedConfig ?? loadConfigFromEnv();
 	const bundleId = process.env.BUNDLE_ID ?? "local";
 	const app = express();
@@ -899,11 +899,11 @@ async function dev(options = {}) {
 }
 
 //#endregion
-//#region src/commands/serve.ts
+//#region src/commands/preview.ts
 /**
 * Start the preview server with production build
 */
-async function serve(options = {}) {
+async function preview(options = {}) {
 	const startTime = Date.now();
 	const projectDir = path.resolve(options.projectDirectory || process.cwd());
 	const port = options.port || 3e3;
@@ -933,15 +933,15 @@ async function serve(options = {}) {
 	const build = (await import(pathToFileURL(buildPath).href)).default;
 	const config = await loadProjectConfig(projectDir);
 	const server = (await createServer$1({
-		mode: "serve",
+		mode: "preview",
 		projectDirectory: projectDir,
 		config,
 		port,
 		build
 	})).listen(port, () => {
-		printServerInfo("serve", port, startTime, projectDir);
+		printServerInfo("preview", port, startTime, projectDir);
 		printServerConfig({
-			mode: "serve",
+			mode: "preview",
 			port,
 			enableProxy: true,
 			enableStaticServing: true,
@@ -2596,9 +2596,9 @@ program.command("dev").description("Start Vite development server with SSR").opt
 		handleCommandError("Dev", err);
 	}
 });
-program.command("serve").description("Start preview server with production build (auto-builds if needed)").option("-d, --project-directory <dir>", "Project directory (default: current directory)").option("-p, --port <port>", "Port number (default: 3000)", (val) => parseInt(val, 10)).action(async (options) => {
+program.command("preview").description("Start preview server with production build (auto-builds if needed)").option("-d, --project-directory <dir>", "Project directory (default: current directory)").option("-p, --port <port>", "Port number (default: 3000)", (val) => parseInt(val, 10)).action(async (options) => {
 	try {
-		await serve({
+		await preview({
 			projectDirectory: options.projectDirectory,
 			port: options.port
 		});

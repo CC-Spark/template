@@ -3,7 +3,7 @@ import { getBundlePath } from '../utils/paths';
 
 /**
  * Patch React Router build to rewrite asset URLs with the correct bundle path
- * This is needed because the build output uses /assets/ but we serve at /mobify/bundle/{BUNDLE_ID}/client/assets/
+ * This is needed because the build output uses /assets/ but we preview at /mobify/bundle/{BUNDLE_ID}/client/assets/
  */
 export function patchReactRouterBuild(build: ServerBuild, bundleId: string): ServerBuild {
     const bundlePath = getBundlePath(bundleId);

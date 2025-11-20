@@ -107,7 +107,7 @@ vi.mock('mock://build-path', () => ({
     default: mockBuild,
 }));
 
-describe('serve command', () => {
+describe('preview command', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
@@ -126,11 +126,11 @@ describe('serve command', () => {
         process.removeAllListeners('SIGINT');
     });
 
-    describe('serve', () => {
+    describe('preview', () => {
         it('should start the production server with default options', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
-            await serve();
+            await preview();
 
             // Verify loadEnvFile was called
             expect(mockLoadEnvFile).toHaveBeenCalledWith(expect.any(String));
@@ -145,7 +145,7 @@ describe('serve command', () => {
 
             // Verify createServer was called with correct options
             expect(mockCreateServer).toHaveBeenCalledWith({
-                mode: 'serve',
+                mode: 'preview',
                 projectDirectory: expect.any(String),
                 config: mockConfig,
                 port: 3000,
@@ -156,11 +156,11 @@ describe('serve command', () => {
             expect(mockApp.listen).toHaveBeenCalledWith(3000, expect.anything());
 
             // Verify printServerInfo was called
-            expect(mockPrintServerInfo).toHaveBeenCalledWith('serve', 3000, expect.any(Number), expect.any(String));
+            expect(mockPrintServerInfo).toHaveBeenCalledWith('preview', 3000, expect.any(Number), expect.any(String));
 
             // Verify printServerConfig was called
             expect(mockPrintServerConfig).toHaveBeenCalledWith({
-                mode: 'serve',
+                mode: 'preview',
                 port: 3000,
                 enableProxy: true,
                 enableStaticServing: true,
@@ -175,13 +175,13 @@ describe('serve command', () => {
         });
 
         it('should start the production server with custom port', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
-            await serve({ port: 8080 });
+            await preview({ port: 8080 });
 
             // Verify createServer was called with custom port
             expect(mockCreateServer).toHaveBeenCalledWith({
-                mode: 'serve',
+                mode: 'preview',
                 projectDirectory: expect.any(String),
                 config: mockConfig,
                 port: 8080,
@@ -196,10 +196,10 @@ describe('serve command', () => {
         });
 
         it('should start the production server with custom project directory', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             const customDir = '/custom/project/dir';
-            await serve({ projectDirectory: customDir });
+            await preview({ projectDirectory: customDir });
 
             // Verify loadEnvFile was called with custom directory
             expect(mockLoadEnvFile).toHaveBeenCalledWith(customDir);
@@ -209,7 +209,7 @@ describe('serve command', () => {
 
             // Verify createServer was called with custom directory
             expect(mockCreateServer).toHaveBeenCalledWith({
-                mode: 'serve',
+                mode: 'preview',
                 projectDirectory: customDir,
                 config: mockConfig,
                 port: 3000,
@@ -221,49 +221,49 @@ describe('serve command', () => {
         });
 
         it('should set NODE_ENV to production if not already set', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             delete process.env.NODE_ENV;
-            await serve();
+            await preview();
 
             expect(process.env.NODE_ENV).toBe('production');
         });
 
         it('should not override existing NODE_ENV', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             process.env.NODE_ENV = 'development';
-            await serve();
+            await preview();
 
             expect(process.env.NODE_ENV).toBe('development');
         });
 
         it('should set EXTERNAL_DOMAIN_NAME if not already set', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             delete process.env.EXTERNAL_DOMAIN_NAME;
-            await serve({ port: 4000 });
+            await preview({ port: 4000 });
 
             expect(process.env.EXTERNAL_DOMAIN_NAME).toBe('localhost:4000');
         });
 
         it('should not override existing EXTERNAL_DOMAIN_NAME', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             process.env.EXTERNAL_DOMAIN_NAME = 'custom-domain.com';
-            await serve();
+            await preview();
 
             expect(process.env.EXTERNAL_DOMAIN_NAME).toBe('custom-domain.com');
         });
 
         it('should build project if build does not exist', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             mockExistsSync
                 .mockReturnValueOnce(false) // First check: build doesn't exist
                 .mockReturnValueOnce(true); // Second check: build exists after running build
 
-            await serve();
+            await preview();
 
             // Verify warning was logged
             expect(mockWarn).toHaveBeenCalledWith('Production build not found. Building project...');
@@ -280,7 +280,7 @@ describe('serve command', () => {
         });
 
         it('should exit with error if build command fails', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             mockExistsSync.mockReturnValue(false);
             mockExecSync.mockImplementation(() => {
@@ -289,7 +289,7 @@ describe('serve command', () => {
 
             const processExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-            await serve();
+            await preview();
 
             // Verify error was logged
             expect(mockError).toHaveBeenCalledWith('Build failed: Build failed');
@@ -299,14 +299,14 @@ describe('serve command', () => {
         });
 
         it('should exit with error if build still does not exist after running build command', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             mockExistsSync.mockReturnValue(false); // Build never exists
             mockExecSync.mockReturnValue(Buffer.from(''));
 
             const processExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-            await serve();
+            await preview();
 
             // Verify error was logged
             expect(mockError).toHaveBeenCalledWith(expect.stringContaining('Build still not found at'));
@@ -316,7 +316,7 @@ describe('serve command', () => {
         });
 
         it('should handle SIGTERM signal for graceful shutdown', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             const mockServerClose = vi.fn((cb) => cb());
             const mockListen = vi.fn((port: number, callback?: () => void) => {
@@ -333,7 +333,7 @@ describe('serve command', () => {
             const processOnce = vi.spyOn(process, 'once');
             const processExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-            await serve();
+            await preview();
 
             // Get the SIGTERM handler
             const sigtermCall = processOnce.mock.calls.find((call) => call[0] === 'SIGTERM');
@@ -356,7 +356,7 @@ describe('serve command', () => {
         });
 
         it('should handle SIGINT signal for graceful shutdown', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             const mockServerClose = vi.fn((cb) => cb());
             const mockListen = vi.fn((port: number, callback?: () => void) => {
@@ -373,7 +373,7 @@ describe('serve command', () => {
             const processOnce = vi.spyOn(process, 'once');
             const processExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-            await serve();
+            await preview();
 
             // Get the SIGINT handler
             const sigintCall = processOnce.mock.calls.find((call) => call[0] === 'SIGINT');
@@ -396,11 +396,11 @@ describe('serve command', () => {
         });
 
         it('should use default project directory when not provided', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue('/mock/cwd');
 
-            await serve({});
+            await preview({});
 
             // Verify loadProjectConfig was called with current working directory
             expect(mockLoadProjectConfig).toHaveBeenCalledWith('/mock/cwd');
@@ -409,7 +409,7 @@ describe('serve command', () => {
         });
 
         it('should load env file before loading config', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             const callOrder: string[] = [];
 
@@ -422,23 +422,23 @@ describe('serve command', () => {
                 return Promise.resolve(mockConfig);
             });
 
-            await serve();
+            await preview();
 
             expect(callOrder).toEqual(['loadEnvFile', 'loadProjectConfig']);
         });
 
         it('should log info message about loading production build', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             const projectDir = '/test/project';
-            await serve({ projectDirectory: projectDir });
+            await preview({ projectDirectory: projectDir });
 
             // Verify info message about loading build
             expect(mockInfo).toHaveBeenCalledWith(expect.stringContaining('Loading production build from'));
         });
 
         it('should handle non-Error exceptions during build', async () => {
-            const { serve } = await import('./serve');
+            const { preview } = await import('./preview');
 
             mockExistsSync.mockReturnValue(false);
             mockExecSync.mockImplementation(() => {
@@ -448,7 +448,7 @@ describe('serve command', () => {
 
             const processExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-            await serve();
+            await preview();
 
             // Verify error was logged with string conversion
             expect(mockError).toHaveBeenCalledWith('Build failed: String error');

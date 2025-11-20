@@ -127,14 +127,14 @@ describe('server/index', () => {
                 );
             });
 
-            it('should throw error when serve mode is missing build', async () => {
+            it('should throw error when preview mode is missing build', async () => {
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                 };
 
                 await expect(() => createServer(options)).rejects.toThrow(
-                    'React Router server build is required for serve/production mode'
+                    'React Router server build is required for preview/production mode'
                 );
             });
 
@@ -145,7 +145,7 @@ describe('server/index', () => {
                 };
 
                 await expect(() => createServer(options)).rejects.toThrow(
-                    'React Router server build is required for serve/production mode'
+                    'React Router server build is required for preview/production mode'
                 );
             });
         });
@@ -288,9 +288,9 @@ describe('server/index', () => {
         });
 
         describe('serve mode', () => {
-            it('should create server with all default serve features', async () => {
+            it('should create server with all default preview features', async () => {
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                 };
@@ -309,7 +309,7 @@ describe('server/index', () => {
                 process.env.BUNDLE_ID = 'test-bundle-123';
 
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                 };
@@ -333,7 +333,7 @@ describe('server/index', () => {
 
             it('should not apply static middleware when enableStaticServing is false', async () => {
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                     enableStaticServing: false,
@@ -349,7 +349,7 @@ describe('server/index', () => {
                 vi.mocked(patchReactRouterBuild).mockReturnValue(patchedBuild);
 
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                     enableAssetUrlPatching: true,
@@ -562,12 +562,12 @@ describe('server/index', () => {
         });
 
         describe('serve/production mode handler', () => {
-            it('should create request handler with build in serve mode', async () => {
+            it('should create request handler with build in preview mode', async () => {
                 const mockHandler = vi.fn() as any;
                 vi.mocked(createRequestHandler).mockReturnValue(mockHandler);
 
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                 };
@@ -611,7 +611,7 @@ describe('server/index', () => {
                 vi.mocked(patchReactRouterBuild).mockReturnValue(patchedBuild);
 
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                     enableAssetUrlPatching: true,
@@ -628,7 +628,7 @@ describe('server/index', () => {
 
             it('should use original build when enableAssetUrlPatching is false', async () => {
                 const options: ServerOptions = {
-                    mode: 'serve',
+                    mode: 'preview',
                     projectDirectory: '/test/project',
                     build: mockBuild,
                     enableAssetUrlPatching: false,

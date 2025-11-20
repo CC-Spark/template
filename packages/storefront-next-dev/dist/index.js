@@ -831,7 +831,7 @@ function getCompressionLevel() {
 }
 /**
 * Create compression middleware for gzip/brotli compression
-* Used in serve mode to optimize response sizes
+* Used in preview mode to optimize response sizes
 */
 function createCompressionMiddleware() {
 	return compression({
@@ -864,7 +864,7 @@ const SKIP_PATTERNS = [
 ];
 /**
 * Create request logging middleware
-* Used in dev and serve modes for request visibility
+* Used in dev and preview modes for request visibility
 */
 function createLoggingMiddleware() {
 	morgan.token("status-colored", (req, res) => {
@@ -905,7 +905,7 @@ function createLoggingMiddleware() {
 //#region src/server/utils.ts
 /**
 * Patch React Router build to rewrite asset URLs with the correct bundle path
-* This is needed because the build output uses /assets/ but we serve at /mobify/bundle/{BUNDLE_ID}/client/assets/
+* This is needed because the build output uses /assets/ but we preview at /mobify/bundle/{BUNDLE_ID}/client/assets/
 */
 function patchReactRouterBuild(build, bundleId) {
 	const bundlePath = getBundlePath(bundleId);
@@ -930,7 +930,7 @@ const ServerModeFeatureMap = {
 		enableLogging: true,
 		enableAssetUrlPatching: false
 	},
-	serve: {
+	preview: {
 		enableProxy: true,
 		enableStaticServing: true,
 		enableCompression: true,
@@ -949,12 +949,12 @@ const ServerModeFeatureMap = {
 //#endregion
 //#region src/server/index.ts
 /**
-* Create a unified Express server for development, serve, or production mode
+* Create a unified Express server for development, preview, or production mode
 */
 async function createServer(options) {
 	const { mode, projectDirectory = process.cwd(), config: providedConfig, vite, build, enableProxy = ServerModeFeatureMap[mode].enableProxy, enableStaticServing = ServerModeFeatureMap[mode].enableStaticServing, enableCompression = ServerModeFeatureMap[mode].enableCompression, enableLogging = ServerModeFeatureMap[mode].enableLogging, enableAssetUrlPatching = ServerModeFeatureMap[mode].enableAssetUrlPatching } = options;
 	if (mode === "development" && !vite) throw new Error("Vite dev server instance is required for development mode");
-	if ((mode === "serve" || mode === "production") && !build) throw new Error("React Router server build is required for serve/production mode");
+	if ((mode === "preview" || mode === "production") && !build) throw new Error("React Router server build is required for preview/production mode");
 	const config = providedConfig ?? loadConfigFromEnv();
 	const bundleId = process.env.BUNDLE_ID ?? "local";
 	const app = express();

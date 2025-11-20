@@ -24,12 +24,12 @@ export interface ServeOptions {
 /**
  * Start the preview server with production build
  */
-export async function serve(options: ServeOptions = {}): Promise<void> {
+export async function preview(options: ServeOptions = {}): Promise<void> {
     const startTime = Date.now();
     const projectDir = path.resolve(options.projectDirectory || process.cwd());
     const port = options.port || 3000;
 
-    // Set NODE_ENV to production for serve mode
+    // Set NODE_ENV to production for preview mode
     process.env.NODE_ENV = process.env.NODE_ENV ?? 'production';
     process.env.EXTERNAL_DOMAIN_NAME = process.env.EXTERNAL_DOMAIN_NAME ?? `localhost:${port}`;
 
@@ -72,7 +72,7 @@ export async function serve(options: ServeOptions = {}): Promise<void> {
 
     // Create unified server in serve mode
     const app = await createServer({
-        mode: 'serve',
+        mode: 'preview',
         projectDirectory: projectDir,
         config,
         port,
@@ -81,11 +81,11 @@ export async function serve(options: ServeOptions = {}): Promise<void> {
 
     // Start server
     const server = app.listen(port, () => {
-        printServerInfo('serve', port, startTime, projectDir);
+        printServerInfo('preview', port, startTime, projectDir);
 
         // Print server configuration after startup banner
         printServerConfig({
-            mode: 'serve',
+            mode: 'preview',
             port,
             enableProxy: true,
             enableStaticServing: true,

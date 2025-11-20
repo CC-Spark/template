@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { push } from './commands/push';
 import { dev } from './commands/dev';
-import { serve } from './commands/serve';
+import { preview } from './commands/preview';
 import { generateInstructions } from './extensibility/create-instructions';
 import { error, info, success } from './utils/logger';
 import { generateMetadata } from './cartridge-services/generate-cartridge';
@@ -130,13 +130,13 @@ program
     });
 
 program
-    .command('serve')
+    .command('preview')
     .description('Start preview server with production build (auto-builds if needed)')
     .option('-d, --project-directory <dir>', 'Project directory (default: current directory)')
     .option('-p, --port <port>', 'Port number (default: 3000)', (val) => parseInt(val, 10))
     .action(async (options) => {
         try {
-            await serve({
+            await preview({
                 projectDirectory: options.projectDirectory,
                 port: options.port,
             });

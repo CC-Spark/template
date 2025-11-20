@@ -23,7 +23,7 @@ const SKIP_PATTERNS = [
 
 /**
  * Create request logging middleware
- * Used in dev and serve modes for request visibility
+ * Used in dev and preview modes for request visibility
  */
 export function createLoggingMiddleware(): RequestHandler {
     // Custom format with colors
