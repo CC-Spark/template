@@ -61,18 +61,9 @@ export const Default: Story = {
     render: () => <Features />,
     parameters: {
         docs: {
-            story: `
-Default features component displaying all feature cards.
-
-### Features:
-- 6 feature cards in a responsive grid
-- Cart & Checkout
-- Einstein Recommendations
-- My Account
-- Shopper Login
-- Modern Components
-- Wishlist
-            `,
+            description: {
+                story: 'Standard features component rendering 6 example feature cards.',
+            },
         },
     },
     play: async ({ canvasElement }) => {

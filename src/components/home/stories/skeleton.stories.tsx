@@ -77,15 +77,9 @@ export const Default: Story = {
     render: () => <HomeSkeleton />,
     parameters: {
         docs: {
-            story: `
-Default home skeleton component displaying all loading placeholders.
-
-### Features:
-- Hero section skeleton
-- Featured products skeleton
-- Features section skeleton
-- Help section skeleton
-            `,
+            description: {
+                story: 'Default home skeleton component displaying all loading placeholders.',
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -103,13 +97,9 @@ export const MobileView: Story = {
     render: () => <HomeSkeleton />,
     parameters: {
         docs: {
-            story: `
-Home skeleton on mobile viewport.
-
-### Features:
-- Responsive skeleton layout
-- Mobile-optimized spacing
-            `,
+            description: {
+                story: 'Home skeleton on mobile viewport.',
+            },
         },
     },
     globals: {

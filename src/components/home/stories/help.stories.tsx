@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import Help from '../help';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
-import { expect, within, userEvent } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 
 function HelpStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -82,14 +82,9 @@ export const Default: Story = {
     render: () => <Help />,
     parameters: {
         docs: {
-            story: `
-Default help component.
-
-### Features:
-- Help heading
-- Description text
-- Contact Us button
-            `,
+            description: {
+                story: 'Standard help component with a contact button.',
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -103,27 +98,5 @@ Default help component.
         const contactButton = await canvas.findByRole('link', { name: /contact us/i }, { timeout: 5000 });
         await expect(contactButton).toBeInTheDocument();
         await expect(contactButton).toHaveAttribute('href', '/contact');
-    },
-};
-
-export const Interactive: Story = {
-    render: () => <Help />,
-    parameters: {
-        docs: {
-            story: `
-Interactive help component for testing user interactions.
-
-### Features:
-- Button click interactions
-- Navigation handling
-            `,
-        },
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        // Find and click contact button
-        const contactButton = await canvas.findByRole('link', { name: /contact us/i }, { timeout: 5000 });
-        await userEvent.click(contactButton);
     },
 };

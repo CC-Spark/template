@@ -17,9 +17,10 @@ function HeroCarouselStoryHarness({ children }: { children: ReactNode }): ReactE
         const handleClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (!target || !root.contains(target)) return;
-            const button = target.closest('button');
-            if (button) {
-                logClick({ button: button.getAttribute('aria-label') || button.textContent?.trim() || '' });
+            const link = target.closest('a');
+            if (link) {
+                event.preventDefault();
+                logClick({ href: link.getAttribute('href') || '', text: link.textContent?.trim() || '' });
             }
         };
 
@@ -111,15 +112,17 @@ export const Default: Story = {
     render: () => <HeroCarousel slides={mockSlides} />,
     parameters: {
         docs: {
-            story: `
-Standard hero carousel with auto-play enabled.
+            description: {
+                story: `
+Standard hero carousel with 3 example slides and auto-play enabled.
 
 ### Features:
-- 3 slides
-- Auto-play (5 second interval)
+- 3 example slides
+- Auto-play with 5 second interval
 - Navigation buttons
-- Dot indicators
+- Dot indicators only
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -166,13 +169,15 @@ export const WithoutAutoPlay: Story = {
     render: () => <HeroCarousel slides={mockSlides} autoPlay={false} />,
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Hero carousel with auto-play disabled.
 
 ### Features:
 - No auto-play
 - Manual navigation only
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -189,13 +194,15 @@ export const WithoutNavigation: Story = {
     render: () => <HeroCarousel slides={mockSlides} showNavigation={false} />,
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Hero carousel without navigation buttons.
 
 ### Features:
 - No prev/next buttons
 - Dot indicators only
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -212,13 +219,15 @@ export const WithoutDots: Story = {
     render: () => <HeroCarousel slides={mockSlides} showDots={false} />,
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Hero carousel without dot indicators.
 
 ### Features:
 - No dot indicators
 - Navigation buttons only
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {

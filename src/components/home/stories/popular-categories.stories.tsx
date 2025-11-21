@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PopularCategories } from '../popular-categories';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
-import { expect, within, userEvent } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import type { ShopperProductsTypes } from 'commerce-sdk-isomorphic';
 // @ts-expect-error Mock data file is JavaScript
 import { mockCategory } from '@/components/__mocks__/mock-data';
@@ -124,19 +124,12 @@ export default meta;
 type Story = StoryObj<typeof PopularCategories>;
 
 export const Default: Story = {
-    args: {
-        categoriesPromise: Promise.resolve(createMockCategories()),
-    },
+    render: () => <PopularCategories categoriesPromise={Promise.resolve(createMockCategories())} />,
     parameters: {
         docs: {
-            story: `
-Default popular categories component displaying category cards.
-
-### Features:
-- 4 category cards in a responsive grid
-- Category images, names, and descriptions
-- Shop Now buttons
-            `,
+            description: {
+                story: 'Standard popular categories component displaying 4 example category cards.',
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -151,35 +144,6 @@ Default popular categories component displaying category cards.
     },
 };
 
-export const Interactive: Story = {
-    args: {
-        categoriesPromise: Promise.resolve(createMockCategories()),
-    },
-    parameters: {
-        docs: {
-            story: `
-Interactive popular categories for testing user interactions.
-
-### Features:
-- Category card clicks
-- Navigation to category pages
-            `,
-        },
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        // Wait for categories to load
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Find and click a shop now button
-        const shopNowButtons = await canvas.findAllByRole('link', { name: /shop now/i }, { timeout: 5000 });
-        if (shopNowButtons.length > 0) {
-            await userEvent.click(shopNowButtons[0]);
-        }
-    },
-};
-
 export const Loading: Story = {
     args: {
         categoriesPromise: new Promise(() => {
@@ -188,13 +152,9 @@ export const Loading: Story = {
     },
     parameters: {
         docs: {
-            story: `
-Popular categories in loading state.
-
-### Features:
-- Skeleton loading state
-- Category grid skeleton
-            `,
+            description: {
+                story: 'Popular categories in loading state.',
+            },
         },
     },
     play: async ({ canvasElement }) => {

@@ -81,13 +81,9 @@ export const Default: Story = {
     render: () => <Signup />,
     parameters: {
         docs: {
-            story: `
-Default footer signup component.
-
-### Features:
-- Email input field
-- Subscribe button
-            `,
+            description: {
+                story: 'Standard footer signup component with email input field and subscribe button.',
+            },
         },
     },
     play: async ({ canvasElement }) => {

@@ -86,14 +86,9 @@ export const Default: Story = {
     ),
     parameters: {
         docs: {
-            story: `
-Standard hero section with all features.
-
-### Features:
-- Title and subtitle
-- Background image
-- Call-to-action button
-            `,
+            description: {
+                story: 'Standard hero section with title, subtitle, background image, and call-to-action button.',
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -121,13 +116,9 @@ export const WithoutSubtitle: Story = {
     ),
     parameters: {
         docs: {
-            story: `
-Hero section without subtitle.
-
-### Features:
-- Title only
-- Cleaner appearance
-            `,
+            description: {
+                story: 'Hero section without subtitle with title only and cleaner appearance.',
+            },
         },
     },
     play: async ({ canvasElement }) => {
