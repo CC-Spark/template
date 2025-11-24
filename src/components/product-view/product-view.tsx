@@ -59,7 +59,7 @@ export default function ProductView({ product, category }: ProductViewProps): Re
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 space-y-6">
                 {/* Left Column - Image Gallery */}
                 <div className="order-1">
-                    <ImageGallery images={galleryImages} eager={!isProductASet && !isProductABundle} />
+                    <ImageGallery key={product.id} images={galleryImages} eager={!isProductASet && !isProductABundle} />
                 </div>
 
                 {/* Right Column - Product Info */}

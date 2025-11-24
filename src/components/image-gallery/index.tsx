@@ -9,7 +9,6 @@
 
 import { useState, useEffect, type ReactElement } from 'react';
 import { DynamicImage } from '@/components/dynamic-image';
-import { useLocation } from 'react-router';
 import uiStrings from '@/temp-ui-string';
 
 export interface GalleryImage {
@@ -25,12 +24,17 @@ interface ImageGalleryProps {
 
 export default function ImageGallery({ images, eager = false }: ImageGalleryProps): ReactElement {
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-    const location = useLocation();
 
     useEffect(() => {
-        // reset the selected index
-        setSelectedImageIndex(0);
-    }, [location.search, images]);
+        // When images change (e.g., color variant changes), try to preserve the selected index
+        // Only reset to 0 if the current index is out of bounds for the new images array
+        // The key prop ensures each product has independent state, so this only affects the current product
+        setSelectedImageIndex((currentIndex) => {
+            // If current index is still valid for the new images array, keep it
+            // Otherwise reset to 0
+            return currentIndex < images.length ? currentIndex : 0;
+        });
+    }, [images]);
 
     // The first image is the fallback image. It's needed for when `images` are just updated, and the `selectedImageIndex` goes out of bound and is soon to be reset.
     const selectedImage = images[selectedImageIndex] ?? images[0];

@@ -10,6 +10,7 @@ import { clientAction } from './action.cart-bundle-add';
 import { getBasket } from '@/middlewares/basket.client';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
+import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
 vi.mock('@/middlewares/basket.client');
 vi.mock('@/lib/api-clients');
@@ -70,8 +71,14 @@ describe('action.cart-bundle-add', () => {
         test('adds bundle with standard products to cart', async () => {
             const bundleItem = { productId: 'bundle-123', quantity: 1 };
             const childSelections = [
-                { productId: 'standard-product-1', quantity: 1 },
-                { productId: 'standard-product-2', quantity: 1 },
+                {
+                    product: { id: 'standard-product-1' } as ShopperProducts.schemas['Product'],
+                    quantity: 1,
+                },
+                {
+                    product: { id: 'standard-product-2' } as ShopperProducts.schemas['Product'],
+                    quantity: 1,
+                },
             ];
 
             mockClients.shopperBasketsV2.addItemToBasket.mockResolvedValue({ data: mockUpdatedBasket });
@@ -101,8 +108,16 @@ describe('action.cart-bundle-add', () => {
         test('adds bundle with variant products to cart', async () => {
             const bundleItem = { productId: 'bundle-123', quantity: 1 };
             const childSelections = [
-                { productId: 'variant-123', quantity: 1 },
-                { productId: 'variant-456', quantity: 2 },
+                {
+                    product: { id: 'master-product-1' } as ShopperProducts.schemas['Product'],
+                    variant: { productId: 'variant-123' } as ShopperProducts.schemas['Variant'],
+                    quantity: 1,
+                },
+                {
+                    product: { id: 'master-product-2' } as ShopperProducts.schemas['Product'],
+                    variant: { productId: 'variant-456' } as ShopperProducts.schemas['Variant'],
+                    quantity: 2,
+                },
             ];
 
             mockClients.shopperBasketsV2.addItemToBasket.mockResolvedValue({ data: mockUpdatedBasket });
@@ -131,8 +146,15 @@ describe('action.cart-bundle-add', () => {
         test('adds bundle with mix of standard and variant products', async () => {
             const bundleItem = { productId: 'bundle-123', quantity: 2 };
             const childSelections = [
-                { productId: 'standard-product-1', quantity: 1 },
-                { productId: 'variant-123', quantity: 2 },
+                {
+                    product: { id: 'standard-product-1' } as ShopperProducts.schemas['Product'],
+                    quantity: 1,
+                },
+                {
+                    product: { id: 'master-product-1' } as ShopperProducts.schemas['Product'],
+                    variant: { productId: 'variant-123' } as ShopperProducts.schemas['Variant'],
+                    quantity: 2,
+                },
             ];
 
             mockClients.shopperBasketsV2.addItemToBasket.mockResolvedValue({ data: mockUpdatedBasket });
@@ -156,6 +178,7 @@ describe('action.cart-bundle-add', () => {
 
             const result = await response.json();
             expect(result.success).toBe(true);
+            // The server action extracts productId and quantity from ProductSelectionValues
             expect(mockClients.shopperBasketsV2.addItemToBasket).toHaveBeenCalledWith({
                 params: {
                     path: { organizationId: 'test-org', basketId: 'test-basket-123' },
@@ -168,7 +191,10 @@ describe('action.cart-bundle-add', () => {
                         productId: 'bundle-123',
                         quantity: 2,
                         inventoryId: undefined,
-                        bundledProductItems: childSelections,
+                        bundledProductItems: [
+                            { productId: 'standard-product-1', quantity: 1 },
+                            { productId: 'variant-123', quantity: 2 },
+                        ],
                     },
                 ],
             });

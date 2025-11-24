@@ -32,8 +32,9 @@ const buildVariantValueHref = ({
     const [allParams, productParams] = existingParams;
 
     // Create copies to avoid mutating the original params
-    const newAllParams = new URLSearchParams(allParams);
-    const newProductParams = new URLSearchParams(productParams);
+    // Use toString() to ensure we get a proper deep copy that preserves all params including other child products
+    const newAllParams = new URLSearchParams(allParams.toString());
+    const newProductParams = new URLSearchParams(productParams.toString());
 
     if (isChildProduct) {
         updateSearchParams(newProductParams, newParams);

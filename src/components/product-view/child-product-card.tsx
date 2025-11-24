@@ -179,7 +179,7 @@ export default function ChildProductCard({
             <CardContent className="space-y-4">
                 {/* Product Image */}
                 <div className="aspect-square">
-                    <ImageGallery images={galleryImages} eager={false} />
+                    <ImageGallery key={product.id} images={galleryImages} eager={false} />
                 </div>
 
                 {/* Variant Selection */}

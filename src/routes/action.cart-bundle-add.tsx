@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import { data, type ActionFunctionArgs } from 'react-router';
-import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { ApiError, type ShopperBasketsV2, type ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
@@ -13,12 +13,22 @@ import uiStrings from '@/temp-ui-string';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { updateShipmentForPickup } from '@/extensions/bopis/lib/api/shipment';
 
+/**
+ * Product selection values structure matching client-side ProductSelectionValues
+ * This structure makes it clear what type of entity we're dealing with (product, variant, standard, etc.)
+ */
+type ProductSelectionValues = {
+    product: ShopperProducts.schemas['Product'];
+    variant?: ShopperProducts.schemas['Variant'];
+    quantity: number;
+};
+
 async function addBundleToCart(
     context: ActionFunctionArgs['context'],
     bundleItem: Pick<ShopperBasketsV2.schemas['ProductItem'], 'productId' | 'quantity' | 'inventoryId'> & {
         storeId?: string | null;
     },
-    childSelections: Array<{ productId: string; quantity: number }>
+    childSelections: ProductSelectionValues[]
 ): Promise<{
     success: boolean;
     basket?: ShopperBasketsV2.schemas['Basket'];
@@ -36,6 +46,13 @@ async function addBundleToCart(
     }
 
     try {
+        // Extract productId and quantity from ProductSelectionValues structure for API call
+        // Prefer variant.productId if variant exists, otherwise use product.id
+        const bundledProductItems = childSelections.map((selection) => ({
+            productId: selection.variant?.productId || selection.product.id,
+            quantity: selection.quantity,
+        }));
+
         // Add bundle to basket with bundled product items
         const config = getConfig(context);
         const clients = createApiClients(context);
@@ -51,7 +68,7 @@ async function addBundleToCart(
                     productId: bundleItem.productId,
                     quantity: bundleItem.quantity,
                     inventoryId: bundleItem.inventoryId,
-                    bundledProductItems: childSelections,
+                    bundledProductItems,
                 },
             ],
         });
@@ -69,13 +86,19 @@ async function addBundleToCart(
                 // Match by product ID instead of array index to handle correct ordering
                 const itemsToUpdate = addedItem.bundledProductItems.map((bundledItem) => {
                     // Find the corresponding selection by matching product ID
+                    // Check both variant.productId and product.id to find the match
                     const matchingSelection = childSelections.find(
-                        (selection) => selection.productId === bundledItem.productId
+                        (selection) =>
+                            selection.variant?.productId === bundledItem.productId ||
+                            selection.product.id === bundledItem.productId
                     );
+
+                    // Extract productId from the full structure (prefer variant.productId if variant exists)
+                    const selectedProductId = matchingSelection?.variant?.productId || matchingSelection?.product.id;
 
                     return {
                         itemId: bundledItem.itemId,
-                        productId: matchingSelection?.productId || bundledItem.productId,
+                        productId: selectedProductId || bundledItem.productId,
                         quantity: matchingSelection?.quantity || bundledItem.quantity,
                     };
                 });

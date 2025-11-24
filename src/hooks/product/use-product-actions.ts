@@ -26,7 +26,7 @@ import { getEffectiveStockLevel, getEffectiveInventory, isInStock as isProductIn
 
 interface ProductSelectionValues {
     product: ShopperProducts.schemas['Product'];
-    variant: ShopperProducts.schemas['Variant'];
+    variant?: ShopperProducts.schemas['Variant'];
     quantity: number;
 }
 
@@ -683,16 +683,13 @@ export function useProductActions({
                     storeId: bundleStoreId,
                 };
 
-                const childSelections = childProductSelections.map((child) => ({
-                    productId: child.variant?.productId || child.product.id,
-                    quantity: child.quantity,
-                }));
-
+                // Pass the full ProductSelectionValues[] structure instead of extracting just productId and quantity
+                // This makes it clearer what type of entity we're dealing with (product, variant, standard, etc.)
                 // Use server action to add bundle to cart
                 await bundleFetcher.submit(
                     {
                         bundleItem: JSON.stringify(bundleItem),
-                        childSelections: JSON.stringify(childSelections),
+                        childSelections: JSON.stringify(childProductSelections),
                     },
                     {
                         method: 'POST',

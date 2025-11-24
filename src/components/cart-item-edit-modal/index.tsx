@@ -171,7 +171,11 @@ export function CartItemEditModal({
                     itemId={itemId}>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                         <div className="order-1">
-                            <ImageGallery images={galleryImages} eager={!isProductASet && !isProductABundle} />
+                            <ImageGallery
+                                key={currentProduct.id}
+                                images={galleryImages}
+                                eager={!isProductASet && !isProductABundle}
+                            />
                         </div>
                         <div className="order-2">
                             {/* we are controlling the swatches state with onAttributeChange and variationValues */}
