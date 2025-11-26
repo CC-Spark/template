@@ -155,9 +155,9 @@ export default function ProductInfo({
             )}
 
             {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
-            {/* Delivery Options - For individual products and main set/bundle products */}
+            {/* Delivery Options - For individual products */}
             {/* Hide for non-pickup items when opened from cart page */}
-            {(mode !== 'edit' || basketPickupStore) && (
+            {(mode !== 'edit' || basketPickupStore) && !(isProductABundle || isProductASet) && (
                 <DeliveryOptions
                     product={product}
                     quantity={quantity}

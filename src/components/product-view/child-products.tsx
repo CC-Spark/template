@@ -16,6 +16,10 @@ import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi'
 import { type ReactElement } from 'react';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import ChildProductCard from './child-product-card';
+// @sfdc-extension-block-start SFDC_EXT_BOPIS
+import DeliveryOptions from '@/extensions/bopis/components/delivery-options/delivery-options';
+import { useStoreLocator } from '@/extensions/store-locator/providers/store-locator';
+// @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 type ChildProductsBaseProps = {
     /** Parent product (must be a set or bundle) */
@@ -121,6 +125,22 @@ export default function ChildProducts({
 }: ChildProductsProps): ReactElement | null {
     const isProductASet = isProductSet(parentProduct);
     const isProductABundle = isProductBundle(parentProduct);
+
+    // @sfdc-extension-line SFDC_EXT_BOPIS
+    const selectedStore = useStoreLocator((state) => state.selectedStoreInfo);
+
+    const {
+        isAddingToOrUpdatingCart,
+        handleProductSetAddToCart,
+        handleProductBundleAddToCart,
+        handleUpdateBundle,
+        // @sfdc-extension-line SFDC_EXT_BOPIS
+        basketPickupStore,
+    } = useProductActions({
+        product: parentProduct,
+        itemId,
+    });
+
     const {
         comboProduct,
         childProductSelection,
@@ -129,24 +149,22 @@ export default function ChildProducts({
         hasUnorderableChildProducts,
         handleChildProductValidation,
         setChildProductSelection,
+        setChildProductOrderability,
         setSelectedBundleQuantity,
         selectedChildProductCount,
         totalChildProducts,
+        isCompletelyOutOfStock,
+        productWithCalculatedInventory,
+        effectiveQuantity,
+        bundleStockLevel,
+        bundleOutOfStock,
     } = useProductSetsBundles({
         product: parentProduct,
         initialBundleQuantity,
-    });
-
-    const {
-        isAddingToOrUpdatingCart,
-        handleProductSetAddToCart,
-        handleProductBundleAddToCart,
-        handleUpdateBundle,
-        isOutOfStock,
-        stockLevel,
-    } = useProductActions({
-        product: parentProduct,
-        itemId,
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        selectedStoreInventoryId: selectedStore?.inventoryId,
+        basketPickupStore,
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
     });
 
     const childProducts = comboProduct.childProducts || [];
@@ -195,7 +213,9 @@ export default function ChildProducts({
         }
     };
 
-    const canAddToCart = areAllChildProductsSelected && !hasUnorderableChildProducts;
+    // Allow add to cart if at least one delivery method is available
+    // User can switch delivery options in the UI if their current selection is out of stock
+    const canAddToCart = areAllChildProductsSelected && !hasUnorderableChildProducts && !isCompletelyOutOfStock;
 
     if (!isProductASet && !isProductABundle) {
         return null;
@@ -213,6 +233,7 @@ export default function ChildProducts({
                         childProduct={childProduct}
                         parentProduct={parentProduct}
                         onSelectionChange={setChildProductSelection}
+                        onOrderabilityChange={setChildProductOrderability}
                     />
                 ))}
             </div>
@@ -224,14 +245,28 @@ export default function ChildProducts({
                         <ProductQuantityPicker
                             value={selectedBundleQuantity.toString()}
                             onChange={setSelectedBundleQuantity}
-                            stockLevel={stockLevel}
-                            isOutOfStock={isOutOfStock}
+                            stockLevel={bundleStockLevel}
+                            isOutOfStock={bundleOutOfStock}
                             productName={parentProduct.name}
                             isBundle={isProductABundle}
                         />
                     </div>
                 </div>
             )}
+
+            {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
+            {/* Delivery Options - For both bundles and sets */}
+            {/* Hide for non-pickup items when opened from cart page */}
+            {(mode !== 'edit' || basketPickupStore) && (
+                <div className="flex justify-center">
+                    <DeliveryOptions
+                        product={productWithCalculatedInventory}
+                        quantity={effectiveQuantity}
+                        basketPickupStore={basketPickupStore}
+                    />
+                </div>
+            )}
+            {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
 
             {/* Progress indicator */}
             <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">

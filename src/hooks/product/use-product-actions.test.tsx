@@ -447,9 +447,12 @@ describe('useProductActions', () => {
             });
 
             test('isInStock checks all set products when product is a set', () => {
+                // For sets, inventory should be pre-calculated and stored on the parent product
+                // When one child is out of stock, the parent should have inventory reflecting that
                 const setProduct = {
                     ...standardProd,
                     type: { set: true },
+                    inventory: { ats: 0, id: 'inv-1', orderable: false }, // Pre-calculated: one child out of stock
                     setProducts: [
                         { id: 'p1', inventory: { ats: 5, orderable: true } },
                         { id: 'p2', inventory: { ats: 0, orderable: false } }, // Out of stock
@@ -902,10 +905,12 @@ describe('useProductActions', () => {
             });
 
             test('handles set with child product missing inventory', () => {
+                // For sets, inventory should be pre-calculated and stored on the parent product
+                // When a child has missing inventory, the parent should reflect that (ats: 0)
                 const setWithMissingInventory = {
                     ...standardProd,
                     type: { set: true },
-                    inventory: { ats: 10, id: 'inv-1', orderable: true },
+                    inventory: { ats: 0, id: 'inv-1', orderable: false }, // Pre-calculated: one child missing inventory
                     setProducts: [
                         { id: 'p1', inventory: { ats: 5, id: 'inv-p1', orderable: true } },
                         { id: 'p2', inventory: undefined },

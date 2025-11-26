@@ -6,7 +6,15 @@
  */
 
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import { isProductSet } from './product-utils';
+
+/**
+ * Represents a selected child product with its variant and quantity
+ */
+export interface ChildProductSelection {
+    product: ShopperProducts.schemas['Product'];
+    variant?: ShopperProducts.schemas['Variant'];
+    quantity: number;
+}
 
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 /**
@@ -36,11 +44,14 @@ export function getStoreInventoryById(
  * - It is not orderable, OR
  * - The stock level is less than the requested quantity
  *
- * Behavior by product type:
- * - For sets: returns true if ANY child product is not orderable or lacks sufficient stockLevel
- * - For regular/bundle: uses the product's inventory at the specified store
+ * Sets/Bundles Inventory Pre-calculation (PWA Kit approach):
+ * - For sets: Calculate how many complete sets can be made from child inventory
+ *   Formula: availableSets = Math.floor(childStockLevel / childQuantity) for each child, use minimum
+ *   Example: If set requires 2x shirts (stock=10) and 1x pants (stock=3), you can make min(10/2, 3/1) = 3 complete sets
+ * - For bundles: Use bundle's own inventory directly (no calculation needed)
+ * - This pre-calculation should be done BEFORE calling this function
  *
- * @param product - The product to check store inventory for
+ * @param product - The product to check store inventory for (with pre-calculated inventory for sets)
  * @param selectedStoreInventoryId - The inventory ID of the selected store (must be provided for store inventory check)
  * @param quantity - The quantity to check availability for (default: 1)
  * @returns true if product is out of stock at the store, false if in stock or if product/selectedStoreInventoryId is undefined
@@ -54,14 +65,7 @@ export function isStoreOutOfStock(
         return false;
     }
 
-    if (isProductSet(product) && product.setProducts) {
-        return product.setProducts.some((childProduct) => {
-            const childInventory = getStoreInventoryById(childProduct, selectedStoreInventoryId);
-            const stockLevel = childInventory?.stockLevel ?? 0;
-            return !childInventory || !childInventory.orderable || stockLevel < quantity;
-        });
-    }
-
+    // Check product inventory (already calculated for sets/bundles)
     const storeInventory = getStoreInventoryById(product, selectedStoreInventoryId);
     const stockLevel = storeInventory?.stockLevel ?? 0;
     return !storeInventory || !storeInventory.orderable || stockLevel < quantity;
@@ -75,15 +79,18 @@ export function isStoreOutOfStock(
  * - It is not orderable, OR
  * - The available to sell (ats) is less than the requested quantity
  *
- * Behavior by product type:
- * - For sets: returns true if ANY child product has ats below quantity or is not orderable
- * - For regular/bundle: uses product.inventory ats/orderable
+ * Sets/Bundles Inventory Pre-calculation (PWA Kit approach):
+ * - For sets: Calculate how many complete sets can be made from child inventory
+ *   Formula: availableSets = Math.floor(childStockLevel / childQuantity) for each child, use minimum
+ *   Example: If set requires 2x shirts (stock=10) and 1x pants (stock=3), you can make min(10/2, 3/1) = 3 complete sets
+ * - For bundles: Use bundle's own inventory directly (no calculation needed)
+ * - This pre-calculation should be done BEFORE calling this function
  *
  * Variant precedence:
  * - If variant is provided, variant.inventory takes precedence over product.inventory for site inventory
  * - Returns true if no inventory is found (neither variant.inventory nor product.inventory)
  *
- * @param product - The product to check site inventory for
+ * @param product - The product to check site inventory for (with pre-calculated inventory for sets)
  * @param quantity - The quantity to check availability for (default: 1)
  * @param variant - Optional variant to use for site inventory (takes precedence over product.inventory)
  * @returns true if product is out of stock at site level, false if in stock or if product is undefined
@@ -97,16 +104,9 @@ export function isSiteOutOfStock(
         return false;
     }
 
-    if (isProductSet(product) && product.setProducts) {
-        return product.setProducts.some((childProduct) => {
-            const ats = childProduct.inventory?.ats ?? 0;
-            const orderable = childProduct.inventory?.orderable ?? false;
-            return ats < quantity || !orderable;
-        });
-    }
-
-    // Site inventory: variant takes precedence over product
-    const inventory = variant?.inventory || product.inventory;
+    // Site inventory: variant takes precedence over product (already calculated for sets/bundles)
+    // Note: TypeScript Variant schema doesn't include inventory, but it exists at runtime (proven by PWA Kit)
+    const inventory = (variant as { inventory?: ShopperProducts.schemas['Inventory'] })?.inventory || product.inventory;
     if (!inventory) return true;
 
     const ats = inventory.ats ?? 0;
@@ -145,7 +145,8 @@ export function getEffectiveInventory(
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     // Site inventory: variant takes precedence over product
-    return variant?.inventory || product.inventory || null;
+    // Note: TypeScript Variant schema doesn't include inventory, but it exists at runtime (proven by PWA Kit)
+    return (variant as { inventory?: ShopperProducts.schemas['Inventory'] })?.inventory || product.inventory || null;
 }
 
 /**
@@ -156,11 +157,14 @@ export function getEffectiveInventory(
  * - Otherwise: returns site inventory ats (available to sell)
  * - Variant precedence: when using site inventory, variant.inventory takes precedence over product.inventory
  *
- * Behavior by product type:
- * - For sets: returns the minimum stock level across all child products
- * - For regular/bundle: returns the stock level for the product itself
+ * Sets/Bundles Inventory Pre-calculation (PWA Kit approach):
+ * - For sets: Calculate how many complete sets can be made from child inventory
+ *   Formula: availableSets = Math.floor(childStockLevel / childQuantity) for each child, use minimum
+ *   Example: If set requires 2x shirts (stock=10) and 1x pants (stock=3), you can make min(10/2, 3/1) = 3 complete sets
+ * - For bundles: Use bundle's own inventory directly (no calculation needed)
+ * - This pre-calculation should be done BEFORE calling this function
  *
- * @param product - The product to get stock level for
+ * @param product - The product to get stock level for (with pre-calculated inventory for sets)
  * @param isPickup - Whether store pickup is selected (true) or delivery is selected (false)
  * @param storeInventoryId - The inventory ID of the selected store (required when isPickup is true)
  * @param variant - Optional variant to use for site inventory (takes precedence over product.inventory when isPickup is false)
@@ -176,21 +180,7 @@ export function getEffectiveStockLevel(
 ): number {
     if (!product) return 0;
 
-    // For product sets, check all children and return minimum
-    if (isProductSet(product) && product.setProducts) {
-        const childStockLevels = product.setProducts.map((childProduct) => {
-            // @sfdc-extension-block-start SFDC_EXT_BOPIS
-            if (isPickup && storeInventoryId) {
-                const childInventory = getStoreInventoryById(childProduct, storeInventoryId);
-                return childInventory?.stockLevel ?? 0;
-            }
-            // @sfdc-extension-block-end SFDC_EXT_BOPIS
-            return childProduct.inventory?.ats ?? 0;
-        });
-        return Math.min(...childStockLevels);
-    }
-
-    // For regular/bundle products, use helper function
+    // Use helper function (inventory already calculated for sets/bundles)
     const inventory = getEffectiveInventory(
         product,
         // @sfdc-extension-line SFDC_EXT_BOPIS
@@ -219,14 +209,17 @@ export function getEffectiveStockLevel(
  * - Otherwise: checks site inventory
  * - Variant precedence: when using site inventory, variant.inventory takes precedence over product.inventory
  *
- * Behavior by product type:
- * - For sets: ALL children must be in stock (orderable AND stock >= quantity for each child)
- * - For regular/bundle: checks the product's own inventory
+ * Sets/Bundles Inventory Pre-calculation (PWA Kit approach):
+ * - For sets: Calculate how many complete sets can be made from child inventory
+ *   Formula: availableSets = Math.floor(childStockLevel / childQuantity) for each child, use minimum
+ *   Example: If set requires 2x shirts (stock=10) and 1x pants (stock=3), you can make min(10/2, 3/1) = 3 complete sets
+ * - For bundles: Use bundle's own inventory directly (no calculation needed)
+ * - This pre-calculation should be done BEFORE calling this function
  *
  * Implementation note: This function reuses isStoreOutOfStock and isSiteOutOfStock for consistency,
  * where isInStock = !isOutOfStock.
  *
- * @param product - The product to check inventory for
+ * @param product - The product to check inventory for (with pre-calculated inventory for sets)
  * @param isPickup - Whether store pickup is selected (true) or delivery is selected (false)
  * @param storeInventoryId - The inventory ID of the selected store (required when isPickup is true)
  * @param quantity - The quantity to check availability for (default: 1)

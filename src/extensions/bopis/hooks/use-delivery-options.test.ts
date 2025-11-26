@@ -156,18 +156,6 @@ describe('useDeliveryOptions', () => {
         expect(result.current.selectedDeliveryOption).toBe(DELIVERY_OPTIONS.DELIVERY);
     });
 
-    it('handles undefined product gracefully', () => {
-        vi.mocked(isStoreOutOfStock).mockReturnValue(false);
-        vi.mocked(isSiteOutOfStock).mockReturnValue(false);
-
-        const { result } = renderHook(() =>
-            useDeliveryOptions({ product: undefined, quantity: 1, isInBasket: false, pickupStore: mockStoreInfo })
-        );
-
-        expect(result.current.selectedDeliveryOption).toBe(DELIVERY_OPTIONS.DELIVERY);
-        expect(result.current.isStoreOutOfStock).toBe(false);
-    });
-
     it('handles quantity parameter', () => {
         vi.mocked(isStoreOutOfStock).mockReturnValue(false);
         vi.mocked(isSiteOutOfStock).mockReturnValue(false);
@@ -285,33 +273,6 @@ describe('useDeliveryOptions', () => {
                     isInBasket: false,
                     pickupStore: { ...mockStoreInfo, inventoryId: undefined },
                 })
-            );
-
-            act(() => {
-                result.current.handleDeliveryOptionChange(DELIVERY_OPTIONS.PICKUP);
-            });
-
-            expect(mockAddPickupItem).not.toHaveBeenCalled();
-            expect(mockRemovePickupItem).not.toHaveBeenCalled();
-        });
-
-        it('does not call addItem or removeItem when product is undefined', () => {
-            const mockAddPickupItem = vi.fn();
-            const mockRemovePickupItem = vi.fn();
-
-            vi.mocked(usePickup).mockReturnValue({
-                addItem: mockAddPickupItem,
-                removeItem: mockRemovePickupItem,
-                pickupBasketItems: new Map(),
-                pickupStores: new Map(),
-                clearItems: vi.fn(),
-            });
-
-            vi.mocked(isStoreOutOfStock).mockReturnValue(false);
-            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
-
-            const { result } = renderHook(() =>
-                useDeliveryOptions({ product: undefined, quantity: 1, isInBasket: false, pickupStore: mockStoreInfo })
             );
 
             act(() => {
@@ -543,33 +504,6 @@ describe('useDeliveryOptions', () => {
             expect(mockRemoveItem).not.toHaveBeenCalled();
         });
 
-        it('does not sync when product has no id', () => {
-            const mockAddItem = vi.fn();
-            const mockRemoveItem = vi.fn();
-
-            vi.mocked(usePickup).mockReturnValue({
-                addItem: mockAddItem,
-                removeItem: mockRemoveItem,
-                pickupBasketItems: new Map(),
-                pickupStores: new Map(),
-                clearItems: vi.fn(),
-            });
-
-            vi.mocked(isStoreOutOfStock).mockReturnValue(false);
-            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
-
-            mockAddItem.mockClear();
-            mockRemoveItem.mockClear();
-
-            renderHook(() =>
-                useDeliveryOptions({ product: undefined, quantity: 1, isInBasket: false, pickupStore: mockStoreInfo })
-            );
-
-            // Should not call either function when product is undefined
-            expect(mockAddItem).not.toHaveBeenCalled();
-            expect(mockRemoveItem).not.toHaveBeenCalled();
-        });
-
         it('does not sync when pickupContext is null', () => {
             vi.mocked(usePickup).mockReturnValue(null);
 
@@ -734,6 +668,168 @@ describe('useDeliveryOptions', () => {
             expect(isSiteOutOfStock).toHaveBeenCalledWith(productWithoutInventories, 1);
             expect(result.current.isSiteOutOfStock).toBe(true);
             // Store OOS should be false due to race condition handling
+            expect(result.current.isStoreOutOfStock).toBe(false);
+        });
+
+        it('does NOT use race condition logic for product sets even when inventory is missing', () => {
+            // Mock the helper functions to return true (out of stock) to verify they ARE called
+            vi.mocked(isStoreOutOfStock).mockReturnValue(true);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product set without inventories array
+            const productSetWithoutInventories = {
+                ...mockProduct,
+                inventories: undefined,
+                type: {
+                    ...mockProduct.type,
+                    set: true,
+                },
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productSetWithoutInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Sets should NOT use race condition logic - should call normal check
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(productSetWithoutInventories, mockStoreInfo.inventoryId, 1);
+            // Should return the actual result from the helper (true = out of stock)
+            expect(result.current.isStoreOutOfStock).toBe(true);
+        });
+
+        it('does NOT use race condition logic for product bundles even when inventory is missing', () => {
+            // Mock the helper functions to return true (out of stock) to verify they ARE called
+            vi.mocked(isStoreOutOfStock).mockReturnValue(true);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product bundle without inventories array
+            const productBundleWithoutInventories = {
+                ...mockProduct,
+                inventories: undefined,
+                type: {
+                    ...mockProduct.type,
+                    bundle: true,
+                },
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productBundleWithoutInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Bundles should NOT use race condition logic - should call normal check
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(
+                productBundleWithoutInventories,
+                mockStoreInfo.inventoryId,
+                1
+            );
+            // Should return the actual result from the helper (true = out of stock)
+            expect(result.current.isStoreOutOfStock).toBe(true);
+        });
+
+        it('does NOT use race condition logic for product sets with empty inventories array', () => {
+            // Mock the helper functions to return true (out of stock) to verify they ARE called
+            vi.mocked(isStoreOutOfStock).mockReturnValue(true);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product set with empty inventories array
+            const productSetWithEmptyInventories = {
+                ...mockProduct,
+                inventories: [],
+                type: {
+                    ...mockProduct.type,
+                    set: true,
+                },
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productSetWithEmptyInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Sets should NOT use race condition logic - should call normal check
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(
+                productSetWithEmptyInventories,
+                mockStoreInfo.inventoryId,
+                1
+            );
+            // Should return the actual result from the helper (true = out of stock)
+            expect(result.current.isStoreOutOfStock).toBe(true);
+        });
+
+        it('does NOT use race condition logic for product bundles with empty inventories array', () => {
+            // Mock the helper functions to return true (out of stock) to verify they ARE called
+            vi.mocked(isStoreOutOfStock).mockReturnValue(true);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product bundle with empty inventories array
+            const productBundleWithEmptyInventories = {
+                ...mockProduct,
+                inventories: [],
+                type: {
+                    ...mockProduct.type,
+                    bundle: true,
+                },
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productBundleWithEmptyInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Bundles should NOT use race condition logic - should call normal check
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(
+                productBundleWithEmptyInventories,
+                mockStoreInfo.inventoryId,
+                1
+            );
+            // Should return the actual result from the helper (true = out of stock)
+            expect(result.current.isStoreOutOfStock).toBe(true);
+        });
+
+        it('sets/bundles use pre-calculated inventory from children (normal check path)', () => {
+            // Mock the helper functions to return false (in stock) for sets/bundles
+            // This simulates the case where inventory was pre-calculated from children
+            vi.mocked(isStoreOutOfStock).mockReturnValue(false);
+            vi.mocked(isSiteOutOfStock).mockReturnValue(false);
+
+            // Product set with inventories (pre-calculated from children)
+            const productSetWithInventories = {
+                ...mockProduct,
+                inventories: mockProduct.inventories,
+                type: {
+                    ...mockProduct.type,
+                    set: true,
+                },
+            };
+
+            const { result } = renderHook(() =>
+                useDeliveryOptions({
+                    product: productSetWithInventories,
+                    quantity: 1,
+                    isInBasket: false,
+                    pickupStore: mockStoreInfo,
+                })
+            );
+
+            // Should call normal check with pre-calculated inventory
+            expect(isStoreOutOfStock).toHaveBeenCalledWith(productSetWithInventories, mockStoreInfo.inventoryId, 1);
             expect(result.current.isStoreOutOfStock).toBe(false);
         });
     });

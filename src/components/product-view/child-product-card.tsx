@@ -38,6 +38,8 @@ interface ChildProductCardProps {
     parentProduct: ShopperProducts.schemas['Product'];
     /** Callback to notify parent component of selection changes (variant, quantity) */
     onSelectionChange: (productId: string, selection: ProductSelectionValues) => void;
+    /** Callback to notify parent component of orderability changes (stock, orderable status) */
+    onOrderabilityChange?: (productId: string, orderability: { isOrderable: boolean; errorMessage?: string }) => void;
     /** Mode for swatch interaction: 'uncontrolled' render as link button, controlled renders as normal button*/
     swatchMode?: 'uncontrolled' | 'controlled';
 }
@@ -84,6 +86,7 @@ export default function ChildProductCard({
     childProduct: product,
     parentProduct,
     onSelectionChange,
+    onOrderabilityChange,
     swatchMode,
 }: ChildProductCardProps): ReactElement {
     const isParentProductASet = isProductSet(parentProduct);
@@ -94,7 +97,10 @@ export default function ChildProductCard({
         isChildProduct: true,
     });
 
-    const selectedAttributes = useSelectedVariations({ product, isChildProduct: true });
+    const selectedAttributes = useSelectedVariations({
+        product,
+        isChildProduct: true,
+    });
     const { galleryImages } = useProductImages({
         product,
         selectedAttributes,
@@ -115,14 +121,23 @@ export default function ChildProductCard({
         currentVariant,
     });
 
-    const variationAttributes = useVariationAttributes({ product, isChildProduct: true });
+    const variationAttributes = useVariationAttributes({
+        product,
+        isChildProduct: true,
+    });
 
-    const prevSelectionRef = useRef<{ variantId?: string; quantity: number } | null>(null);
+    // Track previous selection to prevent infinite loops
+    // This tracks what we last notified parent about, not just "previous render"
+    const prevSelectionRef = useRef<{
+        variantId?: string;
+        quantity: number;
+    } | null>(null);
     const isStandard = isStandardProduct(product);
 
     // Auto-select standard products
     useEffect(() => {
-        if (isStandard && !prevSelectionRef.current) {
+        // Only notify if this is first selection OR quantity changed
+        if (isStandard && (!prevSelectionRef.current || prevSelectionRef.current.quantity !== quantity)) {
             onSelectionChange(product.id, {
                 product,
                 quantity,
@@ -134,7 +149,9 @@ export default function ChildProductCard({
         }
     }, [isStandard, product, quantity, onSelectionChange]);
 
-    // Update parent when selection changes
+    // Update parent when selection changes (variant or quantity)
+    // For sets: we need to track quantity changes even without variant selection
+    // to calculate parent inventory correctly based on child quantities
     useEffect(() => {
         if (currentVariant) {
             const newSelection = {
@@ -157,8 +174,33 @@ export default function ChildProductCard({
 
                 prevSelectionRef.current = newSelection;
             }
+        } else if (isParentProductASet) {
+            // For sets: track quantity changes even without variant selection
+            // This allows parent to calculate inventory based on child quantities
+            const newSelection = {
+                quantity,
+            };
+
+            if (!prevSelectionRef.current || prevSelectionRef.current.quantity !== newSelection.quantity) {
+                onSelectionChange(product.id, {
+                    product,
+                    quantity,
+                });
+
+                prevSelectionRef.current = newSelection;
+            }
         }
-    }, [currentVariant, quantity, onSelectionChange, product]);
+    }, [currentVariant, quantity, onSelectionChange, product, isParentProductASet]);
+
+    // Report orderability status to parent
+    useEffect(() => {
+        if (onOrderabilityChange) {
+            onOrderabilityChange(product.id, {
+                isOrderable: canAddChildToCart,
+                errorMessage: !canAddChildToCart ? uiStrings.product.selectAllOptions : undefined,
+            });
+        }
+    }, [canAddChildToCart, product.id, onOrderabilityChange]);
 
     return (
         <Card className="h-full" data-testid="child-product">

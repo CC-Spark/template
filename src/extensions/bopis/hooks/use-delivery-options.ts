@@ -9,12 +9,13 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { DELIVERY_OPTIONS, type DeliveryOption } from '@/extensions/bopis/constants';
 import { isStoreOutOfStock as storeOutOfStockFor, isSiteOutOfStock as siteOutOfStockFor } from '@/lib/inventory-utils';
+import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import { usePickup } from '@/extensions/bopis/context/pickup-context';
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
 
 interface UseDeliveryOptionsProps {
     /** The product to check inventory for */
-    product?: ShopperProducts.schemas['Product'];
+    product: ShopperProducts.schemas['Product'];
     /** The selected quantity to check inventory against */
     quantity: number;
     /** Whether the item is already in the basket - prevents auto-sync and auto-change behavior */
@@ -42,6 +43,21 @@ interface UseDeliveryOptionsProps {
  *   handleDeliveryOptionChange
  * } = useDeliveryOptions({ product, quantity: 2 });
  * ```
+ *
+ * @example With sets/bundles (uses pre-calculated inventory)
+ * ```tsx
+ * const {
+ *   selectedDeliveryOption,
+ *   isStoreOutOfStock,
+ *   isSiteOutOfStock,
+ *   handleDeliveryOptionChange
+ * } = useDeliveryOptions({
+ *   product: parentProduct, // inventory pre-calculated by useProductSetsBundles
+ *   quantity: bundleQuantity,
+ *   isInBasket: false,
+ *   pickupStore: selectedStore
+ * });
+ * ```
  */
 export function useDeliveryOptions({ product, quantity, isInBasket, pickupStore }: UseDeliveryOptionsProps) {
     // Local state for delivery options
@@ -57,22 +73,52 @@ export function useDeliveryOptions({ product, quantity, isInBasket, pickupStore 
 
     // Memoize site/store OOS flags together for simpler deps/readability
     const { isStoreOutOfStock, isSiteOutOfStock } = useMemo(() => {
-        // Handle race condition: if pickupStore is selected but product.inventories is empty,
-        // this likely means revalidation is in progress and new inventory data hasn't arrived yet.
-        // Return false (not out of stock) to avoid false negatives during the race condition.
+        /**
+         * Race Condition Prevention Logic
+         *
+         * Problem: When a user selects a store, there's a brief window where:
+         * 1. pickupStore.inventoryId is set (from store locator)
+         * 2. BUT product.inventories array is still empty (revalidation in progress)
+         * 3. This causes false "out of stock" detection
+         *
+         * Example Timeline:
+         * t=0: User clicks "Select Store" → pickupStore.inventoryId = "store-sf-downtown"
+         * t=10ms: Component renders → product.inventories = [] (not yet fetched)
+         * t=50ms: Inventory API responds → product.inventories = [{id: "store-sf-downtown", ...}]
+         *
+         * Solution:
+         * - If store is selected BUT inventory data is missing, assume "waiting for data"
+         * - Return false (NOT out of stock) during the wait period
+         * - EXCEPTION: Skip this logic for sets/bundles - they calculate inventory differently
+         *
+         * Why sets/bundles are exempt (PWA Kit approach):
+         * - Sets/bundles calculate inventory from child products via useProductSetsBundles
+         * - Child inventory is enriched via useBulkChildProductInventory
+         * - Parent product.inventories is replaced with lowest child inventory
+         * - They must fall through to the normal check to use the calculated inventory
+         */
+
+        // Early return for race condition case: store selected but inventory not yet loaded
         const hasStoreSelected = Boolean(pickupStore?.inventoryId);
         const hasInventoryData = Boolean(product?.inventories && product.inventories.length > 0);
-        const isWaitingForInventoryData = hasStoreSelected && !hasInventoryData;
+        const isSetOrBundle = isProductSet(product) || isProductBundle(product);
 
-        const storeOOS = isWaitingForInventoryData
-            ? false
-            : storeOutOfStockFor(product, pickupStore?.inventoryId, quantity);
-        const siteOOS = siteOutOfStockFor(product, quantity);
+        // If waiting for inventory data to load, treat as in-stock to prevent false OOS flash
+        // Skip this for sets/bundles - they use pre-calculated inventory from children
+        if (hasStoreSelected && !hasInventoryData && !isSetOrBundle) {
+            return {
+                isStoreOutOfStock: false, // Waiting for data, assume available
+                isSiteOutOfStock: siteOutOfStockFor(product, quantity),
+            };
+        }
+
+        // Normal case: check inventory as usual
+        // For sets/bundles, product inventory has been pre-calculated from children
         return {
-            isStoreOutOfStock: storeOOS,
-            isSiteOutOfStock: siteOOS,
+            isStoreOutOfStock: storeOutOfStockFor(product, pickupStore?.inventoryId, quantity),
+            isSiteOutOfStock: siteOutOfStockFor(product, quantity),
         };
-    }, [product, pickupStore?.inventoryId, quantity]);
+    }, [product, pickupStore, quantity]);
 
     // Wrapper function that syncs delivery option changes to pickup context
     const handleDeliveryOptionChange = useCallback(

@@ -18,7 +18,7 @@ import uiStringsBopis from '@/extensions/bopis/temp-ui-string-bopis';
 
 interface DeliveryOptionsProps {
     /** The product to check inventory for */
-    product?: ShopperProducts.schemas['Product'];
+    product: ShopperProducts.schemas['Product'];
     /** The selected quantity to check inventory against */
     quantity: number;
     /** The pickup store for basket items. When provided, indicates item is in basket with this pickup store. When falsy, item is not in basket. */

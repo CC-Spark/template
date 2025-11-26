@@ -109,39 +109,85 @@ describe('inventory-utils', () => {
 
         describe('for product sets', () => {
             it('returns false when all child products are in stock', () => {
-                expect(isStoreOutOfStock(mockSetProduct, 'inventory_m', 1)).toBe(false);
+                // For sets, inventory should be pre-calculated and stored on the parent product
+                // The minimum stock across children is 376 (from child 1)
+                const setWithCalculatedInventory = {
+                    ...mockSetProduct,
+                    inventories: [
+                        {
+                            id: 'inventory_m',
+                            stockLevel: 376, // Minimum of children: min(376, 495)
+                            orderable: true,
+                            ats: 376,
+                            backorderable: false,
+                            preorderable: false,
+                        },
+                    ],
+                };
+                expect(isStoreOutOfStock(setWithCalculatedInventory, 'inventory_m', 1)).toBe(false);
             });
 
             it('returns true when any child product is out of stock', () => {
-                expect(isStoreOutOfStock(mockSetProduct, 'inventory_out_of_stock', 1)).toBe(true);
+                // For sets with a child out of stock, calculated inventory should reflect that
+                const setWithCalculatedInventory = {
+                    ...mockSetProduct,
+                    inventories: [
+                        {
+                            id: 'inventory_out_of_stock',
+                            stockLevel: 0, // One child is out of stock, so set is out of stock
+                            orderable: false,
+                            ats: 0,
+                            backorderable: false,
+                            preorderable: false,
+                        },
+                    ],
+                };
+                expect(isStoreOutOfStock(setWithCalculatedInventory, 'inventory_out_of_stock', 1)).toBe(true);
             });
 
             it('returns true when any child product has no inventory', () => {
-                expect(isStoreOutOfStock(mockSetProduct, 'non-existent', 1)).toBe(true);
+                // Set with no inventory for this store
+                const setWithNoInventory = {
+                    ...mockSetProduct,
+                    inventories: [], // No inventory for the requested store
+                };
+                expect(isStoreOutOfStock(setWithNoInventory, 'non-existent', 1)).toBe(true);
             });
 
             it('returns true when any child product has insufficient stock', () => {
-                expect(isStoreOutOfStock(mockSetProduct, 'inventory_m', 500)).toBe(true);
+                // Set with insufficient stock
+                const setWithLowStock = {
+                    ...mockSetProduct,
+                    inventories: [
+                        {
+                            id: 'inventory_m',
+                            stockLevel: 100, // Less than requested 500
+                            orderable: true,
+                            ats: 100,
+                            backorderable: false,
+                            preorderable: false,
+                        },
+                    ],
+                };
+                expect(isStoreOutOfStock(setWithLowStock, 'inventory_m', 500)).toBe(true);
             });
 
             it('returns true when any child product is not orderable', () => {
-                const setWithUnorderableChild = {
+                // Set with unorderable inventory
+                const setWithUnorderableInventory = {
                     ...mockSetProduct,
-                    setProducts: [
+                    inventories: [
                         {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventories: [
-                                {
-                                    id: 'inventory_m',
-                                    stockLevel: 100,
-                                    orderable: false,
-                                },
-                            ],
+                            id: 'inventory_m',
+                            stockLevel: 100,
+                            orderable: false, // Not orderable
+                            ats: 100,
+                            backorderable: false,
+                            preorderable: false,
                         },
-                        mockSetProduct.setProducts?.[1],
                     ],
-                } as ShopperProducts.schemas['Product'];
-                expect(isStoreOutOfStock(setWithUnorderableChild, 'inventory_m', 1)).toBe(true);
+                };
+                expect(isStoreOutOfStock(setWithUnorderableInventory, 'inventory_m', 1)).toBe(true);
             });
         });
 
@@ -169,7 +215,7 @@ describe('inventory-utils', () => {
                     ats: 100,
                     orderable: true,
                 },
-            } as ShopperProducts.schemas['Product'];
+            };
             expect(isSiteOutOfStock(productWithInventory, 1)).toBe(false);
         });
 
@@ -189,7 +235,7 @@ describe('inventory-utils', () => {
                     ats: 0,
                     orderable: false,
                 },
-            } as ShopperProducts.schemas['Product'];
+            };
             expect(isSiteOutOfStock(productOutOfStock, 1)).toBe(true);
         });
 
@@ -201,7 +247,7 @@ describe('inventory-utils', () => {
                     ats: 5,
                     orderable: true,
                 },
-            } as ShopperProducts.schemas['Product'];
+            };
             expect(isSiteOutOfStock(productLowStock, 10)).toBe(true);
         });
 
@@ -213,7 +259,7 @@ describe('inventory-utils', () => {
                     ats: 100,
                     orderable: true,
                 },
-            } as ShopperProducts.schemas['Product'];
+            };
             expect(isSiteOutOfStock(productWithStock, 10)).toBe(false);
         });
 
@@ -225,108 +271,61 @@ describe('inventory-utils', () => {
                     ats: 100,
                     orderable: false,
                 },
-            } as ShopperProducts.schemas['Product'];
+            };
             expect(isSiteOutOfStock(unorderableProduct, 1)).toBe(true);
         });
 
         describe('for product sets', () => {
-            it('returns false when all child products are in stock', () => {
-                const setWithInventory = {
+            it('returns false when set has sufficient stock (pre-calculated on parent)', () => {
+                // For sets, inventory should be pre-calculated on the parent
+                const setWithCalculatedInventory = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(isSiteOutOfStock(setWithInventory, 1)).toBe(false);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 50, // Pre-calculated minimum across children
+                        orderable: true,
+                        stockLevel: 50,
+                    },
+                };
+                expect(isSiteOutOfStock(setWithCalculatedInventory, 1)).toBe(false);
             });
 
-            it('returns true when any child product is out of stock', () => {
-                const setWithOneOutOfStock = {
+            it('returns true when set is out of stock (pre-calculated reflects child out of stock)', () => {
+                // When a child is out of stock, parent inventory reflects that
+                const setWithCalculatedInventory = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 0,
-                                orderable: false,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(isSiteOutOfStock(setWithOneOutOfStock, 1)).toBe(true);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 0, // Pre-calculated: one child out of stock
+                        orderable: false,
+                    },
+                };
+                expect(isSiteOutOfStock(setWithCalculatedInventory, 1)).toBe(true);
             });
 
-            it('returns true when any child product has insufficient ats', () => {
-                const setWithLowStock = {
+            it('returns true when quantity exceeds pre-calculated stock', () => {
+                // Parent inventory shows minimum available sets
+                const setWithLimitedStock = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 5,
-                                orderable: true,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(isSiteOutOfStock(setWithLowStock, 10)).toBe(true);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 5, // Pre-calculated: can make 5 complete sets
+                        orderable: true,
+                    },
+                };
+                expect(isSiteOutOfStock(setWithLimitedStock, 10)).toBe(true);
             });
 
-            it('returns true when any child product is not orderable', () => {
+            it('returns true when set is not orderable (pre-calculated reflects child not orderable)', () => {
+                // When a child is not orderable, parent reflects that
                 const setWithUnorderableChild = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: false,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 100,
+                        orderable: false, // Pre-calculated: one child not orderable
+                    },
+                };
                 expect(isSiteOutOfStock(setWithUnorderableChild, 1)).toBe(true);
             });
         });
@@ -340,7 +339,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isSiteOutOfStock(bundleWithInventory, 1)).toBe(false);
             });
 
@@ -352,7 +351,7 @@ describe('inventory-utils', () => {
                         ats: 0,
                         orderable: false,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isSiteOutOfStock(bundleOutOfStock, 1)).toBe(true);
             });
         });
@@ -396,7 +395,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(getEffectiveStockLevel(productWithInventory, false, undefined)).toBe(100);
             });
 
@@ -418,7 +417,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(getEffectiveStockLevel(productWithInventory, false, undefined, variant)).toBe(50);
             });
 
@@ -436,7 +435,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(getEffectiveStockLevel(productWithInventory, false, undefined, variant)).toBe(100);
             });
 
@@ -457,57 +456,52 @@ describe('inventory-utils', () => {
 
         describe('for product sets', () => {
             it('returns minimum stock level across all children with store inventory', () => {
-                expect(getEffectiveStockLevel(mockSetProduct, true, 'inventory_m')).toBe(376);
+                // For sets, inventory should be pre-calculated on the parent
+                const setWithCalculatedInventory = {
+                    ...mockSetProduct,
+                    inventories: [
+                        {
+                            id: 'inventory_m',
+                            stockLevel: 376, // Pre-calculated minimum from children
+                            orderable: true,
+                            ats: 376,
+                            backorderable: false,
+                            preorderable: false,
+                        },
+                    ],
+                };
+                expect(getEffectiveStockLevel(setWithCalculatedInventory, true, 'inventory_m')).toBe(376);
             });
 
             it('returns minimum ats across all children without store inventory', () => {
-                const setWithInventory = {
+                // For sets, inventory should be pre-calculated on the parent
+                const setWithCalculatedInventory = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 50,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(getEffectiveStockLevel(setWithInventory, false, undefined)).toBe(50);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 50, // Pre-calculated minimum from children
+                        orderable: true,
+                        stockLevel: 50,
+                    },
+                };
+                expect(getEffectiveStockLevel(setWithCalculatedInventory, false, undefined)).toBe(50);
             });
 
             it('returns 0 when any child has no inventory with store', () => {
                 expect(getEffectiveStockLevel(mockSetProduct, true, 'non-existent')).toBe(0);
             });
 
-            it('returns 0 when any child has no inventory without store', () => {
-                const setWithNoInventory = {
+            it('returns 0 when child has no inventory (pre-calculated on parent)', () => {
+                // When a child has no inventory, parent inventory is pre-calculated as 0
+                const setWithNoChildInventory = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: undefined,
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(getEffectiveStockLevel(setWithNoInventory, false, undefined)).toBe(0);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 0, // Pre-calculated: one child has no inventory
+                        orderable: false,
+                    },
+                };
+                expect(getEffectiveStockLevel(setWithNoChildInventory, false, undefined)).toBe(0);
             });
         });
 
@@ -524,7 +518,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(getEffectiveStockLevel(bundleWithInventory, false, undefined)).toBe(100);
             });
         });
@@ -580,7 +574,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(productWithInventory, false, undefined, 1)).toBe(true);
             });
 
@@ -600,7 +594,7 @@ describe('inventory-utils', () => {
                         ats: 0,
                         orderable: false,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(productOutOfStock, false, undefined, 1)).toBe(false);
             });
 
@@ -612,7 +606,7 @@ describe('inventory-utils', () => {
                         ats: 5,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(productLowStock, false, undefined, 10)).toBe(false);
             });
 
@@ -624,7 +618,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(productWithStock, false, undefined, 10)).toBe(true);
             });
 
@@ -636,7 +630,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: false,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(unorderableProduct, false, undefined, 1)).toBe(false);
             });
 
@@ -658,7 +652,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(productWithInventory, false, undefined, 1, variant)).toBe(true);
             });
 
@@ -676,7 +670,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(productWithInventory, false, undefined, 1, variant)).toBe(true);
             });
 
@@ -698,14 +692,28 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(productWithInventory, false, undefined, 1, variant)).toBe(false);
             });
         });
 
         describe('for product sets', () => {
             it('returns true when all child products are in stock at store', () => {
-                expect(isInStock(mockSetProduct, true, 'inventory_m', 1)).toBe(true);
+                // For sets, inventory should be pre-calculated on the parent
+                const setWithCalculatedInventory = {
+                    ...mockSetProduct,
+                    inventories: [
+                        {
+                            id: 'inventory_m',
+                            stockLevel: 376, // Pre-calculated minimum from children
+                            orderable: true,
+                            ats: 376,
+                            backorderable: false,
+                            preorderable: false,
+                        },
+                    ],
+                };
+                expect(isInStock(setWithCalculatedInventory, true, 'inventory_m', 1)).toBe(true);
             });
 
             it('returns false when any child product is out of stock at store', () => {
@@ -721,102 +729,55 @@ describe('inventory-utils', () => {
             });
 
             it('returns true when all child products are in stock (site inventory)', () => {
-                const setWithInventory = {
+                // For sets, inventory should be pre-calculated on the parent
+                const setWithCalculatedInventory = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(isInStock(setWithInventory, false, undefined, 1)).toBe(true);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 100, // Pre-calculated minimum from children
+                        orderable: true,
+                        stockLevel: 100,
+                    },
+                };
+                expect(isInStock(setWithCalculatedInventory, false, undefined, 1)).toBe(true);
             });
 
-            it('returns false when any child product is out of stock (site inventory)', () => {
-                const setWithOneOutOfStock = {
+            it('returns false when set is out of stock (pre-calculated reflects child out of stock)', () => {
+                // When a child is out of stock, parent inventory reflects that
+                const setWithCalculatedInventory = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 0,
-                                orderable: false,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(isInStock(setWithOneOutOfStock, false, undefined, 1)).toBe(false);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 0, // Pre-calculated: one child out of stock
+                        orderable: false,
+                    },
+                };
+                expect(isInStock(setWithCalculatedInventory, false, undefined, 1)).toBe(false);
             });
 
-            it('returns false when any child product has insufficient ats', () => {
-                const setWithLowStock = {
+            it('returns false when quantity exceeds pre-calculated stock', () => {
+                // Parent inventory shows minimum available sets
+                const setWithLimitedStock = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 5,
-                                orderable: true,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
-                expect(isInStock(setWithLowStock, false, undefined, 10)).toBe(false);
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 5, // Pre-calculated: can make 5 complete sets
+                        orderable: true,
+                    },
+                };
+                expect(isInStock(setWithLimitedStock, false, undefined, 10)).toBe(false);
             });
 
-            it('returns false when any child product is not orderable', () => {
+            it('returns false when set is not orderable (pre-calculated reflects child not orderable)', () => {
+                // When a child is not orderable, parent reflects that
                 const setWithUnorderableChild = {
                     ...mockSetProduct,
-                    setProducts: [
-                        {
-                            ...(mockSetProduct.setProducts?.[0] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: false,
-                            },
-                        },
-                        {
-                            ...(mockSetProduct.setProducts?.[1] ?? {}),
-                            inventory: {
-                                id: 'site-inventory',
-                                ats: 100,
-                                orderable: true,
-                            },
-                        },
-                    ],
-                } as ShopperProducts.schemas['Product'];
+                    inventory: {
+                        id: 'site-inventory',
+                        ats: 100,
+                        orderable: false, // Pre-calculated: one child not orderable
+                    },
+                };
                 expect(isInStock(setWithUnorderableChild, false, undefined, 1)).toBe(false);
             });
         });
@@ -838,7 +799,7 @@ describe('inventory-utils', () => {
                         ats: 100,
                         orderable: true,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(bundleWithInventory, false, undefined, 1)).toBe(true);
             });
 
@@ -850,7 +811,7 @@ describe('inventory-utils', () => {
                         ats: 0,
                         orderable: false,
                     },
-                } as ShopperProducts.schemas['Product'];
+                };
                 expect(isInStock(bundleOutOfStock, false, undefined, 1)).toBe(false);
             });
         });

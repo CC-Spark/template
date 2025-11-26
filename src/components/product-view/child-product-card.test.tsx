@@ -220,8 +220,8 @@ describe('ChildProductCard', () => {
         });
     });
 
-    describe('variant products', () => {
-        test('does not auto-select variant products', () => {
+    describe('variant products without variant selection', () => {
+        test('notifies parent for variant products in sets (for inventory calculation)', async () => {
             const variantProduct = createVariantProduct();
             const parentProduct = createSetProduct();
 
@@ -231,8 +231,113 @@ describe('ChildProductCard', () => {
                 onSelectionChange: mockOnSelectionChange,
             });
 
-            // Variant products should not be auto-selected
+            // Variant products in sets notify parent about quantity changes (even without variant selection)
+            // This allows parent to calculate inventory based on child quantities
+            await waitFor(() => {
+                expect(mockOnSelectionChange).toHaveBeenCalledWith('variant-123', {
+                    product: expect.objectContaining({ id: 'variant-123' }),
+                    quantity: 1,
+                });
+            });
+        });
+
+        test('does NOT notify parent for variant products in bundles without variant selection', async () => {
+            const variantProduct = createVariantProduct();
+            const parentProduct: ShopperProducts.schemas['Product'] = {
+                id: 'bundle-123',
+                name: 'Bundle Product',
+                type: { bundle: true },
+            };
+
+            renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+            });
+
+            // Bundles should NOT notify parent for variant products without variant selection
+            // Wait a bit to ensure no notification happens
+            await new Promise((resolve) => setTimeout(resolve, 100));
             expect(mockOnSelectionChange).not.toHaveBeenCalled();
+        });
+
+        test('notifies parent when quantity changes for variant products in sets', async () => {
+            const actionsModule = await import('@/hooks/product/use-product-actions');
+            const mockSetQuantity = vi.fn();
+
+            // Start with quantity 1
+            vi.spyOn(actionsModule, 'useProductActions').mockReturnValue({
+                isAddingToOrUpdatingCart: false,
+                canAddToCart: true,
+                stockLevel: 10,
+                isOutOfStock: false,
+                handleAddToCart: vi.fn(),
+                quantity: 1,
+                setQuantity: mockSetQuantity,
+            } as never);
+
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            const { rerender } = renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+            });
+
+            // Wait for initial notification
+            await waitFor(() => {
+                expect(mockOnSelectionChange).toHaveBeenCalledWith('variant-123', {
+                    product: expect.objectContaining({ id: 'variant-123' }),
+                    quantity: 1,
+                });
+            });
+
+            mockOnSelectionChange.mockClear();
+
+            // Now change quantity to 2
+            vi.spyOn(actionsModule, 'useProductActions').mockReturnValue({
+                isAddingToOrUpdatingCart: false,
+                canAddToCart: true,
+                stockLevel: 10,
+                isOutOfStock: false,
+                handleAddToCart: vi.fn(),
+                quantity: 2,
+                setQuantity: mockSetQuantity,
+            } as never);
+
+            // Trigger re-render with new quantity
+            rerender(
+                <RouterProvider
+                    router={createMemoryRouter(
+                        [
+                            {
+                                path: '/product/:productId',
+                                element: (
+                                    <StoreLocatorWrapper>
+                                        <ChildProductCard
+                                            childProduct={variantProduct}
+                                            parentProduct={parentProduct}
+                                            onSelectionChange={mockOnSelectionChange}
+                                        />
+                                    </StoreLocatorWrapper>
+                                ),
+                            },
+                        ],
+                        {
+                            initialEntries: ['/product/parent-123'],
+                        }
+                    )}
+                />
+            );
+
+            // Should notify parent with new quantity
+            await waitFor(() => {
+                expect(mockOnSelectionChange).toHaveBeenCalledWith('variant-123', {
+                    product: expect.objectContaining({ id: 'variant-123' }),
+                    quantity: 2,
+                });
+            });
         });
 
         test('displays selection prompt for variant products', () => {
@@ -246,6 +351,40 @@ describe('ChildProductCard', () => {
             });
 
             expect(screen.getByText(/select options above/i)).toBeInTheDocument();
+        });
+
+        test('reports orderability as false when no variant selected', async () => {
+            const mockOnOrderabilityChange = vi.fn();
+            const actionsModule = await import('@/hooks/product/use-product-actions');
+
+            // Mock canAddToCart as false (no variant selected)
+            vi.spyOn(actionsModule, 'useProductActions').mockReturnValue({
+                isAddingToOrUpdatingCart: false,
+                canAddToCart: false,
+                stockLevel: 10,
+                isOutOfStock: false,
+                handleAddToCart: vi.fn(),
+                quantity: 1,
+                setQuantity: vi.fn(),
+            } as never);
+
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+                onOrderabilityChange: mockOnOrderabilityChange,
+            });
+
+            // Should report as not orderable
+            await waitFor(() => {
+                expect(mockOnOrderabilityChange).toHaveBeenCalledWith('variant-123', {
+                    isOrderable: false,
+                    errorMessage: expect.any(String),
+                });
+            });
         });
     });
 
@@ -315,6 +454,168 @@ describe('ChildProductCard', () => {
         });
     });
 
+    describe('swatch mode', () => {
+        test('supports controlled mode for swatches', () => {
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            // Render in controlled mode
+            renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+                swatchMode: 'controlled',
+            });
+
+            // Component should render (swatchMode doesn't affect rendering when no variations)
+            expect(screen.getByTestId('child-product')).toBeInTheDocument();
+        });
+
+        test('supports uncontrolled mode for swatches (default)', () => {
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            // Render in uncontrolled mode (default)
+            renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+                swatchMode: 'uncontrolled',
+            });
+
+            // Component should render
+            expect(screen.getByTestId('child-product')).toBeInTheDocument();
+        });
+
+        test('renders swatch rendering functions when variation attributes exist', async () => {
+            const variationModule = await import('@/hooks/product/use-variation-attributes');
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            // Mock variation attributes with swatches that have images
+            vi.spyOn(variationModule, 'useVariationAttributes').mockReturnValue([
+                {
+                    id: 'color',
+                    name: 'Color',
+                    selectedValue: { value: 'red', name: 'Red' },
+                    values: [
+                        {
+                            value: 'red',
+                            name: 'Red',
+                            href: '/product/red',
+                            image: { link: 'https://example.com/red.jpg', alt: 'Red color' },
+                            orderable: true,
+                        },
+                        {
+                            value: 'blue',
+                            name: 'Blue',
+                            href: '/product/blue',
+                            image: { link: 'https://example.com/blue.jpg', alt: 'Blue color' },
+                            orderable: true,
+                        },
+                    ],
+                },
+                {
+                    id: 'size',
+                    name: 'Size',
+                    selectedValue: { value: 'large', name: 'Large' },
+                    values: [
+                        {
+                            value: 'small',
+                            name: 'Small',
+                            href: '/product/small',
+                            orderable: true,
+                        },
+                        {
+                            value: 'large',
+                            name: 'Large',
+                            href: '/product/large',
+                            orderable: false,
+                        },
+                    ],
+                },
+            ] as never);
+
+            renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+                swatchMode: 'uncontrolled',
+            });
+
+            // Verify swatches render with images for color (circle shape)
+            expect(screen.getByLabelText('Red color')).toBeInTheDocument();
+            expect(screen.getByLabelText('Blue color')).toBeInTheDocument();
+            // Verify swatches render without images for size (square shape)
+            // Use getAllByText since "Large" appears in both selectedValue displayName and swatch content
+            const largeElements = screen.getAllByText('Large');
+            expect(largeElements.length).toBeGreaterThan(0);
+            expect(screen.getByText('Small')).toBeInTheDocument();
+        });
+
+        test('renders swatches in controlled mode without href', async () => {
+            const variationModule = await import('@/hooks/product/use-variation-attributes');
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            vi.spyOn(variationModule, 'useVariationAttributes').mockReturnValue([
+                {
+                    id: 'color',
+                    name: 'Color',
+                    selectedValue: { value: 'red', name: 'Red' },
+                    values: [
+                        {
+                            value: 'red',
+                            name: 'Red Swatch',
+                            href: '/product/red',
+                            orderable: true,
+                        },
+                    ],
+                },
+            ] as never);
+
+            renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+                swatchMode: 'controlled',
+            });
+
+            // In controlled mode, swatches should render but without href
+            expect(screen.getByText('Red Swatch')).toBeInTheDocument();
+        });
+
+        test('renders swatches with disabled state when not orderable', async () => {
+            const variationModule = await import('@/hooks/product/use-variation-attributes');
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            vi.spyOn(variationModule, 'useVariationAttributes').mockReturnValue([
+                {
+                    id: 'color',
+                    name: 'Color',
+                    selectedValue: { value: 'red', name: 'Red' },
+                    values: [
+                        {
+                            value: 'red',
+                            name: 'Red Disabled',
+                            href: '/product/red',
+                            orderable: false,
+                        },
+                    ],
+                },
+            ] as never);
+
+            renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+            });
+
+            expect(screen.getByText('Red Disabled')).toBeInTheDocument();
+        });
+    });
+
     describe('variant products', () => {
         test('notifies parent when a variant is selected', async () => {
             const variantModule = await import('@/hooks/product/use-current-variant');
@@ -346,6 +647,143 @@ describe('ChildProductCard', () => {
                     })
                 );
             });
+        });
+
+        test('notifies parent when variant changes', async () => {
+            const variantModule = await import('@/hooks/product/use-current-variant');
+            const actionsModule = await import('@/hooks/product/use-product-actions');
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            // Start with first variant
+            const variant1 = { productId: 'variant-1', inventory: { ats: 5 } };
+            vi.spyOn(variantModule, 'useCurrentVariant').mockReturnValue(variant1 as never);
+            vi.spyOn(actionsModule, 'useProductActions').mockReturnValue({
+                isAddingToOrUpdatingCart: false,
+                canAddToCart: true,
+                stockLevel: 10,
+                isOutOfStock: false,
+                handleAddToCart: vi.fn(),
+                quantity: 1,
+                setQuantity: vi.fn(),
+            } as never);
+
+            const { rerender } = renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+            });
+
+            // Wait for initial notification
+            await waitFor(() => {
+                expect(mockOnSelectionChange).toHaveBeenCalledWith(
+                    'variant-123',
+                    expect.objectContaining({
+                        variant: expect.objectContaining({ productId: 'variant-1' }),
+                    })
+                );
+            });
+
+            mockOnSelectionChange.mockClear();
+
+            // Change to different variant
+            const variant2 = { productId: 'variant-2', inventory: { ats: 3 } };
+            vi.spyOn(variantModule, 'useCurrentVariant').mockReturnValue(variant2 as never);
+
+            rerender(
+                <RouterProvider
+                    router={createMemoryRouter(
+                        [
+                            {
+                                path: '/product/:productId',
+                                element: (
+                                    <StoreLocatorWrapper>
+                                        <ChildProductCard
+                                            childProduct={variantProduct}
+                                            parentProduct={parentProduct}
+                                            onSelectionChange={mockOnSelectionChange}
+                                        />
+                                    </StoreLocatorWrapper>
+                                ),
+                            },
+                        ],
+                        {
+                            initialEntries: ['/product/parent-123'],
+                        }
+                    )}
+                />
+            );
+
+            // Should notify parent with new variant
+            await waitFor(() => {
+                expect(mockOnSelectionChange).toHaveBeenCalledWith(
+                    'variant-123',
+                    expect.objectContaining({
+                        variant: expect.objectContaining({ productId: 'variant-2' }),
+                    })
+                );
+            });
+        });
+
+        test('does not notify parent when variant and quantity unchanged', async () => {
+            const variantModule = await import('@/hooks/product/use-current-variant');
+            const actionsModule = await import('@/hooks/product/use-product-actions');
+            const variantProduct = createVariantProduct();
+            const parentProduct = createSetProduct();
+
+            const variant = { productId: 'variant-1', inventory: { ats: 5 } };
+            vi.spyOn(variantModule, 'useCurrentVariant').mockReturnValue(variant as never);
+            vi.spyOn(actionsModule, 'useProductActions').mockReturnValue({
+                isAddingToOrUpdatingCart: false,
+                canAddToCart: true,
+                stockLevel: 10,
+                isOutOfStock: false,
+                handleAddToCart: vi.fn(),
+                quantity: 1,
+                setQuantity: vi.fn(),
+            } as never);
+
+            const { rerender } = renderChildProductCard({
+                childProduct: variantProduct,
+                parentProduct,
+                onSelectionChange: mockOnSelectionChange,
+            });
+
+            // Wait for initial notification
+            await waitFor(() => {
+                expect(mockOnSelectionChange).toHaveBeenCalled();
+            });
+
+            mockOnSelectionChange.mockClear();
+
+            // Re-render with same variant and quantity - should not notify again
+            rerender(
+                <RouterProvider
+                    router={createMemoryRouter(
+                        [
+                            {
+                                path: '/product/:productId',
+                                element: (
+                                    <StoreLocatorWrapper>
+                                        <ChildProductCard
+                                            childProduct={variantProduct}
+                                            parentProduct={parentProduct}
+                                            onSelectionChange={mockOnSelectionChange}
+                                        />
+                                    </StoreLocatorWrapper>
+                                ),
+                            },
+                        ],
+                        {
+                            initialEntries: ['/product/parent-123'],
+                        }
+                    )}
+                />
+            );
+
+            // Wait a bit to ensure no additional calls
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            expect(mockOnSelectionChange).not.toHaveBeenCalled();
         });
     });
 
