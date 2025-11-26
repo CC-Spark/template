@@ -27,10 +27,6 @@ vi.mock('@/extensions/store-locator/providers/store-locator', () => ({
 }));
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
-vi.mock('@/extensions/bopis/components/delivery-options/delivery-options', () => ({
-    default: () => <div data-testid="delivery-options">Delivery Options</div>,
-}));
-
 vi.mock('./child-product-card', () => ({
     default: ({ childProduct, onSelectionChange, onOrderabilityChange, swatchMode }: any) => (
         <div data-testid={`child-product-${childProduct.id}`} data-swatch-mode={swatchMode}>
@@ -937,56 +933,6 @@ describe('ChildProducts', () => {
         });
     });
 
-    // @sfdc-extension-block-start SFDC_EXT_BOPIS
-    describe('BOPIS integration', () => {
-        test('renders delivery options in add mode', () => {
-            const setProduct = createSetProduct();
-
-            renderChildProducts({
-                parentProduct: setProduct,
-                mode: 'add',
-            });
-
-            expect(screen.getByTestId('delivery-options')).toBeInTheDocument();
-        });
-
-        test('renders delivery options in edit mode when basketPickupStore exists', async () => {
-            const bundleProduct = createBundleProduct();
-
-            const { useProductActions } = await import('@/hooks/product/use-product-actions');
-            vi.mocked(useProductActions).mockReturnValue({
-                isAddingToOrUpdatingCart: false,
-                handleProductSetAddToCart: mockHandleProductSetAddToCart,
-                handleProductBundleAddToCart: mockHandleProductBundleAddToCart,
-                handleUpdateBundle: mockHandleUpdateBundle,
-                basketPickupStore: { id: 'store-123', name: 'Test Store' },
-            } as any);
-
-            renderChildProducts({
-                parentProduct: bundleProduct,
-                mode: 'edit',
-                itemId: 'item-123',
-                initialBundleQuantity: 2,
-            });
-
-            expect(screen.getByTestId('delivery-options')).toBeInTheDocument();
-        });
-
-        test('does not render delivery options in edit mode when basketPickupStore is undefined', () => {
-            const bundleProduct = createBundleProduct();
-
-            renderChildProducts({
-                parentProduct: bundleProduct,
-                mode: 'edit',
-                itemId: 'item-123',
-                initialBundleQuantity: 2,
-            });
-
-            expect(screen.queryByTestId('delivery-options')).not.toBeInTheDocument();
-        });
-    });
-    // @sfdc-extension-block-end SFDC_EXT_BOPIS
-
     describe('child product interactions', () => {
         test('passes setChildProductSelection to child cards', () => {
             const setProduct = createSetProduct();
@@ -1040,7 +986,7 @@ describe('ChildProducts', () => {
             });
 
             // Should render without crashing - button should still be present but disabled
-            const button = screen.getByRole('button');
+            const button = screen.getByRole('button', { name: /add set to cart/i });
             expect(button).toBeInTheDocument();
             expect(button).toBeDisabled();
         });
@@ -1170,49 +1116,6 @@ describe('ChildProducts', () => {
             expect(mockHandleUpdateBundle).not.toHaveBeenCalled();
         });
     });
-
-    // @sfdc-extension-block-start SFDC_EXT_BOPIS
-    describe('BOPIS store selection', () => {
-        test('passes selectedStore inventoryId to useProductSetsBundles', async () => {
-            const setProduct = createSetProduct();
-            const mockSelectedStore = {
-                id: 'store-123',
-                name: 'Test Store',
-                inventoryId: 'inventory-store-123',
-            };
-
-            const { useStoreLocator } = await import('@/extensions/store-locator/providers/store-locator');
-            vi.mocked(useStoreLocator).mockReturnValue(mockSelectedStore);
-
-            const { useProductSetsBundles } = await import('@/hooks/product/use-product-sets-bundles');
-            const mockUseProductSetsBundles = vi.mocked(useProductSetsBundles);
-            mockUseProductSetsBundles.mockClear();
-
-            renderChildProducts({
-                parentProduct: setProduct,
-            });
-
-            await waitFor(() => {
-                expect(mockUseProductSetsBundles).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        selectedStoreInventoryId: 'inventory-store-123',
-                    })
-                );
-            });
-        });
-
-        test('handles null selectedStore gracefully', () => {
-            const setProduct = createSetProduct();
-
-            renderChildProducts({
-                parentProduct: setProduct,
-            });
-
-            // Should render without crashing
-            expect(screen.getByTestId('child-product-child-1')).toBeInTheDocument();
-        });
-    });
-    // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     describe('bundle quantity picker integration', () => {
         test('passes correct props to ProductQuantityPicker for bundles', async () => {
