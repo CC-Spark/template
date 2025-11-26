@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import ShippingAddress from '../shipping-address';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
@@ -434,7 +435,8 @@ This component handles the shipping address step of the checkout process - colle
             description: 'Action data containing form errors or success state',
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -473,7 +475,8 @@ export const Default: Story = {
         isEditing: true,
         actionData: undefined,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test Default story: Verify form is in editing mode with all required fields
@@ -517,7 +520,8 @@ export const WithExistingAddress: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test WithExistingAddress story: Verify form fields and that it can handle existing data
@@ -563,7 +567,8 @@ export const LoadingState: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test LoadingState story: Verify loading behavior and disabled states
@@ -606,7 +611,8 @@ export const CompletedState: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test CompletedState story: Verify summary view without form inputs
@@ -651,7 +657,8 @@ export const WithFormError: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test WithFormError story: Verify form shows error state appropriately
@@ -703,7 +710,8 @@ export const WithValidationErrors: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test WithValidationErrors story: Verify validation error handling
@@ -749,7 +757,8 @@ export const InternationalAddress: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test InternationalAddress story: Verify international address form structure
@@ -792,7 +801,8 @@ export const DisabledState: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test DisabledState story: Verify disabled state shows summary without edit capability
@@ -829,7 +839,8 @@ export const MobileView: Story = {
     globals: {
         viewport: 'mobile2',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test MobileView story: Verify mobile-optimized layout
@@ -871,7 +882,8 @@ export const TabletView: Story = {
     globals: {
         viewport: 'tablet',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test TabletView story: Verify tablet-optimized layout
@@ -913,7 +925,8 @@ export const DesktopView: Story = {
     globals: {
         viewport: 'desktop',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test DesktopView story: Verify desktop layout in completed state

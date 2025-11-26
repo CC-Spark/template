@@ -4,6 +4,7 @@ import { Form, useFetcher, createMemoryRouter, RouterProvider, useInRouterContex
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const FORM_HARNESS_ATTR = 'data-form-submit-harness';
 
@@ -265,6 +266,7 @@ The default FormSubmitButton shows standard submit behavior:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present and properly rendered
@@ -313,6 +315,7 @@ This story shows the FormSubmitButton with custom text for login:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present with custom text
@@ -365,6 +368,7 @@ This story demonstrates the FormSubmitButton with a fetcher for independent form
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present
@@ -408,6 +412,7 @@ This story shows the FormSubmitButton in a disabled state:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present and disabled
@@ -452,6 +457,7 @@ This story shows the FormSubmitButton with custom styling:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present with custom styling
@@ -523,6 +529,7 @@ This story shows the FormSubmitButton integrated into a complete registration fo
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form elements are present

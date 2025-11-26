@@ -3,6 +3,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import StandardLoginForm from '../standard-login-form';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -435,6 +436,7 @@ This is the most common configuration users will encounter on login pages.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form renders with all expected elements
@@ -492,6 +494,7 @@ This story demonstrates error handling in the StandardLoginForm:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test error message is displayed
@@ -549,6 +552,7 @@ When passwordless login is disabled, the form behavior changes:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form elements exist
@@ -607,6 +611,7 @@ This story highlights the security aspects of the password field:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test password field has secure type

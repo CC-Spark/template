@@ -10,6 +10,7 @@ import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { AccountNavList, type AccountNavItemData } from '../index';
 import { User, Heart, Receipt, MapPin, Settings } from 'lucide-react';
 
@@ -173,6 +174,8 @@ export const Default: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         // Verify all navigation items are present
@@ -209,6 +212,8 @@ export const Mobile: Story = {
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const links = canvas.getAllByRole('link');
@@ -238,6 +243,8 @@ export const WithDisabledItem: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         // Verify enabled items are links
@@ -264,6 +271,8 @@ export const Empty: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         // Verify no links are present
@@ -284,6 +293,8 @@ export const SingleItem: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const link = canvas.getByRole('link', { name: 'Account Details' });
@@ -306,6 +317,8 @@ export const Interactive: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const wishlistLink = canvas.getByRole('link', { name: 'Wishlist' });
@@ -340,6 +353,8 @@ export const WithManyItems: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const links = canvas.getAllByRole('link');

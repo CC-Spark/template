@@ -5,6 +5,7 @@ import CategorySkeleton, {
     CategoryRefinementsSkeleton,
 } from '../index';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const meta: Meta<typeof CategorySkeleton> = {
     title: 'CATEGORY/Category Skeleton',
@@ -82,6 +83,8 @@ The default CategorySkeleton shows the complete loading state:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test skeleton container is present
         await expect(canvasElement.firstChild).toBeInTheDocument();
 
@@ -115,6 +118,8 @@ CategoryBreadcrumbsSkeleton shows placeholder for breadcrumb navigation:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test breadcrumb skeleton is present
         const nav = canvas.getByRole('navigation', { name: /breadcrumb/i });
         await expect(nav).toBeInTheDocument();
@@ -143,6 +148,8 @@ CategoryHeaderSkeleton shows placeholder for category header:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test header skeleton is present
         await expect(canvasElement.firstChild).toBeInTheDocument();
     },
@@ -170,6 +177,8 @@ CategoryRefinementsSkeleton shows placeholder for filter sidebar:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test refinements skeleton is present
         await expect(canvasElement.firstChild).toBeInTheDocument();
     },

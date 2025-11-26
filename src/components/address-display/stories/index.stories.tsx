@@ -3,6 +3,7 @@ import AddressDisplay from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function AddressDisplayStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -115,6 +116,8 @@ Standard address display with all common fields.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for name
         const name = await canvas.findByText(/gurpreet saini/i, {}, { timeout: 5000 });

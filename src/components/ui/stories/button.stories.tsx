@@ -4,6 +4,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -214,6 +215,7 @@ export const Default: Story = {
         children: 'Button',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: /button/i });
 
@@ -231,6 +233,7 @@ export const Destructive: Story = {
         variant: 'destructive',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Delete' });
         await userEvent.hover(button);
@@ -244,6 +247,7 @@ export const Outline: Story = {
         variant: 'outline',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Outline Button' });
         await userEvent.click(button);
@@ -256,6 +260,7 @@ export const Secondary: Story = {
         variant: 'secondary',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Secondary' });
         await userEvent.click(button);
@@ -268,6 +273,7 @@ export const Ghost: Story = {
         variant: 'ghost',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Ghost Button' });
         await userEvent.hover(button);
@@ -281,6 +287,7 @@ export const Link: Story = {
         variant: 'link',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Link Button' });
         await userEvent.click(button);
@@ -293,6 +300,7 @@ export const Small: Story = {
         size: 'sm',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Small Button' });
         await userEvent.click(button);
@@ -305,6 +313,7 @@ export const Large: Story = {
         size: 'lg',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Large Button' });
         await userEvent.click(button);
@@ -318,6 +327,7 @@ export const IconButton: Story = {
         'aria-label': 'Favorite',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Favorite' });
         await userEvent.click(button);
@@ -329,7 +339,8 @@ export const Disabled: Story = {
         children: 'Disabled Button',
         disabled: true,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByRole('button', { name: 'Disabled Button' });
         void expect(button).toBeDisabled();
@@ -348,6 +359,7 @@ export const AsChildLink: Story = {
         variant: 'link',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const linkButton = canvas.getByRole('link', { name: 'Browse Products' });
         await userEvent.hover(linkButton);

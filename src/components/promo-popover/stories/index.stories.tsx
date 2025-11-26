@@ -3,6 +3,7 @@ import PromoPopover from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function PromoPopoverStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -93,6 +94,8 @@ Standard promo popover with content only.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for info button
         const infoButton = await canvas.findByRole('button', { name: /info/i }, { timeout: 5000 });
         await expect(infoButton).toBeInTheDocument();
@@ -119,6 +122,8 @@ Promo popover with header and content.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for info button
         const infoButton = await canvas.findByRole('button', { name: /info/i }, { timeout: 5000 });
@@ -148,6 +153,8 @@ Promo popover with custom formatted content.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for info button
         const infoButton = await canvas.findByRole('button', { name: /info/i }, { timeout: 5000 });

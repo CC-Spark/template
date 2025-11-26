@@ -3,6 +3,7 @@ import RefineSize from '../refine-size';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { FilterValue } from '../types';
 
 const REFINE_SIZE_HARNESS_ATTR = 'data-refine-size-harness';
@@ -184,6 +185,8 @@ The default RefineSize shows size buttons:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test size buttons are present
         const buttons = canvas.getAllByRole('button');
         await expect(buttons.length).toBeGreaterThan(0);
@@ -224,6 +227,8 @@ RefineSize with no selected sizes:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test size buttons are present
         const buttons = canvas.getAllByRole('button');

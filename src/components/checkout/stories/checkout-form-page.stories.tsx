@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from 'storybook/test';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { checkoutWithOneItem, checkoutWithMultipleItems } from '@/components/__mocks__/checkout-data';
 import emptyBasket from '@/components/__mocks__/empty-basket';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
@@ -865,6 +866,7 @@ First step of the checkout process showing the contact information form. This de
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -919,6 +921,7 @@ Second step showing the shipping address form. This demonstrates:
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -973,6 +976,7 @@ Third step showing shipping method selection. This demonstrates:
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1027,6 +1031,7 @@ Fourth step showing payment information form. This demonstrates:
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1081,6 +1086,7 @@ Final step showing order review and placement. This demonstrates:
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1135,6 +1141,7 @@ Checkout page when cart is empty. This demonstrates:
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         await step('Verify empty state is rendered correctly', () => {
             void expect(canvasElement.firstChild).toBeInTheDocument();
@@ -1175,6 +1182,7 @@ Checkout process with multiple items in cart. This demonstrates:
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1270,6 +1278,7 @@ Checkout form during order submission. This demonstrates:
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1427,6 +1436,7 @@ Shipping address step with no address on the shipment.
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1487,6 +1497,7 @@ Shipping options step with no available methods.
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1563,6 +1574,7 @@ Shipping options with store pickup selected.
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -1623,6 +1635,7 @@ Payment step with no saved payment instrument.
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {

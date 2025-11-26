@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { action } from 'storybook/actions';
@@ -285,14 +286,19 @@ This is the default state when a user has no items in their cart.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify empty cart state is shown
+        // Wait for and verify empty cart state is shown
         const emptyCartContainer = canvasElement.querySelector('[data-testid="sf-cart-empty"]');
         await expect(emptyCartContainer).toBeInTheDocument();
 
         // Verify continue shopping button exists (using text since Button asChild with Link may not expose role correctly)
-        const continueShoppingButton = canvas.getByText(uiStrings.cart.empty.continueShopping);
+        const continueShoppingButton = await canvas.findByText(
+            uiStrings.cart.empty.continueShopping,
+            {},
+            { timeout: 5000 }
+        );
         await expect(continueShoppingButton).toBeInTheDocument();
     },
 };
@@ -318,9 +324,10 @@ This demonstrates the basic cart functionality with one item.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify cart container is rendered
+        // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
 
@@ -329,7 +336,7 @@ This demonstrates the basic cart functionality with one item.
         await expect(emptyCart).not.toBeInTheDocument();
 
         // Verify cart title is present
-        const cartTitle = canvas.getByText(/cart/i);
+        const cartTitle = await canvas.findByText(/cart/i, {}, { timeout: 5000 });
         await expect(cartTitle).toBeInTheDocument();
     },
 };
@@ -356,14 +363,15 @@ This demonstrates the cart with multiple products.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify cart container is rendered
+        // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
 
         // Verify cart title shows item count
-        const cartTitle = canvas.getByText(/cart/i);
+        const cartTitle = await canvas.findByText(/cart/i, {}, { timeout: 5000 });
         await expect(cartTitle).toBeInTheDocument();
     },
 };
@@ -391,7 +399,9 @@ The component automatically adapts its layout for mobile screens.
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
-        // Verify cart container is rendered
+        await waitForStorybookReady(canvasElement);
+
+        // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
 
@@ -426,14 +436,15 @@ The component provides a two-column layout for desktop screens.
         viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify cart container is rendered
+        // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
 
         // Verify cart title is present
-        const cartTitle = canvas.getByText(/cart/i);
+        const cartTitle = await canvas.findByText(/cart/i, {}, { timeout: 5000 });
         await expect(cartTitle).toBeInTheDocument();
     },
 };
@@ -458,14 +469,15 @@ This story helps verify the component handles larger orders gracefully.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify cart container is rendered
+        // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
 
         // Verify cart title shows correct item count
-        const cartTitle = canvas.getByText(/cart/i);
+        const cartTitle = await canvas.findByText(/cart/i, {}, { timeout: 5000 });
         await expect(cartTitle).toBeInTheDocument();
     },
 };
@@ -500,7 +512,9 @@ This demonstrates how the component handles items with high quantities.
         },
     },
     play: async ({ canvasElement }) => {
-        // Verify cart container is rendered
+        await waitForStorybookReady(canvasElement);
+
+        // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
     },
@@ -526,7 +540,9 @@ This demonstrates the component's resilience to missing data.
         },
     },
     play: async ({ canvasElement }) => {
-        // Verify cart container is rendered even without product details
+        await waitForStorybookReady(canvasElement);
+
+        // Wait for and verify cart container is rendered even without product details
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
     },
@@ -563,14 +579,15 @@ This verifies the component handles long product names gracefully.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify cart container is rendered
+        // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
 
         // Verify long product name is displayed
-        const longName = canvas.getByText(/very long product name/i);
+        const longName = await canvas.findByText(/very long product name/i, {}, { timeout: 5000 });
         await expect(longName).toBeInTheDocument();
     },
 };

@@ -3,6 +3,7 @@ import { ContentCard } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function ContentCardStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -100,6 +101,8 @@ Standard content card with all features enabled.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for title
         const title = await canvas.findByText(/featured product/i, {}, { timeout: 5000 });
         await expect(title).toBeInTheDocument();
@@ -138,6 +141,8 @@ Content card without an image.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for title
         const title = await canvas.findByText(/text only card/i, {}, { timeout: 5000 });
         await expect(title).toBeInTheDocument();
@@ -162,6 +167,8 @@ Minimal content card with only title and description.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for title
         const title = await canvas.findByText(/minimal card/i, {}, { timeout: 5000 });
@@ -194,6 +201,8 @@ Content card with transparent background and no border.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for title
         const title = await canvas.findByText(/transparent card/i, {}, { timeout: 5000 });

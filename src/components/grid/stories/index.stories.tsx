@@ -3,6 +3,7 @@ import { Grid } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function GridStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +73,8 @@ Standard 3-column grid layout.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for grid items
         const item1 = await canvas.findByText(/item 1/i, {}, { timeout: 5000 });
         await expect(item1).toBeInTheDocument();
@@ -98,6 +101,8 @@ Two-column grid layout.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for grid items
         const item1 = await canvas.findByText(/item 1/i, {}, { timeout: 5000 });
@@ -128,6 +133,8 @@ Grid with dense flow for better space utilization.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for grid items
         const item1 = await canvas.findByText(/item 1/i, {}, { timeout: 5000 });
         await expect(item1).toBeInTheDocument();
@@ -154,6 +161,8 @@ Inline grid display mode.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for grid items
         const itemA = await canvas.findByText(/^a$/i, {}, { timeout: 5000 });

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within, userEvent } from 'storybook/test';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import ProductGrid from '../index';
 import {
@@ -178,6 +179,7 @@ Standard grid with a variety of product hit types (standard, master, set).
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const productLinks = canvas.queryAllByRole('link', { name: /product/i });
         if (productLinks.length > 0) {
@@ -202,6 +204,7 @@ export const SingleProduct: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const wishlistButtons = canvas.queryAllByRole('button', { name: /wishlist/i });
         if (wishlistButtons.length > 0) {
@@ -227,7 +230,8 @@ export const EmptyState: Story = {
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const emptyMessage = canvasElement.querySelector('p');
         void expect(emptyMessage).toHaveTextContent(/no products/i);
     },
@@ -253,6 +257,7 @@ export const ManyProducts: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const productLinks = canvas.getAllByRole('link', { name: /product/i });
         if (productLinks.length > 1) {
@@ -276,6 +281,7 @@ export const MobileView: Story = {
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const productLinks = canvas.queryAllByRole('link', { name: /product/i });
         if (productLinks.length > 0) {
@@ -302,6 +308,7 @@ export const DesktopView: Story = {
         viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const moreOptionsButton = canvas.getAllByRole('button', { name: /more options/i })[0];
         if (moreOptionsButton) {

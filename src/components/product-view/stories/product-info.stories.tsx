@@ -10,6 +10,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import ProductViewProvider from '@/providers/product-view';
@@ -346,6 +347,7 @@ export const WithVariations: Story = {
         product: createMockProduct(),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -383,6 +385,7 @@ export const PreOrderStatus: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const badge = canvas.getByText(/pre-order/i);
         await expect(badge).toBeInTheDocument();
@@ -402,6 +405,7 @@ export const BackOrderStatus: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const badge = canvas.getByText(/back order/i);
         await expect(badge).toBeInTheDocument();
@@ -421,6 +425,7 @@ export const OutOfStockStatus: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         // Multiple elements may have "out of stock" text, use getAllByText
         const badges = canvas.getAllByText(/out of stock/i);
@@ -453,6 +458,7 @@ export const WithDisabledVariants: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         // Disabled variants may be rendered as links or buttons, check if element exists
         const greenSwatch =
@@ -481,6 +487,7 @@ export const ControlledSwatchMode: Story = {
         onAttributeChange: action('product-info-variation-change'),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const selectedSwatch = canvas.getByRole('radio', { name: /blue/i });
         await expect(selectedSwatch).toHaveAttribute('aria-checked', 'true');
@@ -492,6 +499,7 @@ export const NoVariations: Story = {
         product: createMockProduct({ variationAttributes: [] }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const radios = canvasElement.querySelectorAll('[role="radio"]');
         // Product without variations should not have radio buttons for variant selection
         // However, there might be other radio buttons in the component (e.g., quantity)

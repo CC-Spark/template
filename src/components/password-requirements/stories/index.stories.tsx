@@ -3,6 +3,7 @@ import { PasswordRequirement } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, useState, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -100,6 +101,8 @@ Password requirements component with input field.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for requirements title
         const title = await canvas.findByText(/requirements/i, {}, { timeout: 5000 });
         await expect(title).toBeInTheDocument();
@@ -121,6 +124,8 @@ Password requirements with a valid password that meets all requirements.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for requirements - when password is valid, all should be check-icons (5 total)
         const checkIcons = await canvas.findAllByTestId('check-icon', {}, { timeout: 5000 });
@@ -147,6 +152,8 @@ Password requirements with a partially valid password.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for requirements - use specific test IDs
         const checkIcons = await canvas.findAllByTestId('check-icon', {}, { timeout: 5000 });

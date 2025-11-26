@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { PromoCodeForm, type PromoCodeFormProps } from '../index';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import uiStrings from '@/temp-ui-string';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -266,19 +267,21 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that accordion trigger is present
-        const accordionTrigger = canvas.getByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded
         await userEvent.click(accordionTrigger);
 
         // After expansion, test that input field appears
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
     },
 };
@@ -297,19 +300,21 @@ export const WithoutBasketId: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that accordion trigger is present
-        const accordionTrigger = canvas.getByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded
         await userEvent.click(accordionTrigger);
 
         // After expansion, test that input field appears
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
 
         // Test typing in input (should work even without basket ID)
@@ -332,19 +337,21 @@ export const WithCustomBasketId: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that accordion trigger is present
-        const accordionTrigger = canvas.getByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded
         await userEvent.click(accordionTrigger);
 
         // After expansion, test that input field appears
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
 
         // Test form interaction
@@ -367,19 +374,21 @@ export const Expanded: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that accordion trigger is present
-        const accordionTrigger = canvas.getByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion starts expanded (or can be expanded)
         await userEvent.click(accordionTrigger);
 
         // Test that input field is visible in expanded state
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is visible in expanded state
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
 
         // Test form interaction in expanded state
@@ -405,19 +414,21 @@ export const MobileView: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that accordion trigger is present on mobile
-        const accordionTrigger = canvas.getByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded on mobile
         await userEvent.click(accordionTrigger);
 
         // Test that input field appears on mobile
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present and accessible on mobile
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
 
         // Test mobile interaction
@@ -443,19 +454,21 @@ export const TabletView: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that accordion trigger is present on tablet
-        const accordionTrigger = canvas.getByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded on tablet
         await userEvent.click(accordionTrigger);
 
         // Test that input field appears on tablet
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present and accessible on tablet
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
 
         // Test tablet interaction
@@ -481,19 +494,21 @@ export const DesktopView: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that accordion trigger is present on desktop
-        const accordionTrigger = canvas.getByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded on desktop
         await userEvent.click(accordionTrigger);
 
         // Test that input field appears on desktop
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present and accessible on desktop
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
 
         // Test desktop interaction with keyboard

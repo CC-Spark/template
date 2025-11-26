@@ -3,6 +3,7 @@ import HeroCarousel from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function HeroCarouselStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -128,6 +129,8 @@ Standard hero carousel with 3 example slides and auto-play enabled.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Wait for carousel to initialize and render
         await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -183,6 +186,8 @@ Hero carousel with auto-play disabled.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for first slide - use findAllByText since text may appear multiple times
         const titles = await canvas.findAllByText(/welcome to our store/i, {}, { timeout: 5000 });
         await expect(titles.length).toBeGreaterThan(0);
@@ -208,6 +213,8 @@ Hero carousel without navigation buttons.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for first slide - use findAllByText since text may appear multiple times
         const titles = await canvas.findAllByText(/welcome to our store/i, {}, { timeout: 5000 });
         await expect(titles.length).toBeGreaterThan(0);
@@ -232,6 +239,8 @@ Hero carousel without dot indicators.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for first slide - use findAllByText since text may appear multiple times
         const titles = await canvas.findAllByText(/welcome to our store/i, {}, { timeout: 5000 });

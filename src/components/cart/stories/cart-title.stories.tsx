@@ -3,6 +3,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import CartTitle from '../cart-title';
 import emptyBasket from '@/components/__mocks__/empty-basket';
 import { basketWithOneItem } from '@/components/__mocks__/basket-with-dress';
@@ -205,13 +206,15 @@ This component is typically used at the top of cart pages to provide users with 
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify cart title with zero quantity items displays correctly
-        const cartTitle = canvas.getByText('Cart (0 items)');
-        void expect(cartTitle).toBeInTheDocument();
-        void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
+        const cartTitle = await canvas.findByText('Cart (0 items)');
+        await expect(cartTitle).toBeInTheDocument();
+        await expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
     decorators: [
         (Story: React.ComponentType) => (
@@ -243,12 +246,14 @@ Empty cart state showing zero items. This demonstrates:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify empty cart title displays correctly
-        const cartTitle = canvas.getByText('Cart (0 items)');
-        void expect(cartTitle).toBeInTheDocument();
+        const cartTitle = await canvas.findByText('Cart (0 items)');
+        await expect(cartTitle).toBeInTheDocument();
         void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
@@ -271,12 +276,14 @@ Cart with a single item. This shows:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify single item cart title displays correctly
-        const cartTitle = canvas.getByText('Cart (1 item)');
-        void expect(cartTitle).toBeInTheDocument();
+        const cartTitle = await canvas.findByText('Cart (1 item)');
+        await expect(cartTitle).toBeInTheDocument();
         void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
@@ -301,12 +308,14 @@ The basket contains multiple products with different quantities, and the compone
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify multiple items cart title displays correctly
-        const cartTitle = canvas.getByText(/Cart \(\d+ items\)/);
-        void expect(cartTitle).toBeInTheDocument();
+        const cartTitle = await canvas.findByText(/Cart \(\d+ items\)/);
+        await expect(cartTitle).toBeInTheDocument();
         void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
         void expect(cartTitle.textContent).toMatch(/Cart \(\d+ items\)/);
     },
@@ -333,13 +342,15 @@ Cart title on mobile devices. This shows:
     globals: {
         viewport: 'mobile2',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify mobile cart title displays correctly
-        const cartTitle = canvas.getByText('Cart (1 item)');
-        void expect(cartTitle).toBeInTheDocument();
-        void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
+        const cartTitle = await canvas.findByText('Cart (1 item)');
+        await expect(cartTitle).toBeInTheDocument();
+        await expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
 
@@ -364,13 +375,15 @@ Cart title on tablet devices. This demonstrates:
     globals: {
         viewport: 'tablet',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify tablet cart title displays correctly
-        const cartTitle = canvas.getByText(/Cart \(\d+ items\)/);
-        void expect(cartTitle).toBeInTheDocument();
-        void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
+        const cartTitle = await canvas.findByText(/Cart \(\d+ items\)/);
+        await expect(cartTitle).toBeInTheDocument();
+        await expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
 
@@ -395,13 +408,15 @@ Cart title on desktop devices. This shows:
     globals: {
         viewport: 'desktop',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify desktop cart title displays correctly
-        const cartTitle = canvas.getByText(/Cart \(\d+ items\)/);
-        void expect(cartTitle).toBeInTheDocument();
-        void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
+        const cartTitle = await canvas.findByText(/Cart \(\d+ items\)/);
+        await expect(cartTitle).toBeInTheDocument();
+        await expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
 
@@ -436,12 +451,14 @@ Cart with items that have zero quantities. This demonstrates:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify cart title with zero quantity items displays correctly
-        const cartTitle = canvas.getByText('Cart (2 items)');
-        void expect(cartTitle).toBeInTheDocument();
+        const cartTitle = await canvas.findByText('Cart (2 items)');
+        await expect(cartTitle).toBeInTheDocument();
         void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
@@ -477,12 +494,14 @@ Cart with items that have undefined quantities. This shows:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify cart title with undefined quantities displays correctly
-        const cartTitle = canvas.getByText('Cart (3 items)');
-        void expect(cartTitle).toBeInTheDocument();
+        const cartTitle = await canvas.findByText('Cart (3 items)');
+        await expect(cartTitle).toBeInTheDocument();
         void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
@@ -508,13 +527,15 @@ Cart with missing productItems array. This demonstrates:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify cart title with zero quantity items displays correctly
-        const cartTitle = canvas.getByText('Cart (0 items)');
-        void expect(cartTitle).toBeInTheDocument();
-        void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
+        const cartTitle = await canvas.findByText('Cart (0 items)');
+        await expect(cartTitle).toBeInTheDocument();
+        await expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };
 
@@ -544,12 +565,14 @@ Cart with a large item count. This shows:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Verify cart title with large item count displays correctly
-        const cartTitle = canvas.getByText('Cart (99 items)');
-        void expect(cartTitle).toBeInTheDocument();
+        const cartTitle = await canvas.findByText('Cart (99 items)');
+        await expect(cartTitle).toBeInTheDocument();
         void expect(cartTitle.tagName.toLowerCase()).toBe('h1');
     },
 };

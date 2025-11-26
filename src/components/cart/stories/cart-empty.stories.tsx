@@ -3,6 +3,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 import EmptyCart from '../cart-empty';
 import uiStrings from '@/temp-ui-string';
@@ -161,6 +162,8 @@ The EmptyCart component displays when the shopping cart has no items. It provide
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
 
@@ -208,6 +211,8 @@ This is the most common empty cart state for new or anonymous users.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
 
@@ -245,6 +250,8 @@ Use this state when you want to encourage guest users to create an account.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
 
@@ -281,6 +288,8 @@ This state is shown when a logged-in user has an empty cart.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
@@ -322,6 +331,8 @@ The component automatically adapts its layout for mobile screens.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
 
@@ -362,6 +373,8 @@ The component provides an optimal experience on tablet-sized screens.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
 
@@ -401,6 +414,8 @@ The component provides a clean, centered layout for desktop users.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');

@@ -5,6 +5,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { inBasketProductDetails } from '@/components/__mocks__/basket-with-dress';
 
 const EDIT_BUTTON_HARNESS_ATTR = 'data-edit-button-harness';
@@ -201,8 +202,10 @@ The default CartItemEditButton shows a standard edit button:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test edit button is present
-        const editButton = canvas.getByRole('button', { name: /edit/i });
+        const editButton = await canvas.findByRole('button', { name: /edit/i });
         await expect(editButton).toBeInTheDocument();
         await expect(editButton).not.toBeDisabled();
 
@@ -241,8 +244,10 @@ CartItemEditButton with custom styling:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test edit button is present with custom styling
-        const editButton = canvas.getByRole('button', { name: /edit/i });
+        const editButton = await canvas.findByRole('button', { name: /edit/i });
         await expect(editButton).toBeInTheDocument();
         await expect(editButton).not.toBeDisabled();
     },
@@ -279,8 +284,10 @@ CartItemEditButton for items with high quantity:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test edit button is present
-        const editButton = canvas.getByRole('button', { name: /edit/i });
+        const editButton = await canvas.findByRole('button', { name: /edit/i });
         await expect(editButton).toBeInTheDocument();
         await expect(editButton).not.toBeDisabled();
     },
@@ -321,8 +328,10 @@ CartItemEditButton for items with product variants:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test edit button is present
-        const editButton = canvas.getByRole('button', { name: /edit/i });
+        const editButton = await canvas.findByRole('button', { name: /edit/i });
         await expect(editButton).toBeInTheDocument();
         await expect(editButton).not.toBeDisabled();
     },
@@ -374,12 +383,14 @@ CartItemEditButton integrated into a cart item display:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test edit button is present in cart item
-        const editButton = canvas.getByRole('button', { name: /edit/i });
+        const editButton = await canvas.findByRole('button', { name: /edit/i });
         await expect(editButton).toBeInTheDocument();
 
         // Test remove button is also present
-        const removeButton = canvas.getByRole('button', { name: /remove/i });
+        const removeButton = await canvas.findByRole('button', { name: /remove/i });
         await expect(removeButton).toBeInTheDocument();
     },
 };

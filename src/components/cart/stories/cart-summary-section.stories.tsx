@@ -3,6 +3,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import OrderSummary from '@/components/order-summary';
 import emptyBasket from '@/components/__mocks__/empty-basket';
 import {
@@ -372,6 +373,8 @@ This component is used by CartContent and integrates with:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
@@ -435,6 +438,8 @@ Desktop layout for an empty cart. This shows:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
@@ -477,6 +482,8 @@ Desktop layout with items in the cart. This demonstrates:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
@@ -521,6 +528,8 @@ Desktop layout with multiple items in the cart. This shows:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
@@ -573,6 +582,8 @@ Mobile layout for an empty cart. This shows:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
@@ -627,6 +638,8 @@ Mobile layout with items in the cart. This demonstrates:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
@@ -680,6 +693,8 @@ Mobile layout with multiple items in the cart. This shows:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
@@ -723,6 +738,8 @@ Tablet view showing desktop layout on medium screens. This demonstrates:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');
         const inputs = canvas.queryAllByRole('textbox');
@@ -762,6 +779,8 @@ Desktop layout without product map. This shows:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test component interaction
         const buttons = canvas.queryAllByRole('button');

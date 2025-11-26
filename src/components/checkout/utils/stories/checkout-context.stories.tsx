@@ -3,6 +3,7 @@ import CheckoutProvider from '../checkout-context';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, useContext, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { CheckoutContext, type CustomerProfile } from '../checkout-context-types';
 import { Button } from '@/components/ui/button';
 
@@ -177,6 +178,7 @@ Default checkout context provider with no customer profile (guest user).
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for context display
@@ -223,6 +225,7 @@ Checkout context provider with a returning customer profile.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for context display
@@ -255,6 +258,7 @@ Checkout context with navigation interactions.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for navigation buttons

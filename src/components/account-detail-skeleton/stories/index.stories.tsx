@@ -9,6 +9,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { expect } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { AccountDetailSkeleton } from '../index';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -99,6 +100,8 @@ export const Default: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Verify main container exists
         const container = canvasElement.querySelector('.space-y-6');
         await expect(container).toBeInTheDocument();
@@ -126,6 +129,8 @@ export const LoadingState: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Verify component renders
         await expect(canvasElement.firstChild).toBeInTheDocument();
 

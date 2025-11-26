@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { Form } from '@/components/ui/form';
 import {
     PasswordUpdateFields,
@@ -215,20 +216,37 @@ export const Default: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify form fields are present
-        const currentPasswordInput = canvas.getByPlaceholderText(uiStrings.account.password.currentPasswordPlaceholder);
+        const currentPasswordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.currentPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await expect(currentPasswordInput).toBeInTheDocument();
 
-        const passwordInput = canvas.getByPlaceholderText(uiStrings.account.password.newPasswordPlaceholder);
+        const passwordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.newPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await expect(passwordInput).toBeInTheDocument();
 
-        const confirmPasswordInput = canvas.getByPlaceholderText(uiStrings.account.password.confirmPasswordPlaceholder);
+        const confirmPasswordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.confirmPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await expect(confirmPasswordInput).toBeInTheDocument();
 
         // Verify submit button
-        const submitButton = canvas.getByRole('button', { name: uiStrings.account.password.saveButton });
+        const submitButton = await canvas.findByRole(
+            'button',
+            { name: uiStrings.account.password.saveButton },
+            { timeout: 5000 }
+        );
         await expect(submitButton).toBeInTheDocument();
     },
 };
@@ -262,6 +280,7 @@ export const WithInitialValues: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify form fields are populated
@@ -269,12 +288,20 @@ export const WithInitialValues: Story = {
         await expect(currentPasswordInput).toBeInTheDocument();
 
         // Use placeholder to get password field (since password and confirmPassword have same value)
-        const passwordInput = canvas.getByPlaceholderText(uiStrings.account.password.newPasswordPlaceholder);
+        const passwordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.newPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await expect(passwordInput).toBeInTheDocument();
         await expect(passwordInput).toHaveValue('NewPassword123!');
 
         // Verify confirm password field
-        const confirmPasswordInput = canvas.getByPlaceholderText(uiStrings.account.password.confirmPasswordPlaceholder);
+        const confirmPasswordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.confirmPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await expect(confirmPasswordInput).toBeInTheDocument();
         await expect(confirmPasswordInput).toHaveValue('NewPassword123!');
     },
@@ -312,10 +339,15 @@ export const WithCancelButton: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify cancel button is present
-        const cancelButton = canvas.getByRole('button', { name: uiStrings.account.password.cancelButton });
+        const cancelButton = await canvas.findByRole(
+            'button',
+            { name: uiStrings.account.password.cancelButton },
+            { timeout: 5000 }
+        );
         await expect(cancelButton).toBeInTheDocument();
     },
 };
@@ -349,10 +381,11 @@ export const Submitting: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify submit button is disabled during submission
-        const submitButton = canvas.getByRole('button', { name: 'Saving...' });
+        const submitButton = await canvas.findByRole('button', { name: 'Saving...' }, { timeout: 5000 });
         await expect(submitButton).toBeInTheDocument();
         await expect(submitButton).toBeDisabled();
     },
@@ -387,6 +420,7 @@ export const Interactive: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Interact with form fields - use findByPlaceholderText to wait for elements

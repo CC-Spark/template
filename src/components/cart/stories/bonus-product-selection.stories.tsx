@@ -3,6 +3,7 @@ import BonusProductSelection from '../bonus-product-selection';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const BONUS_HARNESS_ATTR = 'data-bonus-product-harness';
 
@@ -171,8 +172,10 @@ The default BonusProductSelection shows all available bonus products:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test accordion is present
-        const accordion = canvas.getByRole('button');
+        const accordion = await canvas.findByRole('button');
         await expect(accordion).toBeInTheDocument();
 
         // Test accordion can be toggled
@@ -208,8 +211,10 @@ BonusProductSelection with accordion expanded:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Expand accordion
-        const accordion = canvas.getByRole('button');
+        const accordion = await canvas.findByRole('button');
         await userEvent.click(accordion);
 
         // Test select buttons are present
@@ -247,8 +252,10 @@ BonusProductSelection demonstrating carousel navigation:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Expand accordion
-        const accordion = canvas.getByRole('button');
+        const accordion = await canvas.findByRole('button');
         await userEvent.click(accordion);
 
         // Test carousel navigation buttons

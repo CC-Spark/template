@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { useForm } from 'react-hook-form';
@@ -265,12 +266,14 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
         await expect(button).not.toBeDisabled();
 
@@ -291,12 +294,14 @@ export const WithInitialValue: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present with initial value
-        const input = canvas.getByDisplayValue('SAVE10');
+        const input = await canvas.findByDisplayValue('SAVE10');
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
         await expect(button).not.toBeDisabled();
 
@@ -319,12 +324,14 @@ export const LoadingState: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present but disabled in loading state
-        const button = canvas.getByRole('button', { name: /apply|submit|loading/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit|loading/i });
         await expect(button).toBeInTheDocument();
         await expect(button).toBeDisabled(); // Should be disabled when loading
 
@@ -345,12 +352,14 @@ export const WithValidationError: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present with invalid value
-        const input = canvas.getByDisplayValue('A');
+        const input = await canvas.findByDisplayValue('A');
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present but may be disabled due to validation
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
 
         // Test that we can type a valid code to clear the error
@@ -372,12 +381,14 @@ export const WithLongPromoCode: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present with long promo code
-        const input = canvas.getByDisplayValue('SUMMER2024SAVE20PERCENT');
+        const input = await canvas.findByDisplayValue('SUMMER2024SAVE20PERCENT');
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
         await expect(button).not.toBeDisabled();
 
@@ -403,12 +414,14 @@ export const MobileView: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present on mobile
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present and accessible on mobile
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
         await expect(button).not.toBeDisabled();
 
@@ -433,12 +446,14 @@ export const TabletView: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present on tablet
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present and accessible on tablet
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
         await expect(button).not.toBeDisabled();
 
@@ -463,12 +478,14 @@ export const DesktopView: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test that input field is present on desktop
-        const input = canvas.getByPlaceholderText(/promo code|discount code|enter code/i);
+        const input = await canvas.findByPlaceholderText(/promo code|discount code|enter code/i);
         await expect(input).toBeInTheDocument();
 
         // Test that apply button is present and accessible on desktop
-        const button = canvas.getByRole('button', { name: /apply|submit/i });
+        const button = await canvas.findByRole('button', { name: /apply|submit/i });
         await expect(button).toBeInTheDocument();
         await expect(button).not.toBeDisabled();
 

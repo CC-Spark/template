@@ -9,6 +9,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { expect } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { AccountSkeleton } from '../index';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -100,6 +101,8 @@ export const Default: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Verify skeleton elements are present
         const skeletons = canvasElement.querySelectorAll('[class*="animate-pulse"]');
         await expect(skeletons.length).toBeGreaterThan(0);
@@ -119,6 +122,8 @@ export const LoadingState: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Verify multiple skeleton elements exist
         const skeletons = canvasElement.querySelectorAll('[class*="animate-pulse"]');
         await expect(skeletons.length).toBeGreaterThan(5);

@@ -11,6 +11,7 @@ import { PasswordUpdateForm, type PasswordUpdateFetcherData, type PasswordUpdate
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import uiStrings from '@/temp-ui-string';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -245,13 +246,22 @@ export const WithInitialData: Story = {
         updateFetcher: createMockFetcher<PasswordUpdateFetcherData>('idle'),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify form fields are populated
-        const currentPasswordInput = canvas.getByPlaceholderText(uiStrings.account.password.currentPasswordPlaceholder);
+        const currentPasswordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.currentPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await expect(currentPasswordInput).toBeInTheDocument();
 
-        const passwordInput = canvas.getByPlaceholderText(uiStrings.account.password.newPasswordPlaceholder);
+        const passwordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.newPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await expect(passwordInput).toBeInTheDocument();
     },
 };
@@ -293,18 +303,31 @@ export const Interactive: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Find and interact with form fields
-        const currentPasswordInput = canvas.getByPlaceholderText(uiStrings.account.password.currentPasswordPlaceholder);
+        const currentPasswordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.currentPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await userEvent.type(currentPasswordInput, 'OldPassword123');
         await expect(currentPasswordInput).toHaveValue('OldPassword123');
 
-        const passwordInput = canvas.getByPlaceholderText(uiStrings.account.password.newPasswordPlaceholder);
+        const passwordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.newPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await userEvent.type(passwordInput, 'NewPassword123!');
         await expect(passwordInput).toHaveValue('NewPassword123!');
 
-        const confirmPasswordInput = canvas.getByPlaceholderText(uiStrings.account.password.confirmPasswordPlaceholder);
+        const confirmPasswordInput = await canvas.findByPlaceholderText(
+            uiStrings.account.password.confirmPasswordPlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await userEvent.type(confirmPasswordInput, 'NewPassword123!');
         await expect(confirmPasswordInput).toHaveValue('NewPassword123!');
     },

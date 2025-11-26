@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import ImageGallery from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
-import { expect, within } from 'storybook/test';
+import { expect, within, waitFor } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 
 function ImageGalleryStoryHarness({ children }: { children: ReactNode }): ReactElement {
@@ -106,6 +107,8 @@ Standard image gallery with multiple images and thumbnails.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Wait for canvas to be ready
         await expect(canvasElement).toBeInTheDocument();
 
@@ -145,6 +148,8 @@ Image gallery with a single image (no thumbnails).
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Wait for canvas to be ready
         await expect(canvasElement).toBeInTheDocument();
 
@@ -181,6 +186,8 @@ Image gallery with eager loading for above-the-fold content.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Wait for canvas to be ready
         await expect(canvasElement).toBeInTheDocument();
 
@@ -217,10 +224,22 @@ Image gallery with no images (empty state).
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
+        // Wait for canvas to be ready
+        await expect(canvasElement).toBeInTheDocument();
+
         // Check for empty state - wait for it to appear
         // The empty state shows an emoji and text, so we check for any text content
-        await expect(canvasElement).toBeInTheDocument();
-        const hasContent = canvasElement.textContent && canvasElement.textContent.length > 0;
-        await expect(hasContent).toBe(true);
+        await waitFor(
+            () => {
+                const hasContent = canvasElement.textContent && canvasElement.textContent.length > 0;
+                if (!hasContent) {
+                    throw new Error('Empty state content not found');
+                }
+                return hasContent;
+            },
+            { timeout: 5000 }
+        );
     },
 };

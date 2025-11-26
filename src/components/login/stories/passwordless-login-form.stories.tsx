@@ -3,6 +3,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import PasswordlessLoginForm from '../passwordless-login-form';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -419,6 +420,7 @@ This is the most common state users will see when accessing the login page.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form renders with required elements
@@ -471,6 +473,7 @@ Common error scenarios include:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test error message is displayed
@@ -519,6 +522,7 @@ This configuration is useful when:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form elements exist

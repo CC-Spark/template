@@ -3,6 +3,7 @@ import withSuspense from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function WithSuspenseStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -86,6 +87,8 @@ Component wrapped with Suspense using default fallback.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for loaded content
         const content = await canvas.findByText(/default component/i, {}, { timeout: 5000 });
         await expect(content).toBeInTheDocument();
@@ -112,6 +115,8 @@ Component wrapped with Suspense using custom fallback.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for loaded content
         const content = await canvas.findByText(/custom fallback/i, {}, { timeout: 5000 });

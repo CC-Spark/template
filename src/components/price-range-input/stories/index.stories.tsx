@@ -3,6 +3,7 @@ import PriceRangeInput from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, useState, type ReactNode, type ReactElement } from 'react';
 import { expect } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function PriceRangeInputStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -118,6 +119,8 @@ Standard price range input with empty values.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Check for inputs
         const inputs = canvasElement.querySelectorAll('input[type="number"]');
         await expect(inputs.length).toBeGreaterThanOrEqual(2);
@@ -165,6 +168,8 @@ Price range input with min and max allowed values.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Check for inputs
         const inputs = canvasElement.querySelectorAll('input[type="number"]');
         await expect(inputs.length).toBeGreaterThanOrEqual(2);

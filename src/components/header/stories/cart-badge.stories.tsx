@@ -3,6 +3,7 @@ import CartBadge from '../cart-badge';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import BasketProvider from '@/providers/basket';
 import emptyBasket from '@/components/__mocks__/empty-basket';
 import { basketWithOneItem } from '@/components/__mocks__/basket-with-dress';
@@ -89,6 +90,7 @@ Cart badge with empty cart.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for cart button
@@ -125,6 +127,7 @@ Cart badge with items in cart.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for cart button
@@ -160,6 +163,7 @@ Interactive cart badge for testing user interactions.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Find and click cart button

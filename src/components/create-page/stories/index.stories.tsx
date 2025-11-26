@@ -3,6 +3,7 @@ import { createPage } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function CreatePageStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -92,6 +93,8 @@ Basic page created with createPage HOC.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for title - use findByRole for h1 to avoid multiple matches
         const title = await canvas.findByRole('heading', { name: /example page/i }, { timeout: 5000 });
         await expect(title).toBeInTheDocument();
@@ -118,6 +121,8 @@ Page created with createPage using a custom page key function.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for title
         const title = await canvas.findByText(/page with key/i, {}, { timeout: 5000 });
@@ -150,6 +155,8 @@ Page created with createPage using a custom fallback component.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for title - use findByRole for h1 to avoid multiple matches
         const title = await canvas.findByRole('heading', { name: /custom fallback/i }, { timeout: 5000 });

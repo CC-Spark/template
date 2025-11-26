@@ -3,6 +3,7 @@ import { PopularCategories } from '../popular-categories';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { ShopperProductsTypes } from 'commerce-sdk-isomorphic';
 // @ts-expect-error Mock data file is JavaScript
 import { mockCategory } from '@/components/__mocks__/mock-data';
@@ -133,6 +134,7 @@ export const Default: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Wait for categories to load (Suspense/Await)
@@ -158,6 +160,7 @@ export const Loading: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Check for skeleton elements
         const skeletons = canvasElement.querySelectorAll('[class*="animate-pulse"], [class*="skeleton"]');
         await expect(skeletons.length).toBeGreaterThan(0);

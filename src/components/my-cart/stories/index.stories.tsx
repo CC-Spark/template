@@ -3,6 +3,7 @@ import MyCart from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { checkoutWithMultipleItems, checkoutWithOneItem } from '@/components/__mocks__/checkout-data';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 
@@ -91,6 +92,8 @@ My cart with multiple items, collapsed by default.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for cart title with item count
         const cartTitle = await canvas.findByText(/my cart/i, {}, { timeout: 5000 });
         await expect(cartTitle).toBeInTheDocument();
@@ -113,6 +116,8 @@ My cart with items expanded by default.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for cart title
         const cartTitle = await canvas.findByText(/my cart/i, {}, { timeout: 5000 });
         await expect(cartTitle).toBeInTheDocument();
@@ -134,6 +139,8 @@ My cart with a single item.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for cart title
         const cartTitle = await canvas.findByText(/my cart/i, {}, { timeout: 5000 });

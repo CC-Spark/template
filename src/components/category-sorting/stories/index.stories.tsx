@@ -4,6 +4,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 // @ts-expect-error Mock data file is JavaScript
 import searchResults from '@/components/__mocks__/search-results';
 import type { ShopperSearchTypes } from 'commerce-sdk-isomorphic';
@@ -174,6 +175,8 @@ The default CategorySorting shows the sort dropdown:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test sort label is present
         const label = canvas.getByText(/sort by/i);
         await expect(label).toBeInTheDocument();
@@ -211,6 +214,8 @@ CategorySorting when no sorting options are available:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test sorting is not rendered (component returns null)
         const select = canvasElement.querySelector('select');
         await expect(select).not.toBeInTheDocument();
@@ -245,6 +250,8 @@ CategorySorting with a pre-selected sort option:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test select is present
         const select = canvas.getByRole('combobox');

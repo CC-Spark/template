@@ -3,6 +3,7 @@ import Hero from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function HeroStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -94,6 +95,8 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for title
         const title = await canvas.findByText(/welcome to our store/i, {}, { timeout: 5000 });
         await expect(title).toBeInTheDocument();
@@ -123,6 +126,8 @@ export const WithoutSubtitle: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for title
         const title = await canvas.findByText(/simple hero/i, {}, { timeout: 5000 });

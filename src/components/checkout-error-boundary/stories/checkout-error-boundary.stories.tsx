@@ -3,6 +3,7 @@ import { CheckoutErrorBoundary, CheckoutComponentError } from '../checkout-error
 import { action } from 'storybook/actions';
 import React, { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const ERROR_BOUNDARY_HARNESS_ATTR = 'data-error-boundary-harness';
 
@@ -117,6 +118,7 @@ Default error boundary display when an error occurs in the checkout flow.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Wait for error boundary to render - look for buttons which should be present
@@ -193,6 +195,7 @@ Error boundary with a custom fallback UI component.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for custom fallback
@@ -227,6 +230,7 @@ Error boundary when no error has occurred - children render normally.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check that children render normally
@@ -257,6 +261,7 @@ Lightweight error component for individual checkout components.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for component error alert
@@ -290,6 +295,7 @@ Component error without retry functionality.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for component error alert

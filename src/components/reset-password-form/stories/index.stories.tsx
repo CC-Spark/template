@@ -3,6 +3,7 @@ import { ResetPasswordForm } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import uiStrings from '@/temp-ui-string';
 
 function ResetPasswordFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
@@ -111,6 +112,7 @@ Default reset password form with token and email.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for email display using specific id to avoid matching hidden input
@@ -157,6 +159,7 @@ Reset password form with error message.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for error message
@@ -192,6 +195,7 @@ Interactive reset password form for testing user interactions.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Find and interact with new password input

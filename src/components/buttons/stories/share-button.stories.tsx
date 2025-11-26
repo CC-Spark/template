@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'r
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 
 const SHARE_HARNESS_ATTR = 'data-share-harness';
@@ -231,6 +232,7 @@ The default ShareButton shows all available share options:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test share button is present
@@ -280,6 +282,7 @@ This story shows the ShareButton with a custom product:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test share button is present
@@ -325,6 +328,7 @@ This story shows the ShareButton with only Twitter and Email providers:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test share button is present
@@ -370,6 +374,7 @@ This story shows the ShareButton with only Email provider:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test share button is present
@@ -415,6 +420,7 @@ This story shows the ShareButton when no providers are configured:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test share button is present
@@ -461,6 +467,7 @@ This story shows the ShareButton with custom styling:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test share button is present with custom styling
@@ -514,6 +521,7 @@ This story shows the ShareButton integrated into a product card:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test share button is present in product card

@@ -4,6 +4,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 // @ts-expect-error Mock data file is JavaScript
 import searchResults from '@/components/__mocks__/search-results';
 import type { FilterValue } from '../types';
@@ -221,6 +222,8 @@ The default RefinePrice shows price range inputs and predefined ranges:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test price inputs are present
         const inputs = canvas.getAllByRole('spinbutton');
         await expect(inputs.length).toBeGreaterThanOrEqual(2);
@@ -291,6 +294,8 @@ RefinePrice with price filter in URL:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test price inputs are present
         const inputs = canvas.getAllByRole('spinbutton');
         await expect(inputs.length).toBeGreaterThanOrEqual(2);
@@ -326,6 +331,8 @@ RefinePrice with no predefined ranges:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test price inputs are present
         const inputs = canvas.getAllByRole('spinbutton');

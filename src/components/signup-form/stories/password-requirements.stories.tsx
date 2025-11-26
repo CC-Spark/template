@@ -3,6 +3,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { PasswordRequirement } from '@/components/password-requirements';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -164,6 +165,7 @@ The component uses the \`validatePassword\` utility function which returns an ob
         ),
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -179,7 +181,7 @@ The component uses the \`validatePassword\` utility function which returns an ob
         }
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
@@ -208,6 +210,7 @@ This is the initial state users see when they start creating a password.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -223,6 +226,6 @@ This is the initial state users see when they start creating a password.
         }
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };

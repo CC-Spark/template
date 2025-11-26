@@ -5,6 +5,7 @@ import { Button } from '../button';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -108,6 +109,7 @@ const meta: Meta<typeof Card> = {
         ),
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that footer card heading is displayed
@@ -152,6 +154,7 @@ export const Default: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that card title is displayed
@@ -196,6 +199,7 @@ export const WithAction: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that card title for action variant is displayed
@@ -225,6 +229,7 @@ export const Simple: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that simple card content is displayed
@@ -254,6 +259,7 @@ export const HeaderOnly: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that header-only card title is displayed
@@ -292,6 +298,7 @@ export const ContentOnly: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that content-only card heading is displayed
@@ -338,6 +345,7 @@ export const WithFooter: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that footer card heading is displayed
@@ -377,6 +385,7 @@ export const ProductCard: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that product card title is displayed
@@ -434,6 +443,7 @@ export const SettingsCard: Story = {
         </Card>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that settings card title is displayed
@@ -502,6 +512,7 @@ export const MultipleCards: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that all three cards are displayed

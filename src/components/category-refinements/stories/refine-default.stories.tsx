@@ -3,6 +3,7 @@ import RefineDefault from '../refine-default';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { FilterValue } from '../types';
 
 const REFINE_DEFAULT_HARNESS_ATTR = 'data-refine-default-harness';
@@ -176,6 +177,8 @@ The default RefineDefault shows checkbox options:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test checkboxes are present
         const checkboxes = canvas.getAllByRole('checkbox');
         await expect(checkboxes.length).toBeGreaterThan(0);
@@ -215,6 +218,8 @@ RefineDefault with no selected options:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test checkboxes are present
         const checkboxes = canvas.getAllByRole('checkbox');

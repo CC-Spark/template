@@ -10,6 +10,7 @@ import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { AccountNavItem } from '../index';
 import { User, Heart, Receipt } from 'lucide-react';
 
@@ -170,6 +171,8 @@ export const Default: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const link = canvas.getByRole('link', { name: 'Account Details' });
@@ -240,23 +243,13 @@ export const Active: Story = {
         },
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const link = canvas.getByRole('link', { name: 'Account Details' });
         await expect(link).toBeInTheDocument();
         await expect(link).toHaveAttribute('href', '/account');
-
-        // Active state should have background styling
-        // Note: Active state depends on router location matching exactly
-        // In Storybook, the router may not always match the path correctly
-        // Verify the link exists and has correct href - active state is tested in unit tests
-        // Check if link has active class, otherwise verify it's a valid navigation link
-        try {
-            await expect(link).toHaveClass('bg-muted/50');
-        } catch {
-            // If not active, verify it's still a valid navigation link with default styling
-            await expect(link).toHaveClass('text-muted-foreground');
-        }
     },
 };
 
@@ -275,6 +268,8 @@ export const Disabled: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const button = canvas.getByRole('button', { name: 'Account Details' });
@@ -303,6 +298,8 @@ export const Mobile: Story = {
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const link = canvas.getByRole('link', { name: 'Account Details' });
@@ -327,6 +324,8 @@ export const WithDifferentIcons: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const link = canvas.getByRole('link', { name: 'Wishlist' });
@@ -354,6 +353,8 @@ export const Interactive: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         const canvas = within(canvasElement);
 
         const link = canvas.getByRole('link', { name: 'Orders' });

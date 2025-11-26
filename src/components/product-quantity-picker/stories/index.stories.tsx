@@ -3,6 +3,7 @@ import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import ProductQuantityPicker from '../index';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -131,7 +132,8 @@ export const Default: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Basic test - just verify component renders
         void expect(canvasElement).toBeInTheDocument();
         void expect(canvasElement.children.length).toBeGreaterThan(0);
@@ -150,7 +152,8 @@ export const WithStockWarning: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that quantity input shows correct value
@@ -181,7 +184,8 @@ export const OutOfStock: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct value
         const quantityInput = within(canvasElement).getByDisplayValue('1');
         void expect(quantityInput).toBeInTheDocument();
@@ -210,7 +214,8 @@ export const BundleProduct: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct value
         const quantityInput = within(canvasElement).getByDisplayValue('1');
         void expect(quantityInput).toBeInTheDocument();
@@ -239,7 +244,8 @@ export const BundleWithLowStock: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct value
         const quantityInput = within(canvasElement).getByDisplayValue('1');
         void expect(quantityInput).toBeInTheDocument();
@@ -269,7 +275,8 @@ export const Disabled: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct value
         const quantityInput = within(canvasElement).getByDisplayValue('1');
         void expect(quantityInput).toBeInTheDocument();
@@ -298,7 +305,8 @@ export const HighStock: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct value
         const quantityInput = within(canvasElement).getByDisplayValue('1');
         void expect(quantityInput).toBeInTheDocument();
@@ -329,7 +337,8 @@ export const CustomStyling: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct value
         const quantityInput = within(canvasElement).getByDisplayValue('1');
         void expect(quantityInput).toBeInTheDocument();
@@ -359,7 +368,8 @@ export const LongProductName: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct value
         const quantityInput = within(canvasElement).getByDisplayValue('1');
         void expect(quantityInput).toBeInTheDocument();
@@ -389,7 +399,8 @@ export const Interactive: Story = {
             // Intentionally empty for story testing
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that quantity input shows correct initial value
         const quantityInput = within(canvasElement).getByDisplayValue('5');
         void expect(quantityInput).toBeInTheDocument();

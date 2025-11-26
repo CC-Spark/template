@@ -11,6 +11,7 @@ import { CustomerProfileForm, type CustomerProfileFetcherData, type CustomerProf
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import uiStrings from '@/temp-ui-string';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -259,6 +260,7 @@ export const WithInitialData: Story = {
         updateFetcher: createMockFetcher<CustomerProfileFetcherData>('idle'),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify form fields are populated
@@ -324,10 +326,15 @@ export const Interactive: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Find and interact with form fields
-        const firstNameInput = canvas.getByPlaceholderText(uiStrings.account.profile.firstNamePlaceholder);
+        const firstNameInput = await canvas.findByPlaceholderText(
+            uiStrings.account.profile.firstNamePlaceholder,
+            {},
+            { timeout: 5000 }
+        );
         await userEvent.type(firstNameInput, 'Jane');
         await expect(firstNameInput).toHaveValue('Jane');
 

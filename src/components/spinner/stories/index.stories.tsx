@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { Spinner } from '../index';
@@ -76,7 +77,8 @@ export const Default: Story = {
     args: {
         size: 'md',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         void expect(canvasElement).toBeInTheDocument();
         void expect(canvasElement.children.length).toBeGreaterThan(0);
 

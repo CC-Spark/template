@@ -3,6 +3,7 @@ import CartBadgeIcon from '../cart-badge-icon';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function CartBadgeIconStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -79,6 +80,7 @@ Default cart badge icon with zero items.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for shopping cart icon
@@ -108,6 +110,7 @@ Cart badge icon with items in cart.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for shopping cart icon
@@ -137,6 +140,7 @@ Cart badge icon with many items (edge case).
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for shopping cart icon

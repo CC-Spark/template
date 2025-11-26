@@ -8,6 +8,7 @@ import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const STORYBOOK_REMOVE_BASE = '/__storybook/remove';
 
@@ -297,27 +298,28 @@ The default RemoveItemButtonWithConfirmation uses the standard cart configuratio
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present and properly rendered
         const removeButtons = canvas.getAllByRole('button');
-        void expect(removeButtons.length).toBeGreaterThan(0);
+        await expect(removeButtons.length).toBeGreaterThan(0);
 
         // Test that each button is properly rendered
-        removeButtons.forEach((button) => {
-            void expect(button).toBeInTheDocument();
+        for (const button of removeButtons) {
+            await expect(button).toBeInTheDocument();
             // In loading state, button should be disabled
             if (button.getAttribute('data-testid') === 'remove-item-loading') {
-                void expect(button).toBeDisabled();
+                await expect(button).toBeDisabled();
             } else {
-                void expect(button).not.toBeDisabled();
+                await expect(button).not.toBeDisabled();
             }
-        });
+        }
 
         // In test environment, just verify buttons exist - don't try to click
         // as the confirmation dialogs may not work properly in test environment
-        void expect(canvasElement).toBeInTheDocument();
+        await expect(canvasElement).toBeInTheDocument();
     },
 };
 
@@ -356,27 +358,28 @@ This story demonstrates a custom configuration for wishlist item removal:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present and properly rendered
         const removeButtons = canvas.getAllByRole('button');
-        void expect(removeButtons.length).toBeGreaterThan(0);
+        await expect(removeButtons.length).toBeGreaterThan(0);
 
         // Test that each button is properly rendered
-        removeButtons.forEach((button) => {
-            void expect(button).toBeInTheDocument();
+        for (const button of removeButtons) {
+            await expect(button).toBeInTheDocument();
             // In loading state, button should be disabled
             if (button.getAttribute('data-testid') === 'remove-item-loading') {
-                void expect(button).toBeDisabled();
+                await expect(button).toBeDisabled();
             } else {
-                void expect(button).not.toBeDisabled();
+                await expect(button).not.toBeDisabled();
             }
-        });
+        }
 
         // In test environment, just verify buttons exist - don't try to click
         // as the confirmation dialogs may not work properly in test environment
-        void expect(canvasElement).toBeInTheDocument();
+        await expect(canvasElement).toBeInTheDocument();
     },
 };
 
@@ -412,27 +415,28 @@ This story shows the component with custom styling:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present and properly rendered
         const removeButtons = canvas.getAllByRole('button');
-        void expect(removeButtons.length).toBeGreaterThan(0);
+        await expect(removeButtons.length).toBeGreaterThan(0);
 
         // Test that each button is properly rendered
-        removeButtons.forEach((button) => {
-            void expect(button).toBeInTheDocument();
+        for (const button of removeButtons) {
+            await expect(button).toBeInTheDocument();
             // In loading state, button should be disabled
             if (button.getAttribute('data-testid') === 'remove-item-loading') {
-                void expect(button).toBeDisabled();
+                await expect(button).toBeDisabled();
             } else {
-                void expect(button).not.toBeDisabled();
+                await expect(button).not.toBeDisabled();
             }
-        });
+        }
 
         // In test environment, just verify buttons exist - don't try to click
         // as the confirmation dialogs may not work properly in test environment
-        void expect(canvasElement).toBeInTheDocument();
+        await expect(canvasElement).toBeInTheDocument();
     },
 };
 
@@ -481,27 +485,28 @@ This story demonstrates the loading state during item removal:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present and properly rendered
         const removeButtons = canvas.getAllByRole('button');
-        void expect(removeButtons.length).toBeGreaterThan(0);
+        await expect(removeButtons.length).toBeGreaterThan(0);
 
         // Test that each button is properly rendered
-        removeButtons.forEach((button) => {
-            void expect(button).toBeInTheDocument();
+        for (const button of removeButtons) {
+            await expect(button).toBeInTheDocument();
             // In loading state, button should be disabled
             if (button.getAttribute('data-testid') === 'remove-item-loading') {
-                void expect(button).toBeDisabled();
+                await expect(button).toBeDisabled();
             } else {
-                void expect(button).not.toBeDisabled();
+                await expect(button).not.toBeDisabled();
             }
-        });
+        }
 
         // In test environment, just verify buttons exist - don't try to click
         // as the confirmation dialogs may not work properly in test environment
-        void expect(canvasElement).toBeInTheDocument();
+        await expect(canvasElement).toBeInTheDocument();
     },
 };
 
@@ -565,26 +570,27 @@ This story shows the component used in different contexts:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test button is present and properly rendered
         const removeButtons = canvas.getAllByRole('button');
-        void expect(removeButtons.length).toBeGreaterThan(0);
+        await expect(removeButtons.length).toBeGreaterThan(0);
 
         // Test that each button is properly rendered
-        removeButtons.forEach((button) => {
-            void expect(button).toBeInTheDocument();
+        for (const button of removeButtons) {
+            await expect(button).toBeInTheDocument();
             // In loading state, button should be disabled
             if (button.getAttribute('data-testid') === 'remove-item-loading') {
-                void expect(button).toBeDisabled();
+                await expect(button).toBeDisabled();
             } else {
-                void expect(button).not.toBeDisabled();
+                await expect(button).not.toBeDisabled();
             }
-        });
+        }
 
         // In test environment, just verify buttons exist - don't try to click
         // as the confirmation dialogs may not work properly in test environment
-        void expect(canvasElement).toBeInTheDocument();
+        await expect(canvasElement).toBeInTheDocument();
     },
 };

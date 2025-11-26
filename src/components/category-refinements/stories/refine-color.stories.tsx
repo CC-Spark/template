@@ -3,6 +3,7 @@ import RefineColor from '../refine-color';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { FilterValue } from '../types';
 
 const REFINE_COLOR_HARNESS_ATTR = 'data-refine-color-harness';
@@ -179,6 +180,8 @@ The default RefineColor shows color swatches:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Test color buttons are present
         const buttons = canvas.getAllByRole('button');
         await expect(buttons.length).toBeGreaterThan(0);
@@ -219,6 +222,8 @@ RefineColor with no selected colors:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test color buttons are present
         const buttons = canvas.getAllByRole('button');
@@ -263,6 +268,8 @@ RefineColor with many color options:
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Test many color buttons are present
         const buttons = canvas.getAllByRole('button');

@@ -3,6 +3,7 @@ import UserActions from '../user-actions';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import AuthProvider from '@/providers/auth';
 import type { SessionData } from '@/lib/api/types';
 
@@ -106,6 +107,7 @@ User actions for guest users.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for Sign In link
@@ -137,6 +139,7 @@ User actions for authenticated users.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for welcome message
@@ -171,6 +174,7 @@ Interactive user actions for testing user interactions.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Find and click logout button

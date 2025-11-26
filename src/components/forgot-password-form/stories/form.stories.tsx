@@ -3,6 +3,7 @@ import { ForgotPasswordForm } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import uiStrings from '@/temp-ui-string';
 
 function ForgotPasswordFormFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
@@ -109,6 +110,7 @@ Default forgot password form component.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for email input
@@ -140,6 +142,7 @@ Forgot password form with error message.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for error message
@@ -162,6 +165,7 @@ Interactive forgot password form for testing user interactions.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Find and interact with email input

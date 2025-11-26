@@ -3,6 +3,7 @@ import HomeSkeleton from '../skeleton';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function SkeletonStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -83,6 +84,7 @@ export const Default: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Check for skeleton elements (they have animate-pulse class)
         const skeletons = canvasElement.querySelectorAll('[class*="animate-pulse"]');
         await expect(skeletons.length).toBeGreaterThan(0);
@@ -106,6 +108,7 @@ export const MobileView: Story = {
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Check for skeleton elements
         const skeletons = canvasElement.querySelectorAll('[class*="animate-pulse"]');
         await expect(skeletons.length).toBeGreaterThan(0);

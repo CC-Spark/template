@@ -3,6 +3,7 @@ import { CustomerProfileForm } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, useState, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { CustomerProfileFetcherData, CustomerProfileFormData } from '../types';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import uiStrings from '@/temp-ui-string';
@@ -200,6 +201,7 @@ Default customer profile form with mock submission.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for form fields
@@ -282,6 +284,7 @@ Customer profile form with pre-filled initial data.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify form fields are populated
@@ -354,6 +357,7 @@ Interactive customer profile form for testing user interactions.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Find and interact with form fields

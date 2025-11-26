@@ -4,6 +4,7 @@ import { Label } from '../label';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { within, userEvent, expect } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -185,6 +186,7 @@ export const Default: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const input = canvas.getByPlaceholderText('Enter text...');
         await userEvent.type(input, 'Default text');
@@ -201,6 +203,7 @@ export const WithLabel: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const input = canvas.getByPlaceholderText('Enter text...');
         await userEvent.click(input);
@@ -215,6 +218,7 @@ export const Email: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const emailInput = canvas.getByPlaceholderText('Enter your email');
         await userEvent.type(emailInput, 'user@example.com');
@@ -230,6 +234,7 @@ export const Password: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const passwordInput = canvas.getByPlaceholderText('Enter your password');
         await userEvent.type(passwordInput, 'P@ssw0rd!');
@@ -245,6 +250,7 @@ export const Number: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const numberInput = canvas.getByPlaceholderText('Enter a number');
         await userEvent.type(numberInput, '12345');
@@ -260,6 +266,7 @@ export const Search: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const searchInput = canvas.getByPlaceholderText('Search...');
         await userEvent.type(searchInput, 'Search Term');
@@ -273,7 +280,8 @@ export const Disabled: Story = {
         placeholder: 'Disabled input',
         disabled: true,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const disabledInput = canvas.getByPlaceholderText('Disabled input');
         void expect(disabledInput).toBeDisabled();
@@ -287,6 +295,7 @@ export const WithValue: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const prefilledInput = canvas.getByDisplayValue('Pre-filled value');
         await userEvent.click(prefilledInput);
@@ -303,6 +312,7 @@ export const Required: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const requiredInput = canvas.getByPlaceholderText('This field is required');
         await userEvent.type(requiredInput, 'Required text');
@@ -313,7 +323,8 @@ export const File: Story = {
     args: {
         type: 'file',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const fileInput = canvasElement.querySelector('input[type="file"]');
         void expect(fileInput).toBeInTheDocument();
         void expect((fileInput as HTMLInputElement | null)?.type).toBe('file');
@@ -324,7 +335,8 @@ export const Date: Story = {
     args: {
         type: 'date',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Date inputs don't have textbox role, use querySelector instead
         const dateInput = canvasElement.querySelector('input[type="date"]');
         void expect(dateInput).toBeInTheDocument();
@@ -335,7 +347,8 @@ export const Time: Story = {
     args: {
         type: 'time',
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Time inputs don't have textbox role, use querySelector instead
         const timeInput = canvasElement.querySelector('input[type="time"]');
         void expect(timeInput).toBeInTheDocument();
@@ -349,6 +362,7 @@ export const Tel: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const telInput = canvas.getByPlaceholderText('+1 (555) 123-4567');
         await userEvent.type(telInput, '+1 (555) 000-1111');
@@ -362,6 +376,7 @@ export const URL: Story = {
         autoComplete: 'off',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const urlInput = canvas.getByPlaceholderText('https://example.com');
         await userEvent.type(urlInput, 'https://sfcc.example.com');
@@ -383,6 +398,7 @@ export const WithError: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const errorInput = canvas.getByPlaceholderText('This input has an error');
         await userEvent.type(errorInput, 'Error');
@@ -411,6 +427,7 @@ export const FormExample: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const firstName = canvas.getByPlaceholderText('John');
         await userEvent.type(firstName, 'Jane');
@@ -455,6 +472,7 @@ export const AllTypes: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const textInput = canvas.getByPlaceholderText('Text input');
         await userEvent.type(textInput, 'Multiple inputs');

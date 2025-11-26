@@ -6,6 +6,7 @@ import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const DEFAULT_SOCIAL_IDS = mockConfig.site.features.socialLogin.providers ?? [];
 
@@ -271,11 +272,12 @@ This story shows a single social login provider (Google only):
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that at least one social login button exists
         const buttons = canvas.getAllByRole('button');
-        void expect(buttons.length).toBeGreaterThan(0);
+        await expect(buttons.length).toBeGreaterThan(0);
 
         // Test basic interaction
         await userEvent.click(buttons[0]);
@@ -312,15 +314,16 @@ This story demonstrates multiple social login providers:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         const buttons = canvas.getAllByRole('button');
-        void expect(buttons.length).toBeGreaterThan(0);
+        await expect(buttons.length).toBeGreaterThan(0);
 
         // Test that buttons are not disabled
-        buttons.forEach((button) => {
-            void expect(button).not.toBeDisabled();
-        });
+        for (const button of buttons) {
+            await expect(button).not.toBeDisabled();
+        }
 
         // Test basic interaction
         await userEvent.click(buttons[0]);
@@ -350,10 +353,11 @@ This story shows the component when no social providers are configured:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that the component renders (may show default providers if mock doesn't work)
         const container = canvasElement.firstChild;
-        void expect(container).toBeInTheDocument();
+        await expect(container).toBeInTheDocument();
     },
 };
 
@@ -439,34 +443,35 @@ This story shows SocialLoginButtons integrated into a complete login form:
             </div>
         </div>
     ),
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test social login buttons are present
         const appleButton = canvas.getByRole('button', { name: /apple|continue.*apple/i });
         const googleButton = canvas.getByRole('button', { name: /google|continue.*google/i });
-        void expect(appleButton).toBeInTheDocument();
-        void expect(googleButton).toBeInTheDocument();
+        await expect(appleButton).toBeInTheDocument();
+        await expect(googleButton).toBeInTheDocument();
 
         // Test divider text separates social and email login
         const divider = canvas.getByText(/or.*email|continue.*email/i);
-        void expect(divider).toBeInTheDocument();
+        await expect(divider).toBeInTheDocument();
 
         // Test traditional email form elements are present
         const emailInput = canvas.getByLabelText(/email/i);
         const passwordInput = canvas.getByLabelText(/password/i);
         const submitButton = canvas.getByRole('button', { name: /sign.*in|login/i });
 
-        void expect(emailInput).toBeInTheDocument();
-        void expect(passwordInput).toBeInTheDocument();
-        void expect(submitButton).toBeInTheDocument();
+        await expect(emailInput).toBeInTheDocument();
+        await expect(passwordInput).toBeInTheDocument();
+        await expect(submitButton).toBeInTheDocument();
 
         // Test all form elements are functional
-        void expect(emailInput).toHaveAttribute('type', 'email');
-        void expect(passwordInput).toHaveAttribute('type', 'password');
-        void expect(appleButton).not.toBeDisabled();
-        void expect(googleButton).not.toBeDisabled();
-        void expect(submitButton).not.toBeDisabled();
+        await expect(emailInput).toHaveAttribute('type', 'email');
+        await expect(passwordInput).toHaveAttribute('type', 'password');
+        await expect(appleButton).not.toBeDisabled();
+        await expect(googleButton).not.toBeDisabled();
+        await expect(submitButton).not.toBeDisabled();
     },
 };
 
@@ -499,16 +504,17 @@ This story shows custom social providers with fallback icons:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         const allButtons = canvas.getAllByRole('button');
-        void expect(allButtons.length).toBeGreaterThan(0);
+        await expect(allButtons.length).toBeGreaterThan(0);
 
         // Test that buttons are not disabled and have correct styling
-        allButtons.forEach((button) => {
-            void expect(button).not.toBeDisabled();
-            void expect(button).toHaveClass('w-full');
-        });
+        for (const button of allButtons) {
+            await expect(button).not.toBeDisabled();
+            await expect(button).toHaveClass('w-full');
+        }
 
         // Test basic interaction
         await userEvent.click(allButtons[0]);

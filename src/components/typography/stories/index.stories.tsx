@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 
 import { Typography } from '../index';
@@ -133,6 +134,7 @@ export const Heading1: Story = {
         children: 'Heading 1 - Main Title',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const heading = canvas.getByRole('heading', { level: 1 });
         await expect(heading).toHaveTextContent('Heading 1 - Main Title');
@@ -145,6 +147,7 @@ export const Heading2: Story = {
         children: 'Heading 2 - Section Title',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const heading = within(canvasElement).getByRole('heading', { level: 2 });
         await expect(heading).toHaveTextContent('Heading 2 - Section Title');
     },
@@ -156,6 +159,7 @@ export const Heading3: Story = {
         children: 'Heading 3 - Subsection Title',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const heading = within(canvasElement).getByRole('heading', { level: 3 });
         await expect(heading).toHaveTextContent('Heading 3 - Subsection Title');
     },
@@ -167,6 +171,7 @@ export const Heading4: Story = {
         children: 'Heading 4 - Minor Title',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const heading = within(canvasElement).getByRole('heading', { level: 4 });
         await expect(heading).toHaveTextContent('Heading 4 - Minor Title');
     },
@@ -178,6 +183,7 @@ export const Heading5: Story = {
         children: 'Heading 5 - Small Title',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const heading = within(canvasElement).getByRole('heading', { level: 5 });
         await expect(heading).toHaveTextContent('Heading 5 - Small Title');
     },
@@ -189,6 +195,7 @@ export const Heading6: Story = {
         children: 'Heading 6 - Smallest Title',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const heading = within(canvasElement).getByRole('heading', { level: 6 });
         await expect(heading).toHaveTextContent('Heading 6 - Smallest Title');
     },
@@ -201,6 +208,7 @@ export const Paragraph: Story = {
             'This is a paragraph with regular text. It demonstrates the default paragraph styling with proper line height and spacing.',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const paragraph = within(canvasElement).getByText(/regular text/i);
         await expect(paragraph).toBeInTheDocument();
         void expect(paragraph.tagName.toLowerCase()).toBe('p');
@@ -214,6 +222,7 @@ export const Lead: Story = {
             'This is a lead paragraph that stands out with larger text and muted color to introduce important content.',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const lead = within(canvasElement).getByText(/lead paragraph/i);
         await expect(lead.className).toContain('text-xl');
     },
@@ -225,6 +234,7 @@ export const Large: Story = {
         children: 'Large text for emphasis',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const large = within(canvasElement).getByText('Large text for emphasis');
         await expect(large).toHaveClass('text-lg', { exact: false });
     },
@@ -236,6 +246,7 @@ export const Small: Story = {
         children: 'Small text for captions and labels',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const small = within(canvasElement).getByText('Small text for captions and labels');
         await expect(small).toHaveClass('text-sm', { exact: false });
     },
@@ -247,6 +258,7 @@ export const Muted: Story = {
         children: 'Muted text for secondary information',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const muted = within(canvasElement).getByText('Muted text for secondary information');
         await expect(muted).toHaveClass('text-muted-foreground', { exact: false });
     },
@@ -258,6 +270,7 @@ export const Blockquote: Story = {
         children: 'This is a blockquote that highlights important text with special styling and indentation.',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const blockquote = within(canvasElement).getByText(/blockquote/i);
         await expect(blockquote).toBeInTheDocument();
         void expect(blockquote.tagName.toLowerCase()).toBe('blockquote');
@@ -270,6 +283,7 @@ export const InlineCode: Story = {
         children: 'const example = "inline code";',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const code = within(canvasElement).getByText(/inline code/);
         await expect(code).toBeInTheDocument();
         void expect(code.tagName.toLowerCase()).toBe('code');
@@ -282,6 +296,7 @@ export const ProductTitle: Story = {
         children: 'Premium Cotton T-Shirt',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const text = within(canvasElement).getByText('Premium Cotton T-Shirt');
         await expect(text).toHaveClass('text-lg', { exact: false });
     },
@@ -293,6 +308,7 @@ export const ProductPrice: Story = {
         children: '$29.99',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const price = within(canvasElement).getByText('$29.99');
         await expect(price).toHaveClass('text-base', { exact: false });
     },
@@ -305,6 +321,7 @@ export const ProductDescription: Story = {
             'Made from 100% organic cotton, this comfortable t-shirt features a classic fit and is perfect for everyday wear.',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const description = within(canvasElement).getByText(/comfortable t-shirt/i);
         await expect(description).toHaveClass('leading-relaxed', { exact: false });
     },
@@ -317,6 +334,7 @@ export const CenterAligned: Story = {
         children: 'Center Aligned Heading',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const heading = within(canvasElement).getByText('Center Aligned Heading');
         await expect(heading).toHaveClass('text-center', { exact: false });
     },
@@ -329,6 +347,7 @@ export const RightAligned: Story = {
         children: 'Right aligned paragraph text',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const para = within(canvasElement).getByText('Right aligned paragraph text');
         await expect(para).toHaveClass('text-right', { exact: false });
     },
@@ -341,6 +360,7 @@ export const CustomElement: Story = {
         children: 'H3 variant rendered as div element',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const element = within(canvasElement).getByText('H3 variant rendered as div element');
         await expect(element).toBeInTheDocument();
         void expect(element.tagName.toLowerCase()).toBe('div');
@@ -354,6 +374,7 @@ export const CustomStyling: Story = {
         className: 'text-primary bg-primary/10 p-4 rounded-lg',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const heading = canvas.getByText('Custom Styled Heading');
         await expect(heading).toHaveClass('text-primary', { exact: false });
@@ -372,6 +393,7 @@ export const AsChildButton: Story = {
         </Typography>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const button = canvas.getByTestId('typography-button');
         void expect(button.tagName.toLowerCase()).toBe('button');
@@ -388,6 +410,7 @@ export const AsChildLink: Story = {
         </Typography>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const link = within(canvasElement).getByTestId('typography-link');
         await expect(link).toBeInTheDocument();
         void expect(link.tagName.toLowerCase()).toBe('a');
@@ -448,6 +471,7 @@ export const TypographyShowcase: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         // Multiple elements have "Typography Showcase" text
         const allShowcaseElements = canvas.getAllByText('Typography Showcase');

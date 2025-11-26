@@ -8,6 +8,7 @@ import { Button } from '../button';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -568,6 +569,7 @@ type Story = StoryObj<typeof FormWrapper>;
 export const Default: Story = {
     args: {},
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form field interactions
@@ -597,6 +599,7 @@ export const Default: Story = {
 export const SimpleForm: Story = {
     render: () => <SimpleFormWrapper />,
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const nameInput = canvas.getByLabelText('Name');
         const emailInput = canvas.getByLabelText('Email');
@@ -611,6 +614,7 @@ export const SimpleForm: Story = {
 export const LoginForm: Story = {
     render: () => <LoginFormWrapper />,
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test login form interactions
@@ -639,6 +643,7 @@ export const LoginForm: Story = {
 export const ContactForm: Story = {
     render: () => <ContactFormWrapper />,
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact form interactions

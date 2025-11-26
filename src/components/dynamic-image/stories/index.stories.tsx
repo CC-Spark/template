@@ -3,6 +3,7 @@ import { DynamicImage } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function DynamicImageStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -95,6 +96,8 @@ Standard dynamic image with responsive widths.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for image
         const image = await canvas.findByRole('img', { name: /example image/i }, { timeout: 5000 });
         await expect(image).toBeInTheDocument();
@@ -122,6 +125,8 @@ Dynamic image with object-based width configuration.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check for image
         const image = await canvas.findByRole('img', { name: /object widths/i }, { timeout: 5000 });
@@ -154,6 +159,8 @@ Dynamic image with high priority and eager loading.
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
+        await waitForStorybookReady(canvasElement);
+
         // Check for image
         const image = await canvas.findByRole('img', { name: /high priority/i }, { timeout: 5000 });
         await expect(image).toBeInTheDocument();
@@ -182,6 +189,8 @@ Dynamic image using a custom element type.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Check for picture element
         const picture = canvasElement.querySelector('picture');
         await expect(picture).toBeInTheDocument();

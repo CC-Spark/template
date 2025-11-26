@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'r
 
 import { expect, within, userEvent } from 'storybook/test';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import CartSkeleton from '../../cart/cart-skeleton';
 
 const CART_HARNESS_ATTR = 'data-cart-skeleton-harness';
@@ -125,6 +126,7 @@ This component doesn't accept any props as it's a static loading state that does
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -171,6 +173,7 @@ Default cart skeleton loading state. This shows:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -211,6 +214,7 @@ Cart skeleton on mobile devices. This demonstrates:
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -251,6 +255,7 @@ Cart skeleton on tablet devices. This shows:
         viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -291,6 +296,7 @@ Cart skeleton on desktop devices. This demonstrates:
         viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -334,6 +340,7 @@ Cart skeleton with custom background styling. This shows:
         ),
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -377,6 +384,7 @@ Cart skeleton on dark background. This demonstrates:
         ),
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -434,6 +442,7 @@ Cart skeleton in loading state context. This shows:
         ),
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -490,6 +499,7 @@ Cart skeleton with accessibility considerations. This demonstrates:
         ),
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction
@@ -548,6 +558,7 @@ Cart skeleton performance demonstration. This shows:
         ),
     ],
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test component interaction

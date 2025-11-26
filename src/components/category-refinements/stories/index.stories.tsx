@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import CategoryRefinements from '../index';
@@ -152,6 +153,7 @@ export const Default: Story = {
         result: mockSearchResult,
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that category refinements component renders
@@ -186,7 +188,8 @@ export const Minimal: Story = {
     args: {
         result: mockSearchResultMinimal,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const firstLabel = mockSearchResultMinimal.refinements?.[0]?.label ?? '';
         if (firstLabel) {
@@ -200,7 +203,8 @@ export const Empty: Story = {
     args: {
         result: mockSearchResultEmpty,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const noFiltersMessage = canvas.getByText(/no filter options available/i);
         void expect(noFiltersMessage).toBeInTheDocument();

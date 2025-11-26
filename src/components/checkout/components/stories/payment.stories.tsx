@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within, userEvent } from 'storybook/test';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import Payment from '../payment';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
@@ -116,6 +117,7 @@ This component handles the payment step of the checkout process - collecting pay
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -156,6 +158,7 @@ export const Default: Story = {
         actionData: undefined,
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -193,6 +196,7 @@ export const WithExistingPayment: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -272,6 +276,7 @@ export const CompletedState: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -312,6 +317,7 @@ export const WithFormError: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -356,6 +362,7 @@ export const WithValidationErrors: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -393,6 +400,7 @@ export const WithBillingAddress: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -430,6 +438,7 @@ export const DisabledState: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -470,6 +479,7 @@ export const MobileView: Story = {
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -510,6 +520,7 @@ export const TabletView: Story = {
         viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction
@@ -550,6 +561,7 @@ export const DesktopView: Story = {
         viewport: 'desktop',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test form interaction

@@ -10,6 +10,7 @@ import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { expect, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import CategoryNavigationMenu, { WithCategoryNavigationMenu } from '../index';
 // @ts-expect-error Mock data file is JavaScript
 import { mockCategories } from '@/components/__mocks__/mock-data';
@@ -171,6 +172,7 @@ export const Default: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const menu = canvasElement.querySelector('[data-slot="navigation-menu"]');
         await expect(menu || canvasElement).toBeInTheDocument();
     },
@@ -190,6 +192,7 @@ export const WithNestedCategories: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const menu = canvasElement.querySelector('[data-slot="navigation-menu"]');
         await expect(menu || canvasElement).toBeInTheDocument();
 
@@ -217,6 +220,7 @@ export const WithoutViewport: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const menu = canvasElement.querySelector('[data-slot="navigation-menu"]');
         await expect(menu || canvasElement).toBeInTheDocument();
     },
@@ -236,6 +240,7 @@ export const Interactive: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const menu = canvasElement.querySelector('[data-slot="navigation-menu"]');
         await expect(menu || canvasElement).toBeInTheDocument();
 
@@ -280,6 +285,7 @@ export const UsingWithCategoryNavigationMenu: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const menu = canvasElement.querySelector('[data-slot="navigation-menu"]');
         await expect(menu || canvasElement).toBeInTheDocument();
     },

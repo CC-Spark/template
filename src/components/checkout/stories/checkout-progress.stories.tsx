@@ -3,6 +3,7 @@ import { CheckoutProgress } from '../checkout-progress';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { CHECKOUT_STEPS } from '../utils/checkout-context-types';
 
 const PROGRESS_HARNESS_ATTR = 'data-progress-harness';
@@ -121,6 +122,7 @@ First step of checkout - Contact Info. No steps completed yet.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for Contact Info step - use findAllByText since text appears multiple times
@@ -154,6 +156,7 @@ Second step - Shipping Address. Contact Info is completed.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for Shipping step - use findAllByText since text appears multiple times
@@ -187,6 +190,7 @@ Third step - Shipping Options. Contact Info and Shipping Address are completed.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for Delivery step - use findAllByText since text appears multiple times
@@ -224,6 +228,7 @@ Fourth step - Payment. All previous steps are completed.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for Payment step - use findAllByText since text appears multiple times
@@ -262,6 +267,7 @@ Final step - Review Order. All previous steps are completed.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for Review step - use findAllByText since text appears multiple times

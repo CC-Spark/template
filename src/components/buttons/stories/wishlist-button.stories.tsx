@@ -6,6 +6,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
@@ -227,18 +228,19 @@ The default WishlistButton shows a medium-sized heart icon:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button renders correctly
         const wishlistButton = canvas.getByRole('button', { name: /add to wishlist|remove from wishlist/i });
-        void expect(wishlistButton).toBeInTheDocument();
+        await expect(wishlistButton).toBeInTheDocument();
 
         // Test button is enabled (not disabled since isLoading is false by default)
-        void expect(wishlistButton).not.toBeDisabled();
+        await expect(wishlistButton).not.toBeDisabled();
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
@@ -268,18 +270,19 @@ The small size WishlistButton is compact for tight spaces:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button renders correctly
         const wishlistButton = canvas.getByRole('button', { name: /add to wishlist|remove from wishlist/i });
-        void expect(wishlistButton).toBeInTheDocument();
+        await expect(wishlistButton).toBeInTheDocument();
 
         // Test button is enabled (not disabled since isLoading is false by default)
-        void expect(wishlistButton).not.toBeDisabled();
+        await expect(wishlistButton).not.toBeDisabled();
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
@@ -309,18 +312,19 @@ The large size WishlistButton is prominent for important placement:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button renders correctly
         const wishlistButton = canvas.getByRole('button', { name: /add to wishlist|remove from wishlist/i });
-        void expect(wishlistButton).toBeInTheDocument();
+        await expect(wishlistButton).toBeInTheDocument();
 
         // Test button is enabled (not disabled since isLoading is false by default)
-        void expect(wishlistButton).not.toBeDisabled();
+        await expect(wishlistButton).not.toBeDisabled();
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
@@ -355,18 +359,19 @@ This story shows the WishlistButton with a product variant:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button renders correctly
         const wishlistButton = canvas.getByRole('button', { name: /add to wishlist|remove from wishlist/i });
-        void expect(wishlistButton).toBeInTheDocument();
+        await expect(wishlistButton).toBeInTheDocument();
 
         // Test button is enabled (not disabled since isLoading is false by default)
-        void expect(wishlistButton).not.toBeDisabled();
+        await expect(wishlistButton).not.toBeDisabled();
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
@@ -396,18 +401,19 @@ This story shows the WishlistButton when the item is already in the wishlist:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button renders correctly
         const wishlistButton = canvas.getByRole('button', { name: /add to wishlist|remove from wishlist/i });
-        void expect(wishlistButton).toBeInTheDocument();
+        await expect(wishlistButton).toBeInTheDocument();
 
         // Test button is enabled (not disabled since isLoading is false by default)
-        void expect(wishlistButton).not.toBeDisabled();
+        await expect(wishlistButton).not.toBeDisabled();
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
@@ -442,18 +448,19 @@ This story demonstrates the loading state during wishlist operations:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button renders correctly
         const wishlistButton = canvas.getByRole('button', { name: /add to wishlist|remove from wishlist/i });
-        void expect(wishlistButton).toBeInTheDocument();
+        await expect(wishlistButton).toBeInTheDocument();
 
         // Test button is disabled in loading state (as expected for LoadingState story)
-        void expect(wishlistButton).toBeDisabled();
+        await expect(wishlistButton).toBeDisabled();
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };
 
@@ -508,6 +515,7 @@ This story shows multiple WishlistButtons with different products:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button interaction - get all buttons since there are multiple
@@ -565,17 +573,18 @@ This story shows the WishlistButton with custom styling:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test wishlist button renders correctly
         const wishlistButton = canvas.getByRole('button', { name: /add to wishlist|remove from wishlist/i });
-        void expect(wishlistButton).toBeInTheDocument();
+        await expect(wishlistButton).toBeInTheDocument();
 
         // Test button is enabled (not disabled since isLoading is false by default)
-        void expect(wishlistButton).not.toBeDisabled();
+        await expect(wishlistButton).not.toBeDisabled();
 
         // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
+        await expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };

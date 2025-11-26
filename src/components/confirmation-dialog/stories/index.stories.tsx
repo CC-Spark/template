@@ -3,6 +3,7 @@ import { ConfirmationDialog } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, useState, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 function ConfirmationDialogStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -269,6 +270,8 @@ Confirmation dialog in closed state.
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
 
         // Check that dialog is not visible
         const openButton = await canvas.findByRole('button', { name: /open dialog/i }, { timeout: 5000 });

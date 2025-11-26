@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 
@@ -207,22 +208,23 @@ The default ActionCard includes both edit and remove functionality:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test card content is displayed
         const nameElement = canvas.getByText('John Doe');
-        void expect(nameElement).toBeInTheDocument();
+        await expect(nameElement).toBeInTheDocument();
 
         // Test edit button is present and enabled
         const editButton = canvas.getByRole('button', { name: /edit|change/i });
-        void expect(editButton).toBeInTheDocument();
-        void expect(editButton).not.toBeDisabled();
+        await expect(editButton).toBeInTheDocument();
+        await expect(editButton).not.toBeDisabled();
 
         // Test remove button is present and enabled
         const removeButton = canvas.getByRole('button', { name: /remove|delete/i });
-        void expect(removeButton).toBeInTheDocument();
-        void expect(removeButton).not.toBeDisabled();
+        await expect(removeButton).toBeInTheDocument();
+        await expect(removeButton).not.toBeDisabled();
     },
 };
 
@@ -264,6 +266,7 @@ This story shows an ActionCard with only edit functionality:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test payment card content is displayed
@@ -343,6 +346,7 @@ This story shows an ActionCard with only remove functionality:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test product information is displayed
@@ -417,16 +421,17 @@ This story shows an ActionCard without any actions:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test card content is displayed
         const titleElement = canvas.getByText('Information Card');
-        void expect(titleElement).toBeInTheDocument();
+        await expect(titleElement).toBeInTheDocument();
 
         // Test that the card renders without errors
         const card = canvasElement.querySelector('[data-slot="card"]');
-        void expect(card).toBeInTheDocument();
+        await expect(card).toBeInTheDocument();
     },
 };
 
@@ -479,28 +484,29 @@ This story demonstrates custom button labels:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test address information is displayed
         const titleElement = canvas.getByText('Shipping Address');
-        void expect(titleElement).toBeInTheDocument();
+        await expect(titleElement).toBeInTheDocument();
 
         const addressLine = canvas.getByText('456 Oak Avenue');
-        void expect(addressLine).toBeInTheDocument();
+        await expect(addressLine).toBeInTheDocument();
 
         const cityState = canvas.getByText('Los Angeles, CA 90210');
-        void expect(cityState).toBeInTheDocument();
+        await expect(cityState).toBeInTheDocument();
 
         // Test custom edit button label
         const editButton = canvas.getByRole('button', { name: 'Modify Address' });
-        void expect(editButton).toBeInTheDocument();
-        void expect(editButton).not.toBeDisabled();
+        await expect(editButton).toBeInTheDocument();
+        await expect(editButton).not.toBeDisabled();
 
         // Test custom remove button label
         const removeButton = canvas.getByRole('button', { name: 'Delete Address' });
-        void expect(removeButton).toBeInTheDocument();
-        void expect(removeButton).not.toBeDisabled();
+        await expect(removeButton).toBeInTheDocument();
+        await expect(removeButton).not.toBeDisabled();
     },
 };
 
@@ -560,24 +566,25 @@ This story demonstrates the loading state when onRemove returns a promise:
             },
         },
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test complex item content is displayed
         const titleElement = canvas.getByText('Complex Item');
-        void expect(titleElement).toBeInTheDocument();
+        await expect(titleElement).toBeInTheDocument();
 
         const description = canvas.getByText('This item requires server processing');
-        void expect(description).toBeInTheDocument();
+        await expect(description).toBeInTheDocument();
 
         // Test edit button is present and functional
         const editButton = canvas.getByRole('button', { name: /edit|change/i });
-        void expect(editButton).toBeInTheDocument();
-        void expect(editButton).not.toBeDisabled();
+        await expect(editButton).toBeInTheDocument();
+        await expect(editButton).not.toBeDisabled();
 
         // Test remove button is present and functional
         const removeButton = canvas.getByRole('button', { name: /remove|delete/i });
-        void expect(removeButton).toBeInTheDocument();
-        void expect(removeButton).not.toBeDisabled();
+        await expect(removeButton).toBeInTheDocument();
+        await expect(removeButton).not.toBeDisabled();
     },
 };

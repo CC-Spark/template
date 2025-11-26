@@ -18,6 +18,7 @@ const StorybookWrapper = withStorybookProviders(({ children }: { children: React
 // Router wrapper component that ensures React is initialized before rendering RouterProvider
 const RouterWrapper = ({ Story }: { Story: ComponentType }) => {
     const [router, setRouter] = useState<ReturnType<typeof createMemoryRouter> | null>(null);
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         // Wrap Story with providers
@@ -44,10 +45,17 @@ const RouterWrapper = ({ Story }: { Story: ComponentType }) => {
         );
 
         setRouter(newRouter);
+        // Use a microtask to ensure the router is fully initialized before marking as ready
+        // This helps prevent race conditions in static builds where components might unmount
+        Promise.resolve().then(() => {
+            setIsReady(true);
+        });
     }, [Story]);
 
-    if (!router) {
-        return null; // Don't render until router is created
+    if (!router || !isReady) {
+        // Return a minimal placeholder instead of null to prevent unmounting issues
+        // This ensures the DOM structure is stable for interaction tests
+        return <div data-storybook-loading="true" style={{ minHeight: '1px' }} />;
     }
 
     return <RouterProvider router={router} />;

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import ContactInfo from '../contact-info';
 import { expect, within, userEvent } from 'storybook/test';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -472,6 +473,7 @@ This component handles the first step of the checkout process - collecting the c
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction
@@ -500,6 +502,7 @@ const createArgs = (overrides: Partial<Story['args']> = {}): Story['args'] => ({
 export const Default: Story = {
     args: createArgs(),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction
@@ -523,6 +526,7 @@ export const WithExistingEmail: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction
@@ -548,6 +552,7 @@ export const LoadingState: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction
@@ -601,6 +606,7 @@ export const WithFormError: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction
@@ -631,6 +637,7 @@ export const WithValidationError: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction
@@ -681,6 +688,7 @@ export const MobileView: Story = {
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction
@@ -707,6 +715,7 @@ export const TabletView: Story = {
         viewport: 'tablet',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test contact info form interaction

@@ -9,6 +9,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
 import InventoryMessage from '../index';
@@ -205,6 +206,7 @@ export const InStock: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test that inventory message displays "In Stock" text
@@ -230,6 +232,7 @@ export const PreOrder: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const preOrderText = canvas.getByText(/pre-order/i);
         await expect(preOrderText).toBeInTheDocument();
@@ -251,6 +254,7 @@ export const BackOrder: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const backOrderText = canvas.getByText(/back order/i);
         await expect(backOrderText).toBeInTheDocument();
@@ -272,6 +276,7 @@ export const OutOfStock: Story = {
         }),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const outOfStockText = canvas.getByText(/out of stock/i);
         await expect(outOfStockText).toBeInTheDocument();
@@ -289,6 +294,7 @@ export const UnknownVisible: Story = {
         showUnknownStatus: true,
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const unknownText = canvas.getByText(/inventory unavailable/i);
         await expect(unknownText).toBeInTheDocument();

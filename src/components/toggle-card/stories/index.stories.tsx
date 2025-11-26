@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { action } from 'storybook/actions';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '../index';
 import { Button } from '@/components/ui/button';
@@ -241,6 +242,7 @@ export const Default: Story = {
         editAction: 'Save',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test initial state - should show summary view
@@ -270,6 +272,7 @@ export const WithoutDescription: Story = {
         editAction: 'Save',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const editButton = canvas.getByRole('button', { name: /edit/i });
         await expect(editButton).toBeInTheDocument();
@@ -320,6 +323,7 @@ export const Loading: Story = {
         editAction: 'Save',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         // Save button might not be rendered in loading state
         const saveButton = canvas.queryByRole('button', { name: /save/i });
@@ -341,6 +345,7 @@ export const CustomStyling: Story = {
         className: 'border-2 border-primary shadow-lg',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const customCard = canvasElement.querySelector('.border-2.border-primary.shadow-lg');
         await expect(canvas.getByText(/custom styled card/i)).toBeInTheDocument();
@@ -361,6 +366,7 @@ export const LongContent: Story = {
         editAction: 'Save',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const detailedTitle = canvas.getByText(/detailed information/i);
         await expect(detailedTitle).toBeInTheDocument();
@@ -391,6 +397,7 @@ export const MultipleCards: Story = {
         </div>
     ),
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const editButtons = canvas.getAllByRole('button', { name: /edit/i });
         await expect(editButtons.length).toBeGreaterThanOrEqual(3);
@@ -416,6 +423,7 @@ export const StaticView: Story = {
         ),
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const status = canvas.getByText(/active/i);
         await expect(status).toBeInTheDocument();

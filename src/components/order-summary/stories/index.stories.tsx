@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import OrderSummary from '../index';
 import emptyBasket from '@/components/__mocks__/empty-basket';
@@ -196,7 +197,8 @@ export const Default: Story = {
         isEstimate: false,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Test that component renders without errors
         void expect(canvasElement).toBeInTheDocument();
         void expect(canvasElement.children.length).toBeGreaterThan(0);
@@ -217,7 +219,8 @@ export const WithPromoCodeForm: Story = {
         isEstimate: false,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Check if promo code trigger exists (may be in accordion)
         const trigger = Array.from(canvasElement.querySelectorAll('button, a')).find((element) =>
             element.textContent?.toLowerCase().includes('promo code')
@@ -241,7 +244,8 @@ export const WithAppliedPromotions: Story = {
         isEstimate: false,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Check if adjustment text exists
         const adjustmentText = Array.from(canvasElement.querySelectorAll('span, div')).find((element) =>
             element.textContent?.includes('20% Off Discount')
@@ -272,7 +276,8 @@ export const ItemsExpanded: Story = {
         isEstimate: false,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // When items are expanded, the trigger may not be visible or may have different text
         const itemsTrigger = Array.from(canvasElement.querySelectorAll('[data-accordion-trigger], button')).find(
             (element) =>
@@ -298,7 +303,8 @@ export const EstimateMode: Story = {
         isEstimate: true,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const totalLabel = Array.from(canvasElement.querySelectorAll('span')).find((span) =>
             span.textContent?.toLowerCase().includes('estimated total')
         );
@@ -316,7 +322,8 @@ export const WithoutCartItems: Story = {
         isEstimate: false,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const accordionHeaders = canvasElement.querySelectorAll('[data-accordion-trigger]');
         void expect(accordionHeaders.length).toBe(0);
     },
@@ -332,7 +339,8 @@ export const WithoutHeading: Story = {
         isEstimate: false,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // In without heading mode, heading may still exist but be hidden or empty
         // Just verify component renders
         void expect(canvasElement).toBeInTheDocument();
@@ -349,7 +357,8 @@ export const Minimal: Story = {
         isEstimate: false,
         productsByItemId: mockProductMap,
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // In minimal mode, heading may still exist but be hidden or empty
         // Just verify component renders
         void expect(canvasElement).toBeInTheDocument();
@@ -368,7 +377,8 @@ export const EmptyBasket: Story = {
         isEstimate: false,
         productsByItemId: {},
     },
-    play: ({ canvasElement }) => {
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         // Check if empty message exists
         const emptyMessage = Array.from(canvasElement.querySelectorAll('div')).find(
             (div) =>

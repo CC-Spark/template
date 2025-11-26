@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import Loading from './loading';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -86,6 +87,7 @@ export const DefaultIdle: Story = {
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {
@@ -139,6 +141,7 @@ export const DesignPreview: Story = {
         },
     },
     play: async ({ canvasElement, step }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         await step('Verify component renders without errors', () => {

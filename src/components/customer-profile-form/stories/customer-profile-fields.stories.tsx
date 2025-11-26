@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { Form } from '@/components/ui/form';
 import { CustomerProfileFields } from '../customer-profile-fields';
 import { customerProfileFormSchema } from '../index';
@@ -188,6 +189,7 @@ type Story = StoryObj<typeof CustomerProfileFields>;
 export const Default: Story = {
     render: function DefaultStory() {
         const form = useForm<CustomerProfileFormData>({
+            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
@@ -212,6 +214,7 @@ export const Default: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify form fields are present
@@ -239,6 +242,7 @@ export const Default: Story = {
 export const WithInitialValues: Story = {
     render: function WithInitialValuesStory() {
         const form = useForm<CustomerProfileFormData>({
+            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: 'John',
@@ -263,6 +267,7 @@ export const WithInitialValues: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify form fields are populated
@@ -283,6 +288,7 @@ export const WithInitialValues: Story = {
 export const WithCancelButton: Story = {
     render: function WithCancelButtonStory() {
         const form = useForm<CustomerProfileFormData>({
+            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
@@ -310,10 +316,15 @@ export const WithCancelButton: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify cancel button is present
-        const cancelButton = canvas.getByRole('button', { name: uiStrings.account.profile.cancelButton });
+        const cancelButton = await canvas.findByRole(
+            'button',
+            { name: uiStrings.account.profile.cancelButton },
+            { timeout: 5000 }
+        );
         await expect(cancelButton).toBeInTheDocument();
     },
 };
@@ -324,6 +335,7 @@ export const WithCancelButton: Story = {
 export const Submitting: Story = {
     render: function SubmittingStory() {
         const form = useForm<CustomerProfileFormData>({
+            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: 'John',
@@ -348,10 +360,15 @@ export const Submitting: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Verify submit button is disabled during submission
-        const submitButton = canvas.getByRole('button', { name: uiStrings.account.profile.savingButton });
+        const submitButton = await canvas.findByRole(
+            'button',
+            { name: uiStrings.account.profile.savingButton },
+            { timeout: 5000 }
+        );
         await expect(submitButton).toBeInTheDocument();
         await expect(submitButton).toBeDisabled();
     },
@@ -363,6 +380,7 @@ export const Submitting: Story = {
 export const Interactive: Story = {
     render: function InteractiveStory() {
         const form = useForm<CustomerProfileFormData>({
+            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
@@ -387,6 +405,7 @@ export const Interactive: Story = {
         );
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Interact with form fields

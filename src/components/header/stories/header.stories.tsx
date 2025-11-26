@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import Header from '../header';
 import AuthProvider from '@/providers/auth';
 import type { SessionData } from '@/lib/api/types';
@@ -174,6 +175,7 @@ export const Guest: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const logoLink = canvas.queryByRole('link', { name: 'Home Performer' }) || canvas.queryByAltText('Home');
         if (logoLink) {
@@ -206,6 +208,7 @@ export const Authenticated: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const logoLink = canvas.queryByRole('link', { name: 'Home Performer' }) || canvas.queryByAltText('Home');
         if (logoLink) {
@@ -241,6 +244,7 @@ export const MobileView: Story = {
         viewport: 'mobile2',
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const logo = canvas.queryByRole('link', { name: 'Home Performer' }) || canvas.queryByAltText('Home');
         if (logo) {
@@ -301,6 +305,7 @@ export const WithNavigation: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const logo =
             canvas.queryByRole('link', { name: 'Home Performer' }) ||
@@ -342,6 +347,7 @@ export const WithNavigationAuthenticated: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const logo =
             canvas.queryByRole('link', { name: 'Home Performer' }) ||
@@ -395,6 +401,7 @@ export const StickyWithContent: Story = {
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         const header = canvas.queryByRole('banner') || canvasElement.querySelector('header');
         if (header) {

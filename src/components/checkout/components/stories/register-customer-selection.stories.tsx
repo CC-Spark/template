@@ -3,6 +3,7 @@ import RegisterCustomerSelection from '../register-customer-selection';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const REGISTER_HARNESS_ATTR = 'data-register-harness';
 
@@ -98,6 +99,7 @@ Default state - checkbox is unchecked, customer will continue as guest.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for checkbox
@@ -132,6 +134,7 @@ State when customer opts to create an account.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for checkbox
@@ -170,6 +173,7 @@ Component with callback function to handle account creation preference.
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Check for checkbox

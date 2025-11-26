@@ -12,7 +12,8 @@
         "paths": {
             "@/*": ["./src/*"],
             "+types/*": ["./types/*"],
-            "@/config/server": ["./config.server.ts"]
+            "@/config/server": ["./config.server.ts"],
+            "@storybook/test-utils": ["./.storybook/test-utils"]
         },
         //        "allowImportingTsExtensions": true,
         "esModuleInterop": true,

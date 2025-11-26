@@ -6,6 +6,8 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import AddressCard from './index';
 import type { ShopperCustomersTypes } from 'commerce-sdk-isomorphic';
 
@@ -63,7 +65,7 @@ and optional onEdit and onRemove handlers for user interactions.
             control: 'boolean',
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
 };
 
 export default meta;
@@ -95,6 +97,32 @@ export const Default: Story = {
             console.log('Remove clicked');
         },
         isPreferred: false,
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        // Verify the address card renders
+        const card = canvasElement.querySelector('[data-slot="card"]');
+        await expect(card || canvasElement).toBeInTheDocument();
+
+        // Verify address title is displayed
+        const addressTitle = canvas.getByText('address-1');
+        await expect(addressTitle).toBeInTheDocument();
+
+        // Verify address information is displayed
+        const addressLine1 = canvas.getByText(/123 Main Street/i);
+        await expect(addressLine1).toBeInTheDocument();
+
+        // Test edit button interaction
+        const editButton = canvas.getByRole('button', { name: /edit/i });
+        await expect(editButton).toBeInTheDocument();
+        await userEvent.click(editButton);
+
+        // Test remove button interaction
+        const removeButton = canvas.getByRole('button', { name: /remove/i });
+        await expect(removeButton).toBeInTheDocument();
+        await userEvent.click(removeButton);
     },
 };
 
@@ -150,6 +178,22 @@ export const PreferredAddress: Story = {
             console.log('Remove clicked');
         },
         isPreferred: true,
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        // Verify the address card renders
+        const card = canvasElement.querySelector('[data-slot="card"]');
+        await expect(card || canvasElement).toBeInTheDocument();
+
+        // Verify preferred badge is displayed
+        const preferredBadge = canvas.getByText(/preferred/i);
+        await expect(preferredBadge).toBeInTheDocument();
+
+        // Verify address information is displayed
+        const addressTitle = canvas.getByText('address-3');
+        await expect(addressTitle).toBeInTheDocument();
     },
 };
 
@@ -230,7 +274,27 @@ export const EditOnly: Story = {
             // eslint-disable-next-line no-console
             console.log('Edit clicked');
         },
+        onRemove: undefined,
         isPreferred: false,
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        // Verify the address card renders
+        const card = canvasElement.querySelector('[data-slot="card"]');
+        await expect(card || canvasElement).toBeInTheDocument();
+
+        // Verify only edit button is present
+        const editButton = canvas.getByRole('button', { name: /edit/i });
+        await expect(editButton).toBeInTheDocument();
+
+        // Verify remove button is not present
+        const removeButton = canvas.queryByRole('button', { name: /remove/i });
+        await expect(removeButton).not.toBeInTheDocument();
+
+        // Test edit button interaction
+        await userEvent.click(editButton);
     },
 };
 
@@ -249,11 +313,31 @@ export const RemoveOnly: Story = {
             postalCode: '10001',
             countryCode: 'US',
         } as ShopperCustomersTypes.CustomerAddress,
+        onEdit: undefined,
         onRemove: () => {
             // eslint-disable-next-line no-console
             console.log('Remove clicked');
         },
         isPreferred: false,
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        // Verify the address card renders
+        const card = canvasElement.querySelector('[data-slot="card"]');
+        await expect(card || canvasElement).toBeInTheDocument();
+
+        // Verify only remove button is present
+        const removeButton = canvas.getByRole('button', { name: /remove/i });
+        await expect(removeButton).toBeInTheDocument();
+
+        // Verify edit button is not present
+        const editButton = canvas.queryByRole('button', { name: /edit/i });
+        await expect(editButton).not.toBeInTheDocument();
+
+        // Test remove button interaction
+        await userEvent.click(removeButton);
     },
 };
 
@@ -272,7 +356,27 @@ export const NoActions: Story = {
             postalCode: '10001',
             countryCode: 'US',
         } as ShopperCustomersTypes.CustomerAddress,
+        onEdit: undefined,
+        onRemove: undefined,
         isPreferred: false,
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        // Verify the address card renders
+        const card = canvasElement.querySelector('[data-slot="card"]');
+        await expect(card || canvasElement).toBeInTheDocument();
+
+        // Verify address information is displayed
+        const addressTitle = canvas.getByText('address-6');
+        await expect(addressTitle).toBeInTheDocument();
+
+        // Verify no action buttons are present
+        const editButton = canvas.queryByRole('button', { name: /edit/i });
+        const removeButton = canvas.queryByRole('button', { name: /remove/i });
+        await expect(editButton).not.toBeInTheDocument();
+        await expect(removeButton).not.toBeInTheDocument();
     },
 };
 

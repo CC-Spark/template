@@ -6,6 +6,7 @@ import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-ro
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 
 const QUANTITY_PICKER_HARNESS_ATTR = 'data-quantity-picker-harness';
 
@@ -289,6 +290,7 @@ The default CartQuantityPicker shows standard quantity selection:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
         // Test quantity input is present (use input type to avoid matching button labels)
@@ -297,11 +299,11 @@ The default CartQuantityPicker shows standard quantity selection:
         await expect(quantityInput).toHaveValue(1);
 
         // Test increment button is present
-        const incrementButton = canvas.getByRole('button', { name: /increment/i });
+        const incrementButton = await canvas.findByRole('button', { name: /increment/i }, { timeout: 5000 });
         await expect(incrementButton).toBeInTheDocument();
 
         // Test decrement button is present
-        const decrementButton = canvas.getByRole('button', { name: /decrement/i });
+        const decrementButton = await canvas.findByRole('button', { name: /decrement/i }, { timeout: 5000 });
         await expect(decrementButton).toBeInTheDocument();
     },
 };
@@ -332,6 +334,8 @@ CartQuantityPicker with high quantity value:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test quantity input shows high value (use input type to avoid matching button labels)
         const quantityInput = canvasElement.querySelector('input[type="number"]') as HTMLInputElement;
         await expect(quantityInput).toBeInTheDocument();
@@ -367,6 +371,8 @@ CartQuantityPicker with stock level validation:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test quantity input is present (use input type to avoid matching button labels)
         const quantityInput = canvasElement.querySelector('input[type="number"]') as HTMLInputElement;
         await expect(quantityInput).toBeInTheDocument();
@@ -402,6 +408,8 @@ CartQuantityPicker in disabled state:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test quantity input is disabled (use input type to avoid matching button labels)
         const quantityInput = canvasElement.querySelector('input[type="number"]') as HTMLInputElement;
         await expect(quantityInput).toBeInTheDocument();
@@ -437,6 +445,8 @@ CartQuantityPicker with custom debounce delay:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test quantity input is present (use input type to avoid matching button labels)
         const quantityInput = canvasElement.querySelector('input[type="number"]') as HTMLInputElement;
         await expect(quantityInput).toBeInTheDocument();
@@ -482,6 +492,8 @@ CartQuantityPicker integrated into a cart item display:
         },
     },
     play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
         // Test quantity input is present in cart item (use input type to avoid matching button labels)
         const quantityInput = canvasElement.querySelector('input[type="number"]') as HTMLInputElement;
         await expect(quantityInput).toBeInTheDocument();
