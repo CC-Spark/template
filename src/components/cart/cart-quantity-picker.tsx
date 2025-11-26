@@ -9,6 +9,7 @@
 
 // React
 import { type ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Hooks
 import { useItemFetcher } from '@/hooks/use-item-fetcher';
@@ -22,7 +23,6 @@ import { Typography } from '@/components/typography';
 import { Label } from '@/components/ui/label';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
 
 interface CartQuantityPickerProps {
     /** Current quantity value as string */
@@ -58,6 +58,9 @@ export default function CartQuantityPicker({
     disabled = false,
 }: CartQuantityPickerProps): ReactElement {
     const config = useConfig();
+    const { t: tQuantity } = useTranslation('quantitySelector');
+    const { t: tRemove } = useTranslation('removeItem');
+    const { t: tCart } = useTranslation('cart');
     const effectiveDebounceDelay = debounceDelay || config.pages.cart.quantityUpdateDebounce;
 
     // Create a unique fetcher for this component instance
@@ -86,7 +89,7 @@ export default function CartQuantityPicker({
     return (
         <div className={className}>
             <Label htmlFor="quantity" className="text-foreground mb-2 block">
-                {uiStrings.quantitySelector.quantity}
+                {tQuantity('quantity')}
             </Label>
             <QuantityPicker
                 value={quantity.toString()}
@@ -105,15 +108,15 @@ export default function CartQuantityPicker({
             <ConfirmationDialog
                 open={showRemoveConfirmation}
                 onOpenChange={setShowRemoveConfirmation}
-                title={uiStrings.removeItem.confirmTitle}
-                description={uiStrings.cart.removeItemConfirmDescription}
-                cancelButtonText={uiStrings.removeItem.keepItemButton}
-                confirmButtonText={uiStrings.removeItem.confirmAction}
+                title={tRemove('confirmTitle')}
+                description={tCart('removeItemConfirmDescription')}
+                cancelButtonText={tRemove('keepItemButton')}
+                confirmButtonText={tRemove('confirmAction')}
                 onCancel={handleKeepItem}
                 onConfirm={handleRemoveItem}
                 confirmButtonDisabled={isLoading}
-                cancelButtonAriaLabel={uiStrings.removeItem.keepItemAriaLabel}
-                confirmButtonAriaLabel={uiStrings.removeItem.removeItemAriaLabel}
+                cancelButtonAriaLabel={tRemove('keepItemAriaLabel')}
+                confirmButtonAriaLabel={tRemove('removeItemAriaLabel')}
             />
         </div>
     );

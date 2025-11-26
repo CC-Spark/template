@@ -49,18 +49,6 @@ vi.mock('@/config', () => ({
     }),
 }));
 
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        product: {
-            recommendations: {
-                youMightAlsoLike: 'You May Also Like',
-                completeTheLook: 'Complete the Look',
-                recentlyViewed: 'Recently Viewed',
-            },
-        },
-    },
-}));
-
 const mockProduct: ShopperProducts.schemas['Product'] = {
     id: 'test-product-id',
     name: 'Test Product',

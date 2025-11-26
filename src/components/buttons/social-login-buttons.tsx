@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import { Form } from 'react-router';
-import uiStrings from '@/temp-ui-string';
 import { Button } from '@/components/ui/button';
 import { useConfig } from '@/config';
+import { useTranslation } from 'react-i18next';
 
 interface SocialLoginButtonsProps {
     redirectPath?: string;
@@ -10,6 +10,7 @@ interface SocialLoginButtonsProps {
 
 export function SocialLoginButtons({ redirectPath }: SocialLoginButtonsProps = {}): ReactElement | null {
     const { site } = useConfig();
+    const { t } = useTranslation('login');
     const socialIDPs: string[] = site.features.socialLogin.providers;
 
     const getProviderIcon = (provider: string) => {
@@ -36,9 +37,7 @@ export function SocialLoginButtons({ redirectPath }: SocialLoginButtonsProps = {
                     <span className="w-full border-t border-border/60" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                        {uiStrings.login.socialOrContinueWith}
-                    </span>
+                    <span className="bg-background px-2 text-muted-foreground">{t('socialOrContinueWith')}</span>
                 </div>
             </div>
 
@@ -51,7 +50,7 @@ export function SocialLoginButtons({ redirectPath }: SocialLoginButtonsProps = {
                             {redirectPath && <input type="hidden" name="redirectPath" value={redirectPath} />}
                             <Button type="submit" variant="outline" className="w-full">
                                 <span className="mr-2 text-lg">{getProviderIcon(provider)}</span>
-                                {uiStrings.login.continueWithProvider.replace('{provider}', provider)}
+                                {t('continueWithProvider', { provider })}
                             </Button>
                         </Form>
                     );

@@ -6,6 +6,7 @@
 // integration tests. The core validation logic is thoroughly tested in index.test.tsx.
 /* c8 ignore end */
 
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -17,10 +18,9 @@ import { PasswordUpdateFields } from './password-update-fields';
 import { useScapiFetcherEffect } from '@/hooks/use-scapi-fetcher-effect';
 
 //types
-import { passwordUpdateFormSchema } from './index';
-import { type PasswordUpdateFormData, type PasswordUpdateFormProps, type PasswordUpdateSubmissionData } from './types';
-
-import uiStrings from '@/temp-ui-string';
+import { createPasswordUpdateFormSchema, type PasswordUpdateFormData } from './index';
+import { type PasswordUpdateFormProps, type PasswordUpdateSubmissionData } from './types';
+import { useTranslation } from 'react-i18next';
 
 /**
  * PasswordUpdateForm component that provides a form interface for changing user password.
@@ -57,8 +57,11 @@ export const PasswordUpdateForm = ({
     onError,
     onCancel,
 }: PasswordUpdateFormProps) => {
+    const { t } = useTranslation('account');
+    const schema = useMemo(() => createPasswordUpdateFormSchema(t), [t]);
+
     const form = useForm<PasswordUpdateFormData>({
-        resolver: zodResolver(passwordUpdateFormSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             currentPassword: initialData?.currentPassword || '',
             password: initialData?.password || '',
@@ -80,8 +83,7 @@ export const PasswordUpdateForm = ({
             onSuccess?.(currentFormData);
         },
         onError: (errors) => {
-            const errorMessage =
-                errors && errors.length > 0 ? errors.join(', ') : uiStrings.account.password.errorMessage;
+            const errorMessage = errors && errors.length > 0 ? errors.join(', ') : t('password.errorMessage');
             // Set form error state
             form.setError('root', {
                 type: 'manual',

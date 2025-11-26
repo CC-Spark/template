@@ -1,11 +1,11 @@
 'use client';
 
 import { Form } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { PasswordRequirement } from '@/components/password-requirements';
 import { FormSubmitButton } from '@/components/buttons/form-submit-button';
 import { usePasswordValidation } from '@/hooks/use-password-validation';
-import uiStrings from '@/temp-ui-string';
 
 interface ResetPasswordFormProps {
     error?: string;
@@ -14,6 +14,7 @@ interface ResetPasswordFormProps {
 }
 
 export function ResetPasswordForm({ error, token, email }: ResetPasswordFormProps) {
+    const { t } = useTranslation('resetPassword');
     const {
         password,
         confirmPassword,
@@ -37,7 +38,7 @@ export function ResetPasswordForm({ error, token, email }: ResetPasswordFormProp
             <div className="space-y-6">
                 <div>
                     <label htmlFor="email-display" className="block text-sm font-medium text-foreground">
-                        {uiStrings.resetPassword.emailLabel || uiStrings.signup.form.emailLabel}
+                        {t('emailLabel')}
                     </label>
                     <Input
                         id="email-display"
@@ -50,7 +51,7 @@ export function ResetPasswordForm({ error, token, email }: ResetPasswordFormProp
 
                 <div>
                     <label htmlFor="newPassword" className="block text-sm font-medium text-foreground">
-                        {uiStrings.resetPassword.newPasswordLabel || uiStrings.signup.form.passwordLabel}
+                        {t('newPasswordLabel')}
                     </label>
                     <Input
                         id="newPassword"
@@ -61,16 +62,14 @@ export function ResetPasswordForm({ error, token, email }: ResetPasswordFormProp
                         value={password}
                         onChange={handlePasswordChange}
                         className="mt-1"
-                        placeholder={
-                            uiStrings.resetPassword.newPasswordPlaceholder || uiStrings.signup.form.passwordPlaceholder
-                        }
+                        placeholder={t('newPasswordPlaceholder')}
                     />
                     <PasswordRequirement password={password} />
                 </div>
 
                 <div>
                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
-                        {uiStrings.resetPassword.confirmPasswordLabel || uiStrings.signup.form.confirmPasswordLabel}
+                        {t('confirmPasswordLabel')}
                     </label>
                     <Input
                         id="confirmPassword"
@@ -82,20 +81,17 @@ export function ResetPasswordForm({ error, token, email }: ResetPasswordFormProp
                         onChange={handleConfirmPasswordChange}
                         className="mt-1"
                         aria-invalid={showPasswordMismatch && confirmPassword ? true : undefined}
-                        placeholder={
-                            uiStrings.resetPassword.confirmPasswordPlaceholder ||
-                            uiStrings.signup.form.confirmPasswordPlaceholder
-                        }
+                        placeholder={t('confirmPasswordPlaceholder')}
                     />
                     {showPasswordMismatch && confirmPassword && (
-                        <p className="mt-1 text-sm text-destructive">{uiStrings.signup.passwordsDoNotMatch}</p>
+                        <p className="mt-1 text-sm text-destructive">{t('passwordsMustMatch')}</p>
                     )}
                 </div>
 
                 <div>
                     <FormSubmitButton
-                        defaultText={uiStrings.resetPassword.resetPasswordButton || 'Reset Password'}
-                        submittingText={uiStrings.resetPassword.resettingPassword || 'Resetting...'}
+                        defaultText={t('resetPasswordButton')}
+                        submittingText={t('resettingPassword')}
                         disabled={!isFormValid}
                     />
                 </div>

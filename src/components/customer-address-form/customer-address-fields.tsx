@@ -7,15 +7,14 @@
 /* c8 ignore end */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { SelectNative } from '@/components/ui/select-native';
 
-import uiStrings from '@/temp-ui-string';
-
-import { COUNTRIES } from './constants';
-import { getStatesForCountry } from './utils';
+import { COUNTRY_CODES } from './constants';
+import { getStatesForCountry, getCountryName } from './utils';
 import { type CustomerAddressFieldsProps } from './types';
 
 /**
@@ -28,8 +27,17 @@ import { type CustomerAddressFieldsProps } from './types';
  * @param form - React Hook Form instance for managing form state and validation
  */
 export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
+    const { t } = useTranslation('account');
     // Watch country code to update state options
     const countryCode = form.watch('countryCode');
+
+    // Build countries list with translated names
+    const countries = useMemo(() => {
+        return COUNTRY_CODES.map((code) => ({
+            code,
+            name: getCountryName(code),
+        }));
+    }, []);
 
     // Get state/province options based on selected country
     const stateOptions = useMemo(() => {
@@ -38,23 +46,19 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
 
     // Determine if current country uses "State" or "Province"
     const stateLabel = useMemo(() => {
-        return countryCode === 'US'
-            ? uiStrings.account.addressForm.stateLabel
-            : uiStrings.account.addressForm.provinceLabel;
-    }, [countryCode]);
+        return countryCode === 'US' ? t('addressForm.stateLabel') : t('addressForm.provinceLabel');
+    }, [countryCode, t]);
 
     const statePlaceholder = useMemo(() => {
         return countryCode === 'US'
-            ? uiStrings.account.addressForm.selectStatePlaceholder
-            : uiStrings.account.addressForm.selectProvincePlaceholder;
-    }, [countryCode]);
+            ? t('addressForm.selectStatePlaceholder')
+            : t('addressForm.selectProvincePlaceholder');
+    }, [countryCode, t]);
 
     // Update postal code label based on country
     const postalCodeLabel = useMemo(() => {
-        return countryCode === 'US'
-            ? uiStrings.account.addressForm.zipCodeLabel
-            : uiStrings.account.addressForm.postalCodeLabel;
-    }, [countryCode]);
+        return countryCode === 'US' ? t('addressForm.zipCodeLabel') : t('addressForm.postalCodeLabel');
+    }, [countryCode, t]);
 
     return (
         <div className="space-y-4">
@@ -65,7 +69,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.addressForm.addressTitleLabel}
+                            {t('addressForm.addressTitleLabel')}
                         </FormLabel>
                         <FormControl>
                             <Input type="text" autoComplete="off" id="addressId" className="rounded-md" {...field} />
@@ -84,7 +88,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-foreground">
-                                {uiStrings.account.addressForm.firstNameLabel}
+                                {t('addressForm.firstNameLabel')}
                             </FormLabel>
                             <FormControl>
                                 <Input
@@ -107,7 +111,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-foreground">
-                                {uiStrings.account.addressForm.lastNameLabel}
+                                {t('addressForm.lastNameLabel')}
                             </FormLabel>
                             <FormControl>
                                 <Input
@@ -131,7 +135,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.addressForm.phoneLabel}
+                            {t('addressForm.phoneLabel')}
                         </FormLabel>
                         <FormControl>
                             <Input
@@ -155,7 +159,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.addressForm.countryLabel}
+                            {t('addressForm.countryLabel')}
                         </FormLabel>
                         <FormControl>
                             <SelectNative
@@ -168,7 +172,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                                     form.setValue('postalCode', '');
                                 }}
                                 className="rounded-md">
-                                {COUNTRIES.map((country) => (
+                                {countries.map((country) => (
                                     <option key={country.code} value={country.code}>
                                         {country.name}
                                     </option>
@@ -187,7 +191,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.addressForm.addressLabel}
+                            {t('addressForm.addressLabel')}
                         </FormLabel>
                         <FormControl>
                             <Input
@@ -210,14 +214,14 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.addressForm.address2Label}
+                            {t('addressForm.address2Label')}
                         </FormLabel>
                         <FormControl>
                             <Input
                                 type="text"
                                 autoComplete="address-line2"
                                 id="address2"
-                                placeholder={uiStrings.account.addressForm.address2Placeholder}
+                                placeholder={t('addressForm.address2Placeholder')}
                                 className="rounded-md"
                                 {...field}
                             />
@@ -234,7 +238,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.addressForm.cityLabel}
+                            {t('addressForm.cityLabel')}
                         </FormLabel>
                         <FormControl>
                             <Input
@@ -315,7 +319,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                         </FormControl>
                         <div className="space-y-1 leading-none">
                             <FormLabel className="text-sm font-medium text-foreground cursor-pointer">
-                                {uiStrings.account.addressForm.preferredLabel}
+                                {t('addressForm.preferredLabel')}
                             </FormLabel>
                         </div>
                     </FormItem>

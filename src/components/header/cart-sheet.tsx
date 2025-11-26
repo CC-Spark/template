@@ -6,11 +6,12 @@ import { useBasket } from '@/providers/basket';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button, buttonVariants } from '@/components/ui/button';
 import OrderSummary from '@/components/order-summary';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 export default function CartSheet({ children }: PropsWithChildren): ReactElement {
     // As this component gets loaded on demand, it immediately gets displayed open
     const [open, setOpen] = useState<boolean>(true);
+    const { t } = useTranslation('header');
     const basket = useBasket();
 
     return (
@@ -18,7 +19,7 @@ export default function CartSheet({ children }: PropsWithChildren): ReactElement
             <SheetTrigger asChild>{children}</SheetTrigger>
             <SheetContent className="md:w-1/3 md:max-w-1/3">
                 <SheetHeader>
-                    <SheetTitle className="text-2xl font-bold text-foreground">{uiStrings.header.cartTitle}</SheetTitle>
+                    <SheetTitle className="text-2xl font-bold text-foreground">{t('cartTitle')}</SheetTitle>
                 </SheetHeader>
 
                 {basket && (
@@ -34,10 +35,10 @@ export default function CartSheet({ children }: PropsWithChildren): ReactElement
 
                 <SheetFooter>
                     <Link to="/checkout" onClick={() => setOpen(false)} className={buttonVariants()}>
-                        {uiStrings.header.checkout}
+                        {t('checkout')}
                     </Link>
                     <Button variant="outline" onClick={() => setOpen(false)}>
-                        {uiStrings.header.continueShopping}
+                        {t('continueShopping')}
                     </Button>
                 </SheetFooter>
             </SheetContent>

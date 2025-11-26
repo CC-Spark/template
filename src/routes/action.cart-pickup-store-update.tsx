@@ -28,8 +28,7 @@ import { getFirstPickupStoreId, getPickupProductItemsForStore } from '@/extensio
 import { pickupStoreUpdateSchema, parsePickupStoreUpdateFromFormData } from '@/lib/basket-schemas';
 import uiStringsBopis from '@/extensions/bopis/temp-ui-string-bopis';
 
-// Constants
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 /**
  * Client action for changing the pickup store for all pickup items in the basket.
@@ -61,13 +60,15 @@ import uiStrings from '@/temp-ui-string';
  * @throws Error if any items are out of stock at the selected store
  */
 export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<BasketActionResponse> {
+    const { t } = getTranslation();
+
     if (request.method !== 'PATCH') {
-        throw new Response(uiStrings.errors.methodNotAllowed, { status: 405 });
+        throw new Response(t('errors:methodNotAllowed'), { status: 405 });
     }
 
     const { basketId } = getBasket(context);
     if (!basketId) {
-        return createBasketErrorResponse(uiStrings.errors.noBasketFound);
+        return createBasketErrorResponse(t('errors:noBasketFound'));
     }
 
     let originalStoreId = '';
@@ -95,7 +96,7 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
 
         // Validate basket exists
         if (!basket) {
-            return createBasketErrorResponse(uiStrings.errors.noBasketFound);
+            return createBasketErrorResponse(t('errors:noBasketFound'));
         }
 
         // Capture the original store ID from the first pickup shipment for potential rollback

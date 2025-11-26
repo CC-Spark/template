@@ -9,6 +9,7 @@
 
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useFetcher, useLocation, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ShopperProducts, ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import { useToast } from '@/components/toast';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
@@ -19,7 +20,6 @@ import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
 import { useBasket } from '@/providers/basket';
 import { useItemFetcher } from '@/hooks/use-item-fetcher';
 import { useRequireAuth } from '@/hooks/use-require-auth';
-import uiStrings from '@/temp-ui-string';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import { useAnalytics } from '../use-analytics';
 import { getEffectiveStockLevel, getEffectiveInventory, isInStock as isProductInStock } from '@/lib/inventory-utils';
@@ -81,6 +81,7 @@ export function useProductActions({
     initialQuantity,
     itemId,
 }: UseProductActionsProps) {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const isProductASet = isProductSet(product);
@@ -277,13 +278,13 @@ export function useProductActions({
             setIsAddingToOrUpdatingCart(false);
             // Only show toast for add to cart action, not edit cart
             if (!itemId) {
-                addToast(uiStrings.product.addedToCart.replace('{productName}', product.name || 'product'), 'success');
+                addToast(t('product:addedToCart', { productName: product.name || 'product' }), 'success');
             }
         } else if (cartFetcher.data?.success === false) {
             // Show error toast for both add and edit mode
             const errorMessage = itemId
-                ? uiStrings.product.failedToUpdateCart.replace('{error}', cartFetcher.data.error)
-                : uiStrings.product.failedToAddToCart.replace('{error}', cartFetcher.data.error);
+                ? t('product:failedToUpdateCart', { error: cartFetcher.data.error })
+                : t('product:failedToAddToCart', { error: cartFetcher.data.error });
             addToast(errorMessage, 'error');
             setIsAddingToOrUpdatingCart(false);
         }
@@ -298,12 +299,9 @@ export function useProductActions({
         }
         if (multipleItemsFetcher.data?.success && multipleItemsFetcher.data.basket) {
             setIsAddingToOrUpdatingCart(false);
-            addToast(uiStrings.product.addedSetToCart, 'success');
+            addToast(t('product:addedSetToCart'), 'success');
         } else if (multipleItemsFetcher.data?.success === false) {
-            addToast(
-                uiStrings.product.failedToAddItemsToCart.replace('{error}', multipleItemsFetcher.data.error),
-                'error'
-            );
+            addToast(t('product:failedToAddItemsToCart', { error: multipleItemsFetcher.data.error }), 'error');
             setIsAddingToOrUpdatingCart(false);
         }
         //As addToast, setIsAddingToOrUpdatingCart are unlikely to change, we don't need to include them in the dependency array
@@ -317,9 +315,9 @@ export function useProductActions({
         }
         if (bundleFetcher.data?.success && bundleFetcher.data.basket) {
             setIsAddingToOrUpdatingCart(false);
-            addToast(uiStrings.product.addedBundleToCart, 'success');
+            addToast(t('product:addedBundleToCart'), 'success');
         } else if (bundleFetcher.data?.success === false) {
-            addToast(uiStrings.product.failedToAddBundleToCart.replace('{error}', bundleFetcher.data.error), 'error');
+            addToast(t('product:failedToAddBundleToCart', { error: bundleFetcher.data.error }), 'error');
             setIsAddingToOrUpdatingCart(false);
         }
         //As addToast, setIsAddingToOrUpdatingCart are unlikely to change, we don't need to include them in the dependency array
@@ -398,18 +396,14 @@ export function useProductActions({
 
             if (result.alreadyInWishlist) {
                 addToast(
-                    uiStrings.product.alreadyInWishlist?.replace(
-                        '{productName}',
-                        product.name || uiStrings.common.productGeneric
-                    ) || uiStrings.product.itemAlreadyInWishlist,
+                    t('product:alreadyInWishlist', { productName: product.name || t('common:product') }) ||
+                        t('product:itemAlreadyInWishlist'),
                     'info'
                 );
             } else {
                 addToast(
-                    uiStrings.product.addedToWishlist?.replace(
-                        '{productName}',
-                        product.name || uiStrings.common.productGeneric
-                    ) || uiStrings.product.addedToWishlistGeneric,
+                    t('product:addedToWishlist', { productName: product.name || t('common:product') }) ||
+                        t('product:addedToWishlistGeneric'),
                     'success'
                 );
             }
@@ -422,7 +416,7 @@ export function useProductActions({
                 void navigate(location.pathname, { replace: true });
             }
 
-            addToast(result.error || uiStrings.product.failedToAddProductToWishlist, 'error');
+            addToast(result.error || t('product:failedToAddProductToWishlist'), 'error');
         }
         //As addToast, setIsAddingToWishlist, navigate are unlikely to change, we don't need to include them in the dependency array
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -454,7 +448,7 @@ export function useProductActions({
 
         // Validate inputs
         if (!itemProductId || quantity <= 0) {
-            addToast(uiStrings.product.failedToAddProductToCart, 'error');
+            addToast(t('product:failedToAddProductToCart'), 'error');
             return;
         }
 
@@ -489,7 +483,7 @@ export function useProductActions({
             });
         } catch {
             setIsAddingToOrUpdatingCart(false);
-            addToast(uiStrings.product.failedToAddProductToCart, 'error');
+            addToast(t('product:failedToAddProductToCart'), 'error');
         }
     }, [
         basket,
@@ -502,6 +496,7 @@ export function useProductActions({
         cartFetcher,
         addToast,
         analytics,
+        t,
         // @sfdc-extension-line SFDC_EXT_BOPIS
         pickupContext,
     ]);
@@ -568,11 +563,11 @@ export function useProductActions({
                 isLoading: isAddingToWishlist,
                 setLoading: setIsAddingToWishlist,
                 fetcher: wishlistFetcher,
-                errorMessage: uiStrings.product.failedToAddProductToWishlist,
+                errorMessage: t('product:failedToAddProductToWishlist'),
                 buildFormData: (params) => ({ productId: String(params.productId) }),
                 actionName: 'handleAddToWishlistBase',
             }),
-        [createProductActionHandler, isAddingToWishlist, wishlistFetcher]
+        [createProductActionHandler, isAddingToWishlist, wishlistFetcher, t]
     );
 
     // Wrap the base handler with auth requirement - must be called at render time (not in async functions)
@@ -588,13 +583,13 @@ export function useProductActions({
                 const productToAdd = isMasterOrVariantProduct ? variant || currentVariant : product;
                 const itemProductId = getProductId(productToAdd) || product.id;
                 if (!itemProductId) {
-                    throw new Error(uiStrings.product.productIdRequired);
+                    throw new Error(t('product:productIdRequired'));
                 }
                 return { productId: itemProductId };
             },
             getReturnUrl: () =>
                 typeof window !== 'undefined' ? window.location.pathname + window.location.search : '',
-            toastMessage: uiStrings.product.signInToAddToWishlist,
+            toastMessage: t('product:signInToAddToWishlist'),
         }
     ) as (variant?: ShopperProducts.schemas['Variant']) => Promise<void>;
 
@@ -605,7 +600,7 @@ export function useProductActions({
 
             // Validate inputs
             if (!productSelections || productSelections.length === 0) {
-                addToast(uiStrings.product.failedToAddItemsToCartError, 'error');
+                addToast(t('product:failedToAddItemsToCartError'), 'error');
                 return;
             }
 
@@ -646,7 +641,7 @@ export function useProductActions({
                 });
             } catch {
                 setIsAddingToOrUpdatingCart(false);
-                addToast(uiStrings.product.failedToAddItemsToCartError, 'error');
+                addToast(t('product:failedToAddItemsToCartError'), 'error');
             }
         },
         [
@@ -654,6 +649,7 @@ export function useProductActions({
             multipleItemsFetcher,
             addToast,
             analytics,
+            t,
             // @sfdc-extension-line SFDC_EXT_BOPIS
             pickupContext,
         ]
@@ -666,7 +662,7 @@ export function useProductActions({
 
             // Validate inputs
             if (!product.id || qty <= 0 || !childProductSelections || childProductSelections.length === 0) {
-                addToast(uiStrings.product.failedToAddBundleToCartError, 'error');
+                addToast(t('product:failedToAddBundleToCartError'), 'error');
                 return;
             }
 
@@ -709,7 +705,7 @@ export function useProductActions({
                 });
             } catch {
                 setIsAddingToOrUpdatingCart(false);
-                addToast(uiStrings.product.failedToAddBundleToCartError, 'error');
+                addToast(t('product:failedToAddBundleToCartError'), 'error');
             }
         },
         [
@@ -718,6 +714,7 @@ export function useProductActions({
             bundleFetcher,
             addToast,
             analytics,
+            t,
             // @sfdc-extension-line SFDC_EXT_BOPIS
             pickupContext,
         ]
@@ -730,7 +727,7 @@ export function useProductActions({
 
             // Validate inputs
             if (!product.id || bundleQuantity <= 0 || !childProductSelections || childProductSelections.length === 0) {
-                addToast(uiStrings.product.failedToUpdateBundleToCartError, 'error');
+                addToast(t('product:failedToUpdateBundleToCartError'), 'error');
                 return;
             }
 
@@ -792,7 +789,7 @@ export function useProductActions({
                 }
             } catch {
                 setIsAddingToOrUpdatingCart(false);
-                addToast(uiStrings.product.failedToUpdateBundleToCartError, 'error');
+                addToast(t('product:failedToUpdateBundleToCartError'), 'error');
             }
         },
         // eslint complains about bundleFetcher and addToast missing from deps, these instances are not likely to change
@@ -808,7 +805,7 @@ export function useProductActions({
         const selectedProductId = getProductId(productToUpdate);
         // Validate inputs
         if (!selectedProductId || quantity <= 0) {
-            addToast(uiStrings.product.failedToUpdateItemToCart, 'error');
+            addToast(t('product:failedToUpdateItemToCart'), 'error');
             return;
         }
 
@@ -846,7 +843,7 @@ export function useProductActions({
                 });
                 // Check if remove succeeded
                 if (cartFetcher.data?.success === false) {
-                    throw new Error(cartFetcher.data.error || uiStrings.product.failedToRemoveItem);
+                    throw new Error(cartFetcher.data.error || t('product:failedToRemoveItem'));
                 }
 
                 // Then update the existing variant's quantity
@@ -876,7 +873,7 @@ export function useProductActions({
                         method: 'POST',
                         action: '/action/cart-item-add',
                     });
-                    throw new Error(cartFetcher.data.error || uiStrings.product.failedToUpdateItemQuantity);
+                    throw new Error(cartFetcher.data.error || t('product:failedToUpdateItemQuantity'));
                 }
             }
             // Case 3: User is selecting a different variant that doesn't exist in basket
@@ -893,7 +890,7 @@ export function useProductActions({
             }
         } catch (error) {
             setIsAddingToOrUpdatingCart(false);
-            const errorMessage = error instanceof Error ? error.message : uiStrings.product.failedToUpdateItemToCart;
+            const errorMessage = error instanceof Error ? error.message : t('product:failedToUpdateItemToCart');
             addToast(errorMessage, 'error');
         }
         // eslint complains about cartFetcher and addToast missing from deps, these instances are not likely to change

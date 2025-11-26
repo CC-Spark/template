@@ -11,9 +11,7 @@ import { Typography } from '@/components/typography';
 
 // Icons
 import { ShoppingCart, User } from 'lucide-react';
-
-// Utils
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface EmptyCartProps {
     isRegistered?: boolean;
@@ -36,6 +34,8 @@ interface EmptyCartProps {
  * @see {@link CartContent} - Cart component that uses this for empty state
  */
 export default function EmptyCart({ isRegistered = false }: EmptyCartProps): ReactElement {
+    const { t } = useTranslation('cart');
+
     return (
         <div className="bg-muted flex-1 min-w-full w-full" data-testid="sf-cart-empty">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-14">
@@ -50,26 +50,24 @@ export default function EmptyCart({ isRegistered = false }: EmptyCartProps): Rea
                             {/* Empty Cart Message */}
                             <div className="space-y-2">
                                 <Typography variant="h2" as="h2" className="text-xl font-semibold text-foreground">
-                                    {uiStrings.cart.empty.title}
+                                    {t('empty.title')}
                                 </Typography>
                                 <p className="text-muted-foreground">
-                                    {isRegistered
-                                        ? uiStrings.cart.empty.registeredMessage
-                                        : uiStrings.cart.empty.guestMessage}
+                                    {isRegistered ? t('empty.registeredMessage') : t('empty.guestMessage')}
                                 </p>
                             </div>
 
                             {/* Action Buttons */}
                             <div className="space-y-3">
                                 <Button asChild className="w-full">
-                                    <Link to="/">{uiStrings.cart.empty.continueShopping}</Link>
+                                    <Link to="/">{t('empty.continueShopping')}</Link>
                                 </Button>
 
                                 {!isRegistered && (
                                     <Button asChild variant="outline" className="w-full">
                                         <Link to="/account" className="flex items-center justify-center gap-2">
                                             <User className="w-4 h-4" />
-                                            {uiStrings.cart.empty.signIn}
+                                            {t('empty.signIn')}
                                         </Link>
                                     </Button>
                                 )}

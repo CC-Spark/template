@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Typography } from '@/components/typography';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import { useAnalytics } from '@/hooks/use-analytics';
 import type { CheckoutStep } from './utils/checkout-context-types';
 // @sfdc-extension-line SFDC_EXT_BOPIS
@@ -87,6 +87,8 @@ function MyCartWithData({
 }
 
 export default function CheckoutFormPage({ shippingMethods, productMapPromise }: CheckoutFormPageProps) {
+    const { t } = useTranslation('checkout');
+
     // Use basket from provider (managed by middleware)
     const cart = useBasket();
     const { step, STEPS, goToStep, editingStep } = useCheckoutContext();
@@ -245,7 +247,7 @@ export default function CheckoutFormPage({ shippingMethods, productMapPromise }:
                 <Card className="w-full max-w-md">
                     <CardContent className="pt-6">
                         <Typography variant="muted" className="text-center">
-                            {uiStrings.checkout.common.emptyCart}
+                            {t('common.emptyCart')}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -352,9 +354,7 @@ export default function CheckoutFormPage({ shippingMethods, productMapPromise }:
                                                 disabled={isPlacingOrder}
                                                 className="w-full max-w-sm"
                                                 size="lg">
-                                                {isPlacingOrder
-                                                    ? uiStrings.checkout.placeOrder.processing
-                                                    : uiStrings.checkout.placeOrder.button}
+                                                {isPlacingOrder ? t('placeOrder.processing') : t('placeOrder.button')}
                                             </Button>
                                         </Form>
                                     </div>
@@ -371,7 +371,7 @@ export default function CheckoutFormPage({ shippingMethods, productMapPromise }:
                                 <CardHeader>
                                     <CardTitle>
                                         <Typography variant="h4" as="h2">
-                                            {uiStrings.checkout.orderSummary.title}
+                                            {t('orderSummary.title')}
                                         </Typography>
                                     </CardTitle>
                                 </CardHeader>

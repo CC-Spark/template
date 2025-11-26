@@ -6,7 +6,7 @@ import debounce from 'lodash.debounce';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Search as SearchIcon } from 'lucide-react';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import Suggestions from '@/components/search/suggestions';
 import { useSearchSuggestions } from '@/hooks/use-search-suggestions';
 import { useTransformSearchSuggestions } from '@/hooks/use-transform-search-suggestions';
@@ -19,6 +19,7 @@ const RECENT_SEARCH_MIN_LENGTH = 3;
 const POPOVER_CONTENT_OFFSET = 12;
 
 export default function SearchBar(): ReactElement {
+    const { t } = useTranslation('header');
     const navigate = useNavigate();
     const config = useConfig();
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -145,12 +146,12 @@ export default function SearchBar(): ReactElement {
                         <Input
                             ref={inputRef}
                             type="text"
-                            placeholder={uiStrings.header.searchPlaceholder}
+                            placeholder={t('searchPlaceholder')}
                             className="w-full pl-10"
                             onChange={handleInputChange}
                             onFocus={shouldOpenPopover}
                             onBlur={() => setShowSuggestions(false)}
-                            aria-label={uiStrings.header.searchPlaceholder}
+                            aria-label={t('searchPlaceholder')}
                             aria-autocomplete="list"
                             aria-expanded={showSuggestions}
                             aria-haspopup="listbox"

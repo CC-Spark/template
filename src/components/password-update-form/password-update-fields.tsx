@@ -12,9 +12,8 @@ import { Input } from '@/components/ui/input';
 import { PasswordRequirement } from '@/components/password-requirements';
 
 import { FETCHER_STATES } from '@/lib/fetcher-states';
-import uiStrings from '@/temp-ui-string';
-
 import { type PasswordUpdateFieldsProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 /**
  * PasswordUpdateFields component that renders the form fields for changing password.
@@ -24,6 +23,7 @@ import { type PasswordUpdateFieldsProps } from './types';
  * @param onCancel - Optional callback function to handle cancel action
  */
 export function PasswordUpdateFields({ form, updateFetcher, onCancel }: PasswordUpdateFieldsProps) {
+    const { t } = useTranslation('account');
     const isSubmitting = updateFetcher.state === FETCHER_STATES.SUBMITTING;
     // Use form.watch to read the password value directly from form state, including initial values
     const password = form.watch('password') || '';
@@ -37,12 +37,12 @@ export function PasswordUpdateFields({ form, updateFetcher, onCancel }: Password
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.password.currentPassword}
+                            {t('password.currentPassword')}
                         </FormLabel>
                         <FormControl>
                             <Input
                                 type="password"
-                                placeholder={uiStrings.account.password.currentPasswordPlaceholder}
+                                placeholder={t('password.currentPasswordPlaceholder')}
                                 className="rounded-md"
                                 {...field}
                             />
@@ -59,12 +59,12 @@ export function PasswordUpdateFields({ form, updateFetcher, onCancel }: Password
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.password.newPassword}
+                            {t('password.newPassword')}
                         </FormLabel>
                         <FormControl>
                             <Input
                                 type="password"
-                                placeholder={uiStrings.account.password.newPasswordPlaceholder}
+                                placeholder={t('password.newPasswordPlaceholder')}
                                 className="rounded-md"
                                 {...field}
                             />
@@ -81,12 +81,12 @@ export function PasswordUpdateFields({ form, updateFetcher, onCancel }: Password
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.password.confirmPassword}
+                            {t('password.confirmPassword')}
                         </FormLabel>
                         <FormControl>
                             <Input
                                 type="password"
-                                placeholder={uiStrings.account.password.confirmPasswordPlaceholder}
+                                placeholder={t('password.confirmPasswordPlaceholder')}
                                 className="rounded-md"
                                 {...field}
                             />
@@ -104,7 +104,7 @@ export function PasswordUpdateFields({ form, updateFetcher, onCancel }: Password
                     type="submit"
                     disabled={isSubmitting}
                     className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground px-6">
-                    {isSubmitting ? 'Saving...' : uiStrings.account.password.saveButton}
+                    {isSubmitting ? 'Saving...' : t('password.saveButton')}
                 </Button>
                 {onCancel && (
                     <Button
@@ -113,7 +113,7 @@ export function PasswordUpdateFields({ form, updateFetcher, onCancel }: Password
                         onClick={onCancel}
                         disabled={isSubmitting}
                         className="rounded-md px-6">
-                        {uiStrings.account.password.cancelButton}
+                        {t('password.cancelButton')}
                     </Button>
                 )}
             </div>

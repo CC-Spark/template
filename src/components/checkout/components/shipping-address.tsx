@@ -1,3 +1,4 @@
+import { useMemo, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
@@ -6,13 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Typography } from '@/components/typography';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useBasket } from '@/providers/basket';
-import { shippingAddressSchema, type ShippingAddressData } from '@/lib/checkout-schemas';
+import { createShippingAddressSchema, type ShippingAddressData } from '@/lib/checkout-schemas';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import { getShippingAddressFromCustomer } from '@/lib/customer-profile-utils';
 import { isAddressEmpty } from '@/components/checkout/utils/checkout-addresses';
-import uiStrings from '@/temp-ui-string';
 import type { CheckoutActionData } from '../types';
-import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ShippingAddressProps {
     onSubmit: (formData: FormData) => void;
@@ -34,6 +34,7 @@ export default function ShippingAddress({
 }: ShippingAddressProps) {
     const cart = useBasket();
     const customerProfile = useCustomerProfile();
+    const { t } = useTranslation('checkout');
 
     const shippingAddress = cart?.shipments?.[0]?.shippingAddress;
 
@@ -43,8 +44,10 @@ export default function ShippingAddress({
     // Get phone from contact info (prioritize this for auto-population)
     const contactInfoPhone = cart?.customerInfo?.phone;
 
+    const schema = useMemo(() => createShippingAddressSchema(t), [t]);
+
     const form = useForm<ShippingAddressData>({
-        resolver: zodResolver(shippingAddressSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             firstName: shippingAddress?.firstName || customerShippingAddress.firstName || '',
             lastName: shippingAddress?.lastName || customerShippingAddress.lastName || '',
@@ -73,7 +76,7 @@ export default function ShippingAddress({
     // The ToggleCard will handle the collapsed/expanded state based on editing prop
 
     const stepTitle: ReactNode = (
-        <span className="text-lg font-semibold text-foreground">{uiStrings.checkout.shippingAddress.title}</span>
+        <span className="text-lg font-semibold text-foreground">{t('shippingAddress.title')}</span>
     );
 
     return (
@@ -82,7 +85,7 @@ export default function ShippingAddress({
             title={stepTitle as React.ReactNode}
             editing={isEditing}
             onEdit={onEdit}
-            editLabel={uiStrings.checkout.common.edit}
+            editLabel={t('common.edit')}
             isLoading={isLoading}>
             <ToggleCardEdit>
                 <Form {...form}>
@@ -106,11 +109,11 @@ export default function ShippingAddress({
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {uiStrings.checkout.shippingAddress.firstNameLabel}
+                                            {t('shippingAddress.firstNameLabel')}
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder={uiStrings.checkout.shippingAddress.firstNamePlaceholder}
+                                                placeholder={t('shippingAddress.firstNamePlaceholder')}
                                                 autoComplete="given-name"
                                                 autoFocus={isEditing}
                                                 className="h-12 text-base border-2 focus:border-primary transition-colors"
@@ -128,11 +131,11 @@ export default function ShippingAddress({
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {uiStrings.checkout.shippingAddress.lastNameLabel}
+                                            {t('shippingAddress.lastNameLabel')}
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder={uiStrings.checkout.shippingAddress.lastNamePlaceholder}
+                                                placeholder={t('shippingAddress.lastNamePlaceholder')}
                                                 autoComplete="family-name"
                                                 className="h-12 text-base border-2 focus:border-primary transition-colors"
                                                 {...field}
@@ -150,11 +153,11 @@ export default function ShippingAddress({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                        {uiStrings.checkout.shippingAddress.addressLabel}
+                                        {t('shippingAddress.addressLabel')}
                                     </FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder={uiStrings.checkout.shippingAddress.addressPlaceholder}
+                                            placeholder={t('shippingAddress.addressPlaceholder')}
                                             autoComplete="address-line1"
                                             className="h-12 text-base border-2 focus:border-primary transition-colors"
                                             {...field}
@@ -171,11 +174,11 @@ export default function ShippingAddress({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                        {uiStrings.checkout.shippingAddress.address2Label}
+                                        {t('shippingAddress.address2Label')}
                                     </FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder={uiStrings.checkout.shippingAddress.address2Placeholder}
+                                            placeholder={t('shippingAddress.address2Placeholder')}
                                             autoComplete="address-line2"
                                             className="h-12 text-base border-2 focus:border-primary transition-colors"
                                             {...field}
@@ -193,11 +196,11 @@ export default function ShippingAddress({
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {uiStrings.checkout.shippingAddress.cityLabel}
+                                            {t('shippingAddress.cityLabel')}
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder={uiStrings.checkout.shippingAddress.cityPlaceholder}
+                                                placeholder={t('shippingAddress.cityPlaceholder')}
                                                 autoComplete="address-level2"
                                                 className="h-12 text-base border-2 focus:border-primary transition-colors"
                                                 {...field}
@@ -214,11 +217,11 @@ export default function ShippingAddress({
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {uiStrings.checkout.shippingAddress.stateLabel}
+                                            {t('shippingAddress.stateLabel')}
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder={uiStrings.checkout.shippingAddress.statePlaceholder}
+                                                placeholder={t('shippingAddress.statePlaceholder')}
                                                 autoComplete="address-level1"
                                                 className="h-12 text-base border-2 focus:border-primary transition-colors"
                                                 {...field}
@@ -235,11 +238,11 @@ export default function ShippingAddress({
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {uiStrings.checkout.shippingAddress.zipLabel}
+                                            {t('shippingAddress.zipLabel')}
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder={uiStrings.checkout.shippingAddress.zipPlaceholder}
+                                                placeholder={t('shippingAddress.zipPlaceholder')}
                                                 autoComplete="postal-code"
                                                 className="h-12 text-base border-2 focus:border-primary transition-colors"
                                                 {...field}
@@ -257,12 +260,12 @@ export default function ShippingAddress({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                        {uiStrings.checkout.shippingAddress.phoneLabel}
+                                        {t('shippingAddress.phoneLabel')}
                                     </FormLabel>
                                     <FormControl>
                                         <Input
                                             type="tel"
-                                            placeholder={uiStrings.checkout.shippingAddress.phonePlaceholder}
+                                            placeholder={t('shippingAddress.phonePlaceholder')}
                                             autoComplete="tel"
                                             className="h-12 text-base border-2 focus:border-primary transition-colors"
                                             {...field}
@@ -279,9 +282,7 @@ export default function ShippingAddress({
                                 disabled={isLoading}
                                 size="lg"
                                 className="min-w-56 h-12 text-base font-semibold">
-                                {isLoading
-                                    ? uiStrings.checkout.common.submitting
-                                    : uiStrings.checkout.shippingAddress.continue}
+                                {isLoading ? t('common.submitting') : t('shippingAddress.continue')}
                             </Button>
                         </div>
                     </form>
@@ -319,7 +320,7 @@ export default function ShippingAddress({
                     ) : (
                         <div className="rounded-lg p-3 space-y-2 bg-muted/50">
                             <Typography variant="p" className="text-muted-foreground">
-                                {uiStrings.checkout.shippingAddress.notProvided}
+                                {t('shippingAddress.notProvided')}
                             </Typography>
                         </div>
                     )}

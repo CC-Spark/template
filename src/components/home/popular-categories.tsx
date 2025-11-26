@@ -7,7 +7,7 @@ import { Typography } from '@/components/typography';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { RegionDefinition } from '@/lib/decorators';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import heroImage from '/images/hero-cube.png';
 
 interface PopularCategoriesProps {
@@ -58,6 +58,8 @@ function CategoryGridSkeleton({ paddingX = 'px-4 sm:px-6 lg:px-8' }: { paddingX?
  * Shows the first 4 categories in a responsive grid layout
  */
 export function PopularCategories({ categoriesPromise, paddingX = 'px-4 sm:px-6 lg:px-8' }: PopularCategoriesProps) {
+    const { t } = useTranslation('home');
+
     return (
         <div className="pt-16">
             <div className={`max-w-screen-2xl mx-auto ${paddingX}`}>
@@ -73,7 +75,7 @@ export function PopularCategories({ categoriesPromise, paddingX = 'px-4 sm:px-6 
                                             variant="h2"
                                             align="center"
                                             className="text-3xl font-extrabold text-foreground sm:text-4xl">
-                                            {uiStrings.home.categoryGrid.title}
+                                            {t('categoryGrid.title')}
                                         </Typography>
                                     </div>
 
@@ -88,7 +90,7 @@ export function PopularCategories({ categoriesPromise, paddingX = 'px-4 sm:px-6 
                                                     description={category.pageDescription || ''}
                                                     imageUrl={imageUrl}
                                                     imageAlt={category.name}
-                                                    buttonText={uiStrings.home.categoryGrid.shopNowButton}
+                                                    buttonText={t('categoryGrid.shopNowButton')}
                                                     buttonLink={`/category/${category.id}`}
                                                     showBackground={true}
                                                     showBorder={true}

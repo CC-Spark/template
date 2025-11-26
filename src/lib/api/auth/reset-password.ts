@@ -1,12 +1,12 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect, type RouterContextProvider } from 'react-router';
 import { extractResponseError, getAppOrigin } from '@/lib/utils';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
 import {
     resetMarketingCloudTokenCache,
     sendMarketingCloudEmail,
     validateSlasCallbackToken,
 } from '@/lib/marketing-cloud';
+import { getTranslation } from '@/lib/i18next';
 
 // Re-export for backwards compatibility with tests
 export { resetMarketingCloudTokenCache };
@@ -37,13 +37,15 @@ async function sendResetPasswordEmail(
  * Processes SLAS callback token and sends magic link email
  */
 export async function handleResetPasswordCallback({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation(context);
+
     try {
         const slasCallbackToken = request.headers.get('x-slas-callback-token');
 
         if (!slasCallbackToken) {
             return {
                 success: false,
-                error: uiStrings.errors.passwordless.missingCallbackToken,
+                error: t('errors:passwordless.missingCallbackToken'),
             };
         }
 
@@ -55,7 +57,7 @@ export async function handleResetPasswordCallback({ request, context }: ActionFu
         if (!email_id || !token) {
             return {
                 success: false,
-                error: uiStrings.errors.passwordless.missingRequiredFields,
+                error: t('errors:passwordless.missingRequiredFields'),
             };
         }
 

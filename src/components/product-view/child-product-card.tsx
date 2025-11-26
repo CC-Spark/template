@@ -17,13 +17,13 @@ import { useSelectedVariations } from '@/hooks/product/use-selected-variations';
 import { useVariationAttributes } from '@/hooks/product/use-variation-attributes';
 import { useProductImages } from '@/hooks/product/use-product-images';
 import { useProductActions } from '@/hooks/product/use-product-actions';
-import uiStrings from '@/temp-ui-string';
 import ProductPrice from '@/components/product-price';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { type ReactElement, useEffect, useRef } from 'react';
 import { isProductSet, isStandardProduct } from '@/lib/product-utils';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import DeliveryOptions from '@/extensions/bopis/components/delivery-options/delivery-options';
+import { useTranslation } from 'react-i18next';
 
 interface ProductSelectionValues {
     product: ShopperProducts.schemas['Product'];
@@ -89,6 +89,7 @@ export default function ChildProductCard({
     onOrderabilityChange,
     swatchMode,
 }: ChildProductCardProps): ReactElement {
+    const { t } = useTranslation('product');
     const isParentProductASet = isProductSet(parentProduct);
 
     // Get current variant for UI display and parent communication
@@ -197,10 +198,10 @@ export default function ChildProductCard({
         if (onOrderabilityChange) {
             onOrderabilityChange(product.id, {
                 isOrderable: canAddChildToCart,
-                errorMessage: !canAddChildToCart ? uiStrings.product.selectAllOptions : undefined,
+                errorMessage: !canAddChildToCart ? t('selectAllOptions') : undefined,
             });
         }
-    }, [canAddChildToCart, product.id, onOrderabilityChange]);
+    }, [canAddChildToCart, product.id, onOrderabilityChange, t]);
 
     return (
         <Card className="h-full" data-testid="child-product">
@@ -277,9 +278,9 @@ export default function ChildProductCard({
                 {/* Selection Status */}
                 <div className="text-center text-sm">
                     {currentVariant || isStandard ? (
-                        <span className="text-primary font-medium">{uiStrings.product.selected}</span>
+                        <span className="text-primary font-medium">{t('selected')}</span>
                     ) : (
-                        <span className="text-muted-foreground">{uiStrings.product.selectOptionsAbove}</span>
+                        <span className="text-muted-foreground">{t('selectOptionsAbove')}</span>
                     )}
                 </div>
 
@@ -295,7 +296,7 @@ export default function ChildProductCard({
                         disabled={!canAddChildToCart || isAddingChildOrUpdatingToCart}
                         size="sm"
                         className="w-full">
-                        {isAddingChildOrUpdatingToCart ? uiStrings.product.addingToCart : uiStrings.product.addToCart}
+                        {isAddingChildOrUpdatingToCart ? t('addingToCart') : t('addToCart')}
                     </Button>
                 )}
             </CardContent>

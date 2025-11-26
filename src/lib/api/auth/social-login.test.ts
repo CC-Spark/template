@@ -10,6 +10,9 @@ import { flashAuth, getAuth, updateAuth } from '@/middlewares/auth.server';
 import { getConfig } from '@/config';
 import { extractResponseError } from '@/lib/utils';
 import { mergeBasket } from '@/lib/api/basket';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 vi.mock('commerce-sdk-isomorphic/helpers', () => ({
     authorizeIDP: vi.fn(),
@@ -231,14 +234,6 @@ vi.mock('@/lib/api/basket', () => ({
     mergeBasket: vi.fn(),
 }));
 
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        socialCallback: {
-            socialError: 'Social login error',
-        },
-    },
-}));
-
 const mockFlashAuth = vi.mocked(flashAuth);
 const mockMergeBasket = vi.mocked(mergeBasket);
 const mockGetConfig = vi.mocked(getConfig);
@@ -419,7 +414,7 @@ describe('handleSocialLoginCallback', () => {
 
             const result = await handleSocialLoginLanding(args);
 
-            expect(mockFlashAuth).toHaveBeenCalledWith(mockContext, 'Social login error');
+            expect(mockFlashAuth).toHaveBeenCalledWith(mockContext, t('socialCallback:socialError'));
             expect(result).toBeInstanceOf(Response);
             expect(result.status).toBe(302);
             expect(result.headers.get('Location')).toBe('/login');

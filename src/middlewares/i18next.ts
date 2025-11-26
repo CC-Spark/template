@@ -3,7 +3,6 @@ import { createCookie } from 'react-router';
 import { createI18nextMiddleware } from 'remix-i18next/middleware';
 // TODO: how to grab translations from the extensions?
 import resources from '@/locales'; // Import translations from all of your locales
-import config from '../../config.server'; // Import config directly for module-level initialization
 import 'i18next';
 
 // This cookie will be used to store the user locale preference
@@ -19,8 +18,10 @@ export const [i18nextMiddleware, getLocale, getInstance] = createI18nextMiddlewa
     // If the cookie doesn't exist, it will use the Accept-Language header or the fallback language.
     detection: {
         cookie: localeCookie,
-        fallbackLanguage: config.app.i18n.fallbackLng,
-        supportedLanguages: config.app.i18n.supportedLngs,
+        // Make sure the following properties are in sync with config.server.ts file
+        // TODO: is there a way to call getConfig here? I can't see a way to pass in the router context.
+        fallbackLanguage: 'en',
+        supportedLanguages: ['es', 'en'],
     },
     i18next: { resources }, // Translations from all of your locales
     plugins: [initReactI18next], // Plugins you may need, like react-i18next

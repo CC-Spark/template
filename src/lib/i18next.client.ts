@@ -9,42 +9,48 @@ import { getConfig } from '@/config';
  * When a language is first needed, the browser fetches its JavaScript chunk as a static asset.
  * This is more efficient than API endpoints: no server processing, better caching, CDN-friendly.
  */
-const dynamicImportBackend: BackendModule = {
-    type: 'backend',
-    init() {
-        // No initialization needed
-    },
-    // Dynamically import all translations for the language
-    // NOTE: make sure to manually test this with Vite HMR
-    read(language: string, namespace: string, callback: ReadCallback) {
-        import(`@/locales/${language}/index.ts`)
-            .then((module: { default: ResourceLanguage }) => {
-                const translations = module.default;
+function createDynamicImportBackend(instance: i18n): BackendModule {
+    return {
+        type: 'backend',
+        init() {
+            // No initialization needed
+        },
+        // Dynamically import all translations for the language
+        read(language: string, namespace: string, callback: ReadCallback) {
+            import(`@/locales/${language}/index.ts`)
+                .then((module: { default: ResourceLanguage }) => {
+                    const translations = module.default;
 
-                // Store all namespaces in i18next's cache
-                Object.entries(translations).forEach(([ns, nsTranslations]) => {
-                    i18next.addResourceBundle(language, ns, nsTranslations, true, true);
+                    // Store all namespaces in i18next's cache
+                    Object.entries(translations).forEach(([ns, nsTranslations]) => {
+                        instance.addResourceBundle(language, ns, nsTranslations, true, true);
+                    });
+
+                    // Return the requested namespace
+                    callback(null, translations[namespace] || {});
+                })
+                .catch((error: Error) => {
+                    callback(error, false);
                 });
-
-                // Return the requested namespace
-                callback(null, translations[namespace] || {});
-            })
-            .catch((error: Error) => {
-                callback(error, false);
-            });
-    },
-};
+        },
+    };
+}
 
 /**
  * Initialize i18next on the client side.
  * This dynamically imports ALL translations for the current language as static JavaScript chunks.
  * On the server side, i18next is initialized in middlewares/i18next.ts
+ *
+ * @param instance - Optional i18next instance to use. If not provided, uses the global i18next instance.
+ * @returns The initialized i18next instance
  */
-export function initI18next(): i18n {
-    void i18next
+export function initI18next(instance: i18n = i18next): i18n {
+    // NOTE: For any changes to this function, please verify that Vite HMR still works with translations
+
+    void instance
         .use(initReactI18next)
         .use(I18nextBrowserLanguageDetector)
-        .use(dynamicImportBackend)
+        .use(createDynamicImportBackend(instance))
         .init({
             ns: [], // Do not download any namespace during this init
             fallbackLng: getConfig().i18n.fallbackLng,
@@ -53,5 +59,5 @@ export function initI18next(): i18n {
             detection: { order: ['htmlTag'], caches: [] },
         });
 
-    return i18next;
+    return instance;
 }

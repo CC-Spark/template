@@ -2,6 +2,11 @@ import { vi, expect, test, describe, afterEach } from 'vitest';
 import type React from 'react';
 
 vi.mock('react-router', () => ({
+    createCookie: (name: string) => ({
+        name,
+        parse: () => null,
+        serialize: () => '',
+    }),
     createContext: vi.fn().mockImplementation(() => ({})),
     useFetcher: () => ({
         data: null,

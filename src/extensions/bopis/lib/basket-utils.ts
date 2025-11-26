@@ -11,7 +11,7 @@ import type { PickupItemInfo } from '@/extensions/bopis/context/pickup-context';
 import type { ToastType } from '@/components/toast';
 import uiStringsBopis from '@/extensions/bopis/temp-ui-string-bopis';
 import { clearPickupFromShipment, updateShipmentForPickup } from '@/extensions/bopis/lib/api/shipment';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 /**
  * Extracts pickup items from basket by checking shipments for store pickup.
  *
@@ -436,8 +436,9 @@ export async function syncShipmentWithDeliveryOptionChange(
         storeId?: string | null;
     }
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
+    const { t } = getTranslation(context);
     if (!basket.basketId) {
-        throw new Error(uiStrings.errors.noBasketFound);
+        throw new Error(t('errors:noBasketFound'));
     }
     if (!productItem) {
         return basket;

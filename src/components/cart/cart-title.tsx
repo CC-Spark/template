@@ -6,9 +6,7 @@ import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi
 
 // Components
 import { Typography } from '@/components/typography';
-
-// Utils
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Props for the CartTitle component
@@ -40,13 +38,15 @@ interface CartTitleProps {
  * @returns JSX element representing the cart title with item count
  */
 export default function CartTitle({ basket }: CartTitleProps): ReactElement {
+    const { t } = useTranslation('cart');
+
     // Calculate total items by summing up the quantity of each product item
     const totalItems = basket?.productItems?.reduce((acc, item) => acc + (item.quantity ?? 0), 0) || 0;
 
     const getItemCountText = (count: number): string => {
-        if (count === 0) return uiStrings.cart.itemCount.zero;
-        if (count === 1) return uiStrings.cart.itemCount.one;
-        return uiStrings.cart.itemCount.other.replace('{count}', count.toString());
+        if (count === 0) return t('itemCount.zero');
+        if (count === 1) return t('itemCount.one');
+        return t('itemCount.other', { count });
     };
 
     return (

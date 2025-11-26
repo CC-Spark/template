@@ -8,45 +8,47 @@
 import type { ReactElement } from 'react';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface ProductAccordionProps {
     product: ShopperProducts.schemas['Product'];
 }
 
 export default function ProductAccordion({ product }: ProductAccordionProps): ReactElement {
+    const { t } = useTranslation('product');
+
     return (
         <div className="max-w-4xl">
             <Accordion type="multiple" className="w-full">
                 {/* Product Details */}
                 <AccordionItem value="details">
                     <AccordionTrigger className="text-left font-semibold text-lg">
-                        {uiStrings.product.productDetails}
+                        {t('productDetails')}
                     </AccordionTrigger>
                     <AccordionContent>
                         <div className="space-y-4 text-muted-foreground">
                             {product.longDescription ? (
                                 <div className="prose prose-sm max-w-none">{product.longDescription}</div>
                             ) : (
-                                <p>{product.shortDescription || uiStrings.product.noDetailedDescription}</p>
+                                <p>{product.shortDescription || t('noDetailedDescription')}</p>
                             )}
 
                             {/* Additional product attributes */}
                             {product.brand && (
                                 <div>
-                                    <strong>{uiStrings.product.brand}</strong> {product.brand}
+                                    <strong>{t('brand')}</strong> {product.brand}
                                 </div>
                             )}
 
                             {product.manufacturerName && (
                                 <div>
-                                    <strong>{uiStrings.product.manufacturer}</strong> {product.manufacturerName}
+                                    <strong>{t('manufacturer')}</strong> {product.manufacturerName}
                                 </div>
                             )}
 
                             {product.manufacturerSku && (
                                 <div>
-                                    <strong>{uiStrings.product.sku}</strong> {product.manufacturerSku}
+                                    <strong>{t('sku')}</strong> {product.manufacturerSku}
                                 </div>
                             )}
                         </div>
@@ -55,12 +57,10 @@ export default function ProductAccordion({ product }: ProductAccordionProps): Re
 
                 {/* Size & Fit */}
                 <AccordionItem value="size-fit">
-                    <AccordionTrigger className="text-left font-semibold text-lg">
-                        {uiStrings.product.sizeAndFit}
-                    </AccordionTrigger>
+                    <AccordionTrigger className="text-left font-semibold text-lg">{t('sizeAndFit')}</AccordionTrigger>
                     <AccordionContent>
                         <div className="text-muted-foreground">
-                            <p>{uiStrings.product.sizeAndFitComingSoon}</p>
+                            <p>{t('sizeAndFitComingSoon')}</p>
                             {/* Future: Add size chart, fit guide, etc. */}
                         </div>
                     </AccordionContent>
@@ -69,21 +69,21 @@ export default function ProductAccordion({ product }: ProductAccordionProps): Re
                 {/* Shipping & Returns */}
                 <AccordionItem value="shipping">
                     <AccordionTrigger className="text-left font-semibold text-lg">
-                        {uiStrings.product.shippingAndReturns}
+                        {t('shippingAndReturns')}
                     </AccordionTrigger>
                     <AccordionContent>
                         <div className="text-muted-foreground space-y-2">
                             <p>
-                                <strong>{uiStrings.product.freeShipping}</strong>
+                                <strong>{t('freeShipping')}</strong>
                             </p>
                             <p>
-                                <strong>{uiStrings.product.standardShipping}</strong>
+                                <strong>{t('standardShipping')}</strong>
                             </p>
                             <p>
-                                <strong>{uiStrings.product.expressShipping}</strong>
+                                <strong>{t('expressShipping')}</strong>
                             </p>
                             <p>
-                                <strong>{uiStrings.product.returns}</strong>
+                                <strong>{t('returns')}</strong>
                             </p>
                         </div>
                     </AccordionContent>
@@ -91,12 +91,10 @@ export default function ProductAccordion({ product }: ProductAccordionProps): Re
 
                 {/* Reviews */}
                 <AccordionItem value="reviews">
-                    <AccordionTrigger className="text-left font-semibold text-lg">
-                        {uiStrings.product.reviews}
-                    </AccordionTrigger>
+                    <AccordionTrigger className="text-left font-semibold text-lg">{t('reviews')}</AccordionTrigger>
                     <AccordionContent>
                         <div className="text-muted-foreground">
-                            <p>{uiStrings.product.reviewsComingSoon}</p>
+                            <p>{t('reviewsComingSoon')}</p>
                             {/* Future: Add review system integration */}
                         </div>
                     </AccordionContent>
@@ -106,11 +104,11 @@ export default function ProductAccordion({ product }: ProductAccordionProps): Re
                 {product.type?.item && (
                     <AccordionItem value="care">
                         <AccordionTrigger className="text-left font-semibold text-lg">
-                            {uiStrings.product.careInstructions}
+                            {t('careInstructions')}
                         </AccordionTrigger>
                         <AccordionContent>
                             <div className="text-muted-foreground">
-                                <p>{uiStrings.product.careInstructionsComingSoon}</p>
+                                <p>{t('careInstructionsComingSoon')}</p>
                                 {/* Future: Add care instruction details */}
                             </div>
                         </AccordionContent>

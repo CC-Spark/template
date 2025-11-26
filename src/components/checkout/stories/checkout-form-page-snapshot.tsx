@@ -16,6 +16,11 @@ const fetcherMock = {
 };
 
 vi.mock('react-router', () => ({
+    createCookie: (name: string) => ({
+        name,
+        parse: () => null,
+        serialize: () => '',
+    }),
     createContext: vi.fn().mockImplementation(() => ({})),
     useFetcher: () => fetcherMock,
     useFetchers: () => [],

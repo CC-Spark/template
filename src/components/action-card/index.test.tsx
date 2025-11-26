@@ -2,7 +2,9 @@ import { createRef } from 'react';
 import { describe, test, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import ActionCard from './index';
 
 describe('ActionCard', () => {
@@ -23,7 +25,7 @@ describe('ActionCard', () => {
         const onEdit = vi.fn();
         render(<ActionCard onEdit={onEdit}>content</ActionCard>);
 
-        const editButton = screen.getByRole('button', { name: uiStrings.actionCard.edit });
+        const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
         await userEvent.click(editButton);
 
         expect(onEdit).toHaveBeenCalledTimes(1);
@@ -39,7 +41,7 @@ describe('ActionCard', () => {
         const onRemove = vi.fn().mockReturnValue(removePromise);
         render(<ActionCard onRemove={onRemove}>content</ActionCard>);
 
-        const removeButton = screen.getByRole('button', { name: uiStrings.actionCard.remove });
+        const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
         await userEvent.click(removeButton);
 
         expect(onRemove).toHaveBeenCalledTimes(1);

@@ -9,7 +9,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import AddressCard from './index';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import type { ShopperCustomersTypes } from 'commerce-sdk-isomorphic';
 
 // Mock AddressDisplay component
@@ -71,19 +73,19 @@ describe('AddressCard', () => {
         test('displays preferred badge when isPreferred is true', () => {
             render(<AddressCard address={mockAddress} isPreferred={true} />);
 
-            expect(screen.getByText(uiStrings.account.addresses.preferred)).toBeInTheDocument();
+            expect(screen.getByText(t('account:addresses.preferred'))).toBeInTheDocument();
         });
 
         test('does not display preferred badge when isPreferred is false', () => {
             render(<AddressCard address={mockAddress} isPreferred={false} />);
 
-            expect(screen.queryByText(uiStrings.account.addresses.preferred)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('account:addresses.preferred'))).not.toBeInTheDocument();
         });
 
         test('does not display preferred badge when isPreferred is not provided (defaults to false)', () => {
             render(<AddressCard address={mockAddress} />);
 
-            expect(screen.queryByText(uiStrings.account.addresses.preferred)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('account:addresses.preferred'))).not.toBeInTheDocument();
         });
     });
 
@@ -99,18 +101,18 @@ describe('AddressCard', () => {
             const onEdit = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} />);
 
-            const editButton = screen.getByRole('button', { name: uiStrings.actionCard.edit });
+            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
             expect(editButton).toBeInTheDocument();
-            expect(editButton).toHaveAttribute('aria-label', uiStrings.actionCard.edit);
+            expect(editButton).toHaveAttribute('aria-label', t('actionCard:edit'));
         });
 
         test('renders Remove button when onRemove is provided', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onRemove={onRemove} />);
 
-            const removeButton = screen.getByRole('button', { name: uiStrings.actionCard.remove });
+            const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
             expect(removeButton).toBeInTheDocument();
-            expect(removeButton).toHaveAttribute('aria-label', uiStrings.actionCard.remove);
+            expect(removeButton).toHaveAttribute('aria-label', t('actionCard:remove'));
         });
 
         test('renders both Edit and Remove buttons when both handlers are provided', () => {
@@ -118,8 +120,8 @@ describe('AddressCard', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} onRemove={onRemove} />);
 
-            expect(screen.getByRole('button', { name: uiStrings.actionCard.edit })).toBeInTheDocument();
-            expect(screen.getByRole('button', { name: uiStrings.actionCard.remove })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: t('actionCard:edit') })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: t('actionCard:remove') })).toBeInTheDocument();
         });
 
         test('renders footer when at least one action handler is provided', () => {
@@ -137,7 +139,7 @@ describe('AddressCard', () => {
             const onEdit = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} />);
 
-            const editButton = screen.getByRole('button', { name: uiStrings.actionCard.edit });
+            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
             await user.click(editButton);
 
             expect(onEdit).toHaveBeenCalledTimes(1);
@@ -148,7 +150,7 @@ describe('AddressCard', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onRemove={onRemove} />);
 
-            const removeButton = screen.getByRole('button', { name: uiStrings.actionCard.remove });
+            const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
             await user.click(removeButton);
 
             expect(onRemove).toHaveBeenCalledTimes(1);
@@ -160,8 +162,8 @@ describe('AddressCard', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} onRemove={onRemove} />);
 
-            const editButton = screen.getByRole('button', { name: uiStrings.actionCard.edit });
-            const removeButton = screen.getByRole('button', { name: uiStrings.actionCard.remove });
+            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
+            const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
 
             await user.click(editButton);
             expect(onEdit).toHaveBeenCalledTimes(1);
@@ -178,7 +180,7 @@ describe('AddressCard', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onRemove={onRemove} />);
 
-            const removeButton = screen.getByRole('button', { name: uiStrings.actionCard.remove });
+            const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
             expect(removeButton).toHaveClass('text-destructive');
             expect(removeButton).toHaveClass('hover:text-destructive');
         });
@@ -196,7 +198,7 @@ describe('AddressCard', () => {
             render(<AddressCard address={mockAddress} isPreferred={true} />);
 
             expect(screen.getByText('address-123')).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.account.addresses.preferred)).toBeInTheDocument();
+            expect(screen.getByText(t('account:addresses.preferred'))).toBeInTheDocument();
         });
 
         test('card content contains AddressDisplay', () => {
@@ -241,7 +243,7 @@ describe('AddressCard', () => {
             const onEdit = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} />);
 
-            const editButton = screen.getByRole('button', { name: uiStrings.actionCard.edit });
+            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
             await user.click(editButton);
             await user.click(editButton);
             await user.click(editButton);
@@ -254,7 +256,7 @@ describe('AddressCard', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onRemove={onRemove} />);
 
-            const removeButton = screen.getByRole('button', { name: uiStrings.actionCard.remove });
+            const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
             await user.click(removeButton);
             await user.click(removeButton);
 

@@ -2,18 +2,24 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ResetPasswordForm } from './index';
-import uiStrings from '@/temp-ui-string';
 import { isPasswordValid } from '@/lib/utils';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // Mock react-router
 const mockNavigation = {
     state: 'idle' as 'idle' | 'submitting' | 'loading',
 };
 
-vi.mock('react-router', () => ({
-    Form: ({ children, ...props }: any) => <form {...props}>{children}</form>,
-    useNavigation: () => mockNavigation,
-}));
+vi.mock('react-router', async (importOriginal) => {
+    const actual = (await importOriginal()) as any;
+    return {
+        ...actual,
+        Form: ({ children, ...props }: any) => <form {...props}>{children}</form>,
+        useNavigation: () => mockNavigation,
+    };
+});
 
 // Mock the utils module for password validation
 vi.mock('@/lib/utils', async () => {
@@ -50,27 +56,21 @@ describe('ResetPasswordForm', () => {
             const { container } = render(<ResetPasswordForm {...defaultProps} />);
 
             // Email display (disabled)
-            const emailInput = screen.getByLabelText(
-                uiStrings.resetPassword.emailLabel || uiStrings.signup.form.emailLabel
-            );
+            const emailInput = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
             expect(emailInput).toBeInTheDocument();
             expect(emailInput).toHaveValue(defaultProps.email);
             expect(emailInput).toBeDisabled();
 
             // Password fields
             expect(
-                screen.getByLabelText(uiStrings.resetPassword.newPasswordLabel || uiStrings.signup.form.passwordLabel)
+                screen.getByLabelText(t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel'))
             ).toBeInTheDocument();
             expect(
-                screen.getByLabelText(
-                    uiStrings.resetPassword.confirmPasswordLabel || uiStrings.signup.form.confirmPasswordLabel
-                )
+                screen.getByLabelText(t('resetPassword:confirmPasswordLabel') || t('signup:form.confirmPasswordLabel'))
             ).toBeInTheDocument();
 
             // Submit button
-            expect(
-                screen.getByRole('button', { name: uiStrings.resetPassword.resetPasswordButton })
-            ).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: t('resetPassword:resetPasswordButton') })).toBeInTheDocument();
 
             // Hidden fields
             const tokenInput = container.querySelector('input[name="token"]');
@@ -104,10 +104,10 @@ describe('ResetPasswordForm', () => {
             render(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
-                uiStrings.resetPassword.newPasswordLabel || uiStrings.signup.form.passwordLabel
+                t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
             );
             const confirmPasswordInput = screen.getByLabelText(
-                uiStrings.resetPassword.confirmPasswordLabel || uiStrings.signup.form.confirmPasswordLabel
+                t('resetPassword:confirmPasswordLabel') || t('signup:form.confirmPasswordLabel')
             );
 
             await user.type(passwordInput, 'Test123!');
@@ -122,10 +122,10 @@ describe('ResetPasswordForm', () => {
             render(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
-                uiStrings.resetPassword.newPasswordLabel || uiStrings.signup.form.passwordLabel
+                t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
             );
             const confirmPasswordInput = screen.getByLabelText(
-                uiStrings.resetPassword.confirmPasswordLabel || uiStrings.signup.form.confirmPasswordLabel
+                t('resetPassword:confirmPasswordLabel') || t('signup:form.confirmPasswordLabel')
             );
 
             // Test mismatch - should show error and set aria-invalid
@@ -133,7 +133,7 @@ describe('ResetPasswordForm', () => {
             await user.type(confirmPasswordInput, 'Different456!');
 
             await waitFor(() => {
-                expect(screen.getByText(uiStrings.signup.passwordsDoNotMatch)).toBeInTheDocument();
+                expect(screen.getByText(t('resetPassword:passwordsMustMatch'))).toBeInTheDocument();
                 expect(confirmPasswordInput).toHaveAttribute('aria-invalid', 'true');
             });
 
@@ -141,7 +141,7 @@ describe('ResetPasswordForm', () => {
             await user.clear(confirmPasswordInput);
             await user.type(confirmPasswordInput, 'Test123!');
 
-            expect(screen.queryByText(uiStrings.signup.passwordsDoNotMatch)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('resetPassword:passwordsMustMatch'))).not.toBeInTheDocument();
         });
     });
 
@@ -151,7 +151,7 @@ describe('ResetPasswordForm', () => {
             render(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
-                uiStrings.resetPassword.newPasswordLabel || uiStrings.signup.form.passwordLabel
+                t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
             );
 
             await user.type(passwordInput, 'Test123!');
@@ -174,17 +174,17 @@ describe('ResetPasswordForm', () => {
             expect(form).toHaveAttribute('method', 'POST');
 
             // Submit button should be disabled when form is invalid
-            let submitButton = screen.getByRole('button', { name: uiStrings.resetPassword.resetPasswordButton });
+            let submitButton = screen.getByRole('button', { name: t('resetPassword:resetPasswordButton') });
             expect(submitButton).toBeDisabled();
 
             // Enable the form by mocking valid password
             vi.mocked(isPasswordValid).mockReturnValue(true);
 
             const passwordInput = screen.getByLabelText(
-                uiStrings.resetPassword.newPasswordLabel || uiStrings.signup.form.passwordLabel
+                t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
             );
             const confirmPasswordInput = screen.getByLabelText(
-                uiStrings.resetPassword.confirmPasswordLabel || uiStrings.signup.form.confirmPasswordLabel
+                t('resetPassword:confirmPasswordLabel') || t('signup:form.confirmPasswordLabel')
             );
 
             // Type matching valid passwords
@@ -193,7 +193,7 @@ describe('ResetPasswordForm', () => {
 
             // Submit button should be enabled when form is valid
             await waitFor(() => {
-                submitButton = screen.getByRole('button', { name: uiStrings.resetPassword.resetPasswordButton });
+                submitButton = screen.getByRole('button', { name: t('resetPassword:resetPasswordButton') });
                 expect(submitButton).not.toBeDisabled();
             });
         });
@@ -204,14 +204,12 @@ describe('ResetPasswordForm', () => {
             render(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
-                uiStrings.resetPassword.newPasswordLabel || uiStrings.signup.form.passwordLabel
+                t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
             );
             const confirmPasswordInput = screen.getByLabelText(
-                uiStrings.resetPassword.confirmPasswordLabel || uiStrings.signup.form.confirmPasswordLabel
+                t('resetPassword:confirmPasswordLabel') || t('signup:form.confirmPasswordLabel')
             );
-            const emailInput = screen.getByLabelText(
-                uiStrings.resetPassword.emailLabel || uiStrings.signup.form.emailLabel
-            );
+            const emailInput = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
 
             // Password fields
             expect(passwordInput).toHaveAttribute('type', 'password');
@@ -236,9 +234,7 @@ describe('ResetPasswordForm', () => {
 
             // Empty email
             rerender(<ResetPasswordForm {...defaultProps} email="" />);
-            let emailDisplay = screen.getByLabelText(
-                uiStrings.resetPassword.emailLabel || uiStrings.signup.form.emailLabel
-            );
+            let emailDisplay = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
             expect(emailDisplay).toHaveValue('');
             const emailHidden = container.querySelector('input[name="email"]');
             expect(emailHidden).toHaveValue('');
@@ -246,9 +242,7 @@ describe('ResetPasswordForm', () => {
             // Special characters in email
             const specialEmail = 'test+user@example.com';
             rerender(<ResetPasswordForm {...defaultProps} email={specialEmail} />);
-            emailDisplay = screen.getByLabelText(
-                uiStrings.resetPassword.emailLabel || uiStrings.signup.form.emailLabel
-            );
+            emailDisplay = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
             expect(emailDisplay).toHaveValue(specialEmail);
 
             // Long error message

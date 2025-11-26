@@ -1,8 +1,10 @@
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import Footer from './index';
-import uiStrings from '@/temp-ui-string';
 
 // Helper function to render component with router context
 const renderWithRouter = (component: React.ReactElement) => {
@@ -24,21 +26,21 @@ describe('Footer', () => {
     test('renders all section headings', () => {
         renderWithRouter(<Footer />);
 
-        expect(screen.getByText(uiStrings.footer.sections.customerSupport)).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.footer.sections.account)).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.footer.sections.ourCompany)).toBeInTheDocument();
+        expect(screen.getByText(t('footer:sections.customerSupport'))).toBeInTheDocument();
+        expect(screen.getByText(t('footer:sections.account'))).toBeInTheDocument();
+        expect(screen.getByText(t('footer:sections.ourCompany'))).toBeInTheDocument();
         // @sfdc-extension-line SFDC_EXT_INTERNAL_THEME_SWITCHER
-        expect(screen.getByText(uiStrings.footer.sections.switchThemes)).toBeInTheDocument();
+        expect(screen.getByText(t('footer:sections.switchThemes'))).toBeInTheDocument();
     });
 
     test('renders Customer Support section links', () => {
         renderWithRouter(<Footer />);
 
-        const contactLink = screen.getByRole('link', { name: uiStrings.footer.links.contactUs });
+        const contactLink = screen.getByRole('link', { name: t('footer:links.contactUs') });
         expect(contactLink).toBeInTheDocument();
         expect(contactLink).toHaveAttribute('href', '/contact');
 
-        const shippingLink = screen.getByRole('link', { name: uiStrings.footer.links.shipping });
+        const shippingLink = screen.getByRole('link', { name: t('footer:links.shipping') });
         expect(shippingLink).toBeInTheDocument();
         expect(shippingLink).toHaveAttribute('href', '/shipping');
     });
@@ -46,11 +48,11 @@ describe('Footer', () => {
     test('renders Account section links', () => {
         renderWithRouter(<Footer />);
 
-        const orderStatusLink = screen.getByRole('link', { name: uiStrings.footer.links.orderStatus });
+        const orderStatusLink = screen.getByRole('link', { name: t('footer:links.orderStatus') });
         expect(orderStatusLink).toBeInTheDocument();
         expect(orderStatusLink).toHaveAttribute('href', '/orders');
 
-        const signInLink = screen.getByRole('link', { name: uiStrings.footer.links.signInOrCreateAccount });
+        const signInLink = screen.getByRole('link', { name: t('footer:links.signInOrCreateAccount') });
         expect(signInLink).toBeInTheDocument();
         expect(signInLink).toHaveAttribute('href', '/login');
     });
@@ -65,7 +67,7 @@ describe('Footer', () => {
         expect(storeLocatorLink).toHaveAttribute('href', '/store-locator');
         // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
 
-        const aboutUsLink = screen.getByRole('link', { name: uiStrings.footer.links.aboutUs });
+        const aboutUsLink = screen.getByRole('link', { name: t('footer:links.aboutUs') });
         expect(aboutUsLink).toBeInTheDocument();
         expect(aboutUsLink).toHaveAttribute('href', '/about');
     });
@@ -73,19 +75,19 @@ describe('Footer', () => {
     test('renders social media links with correct aria-labels and hrefs', () => {
         renderWithRouter(<Footer />);
 
-        const youtubeLink = screen.getByLabelText(uiStrings.footer.socialMedia.youtubeLabel);
+        const youtubeLink = screen.getByLabelText(t('footer:socialMedia.youtubeLabel'));
         expect(youtubeLink).toBeInTheDocument();
         expect(youtubeLink).toHaveAttribute('href', 'https://youtube.com/channel/UCSTGHqzR1Q9yAVbiS3dAFHg');
 
-        const instagramLink = screen.getByLabelText(uiStrings.footer.socialMedia.instagramLabel);
+        const instagramLink = screen.getByLabelText(t('footer:socialMedia.instagramLabel'));
         expect(instagramLink).toBeInTheDocument();
         expect(instagramLink).toHaveAttribute('href', 'https://instagram.com/commercecloud');
 
-        const xLink = screen.getByLabelText(uiStrings.footer.socialMedia.xLabel);
+        const xLink = screen.getByLabelText(t('footer:socialMedia.xLabel'));
         expect(xLink).toBeInTheDocument();
         expect(xLink).toHaveAttribute('href', 'https://x.com/CommerceCloud');
 
-        const facebookLink = screen.getByLabelText(uiStrings.footer.socialMedia.facebookLabel);
+        const facebookLink = screen.getByLabelText(t('footer:socialMedia.facebookLabel'));
         expect(facebookLink).toBeInTheDocument();
         expect(facebookLink).toHaveAttribute('href', 'https://facebook.com/CommerceCloud/');
     });
@@ -116,7 +118,7 @@ describe('Footer', () => {
         renderWithRouter(<Footer />);
 
         const currentYear = new Date().getFullYear();
-        const copyrightText = `© ${currentYear} ${uiStrings.footer.copyright}`;
+        const copyrightText = `© ${currentYear} ${t('footer:copyright')}`;
 
         expect(screen.getByText(copyrightText)).toBeInTheDocument();
     });
@@ -132,13 +134,13 @@ describe('Footer', () => {
     test('all navigation links have hover:underline class', () => {
         renderWithRouter(<Footer />);
 
-        const contactLink = screen.getByRole('link', { name: uiStrings.footer.links.contactUs });
+        const contactLink = screen.getByRole('link', { name: t('footer:links.contactUs') });
         expect(contactLink).toHaveClass('hover:underline');
 
-        const shippingLink = screen.getByRole('link', { name: uiStrings.footer.links.shipping });
+        const shippingLink = screen.getByRole('link', { name: t('footer:links.shipping') });
         expect(shippingLink).toHaveClass('hover:underline');
 
-        const orderStatusLink = screen.getByRole('link', { name: uiStrings.footer.links.orderStatus });
+        const orderStatusLink = screen.getByRole('link', { name: t('footer:links.orderStatus') });
         expect(orderStatusLink).toHaveClass('hover:underline');
     });
 });

@@ -15,12 +15,12 @@ import { waitForStorybookReady } from '@storybook/test-utils';
 import { Form } from '@/components/ui/form';
 import {
     PasswordUpdateFields,
-    passwordUpdateFormSchema,
+    createPasswordUpdateFormSchema,
     type PasswordUpdateFormData,
     type PasswordUpdateFetcherData,
 } from '../index';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -192,6 +192,8 @@ type Story = StoryObj<typeof PasswordUpdateFields>;
  */
 export const Default: Story = {
     render: function DefaultStory() {
+        const { t } = getTranslation();
+        const passwordUpdateFormSchema = createPasswordUpdateFormSchema(t);
         const form = useForm<PasswordUpdateFormData>({
             resolver: zodResolver(passwordUpdateFormSchema),
             defaultValues: {
@@ -218,24 +220,25 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify form fields are present
         const currentPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.currentPasswordPlaceholder,
+            t('account:password.currentPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
         await expect(currentPasswordInput).toBeInTheDocument();
 
         const passwordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.newPasswordPlaceholder,
+            t('account:password.newPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
         await expect(passwordInput).toBeInTheDocument();
 
         const confirmPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.confirmPasswordPlaceholder,
+            t('account:password.confirmPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -244,7 +247,7 @@ export const Default: Story = {
         // Verify submit button
         const submitButton = await canvas.findByRole(
             'button',
-            { name: uiStrings.account.password.saveButton },
+            { name: t('account:password.saveButton') },
             { timeout: 5000 }
         );
         await expect(submitButton).toBeInTheDocument();
@@ -256,6 +259,8 @@ export const Default: Story = {
  */
 export const WithInitialValues: Story = {
     render: function WithInitialValuesStory() {
+        const { t } = getTranslation();
+        const passwordUpdateFormSchema = createPasswordUpdateFormSchema(t);
         const form = useForm<PasswordUpdateFormData>({
             resolver: zodResolver(passwordUpdateFormSchema),
             defaultValues: {
@@ -282,6 +287,7 @@ export const WithInitialValues: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify form fields are populated
         const currentPasswordInput = canvas.getByDisplayValue('OldPassword123');
@@ -289,7 +295,7 @@ export const WithInitialValues: Story = {
 
         // Use placeholder to get password field (since password and confirmPassword have same value)
         const passwordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.newPasswordPlaceholder,
+            t('account:password.newPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -298,7 +304,7 @@ export const WithInitialValues: Story = {
 
         // Verify confirm password field
         const confirmPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.confirmPasswordPlaceholder,
+            t('account:password.confirmPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -312,6 +318,8 @@ export const WithInitialValues: Story = {
  */
 export const WithCancelButton: Story = {
     render: function WithCancelButtonStory() {
+        const { t } = getTranslation();
+        const passwordUpdateFormSchema = createPasswordUpdateFormSchema(t);
         const form = useForm<PasswordUpdateFormData>({
             resolver: zodResolver(passwordUpdateFormSchema),
             defaultValues: {
@@ -341,11 +349,12 @@ export const WithCancelButton: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify cancel button is present
         const cancelButton = await canvas.findByRole(
             'button',
-            { name: uiStrings.account.password.cancelButton },
+            { name: t('account:password.cancelButton') },
             { timeout: 5000 }
         );
         await expect(cancelButton).toBeInTheDocument();
@@ -357,6 +366,8 @@ export const WithCancelButton: Story = {
  */
 export const Submitting: Story = {
     render: function SubmittingStory() {
+        const { t } = getTranslation();
+        const passwordUpdateFormSchema = createPasswordUpdateFormSchema(t);
         const form = useForm<PasswordUpdateFormData>({
             resolver: zodResolver(passwordUpdateFormSchema),
             defaultValues: {
@@ -396,6 +407,8 @@ export const Submitting: Story = {
  */
 export const Interactive: Story = {
     render: function InteractiveStory() {
+        const { t } = getTranslation();
+        const passwordUpdateFormSchema = createPasswordUpdateFormSchema(t);
         const form = useForm<PasswordUpdateFormData>({
             resolver: zodResolver(passwordUpdateFormSchema),
             defaultValues: {
@@ -422,10 +435,11 @@ export const Interactive: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Interact with form fields - use findByPlaceholderText to wait for elements
         const currentPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.currentPasswordPlaceholder,
+            t('account:password.currentPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -433,7 +447,7 @@ export const Interactive: Story = {
         await expect(currentPasswordInput).toHaveValue('OldPassword123');
 
         const passwordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.newPasswordPlaceholder,
+            t('account:password.newPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -441,7 +455,7 @@ export const Interactive: Story = {
         await expect(passwordInput).toHaveValue('NewPassword123!');
 
         const confirmPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.confirmPasswordPlaceholder,
+            t('account:password.confirmPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );

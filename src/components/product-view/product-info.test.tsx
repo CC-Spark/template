@@ -12,13 +12,15 @@ import { describe, test, expect } from 'vitest';
 // React Router
 import { createMemoryRouter, RouterProvider } from 'react-router';
 // Components
-import uiStrings from '@/temp-ui-string';
 import ProductInfo from './product-info';
 import ProductViewProvider from '@/providers/product-view';
 import { AllProvidersWrapper } from '@/test-utils/context-provider';
 // mock data
 import { masterProduct as mockProduct } from '@/components/__mocks__/master-variant-product';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 const renderProductInfo = (props: React.ComponentProps<typeof ProductInfo>) => {
     // Using createMemoryRouter in framework mode is fine
@@ -184,12 +186,7 @@ describe('ProductInfo', () => {
             renderProductInfo({ product: outOfStockProduct });
 
             expect(
-                screen.getByText(
-                    uiStrings.product.outOfStock.replace(
-                        '{productName}',
-                        'Charcoal Flat Front Athletic Fit Shadow Striped Wool Suit'
-                    )
-                )
+                screen.getByText('Out of stock for Charcoal Flat Front Athletic Fit Shadow Striped Wool Suit')
             ).toBeInTheDocument();
         });
 
@@ -204,7 +201,7 @@ describe('ProductInfo', () => {
 
             // Should still render basic elements
             expect(screen.getByText('Charcoal Flat Front Athletic Fit Shadow Striped Wool Suit')).toBeInTheDocument();
-            expect(screen.getByLabelText(uiStrings.quantitySelector.quantity)).toBeInTheDocument();
+            expect(screen.getByLabelText(t('quantitySelector:quantity'))).toBeInTheDocument();
         });
 
         test('should render swatches when product has variations', () => {
@@ -233,7 +230,7 @@ describe('ProductInfo', () => {
 
             renderProductInfo({ product: inStockProduct });
 
-            expect(screen.getByText(uiStrings.product.inStock)).toBeInTheDocument();
+            expect(screen.getByText(t('product:inStock'))).toBeInTheDocument();
         });
 
         test('should display pre-order inventory message when product is preorderable', () => {
@@ -251,7 +248,7 @@ describe('ProductInfo', () => {
 
             renderProductInfo({ product: preOrderProduct });
 
-            expect(screen.getByText(uiStrings.product.preOrder)).toBeInTheDocument();
+            expect(screen.getByText(t('product:preOrder'))).toBeInTheDocument();
         });
 
         test('should display back-order inventory message when product is backorderable', () => {
@@ -269,7 +266,7 @@ describe('ProductInfo', () => {
 
             renderProductInfo({ product: backOrderProduct });
 
-            expect(screen.getByText(uiStrings.product.backOrder)).toBeInTheDocument();
+            expect(screen.getByText(t('product:backOrder'))).toBeInTheDocument();
         });
 
         test('should display out-of-stock inventory message when product is not orderable', () => {
@@ -287,7 +284,7 @@ describe('ProductInfo', () => {
 
             renderProductInfo({ product: outOfStockProduct });
 
-            expect(screen.getByText(uiStrings.product.outOfStockLabel)).toBeInTheDocument();
+            expect(screen.getByText(t('product:outOfStockLabel'))).toBeInTheDocument();
         });
     });
 
@@ -300,21 +297,15 @@ describe('ProductInfo', () => {
 
             renderProductInfo({ product: simpleProduct });
 
-            expect(screen.getByLabelText(uiStrings.quantitySelector.quantity)).toBeInTheDocument();
+            expect(screen.getByLabelText(t('quantitySelector:quantity'))).toBeInTheDocument();
             expect(
                 screen.getByLabelText(
-                    uiStrings.quantitySelector.decreaseQuantityForProduct.replace(
-                        '{productName}',
-                        'Charcoal Flat Front Athletic Fit Shadow Striped Wool Suit'
-                    )
+                    'Decrement Quantity for Charcoal Flat Front Athletic Fit Shadow Striped Wool Suit'
                 )
             ).toBeInTheDocument();
             expect(
                 screen.getByLabelText(
-                    uiStrings.quantitySelector.increaseQuantityForProduct.replace(
-                        '{productName}',
-                        'Charcoal Flat Front Athletic Fit Shadow Striped Wool Suit'
-                    )
+                    'Increment Quantity for Charcoal Flat Front Athletic Fit Shadow Striped Wool Suit'
                 )
             ).toBeInTheDocument();
         });
@@ -323,14 +314,14 @@ describe('ProductInfo', () => {
             const productSet = { ...mockProduct, type: { set: true } };
             renderProductInfo({ product: productSet });
 
-            expect(screen.queryByLabelText(uiStrings.quantitySelector.quantity)).not.toBeInTheDocument();
+            expect(screen.queryByLabelText(t('quantitySelector:quantity'))).not.toBeInTheDocument();
         });
 
         test('should not render quantity selector for product bundles', () => {
             const productBundle = { ...mockProduct, type: { bundle: true } };
             renderProductInfo({ product: productBundle });
 
-            expect(screen.queryByLabelText(uiStrings.quantitySelector.quantity)).not.toBeInTheDocument();
+            expect(screen.queryByLabelText(t('quantitySelector:quantity'))).not.toBeInTheDocument();
         });
 
         test('should not render quantity selector in edit mode', () => {
@@ -360,7 +351,7 @@ describe('ProductInfo', () => {
             render(<RouterProvider router={router} />);
 
             // Quantity selector should not be rendered in edit mode
-            expect(screen.queryByLabelText(uiStrings.quantitySelector.quantity)).not.toBeInTheDocument();
+            expect(screen.queryByLabelText(t('quantitySelector:quantity'))).not.toBeInTheDocument();
         });
     });
 

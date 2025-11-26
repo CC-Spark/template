@@ -11,7 +11,7 @@ import {
     inBasketProductDetails as dressProductDetails,
 } from '@/components/__mocks__/basket-with-dress';
 import { basketWithMultipleItems, inBasketProductDetails } from '@/components/__mocks__/basket-with-multiple-items';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -19,6 +19,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     useEffect(() => {
         const root = containerRef.current;
         if (!root) return;
+        const { t } = getTranslation();
 
         const logClick = action('cart-summary-click');
         const logHover = action('cart-summary-hover');
@@ -26,8 +27,8 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
         const logSubmit = action('cart-summary-submit');
 
         const STOP_PROPAGATION_LABELS = new Set<string>([
-            uiStrings.cart.checkout.proceedToCheckout,
-            uiStrings.cart.items.editCart,
+            t('cart:checkout.proceedToCheckout'),
+            t('cart:items.editCart'),
         ]);
 
         const isInsideHarness = (element: Element) => root.contains(element);
@@ -53,8 +54,8 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
                     }
                 }
 
-                if (uiStrings.cart.checkout.secure && text.includes(uiStrings.cart.checkout.secure)) {
-                    const sanitized = text.replace(uiStrings.cart.checkout.secure, '').trim();
+                if (t('cart:checkout.secure') && text.includes(t('cart:checkout.secure'))) {
+                    const sanitized = text.replace(t('cart:checkout.secure'), '').trim();
                     if (sanitized) {
                         return sanitized;
                     }

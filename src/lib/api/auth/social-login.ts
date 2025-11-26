@@ -5,10 +5,10 @@ import {
 } from 'commerce-sdk-isomorphic/helpers';
 import { flashAuth, getAuth, updateAuth } from '@/middlewares/auth.server';
 import { extractResponseError } from '@/lib/utils';
-import uiStrings from '@/temp-ui-string';
 import createClient from '@/lib/scapi';
 import { getConfig } from '@/config';
 import { mergeBasket } from '@/lib/api/basket';
+import { getTranslation } from '@/lib/i18next';
 
 export interface AuthorizeIDPParams {
     hint: string;
@@ -78,6 +78,8 @@ export const loginIDPUser = async (
     success: boolean;
     error?: string;
 }> => {
+    const { t } = getTranslation(context);
+
     try {
         const session = getAuth(context);
         const slasClient = await createClient(context).ShopperLogin.getInstance();
@@ -88,7 +90,7 @@ export const loginIDPUser = async (
         const isSlasPrivate = config.commerce.api.privateKeyEnabled;
 
         if (!codeVerifier) {
-            throw new Error(uiStrings.errors.codeVerifierMissing);
+            throw new Error(t('errors:codeVerifierMissing'));
         }
 
         const res = await loginIDPUserHelper({
@@ -134,6 +136,8 @@ export const loginIDPUser = async (
 };
 
 export async function handleSocialLoginLanding({ request, context }: LoaderFunctionArgs): Promise<Response> {
+    const { t } = getTranslation(context);
+
     try {
         const config = getConfig(context);
         const url = new URL(request.url);
@@ -147,8 +151,8 @@ export async function handleSocialLoginLanding({ request, context }: LoaderFunct
         // Handle error from social provider
         if (error) {
             // eslint-disable-next-line no-console
-            console.error('[Social Login] Failed to login:', uiStrings.socialCallback.socialError, error);
-            flashAuth(context, uiStrings.socialCallback.socialError);
+            console.error('[Social Login] Failed to login:', t('socialCallback:socialError'), error);
+            flashAuth(context, t('socialCallback:socialError'));
             return redirect('/login');
         }
 

@@ -15,7 +15,7 @@ import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import { useProductImages } from '@/hooks/product/use-product-images';
 import ImageGallery from '@/components/image-gallery';
 import ProductInfo from '@/components/product-view/product-info';
@@ -151,6 +151,8 @@ export function CartItemEditModal({
         });
     }, []);
 
+    const { t } = useTranslation('editItem');
+
     // Close modal immediately before update (optimistic UI)
     const handleCloseModal = useCallback(() => {
         onOpenChange?.(false);
@@ -162,7 +164,7 @@ export function CartItemEditModal({
                 showCloseButton
                 aria-describedby={undefined}>
                 <DialogHeader>
-                    <DialogTitle>{uiStrings.editItem.title}</DialogTitle>
+                    <DialogTitle>{t('title')}</DialogTitle>
                 </DialogHeader>
                 <ProductViewProvider
                     product={currentProduct}

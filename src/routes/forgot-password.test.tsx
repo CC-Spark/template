@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import ForgotPassword, { loader, action } from './forgot-password';
 import { getAuth, getPasswordResetToken } from '@/middlewares/auth.server';
-import uiStrings from '@/temp-ui-string';
 
 // Mock dependencies
 vi.mock('@/middlewares/auth.server', () => ({
@@ -126,7 +128,7 @@ describe('forgot-password route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.resetPassword.emailRequired,
+                    error: t('resetPassword:emailRequired'),
                 });
             });
 
@@ -151,7 +153,7 @@ describe('forgot-password route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.resetPassword.emailRequired,
+                    error: t('resetPassword:emailRequired'),
                 });
             });
         });
@@ -251,7 +253,7 @@ describe('forgot-password route', () => {
                 });
                 // Should show generic error, not the actual API error
                 expect(result).toEqual({
-                    error: uiStrings.errors.somethingWentWrong,
+                    error: t('errors:somethingWentWrong'),
                 });
             });
 
@@ -280,7 +282,7 @@ describe('forgot-password route', () => {
 
                 // Should not reveal that email doesn't exist (security best practice)
                 expect(result).toEqual({
-                    error: uiStrings.errors.somethingWentWrong,
+                    error: t('errors:somethingWentWrong'),
                 });
             });
 
@@ -309,7 +311,7 @@ describe('forgot-password route', () => {
 
                 // Should not expose Marketing Cloud error details
                 expect(result).toEqual({
-                    error: uiStrings.errors.somethingWentWrong,
+                    error: t('errors:somethingWentWrong'),
                 });
             });
         });
@@ -425,8 +427,8 @@ describe('forgot-password route', () => {
 
                 renderWithRouter(<ForgotPassword />);
 
-                expect(screen.getByText(uiStrings.resetPassword.title)).toBeInTheDocument();
-                expect(screen.getByText(uiStrings.resetPassword.subtitle)).toBeInTheDocument();
+                expect(screen.getByText(t('resetPassword:title'))).toBeInTheDocument();
+                expect(screen.getByText(t('resetPassword:subtitle'))).toBeInTheDocument();
             });
 
             it('should pass error to form component when action returns error', () => {
@@ -450,11 +452,9 @@ describe('forgot-password route', () => {
 
                 renderWithRouter(<ForgotPassword />);
 
-                expect(screen.getByText(uiStrings.resetPassword.checkEmailTitle)).toBeInTheDocument();
+                expect(screen.getByText(t('resetPassword:checkEmailTitle'))).toBeInTheDocument();
                 expect(
-                    screen.getByText(
-                        uiStrings.resetPassword.checkEmailDescription.replace('{email}', 'test@example.com')
-                    )
+                    screen.getByText(t('resetPassword:checkEmailDescription', { email: 'test@example.com' }))
                 ).toBeInTheDocument();
             });
 
@@ -466,7 +466,7 @@ describe('forgot-password route', () => {
 
                 renderWithRouter(<ForgotPassword />);
 
-                const backButton = screen.getByRole('button', { name: uiStrings.resetPassword.backToSignIn });
+                const backButton = screen.getByRole('button', { name: t('resetPassword:backToSignIn') });
                 expect(backButton).toBeInTheDocument();
 
                 // Button should be wrapped in a Link to /login
@@ -496,7 +496,7 @@ describe('forgot-password route', () => {
                 renderWithRouter(<ForgotPassword />);
 
                 expect(
-                    screen.getByText(uiStrings.resetPassword.checkEmailDescription.replace('{email}', testEmail))
+                    screen.getByText(t('resetPassword:checkEmailDescription', { email: testEmail }))
                 ).toBeInTheDocument();
             });
 
@@ -510,7 +510,7 @@ describe('forgot-password route', () => {
                 renderWithRouter(<ForgotPassword />);
 
                 expect(
-                    screen.getByText(uiStrings.resetPassword.checkEmailDescription.replace('{email}', testEmail))
+                    screen.getByText(t('resetPassword:checkEmailDescription', { email: testEmail }))
                 ).toBeInTheDocument();
             });
 
@@ -524,7 +524,7 @@ describe('forgot-password route', () => {
 
                 // Should render form instead of success message
                 expect(screen.getByTestId('forgot-password-form')).toBeInTheDocument();
-                expect(screen.queryByText(uiStrings.resetPassword.checkEmailTitle)).not.toBeInTheDocument();
+                expect(screen.queryByText(t('resetPassword:checkEmailTitle'))).not.toBeInTheDocument();
             });
         });
     });

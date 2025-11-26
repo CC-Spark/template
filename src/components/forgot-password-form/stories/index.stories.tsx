@@ -4,7 +4,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ForgotPasswordFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -112,10 +112,11 @@ Default forgot password form.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for email input
         const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.emailPlaceholder,
+            t('resetPassword:emailPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -148,6 +149,7 @@ Forgot password form with error message.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for error message
         const errorMessage = await canvas.findByText(/email address not found/i, {}, { timeout: 5000 });
@@ -155,7 +157,7 @@ Forgot password form with error message.
 
         // Check for email input
         const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.emailPlaceholder,
+            t('resetPassword:emailPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -179,10 +181,11 @@ Interactive forgot password form for testing user interactions.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Find and interact with email input
         const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.emailPlaceholder,
+            t('resetPassword:emailPlaceholder'),
             {},
             { timeout: 5000 }
         );

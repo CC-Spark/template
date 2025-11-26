@@ -3,6 +3,8 @@ import { expect, userEvent, within } from 'storybook/test';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { waitForStorybookReady } from '@storybook/test-utils';
+import { getTranslation } from '@/lib/i18next';
+
 import { checkoutWithOneItem, checkoutWithMultipleItems } from '@/components/__mocks__/checkout-data';
 import emptyBasket from '@/components/__mocks__/empty-basket';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
@@ -14,9 +16,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-// import { cn } from '@/lib/utils';
-import uiStrings from '@/temp-ui-string';
 
+// import { cn } from '@/lib/utils';
 // Create a mock checkout form page component that matches the exact production look
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -122,6 +123,7 @@ function MockCheckoutFormPage({
     isLoading?: boolean;
     isSubmitting?: boolean;
 }) {
+    const { t } = getTranslation();
     const STEPS = {
         CONTACT_INFO: 0,
         SHIPPING_ADDRESS: 1,
@@ -191,7 +193,7 @@ function MockCheckoutFormPage({
                 <Card className="w-full max-w-md">
                     <CardContent className="pt-6">
                         <Typography variant="muted" className="text-center">
-                            {uiStrings.checkout.common.emptyCart}
+                            {t('cart:empty.title')}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -221,23 +223,23 @@ function MockCheckoutFormPage({
                         {/* Contact Info Step */}
                         <ToggleCard
                             id="contact-info"
-                            title={getStepTitleText(STEPS.CONTACT_INFO, uiStrings.checkout.contactInfo.title)}
+                            title={getStepTitleText(STEPS.CONTACT_INFO, t('checkout:contactInfo.title'))}
                             editing={getStepStatus(STEPS.CONTACT_INFO) === 'current'}
                             disabled={getStepStatus(STEPS.CONTACT_INFO) === 'upcoming'}
                             onEdit={() => {
                                 action('edit-contact-info')();
                             }}
-                            editLabel={uiStrings.checkout.common.edit}
+                            editLabel={t('actionCard:edit')}
                             isLoading={isLoading}>
                             <ToggleCardEdit>
                                 <div className="space-y-6">
                                     <div>
                                         <label className="block text-sm font-medium text-foreground mb-2">
-                                            {uiStrings.checkout.contactInfo.emailLabel}
+                                            {t('checkout:contactInfo.emailLabel')}
                                         </label>
                                         <Input
                                             type="email"
-                                            placeholder={uiStrings.checkout.contactInfo.emailPlaceholder}
+                                            placeholder={t('checkout:contactInfo.emailPlaceholder')}
                                             defaultValue={cart.customerInfo?.email || ''}
                                             disabled={isLoading}
                                         />
@@ -245,8 +247,8 @@ function MockCheckoutFormPage({
                                     <div className="flex justify-center">
                                         <Button disabled={isLoading} size="lg" className="min-w-48">
                                             {isLoading
-                                                ? uiStrings.checkout.contactInfo.saving
-                                                : uiStrings.checkout.contactInfo.continue}
+                                                ? t('checkout:contactInfo.saving')
+                                                : t('checkout:contactInfo.continue')}
                                         </Button>
                                     </div>
                                 </div>
@@ -255,7 +257,7 @@ function MockCheckoutFormPage({
                             <ToggleCardSummary>
                                 <div className="space-y-2">
                                     <Typography variant="small" className="text-muted-foreground">
-                                        {uiStrings.checkout.contactInfo.emailLabel}
+                                        {t('checkout:contactInfo.emailLabel')}
                                     </Typography>
                                     <Typography variant="p" className="font-medium">
                                         {cart.customerInfo?.email}
@@ -268,38 +270,33 @@ function MockCheckoutFormPage({
                         {step >= STEPS.SHIPPING_ADDRESS && (
                             <ToggleCard
                                 id="shipping-address"
-                                title={getStepTitleText(
-                                    STEPS.SHIPPING_ADDRESS,
-                                    uiStrings.checkout.shippingAddress.title
-                                )}
+                                title={getStepTitleText(STEPS.SHIPPING_ADDRESS, t('checkout:shippingAddress.title'))}
                                 editing={getStepStatus(STEPS.SHIPPING_ADDRESS) === 'current'}
                                 disabled={getStepStatus(STEPS.SHIPPING_ADDRESS) === 'upcoming'}
                                 onEdit={() => {
                                     action('edit-shipping-address')();
                                 }}
-                                editLabel={uiStrings.checkout.common.edit}
+                                editLabel={t('actionCard:edit')}
                                 isLoading={isLoading}>
                                 <ToggleCardEdit>
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {uiStrings.checkout.shippingAddress.firstNameLabel}
+                                                    {t('checkout:shippingAddress.firstNameLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={
-                                                        uiStrings.checkout.shippingAddress.firstNamePlaceholder
-                                                    }
+                                                    placeholder={t('checkout:shippingAddress.firstNamePlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.firstName || ''}
                                                     disabled={isLoading}
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {uiStrings.checkout.shippingAddress.lastNameLabel}
+                                                    {t('checkout:shippingAddress.lastNameLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={uiStrings.checkout.shippingAddress.lastNamePlaceholder}
+                                                    placeholder={t('checkout:shippingAddress.lastNamePlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.lastName || ''}
                                                     disabled={isLoading}
                                                 />
@@ -308,10 +305,10 @@ function MockCheckoutFormPage({
 
                                         <div>
                                             <label className="block text-sm font-medium text-foreground mb-2">
-                                                {uiStrings.checkout.shippingAddress.addressLabel}
+                                                {t('checkout:shippingAddress.addressLabel')}
                                             </label>
                                             <Input
-                                                placeholder={uiStrings.checkout.shippingAddress.addressPlaceholder}
+                                                placeholder={t('checkout:shippingAddress.addressPlaceholder')}
                                                 defaultValue={cart.shipments?.[0]?.shippingAddress?.address1 || ''}
                                                 disabled={isLoading}
                                             />
@@ -319,10 +316,10 @@ function MockCheckoutFormPage({
 
                                         <div>
                                             <label className="block text-sm font-medium text-foreground mb-2">
-                                                {uiStrings.checkout.shippingAddress.address2Label}
+                                                {t('checkout:shippingAddress.address2Label')}
                                             </label>
                                             <Input
-                                                placeholder={uiStrings.checkout.shippingAddress.address2Placeholder}
+                                                placeholder={t('checkout:shippingAddress.address2Placeholder')}
                                                 defaultValue={cart.shipments?.[0]?.shippingAddress?.address2 || ''}
                                                 disabled={isLoading}
                                             />
@@ -331,30 +328,30 @@ function MockCheckoutFormPage({
                                         <div className="grid grid-cols-3 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {uiStrings.checkout.shippingAddress.cityLabel}
+                                                    {t('checkout:shippingAddress.cityLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={uiStrings.checkout.shippingAddress.cityPlaceholder}
+                                                    placeholder={t('checkout:shippingAddress.cityPlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.city || ''}
                                                     disabled={isLoading}
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {uiStrings.checkout.shippingAddress.stateLabel}
+                                                    {t('checkout:shippingAddress.stateLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={uiStrings.checkout.shippingAddress.statePlaceholder}
+                                                    placeholder={t('checkout:shippingAddress.statePlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.stateCode || ''}
                                                     disabled={isLoading}
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {uiStrings.checkout.shippingAddress.zipLabel}
+                                                    {t('checkout:shippingAddress.zipLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={uiStrings.checkout.shippingAddress.zipPlaceholder}
+                                                    placeholder={t('checkout:shippingAddress.zipPlaceholder')}
                                                     defaultValue={
                                                         cart.shipments?.[0]?.shippingAddress?.postalCode || ''
                                                     }
@@ -365,11 +362,11 @@ function MockCheckoutFormPage({
 
                                         <div>
                                             <label className="block text-sm font-medium text-foreground mb-2">
-                                                {uiStrings.checkout.shippingAddress.phoneLabel}
+                                                {t('checkout:shippingAddress.phoneLabel')}
                                             </label>
                                             <Input
                                                 type="tel"
-                                                placeholder={uiStrings.checkout.shippingAddress.phonePlaceholder}
+                                                placeholder={t('checkout:shippingAddress.phonePlaceholder')}
                                                 defaultValue={cart.shipments?.[0]?.shippingAddress?.phone || ''}
                                                 disabled={isLoading}
                                             />
@@ -378,8 +375,8 @@ function MockCheckoutFormPage({
                                         <div className="flex justify-center pt-2">
                                             <Button disabled={isLoading} size="lg" className="min-w-48">
                                                 {isLoading
-                                                    ? uiStrings.checkout.common.submitting
-                                                    : uiStrings.checkout.shippingAddress.continue}
+                                                    ? t('checkout:common.submitting')
+                                                    : t('checkout:shippingAddress.continue')}
                                             </Button>
                                         </div>
                                     </div>
@@ -424,10 +421,7 @@ function MockCheckoutFormPage({
                         {step >= STEPS.SHIPPING_OPTIONS && (
                             <ToggleCard
                                 id="shipping-options"
-                                title={getStepTitleText(
-                                    STEPS.SHIPPING_OPTIONS,
-                                    uiStrings.checkout.shippingOptions.title
-                                )}
+                                title={getStepTitleText(STEPS.SHIPPING_OPTIONS, t('checkout:shippingOptions.title'))}
                                 editing={getStepStatus(STEPS.SHIPPING_OPTIONS) === 'current'}
                                 disabled={getStepStatus(STEPS.SHIPPING_OPTIONS) === 'upcoming'}
                                 onEdit={() => {
@@ -486,8 +480,8 @@ function MockCheckoutFormPage({
                                         <div className="flex justify-center">
                                             <Button disabled={isLoading} size="lg" className="min-w-48">
                                                 {isLoading
-                                                    ? uiStrings.checkout.shippingOptions.saving
-                                                    : uiStrings.checkout.shippingOptions.continue}
+                                                    ? t('checkout:shippingOptions.saving')
+                                                    : t('checkout:shippingOptions.continue')}
                                             </Button>
                                         </div>
                                     </div>
@@ -523,13 +517,13 @@ function MockCheckoutFormPage({
                         {step >= STEPS.PAYMENT && (
                             <ToggleCard
                                 id="payment"
-                                title={getStepTitleText(STEPS.PAYMENT, uiStrings.checkout.payment.title)}
+                                title={getStepTitleText(STEPS.PAYMENT, t('checkout:payment.title'))}
                                 editing={getStepStatus(STEPS.PAYMENT) === 'current'}
                                 disabled={getStepStatus(STEPS.PAYMENT) === 'upcoming'}
                                 onEdit={() => {
                                     action('edit-payment')();
                                 }}
-                                editLabel={uiStrings.checkout.common.edit}
+                                editLabel={t('actionCard:edit')}
                                 isLoading={isLoading}>
                                 <ToggleCardEdit>
                                     <div className="space-y-6">
@@ -541,14 +535,12 @@ function MockCheckoutFormPage({
 
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {uiStrings.checkout.payment.cardNumberLabel}
+                                                    {t('checkout:payment.cardNumberLabel')}
                                                 </label>
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex-1">
                                                         <Input
-                                                            placeholder={
-                                                                uiStrings.checkout.payment.cardNumberPlaceholder
-                                                            }
+                                                            placeholder={t('checkout:payment.cardNumberPlaceholder')}
                                                             defaultValue={
                                                                 cart.paymentInstruments?.[0]?.paymentCard
                                                                     ?.maskedNumber || ''
@@ -564,10 +556,10 @@ function MockCheckoutFormPage({
 
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {uiStrings.checkout.payment.cardholderLabel}
+                                                    {t('checkout:payment.cardholderLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={uiStrings.checkout.payment.cardholderPlaceholder}
+                                                    placeholder={t('checkout:payment.cardholderPlaceholder')}
                                                     defaultValue={
                                                         cart.paymentInstruments?.[0]?.paymentCard?.holder || ''
                                                     }
@@ -578,10 +570,10 @@ function MockCheckoutFormPage({
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="block text-sm font-medium text-foreground mb-2">
-                                                        {uiStrings.checkout.payment.expiryLabel}
+                                                        {t('checkout:payment.expiryLabel')}
                                                     </label>
                                                     <Input
-                                                        placeholder={uiStrings.checkout.payment.expiryPlaceholder}
+                                                        placeholder={t('checkout:payment.expiryPlaceholder')}
                                                         defaultValue={
                                                             cart.paymentInstruments?.[0]?.paymentCard
                                                                 ? `${cart.paymentInstruments[0].paymentCard.expirationMonth}/${cart.paymentInstruments[0].paymentCard.expirationYear}`
@@ -592,10 +584,10 @@ function MockCheckoutFormPage({
                                                 </div>
                                                 <div>
                                                     <label className="block text-sm font-medium text-foreground mb-2">
-                                                        {uiStrings.checkout.payment.cvvLabel}
+                                                        {t('checkout:payment.cvvLabel')}
                                                     </label>
                                                     <Input
-                                                        placeholder={uiStrings.checkout.payment.cvvPlaceholder}
+                                                        placeholder={t('checkout:payment.cvvPlaceholder')}
                                                         disabled={isLoading}
                                                     />
                                                 </div>
@@ -611,17 +603,14 @@ function MockCheckoutFormPage({
                                                     <Checkbox
                                                         checked={true}
                                                         className="mt-0.5"
-                                                        aria-label={uiStrings.checkout.payment.billingSameAsShipping}
+                                                        aria-label={t('checkout:payment.billingSameAsShipping')}
                                                     />
                                                     <div className="space-y-1 leading-none">
                                                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                                            {uiStrings.checkout.payment.billingSameAsShipping}
+                                                            {t('checkout:payment.billingSameAsShipping')}
                                                         </label>
                                                         <Typography variant="small" className="text-muted-foreground">
-                                                            {
-                                                                uiStrings.checkout.payment
-                                                                    .billingSameAsShippingDescription
-                                                            }
+                                                            {t('checkout:payment.billingSameAsShippingDescription')}
                                                         </Typography>
                                                     </div>
                                                 </div>
@@ -631,8 +620,8 @@ function MockCheckoutFormPage({
                                         <div className="flex justify-center pt-2">
                                             <Button disabled={isLoading} size="lg" className="min-w-48">
                                                 {isLoading
-                                                    ? uiStrings.checkout.payment.saving
-                                                    : uiStrings.checkout.payment.continue}
+                                                    ? t('checkout:payment.saving')
+                                                    : t('checkout:payment.continue')}
                                             </Button>
                                         </div>
                                     </div>
@@ -687,8 +676,8 @@ function MockCheckoutFormPage({
                                     <div className="flex justify-center">
                                         <Button disabled={isSubmitting} className="w-full max-w-sm" size="lg">
                                             {isSubmitting
-                                                ? uiStrings.checkout.placeOrder.processing
-                                                : uiStrings.checkout.placeOrder.button}
+                                                ? t('checkout:placeOrder.processing')
+                                                : t('checkout:placeOrder.button')}
                                         </Button>
                                     </div>
                                 </CardContent>
@@ -703,7 +692,7 @@ function MockCheckoutFormPage({
                                 <CardHeader>
                                     <CardTitle>
                                         <Typography variant="h4" as="h2">
-                                            {uiStrings.checkout.orderSummary.title}
+                                            {t('checkout:orderSummary.title')}
                                         </Typography>
                                     </CardTitle>
                                 </CardHeader>

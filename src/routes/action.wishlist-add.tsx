@@ -11,7 +11,7 @@ import { extractStatusCode } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { isRegisteredCustomer } from '@/lib/api/customer';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
@@ -29,6 +29,7 @@ async function getOrCreateWishlist(
     context: ActionFunctionArgs['context'],
     customerId: string
 ): Promise<CustomerProductList> {
+    const { t } = getTranslation();
     const clients = createApiClients(context);
     const config = getConfig(context);
 
@@ -59,7 +60,7 @@ async function getOrCreateWishlist(
             body: {
                 type: 'wish_list',
                 public: false,
-                name: uiStrings.account.wishlist.wishlistName,
+                name: t('account:wishlist.wishlistName'),
             },
         });
 
@@ -80,10 +81,7 @@ async function getOrCreateWishlist(
         const createdListId = createdWishlist?.listId || createdWishlist?.id;
 
         if (!createdWishlist || !createdListId) {
-            throw new Error(
-                uiStrings.account.wishlist.failedToCreate ||
-                    'Failed to create wishlist: listId not available after creation'
-            );
+            throw new Error(t('account:wishlist.failedToCreate'));
         }
         return createdWishlist;
     } catch (error) {
@@ -114,11 +112,12 @@ async function addToWishlist(
     error?: string;
     alreadyInWishlist?: boolean;
 }> {
+    const { t } = getTranslation();
     // Check if user is authenticated as registered customer
     if (!isRegisteredCustomer(context)) {
         return {
             success: false,
-            error: uiStrings.errors.api.unauthorized,
+            error: t('errors:api.unauthorized'),
         };
     }
 
@@ -126,7 +125,7 @@ async function addToWishlist(
     if (!session.customer_id) {
         return {
             success: false,
-            error: uiStrings.errors.customer.notAuthenticated,
+            error: t('errors:customer.notAuthenticated'),
         };
     }
 
@@ -260,9 +259,7 @@ async function addToWishlist(
 
             return {
                 success: false,
-                error:
-                    uiStrings.account.wishlist.unableToRetrieveId ||
-                    'Unable to retrieve wishlist ID. Please try again.',
+                error: t('account:wishlist.unableToRetrieveId'),
             };
         }
 
@@ -416,7 +413,7 @@ async function addToWishlist(
         if (status_code === '401' || status_code === '403') {
             return {
                 success: false,
-                error: uiStrings.errors.api.unauthorized,
+                error: t('errors:api.unauthorized'),
             };
         }
 
@@ -459,7 +456,7 @@ async function addToWishlist(
 
         return {
             success: false,
-            error: responseMessage || uiStrings.product.failedToAddToWishlist,
+            error: responseMessage || t('product:failedToAddToWishlist'),
         };
     }
 }
@@ -468,8 +465,10 @@ async function addToWishlist(
  * Client action to add a product to the wishlist
  */
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     if (request.method !== 'POST') {
-        throw new Response(uiStrings.product.methodNotAllowed, { status: 405 });
+        throw new Response(t('product:methodNotAllowed'), { status: 405 });
     }
 
     try {
@@ -478,12 +477,12 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         const productId = typeof rawProductId === 'string' ? rawProductId.trim() : '';
 
         if (!productId) {
-            throw new Error(uiStrings.product.productIdRequired);
+            throw new Error(t('product:productIdRequired'));
         }
 
         // Basic validation: productId should be a non-empty string
         if (productId.length === 0 || productId.length > 100) {
-            throw new Error(uiStrings.product.productIdRequired);
+            throw new Error(t('product:productIdRequired'));
         }
 
         const result = await addToWishlist(context, productId);
@@ -504,7 +503,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         return data(
             {
                 success: false,
-                error: responseMessage || uiStrings.errors.api.unexpectedError,
+                error: responseMessage || t('errors:api.unexpectedError'),
             },
             { status: status_code ? parseInt(status_code, 10) : 500 }
         );

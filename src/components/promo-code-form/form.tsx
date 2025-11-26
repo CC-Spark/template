@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -12,10 +12,9 @@ import { useToast } from '@/components/toast';
 import { usePromoCodeActions } from '@/hooks/use-promo-code-actions';
 
 //types
-import { promoCodeFormSchema } from './index';
-import { type PromoCodeFormData, type PromoCodeFormProps } from './types';
-
-import uiStrings from '@/temp-ui-string';
+import { createPromoCodeFormSchema, type PromoCodeFormData } from './index';
+import { type PromoCodeFormProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 // value for promo code accordion that will be used for open/close state
 const PROMO_CODE_FORM_VAL = 'promo-code';
@@ -42,6 +41,7 @@ const PROMO_CODE_FORM_VAL = 'promo-code';
  *
  */
 export const PromoCodeForm = ({ basket }: PromoCodeFormProps) => {
+    const { t } = useTranslation('cart');
     const basketId = basket?.basketId;
     const [isOpen, setIsOpen] = useState(false);
     const { applyPromoCode, removePromoCode, removeFetcher, applyFetcher } = usePromoCodeActions(basketId);
@@ -50,7 +50,7 @@ export const PromoCodeForm = ({ basket }: PromoCodeFormProps) => {
     useEffect(() => {
         if (removeFetcher.data) {
             if (removeFetcher.data.success) {
-                addToast(uiStrings.cart.promoCode.removeSuccessMessage, 'success');
+                addToast(t('promoCode.removeSuccessMessage'), 'success');
             } else if (removeFetcher.data.error) {
                 addToast(removeFetcher.data.error, 'error');
             }
@@ -59,10 +59,12 @@ export const PromoCodeForm = ({ basket }: PromoCodeFormProps) => {
         // because they are not likely to change once initialized
         // linting is being cautious and warn about it, but we don't need to follow it
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [removeFetcher.data]);
+    }, [removeFetcher.data, t]);
+
+    const schema = useMemo(() => createPromoCodeFormSchema(t), [t]);
 
     const form = useForm<PromoCodeFormData>({
-        resolver: zodResolver(promoCodeFormSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             code: '',
         },
@@ -81,10 +83,10 @@ export const PromoCodeForm = ({ basket }: PromoCodeFormProps) => {
         if (applyFetcher.data) {
             if (applyFetcher.data.success) {
                 form.reset({ code: '' });
-                addToast(uiStrings.cart.promoCode.successMessage, 'success');
+                addToast(t('promoCode.successMessage'), 'success');
             } else {
                 // Get the error message from the API response
-                const errorMessage = applyFetcher.data.error || uiStrings.cart.promoCode.errorMessage;
+                const errorMessage = applyFetcher.data.error || t('promoCode.errorMessage');
 
                 // Set the form error with the specific API error message
                 form.setError('code', {
@@ -98,7 +100,7 @@ export const PromoCodeForm = ({ basket }: PromoCodeFormProps) => {
         }
         // addToast is stable and does not need to be in the dependency array
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [applyFetcher.data, form]);
+    }, [applyFetcher.data, form, t]);
 
     /**
      * Handles form submission for applying a promo code.
@@ -115,7 +117,7 @@ export const PromoCodeForm = ({ basket }: PromoCodeFormProps) => {
         if (!basketId) {
             form.setError('code', {
                 type: 'manual',
-                message: uiStrings.cart.promoCode.noBasketMessage,
+                message: t('promoCode.noBasketMessage'),
             });
             return;
         }
@@ -133,9 +135,7 @@ export const PromoCodeForm = ({ basket }: PromoCodeFormProps) => {
                 className="mb-3">
                 <AccordionItem value={PROMO_CODE_FORM_VAL}>
                     <AccordionTrigger onClick={() => form.reset()} className="py-2">
-                        <span className="flex-1 text-left text-sm font-medium">
-                            {uiStrings.cart.promoCode.accordionTitle}
-                        </span>
+                        <span className="flex-1 text-left text-sm font-medium">{t('promoCode.accordionTitle')}</span>
                     </AccordionTrigger>
                     <AccordionContent className="px-0 py-0">
                         <div className="bg-background">

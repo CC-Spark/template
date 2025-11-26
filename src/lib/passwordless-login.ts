@@ -1,6 +1,5 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect, type RouterContextProvider } from 'react-router';
 import { extractResponseError, getAppOrigin } from '@/lib/utils';
-import uiStrings from '@/temp-ui-string';
 import { getConfig } from '@/config';
 import { flashAuth, getPasswordLessAccessToken, updateAuth } from '@/middlewares/auth.server';
 import { mergeBasket } from '@/lib/api/basket';
@@ -9,6 +8,7 @@ import {
     sendMarketingCloudEmail,
     validateSlasCallbackToken,
 } from '@/lib/marketing-cloud';
+import { getTranslation } from '@/lib/i18next';
 
 // Re-export for backwards compatibility with tests
 export { resetMarketingCloudTokenCache };
@@ -47,6 +47,8 @@ async function sendMagicLinkEmail(
  * Processes SLAS callback token and sends magic link email
  */
 export async function handlePasswordlessCallback({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation(context);
+
     try {
         // Extract SLAS callback token from headers
         const slasCallbackToken = request.headers.get('x-slas-callback-token');
@@ -54,7 +56,7 @@ export async function handlePasswordlessCallback({ request, context }: ActionFun
         if (!slasCallbackToken) {
             return {
                 success: false,
-                error: uiStrings.errors.passwordless.missingCallbackToken,
+                error: t('errors:passwordless.missingCallbackToken'),
             };
         }
 
@@ -68,7 +70,7 @@ export async function handlePasswordlessCallback({ request, context }: ActionFun
         if (!email_id || !token) {
             return {
                 success: false,
-                error: uiStrings.errors.passwordless.missingRequiredFields,
+                error: t('errors:passwordless.missingRequiredFields'),
             };
         }
 
@@ -93,6 +95,8 @@ export async function handlePasswordlessCallback({ request, context }: ActionFun
  * Processes magic link token and authenticates user
  */
 export async function handlePasswordlessLanding({ request, context }: LoaderFunctionArgs) {
+    const { t } = getTranslation(context);
+
     try {
         const url = new URL(request.url);
         const token = url.searchParams.get('token');
@@ -100,7 +104,7 @@ export async function handlePasswordlessLanding({ request, context }: LoaderFunc
 
         if (!token) {
             // Use existing flashAuth pattern for error handling
-            flashAuth(context, uiStrings.errors.passwordless.missingToken);
+            flashAuth(context, t('errors:passwordless.missingToken'));
             return redirect('/login');
         }
 

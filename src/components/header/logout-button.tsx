@@ -2,10 +2,11 @@
 
 import { Form, useNavigation } from 'react-router';
 import { Button } from '@/components/ui/button';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 export default function LogoutButton() {
     const navigation = useNavigation();
+    const { t } = useTranslation('header');
     const isSubmitting = navigation.state === 'submitting' && navigation.formAction === '/logout';
 
     return (
@@ -14,10 +15,10 @@ export default function LogoutButton() {
                 {isSubmitting ? (
                     <div className="flex items-center">
                         <div className="animate-spin rounded-full h-3 w-3 border-2 border-current border-t-transparent mr-1" />
-                        {uiStrings.header.signingOut}
+                        {t('signingOut')}
                     </div>
                 ) : (
-                    uiStrings.header.signOut
+                    t('signOut')
                 )}
             </Button>
         </Form>

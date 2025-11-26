@@ -4,7 +4,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ForgotPasswordFormFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -112,10 +112,11 @@ Default forgot password form component.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for email input
         const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.emailPlaceholder,
+            t('resetPassword:emailPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -167,10 +168,11 @@ Interactive forgot password form for testing user interactions.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Find and interact with email input
         const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.emailPlaceholder,
+            t('resetPassword:emailPlaceholder'),
             {},
             { timeout: 5000 }
         );

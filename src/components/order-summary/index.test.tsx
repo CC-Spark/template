@@ -2,7 +2,9 @@ import { describe, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import OrderSummary from './index';
 
 // Mock the currency formatter
@@ -113,22 +115,22 @@ describe('OrderSummary', () => {
     test('renders order summary with default props', () => {
         render(<OrderSummary basket={mockBasket} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.orderSummary)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.orderSummary'))).toBeInTheDocument();
         expect(screen.getByTestId('sf-order-summary')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.summary.subtotal)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.subtotal'))).toBeInTheDocument();
         expect(screen.getByText('$100.00')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.summary.shipping)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.shipping'))).toBeInTheDocument();
         expect(screen.getByText('$10.00')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.summary.tax)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.tax'))).toBeInTheDocument();
         expect(screen.getByText('$8.50')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.summary.orderTotal)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.orderTotal'))).toBeInTheDocument();
         expect(screen.getByText('$118.50')).toBeInTheDocument();
     });
 
     test('does not render heading when showHeading is false', () => {
         render(<OrderSummary basket={mockBasket} showHeading={false} />);
 
-        expect(screen.queryByText(uiStrings.cart.summary.orderSummary)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.orderSummary'))).not.toBeInTheDocument();
     });
 
     test('does not render cart items when showCartItems is false', () => {
@@ -143,21 +145,21 @@ describe('OrderSummary', () => {
         render(<OrderSummary basket={mockBasket} productsByItemId={mockProductsByItemId} />);
 
         // Total items: 2 + 1 = 3 items
-        expect(screen.getByText(uiStrings.cart.items.itemsInCart.other.replace('{count}', '3'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:items.itemsInCart.other', { count: 3 }))).toBeInTheDocument();
 
         // Open the accordion to access the content
         const accordionTrigger = screen.getByRole('button');
         await user.click(accordionTrigger);
 
         expect(screen.getByTestId('product-items-list')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.items.editCart)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:items.editCart'))).toBeInTheDocument();
     });
 
     test('shows correct item count text for different quantities', () => {
         // Test zero items
         const emptyBasket = { ...mockBasket, productItems: [] };
         const { rerender } = render(<OrderSummary basket={emptyBasket} />);
-        expect(screen.getByText(uiStrings.cart.items.itemsInCart.zero)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:items.itemsInCart.zero'))).toBeInTheDocument();
 
         // Test one item
         const oneItemBasket = {
@@ -165,7 +167,7 @@ describe('OrderSummary', () => {
             productItems: [{ itemId: 'item1', productId: 'product1', quantity: 1, price: 50.0 }],
         };
         rerender(<OrderSummary basket={oneItemBasket} />);
-        expect(screen.getByText(uiStrings.cart.items.itemsInCart.one)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:items.itemsInCart.one'))).toBeInTheDocument();
     });
 
     test('expands cart items accordion when itemsExpanded is true', () => {
@@ -173,7 +175,7 @@ describe('OrderSummary', () => {
 
         // The accordion should be expanded by default, so ProductItemsList should be visible
         expect(screen.getByTestId('product-items-list')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.items.editCart)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:items.editCart'))).toBeInTheDocument();
     });
 
     test('renders promo code form when showPromoCodeForm is true', async () => {
@@ -181,18 +183,18 @@ describe('OrderSummary', () => {
         render(<OrderSummary basket={mockBasket} showPromoCodeForm={true} />);
 
         // Open the promo code accordion
-        const promoCodeTrigger = screen.getByText(uiStrings.cart.promoCode.accordionTitle);
+        const promoCodeTrigger = screen.getByText(t('cart:promoCode.accordionTitle'));
         await user.click(promoCodeTrigger);
 
-        expect(screen.getByPlaceholderText(uiStrings.cart.promoCode.placeholder)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: uiStrings.cart.promoCode.apply })).toBeInTheDocument();
+        expect(screen.getByPlaceholderText(t('cart:promoCode.placeholder'))).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('cart:promoCode.apply') })).toBeInTheDocument();
     });
 
     test('shows estimated total when isEstimate is true', () => {
         render(<OrderSummary basket={mockBasket} isEstimate={true} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.estimatedTotal)).toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.cart.summary.orderTotal)).not.toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.estimatedTotal'))).toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.orderTotal'))).not.toBeInTheDocument();
     });
 
     test('displays order price adjustments when present', () => {
@@ -235,8 +237,8 @@ describe('OrderSummary', () => {
 
         render(<OrderSummary basket={basketWithFreeShipping} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.shippingPromotionApplied)).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.summary.shippingFree)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.shippingPromotionApplied'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.shippingFree'))).toBeInTheDocument();
     });
 
     test('shows TBD when shippingTotal is undefined', () => {
@@ -247,8 +249,8 @@ describe('OrderSummary', () => {
 
         render(<OrderSummary basket={basketWithUndefinedShipping} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.shippingTbd)).toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.cart.summary.shippingFree)).not.toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.shippingTbd'))).toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.shippingFree'))).not.toBeInTheDocument();
         expect(screen.queryByText('$0.00')).not.toBeInTheDocument();
     });
 
@@ -260,8 +262,8 @@ describe('OrderSummary', () => {
 
         render(<OrderSummary basket={basketWithNullShipping} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.shippingTbd)).toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.cart.summary.shippingFree)).not.toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.shippingTbd'))).toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.shippingFree'))).not.toBeInTheDocument();
         expect(screen.queryByText('$0.00')).not.toBeInTheDocument();
     });
 
@@ -274,8 +276,8 @@ describe('OrderSummary', () => {
         render(<OrderSummary basket={basketWithPositiveShipping} />);
 
         expect(screen.getByText('$15.99')).toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.cart.summary.shippingFree)).not.toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.cart.summary.shippingTbd)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.shippingFree'))).not.toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.shippingTbd'))).not.toBeInTheDocument();
     });
 
     test('shows TBD when taxTotal is undefined', () => {
@@ -286,7 +288,7 @@ describe('OrderSummary', () => {
 
         render(<OrderSummary basket={basketWithoutTax} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.taxTbd)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.taxTbd'))).toBeInTheDocument();
     });
 
     test('shows TBD when taxTotal is null', () => {
@@ -297,7 +299,7 @@ describe('OrderSummary', () => {
 
         render(<OrderSummary basket={basketWithNullTax} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.taxTbd)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.taxTbd'))).toBeInTheDocument();
     });
 
     test('shows formatted currency when taxTotal is zero', () => {
@@ -309,7 +311,7 @@ describe('OrderSummary', () => {
         render(<OrderSummary basket={basketWithZeroTax} />);
 
         expect(screen.getByText('$0.00')).toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.cart.summary.taxTbd)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.taxTbd'))).not.toBeInTheDocument();
     });
 
     test('shows formatted currency when taxTotal is positive number', () => {
@@ -321,7 +323,7 @@ describe('OrderSummary', () => {
         render(<OrderSummary basket={basketWithPositiveTax} />);
 
         expect(screen.getByText('$12.75')).toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.cart.summary.taxTbd)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('cart:summary.taxTbd'))).not.toBeInTheDocument();
     });
 
     test('displays applied coupon items with remove buttons', () => {
@@ -366,7 +368,7 @@ describe('OrderSummary', () => {
     test('handles missing basket data gracefully', () => {
         render(<OrderSummary basket={{} as ShopperBasketsV2.schemas['Basket']} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.noBasketData)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.noBasketData'))).toBeInTheDocument();
     });
 
     test('handles basket with orderNo instead of basketId', () => {
@@ -378,7 +380,7 @@ describe('OrderSummary', () => {
 
         render(<OrderSummary basket={orderBasket} />);
 
-        expect(screen.getByText(uiStrings.cart.summary.orderSummary)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.orderSummary'))).toBeInTheDocument();
         expect(screen.getByTestId('sf-order-summary')).toBeInTheDocument();
     });
 
@@ -404,10 +406,10 @@ describe('OrderSummary', () => {
     test('has proper accessibility attributes', () => {
         render(<OrderSummary basket={mockBasket} />);
 
-        const orderSummaryRegion = screen.getByRole('region', { name: uiStrings.cart.summary.orderSummary });
+        const orderSummaryRegion = screen.getByRole('region', { name: t('cart:summary.orderSummary') });
         expect(orderSummaryRegion).toBeInTheDocument();
 
-        const heading = screen.getByRole('heading', { name: uiStrings.cart.summary.orderSummary });
+        const heading = screen.getByRole('heading', { name: t('cart:summary.orderSummary') });
         expect(heading).toBeInTheDocument();
         expect(heading).toHaveAttribute('id', 'order-summary-heading');
     });

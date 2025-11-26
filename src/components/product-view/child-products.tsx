@@ -11,7 +11,6 @@ import ProductQuantityPicker from '@/components/product-quantity-picker';
 import { Button } from '@/components/ui/button';
 import { useProductSetsBundles } from '@/hooks/product/use-product-sets-bundles';
 import { useProductActions } from '@/hooks/product/use-product-actions';
-import uiStrings from '@/temp-ui-string';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { type ReactElement } from 'react';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
@@ -20,6 +19,7 @@ import ChildProductCard from './child-product-card';
 import DeliveryOptions from '@/extensions/bopis/components/delivery-options/delivery-options';
 import { useStoreLocator } from '@/extensions/store-locator/providers/store-locator';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
+import { useTranslation } from 'react-i18next';
 
 type ChildProductsBaseProps = {
     /** Parent product (must be a set or bundle) */
@@ -123,6 +123,7 @@ export default function ChildProducts({
     onCartSuccess,
     onCartError,
 }: ChildProductsProps): ReactElement | null {
+    const { t } = useTranslation('product');
     const isProductASet = isProductSet(parentProduct);
     const isProductABundle = isProductBundle(parentProduct);
 
@@ -271,9 +272,10 @@ export default function ChildProducts({
             {/* Progress indicator */}
             <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
                 <span>
-                    {uiStrings.product.selectedOf
-                        .replace('{selected}', selectedChildProductCount.toString())
-                        .replace('{total}', totalChildProducts.toString())}
+                    {t('selectedOf', { selected: selectedChildProductCount.toString() }).replace(
+                        '{total}',
+                        totalChildProducts.toString()
+                    )}
                 </span>
                 <div className="w-32 bg-muted rounded-full h-2">
                     <div
@@ -292,19 +294,19 @@ export default function ChildProducts({
                     className="min-w-64">
                     {isAddingToOrUpdatingCart
                         ? mode === 'edit'
-                            ? uiStrings.product.updatingCart
-                            : uiStrings.product.adding
+                            ? t('updatingCart')
+                            : t('adding')
                         : mode === 'edit'
-                          ? uiStrings.product.updateCart
+                          ? t('updateCart')
                           : isProductASet
-                            ? uiStrings.product.addSetToCart
-                            : uiStrings.product.addBundleToCart}
+                            ? t('addSetToCart')
+                            : t('addBundleToCart')}
                 </Button>
             </div>
 
             {/* Error Messages */}
             {!areAllChildProductsSelected && (
-                <div className="text-center text-destructive">{uiStrings.product.selectAllOptionsAbove}</div>
+                <div className="text-center text-destructive">{t('selectAllOptionsAbove')}</div>
             )}
         </div>
     );

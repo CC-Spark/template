@@ -20,6 +20,7 @@ type LinkProps =
 
 vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
+    createCookie: vi.fn().mockImplementation((name) => ({ name, parse: vi.fn(), serialize: vi.fn() })),
     useFetcher: () => fetcherMock,
     useFetchers: () => [],
     useNavigate: () => vi.fn(),

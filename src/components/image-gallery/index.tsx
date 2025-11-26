@@ -9,7 +9,7 @@
 
 import { useState, useEffect, type ReactElement } from 'react';
 import { DynamicImage } from '@/components/dynamic-image';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 export interface GalleryImage {
     src: string;
@@ -36,6 +36,8 @@ export default function ImageGallery({ images, eager = false }: ImageGalleryProp
         });
     }, [images]);
 
+    const { t } = useTranslation('common');
+
     // The first image is the fallback image. It's needed for when `images` are just updated, and the `selectedImageIndex` goes out of bound and is soon to be reset.
     const selectedImage = images[selectedImageIndex] ?? images[0];
 
@@ -44,7 +46,7 @@ export default function ImageGallery({ images, eager = false }: ImageGalleryProp
             <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
                 <div className="text-center text-muted-foreground">
                     <div className="text-4xl mb-2">📷</div>
-                    <p>{uiStrings.common.noImageAvailable}</p>
+                    <p>{t('noImageAvailable')}</p>
                 </div>
             </div>
         );

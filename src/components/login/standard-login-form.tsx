@@ -2,7 +2,7 @@ import { type ReactElement, useRef } from 'react';
 import { Form, Link } from 'react-router';
 import { Input } from '@/components/ui/input';
 import { FormSubmitButton } from '@/components/buttons/form-submit-button';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface StandardLoginFormProps {
     error?: string;
@@ -20,6 +20,7 @@ export default function StandardLoginForm({
     actionParams,
 }: StandardLoginFormProps): ReactElement {
     const formRef = useRef<HTMLFormElement>(null);
+    const { t } = useTranslation('login');
 
     return (
         <Form method="post" action="/login" className="space-y-6" ref={formRef}>
@@ -31,7 +32,7 @@ export default function StandardLoginForm({
 
             <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                    {uiStrings.login.emailLabel}
+                    {t('emailLabel')}
                 </label>
                 <Input
                     id="email"
@@ -40,13 +41,13 @@ export default function StandardLoginForm({
                     autoComplete="email"
                     required
                     className="mt-1"
-                    placeholder={uiStrings.login.emailPlaceholder}
+                    placeholder={t('emailPlaceholder')}
                 />
             </div>
 
             <div>
                 <label htmlFor="password" className="block text-sm font-medium text-foreground">
-                    {uiStrings.login.passwordLabel}
+                    {t('passwordLabel')}
                 </label>
                 <Input
                     id="password"
@@ -55,7 +56,7 @@ export default function StandardLoginForm({
                     autoComplete="current-password"
                     required
                     className="mt-1"
-                    placeholder={uiStrings.login.passwordPlaceholder}
+                    placeholder={t('passwordPlaceholder')}
                 />
             </div>
 
@@ -68,23 +69,23 @@ export default function StandardLoginForm({
             {action ? <input type="hidden" name="action" value={action} /> : null}
             {actionParams ? <input type="hidden" name="actionParams" value={actionParams} /> : null}
 
-            <FormSubmitButton defaultText={uiStrings.login.signIn} submittingText={uiStrings.login.signingIn} />
+            <FormSubmitButton defaultText={t('signIn')} submittingText={t('signingIn')} />
             {isPasswordlessEnabled && (
                 <div className="text-center">
                     <Link to="/login?mode=passwordless" className="text-primary hover:text-primary/80 text-sm">
-                        {uiStrings.login.loginWithoutPassword}
+                        {t('loginWithoutPassword')}
                     </Link>
                 </div>
             )}
 
             <div className="text-center space-y-2">
                 <Link to="/forgot-password" className="block text-sm text-primary hover:text-primary/80">
-                    {uiStrings.login.forgotPassword}
+                    {t('forgotPassword')}
                 </Link>
                 <p className="text-sm text-muted-foreground">
-                    {uiStrings.login.noAccountQuestion}
+                    {t('noAccountQuestion')}
                     <Link to="/signup" className="font-medium text-primary hover:underline">
-                        {uiStrings.login.signUp}
+                        {t('signUp')}
                     </Link>
                 </p>
             </div>

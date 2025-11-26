@@ -22,6 +22,23 @@ import { ConfigProvider } from '../src/config';
 import { mockConfig } from '../src/test-utils/config';
 import type { SessionData } from '../src/lib/api/types';
 import type { ShopperBasketsTypes, ShopperProductsTypes } from 'commerce-sdk-isomorphic';
+import { I18nextProvider } from 'react-i18next';
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import resources from '../src/locales';
+
+/**
+ * Initialize the global i18next instance
+ * This ensures translations work properly in the Storybook UI
+ */
+void i18next.use(initReactI18next).init({
+    lng: 'en',
+    fallbackLng: 'en',
+    resources,
+    interpolation: {
+        escapeValue: false,
+    },
+});
 
 /**
  * Mock session data for Storybook
@@ -55,6 +72,13 @@ const mockProduct: ShopperProductsTypes.Product = {
  */
 export const StorybookConfigProvider = ({ children }: PropsWithChildren) => (
     <ConfigProvider config={mockConfig}>{children}</ConfigProvider>
+);
+
+/**
+ * Storybook I18nextProvider wrapper with initialized i18next instance
+ */
+export const StorybookI18nextProvider = ({ children }: PropsWithChildren) => (
+    <I18nextProvider i18n={i18next}>{children}</I18nextProvider>
 );
 
 /**
@@ -99,6 +123,7 @@ export const StorybookProductViewProvider = ({ children }: PropsWithChildren) =>
  */
 export const storybookProviders = [
     StorybookConfigProvider,
+    StorybookI18nextProvider,
     StorybookAuthProvider,
     StorybookBasketProvider,
     StorybookCheckoutProvider,

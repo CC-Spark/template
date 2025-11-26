@@ -1,5 +1,6 @@
 import { use, useEffect, useRef } from 'react';
 import { type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
+import type { i18n } from 'i18next';
 import { type ShopperProducts, type ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
@@ -14,6 +15,8 @@ import { ProductRecommendationsSkeleton } from '@/components/product/skeletons';
 import withSuspense from '@/components/with-suspense';
 import { ProductCarouselWithSuspense } from '@/components/product-carousel';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { getTranslation } from '@/lib/i18next';
+
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import {
     getCookieFromRequestAs,
@@ -40,12 +43,14 @@ type ProductPageData = {
  * Internal helper function that fetches product data and category information.
  * This function handles the actual data fetching logic shared between server and client loaders.
  * @param selectedStoreInfo - Optional store information for inventory-specific data
+ * @param i18nextInstance - i18next instance for translations (server-only, null on client)
  * @returns Promise that resolves to an object containing product and category data promises
  */
 function getPageData(
     // @sfdc-extension-line SFDC_EXT_BOPIS
     selectedStoreInfo: SelectedStoreInfo | null,
-    { request, params, context }: LoaderFunctionArgs
+    { request, params, context }: LoaderFunctionArgs,
+    i18nextInstance: i18n | null = null
 ): ProductPageData {
     const { productId = '' } = params;
     const { searchParams } = new URL(request.url);
@@ -176,11 +181,15 @@ function getPageData(
                 })) || [];
         }
 
-        return generateRecommendationPromises(context, {
-            product: baseProduct,
-            category,
-            subcategories,
-        });
+        return generateRecommendationPromises(
+            context,
+            {
+                product: baseProduct,
+                category,
+                subcategories,
+            },
+            i18nextInstance
+        );
     });
 
     return {
@@ -201,10 +210,13 @@ export function loader({ request, params, context }: LoaderFunctionArgs) {
     const selectedStoreInfo = getCookieFromRequestAs<SelectedStoreInfo>(request, cookieName);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
+    const { i18next } = getTranslation(context);
+
     return getPageData(
         // @sfdc-extension-line SFDC_EXT_BOPIS
         selectedStoreInfo,
-        { request, params, context }
+        { request, params, context },
+        i18next
     );
 }
 
@@ -220,10 +232,13 @@ export function clientLoader({ request, params, context }: ClientLoaderFunctionA
     const selectedStoreInfo = getCookieFromDocumentAs<SelectedStoreInfo>(cookieName);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
+    // On client side, we don't have access to i18next instance (server-only)
+    // Fall back to titleKey as the title
     return getPageData(
         // @sfdc-extension-line SFDC_EXT_BOPIS
         selectedStoreInfo,
-        { request, params, context }
+        { request, params, context },
+        null
     );
 }
 

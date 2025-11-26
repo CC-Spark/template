@@ -25,7 +25,7 @@ import { createMockBasketWithPickupItems } from '@/extensions/bopis/tests/__mock
 import uiStringsBopis from '@/extensions/bopis/temp-ui-string-bopis';
 import type { RouterContextProvider } from 'react-router';
 import { updateShipmentForPickup, clearPickupFromShipment } from '@/extensions/bopis/lib/api/shipment';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 vi.mock('@/lib/api-clients', () => ({
     createApiClients: vi.fn(),
@@ -1806,6 +1806,8 @@ describe('syncShipmentWithDeliveryOptionChange', () => {
         set: vi.fn(),
     } as unknown as RouterContextProvider;
 
+    const { t } = getTranslation();
+
     beforeEach(() => {
         vi.clearAllMocks();
     });
@@ -1820,7 +1822,7 @@ describe('syncShipmentWithDeliveryOptionChange', () => {
                 inventoryId: 'inventory-1',
                 storeId: 'store-123',
             })
-        ).rejects.toThrow(uiStrings.errors.noBasketFound);
+        ).rejects.toThrow(t('errors:noBasketFound'));
     });
 
     it('should return basket unchanged when productItem is not provided', async () => {

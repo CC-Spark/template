@@ -29,10 +29,9 @@ import { formatCurrency } from '@/lib/currency';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
 import { createProductUrl, getDisplayVariationValues } from '@/lib/product-utils';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
-
 /**
  * Basket item data enriched with product details
  */
@@ -92,20 +91,21 @@ function ProductItemVariantImage({
  * @returns JSX element with product name link
  */
 function ProductItemVariantName({ productItem }: { productItem: Item }): ReactElement {
+    const { t: tCart } = useTranslation('cart');
+    const { t: tProduct } = useTranslation('product');
     if (!productItem) {
-        return <div className="text-sm font-medium">{uiStrings.cart.product?.defaultName || 'Product Name'}</div>;
+        return <div className="text-sm font-medium">{tCart('product.defaultName') || 'Product Name'}</div>;
     }
 
     const productId = productItem?.master?.masterId || productItem?.id;
-    const productName =
-        productItem?.productName || productItem?.name || uiStrings.cart.product?.defaultName || 'Product Name';
+    const productName = productItem?.productName || productItem?.name || tCart('product.defaultName') || 'Product Name';
 
     const isBonusProduct = Boolean(productItem?.bonusProductLineItem);
     return (
         <div className="mb-4 flex items-center gap-2 min-w-0">
             {isBonusProduct && (
-                <Badge variant="default" role="status" aria-label={uiStrings.product.bonusProductAriaLabel}>
-                    {uiStrings.product.bonusProduct}
+                <Badge variant="default" role="status" aria-label={tProduct('bonusProductAriaLabel')}>
+                    {tProduct('bonusProduct')}
                 </Badge>
             )}
             <Typography variant="h2" className="text-xl min-w-0 flex-1">
@@ -138,6 +138,7 @@ function ProductItemVariantAttributes({
     displayVariant?: 'default' | 'summary';
     promotions?: Record<string, ShopperPromotions.schemas['Promotion']>;
 }): ReactElement {
+    const { t } = useTranslation('cart');
     // Memoize expensive calculations
     const displayVariationValues = useMemo(
         () => getDisplayVariationValues(productItem?.variationAttributes, productItem?.variationValues),
@@ -163,7 +164,7 @@ function ProductItemVariantAttributes({
             {/* Quantity - only show in summary variant */}
             {displayVariant === 'summary' && (
                 <div className="text-sm text-muted-foreground">
-                    {uiStrings.cart.attributes.quantity} {productItem.quantity || 1}
+                    {t('attributes.quantity')} {productItem.quantity || 1}
                 </div>
             )}
 
@@ -182,7 +183,7 @@ function ProductItemVariantAttributes({
             {(hasPromotions || hasItemDiscount) && !isBonusProduct && (
                 <div className="flex items-center gap-2 mb-1 ">
                     <span className="text-sm text-muted-foreground">
-                        {uiStrings.cart.attributes.promotions}{' '}
+                        {t('attributes.promotions')}{' '}
                         <span className="text-success font-medium">
                             {/*TODO: adjust this after we have i18n set up*/}
                             {hasItemDiscount &&

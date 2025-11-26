@@ -1,17 +1,20 @@
 import type { ActionFunctionArgs } from 'react-router';
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
-import { shippingOptionsSchema, parseShippingOptionsFromFormData } from '@/lib/checkout-schemas';
+import { createShippingOptionsSchema, parseShippingOptionsFromFormData } from '@/lib/checkout-schemas';
 import { createApiClients } from '@/lib/api-clients';
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     const formData = await request.formData();
 
     // Parse and validate using shared schema
     // This ensures server-side validation matches client-side validation exactly
     const shippingData = parseShippingOptionsFromFormData(formData);
+    const shippingOptionsSchema = createShippingOptionsSchema(t);
     const result = shippingOptionsSchema.safeParse(shippingData);
 
     if (!result.success) {
@@ -34,7 +37,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         return Response.json(
             {
                 success: false,
-                error: uiStrings.errors.checkout.noActiveBasket,
+                error: t('errors:checkout.noActiveBasket'),
                 step: 'shippingOptions',
             },
             { status: 400 }

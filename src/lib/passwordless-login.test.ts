@@ -9,8 +9,9 @@ import {
 import { updateAuth, flashAuth, getPasswordLessAccessToken } from '@/middlewares/auth.server';
 import { mergeBasket } from '@/lib/api/basket';
 import { getAppOrigin, extractResponseError } from '@/lib/utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
+const { t } = getTranslation();
 // Mock global fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -20,9 +21,13 @@ const mockRandomUUID = vi.fn();
 vi.stubGlobal('crypto', { randomUUID: mockRandomUUID });
 
 // Mock react-router
-vi.mock('react-router', () => ({
-    redirect: vi.fn(),
-}));
+vi.mock('react-router', async () => {
+    const actual = await vi.importActual('react-router');
+    return {
+        ...actual,
+        redirect: vi.fn(),
+    };
+});
 
 // Mock jose library
 vi.mock('jose', () => ({
@@ -70,25 +75,6 @@ vi.mock('@/config', () => ({
             },
         },
     })),
-}));
-
-// Mock UI strings
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        errors: {
-            passwordless: {
-                missingCallbackToken: 'Missing callback token error',
-                missingRequiredFields: 'Missing required fields error',
-                missingToken: 'Missing token error',
-            },
-            marketing: {
-                clientIdMissing: 'Marketing Cloud client ID missing',
-                clientSecretMissing: 'Marketing Cloud client secret missing',
-                subdomainMissing: 'Marketing Cloud subdomain missing',
-                templateIdMissing: 'Marketing Cloud template ID missing',
-            },
-        },
-    },
 }));
 
 // Create mock context
@@ -290,7 +276,7 @@ describe('passwordless-login', () => {
 
                 expect(result).toEqual({
                     success: false,
-                    error: uiStrings.errors.passwordless.missingCallbackToken,
+                    error: t('errors:passwordless.missingCallbackToken'),
                 });
             });
 
@@ -319,7 +305,7 @@ describe('passwordless-login', () => {
 
                 expect(result).toEqual({
                     success: false,
-                    error: uiStrings.errors.passwordless.missingRequiredFields,
+                    error: t('errors:passwordless.missingRequiredFields'),
                 });
             });
 
@@ -477,7 +463,7 @@ describe('passwordless-login', () => {
                     params: {},
                 });
 
-                expect(mockFlashAuth).toHaveBeenCalledWith(mockContext, uiStrings.errors.passwordless.missingToken);
+                expect(mockFlashAuth).toHaveBeenCalledWith(mockContext, t('errors:passwordless.missingToken'));
                 expect(mockRedirect).toHaveBeenCalledWith('/login');
                 expect(result).toBe('redirect-response');
             });

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { passwordUpdateFormSchema } from './index';
+import { createPasswordUpdateFormSchema } from './index';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
+const passwordUpdateFormSchema = createPasswordUpdateFormSchema(t);
 
 describe('passwordUpdateFormSchema', () => {
     describe('valid data', () => {

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { customerAddressFormSchema } from './index';
+import { createCustomerAddressFormSchema } from './index';
+
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
+const customerAddressFormSchema = createCustomerAddressFormSchema(t);
 
 describe('customerAddressFormSchema', () => {
     describe('valid data', () => {

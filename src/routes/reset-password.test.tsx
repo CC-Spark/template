@@ -4,7 +4,9 @@ import { MemoryRouter, type LoaderFunctionArgs, type ActionFunctionArgs } from '
 import ResetPassword, { loader, action } from './reset-password';
 import { resetPasswordWithToken } from '@/middlewares/auth.server';
 import { isPasswordValid } from '@/lib/utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // Mock the auth middleware
 vi.mock('@/middlewares/auth.server', () => ({
@@ -190,7 +192,7 @@ describe('reset-password route', () => {
 
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
             });
 
@@ -218,7 +220,7 @@ describe('reset-password route', () => {
 
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
             });
 
@@ -246,7 +248,7 @@ describe('reset-password route', () => {
 
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
             });
 
@@ -275,7 +277,7 @@ describe('reset-password route', () => {
 
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.resetPassword.passwordsMustMatch,
+                    error: t('resetPassword:passwordsMustMatch'),
                 });
             });
 
@@ -307,7 +309,7 @@ describe('reset-password route', () => {
                 expect(mockIsPasswordValid).toHaveBeenCalledWith('weak');
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.signup.passwordNotSecure,
+                    error: t('signup:passwordNotSecure'),
                 });
             });
         });
@@ -385,7 +387,7 @@ describe('reset-password route', () => {
                 expect(mockResetPasswordWithToken).toHaveBeenCalled();
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.errors.somethingWentWrong,
+                    error: t('errors:somethingWentWrong'),
                 });
             });
 
@@ -417,7 +419,7 @@ describe('reset-password route', () => {
 
                 // Should show generic error, not the actual token expiration error
                 expect(result).toEqual({
-                    error: uiStrings.errors.somethingWentWrong,
+                    error: t('errors:somethingWentWrong'),
                 });
             });
         });
@@ -479,7 +481,7 @@ describe('reset-password route', () => {
 
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
             });
 
@@ -508,7 +510,7 @@ describe('reset-password route', () => {
 
                 // Returns error data, not redirect
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
             });
 
@@ -537,7 +539,7 @@ describe('reset-password route', () => {
 
                 // Passwords don't match - should return error data
                 expect(result).toEqual({
-                    error: uiStrings.resetPassword.passwordsMustMatch,
+                    error: t('resetPassword:passwordsMustMatch'),
                 });
             });
         });
@@ -562,8 +564,8 @@ describe('reset-password route', () => {
             renderWithRouter(<ResetPassword loaderData={loaderData} />);
 
             // Title and subtitle
-            expect(screen.getByText(uiStrings.resetPassword.title)).toBeInTheDocument();
-            const subtitle = uiStrings.resetPassword.subtitle || 'Enter your new password below';
+            expect(screen.getByText(t('resetPassword:title'))).toBeInTheDocument();
+            const subtitle = t('resetPassword:subtitle') || 'Enter your new password below';
             expect(screen.getByText(subtitle)).toBeInTheDocument();
 
             // Form with correct props

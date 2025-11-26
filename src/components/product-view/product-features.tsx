@@ -7,7 +7,7 @@
 
 import type { ReactElement } from 'react';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface ProductFeaturesProps {
     product: ShopperProducts.schemas['Product'];
@@ -64,6 +64,7 @@ export default function ProductFeatures({
     delimiter,
     htmlFragmentClassName,
 }: ProductFeaturesProps): ReactElement {
+    const { t } = useTranslation('product');
     const longDescription = product.longDescription || '';
     const isHtml = isHtmlFragment(longDescription);
     const hasDelimiterSeparator = delimiter && longDescription.includes(delimiter) && !isHtml;
@@ -72,7 +73,7 @@ export default function ProductFeatures({
         <div className="flex flex-col gap-3">
             {/* Label with same styling as SwatchGroup */}
             <div className="flex items-center gap-2 text-sm text-foreground">
-                <span className="font-semibold">{uiStrings.product.features}:</span>
+                <span className="font-semibold">{t('features')}:</span>
             </div>
 
             {/* Features - render based on content format */}

@@ -1,8 +1,7 @@
 import { useFetcher } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 import { FETCHER_STATES } from '@/lib/fetcher-states';
-import uiStrings from '@/temp-ui-string';
-
 const addPromoCodeActionRoute = '/action/promo-code-add';
 const removePromoCodeActionRoute = '/action/promo-code-remove';
 
@@ -36,6 +35,7 @@ const removePromoCodeActionRoute = '/action/promo-code-remove';
  * ```
  */
 export function usePromoCodeActions(basketId?: string) {
+    const { t } = useTranslation();
     const applyFetcher = useFetcher();
     const removeFetcher = useFetcher();
 
@@ -48,7 +48,7 @@ export function usePromoCodeActions(basketId?: string) {
      */
     const applyPromoCode = (code: string) => {
         if (!basketId) {
-            throw new Error(uiStrings.errors.noBasketFound);
+            throw new Error(t('errors:noBasketFound'));
         }
 
         // Prevent concurrent calls
@@ -76,7 +76,7 @@ export function usePromoCodeActions(basketId?: string) {
      */
     const removePromoCode = (couponItemId: string) => {
         if (!basketId) {
-            throw new Error(uiStrings.errors.noBasketFound);
+            throw new Error(t('errors:noBasketFound'));
         }
 
         // Prevent concurrent calls

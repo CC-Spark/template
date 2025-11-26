@@ -6,7 +6,7 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 
 import EmptyCart from '../cart-empty';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -14,14 +14,12 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     useEffect(() => {
         const root = containerRef.current;
         if (!root) return;
+        const { t } = getTranslation();
 
         const logClick = action('cart-empty-click');
         const logHover = action('cart-empty-hover');
 
-        const STOP_PROPAGATION_LABELS = new Set<string>([
-            uiStrings.cart.empty.continueShopping,
-            uiStrings.cart.empty.signIn,
-        ]);
+        const STOP_PROPAGATION_LABELS = new Set<string>([t('cart:empty.continueShopping'), t('cart:empty.signIn')]);
 
         const isInsideHarness = (element: HTMLElement) => root.contains(element);
 

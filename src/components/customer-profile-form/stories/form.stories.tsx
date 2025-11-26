@@ -12,7 +12,7 @@ import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { action } from 'storybook/actions';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -328,21 +328,22 @@ export const Interactive: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Find and interact with form fields
         const firstNameInput = await canvas.findByPlaceholderText(
-            uiStrings.account.profile.firstNamePlaceholder,
+            t('account:profile.firstNamePlaceholder'),
             {},
             { timeout: 5000 }
         );
         await userEvent.type(firstNameInput, 'Jane');
         await expect(firstNameInput).toHaveValue('Jane');
 
-        const lastNameInput = canvas.getByPlaceholderText(uiStrings.account.profile.lastNamePlaceholder);
+        const lastNameInput = canvas.getByPlaceholderText(t('account:profile.lastNamePlaceholder'));
         await userEvent.type(lastNameInput, 'Smith');
         await expect(lastNameInput).toHaveValue('Smith');
 
-        const emailInput = canvas.getByPlaceholderText(uiStrings.account.profile.emailPlaceholder);
+        const emailInput = canvas.getByPlaceholderText(t('account:profile.emailPlaceholder'));
         await userEvent.type(emailInput, 'jane.smith@example.com');
         await expect(emailInput).toHaveValue('jane.smith@example.com');
     },

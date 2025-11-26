@@ -2,6 +2,9 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // React Router
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -11,8 +14,6 @@ import { CartItemEditButton } from './cart-item-edit-button';
 import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 // Utils
-import uiStrings from '@/temp-ui-string';
-
 // Mock useScapiFetcher to prevent actual API calls
 vi.mock('@/hooks/use-scapi-fetcher', () => ({
     useScapiFetcher: () => ({
@@ -65,8 +66,8 @@ describe('CartItemEditButton', () => {
         renderCartItemEditButton(defaultProps);
 
         const editButton = screen.getByTestId('edit-item-test-item-123');
-        expect(editButton).toHaveTextContent(uiStrings.actionCard.edit);
-        expect(editButton).toHaveAttribute('title', uiStrings.actionCard.edit);
+        expect(editButton).toHaveTextContent(t('actionCard:edit'));
+        expect(editButton).toHaveAttribute('title', t('actionCard:edit'));
     });
 
     test('applies custom className to button', () => {
@@ -90,7 +91,7 @@ describe('CartItemEditButton', () => {
 
         // Modal should not be visible initially
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.editItem.title)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('editItem:title'))).not.toBeInTheDocument();
     });
 
     test('opens modal when edit button is clicked', async () => {
@@ -102,7 +103,7 @@ describe('CartItemEditButton', () => {
 
         // Modal should be visible after clicking edit button
         expect(screen.getByRole('dialog')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.editItem.title)).toBeInTheDocument();
+        expect(screen.getByText(t('editItem:title'))).toBeInTheDocument();
     });
 
     test('passes correct product data to ProductViewModal', async () => {

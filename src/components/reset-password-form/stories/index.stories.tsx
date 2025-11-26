@@ -4,7 +4,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ResetPasswordFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -114,10 +114,11 @@ Default reset password form with token and email.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for email display using specific id to avoid matching hidden input
         const emailInput = await canvas.findByLabelText(
-            uiStrings.resetPassword.emailLabel || uiStrings.signup.form.emailLabel,
+            t('resetPassword:emailLabel') || t('signup:form.emailLabel'),
             {},
             { timeout: 5000 }
         );
@@ -127,7 +128,7 @@ Default reset password form with token and email.
 
         // Check for new password field
         const newPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.newPasswordPlaceholder || uiStrings.signup.form.passwordPlaceholder,
+            t('resetPassword:newPasswordPlaceholder') || t('signup:form.passwordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -161,6 +162,7 @@ Reset password form with error message.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for error message
         const errorMessage = await canvas.findByText(/invalid or expired reset token/i, {}, { timeout: 5000 });
@@ -168,7 +170,7 @@ Reset password form with error message.
 
         // Check for email display using specific id to avoid matching hidden input
         const emailInput = await canvas.findByLabelText(
-            uiStrings.resetPassword.emailLabel || uiStrings.signup.form.emailLabel,
+            t('resetPassword:emailLabel') || t('signup:form.emailLabel'),
             {},
             { timeout: 5000 }
         );
@@ -197,10 +199,11 @@ Interactive reset password form for testing user interactions.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Find and interact with new password input
         const newPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.newPasswordPlaceholder || uiStrings.signup.form.passwordPlaceholder,
+            t('resetPassword:newPasswordPlaceholder') || t('signup:form.passwordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -209,7 +212,7 @@ Interactive reset password form for testing user interactions.
 
         // Find and interact with confirm password input
         const confirmPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.resetPassword.confirmPasswordPlaceholder || uiStrings.signup.form.confirmPasswordPlaceholder,
+            t('resetPassword:confirmPasswordPlaceholder') || t('signup:form.confirmPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );

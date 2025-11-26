@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { customerProfileFormSchema } from './index';
+import { createCustomerProfileFormSchema } from './index';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
+const customerProfileFormSchema = createCustomerProfileFormSchema(t);
 
 describe('customerProfileFormSchema', () => {
     describe('valid data', () => {

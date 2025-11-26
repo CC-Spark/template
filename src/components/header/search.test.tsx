@@ -1,6 +1,9 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach, type MockedFunction } from 'vitest';
 import { BrowserRouter } from 'react-router';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import SearchBar from './search';
 import { useSearchSuggestions } from '@/hooks/use-search-suggestions';
 import { useTransformSearchSuggestions } from '@/hooks/use-transform-search-suggestions';
@@ -44,14 +47,6 @@ vi.mock('@/config', () => ({
             },
         },
     })),
-}));
-
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        header: {
-            searchPlaceholder: 'Search for products...',
-        },
-    },
 }));
 
 vi.mock('@/components/search/suggestions', () => ({
@@ -102,8 +97,8 @@ describe('SearchBar Component', () => {
 
             const searchInput = screen.getByRole('combobox');
             expect(searchInput).toBeInTheDocument();
-            expect(searchInput).toHaveAttribute('placeholder', 'Search for products...');
-            expect(searchInput).toHaveAttribute('aria-label', 'Search for products...');
+            expect(searchInput).toHaveAttribute('placeholder', t('header:searchPlaceholder'));
+            expect(searchInput).toHaveAttribute('aria-label', t('header:searchPlaceholder'));
             expect(searchInput).toHaveAttribute('aria-autocomplete', 'list');
             expect(searchInput).toHaveAttribute('aria-expanded', 'false');
             expect(searchInput).toHaveAttribute('aria-haspopup', 'listbox');

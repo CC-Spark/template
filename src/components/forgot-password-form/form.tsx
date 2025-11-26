@@ -3,10 +3,11 @@
 import { Form, Link } from 'react-router';
 import { Input } from '@/components/ui/input';
 import { FormSubmitButton } from '@/components/buttons/form-submit-button';
-import uiStrings from '@/temp-ui-string';
 import { type ForgotPasswordFormProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 export function ForgotPasswordForm({ error }: ForgotPasswordFormProps) {
+    const { t } = useTranslation('resetPassword');
     return (
         <Form method="post" className="space-y-6">
             {error && (
@@ -17,7 +18,7 @@ export function ForgotPasswordForm({ error }: ForgotPasswordFormProps) {
 
             <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                    {uiStrings.resetPassword.emailLabel}
+                    {t('emailLabel')}
                 </label>
                 <Input
                     id="email"
@@ -26,19 +27,16 @@ export function ForgotPasswordForm({ error }: ForgotPasswordFormProps) {
                     autoComplete="email"
                     required
                     className="mt-1"
-                    placeholder={uiStrings.resetPassword.emailPlaceholder}
+                    placeholder={t('emailPlaceholder')}
                 />
             </div>
 
-            <FormSubmitButton
-                defaultText={uiStrings.resetPassword.resetButton}
-                submittingText={uiStrings.resetPassword.sendingEmail}
-            />
+            <FormSubmitButton defaultText={t('resetButton')} submittingText={t('sendingEmail')} />
 
             <div className="text-center">
-                <span className="text-sm text-muted-foreground">{uiStrings.resetPassword.or}</span>
+                <span className="text-sm text-muted-foreground">{t('or')}</span>
                 <Link to="/login" className="text-sm text-primary hover:text-primary/80">
-                    {uiStrings.resetPassword.goBackToLogin}
+                    {t('goBackToLogin')}
                 </Link>
             </div>
         </Form>

@@ -9,6 +9,9 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import { useWishlist } from './use-wishlist';
 
 // Mock dependencies
@@ -47,19 +50,6 @@ vi.mock('@/components/toast', () => ({
 // Mock useRequireAuth to pass through the function without auth requirement for testing
 vi.mock('@/hooks/use-require-auth', () => ({
     useRequireAuth: (fn: any) => fn,
-}));
-
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        product: {
-            addedToWishlist: 'Added {productName} to wishlist',
-            removedFromWishlist: 'Removed from wishlist',
-            failedToAddToWishlist: 'Failed to add to wishlist',
-            failedToRemoveFromWishlist: 'Failed to remove from wishlist',
-            alreadyInWishlist: '{productName} is already in your wishlist',
-            signInToAddToWishlist: 'Please sign in to add to wishlist',
-        },
-    },
 }));
 
 const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
@@ -188,7 +178,10 @@ describe('useWishlist', () => {
         });
 
         await waitFor(() => {
-            expect(mockAddToast).toHaveBeenCalledWith('Added Test Product to wishlist', 'success');
+            expect(mockAddToast).toHaveBeenCalledWith(
+                t('product:addedToWishlist', { productName: 'Test Product' }),
+                'success'
+            );
         });
     });
 
@@ -210,7 +203,7 @@ describe('useWishlist', () => {
         });
 
         await waitFor(() => {
-            expect(mockAddToast).toHaveBeenCalledWith('Removed from wishlist', 'success');
+            expect(mockAddToast).toHaveBeenCalledWith(t('product:removedFromWishlist'), 'success');
         });
     });
 
@@ -224,7 +217,10 @@ describe('useWishlist', () => {
         });
 
         await waitFor(() => {
-            expect(mockAddToast).toHaveBeenCalledWith('Test Product is already in your wishlist', 'info');
+            expect(mockAddToast).toHaveBeenCalledWith(
+                t('product:alreadyInWishlist', { productName: 'Test Product' }),
+                'info'
+            );
         });
     });
 
@@ -258,7 +254,7 @@ describe('useWishlist', () => {
 
         expect(mockAddFetcher.submit).not.toHaveBeenCalled();
         expect(mockRemoveFetcher.submit).not.toHaveBeenCalled();
-        expect(mockAddToast).toHaveBeenCalledWith('Failed to add to wishlist', 'error');
+        expect(mockAddToast).toHaveBeenCalledWith(t('product:failedToAddToWishlist'), 'error');
     });
 
     test('should use variant productId when provided', async () => {
@@ -289,7 +285,7 @@ describe('useWishlist', () => {
         await waitFor(() => {
             // Should revert optimistic update
             expect(result.current.isItemInWishlist(mockProduct)).toBe(false);
-            expect(mockAddToast).toHaveBeenCalledWith('Failed to add to wishlist', 'error');
+            expect(mockAddToast).toHaveBeenCalledWith(t('product:failedToAddToWishlist'), 'error');
         });
     });
 

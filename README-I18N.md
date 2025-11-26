@@ -2,6 +2,33 @@
 
 This project uses `i18next` with `remix-i18next` for internationalization. The implementation follows a dual-instance architecture with server-side and client-side i18next instances.
 
+## Quick Start
+
+**For React Components:**
+```typescript
+import { useTranslation } from 'react-i18next';
+
+function MyComponent() {
+    const { t } = useTranslation('product');
+    return <h1>{t('title')}</h1>;
+}
+```
+
+**For Everything Else (loaders, actions, utilities, helpers, tests):**
+```typescript
+import { getTranslation } from '@/lib/i18next';
+
+// Client-side or non-component code
+const { t } = getTranslation();
+const message = t('product:title');
+
+// Server-side (loaders/actions) - pass the context
+export function loader(args: LoaderFunctionArgs) {
+    const { t } = getTranslation(args.context);
+    return { title: t('product:title') };
+}
+```
+
 ## Architecture Overview
 
 We maintain 2 separate instances of i18next:
@@ -25,14 +52,26 @@ We maintain 2 separate instances of i18next:
 
 ### Supported Languages
 
-Configured in `config.server.ts`:
+Languages are configured in two places that must be kept in sync:
 
+**1. `config.server.ts`** - Application-level configuration:
 ```typescript
 i18n: {
     fallbackLng: 'en',
     supportedLngs: ['es', 'en'], // Your supported languages
 }
 ```
+
+**2. `src/middlewares/i18next.ts`** - i18next middleware configuration:
+```typescript
+detection: {
+    cookie: localeCookie,
+    fallbackLanguage: 'en',
+    supportedLanguages: ['es', 'en'], // Must match config.server.ts
+}
+```
+
+> **Note**: These configurations must be kept in sync. If you add a new language, update both files.
 
 ### Locale Detection
 
@@ -48,47 +87,100 @@ src/locales/
 ├── index.ts                # Exports all language resources
 ├── en/
 │   ├── index.ts            # Exports English translations
-│   └── translations.json
+│   └── translations.json   # All English translations (namespaced)
 └── es/
     ├── index.ts            # Exports Spanish translations
-    └── translations.json
+    └── translations.json   # All Spanish translations (namespaced)
+
+src/lib/
+├── i18next.ts              # getTranslation() utility for non-components
+└── i18next.client.ts       # Client-side i18next initialization
+
+src/middlewares/
+└── i18next.ts              # Server-side i18next setup and middleware
 ```
 
 ## Usage Examples
 
-### In React Components (Client-side)
+### In React Components
 
-Use the `useTranslation` hook from `react-i18next`:
+Use the [`useTranslation`](https://react.i18next.com/latest/usetranslation-hook) hook from `react-i18next`:
 
 ```typescript
 import { useTranslation } from 'react-i18next';
 
-function HomeView() {
+function ProductInfo() {
     // Specify the namespace to load
-    const { t } = useTranslation('home');
+    const { t } = useTranslation('product');
 
     return (
         <div>
-            <p>{t('title')}</p>
+            <h1>{t('title')}</h1>
             <p>{t('description')}</p>
+            <button>{t('addToCart')}</button>
         </div>
     );
 }
 ```
 
-### In Route Loaders (Server-side)
+**With interpolation:**
+```typescript
+const { t } = useTranslation('cart');
+const message = t('itemCount.other', { count: 5 }); // "Cart (5 items)"
+```
 
-Use the `getInstance` and `getLocale` helpers from the i18next middleware:
+**With pluralization:**
+```typescript
+const { t } = useTranslation('cart');
+const text = t('summary.itemsInCart', { count: 1 }); // "1 item in cart"
+const text2 = t('summary.itemsInCart', { count: 3 }); // "3 items in cart"
+```
+
+### In Non-Component Code
+
+Use the `getTranslation` utility for tests, utilities, or any non-React code:
 
 ```typescript
-import { getInstance, getLocale } from '@/middlewares/i18next';
+import { getTranslation } from '@/lib/i18next';
+
+// In tests
+describe('ActionCard', () => {
+    const { t } = getTranslation();
+    
+    test('shows edit button', () => {
+        render(<ActionCard onEdit={vi.fn()} />);
+        const button = screen.getByRole('button', { name: t('actionCard:edit') });
+        expect(button).toBeInTheDocument();
+    });
+});
+
+// In utility functions
+export function getCountryName(countryCode: string): string {
+    const { t } = getTranslation();
+    return t(`countries:${countryCode}.name`, { defaultValue: countryCode });
+}
+
+// In form schemas (for Zod error messages)
+const schema = z.object({
+    email: z.string().email(t('error:validation.invalidEmail')),
+});
+```
+
+### In Route Loaders and Actions (Server-side)
+
+Use `getTranslation` with the context parameter for server-side translations:
+
+```typescript
+import { getTranslation } from '@/lib/i18next';
+import { getLocale } from '@/middlewares/i18next';
+import type { LoaderFunctionArgs } from 'react-router';
 
 export function loader(args: LoaderFunctionArgs) {
-    // Get the server-side i18next instance for translations
-    const { t } = getInstance(args.context);
-    const translatedTitle = t('title');
+    // Get translations by passing the context
+    const { t } = getTranslation(args.context);
+    const translatedTitle = t('product:title');
     
-    // Get the current locale for formatting
+    // Get the current locale for formatting (if needed)
     const locale = getLocale(args.context);
     const date = new Date().toLocaleDateString(locale, {
         year: 'numeric',
@@ -100,53 +192,92 @@ export function loader(args: LoaderFunctionArgs) {
 }
 ```
 
+**In actions with error handling:**
+```typescript
+import type { ActionFunctionArgs } from 'react-router';
+import { getTranslation } from '@/lib/i18next';
+
+export async function action(args: ActionFunctionArgs) {
+    const { t } = getTranslation(args.context);
+    
+    try {
+        // ... perform action
+        return { success: true, message: t('product:addedToCart', { productName: 'Widget' }) };
+    } catch (error) {
+        return { success: false, message: t('error:api.unexpectedError') };
+    }
+}
+```
+
 ## Adding New Translations
 
-### 1. Create Translation Files
+### Approach: Single JSON File Per Language
 
-For each new namespace, create files in each language directory:
+All translations are stored in a **single JSON file per language** with namespace-based organization.
 
-**src/locales/en/my-page.ts:**
-```typescript
-export default {
-    welcome: 'Welcome',
-    greeting: 'Hello, {{name}}!',
-    itemCount: 'You have {{count}} item',
-    itemCount_other: 'You have {{count}} items',
-};
+#### Understanding Namespaces
+
+i18next uses the concept of **namespaces** to organize translations into logical groups. In our implementation, namespaces are simply the **top-level keys** in each `translations.json` file. For example, `"common"`, `"product"`, `"checkout"`, and `"myNewFeature"` are all namespaces that help organize translations by feature or domain.
+
+**src/locales/en/translations.json:**
+```json
+{
+    "common": {
+        "loading": "Loading",
+        "product": "the product"
+    },
+    "product": {
+        "title": "Product Details",
+        "addToCart": "Add to Cart",
+        "greeting": "Hello, {{name}}!",
+        "itemCount": {
+            "zero": "No items",
+            "one": "{{count}} item",
+            "other": "{{count}} items"
+        }
+    },
+    "myNewFeature": {
+        "welcome": "Welcome to the new feature"
+    }
+}
 ```
 
-**src/locales/es/my-page.ts:**
-```typescript
-export default {
-    welcome: 'Bienvenido',
-    greeting: '¡Hola, {{name}}!',
-    itemCount: 'Tienes {{count}} artículo',
-    itemCount_other: 'Tienes {{count}} artículos',
-};
+**src/locales/es/translations.json:**
+```json
+{
+    "common": {
+        "loading": "Cargando",
+        "product": "el producto"
+    },
+    "product": {
+        "title": "Detalles del Producto",
+        "addToCart": "Agregar al Carrito",
+        "greeting": "¡Hola, {{name}}!",
+        "itemCount": {
+            "zero": "Sin artículos",
+            "one": "{{count}} artículo",
+            "other": "{{count}} artículos"
+        }
+    },
+    "myNewFeature": {
+        "welcome": "Bienvenido a la nueva función"
+    }
+}
 ```
 
-### 2. Export in Language Index
-
-Add to `src/locales/en/index.ts` and `src/locales/es/index.ts`:
+### Using Your New Translations
 
 ```typescript
-import myPage from './my-page';
+// In React components
+const { t } = useTranslation('myNewFeature');
+<p>{t('welcome')}</p>
 
-export default { 
-    home, 
-    product, 
-    myPage  // Add new namespace
-} satisfies ResourceLanguage;
-```
-
-### 3. Use in Components
-
-```typescript
-const { t } = useTranslation('myPage');
+// In non-component code
+const { t } = getTranslation();
+const message = t('myNewFeature:welcome');
 
 // Simple translation
-<p>{t('welcome')}</p>
+<p>{t('title')}</p>
 
 // With interpolation
 <p>{t('greeting', { name: 'John' })}</p>
@@ -157,11 +288,17 @@ const { t } = useTranslation('myPage');
 
 ## Best Practices
 
-1. **Namespace by Route/Feature**: Create separate namespaces for each major route or feature (e.g., `home`, `product`, `checkout`)
-2. **Use TypeScript**: The project includes type-safe translations based on the English locale
-3. **Client vs Server**: Use `useTranslation` in components, `getInstance` in loaders
-4. **Lazy Loading**: Client-side translations are loaded on-demand per namespace for optimal performance
-5. **Fallback Chain**: Missing translations fall back to the configured `fallbackLng`
+1. **Namespace by Route/Feature**: Organize translations by feature area (e.g., `product`, `checkout`, `account`)
+2. **Use the Right Tool**:
+   - **React components**: Use `useTranslation()` hook
+   - **Everything else**: Use `getTranslation()` function
+     - Non-component code (tests, utilities, schemas): `getTranslation()`
+     - Server-side loaders/actions: `getTranslation(context)`
+3. **Use TypeScript**: The project includes type-safe translations based on the English locale
+4. **Interpolation**: Use `{{variable}}` syntax in translation strings (not `{variable}`)
+5. **Pluralization**: Use nested objects with `zero`, `one`, `other` keys for count-based translations
+6. **Lazy Loading**: Client-side translations are loaded on-demand when first requested
+7. **Fallback Chain**: Missing translations fall back to the configured `fallbackLng` (English)
 
 ## Type Safety
 
@@ -169,11 +306,146 @@ The project is configured for type-safe translations. TypeScript will autocomple
 
 ```typescript
 // ✅ TypeScript knows these keys exist
-t('home.title')
-t('product.title')
+const { t } = useTranslation('product');
+t('title')
+t('addToCart')
+
+// With namespace prefix in non-component code
+const { t } = getTranslation();
+t('product:title')
+t('cart:empty.title')
 
 // ❌ TypeScript will warn about this
 t('nonexistent.key')
 ```
 
-Type definitions are generated from the English locale (`resources.en`) in `src/middlewares/i18next.ts`.
+Type definitions are generated from the English locale (`resources.en`) in `src/middlewares/i18next.ts`:
+
+```typescript
+declare module 'i18next' {
+    interface CustomTypeOptions {
+        resources: typeof resources.en; // Use `en` as source of truth for the types
+    }
+}
+```
+
+---
+
+# Migration Gotchas
+
+During the migration to i18next translations in PR [#447](https://github.com/SalesforceCommerceCloud/storefront-next/pull/447), a lot of the necessary changes have been done for you. There were some migration gotchas, and here are the important ones that you need to be aware of.
+
+## 1. Validation Schema Factories
+
+### Problem: Race Conditions with Module-Level Schemas
+
+**Symptom**: Validation messages show as keys (e.g., `checkout:contactInfo.emailRequired`) instead of translated text.
+
+**Root Cause**: Zod schemas created at module load time execute before i18next initializes in RSC apps, where client-side i18next initialization is separate from server-side.
+
+### Solution: Factory Pattern
+
+Convert module-level schema exports to factory functions that accept `t`:
+
+**Before:**
+```typescript
+import uiStrings from '@/temp-ui-string';
+
+export const contactInfoSchema = z.object({
+    email: z.string().min(1, uiStrings.checkout.contactInfo.emailRequired)
+        .email(uiStrings.checkout.contactInfo.emailInvalid),
+});
+```
+
+**After:**
+```typescript
+import type { TFunction } from 'i18next';
+
+export const createContactInfoSchema = (t: TFunction) => {
+    return z.object({
+        email: z.string()
+            .min(1, t('checkout:contactInfo.emailRequired'))
+            .email(t('checkout:contactInfo.emailInvalid')),
+    });
+};
+```
+
+**Usage in Components:**
+```typescript
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { createContactInfoSchema } from '@/lib/checkout-schemas';
+
+function ContactForm() {
+    const { t } = useTranslation();
+    const schema = useMemo(() => createContactInfoSchema(t), [t]);
+    
+    const form = useForm({
+        resolver: zodResolver(schema),
+        // ...
+    });
+}
+```
+
+**Key Points:**
+- Use `useMemo` to avoid recreating schema on every render
+- Add `[t]` to dependency array
+- Factory pattern ensures `t()` is called at runtime, not module load time
+
+---
+
+## 2. Mocking react-router for Test Environments
+
+### Problem: Test setup fails when i18next middleware tries to use react-router's createCookie
+
+**Symptom**: Tests or Storybook fail with this error:
+
+```
+Caused by: Error: [vitest] No "createCookie" export is defined on the "react-router" mock. 
+Did you forget to return it from "vi.mock"?
+```
+
+**Root Cause**: The i18next middleware depends on `createCookie` from `react-router`, but in test environments (Vitest, Storybook), react-router may not be fully available or needs to be mocked.
+
+### Solution 
+
+Make sure your own mock of react-router includes `createCookie`. For example, in [this file](https://github.com/SalesforceCommerceCloud/storefront-next/blob/bfd08dd74b2d717f0c0984d5d82329c2dbca0ae9/packages/template-retail-rsc-app/src/components/reset-password-form/stories/index-snapshot.tsx#L4-L9):
+
+```typescript
+vi.mock('react-router', () => ({
+    createCookie: (name: string) => ({
+        name,
+        parse: () => null,
+        serialize: () => '',
+    }),
+    createContext: vi.fn().mockImplementation(() => ({})),
+    ...
+}))
+```
+
+
+---
+
+## 3. Translation Key Format Changes
+
+### Namespace Convention
+
+**Before (flat structure):**
+```typescript
+uiStrings.checkout.shippingAddress.title
+```
+
+**After (namespace:key):**
+```typescript
+const { t } = getTranslation()
+t('checkout:shippingAddress.title')
+
+// or with explicit namespace. You can pass in a namespace to the useTranslation hook.
+const { t } = useTranslation('checkout')
+t('shippingAddress.title')
+```
+
+**Namespace Guidelines:**
+- Use colon separator: `namespace:key.path`
+- Group related translations by feature/domain
+- Common namespaces: `common`, `errors`, `validation`, `product`, `checkout`, `customer`, etc.

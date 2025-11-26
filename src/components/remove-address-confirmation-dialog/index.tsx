@@ -9,6 +9,7 @@
 
 // React
 import { type ReactElement, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Hooks
 import { useScapiFetcher } from '@/hooks/use-scapi-fetcher';
@@ -18,9 +19,6 @@ import { useRevalidator } from 'react-router';
 // Components
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { useToast } from '@/components/toast';
-
-// Constants
-import uiStrings from '@/temp-ui-string';
 
 export interface RemoveAddressConfirmationDialogProps {
     /** Whether the dialog is open */
@@ -55,6 +53,7 @@ export function RemoveAddressConfirmationDialog({
     customerId,
     onSuccess,
 }: RemoveAddressConfirmationDialogProps): ReactElement {
+    const { t } = useTranslation('account');
     const { addToast } = useToast();
     const revalidator = useRevalidator();
 
@@ -72,13 +71,13 @@ export function RemoveAddressConfirmationDialog({
     // Handle fetcher effects
     useScapiFetcherEffect(removeFetcher, {
         onSuccess: () => {
-            addToast(uiStrings.account.addresses.removeSuccess, 'success');
+            addToast(t('addresses.removeSuccess'), 'success');
             onOpenChange(false); // Close modal on success
             onSuccess?.();
             void revalidator.revalidate();
         },
         onError: (errors) => {
-            const errorMessage = errors?.length > 0 ? errors.join(', ') : uiStrings.account.addresses.removeError;
+            const errorMessage = errors?.length > 0 ? errors.join(', ') : t('addresses.removeError');
             addToast(errorMessage, 'error');
         },
     });
@@ -86,14 +85,14 @@ export function RemoveAddressConfirmationDialog({
     // Handle confirm action
     const handleConfirm = useCallback(() => {
         if (!addressId || !customerId) {
-            addToast(uiStrings.account.addresses.removeError, 'error');
+            addToast(t('addresses.removeError'), 'error');
             return;
         }
 
         if (removeFetcher.state === 'idle') {
             void removeFetcher.submit({});
         }
-    }, [addressId, customerId, removeFetcher, addToast]);
+    }, [addressId, customerId, removeFetcher, addToast, t]);
 
     // Handle cancel action
     const handleCancel = useCallback(() => {
@@ -104,10 +103,10 @@ export function RemoveAddressConfirmationDialog({
         <ConfirmationDialog
             open={open}
             onOpenChange={onOpenChange}
-            title={uiStrings.account.addresses.removeConfirmTitle}
-            description={uiStrings.account.addresses.removeConfirmDescription.replace('{addressName}', addressId)}
-            cancelButtonText={uiStrings.account.addresses.removeCancelButton}
-            confirmButtonText={uiStrings.account.addresses.removeConfirmButton}
+            title={t('addresses.removeConfirmTitle')}
+            description={t('addresses.removeConfirmDescription', { addressName: addressId })}
+            cancelButtonText={t('addresses.removeCancelButton')}
+            confirmButtonText={t('addresses.removeConfirmButton')}
             onCancel={handleCancel}
             onConfirm={handleConfirm}
             confirmButtonDisabled={isLoading}

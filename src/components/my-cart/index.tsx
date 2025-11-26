@@ -11,9 +11,9 @@ import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-n
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import ProductItemsList from '@/components/product-items-list';
+import { useTranslation } from 'react-i18next';
 
 // Utils
-import uiStrings from '@/temp-ui-string';
 
 /**
  * Props for the MyCart component
@@ -43,6 +43,7 @@ interface MyCartProps {
  * @returns JSX element representing the my cart component
  */
 export default function MyCart({ basket, productMap = {}, itemsExpanded = false }: MyCartProps): ReactElement {
+    const { t } = useTranslation('checkout');
     const totalItems = basket?.productItems?.reduce((acc, item) => acc + (item.quantity ?? 0), 0) || 0;
 
     return (
@@ -57,7 +58,7 @@ export default function MyCart({ basket, productMap = {}, itemsExpanded = false 
                         <AccordionTrigger className="text-left hover:no-underline py-6">
                             <span className="flex-1 text-left text-lg font-bold text-primary">
                                 <ShoppingCart className="inline mr-2 w-5 h-5" />
-                                {uiStrings.checkout.myCart.title} ({totalItems})
+                                {t('myCart.title')} ({totalItems})
                             </span>
                         </AccordionTrigger>
                         <AccordionContent className="px-0 pb-6">

@@ -4,6 +4,7 @@ import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { action } from 'storybook/actions';
+import { getTranslation } from '@/lib/i18next';
 
 import CartContent from '../cart-content';
 import emptyBasket from '@/components/__mocks__/empty-basket';
@@ -12,7 +13,6 @@ import {
     inBasketProductDetails as dressProductDetails,
 } from '@/components/__mocks__/basket-with-dress';
 import { basketWithMultipleItems, inBasketProductDetails } from '@/components/__mocks__/basket-with-multiple-items';
-import uiStrings from '@/temp-ui-string';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -20,6 +20,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     useEffect(() => {
         const root = containerRef.current;
         if (!root) return;
+        const { t } = getTranslation();
 
         const logRemove = action('remove-item');
         const logEdit = action('edit-item');
@@ -116,8 +117,8 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
 
             const button = target.closest('button');
             const label = button?.textContent?.trim() || '';
-            const confirmText = uiStrings.removeItem.confirmAction;
-            const cancelText = uiStrings.removeItem.cancelButton;
+            const confirmText = t('removeItem:confirmAction');
+            const cancelText = t('removeItem:cancelButton');
 
             if (label === confirmText) {
                 event.stopImmediatePropagation();
@@ -288,17 +289,14 @@ This is the default state when a user has no items in their cart.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Wait for and verify empty cart state is shown
         const emptyCartContainer = canvasElement.querySelector('[data-testid="sf-cart-empty"]');
         await expect(emptyCartContainer).toBeInTheDocument();
 
         // Verify continue shopping button exists (using text since Button asChild with Link may not expose role correctly)
-        const continueShoppingButton = await canvas.findByText(
-            uiStrings.cart.empty.continueShopping,
-            {},
-            { timeout: 5000 }
-        );
+        const continueShoppingButton = await canvas.findByText(t('cart:empty.continueShopping'), {}, { timeout: 5000 });
         await expect(continueShoppingButton).toBeInTheDocument();
     },
 };

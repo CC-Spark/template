@@ -8,9 +8,9 @@ import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi'
 
 // Utils
 import { getDisplayVariationValues } from '@/lib/product-utils';
+import { useTranslation } from 'react-i18next';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
 
 /**
  * BundledProductItems component that displays bundled product items
@@ -34,10 +34,11 @@ export default function BundledProductItems({
             ),
         [bundledProducts]
     );
+    const { t } = useTranslation('cart');
 
     return (
         <div className="mt-2 space-y-2" data-testid="bundledProductItems">
-            <div className="text-sm font-medium">{uiStrings.cart.bundle.selectedOptions}:</div>
+            <div className="text-sm font-medium">{t('bundle.selectedOptions')}:</div>
             <div className="space-y-2 pl-2">
                 {bundledProducts.map((bundledProduct, index) => {
                     const product = bundledProduct.product;
@@ -61,7 +62,7 @@ export default function BundledProductItems({
 
                             {/* Quantity */}
                             <div className="text-sm text-muted-foreground">
-                                {uiStrings.cart.attributes.quantity} {bundledProduct.quantity}
+                                {t('attributes.quantity')} {bundledProduct.quantity}
                             </div>
                         </div>
                     );

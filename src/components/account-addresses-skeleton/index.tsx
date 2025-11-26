@@ -5,21 +5,22 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardAction, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import uiStrings from '@/temp-ui-string';
 
 /**
  * Skeleton component for the account addresses page content.
  * Matches the structure of the actual addresses page with a grid of address cards.
  */
 export function AccountAddressesSkeleton() {
+    const { t } = useTranslation('account');
     return (
         <div className="space-y-6">
             {/* Page Header Skeleton */}
             <div>
                 <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                    {uiStrings.account.navigation.addresses}
+                    {t('navigation.addresses')}
                 </h1>
             </div>
 

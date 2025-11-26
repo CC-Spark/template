@@ -3,7 +3,9 @@ import type { ActionFunctionArgs } from 'react-router';
 import { registerCustomer } from './register';
 import { loginRegisteredUser } from './standard-login';
 import createClient from '@/lib/scapi';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // Mock standard-login module
 vi.mock('./standard-login', () => ({
@@ -17,17 +19,6 @@ vi.mock('@/lib/scapi', () => ({
             registerCustomer: vi.fn(),
         },
     })),
-}));
-
-// Mock UI strings
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        errors: {
-            missingRegistrationField: 'Customer registration is missing required field.',
-            autoLoginAfterRegistrationFailed: 'Auto-login after registration failed',
-            genericTryAgain: 'Something is wrong. Please try again.',
-        },
-    },
 }));
 
 describe('registerCustomer', () => {
@@ -162,7 +153,7 @@ describe('registerCustomer', () => {
             expect(mockLoginRegisteredUser).not.toHaveBeenCalled();
             expect(result).toEqual({
                 success: false,
-                error: uiStrings.errors.genericTryAgain,
+                error: t('errors:genericTryAgain'),
             });
         });
 
@@ -182,7 +173,7 @@ describe('registerCustomer', () => {
             expect(mockLoginRegisteredUser).not.toHaveBeenCalled();
             expect(result).toEqual({
                 success: false,
-                error: uiStrings.errors.genericTryAgain,
+                error: t('errors:genericTryAgain'),
             });
         });
 
@@ -202,7 +193,7 @@ describe('registerCustomer', () => {
             expect(mockLoginRegisteredUser).not.toHaveBeenCalled();
             expect(result).toEqual({
                 success: false,
-                error: uiStrings.errors.genericTryAgain,
+                error: t('errors:genericTryAgain'),
             });
         });
 
@@ -222,7 +213,7 @@ describe('registerCustomer', () => {
             expect(mockLoginRegisteredUser).not.toHaveBeenCalled();
             expect(result).toEqual({
                 success: false,
-                error: uiStrings.errors.genericTryAgain,
+                error: t('errors:genericTryAgain'),
             });
         });
 
@@ -241,7 +232,7 @@ describe('registerCustomer', () => {
             expect(mockLoginRegisteredUser).not.toHaveBeenCalled();
             expect(result).toEqual({
                 success: false,
-                error: uiStrings.errors.genericTryAgain,
+                error: t('errors:genericTryAgain'),
             });
         });
     });
@@ -265,7 +256,7 @@ describe('registerCustomer', () => {
             expect(mockLoginRegisteredUser).not.toHaveBeenCalled();
             expect(result).toEqual({
                 success: false,
-                error: uiStrings.errors.genericTryAgain,
+                error: t('errors:genericTryAgain'),
             });
         });
     });

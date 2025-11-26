@@ -11,9 +11,8 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 
 import { FETCHER_STATES } from '@/lib/fetcher-states';
-import uiStrings from '@/temp-ui-string';
-
 import { type CustomerProfileFieldsProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CustomerProfileFields component that renders the form fields for editing customer profile.
@@ -23,6 +22,7 @@ import { type CustomerProfileFieldsProps } from './types';
  * @param onCancel - Optional callback function to handle cancel action
  */
 export function CustomerProfileFields({ form, updateFetcher, onCancel }: CustomerProfileFieldsProps) {
+    const { t } = useTranslation('account');
     const isSubmitting = updateFetcher.state === FETCHER_STATES.SUBMITTING;
 
     return (
@@ -36,13 +36,13 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-foreground">
-                                {uiStrings.account.profile.firstName}
+                                {t('profile.firstName')}
                             </FormLabel>
                             <FormControl>
                                 <Input
                                     type="text"
                                     autoComplete="given-name"
-                                    placeholder={uiStrings.account.profile.firstNamePlaceholder}
+                                    placeholder={t('profile.firstNamePlaceholder')}
                                     className="rounded-md"
                                     {...field}
                                 />
@@ -59,13 +59,13 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-foreground">
-                                {uiStrings.account.profile.lastName}
+                                {t('profile.lastName')}
                             </FormLabel>
                             <FormControl>
                                 <Input
                                     type="text"
                                     autoComplete="family-name"
-                                    placeholder={uiStrings.account.profile.lastNamePlaceholder}
+                                    placeholder={t('profile.lastNamePlaceholder')}
                                     className="rounded-md"
                                     {...field}
                                 />
@@ -82,14 +82,12 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                 name="email"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.profile.email}
-                        </FormLabel>
+                        <FormLabel className="text-sm font-medium text-foreground">{t('profile.email')}</FormLabel>
                         <FormControl>
                             <Input
                                 type="email"
                                 autoComplete="email"
-                                placeholder={uiStrings.account.profile.emailPlaceholder}
+                                placeholder={t('profile.emailPlaceholder')}
                                 className="rounded-md"
                                 {...field}
                             />
@@ -106,14 +104,14 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-sm font-medium text-foreground">
-                            {uiStrings.account.profile.phoneNumber}
+                            {t('profile.phoneNumber')}
                         </FormLabel>
                         <FormControl>
                             <Input
                                 type="tel"
                                 autoComplete="tel"
                                 inputMode="numeric"
-                                placeholder={uiStrings.account.profile.phonePlaceholder}
+                                placeholder={t('profile.phonePlaceholder')}
                                 className="rounded-md"
                                 {...field}
                             />
@@ -129,7 +127,7 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                     type="submit"
                     disabled={isSubmitting}
                     className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground px-6">
-                    {isSubmitting ? uiStrings.account.profile.savingButton : uiStrings.account.profile.saveButton}
+                    {isSubmitting ? t('profile.savingButton') : t('profile.saveButton')}
                 </Button>
                 {onCancel && (
                     <Button
@@ -138,7 +136,7 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                         onClick={onCancel}
                         disabled={isSubmitting}
                         className="rounded-md px-6">
-                        {uiStrings.account.profile.cancelButton}
+                        {t('profile.cancelButton')}
                     </Button>
                 )}
             </div>

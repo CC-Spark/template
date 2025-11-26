@@ -4,7 +4,7 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 /**
  * Client action for removing a promo code from the shopping basket.
@@ -36,15 +36,17 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
     basket?: ShopperBasketsV2.schemas['Basket'];
     error?: string;
 }> {
+    const { t } = getTranslation();
+
     if (request.method !== 'POST') {
-        throw new Response(uiStrings.errors.methodNotAllowed, { status: 405 });
+        throw new Response(t('errors:methodNotAllowed'), { status: 405 });
     }
 
     const { basketId } = getBasket(context);
     if (!basketId) {
         return {
             success: false,
-            error: uiStrings.errors.noBasketFound,
+            error: t('errors:noBasketFound'),
         };
     }
 
@@ -54,7 +56,7 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         if (!couponItemId) {
             return {
                 success: false,
-                error: uiStrings.errors.couponItemIdRequired,
+                error: t('errors:couponItemIdRequired'),
             };
         }
 

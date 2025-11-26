@@ -1,6 +1,6 @@
 import { Check, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import uiStrings from '@/temp-ui-string';
 
 /**
  * Props for the PasswordRequirement component
@@ -18,42 +18,11 @@ export interface PasswordRequirementProps {
 interface Requirement {
     /** Unique identifier for the requirement */
     id: string;
-    /** Human-readable description of the requirement */
-    text: string;
+    /** Translation key for the requirement text */
+    textKey: string;
     /** Function that validates if the password meets this requirement */
     validator: (password: string) => boolean;
 }
-
-/**
- * Array of password requirements to validate against
- */
-const requirements: Requirement[] = [
-    {
-        id: 'length',
-        text: uiStrings.account.password.requirements.minLength,
-        validator: (password) => password.length >= 8,
-    },
-    {
-        id: 'uppercase',
-        text: uiStrings.account.password.requirements.hasUppercase,
-        validator: (password) => /[A-Z]/.test(password),
-    },
-    {
-        id: 'lowercase',
-        text: uiStrings.account.password.requirements.hasLowercase,
-        validator: (password) => /[a-z]/.test(password),
-    },
-    {
-        id: 'number',
-        text: uiStrings.account.password.requirements.hasNumber,
-        validator: (password) => /\d/.test(password),
-    },
-    {
-        id: 'special',
-        text: uiStrings.account.password.requirements.hasSpecial,
-        validator: (password) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
-    },
-];
 
 /**
  * PasswordRequirement component that displays real-time password validation requirements.
@@ -86,9 +55,42 @@ const requirements: Requirement[] = [
  * ```
  */
 export function PasswordRequirement({ password, className }: PasswordRequirementProps) {
+    const { t } = useTranslation('account');
+
+    /**
+     * Array of password requirements to validate against
+     */
+    const requirements: Requirement[] = [
+        {
+            id: 'length',
+            textKey: 'password.requirements.minLength',
+            validator: (pwd) => pwd.length >= 8,
+        },
+        {
+            id: 'uppercase',
+            textKey: 'password.requirements.hasUppercase',
+            validator: (pwd) => /[A-Z]/.test(pwd),
+        },
+        {
+            id: 'lowercase',
+            textKey: 'password.requirements.hasLowercase',
+            validator: (pwd) => /[a-z]/.test(pwd),
+        },
+        {
+            id: 'number',
+            textKey: 'password.requirements.hasNumber',
+            validator: (pwd) => /\d/.test(pwd),
+        },
+        {
+            id: 'special',
+            textKey: 'password.requirements.hasSpecial',
+            validator: (pwd) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
+        },
+    ];
+
     return (
         <div className={cn('space-y-2', className)}>
-            <h4 className="text-sm font-medium text-foreground">{uiStrings.account.password.requirements.title}</h4>
+            <h4 className="text-sm font-medium text-foreground">{t('password.requirements.title')}</h4>
             <div className="space-y-1.5">
                 {requirements.map((requirement) => {
                     const isValid = requirement.validator(password);
@@ -104,7 +106,7 @@ export function PasswordRequirement({ password, className }: PasswordRequirement
                             ) : (
                                 <X className="h-4 w-4 text-muted-foreground" data-testid="x-icon" />
                             )}
-                            <span>{requirement.text}</span>
+                            <span>{t(requirement.textKey)}</span>
                         </div>
                     );
                 })}

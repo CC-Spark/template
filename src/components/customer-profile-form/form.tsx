@@ -6,6 +6,7 @@
 // integration tests. The core validation logic is thoroughly tested in index.test.tsx.
 /* c8 ignore end */
 
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -17,11 +18,10 @@ import { CustomerProfileFields } from './customer-profile-fields';
 import { useScapiFetcherEffect } from '@/hooks/use-scapi-fetcher-effect';
 
 //types
-import { customerProfileFormSchema } from './index';
-import { type CustomerProfileFormData, type CustomerProfileFormProps } from './types';
+import { createCustomerProfileFormSchema, type CustomerProfileFormData } from './index';
+import { type CustomerProfileFormProps } from './types';
 import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
-
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CustomerProfileForm component that provides a form interface for editing customer profile information.
@@ -59,8 +59,12 @@ export const CustomerProfileForm = ({
     onError,
     onCancel,
 }: CustomerProfileFormProps) => {
+    const { t } = useTranslation('account');
+    const schema = useMemo(() => createCustomerProfileFormSchema(t), [t]);
+
     const form = useForm<CustomerProfileFormData>({
-        resolver: zodResolver(customerProfileFormSchema),
+        // @ts-expect-error - zodResolver type mismatch with zod version
+        resolver: zodResolver(schema),
         defaultValues: {
             firstName: initialData?.firstName || '',
             lastName: initialData?.lastName || '',
@@ -92,8 +96,7 @@ export const CustomerProfileForm = ({
             }
         },
         onError: (errors) => {
-            const errorMessage =
-                errors && errors.length > 0 ? errors.join(', ') : uiStrings.account.profile.errorMessage;
+            const errorMessage = errors && errors.length > 0 ? errors.join(', ') : t('profile.errorMessage');
             // Set form error state
             form.setError('root', {
                 type: 'manual',

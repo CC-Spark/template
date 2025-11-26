@@ -11,9 +11,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Typography } from '@/components/typography';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation, withTranslation, type WithTranslation } from 'react-i18next';
 
-interface CheckoutErrorBoundaryProps {
+interface CheckoutErrorBoundaryProps extends WithTranslation {
     children: ReactNode;
     fallback?: ReactNode;
 }
@@ -26,7 +26,7 @@ interface CheckoutErrorBoundaryState {
  * ErrorBoundary specifically designed for checkout operations
  * Provides graceful fallbacks for basket enhancement and checkout errors
  */
-export class CheckoutErrorBoundary extends Component<CheckoutErrorBoundaryProps, CheckoutErrorBoundaryState> {
+class CheckoutErrorBoundaryClass extends Component<CheckoutErrorBoundaryProps, CheckoutErrorBoundaryState> {
     constructor(props: CheckoutErrorBoundaryProps) {
         super(props);
         this.state = { hasError: false };
@@ -45,6 +45,8 @@ export class CheckoutErrorBoundary extends Component<CheckoutErrorBoundaryProps,
     };
 
     render() {
+        const { t } = this.props;
+
         if (this.state.hasError) {
             // Custom fallback UI or use provided fallback
             if (this.props.fallback) {
@@ -56,18 +58,18 @@ export class CheckoutErrorBoundary extends Component<CheckoutErrorBoundaryProps,
                     <CardContent className="flex min-h-[400px] flex-col items-center justify-center p-8 text-center">
                         <AlertTriangle className="mb-4 h-12 w-12 text-destructive" />
                         <Typography variant="h2" as="h2" className="mb-2 text-xl font-bold text-destructive">
-                            {uiStrings.checkout.errorBoundary.title}
+                            {t('checkout:errorBoundary.title')}
                         </Typography>
                         <Typography variant="p" className="mb-6 max-w-md text-muted-foreground">
-                            {uiStrings.checkout.errorBoundary.description}
+                            {t('checkout:errorBoundary.description')}
                         </Typography>
                         <div className="flex gap-3">
                             <Button onClick={this.handleRetry}>
                                 <RefreshCw className="h-4 w-4" />
-                                {uiStrings.checkout.errorBoundary.tryAgain}
+                                {t('checkout:errorBoundary.tryAgain')}
                             </Button>
                             <Button variant="outline" onClick={() => (window.location.href = '/cart')}>
-                                {uiStrings.checkout.errorBoundary.returnToCart}
+                                {t('checkout:errorBoundary.returnToCart')}
                             </Button>
                         </div>
                     </CardContent>
@@ -79,21 +81,23 @@ export class CheckoutErrorBoundary extends Component<CheckoutErrorBoundaryProps,
     }
 }
 
+// Export the component wrapped with withTranslation HOC
+export const CheckoutErrorBoundary = withTranslation()(CheckoutErrorBoundaryClass);
+
 /**
  * Lightweight error fallback for individual checkout components
  */
 export function CheckoutComponentError({ retry }: { error?: Error; retry?: () => void }) {
+    const { t } = useTranslation('checkout');
     return (
         <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="text-xl font-bold">
-                {uiStrings.checkout.errorBoundary.componentError.title}
-            </AlertTitle>
+            <AlertTitle className="text-xl font-bold">{t('errorBoundary.componentError.title')}</AlertTitle>
             <AlertDescription className="text-xl font-bold">
-                {uiStrings.checkout.errorBoundary.componentError.description}
+                {t('errorBoundary.componentError.description')}
                 {retry && (
                     <Button variant="link" size="sm" onClick={retry} className="ml-2 h-auto p-0 font-bold">
-                        {uiStrings.checkout.errorBoundary.componentError.tryAgain}
+                        {t('errorBoundary.componentError.tryAgain')}
                     </Button>
                 )}
             </AlertDescription>

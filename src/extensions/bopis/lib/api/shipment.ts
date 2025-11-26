@@ -11,7 +11,7 @@ import bopisUiStrings from '@/extensions/bopis/temp-ui-string-bopis';
 import type { ShopperBasketsV2, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 import { getShippingMethodsForShipment } from '@/lib/api/shipping-methods';
 
 /**
@@ -69,11 +69,12 @@ export async function setAddressAndMethodForPickup(
     store: ShopperStores.schemas['Store'],
     shipmentId: string = 'me'
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
+    const { t } = getTranslation();
     const config = getConfig(context);
     const clients = createApiClients(context);
 
     if (!basketId) {
-        throw new Error(uiStrings.errors.noBasketFound);
+        throw new Error(t('errors:noBasketFound'));
     }
 
     const storeAddress = {

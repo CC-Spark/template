@@ -18,9 +18,7 @@ import { useConfig } from '@/config';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/toast';
-
-// Constants
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 export interface RemoveItemConfig {
     action: string;
@@ -52,6 +50,7 @@ export function RemoveItemButtonWithConfirmation({
     const appConfig = useConfig();
     const removeAction = config?.action || appConfig.pages.cart.removeAction;
     const confirmDescription = config?.confirmDescription || appConfig.pages.cart.confirmDescription;
+    const { t } = useTranslation('removeItem');
 
     // Create a unique fetcher for this component instance
     const fetcher = useItemFetcher({
@@ -66,14 +65,14 @@ export function RemoveItemButtonWithConfirmation({
     useEffect(() => {
         if (fetcher.state === 'idle' && fetcher.data) {
             if (fetcher.data.success) {
-                addToast(uiStrings.removeItem.success, 'success');
+                addToast(t('success'), 'success');
             } else {
-                addToast(uiStrings.removeItem.failed, 'error');
+                addToast(t('failed'), 'error');
             }
         }
         //As addToast is unlikely to change, we don't need to include it in the dependency array
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fetcher.state, fetcher.data]);
+    }, [fetcher.state, fetcher.data, t]);
 
     // Remove item function
     const removeItem = useCallback(() => {
@@ -106,20 +105,20 @@ export function RemoveItemButtonWithConfirmation({
                 size="sm"
                 disabled={isLoading}
                 className={`font-bold ${className ?? ''}`}
-                title={uiStrings.removeItem.title}
+                title={t('title')}
                 data-testid={`remove-item-${itemId}`}
                 aria-busy={isLoading}
                 onClick={() => setShowConfirmation(true)}>
-                {isLoading ? uiStrings.removeItem.removing : uiStrings.removeItem.button}
+                {isLoading ? t('removing') : t('button')}
             </Button>
 
             <ConfirmationDialog
                 open={showConfirmation}
                 onOpenChange={setShowConfirmation}
-                title={uiStrings.removeItem.confirmTitle}
+                title={t('confirmTitle')}
                 description={confirmDescription}
-                cancelButtonText={uiStrings.removeItem.cancelButton}
-                confirmButtonText={uiStrings.removeItem.confirmAction}
+                cancelButtonText={t('cancelButton')}
+                confirmButtonText={t('confirmAction')}
                 onCancel={handleCancel}
                 onConfirm={handleConfirm}
                 confirmButtonDisabled={isLoading}

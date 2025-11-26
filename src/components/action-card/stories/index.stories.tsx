@@ -5,7 +5,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 
 import ActionCard from '../index';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ActionCardHoverLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -165,9 +165,10 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
     args: {},
     render: (args) => {
+        const { t } = getTranslation();
         const { onEdit: userOnEdit, onRemove: userOnRemove, editBtnLabel, removeBtnLabel, ...rest } = args;
-        const editLabel = editBtnLabel ?? uiStrings.actionCard.edit;
-        const removeLabel = removeBtnLabel ?? uiStrings.actionCard.remove;
+        const editLabel = editBtnLabel ?? t('actionCard:edit');
+        const removeLabel = removeBtnLabel ?? t('actionCard:remove');
 
         return (
             <ActionCardHoverLogger>
@@ -231,8 +232,9 @@ The default ActionCard includes both edit and remove functionality:
 export const EditOnly: Story = {
     args: {},
     render: (args) => {
+        const { t } = getTranslation();
         const { onEdit: userOnEdit, editBtnLabel, ...rest } = args;
-        const editLabel = editBtnLabel ?? uiStrings.actionCard.edit;
+        const editLabel = editBtnLabel ?? t('actionCard:edit');
 
         return (
             <ActionCardHoverLogger>
@@ -268,6 +270,7 @@ This story shows an ActionCard with only edit functionality:
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Test payment card content is displayed
         const titleElement = canvas.getByText('Payment Method');
@@ -277,7 +280,7 @@ This story shows an ActionCard with only edit functionality:
         await expect(cardNumber).toBeInTheDocument();
 
         // Test edit button is present and functional
-        const editButton = canvas.getByRole('button', { name: uiStrings.actionCard.edit });
+        const editButton = canvas.getByRole('button', { name: t('actionCard:edit') });
         await expect(editButton).toBeInTheDocument();
         await expect(editButton).not.toBeDisabled();
 
@@ -298,7 +301,7 @@ This story shows an ActionCard with only edit functionality:
             const hasRemoveButton = footerButtons.some((btn) => {
                 const text = btn.textContent?.trim() || '';
                 const ariaLabel = btn.getAttribute('aria-label') || '';
-                return text === uiStrings.actionCard.remove || ariaLabel === uiStrings.actionCard.remove;
+                return text === t('actionCard:remove') || ariaLabel === t('actionCard:remove');
             });
             await expect(hasRemoveButton).toBe(false);
         }
@@ -308,8 +311,9 @@ This story shows an ActionCard with only edit functionality:
 export const RemoveOnly: Story = {
     args: {},
     render: (args) => {
+        const { t } = getTranslation();
         const { onRemove: userOnRemove, removeBtnLabel, ...rest } = args;
-        const removeLabel = removeBtnLabel ?? uiStrings.actionCard.remove;
+        const removeLabel = removeBtnLabel ?? t('actionCard:remove');
 
         return (
             <ActionCardHoverLogger>
@@ -348,6 +352,7 @@ This story shows an ActionCard with only remove functionality:
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Test product information is displayed
         const titleElement = canvas.getByText('Saved Item');
@@ -360,7 +365,7 @@ This story shows an ActionCard with only remove functionality:
         await expect(priceElement).toBeInTheDocument();
 
         // Test remove button is present and functional
-        const removeButton = canvas.getByRole('button', { name: uiStrings.actionCard.remove });
+        const removeButton = canvas.getByRole('button', { name: t('actionCard:remove') });
         await expect(removeButton).toBeInTheDocument();
         await expect(removeButton).not.toBeDisabled();
 
@@ -381,7 +386,7 @@ This story shows an ActionCard with only remove functionality:
             const hasEditButton = footerButtons.some((btn) => {
                 const text = btn.textContent?.trim() || '';
                 const ariaLabel = btn.getAttribute('aria-label') || '';
-                return text === uiStrings.actionCard.edit || ariaLabel === uiStrings.actionCard.edit;
+                return text === t('actionCard:edit') || ariaLabel === t('actionCard:edit');
             });
             await expect(hasEditButton).toBe(false);
         }
@@ -441,9 +446,10 @@ export const WithCustomLabels: Story = {
         removeBtnLabel: 'Delete Address',
     },
     render: (args) => {
+        const { t } = getTranslation();
         const { onEdit: userOnEdit, onRemove: userOnRemove, editBtnLabel, removeBtnLabel, ...rest } = args;
-        const editLabel = editBtnLabel ?? uiStrings.actionCard.edit;
-        const removeLabel = removeBtnLabel ?? uiStrings.actionCard.remove;
+        const editLabel = editBtnLabel ?? t('actionCard:edit');
+        const removeLabel = removeBtnLabel ?? t('actionCard:remove');
 
         return (
             <ActionCardHoverLogger>
@@ -518,9 +524,10 @@ export const WithAsyncRemove: Story = {
         },
     },
     render: (args) => {
+        const { t } = getTranslation();
         const { onEdit: userOnEdit, onRemove: userOnRemove, editBtnLabel, removeBtnLabel, ...rest } = args;
-        const editLabel = editBtnLabel ?? uiStrings.actionCard.edit;
-        const removeLabel = removeBtnLabel ?? uiStrings.actionCard.remove;
+        const editLabel = editBtnLabel ?? t('actionCard:edit');
+        const removeLabel = removeBtnLabel ?? t('actionCard:remove');
 
         return (
             <ActionCardHoverLogger>

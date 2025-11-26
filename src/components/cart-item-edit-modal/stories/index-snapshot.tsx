@@ -14,6 +14,7 @@ const fetcherMock = {
 
 vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
+    createCookie: vi.fn().mockImplementation((name) => ({ name, parse: vi.fn(), serialize: vi.fn() })),
     useFetcher: () => fetcherMock,
     useFetchers: () => [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function

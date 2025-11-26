@@ -23,10 +23,9 @@ import { useToast } from '@/components/toast';
 import { useConfig } from '@/config';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
-
 // Types
 import type { ActionResponse } from '@/routes/types/action-responses';
+import { useTranslation } from 'react-i18next';
 
 interface UseCartQuantityUpdateProps {
     /** Cart item ID for API calls */
@@ -101,6 +100,7 @@ export function useCartQuantityUpdate({
 }: UseCartQuantityUpdateProps): UseCartQuantityUpdateReturn {
     const config = useConfig();
     const { addToast } = useToast();
+    const { t } = useTranslation('quantitySelector');
 
     const effectiveDebounceDelay = debounceDelay || config.pages.cart.quantityUpdateDebounce;
     const removeAction = config.pages.cart.removeAction;
@@ -134,11 +134,11 @@ export function useCartQuantityUpdate({
     const getInventoryMessage = useCallback(
         (qty: number) => {
             if (stockLevel !== undefined && stockLevel > 0 && stockLevel < qty) {
-                return uiStrings.quantitySelector.onlyLeft.replace('{stockLevel}', stockLevel.toString());
+                return t('onlyLeft', { stockLevel: stockLevel.toString() });
             }
             return null;
         },
-        [stockLevel]
+        [stockLevel, t]
     );
 
     // Create debounced function with current values
@@ -266,12 +266,12 @@ export function useCartQuantityUpdate({
                     lastSuccessfulQuantityRef.current = pendingQuantity;
                     setPendingQuantity(null);
                 }
-                addToast(uiStrings.quantitySelector.quantityUpdated, 'success');
+                addToast(t('quantityUpdated'), 'success');
             } else {
                 // On failure, reset to the last known good value
                 setQuantity(lastSuccessfulQuantityRef.current);
                 setPendingQuantity(null);
-                addToast(uiStrings.quantitySelector.quantityUpdateFailed, 'error');
+                addToast(t('quantityUpdateFailed'), 'error');
             }
         }
         //As addToast is unlikely to change, we don't need to include it in the dependency array

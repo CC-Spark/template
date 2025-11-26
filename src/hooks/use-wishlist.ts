@@ -2,17 +2,17 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useFetcher } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { useToast } from '@/components/toast';
 import { useRequireAuth } from '@/hooks/use-require-auth';
-import uiStrings from '@/temp-ui-string';
-
 /**
  * Hook for wishlist functionality using action routes for server-side state management.
  * Note: This hook maintains optimistic client-side state. For full wishlist data,
  * use the loader in account.wishlist.tsx route.
  */
 export const useWishlist = () => {
+    const { t } = useTranslation();
     const addFetcher = useFetcher();
     const removeFetcher = useFetcher();
     const { addToast } = useToast();
@@ -40,7 +40,7 @@ export const useWishlist = () => {
         ) => {
             const productId = variant?.productId || product.productId;
             if (!productId) {
-                addToast(uiStrings.product.failedToAddToWishlist, 'error');
+                addToast(t('product:failedToAddToWishlist'), 'error');
                 return;
             }
 
@@ -77,23 +77,19 @@ export const useWishlist = () => {
                     | undefined;
                 if (result?.success) {
                     if (isInWishlist) {
-                        addToast(uiStrings.product.removedFromWishlist || 'Removed from wishlist', 'success');
+                        addToast(t('product:removedFromWishlist') || 'Removed from wishlist', 'success');
                     } else if (result.alreadyInWishlist) {
                         // Product is already in wishlist - optimistic update was correct, keep it
                         // No need to revert since the product should be in the wishlist
                         addToast(
-                            uiStrings.product.alreadyInWishlist?.replace(
-                                '{productName}',
-                                product.productName || 'product'
-                            ) || 'Product is already in your wishlist',
+                            t('product:alreadyInWishlist', { productName: product.productName || 'product' }) ||
+                                'Product is already in your wishlist',
                             'info'
                         );
                     } else {
                         addToast(
-                            uiStrings.product.addedToWishlist?.replace(
-                                '{productName}',
-                                product.productName || 'product'
-                            ) || 'Added to wishlist',
+                            t('product:addedToWishlist', { productName: product.productName || 'product' }) ||
+                                'Added to wishlist',
                             'success'
                         );
                     }
@@ -108,7 +104,7 @@ export const useWishlist = () => {
                         }
                         return next;
                     });
-                    addToast(result?.error || uiStrings.product.failedToAddToWishlist, 'error');
+                    addToast(result?.error || t('product:failedToAddToWishlist'), 'error');
                 }
             } catch {
                 // Revert optimistic update on error
@@ -121,10 +117,10 @@ export const useWishlist = () => {
                     }
                     return next;
                 });
-                addToast(uiStrings.product.failedToAddToWishlist, 'error');
+                addToast(t('product:failedToAddToWishlist'), 'error');
             }
         },
-        [productIds, addFetcher, removeFetcher, addToast]
+        [productIds, addFetcher, removeFetcher, addToast, t]
     );
 
     // Wrap with auth requirement
@@ -137,7 +133,7 @@ export const useWishlist = () => {
             return productId ? { productId } : {};
         },
         getReturnUrl: () => window.location.pathname + window.location.search,
-        toastMessage: uiStrings.product.signInToAddToWishlist,
+        toastMessage: t('product:signInToAddToWishlist'),
     }) as (
         product: ShopperSearch.schemas['ProductSearchHit'],
         variant?: ShopperSearch.schemas['ProductSearchHit']

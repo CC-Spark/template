@@ -4,8 +4,8 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
-import { promoCodeFormSchema } from '@/components/promo-code-form';
-import uiStrings from '@/temp-ui-string';
+import { createPromoCodeFormSchema } from '@/components/promo-code-form';
+import { getTranslation } from '@/lib/i18next';
 
 /**
  * Client action for adding a promo code to the shopping basket.
@@ -36,15 +36,17 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
     basket?: ShopperBasketsV2.schemas['Basket'];
     error?: string;
 }> {
+    const { t } = getTranslation();
+
     if (request.method !== 'POST') {
-        throw new Response(uiStrings.errors.methodNotAllowed, { status: 405 });
+        throw new Response(t('errors:methodNotAllowed'), { status: 405 });
     }
 
     const { basketId } = getBasket(context);
     if (!basketId) {
         return {
             success: false,
-            error: uiStrings.errors.noBasketFound,
+            error: t('errors:noBasketFound'),
         };
     }
 
@@ -53,11 +55,12 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         const promoCode = formData.get('promoCode') as string;
 
         // Use Zod schema for validation
+        const promoCodeFormSchema = createPromoCodeFormSchema(t);
         const validationResult = promoCodeFormSchema.safeParse({ code: promoCode });
         if (!validationResult.success) {
             return {
                 success: false,
-                error: validationResult.error.issues[0]?.message || uiStrings.errors.promoCodeRequired,
+                error: validationResult.error.issues[0]?.message || t('errors:promoCodeRequired'),
             };
         }
 

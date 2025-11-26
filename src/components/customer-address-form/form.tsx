@@ -6,9 +6,10 @@
 // integration tests. The core validation logic is thoroughly tested in index.test.tsx.
 /* c8 ignore end */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
 // components
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,8 @@ import { useScapiFetcherEffect } from '@/hooks/use-scapi-fetcher-effect';
 import { FETCHER_STATES } from '@/lib/fetcher-states';
 
 //types
-import { customerAddressFormSchema } from './index';
-import { type CustomerAddressFormData, type CustomerAddressFormProps } from './types';
-
-import uiStrings from '@/temp-ui-string';
+import { createCustomerAddressFormSchema, type CustomerAddressFormData } from './index';
+import { type CustomerAddressFormProps } from './types';
 
 /**
  * CustomerAddressForm component that provides a form interface for editing customer address information.
@@ -75,9 +74,12 @@ export const CustomerAddressForm = ({
     onError,
     onCancel,
 }: CustomerAddressFormProps) => {
+    const { t } = useTranslation('account');
+    const schema = useMemo(() => createCustomerAddressFormSchema(t), [t]);
+
     const form = useForm<CustomerAddressFormData>({
         // @ts-expect-error - zodResolver type mismatch with zod version
-        resolver: zodResolver(customerAddressFormSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             addressId: initialData?.addressId ?? '',
             firstName: initialData?.firstName || '',
@@ -130,14 +132,13 @@ export const CustomerAddressForm = ({
             form.reset();
             // If no onSuccess callback provided, set inline success state for display
             if (!onSuccess) {
-                setInlineSuccessMessage(uiStrings.account.addressForm.successMessage);
+                setInlineSuccessMessage(t('addressForm.successMessage'));
             }
             // Call parent callback - parent will handle toasts and other UI feedback
             onSuccess?.(formData);
         },
         onError: (errors) => {
-            const errorMessage =
-                errors && errors.length > 0 ? errors.join(', ') : uiStrings.account.addressForm.errorMessage;
+            const errorMessage = errors && errors.length > 0 ? errors.join(', ') : t('addressForm.errorMessage');
             // Set form error state
             form.setError('root', {
                 type: 'manual',
@@ -219,9 +220,7 @@ export const CustomerAddressForm = ({
                             type="submit"
                             disabled={isSubmitting}
                             className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground px-6">
-                            {isSubmitting
-                                ? uiStrings.account.addressForm.savingButton
-                                : uiStrings.account.addressForm.saveButton}
+                            {isSubmitting ? t('addressForm.savingButton') : t('addressForm.saveButton')}
                         </Button>
                         {onCancel && (
                             <Button
@@ -230,7 +229,7 @@ export const CustomerAddressForm = ({
                                 onClick={handleCancel}
                                 disabled={isSubmitting}
                                 className="rounded-md px-6">
-                                {uiStrings.account.addressForm.cancelButton}
+                                {t('addressForm.cancelButton')}
                             </Button>
                         )}
                     </div>

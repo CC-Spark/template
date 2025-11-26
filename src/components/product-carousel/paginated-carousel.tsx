@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ShopperSearchTypes } from 'commerce-sdk-isomorphic';
 import {
     Carousel,
@@ -11,7 +12,6 @@ import {
     type CarouselApi,
 } from '@/components/ui/carousel';
 import { ProductTile } from '@/components/product-tile';
-import uiStrings from '@/temp-ui-string';
 import { useConfig } from '@/config';
 
 export interface PaginatedProductCarouselProps {
@@ -99,6 +99,7 @@ export default function PaginatedProductCarousel({
     showLoadingIndicator = true,
     loadingComponent,
 }: PaginatedProductCarouselProps): ReactNode {
+    const { t } = useTranslation('common');
     const config = useConfig();
     const limit = limitProp ?? config.global.paginatedProductCarousel.defaultLimit;
     const [products, setProducts] = useState<(ShopperSearchTypes.ProductSearchHit | null)[]>(initialProducts);
@@ -248,9 +249,7 @@ export default function PaginatedProductCarousel({
                                     renderProductTile(product, index)
                                 ) : (
                                     <div className="w-full flex items-center justify-center min-h-[200px]">
-                                        <div className="text-muted-foreground text-sm">
-                                            {uiStrings.common.loadingMore}
-                                        </div>
+                                        <div className="text-muted-foreground text-sm">{t('loadingMore')}</div>
                                     </div>
                                 )}
                             </div>
@@ -266,7 +265,7 @@ export default function PaginatedProductCarousel({
                                 {showLoadingIndicator &&
                                     (loadingComponent || (
                                         <div className="text-muted-foreground text-sm">
-                                            {isLoading ? uiStrings.common.loadingMore : ''}
+                                            {isLoading ? t('loadingMore') : ''}
                                         </div>
                                     ))}
                             </div>

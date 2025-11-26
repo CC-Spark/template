@@ -11,7 +11,7 @@ import { extractStatusCode } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { isRegisteredCustomer } from '@/lib/api/customer';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
@@ -27,13 +27,13 @@ async function removeFromWishlist(
     productList?: CustomerProductList;
     error?: string;
 }> {
+    const { t } = getTranslation();
     // Check if user is authenticated as registered customer
     if (!isRegisteredCustomer(context)) {
         return {
             success: false,
             error:
-                uiStrings.account.wishlist.mustLoginToRemove ||
-                'You must be logged in to remove items from your wishlist',
+                t('account:wishlist.mustLoginToRemove') || 'You must be logged in to remove items from your wishlist',
         };
     }
 
@@ -41,7 +41,7 @@ async function removeFromWishlist(
     if (!session.customer_id) {
         return {
             success: false,
-            error: uiStrings.errors.customer.notAuthenticated,
+            error: t('errors:customer.notAuthenticated'),
         };
     }
 
@@ -64,7 +64,7 @@ async function removeFromWishlist(
         if (!wishlist) {
             return {
                 success: false,
-                error: uiStrings.account.wishlist.notFound,
+                error: t('account:wishlist.notFound'),
             };
         }
 
@@ -73,7 +73,7 @@ async function removeFromWishlist(
         if (!listId) {
             return {
                 success: false,
-                error: uiStrings.account.wishlist.idNotFound,
+                error: t('account:wishlist.idNotFound'),
             };
         }
 
@@ -96,7 +96,7 @@ async function removeFromWishlist(
         if (!wishlistItem || !wishlistItem.id) {
             return {
                 success: false,
-                error: uiStrings.account.wishlist.itemNotFound,
+                error: t('account:wishlist.itemNotFound'),
             };
         }
 
@@ -145,13 +145,13 @@ async function removeFromWishlist(
         if (status_code === '401' || status_code === '403') {
             return {
                 success: false,
-                error: uiStrings.errors.api.unauthorized,
+                error: t('errors:api.unauthorized'),
             };
         }
 
         return {
             success: false,
-            error: responseMessage || uiStrings.product.failedToRemoveFromWishlist,
+            error: responseMessage || t('product:failedToRemoveFromWishlist'),
         };
     }
 }
@@ -160,8 +160,10 @@ async function removeFromWishlist(
  * Client action to remove a product from the wishlist
  */
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     if (request.method !== 'POST') {
-        throw new Response(uiStrings.product.methodNotAllowed, { status: 405 });
+        throw new Response(t('product:methodNotAllowed'), { status: 405 });
     }
 
     try {
@@ -170,12 +172,12 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         const productId = typeof rawProductId === 'string' ? rawProductId.trim() : '';
 
         if (!productId) {
-            throw new Error(uiStrings.product.productIdRequired);
+            throw new Error(t('product:productIdRequired'));
         }
 
         // Basic validation: productId should be a non-empty string
         if (productId.length === 0 || productId.length > 100) {
-            throw new Error(uiStrings.product.productIdRequired);
+            throw new Error(t('product:productIdRequired'));
         }
 
         const result = await removeFromWishlist(context, productId);
@@ -196,7 +198,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         return data(
             {
                 success: false,
-                error: responseMessage || uiStrings.errors.api.unexpectedError,
+                error: responseMessage || t('errors:api.unexpectedError'),
             },
             { status: status_code ? Number(status_code) : 500 }
         );

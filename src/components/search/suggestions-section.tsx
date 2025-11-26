@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import SuggestionsList from './suggestions-list';
 import SuggestionsGrid from './suggestions-grid';
 import { searchUrlBuilder } from '@/lib/url';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface PhraseSuggestion {
     name: string;
@@ -52,21 +52,25 @@ interface DidYouMeanProps {
     onLinkClick: (link: string) => () => void;
 }
 
-const DidYouMean = ({ suggestion, onLinkClick }: DidYouMeanProps) => (
-    <div className="mb-2">
-        <p className="text-base text-foreground pl-12">
-            {uiStrings.search.suggestions.didYouMean}{' '}
-            <Link
-                to={suggestion.link}
-                className="text-foreground hover:text-foreground/80 font-medium"
-                onMouseDown={onLinkClick(suggestion.link)}>
-                {suggestion.name}?
-            </Link>
-        </p>
-    </div>
-);
+const DidYouMean = ({ suggestion, onLinkClick }: DidYouMeanProps) => {
+    const { t } = useTranslation('search');
+    return (
+        <div className="mb-2">
+            <p className="text-base text-foreground pl-12">
+                {t('suggestions.didYouMean')}{' '}
+                <Link
+                    to={suggestion.link}
+                    className="text-foreground hover:text-foreground/80 font-medium"
+                    onMouseDown={onLinkClick(suggestion.link)}>
+                    {suggestion.name}?
+                </Link>
+            </p>
+        </div>
+    );
+};
 
 export default function SuggestionSection({ searchSuggestions, closeAndNavigate }: SuggestionSectionProps) {
+    const { t } = useTranslation('search');
     const hasCategories = Boolean(searchSuggestions?.categorySuggestions?.length);
     const hasProducts = Boolean(searchSuggestions?.productSuggestions?.length);
     const hasPhraseSuggestions = Boolean(searchSuggestions?.phraseSuggestions?.length);
@@ -90,7 +94,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                 {hasCategories && (
                     <div className="mb-2">
                         <div className="text-sm text-muted-foreground font-light mb-1 pl-12 ">
-                            {uiStrings.search.suggestions.categories}
+                            {t('suggestions.categories')}
                         </div>
                         <SuggestionsList
                             closeAndNavigate={closeAndNavigate}
@@ -102,7 +106,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                 {hasProducts && (
                     <div className="mb-2">
                         <div className="text-sm text-muted-foreground font-light mb-1 pl-12 ">
-                            {uiStrings.search.suggestions.products}
+                            {t('suggestions.products')}
                         </div>
                         <SuggestionsList
                             closeAndNavigate={closeAndNavigate}
@@ -114,7 +118,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                 {hasPopularSearches && (
                     <div className="mb-2">
                         <div className="text-sm text-muted-foreground font-light mb-1 pl-12 ">
-                            {uiStrings.search.suggestions.popularSearches}
+                            {t('suggestions.popularSearches')}
                         </div>
                         <SuggestionsList
                             closeAndNavigate={closeAndNavigate}
@@ -134,7 +138,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                     {hasCategories && (
                         <div className="mb-2">
                             <div className="text-sm text-muted-foreground font-light mb-1 pl-12 ">
-                                {uiStrings.search.suggestions.categories}
+                                {t('suggestions.categories')}
                             </div>
                             <SuggestionsList
                                 closeAndNavigate={closeAndNavigate}
@@ -146,7 +150,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                     {hasPopularSearches && (
                         <div className="mb-2">
                             <div className="text-sm text-muted-foreground font-light mb-1 pl-12 ">
-                                {uiStrings.search.suggestions.popularSearches}
+                                {t('suggestions.popularSearches')}
                             </div>
                             <SuggestionsList
                                 closeAndNavigate={closeAndNavigate}
@@ -172,7 +176,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                                 to={searchUrlBuilder(searchSuggestions?.searchPhrase || '')}
                                 className="text-foreground hover:text-foreground/80 font-medium text-base"
                                 onMouseDown={handleLinkClick(searchUrlBuilder(searchSuggestions?.searchPhrase || ''))}>
-                                {uiStrings.search.suggestions.viewAll}
+                                {t('suggestions.viewAll')}
                             </Link>
                         </div>
                     )}

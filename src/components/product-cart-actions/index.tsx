@@ -12,10 +12,10 @@ import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi'
 import { Button } from '@/components/ui/button';
 import { useProductView } from '@/providers/product-view';
 import { useCurrentVariant } from '@/hooks/product/use-current-variant';
-import uiStrings from '@/temp-ui-string';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import { ShareButton } from '@/components/buttons/share-button';
 import { useCheckAndExecutePendingAction } from '@/hooks/check-and-execute-pending-action';
+import { useTranslation } from 'react-i18next';
 
 interface ProductCartActionsProps {
     product: ShopperProducts.schemas['Product'];
@@ -42,6 +42,7 @@ export default function ProductCartActions({
     onAddToWishlistSuccess,
     onAddToWishlistError,
 }: ProductCartActionsProps): ReactElement {
+    const { t } = useTranslation('product');
     const isProductASet = isProductSet(product);
     const isProductABundle = isProductBundle(product);
 
@@ -122,7 +123,7 @@ export default function ProductCartActions({
         <div className="mt-6">
             {/* Options Selection Message */}
             {isMasterOrVariantProduct && !currentVariant && !isProductASet && !isProductABundle && (
-                <div className="text-destructive font-medium">{uiStrings.product.selectAllOptions}</div>
+                <div className="text-destructive font-medium">{t('selectAllOptions')}</div>
             )}
 
             {/* Action Buttons */}
@@ -133,11 +134,7 @@ export default function ProductCartActions({
                         disabled={!canAddToCart || isAddingToOrUpdatingCart}
                         className="w-full"
                         size="lg">
-                        {isEditMode
-                            ? uiStrings.product.updateCart
-                            : isAddingToOrUpdatingCart
-                              ? uiStrings.product.addingToCart
-                              : uiStrings.product.addToCart}
+                        {isEditMode ? t('updateCart') : isAddingToOrUpdatingCart ? t('addingToCart') : t('addToCart')}
                     </Button>
                 )}
 
@@ -149,7 +146,7 @@ export default function ProductCartActions({
                             variant="outline"
                             className="w-full"
                             size="lg">
-                            {isAddingToWishlist ? uiStrings.product.addingToWishlist : uiStrings.product.addToWishlist}
+                            {isAddingToWishlist ? t('addingToWishlist') : t('addToWishlist')}
                         </Button>
                         <ShareButton product={product} className="w-full" />
                     </div>

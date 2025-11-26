@@ -3,17 +3,20 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
-import { contactInfoSchema, parseContactInfoFromFormData } from '@/lib/checkout-schemas';
+import { createContactInfoSchema, parseContactInfoFromFormData } from '@/lib/checkout-schemas';
 import { customerLookup } from '@/lib/api/customer';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     const formData = await request.formData();
 
     // Parse and validate using shared schema
     // This ensures server-side validation matches client-side validation exactly
     const contactData = parseContactInfoFromFormData(formData);
+    const contactInfoSchema = createContactInfoSchema(t);
     const result = contactInfoSchema.safeParse(contactData);
 
     if (!result.success) {
@@ -53,7 +56,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         return Response.json(
             {
                 success: false,
-                error: uiStrings.errors.checkout.noActiveBasket,
+                error: t('errors:checkout.noActiveBasket'),
                 step: 'contactInfo',
             },
             { status: 400 }

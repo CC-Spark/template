@@ -1,9 +1,9 @@
 'use client';
 
 import { type ReactElement, type KeyboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import uiStrings from '@/temp-ui-string';
 import { usePriceRangeValidation } from '@/hooks/use-price-range-validation';
 
 interface PriceInputProps {
@@ -61,6 +61,7 @@ export default function PriceRangeInput({
     maxAllowed,
     showValidationErrors = true,
 }: PriceRangeInputProps): ReactElement {
+    const { t } = useTranslation('product');
     const validation = usePriceRangeValidation(minPrice, maxPrice, minAllowed, maxAllowed);
     const minHasError = showValidationErrors && validation.minHasError;
     const maxHasError = showValidationErrors && validation.maxHasError;
@@ -82,7 +83,7 @@ export default function PriceRangeInput({
     return (
         <div className="flex flex-row gap-3 items-center justify-start self-stretch shrink-0 relative">
             <PriceInput
-                placeholder={uiStrings.product.priceMin}
+                placeholder={t('priceMin')}
                 value={minPrice}
                 onChange={handleMinChange}
                 onKeyDown={handleKeyDown}
@@ -90,11 +91,11 @@ export default function PriceRangeInput({
             />
 
             <div className="text-foreground text-left font-text-sm-leading-none-normal-font-family text-sm leading-none font-normal relative">
-                {uiStrings.product.priceTo}
+                {t('priceTo')}
             </div>
 
             <PriceInput
-                placeholder={uiStrings.product.priceMax}
+                placeholder={t('priceMax')}
                 value={maxPrice}
                 onChange={handleMaxChange}
                 onKeyDown={handleKeyDown}

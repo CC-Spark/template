@@ -6,7 +6,7 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import type { CustomerProfileFetcherData, CustomerProfileFormData } from '../types';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function CustomerProfileFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -203,17 +203,18 @@ Default customer profile form with mock submission.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for form fields
         const firstNameInput = await canvas.findByPlaceholderText(
-            uiStrings.account.profile.firstNamePlaceholder,
+            t('account:profile.firstNamePlaceholder'),
             {},
             { timeout: 5000 }
         );
         await expect(firstNameInput).toBeInTheDocument();
 
         const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.account.profile.emailPlaceholder,
+            t('account:profile.emailPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -359,10 +360,11 @@ Interactive customer profile form for testing user interactions.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Find and interact with form fields
         const firstNameInput = await canvas.findByPlaceholderText(
-            uiStrings.account.profile.firstNamePlaceholder,
+            t('account:profile.firstNamePlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -370,7 +372,7 @@ Interactive customer profile form for testing user interactions.
         await expect(firstNameInput).toHaveValue('Jane');
 
         const lastNameInput = await canvas.findByPlaceholderText(
-            uiStrings.account.profile.lastNamePlaceholder,
+            t('account:profile.lastNamePlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -378,7 +380,7 @@ Interactive customer profile form for testing user interactions.
         await expect(lastNameInput).toHaveValue('Smith');
 
         const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.account.profile.emailPlaceholder,
+            t('account:profile.emailPlaceholder'),
             {},
             { timeout: 5000 }
         );

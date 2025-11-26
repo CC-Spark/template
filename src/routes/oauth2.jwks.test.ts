@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { loader } from './oauth2.jwks';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
+const { t } = getTranslation();
 // Mock global fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -140,7 +141,7 @@ describe('oauth2.jwks loader', () => {
         it('should handle fetch rejection without Error object', async () => {
             mockFetch.mockRejectedValue('String error');
 
-            await expect(loader({ context: mockContext } as any)).rejects.toThrow(uiStrings.errors.jwks.unknownError);
+            await expect(loader({ context: mockContext } as any)).rejects.toThrow(t('errors:jwks.unknownError'));
         });
     });
 
@@ -156,9 +157,7 @@ describe('oauth2.jwks loader', () => {
                 json: () => Promise.resolve(invalidResponse),
             });
 
-            await expect(loader({ context: mockContext } as any)).rejects.toThrow(
-                uiStrings.errors.jwks.invalidResponse
-            );
+            await expect(loader({ context: mockContext } as any)).rejects.toThrow(t('errors:jwks.invalidResponse'));
         });
 
         it('should accept empty keys array', async () => {

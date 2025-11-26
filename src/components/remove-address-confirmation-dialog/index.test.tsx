@@ -2,7 +2,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { RemoveAddressConfirmationDialog } from './index';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // Mock the toast hook
 const mockAddToast = vi.fn();
@@ -106,33 +108,25 @@ describe('RemoveAddressConfirmationDialog', () => {
     test('renders dialog when open is true', () => {
         render(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        expect(screen.getByText(uiStrings.account.addresses.removeConfirmTitle)).toBeInTheDocument();
+        expect(screen.getByText(t('account:addresses.removeConfirmTitle'))).toBeInTheDocument();
         expect(
-            screen.getByText(
-                uiStrings.account.addresses.removeConfirmDescription.replace('{addressName}', 'address-123')
-            )
+            screen.getByText(t('account:addresses.removeConfirmDescription', { addressName: 'address-123' }))
         ).toBeInTheDocument();
-        expect(
-            screen.getByRole('button', { name: uiStrings.account.addresses.removeCancelButton })
-        ).toBeInTheDocument();
-        expect(
-            screen.getByRole('button', { name: uiStrings.account.addresses.removeConfirmButton })
-        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('account:addresses.removeCancelButton') })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') })).toBeInTheDocument();
     });
 
     test('does not render dialog when open is false', () => {
         render(<RemoveAddressConfirmationDialog {...defaultProps} open={false} />);
 
-        expect(screen.queryByText(uiStrings.account.addresses.removeConfirmTitle)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('account:addresses.removeConfirmTitle'))).not.toBeInTheDocument();
     });
 
     test('displays correct address ID in description', () => {
         render(<RemoveAddressConfirmationDialog {...defaultProps} addressId="my-address-id" />);
 
         expect(
-            screen.getByText(
-                uiStrings.account.addresses.removeConfirmDescription.replace('{addressName}', 'my-address-id')
-            )
+            screen.getByText(t('account:addresses.removeConfirmDescription', { addressName: 'my-address-id' }))
         ).toBeInTheDocument();
     });
 
@@ -142,7 +136,7 @@ describe('RemoveAddressConfirmationDialog', () => {
 
         render(<RemoveAddressConfirmationDialog {...defaultProps} onOpenChange={onOpenChange} />);
 
-        const cancelButton = screen.getByRole('button', { name: uiStrings.account.addresses.removeCancelButton });
+        const cancelButton = screen.getByRole('button', { name: t('account:addresses.removeCancelButton') });
         await user.click(cancelButton);
 
         expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -153,7 +147,7 @@ describe('RemoveAddressConfirmationDialog', () => {
 
         render(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        const confirmButton = screen.getByRole('button', { name: uiStrings.account.addresses.removeConfirmButton });
+        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
         await user.click(confirmButton);
 
         expect(mockSubmit).toHaveBeenCalledTimes(1);
@@ -165,11 +159,11 @@ describe('RemoveAddressConfirmationDialog', () => {
 
         render(<RemoveAddressConfirmationDialog {...defaultProps} addressId="" />);
 
-        const confirmButton = screen.getByRole('button', { name: uiStrings.account.addresses.removeConfirmButton });
+        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
         await user.click(confirmButton);
 
         expect(mockSubmit).not.toHaveBeenCalled();
-        expect(mockAddToast).toHaveBeenCalledWith(uiStrings.account.addresses.removeError, 'error');
+        expect(mockAddToast).toHaveBeenCalledWith(t('account:addresses.removeError'), 'error');
     });
 
     test('does not call fetcher.submit when customerId is missing', async () => {
@@ -177,11 +171,11 @@ describe('RemoveAddressConfirmationDialog', () => {
 
         render(<RemoveAddressConfirmationDialog {...defaultProps} customerId="" />);
 
-        const confirmButton = screen.getByRole('button', { name: uiStrings.account.addresses.removeConfirmButton });
+        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
         await user.click(confirmButton);
 
         expect(mockSubmit).not.toHaveBeenCalled();
-        expect(mockAddToast).toHaveBeenCalledWith(uiStrings.account.addresses.removeError, 'error');
+        expect(mockAddToast).toHaveBeenCalledWith(t('account:addresses.removeError'), 'error');
     });
 
     test('does not call fetcher.submit when fetcher is not idle', async () => {
@@ -190,7 +184,7 @@ describe('RemoveAddressConfirmationDialog', () => {
 
         render(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        const confirmButton = screen.getByRole('button', { name: uiStrings.account.addresses.removeConfirmButton });
+        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
         await user.click(confirmButton);
 
         expect(mockSubmit).not.toHaveBeenCalled();
@@ -201,7 +195,7 @@ describe('RemoveAddressConfirmationDialog', () => {
 
         render(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        const confirmButton = screen.getByRole('button', { name: uiStrings.account.addresses.removeConfirmButton });
+        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
         expect(confirmButton).toBeDisabled();
     });
 
@@ -217,7 +211,7 @@ describe('RemoveAddressConfirmationDialog', () => {
         }
 
         await waitFor(() => {
-            expect(mockAddToast).toHaveBeenCalledWith(uiStrings.account.addresses.removeSuccess, 'success');
+            expect(mockAddToast).toHaveBeenCalledWith(t('account:addresses.removeSuccess'), 'success');
         });
 
         expect(onSuccess).toHaveBeenCalled();
@@ -281,7 +275,7 @@ describe('RemoveAddressConfirmationDialog', () => {
         }
 
         await waitFor(() => {
-            expect(mockAddToast).toHaveBeenCalledWith(uiStrings.account.addresses.removeError, 'error');
+            expect(mockAddToast).toHaveBeenCalledWith(t('account:addresses.removeError'), 'error');
         });
     });
 

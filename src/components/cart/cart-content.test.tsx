@@ -1,6 +1,9 @@
 // Testing libraries
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // React Router
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -10,8 +13,6 @@ import CartContent from './cart-content';
 import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 // Utils
-import uiStrings from '@/temp-ui-string';
-
 const renderCartContent = (props: React.ComponentProps<typeof CartContent>) => {
     // Using createMemoryRouter in framework mode is fine
     // because both framework and data routers share the same underlying architecture, so it provides a valid navigation context for hooks and <Link>.
@@ -61,10 +62,10 @@ describe('CartContent', () => {
         renderCartContent({ basket: emptyBasket, productsByItemId: mockProductMap });
 
         expect(screen.getByTestId('sf-cart-empty')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.empty.title)).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.empty.guestMessage)).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.empty.continueShopping)).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.empty.signIn)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:empty.title'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:empty.guestMessage'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:empty.continueShopping'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:empty.signIn'))).toBeInTheDocument();
         expect(screen.queryByTestId('sf-cart-container')).not.toBeInTheDocument();
     });
 
@@ -72,7 +73,7 @@ describe('CartContent', () => {
         renderCartContent({ basket: undefined, productsByItemId: mockProductMap });
 
         expect(screen.getByTestId('sf-cart-empty')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.empty.title)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:empty.title'))).toBeInTheDocument();
     });
 
     test('renders cart content with proper structure when basket has items', () => {
@@ -119,7 +120,7 @@ describe('CartContent', () => {
             expect(screen.getByTestId('edit-item-item-2')).toBeInTheDocument();
 
             // Verify edit buttons have correct text (2 items × 1 render each = 2 total)
-            const editButtons = screen.getAllByText(uiStrings.actionCard.edit);
+            const editButtons = screen.getAllByText(t('actionCard:edit'));
             expect(editButtons).toHaveLength(2);
         });
 
@@ -146,7 +147,7 @@ describe('CartContent', () => {
 
             // Modal should be visible after clicking edit button
             expect(screen.getByRole('dialog')).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.editItem.title)).toBeInTheDocument();
+            expect(screen.getByText(t('editItem:title'))).toBeInTheDocument();
         });
 
         test('can close modal using close button', () => {

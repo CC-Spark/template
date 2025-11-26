@@ -9,8 +9,6 @@ import {
     type ClientActionFunctionArgs,
 } from 'react-router';
 import { Card } from '@/components/ui/card';
-import uiStrings from '@/temp-ui-string';
-
 // services
 import { registerCustomer } from '@/lib/api/auth/register';
 import { updateAuth } from '@/middlewares/auth.client';
@@ -21,6 +19,8 @@ import { SignupForm } from '@/components/signup-form';
 // utils
 import { isPasswordValid } from '@/lib/utils';
 import { getAuth } from '@/middlewares/auth.server';
+import { getTranslation } from '@/lib/i18next';
+import { useTranslation } from 'react-i18next';
 
 type SignupActionResponse = {
     error?: string;
@@ -45,6 +45,7 @@ export function loader({ context }: LoaderFunctionArgs): null | Response {
  */
 // eslint-disable-next-line react-refresh/only-export-components, custom/no-server-actions
 export async function action({ request, context }: ActionFunctionArgs): Promise<SignupActionResponse> {
+    const { t } = getTranslation(context);
     const formData = await request.formData();
     const firstName = formData.get('firstName')?.toString();
     const lastName = formData.get('lastName')?.toString();
@@ -53,15 +54,15 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
     const confirmPassword = formData.get('confirmPassword')?.toString();
 
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
-        return { error: uiStrings.signup.allFieldsRequired };
+        return { error: t('signup:allFieldsRequired') };
     }
 
     if (password !== confirmPassword) {
-        return { error: uiStrings.signup.passwordsDoNotMatch };
+        return { error: t('signup:passwordsDoNotMatch') };
     }
 
     if (!isPasswordValid(password)) {
-        return { error: uiStrings.signup.passwordNotSecure };
+        return { error: t('signup:passwordNotSecure') };
     }
 
     // Register the customer
@@ -76,7 +77,7 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
     });
 
     if (!result.success) {
-        return { error: result.error || uiStrings.errors.genericTryAgain };
+        return { error: result.error || t('errors:genericTryAgain') };
     }
 
     // Registration and auto-login successful - return redirect URL and auth
@@ -116,15 +117,14 @@ clientAction.hydrate = true as const;
 export default function Signup(): ReactElement {
     const actionData = useActionData<typeof action>();
     const error = actionData?.error;
+    const { t } = useTranslation('signup');
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-                        {uiStrings.signup.title}
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-muted-foreground">{uiStrings.signup.subtitle}</p>
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">{t('title')}</h2>
+                    <p className="mt-2 text-center text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
 
                 <Card className="p-8">
@@ -133,9 +133,9 @@ export default function Signup(): ReactElement {
 
                         <div className="text-center mt-6">
                             <p className="text-sm text-muted-foreground">
-                                {uiStrings.signup.haveAccountQuestion}
+                                {t('haveAccountQuestion')}
                                 <Link to="/login" className="font-medium text-primary hover:underline">
-                                    {uiStrings.signup.signIn}
+                                    {t('signIn')}
                                 </Link>
                             </p>
                         </div>

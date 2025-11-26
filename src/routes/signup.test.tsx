@@ -5,7 +5,9 @@ import Signup, { loader, action } from './signup';
 import { registerCustomer } from '@/lib/api/auth/register';
 import { isPasswordValid } from '@/lib/utils';
 import { getAuth } from '@/middlewares/auth.server';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // Mock the auth API
 vi.mock('@/lib/api/auth/register', () => ({
@@ -148,7 +150,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
                 expect(mockRegisterCustomer).not.toHaveBeenCalled();
             });
@@ -177,7 +179,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
                 expect(mockRegisterCustomer).not.toHaveBeenCalled();
             });
@@ -206,7 +208,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
                 expect(mockRegisterCustomer).not.toHaveBeenCalled();
             });
@@ -235,7 +237,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
                 expect(mockRegisterCustomer).not.toHaveBeenCalled();
             });
@@ -264,7 +266,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
                 expect(mockRegisterCustomer).not.toHaveBeenCalled();
             });
@@ -294,7 +296,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.passwordsDoNotMatch,
+                    error: t('signup:passwordsDoNotMatch'),
                 });
                 expect(mockRegisterCustomer).not.toHaveBeenCalled();
             });
@@ -327,7 +329,7 @@ describe('signup route', () => {
 
                 expect(mockIsPasswordValid).toHaveBeenCalledWith('weak');
                 expect(result).toEqual({
-                    error: uiStrings.signup.passwordNotSecure,
+                    error: t('signup:passwordNotSecure'),
                 });
                 expect(mockRegisterCustomer).not.toHaveBeenCalled();
             });
@@ -474,7 +476,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.errors.genericTryAgain,
+                    error: t('errors:genericTryAgain'),
                 });
             });
         });
@@ -505,7 +507,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.allFieldsRequired,
+                    error: t('signup:allFieldsRequired'),
                 });
             });
 
@@ -611,7 +613,7 @@ describe('signup route', () => {
                 const result = await action(args);
 
                 expect(result).toEqual({
-                    error: uiStrings.signup.passwordsDoNotMatch,
+                    error: t('signup:passwordsDoNotMatch'),
                 });
             });
         });
@@ -631,16 +633,16 @@ describe('signup route', () => {
             renderWithRouter(<Signup />);
 
             // Title and subtitle
-            expect(screen.getByText(uiStrings.signup.title)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.signup.subtitle)).toBeInTheDocument();
+            expect(screen.getByText(t('signup:title'))).toBeInTheDocument();
+            expect(screen.getByText(t('signup:subtitle'))).toBeInTheDocument();
 
             // Form
             expect(screen.getByTestId('signup-form')).toBeInTheDocument();
 
             // Sign in link
             expect(screen.getByText(/Have an account?/i)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.signup.signIn)).toBeInTheDocument();
-            const signInLink = screen.getByText(uiStrings.signup.signIn).closest('a');
+            expect(screen.getByText(t('signup:signIn'))).toBeInTheDocument();
+            const signInLink = screen.getByText(t('signup:signIn')).closest('a');
             expect(signInLink).toHaveAttribute('href', '/login');
         });
 

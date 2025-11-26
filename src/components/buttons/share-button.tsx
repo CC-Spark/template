@@ -10,7 +10,7 @@
 import { type ReactElement, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/toast';
 import { useConfig } from '@/config';
 import {
@@ -57,6 +57,7 @@ const providerLabels: Record<ShareProvider, string> = {
 export function ShareButton({ product, className }: ShareButtonProps): ReactElement {
     const { addToast } = useToast();
     const { site } = useConfig();
+    const { t } = useTranslation('product');
 
     const productName = product.name || 'Check out this product';
     const productDescription = product.shortDescription || 'I found this great product';
@@ -141,12 +142,8 @@ export function ShareButton({ product, className }: ShareButtonProps): ReactElem
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="lg"
-                    className={className}
-                    aria-label={uiStrings.product.share || 'Share product'}>
-                    {uiStrings.product.share || 'Share'}
+                <Button variant="outline" size="lg" className={className} aria-label={t('share')}>
+                    {t('share')}
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">

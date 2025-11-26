@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Typography } from '@/components/typography';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface RegisterCustomerSelectionProps {
     /** Callback when checkbox state changes - receives boolean value */
@@ -11,6 +11,7 @@ interface RegisterCustomerSelectionProps {
 
 export default function RegisterCustomerSelection({ onSaved }: RegisterCustomerSelectionProps) {
     const [shouldCreateAccount, setShouldCreateAccount] = useState(false);
+    const { t } = useTranslation('checkout');
 
     // Just track the user's preference, don't call API yet
     const handleCheckboxChange = (checked: boolean) => {
@@ -19,7 +20,7 @@ export default function RegisterCustomerSelection({ onSaved }: RegisterCustomerS
     };
 
     return (
-        <ToggleCard title={uiStrings.checkout.payment.saveForFutureUse} editing={true} disableEdit={true}>
+        <ToggleCard title={t('payment.saveForFutureUse')} editing={true} disableEdit={true}>
             <ToggleCardEdit>
                 <div className="flex items-start space-x-3">
                     <Checkbox
@@ -27,14 +28,14 @@ export default function RegisterCustomerSelection({ onSaved }: RegisterCustomerS
                         checked={shouldCreateAccount}
                         onCheckedChange={handleCheckboxChange}
                         className="mt-0.5"
-                        aria-label={uiStrings.checkout.payment.createAccountForFasterCheckout}
+                        aria-label={t('payment.createAccountForFasterCheckout')}
                     />
                     <div className="space-y-1">
                         <label
                             htmlFor="create-account-checkbox"
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer">
                             <Typography variant="small" className="font-medium">
-                                {uiStrings.checkout.payment.createAccountForFasterCheckout}
+                                {t('payment.createAccountForFasterCheckout')}
                             </Typography>
                         </label>
                     </div>

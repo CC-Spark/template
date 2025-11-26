@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { Form, Link } from 'react-router';
 import { Input } from '@/components/ui/input';
 import { FormSubmitButton } from '@/components/buttons/form-submit-button';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface PasswordlessLoginFormProps {
     error?: string;
@@ -15,6 +15,7 @@ export default function PasswordlessLoginForm({
     isPasswordlessEnabled,
     redirectPath,
 }: PasswordlessLoginFormProps): ReactElement {
+    const { t } = useTranslation('login');
     return (
         <Form method="post" action="/login" className="space-y-6">
             {error && (
@@ -25,7 +26,7 @@ export default function PasswordlessLoginForm({
 
             <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                    {uiStrings.login.emailLabel}
+                    {t('emailLabel')}
                 </label>
                 <Input
                     id="email"
@@ -34,7 +35,7 @@ export default function PasswordlessLoginForm({
                     autoComplete="email"
                     required
                     className="mt-1"
-                    placeholder={uiStrings.login.emailPlaceholder}
+                    placeholder={t('emailPlaceholder')}
                 />
             </div>
 
@@ -44,23 +45,20 @@ export default function PasswordlessLoginForm({
             {/* Hidden input to pass redirect URL */}
             {redirectPath && <input type="hidden" name="redirectPath" value={redirectPath} />}
 
-            <FormSubmitButton
-                defaultText={uiStrings.login.sendLoginLink}
-                submittingText={uiStrings.login.sendingLoginLink}
-            />
+            <FormSubmitButton defaultText={t('sendLoginLink')} submittingText={t('sendingLoginLink')} />
 
             {/* Toggle to password login if enabled */}
             {isPasswordlessEnabled && (
                 <div className="text-center">
                     <Link to="/login?mode=password" className="text-primary hover:text-primary/80 text-sm">
-                        {uiStrings.login.loginWithPassword}
+                        {t('loginWithPassword')}
                     </Link>
                 </div>
             )}
 
             <div className="text-center">
                 <Link to="/forgot-password" className="text-sm text-primary hover:text-primary/80">
-                    {uiStrings.login.forgotPassword}
+                    {t('forgotPassword')}
                 </Link>
             </div>
         </Form>

@@ -18,10 +18,12 @@ import {
     getCustomerProfileForCheckout,
 } from '@/lib/api/customer';
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
-import uiStrings from '@/temp-ui-string';
 import { createErrorResponse } from '@/lib/error-handler';
+import { getTranslation } from '@/lib/i18next';
 
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     try {
         // Parse form data to get create account preference
         const formData = await request.formData();
@@ -34,7 +36,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.errors.checkout.noActiveBasket,
+                    error: t('errors:checkout.noActiveBasket'),
                     step: 'placeOrder',
                 },
                 { status: 400 }
@@ -46,7 +48,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.checkout.contactInfo.emailRequired,
+                    error: t('checkout:contactInfo.emailRequired'),
                     step: 'placeOrder',
                 },
                 { status: 400 }
@@ -57,7 +59,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.errors.api.shippingAddressRequired,
+                    error: t('errors:api.shippingAddressRequired'),
                     step: 'placeOrder',
                 },
                 { status: 400 }
@@ -68,7 +70,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.errors.checkout.shippingMethodNotAvailable,
+                    error: t('errors:checkout.shippingMethodNotAvailable'),
                     step: 'placeOrder',
                 },
                 { status: 400 }
@@ -128,7 +130,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
                             return Response.json(
                                 {
                                     success: false,
-                                    error: uiStrings.errors.api.billingAddressRequired,
+                                    error: t('errors:api.billingAddressRequired'),
                                     step: 'placeOrder',
                                 },
                                 { status: 400 }
@@ -138,7 +140,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
                         return Response.json(
                             {
                                 success: false,
-                                error: uiStrings.errors.api.paymentInformationRequired,
+                                error: t('errors:api.paymentInformationRequired'),
                                 step: 'placeOrder',
                             },
                             { status: 400 }
@@ -148,7 +150,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
                     return Response.json(
                         {
                             success: false,
-                            error: uiStrings.errors.api.paymentInformationRequired,
+                            error: t('errors:api.paymentInformationRequired'),
                             step: 'placeOrder',
                         },
                         { status: 400 }
@@ -158,7 +160,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
                 return Response.json(
                     {
                         success: false,
-                        error: uiStrings.errors.api.paymentInformationRequired,
+                        error: t('errors:api.paymentInformationRequired'),
                         step: 'placeOrder',
                     },
                     { status: 400 }
@@ -174,7 +176,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.errors.api.billingAddressRequired,
+                    error: t('errors:api.billingAddressRequired'),
                     step: 'placeOrder',
                 },
                 { status: 400 }
@@ -189,7 +191,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.errors.api.basketNotFound,
+                    error: t('errors:api.basketNotFound'),
                     step: 'placeOrder',
                 },
                 { status: 400 }
@@ -221,7 +223,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.checkout.placeOrder.failed,
+                    error: t('checkout:placeOrder.failed'),
                     step: 'placeOrder',
                 },
                 { status: 500 }

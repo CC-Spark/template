@@ -8,7 +8,7 @@ import CategoryPagination from '@/components/category-pagination';
 import CategoryRefinements from '@/components/category-refinements';
 import CategorySorting from '@/components/category-sorting';
 import ProductGrid from '@/components/product-grid';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import { useAnalytics } from '@/hooks/use-analytics';
 
 type SearchPageData = {
@@ -99,6 +99,8 @@ export default function SearchPage({
         }
     }, [analytics, searchTerm, searchResult]);
 
+    const { t } = useTranslation('search');
+
     return (
         <div className="pb-16">
             <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,7 +110,7 @@ export default function SearchPage({
                             {(refinementsData) => (
                                 <>
                                     <div>
-                                        <p>{uiStrings.search.results}</p>
+                                        <p>{t('results')}</p>
                                         <h1 className="text-3xl font-bold text-foreground">
                                             {searchTerm} ({refinementsData.total})
                                         </h1>

@@ -7,7 +7,7 @@ import {
     type ClientActionFunctionArgs,
 } from 'react-router';
 import { Card } from '@/components/ui/card';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import StandardLoginForm from '@/components/login/standard-login-form';
 import PasswordlessLoginForm from '@/components/login/passwordless-login-form';
 import { SocialLoginButtons } from '@/components/buttons/social-login-buttons';
@@ -292,6 +292,7 @@ export async function clientAction({ context, serverAction }: ClientActionFuncti
 clientAction.hydrate = true as const;
 
 export default function Login({ loaderData }: { loaderData: LoginLoaderData }): ReactElement {
+    const { t } = useTranslation('login');
     const {
         error,
         passwordlessSent,
@@ -311,10 +312,10 @@ export default function Login({ loaderData }: { loaderData: LoginLoaderData }): 
                 <div className="max-w-md w-full space-y-8">
                     <div>
                         <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-                            {uiStrings.login.checkEmailTitle}
+                            {t('checkEmailTitle')}
                         </h2>
                         <p className="mt-2 text-center text-sm text-muted-foreground">
-                            {uiStrings.login.checkEmailDescription.replace('{email}', email)}
+                            {t('checkEmailDescription', { email })}
                         </p>
                     </div>
 
@@ -322,7 +323,7 @@ export default function Login({ loaderData }: { loaderData: LoginLoaderData }): 
                         <div className="space-y-6 text-center">
                             <Link to="/login">
                                 <button className="w-full inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-background hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring cursor-pointer">
-                                    {uiStrings.login.backToLogin}
+                                    {t('backToLogin')}
                                 </button>
                             </Link>
                         </div>
@@ -352,10 +353,8 @@ export default function Login({ loaderData }: { loaderData: LoginLoaderData }): 
         <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-                        {uiStrings.login.title}
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-muted-foreground">{uiStrings.login.subtitle}</p>
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">{t('title')}</h2>
+                    <p className="mt-2 text-center text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
 
                 <Card className="p-8">

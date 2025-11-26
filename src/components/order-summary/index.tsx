@@ -20,7 +20,7 @@ import { VisaIcon, MastercardIcon, AmexIcon, DiscoverIcon } from '@/components/i
 
 // Utils
 import { formatCurrency } from '@/lib/currency';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import PromoPopover from '@/components/promo-popover';
 
 /**
@@ -78,13 +78,13 @@ function CartItemsSummary({
     itemsExpanded?: boolean;
     onEditCart?: () => void;
 }): ReactElement {
+    const { t } = useTranslation('cart');
     const totalItems = basket?.productItems?.reduce((acc, item) => acc + (item.quantity ?? 0), 0) || 0;
 
-    // TODO: use react-intl to get the item count text
     const getItemCountText = (count: number): string => {
-        if (count === 0) return uiStrings.cart.items.itemsInCart.zero;
-        if (count === 1) return uiStrings.cart.items.itemsInCart.one;
-        return uiStrings.cart.items.itemsInCart.other.replace('{count}', count.toString());
+        if (count === 0) return t('items.itemsInCart.zero');
+        if (count === 1) return t('items.itemsInCart.one');
+        return t('items.itemsInCart.other', { count });
     };
 
     return (
@@ -108,7 +108,7 @@ function CartItemsSummary({
                             to="/cart"
                             onClick={onEditCart}
                             className={buttonVariants({ variant: 'link', className: 'w-full justify-center' })}>
-                            {uiStrings.cart.items.editCart}
+                            {t('items.editCart')}
                         </Link>
                     </div>
                 </AccordionContent>
@@ -148,8 +148,10 @@ export default function OrderSummary({
     onEditCart,
     showCheckoutAction,
 }: OrderSummaryProps): ReactElement {
+    const { t } = useTranslation('cart');
+
     if (!basket?.basketId && !basket?.orderNo) {
-        return <div>{uiStrings.cart.summary.noBasketData}</div>;
+        return <div>{t('summary.noBasketData')}</div>;
     }
 
     const shippingItem = basket.shippingItems?.[0];
@@ -157,11 +159,11 @@ export default function OrderSummary({
 
     const renderShippingInfo = () => {
         if (basket.shippingTotal === 0) {
-            return <span className="text-primary font-medium">{uiStrings.cart.summary.shippingFree}</span>;
+            return <span className="text-primary font-medium">{t('summary.shippingFree')}</span>;
         } else if (typeof basket.shippingTotal === 'number' && basket.shippingTotal > 0) {
             return <span>{formatCurrency(basket.shippingTotal)}</span>;
         } else {
-            return <span className="text-muted-foreground">{uiStrings.cart.summary.shippingTbd}</span>;
+            return <span className="text-muted-foreground">{t('summary.shippingTbd')}</span>;
         }
     };
 
@@ -171,7 +173,7 @@ export default function OrderSummary({
                 <div className="space-y-5" data-testid="sf-order-summary">
                     {showHeading && (
                         <Typography variant="h4" as="h3" id="order-summary-heading">
-                            {uiStrings.cart.summary.orderSummary}
+                            {t('summary.orderSummary')}
                         </Typography>
                     )}
 
@@ -190,7 +192,7 @@ export default function OrderSummary({
                         <div className="space-y-4 text-sm">
                             {/* Subtotal */}
                             <div className="flex justify-between items-center">
-                                <span>{uiStrings.cart.summary.subtotal}</span>
+                                <span>{t('summary.subtotal')}</span>
                                 <span>{formatCurrency(basket?.productSubTotal ?? 0)}</span>
                             </div>
 
@@ -208,10 +210,10 @@ export default function OrderSummary({
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center">
                                     <span>
-                                        {uiStrings.cart.summary.shipping}
+                                        {t('summary.shipping')}
                                         {hasShippingPromos && (
                                             <span className="ml-1 text-sm text-muted-foreground">
-                                                {uiStrings.cart.summary.shippingPromotionApplied}
+                                                {t('summary.shippingPromotionApplied')}
                                             </span>
                                         )}
                                     </span>
@@ -230,11 +232,11 @@ export default function OrderSummary({
 
                             {/* Tax */}
                             <div className="flex justify-between items-center">
-                                <span>{uiStrings.cart.summary.tax}</span>
+                                <span>{t('summary.tax')}</span>
                                 {typeof basket.taxTotal === 'number' && basket.taxTotal >= 0 ? (
                                     <span>{formatCurrency(basket.taxTotal)}</span>
                                 ) : (
-                                    <span className="text-muted-foreground">{uiStrings.cart.summary.taxTbd}</span>
+                                    <span className="text-muted-foreground">{t('summary.taxTbd')}</span>
                                 )}
                             </div>
                         </div>
@@ -243,9 +245,7 @@ export default function OrderSummary({
                         <div className="space-y-4 w-full text-sm">
                             <div className="flex w-full justify-between items-center">
                                 <span className="font-bold">
-                                    {isEstimate
-                                        ? uiStrings.cart.summary.estimatedTotal
-                                        : uiStrings.cart.summary.orderTotal}
+                                    {isEstimate ? t('summary.estimatedTotal') : t('summary.orderTotal')}
                                 </span>
                                 <span className="font-bold">
                                     {formatCurrency(basket?.orderTotal || basket?.productTotal || 0)}
@@ -261,8 +261,8 @@ export default function OrderSummary({
                             <>
                                 <Button asChild className="w-full mt-6 mb-4">
                                     <Link to="/checkout">
-                                        {uiStrings.cart.checkout.proceedToCheckout}
-                                        <Lock className="ml-2 w-4 h-4" aria-label={uiStrings.cart.checkout.secure} />
+                                        {t('checkout.proceedToCheckout')}
+                                        <Lock className="ml-2 w-4 h-4" aria-label={t('checkout.secure')} />
                                     </Link>
                                 </Button>
 

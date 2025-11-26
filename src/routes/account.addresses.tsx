@@ -8,6 +8,7 @@ import type { ShopperCustomersTypes } from 'commerce-sdk-isomorphic';
 
 // UI components
 import { Card, CardContent } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/typography';
 import AddressCard from '@/components/address-card';
@@ -22,9 +23,6 @@ import { useScapiFetcherEffect } from '@/hooks/use-scapi-fetcher-effect';
 
 // Providers
 import { useAuth } from '@/providers/auth';
-
-// Utilities
-import uiStrings from '@/temp-ui-string';
 
 type AccountLayoutContext = {
     customer: Promise<ShopperCustomersTypes.Customer | null>;
@@ -51,6 +49,8 @@ function EditIndicator(): ReactElement {
  * This component receives the resolved customer data and displays all addresses.
  */
 function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes.Customer | null }): ReactElement {
+    const { t } = useTranslation('account');
+
     const addresses = customer?.addresses || [];
     const { addToast } = useToast();
     const auth = useAuth();
@@ -99,11 +99,11 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
     // Handle successful address creation
     useScapiFetcherEffect(createAddressFetcher, {
         onSuccess: () => {
-            addToast(uiStrings.account.addresses.addSuccess, 'success');
+            addToast(t('addresses.addSuccess'), 'success');
             setEditingAddressId(null);
         },
         onError: (errors) => {
-            const errorMessage = errors?.length > 0 ? errors.join(', ') : uiStrings.account.addresses.addError;
+            const errorMessage = errors?.length > 0 ? errors.join(', ') : t('addresses.addError');
             addToast(errorMessage, 'error');
         },
     });
@@ -111,12 +111,12 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
     // Handle successful address update
     useScapiFetcherEffect(updateAddressFetcher, {
         onSuccess: () => {
-            addToast(uiStrings.account.addresses.updateSuccess, 'success');
+            addToast(t('addresses.updateSuccess'), 'success');
             setEditingAddressId(null);
             setUpdateAddressName('');
         },
         onError: (errors) => {
-            const errorMessage = errors?.length > 0 ? errors.join(', ') : uiStrings.account.addresses.updateError;
+            const errorMessage = errors?.length > 0 ? errors.join(', ') : t('addresses.updateError');
             addToast(errorMessage, 'error');
         },
     });
@@ -138,7 +138,7 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
             {/* Page Header */}
             <div>
                 <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                    {uiStrings.account.navigation.addresses}
+                    {t('navigation.addresses')}
                 </h1>
             </div>
 
@@ -155,14 +155,14 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
                             {/* Empty State Message */}
                             <div className="space-y-2">
                                 <Typography variant="h2" as="h2" className="text-xl font-semibold text-foreground">
-                                    {uiStrings.account.addresses.noSavedAddresses}
+                                    {t('addresses.noSavedAddresses')}
                                 </Typography>
-                                <p className="text-muted-foreground">{uiStrings.account.addresses.empty}</p>
+                                <p className="text-muted-foreground">{t('addresses.empty')}</p>
                             </div>
 
                             {/* Add Address Button */}
                             <Button onClick={handleAdd} className="w-full">
-                                {uiStrings.account.addresses.addAddress}
+                                {t('addresses.addAddress')}
                             </Button>
                         </div>
                     </CardContent>
@@ -192,9 +192,7 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
                                             d="M12 4v16m8-8H4"
                                         />
                                     </svg>
-                                    <span className="text-sm font-medium">
-                                        {uiStrings.account.addresses.addAddress}
-                                    </span>
+                                    <span className="text-sm font-medium">{t('addresses.addAddress')}</span>
                                 </Button>
                             </div>
                         </Card>
@@ -207,9 +205,7 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
                         <div className="col-span-1 md:col-span-2 lg:col-span-3">
                             <Card className="border-2 border-primary">
                                 <CardContent className="p-6">
-                                    <h3 className="text-lg font-semibold mb-4">
-                                        {uiStrings.account.addresses.addAddress}
-                                    </h3>
+                                    <h3 className="text-lg font-semibold mb-4">{t('addresses.addAddress')}</h3>
                                     <CustomerAddressForm
                                         key={NEW_ADDRESS_ID}
                                         initialData={undefined}
@@ -250,7 +246,7 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
                                         <Card className="border-2 border-primary">
                                             <CardContent className="p-6">
                                                 <h3 className="text-lg font-semibold mb-4">
-                                                    {uiStrings.account.addresses.editAddress}
+                                                    {t('addresses.editAddress')}
                                                 </h3>
                                                 <CustomerAddressForm
                                                     key={address.addressId}
@@ -290,7 +286,7 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
             {!hasAddresses && isEditingAnyAddress && editingAddressId === NEW_ADDRESS_ID && (
                 <Card className="border-2 border-primary max-w-2xl mx-auto">
                     <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold mb-4">{uiStrings.account.addresses.addAddress}</h3>
+                        <h3 className="text-lg font-semibold mb-4">{t('addresses.addAddress')}</h3>
                         <CustomerAddressForm
                             key={NEW_ADDRESS_ID}
                             initialData={undefined}

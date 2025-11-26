@@ -3,9 +3,8 @@ import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/f
 import { Input } from '@/components/ui/input';
 
 import { FETCHER_STATES } from '@/lib/fetcher-states';
-import uiStrings from '@/temp-ui-string';
-
 import { type PromoCodeFieldsProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 /**
  * PromoCodeFields component that renders the form fields for entering and applying promo codes.
@@ -14,6 +13,7 @@ import { type PromoCodeFieldsProps } from './types';
  * @param applyFetcher - React Router fetcher for handling promo code application requests
  */
 export function PromoCodeFields({ form, applyFetcher }: PromoCodeFieldsProps) {
+    const { t } = useTranslation('cart');
     return (
         <div className="space-y-3">
             <FormField
@@ -23,19 +23,15 @@ export function PromoCodeFields({ form, applyFetcher }: PromoCodeFieldsProps) {
                     <FormItem>
                         <div className="flex gap-2">
                             <FormControl>
-                                <Input
-                                    placeholder={uiStrings.cart.promoCode.placeholder}
-                                    className="rounded-md"
-                                    {...field}
-                                />
+                                <Input placeholder={t('promoCode.placeholder')} className="rounded-md" {...field} />
                             </FormControl>
                             <Button
                                 type="submit"
                                 disabled={applyFetcher.state === FETCHER_STATES.SUBMITTING}
                                 className="rounded-md bg-secondary cursor-pointer px-4 text-foreground hover:bg-secondary-foreground/40">
                                 {applyFetcher.state === FETCHER_STATES.SUBMITTING
-                                    ? uiStrings.cart.promoCode.applying
-                                    : uiStrings.cart.promoCode.apply}
+                                    ? t('promoCode.applying')
+                                    : t('promoCode.apply')}
                             </Button>
                         </div>
                         <FormMessage />

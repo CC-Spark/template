@@ -10,7 +10,7 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
 
@@ -24,6 +24,7 @@ async function addToCart(
     basket?: ShopperBasketsV2.schemas['Basket'];
     error?: string;
 }> {
+    const { t } = getTranslation();
     const basket = getBasket(context);
     const basketId = basket?.basketId;
 
@@ -31,7 +32,7 @@ async function addToCart(
         // This state should never happen as it would indicate that the basket middleware is broken
         return {
             success: false,
-            error: uiStrings.errors.noBasketFound,
+            error: t('errors:noBasketFound'),
         };
     }
 
@@ -88,8 +89,10 @@ async function addToCart(
  * Client action to add a single item to the cart.
  */
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     if (request.method !== 'POST') {
-        throw new Response(uiStrings.product.methodNotAllowed, { status: 405 });
+        throw new Response(t('product:methodNotAllowed'), { status: 405 });
     }
 
     try {
@@ -97,7 +100,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         const productItemJson = formData.get('productItem') as string;
 
         if (!productItemJson) {
-            throw new Error(uiStrings.product.productItemRequired);
+            throw new Error(t('product:productItemRequired'));
         }
 
         const productItem = JSON.parse(productItemJson);

@@ -5,10 +5,12 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { PromoCodeForm } from '../index';
 import type { PromoCodeFormProps } from '../types';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
+
+    const { t } = getTranslation();
 
     useEffect(() => {
         const root = containerRef.current;
@@ -82,7 +84,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
                 return true;
             }
 
-            return label.toLowerCase() === uiStrings.cart.promoCode.accordionTitle.toLowerCase();
+            return label.toLowerCase() === t('cart:promoCode.accordionTitle').toLowerCase();
         };
 
         const handleClick = (event: MouseEvent) => {
@@ -138,7 +140,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
 
             const submitter = (event.submitter as Element | null) ?? form.querySelector('[type="submit"]');
             const interactive = submitter ? findInteractiveElement(submitter) : null;
-            const label = interactive ? deriveLabel(interactive) : uiStrings.cart.promoCode.apply;
+            const label = interactive ? deriveLabel(interactive) : t('cart:promoCode.apply');
 
             if (label) {
                 logApply({ label });
@@ -189,7 +191,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
             root.removeEventListener('change', handleChange, true);
             root.removeEventListener('submit', handleSubmit, true);
         };
-    }, []);
+    }, [t]);
 
     return <div ref={containerRef}>{children}</div>;
 }
@@ -266,11 +268,12 @@ export const Default: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         await waitForStorybookReady(canvasElement);
 
         // Test that accordion trigger is present
-        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: t('cart:promoCode.accordionTitle') });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded
@@ -304,11 +307,12 @@ export const WithoutBasketId: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         await waitForStorybookReady(canvasElement);
 
         // Test that accordion trigger is present
-        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: t('cart:promoCode.accordionTitle') });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded
@@ -346,11 +350,12 @@ export const WithCustomBasketId: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         await waitForStorybookReady(canvasElement);
 
         // Test that accordion trigger is present
-        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: t('cart:promoCode.accordionTitle') });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded
@@ -391,11 +396,12 @@ export const MobileView: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         await waitForStorybookReady(canvasElement);
 
         // Test that accordion trigger is present on mobile
-        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: t('cart:promoCode.accordionTitle') });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded on mobile
@@ -432,11 +438,12 @@ export const TabletView: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         await waitForStorybookReady(canvasElement);
 
         // Test that accordion trigger is present on tablet
-        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: t('cart:promoCode.accordionTitle') });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded on tablet
@@ -473,11 +480,12 @@ export const DesktopView: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         await waitForStorybookReady(canvasElement);
 
         // Test that accordion trigger is present on desktop
-        const accordionTrigger = await canvas.findByRole('button', { name: uiStrings.cart.promoCode.accordionTitle });
+        const accordionTrigger = await canvas.findByRole('button', { name: t('cart:promoCode.accordionTitle') });
         await expect(accordionTrigger).toBeInTheDocument();
 
         // Test that accordion can be expanded on desktop

@@ -17,8 +17,6 @@ import { useCartQuantityUpdate } from './use-cart-quantity-update';
 import { ConfigWrapper } from '@/test-utils/config';
 
 // UI Strings
-import uiStrings from '@/temp-ui-string';
-
 // Mock dependencies
 vi.mock('@/components/toast', () => ({
     useToast: () => ({
@@ -167,9 +165,7 @@ describe('useCartQuantityUpdate', () => {
             });
 
             expect(result.current.quantity).toBe(15);
-            expect(result.current.stockValidationError).toContain(
-                uiStrings.quantitySelector.onlyLeft.replace('{stockLevel}', '10')
-            );
+            expect(result.current.stockValidationError).toBe('Only 10 left!');
         });
 
         test('should not show stock validation error when stockLevel is undefined', () => {
@@ -526,9 +522,7 @@ describe('useCartQuantityUpdate', () => {
             // Verify the debounced function was NOT called
             expect(mockFetcher.submit).not.toHaveBeenCalled();
             expect(result.current.quantity).toBe(15);
-            expect(result.current.stockValidationError).toContain(
-                uiStrings.quantitySelector.onlyLeft.replace('{stockLevel}', '10')
-            );
+            expect(result.current.stockValidationError).toBe('Only 10 left!');
         });
 
         test('should call debounced cart update even for same quantity as initial', () => {

@@ -1,13 +1,14 @@
 // Testing libraries
 import { describe, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // Components
 import CartEmpty from './cart-empty';
 
 // Utils
-import uiStrings from '@/temp-ui-string';
-
 // Mock the Link component from react-router
 vi.mock('react-router', async (importOriginal) => {
     const actual = await importOriginal();
@@ -35,10 +36,10 @@ describe('CartEmpty', () => {
             expect(cartIcon).toBeInTheDocument();
 
             // Check for empty cart title
-            expect(screen.getByText(uiStrings.cart.empty.title)).toBeInTheDocument();
+            expect(screen.getByText(t('cart:empty.title'))).toBeInTheDocument();
 
             // Check for continue shopping button
-            expect(screen.getByText(uiStrings.cart.empty.continueShopping)).toBeInTheDocument();
+            expect(screen.getByText(t('cart:empty.continueShopping'))).toBeInTheDocument();
         });
     });
 
@@ -46,8 +47,8 @@ describe('CartEmpty', () => {
         test('renders guest message and sign in button for unregistered users', () => {
             render(<CartEmpty isRegistered={false} />);
 
-            expect(screen.getByText(uiStrings.cart.empty.guestMessage)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.cart.empty.signIn)).toBeInTheDocument();
+            expect(screen.getByText(t('cart:empty.guestMessage'))).toBeInTheDocument();
+            expect(screen.getByText(t('cart:empty.signIn'))).toBeInTheDocument();
 
             // Check for User icon
             const userIcon = document.querySelector('svg[class*="lucide-user"]');
@@ -57,8 +58,8 @@ describe('CartEmpty', () => {
         test('renders registered message and hides sign in button for registered users', () => {
             render(<CartEmpty isRegistered={true} />);
 
-            expect(screen.getByText(uiStrings.cart.empty.registeredMessage)).toBeInTheDocument();
-            expect(screen.queryByText(uiStrings.cart.empty.signIn)).not.toBeInTheDocument();
+            expect(screen.getByText(t('cart:empty.registeredMessage'))).toBeInTheDocument();
+            expect(screen.queryByText(t('cart:empty.signIn'))).not.toBeInTheDocument();
 
             // Should not have User icon
             const userIcon = document.querySelector('svg[class*="lucide-user"]');
@@ -70,14 +71,14 @@ describe('CartEmpty', () => {
         test('continue shopping button links to home page', () => {
             render(<CartEmpty />);
 
-            const continueShoppingLink = screen.getByText(uiStrings.cart.empty.continueShopping).closest('a');
+            const continueShoppingLink = screen.getByText(t('cart:empty.continueShopping')).closest('a');
             expect(continueShoppingLink).toHaveAttribute('href', '/');
         });
 
         test('sign in button links to account page with user icon for guest users', () => {
             render(<CartEmpty isRegistered={false} />);
 
-            const signInLink = screen.getByText(uiStrings.cart.empty.signIn).closest('a');
+            const signInLink = screen.getByText(t('cart:empty.signIn')).closest('a');
             expect(signInLink).toHaveAttribute('href', '/account');
 
             // Check that User icon is present within the sign in button

@@ -17,9 +17,7 @@ import { Label } from '@/components/ui/label';
 
 // Utils
 import { cn } from '@/lib/utils';
-
-// Constants
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface ProductQuantityPickerProps {
     /** Current quantity value as string */
@@ -60,6 +58,9 @@ export default function ProductQuantityPicker({
     isBundle = false,
 }: ProductQuantityPickerProps): ReactElement {
     const [quantity, setQuantity] = useState<string>(value);
+    const { t: tQuantity } = useTranslation('quantitySelector');
+    const { t: tProduct } = useTranslation('product');
+    const { t: tCommon } = useTranslation('common');
 
     // Handle quantity change - let QuantityPicker handle validation with min=1
     const handleQuantityChange = useCallback(
@@ -76,18 +77,19 @@ export default function ProductQuantityPicker({
     const getInventoryMessage = () => {
         // Priority 1: Out of stock message
         if (isOutOfStock) {
-            return uiStrings.product.outOfStock.replace('{productName}', productName || uiStrings.common.product);
+            return tProduct('outOfStock', { productName: productName || tCommon('product') });
         }
 
         // Priority 2: Check if stockLevel < quantity
         const currentQuantity = parseInt(quantity, 10) || 0;
         if (stockLevel !== undefined && stockLevel > 0 && stockLevel < currentQuantity) {
             if (isBundle) {
-                return uiStrings.quantitySelector.onlyLeftForProduct
-                    .replace('{stockLevel}', stockLevel.toString())
-                    .replace('{productName}', productName || uiStrings.common.product);
+                return tQuantity('onlyLeftForProduct', {
+                    stockLevel: stockLevel.toString(),
+                    productName: productName || tCommon('product'),
+                });
             } else {
-                return uiStrings.quantitySelector.onlyLeft.replace('{stockLevel}', stockLevel.toString());
+                return tQuantity('onlyLeft', { stockLevel: stockLevel.toString() });
             }
         }
 
@@ -99,7 +101,7 @@ export default function ProductQuantityPicker({
     return (
         <div className={cn('space-y-2', className)}>
             <Label htmlFor="quantity" className="text-foreground">
-                {uiStrings.quantitySelector.quantity}
+                {tQuantity('quantity')}
             </Label>
             <QuantityPicker
                 value={quantity}

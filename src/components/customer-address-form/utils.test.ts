@@ -1,54 +1,30 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { getStatesForCountry, getCountryName, getStateName, type CountryCode } from './utils';
 
-// Mock uiStrings
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        countries: {
-            US: {
-                name: 'United States',
-                states: {
-                    AL: 'Alabama',
-                    CA: 'California',
-                    NY: 'New York',
-                    TX: 'Texas',
-                },
-            },
-            CA: {
-                name: 'Canada',
-                states: {
-                    AB: 'Alberta',
-                    BC: 'British Columbia',
-                    ON: 'Ontario',
-                    QC: 'Quebec',
-                },
-            },
-        },
-    },
-}));
+// Note: i18next is already initialized globally in vitest.setup.ts with all translations
 
 describe('utils', () => {
     describe('getStatesForCountry', () => {
         it('should return states for a valid country code (US)', () => {
             const result = getStatesForCountry('US' as CountryCode);
 
-            expect(result).toEqual([
-                { code: 'AL', name: 'Alabama' },
-                { code: 'CA', name: 'California' },
-                { code: 'NY', name: 'New York' },
-                { code: 'TX', name: 'Texas' },
-            ]);
+            // Should return all US states from translations.json
+            expect(result.length).toBeGreaterThan(0);
+            expect(result).toContainEqual({ code: 'AL', name: 'Alabama' });
+            expect(result).toContainEqual({ code: 'CA', name: 'California' });
+            expect(result).toContainEqual({ code: 'NY', name: 'New York' });
+            expect(result).toContainEqual({ code: 'TX', name: 'Texas' });
         });
 
         it('should return states for a valid country code (CA)', () => {
             const result = getStatesForCountry('CA' as CountryCode);
 
-            expect(result).toEqual([
-                { code: 'AB', name: 'Alberta' },
-                { code: 'BC', name: 'British Columbia' },
-                { code: 'ON', name: 'Ontario' },
-                { code: 'QC', name: 'Quebec' },
-            ]);
+            // Should return all Canadian provinces from translations.json
+            expect(result.length).toBeGreaterThan(0);
+            expect(result).toContainEqual({ code: 'AB', name: 'Alberta' });
+            expect(result).toContainEqual({ code: 'BC', name: 'British Columbia' });
+            expect(result).toContainEqual({ code: 'ON', name: 'Ontario' });
+            expect(result).toContainEqual({ code: 'QC', name: 'Quebec' });
         });
 
         it('should return empty array for invalid country code', () => {

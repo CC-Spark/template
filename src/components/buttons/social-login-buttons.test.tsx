@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import { SocialLoginButtons } from './social-login-buttons';
-import uiStrings from '@/temp-ui-string';
 import { mockConfig } from '@/test-utils/config';
 
 // Mock the useConfig hook
@@ -104,7 +106,7 @@ describe('SocialLoginButtons', () => {
     test('renders separator with correct text', () => {
         renderWithRouter(<SocialLoginButtons />);
 
-        expect(screen.getByText(uiStrings.login.socialOrContinueWith)).toBeInTheDocument();
+        expect(screen.getByText(t('login:socialOrContinueWith'))).toBeInTheDocument();
     });
 
     test('renders forms with correct hidden inputs for each provider', () => {

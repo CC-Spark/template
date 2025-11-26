@@ -8,7 +8,7 @@
 import { type ReactElement } from 'react';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { cn } from '@/lib/utils';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 export const InventoryStatus = {
     IN_STOCK: 'in-stock',
@@ -79,26 +79,26 @@ function getInventoryStatus(
  *
  * TODO: Fix these colors once the UX team has updated the colors.
  */
-function getInventoryMessage(status: InventoryStatusType) {
+function getInventoryMessage(status: InventoryStatusType, t: (key: string) => string) {
     switch (status) {
         case InventoryStatus.IN_STOCK:
             return {
-                message: uiStrings.product.inStock,
+                message: t('inStock'),
                 className: 'text-success bg-success/10 border-success/20',
             };
         case InventoryStatus.PRE_ORDER:
             return {
-                message: uiStrings.product.preOrder,
+                message: t('preOrder'),
                 className: 'text-info bg-info/10 border-info/20',
             };
         case InventoryStatus.BACK_ORDER:
             return {
-                message: uiStrings.product.backOrder,
+                message: t('backOrder'),
                 className: 'text-warning bg-warning/10 border-warning/20',
             };
         case InventoryStatus.OUT_OF_STOCK:
             return {
-                message: uiStrings.product.outOfStockLabel,
+                message: t('outOfStockLabel'),
                 className: 'text-destructive bg-destructive/10 border-destructive/20',
             };
         case InventoryStatus.UNKNOWN:
@@ -126,11 +126,12 @@ export default function InventoryMessage({
     showUnknownStatus = false,
     getInventoryStatus: customGetInventoryStatus,
 }: InventoryMessageProps): ReactElement {
+    const { t } = useTranslation('product');
     const status = customGetInventoryStatus
         ? customGetInventoryStatus(product, currentVariant)
         : getInventoryStatus(product, currentVariant);
 
-    const statusInfo = getInventoryMessage(status);
+    const statusInfo = getInventoryMessage(status, t);
     const isUnknown = status === InventoryStatus.UNKNOWN;
 
     return (

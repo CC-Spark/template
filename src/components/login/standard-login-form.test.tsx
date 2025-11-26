@@ -1,23 +1,28 @@
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import StandardLoginForm from './standard-login-form';
-import uiStrings from '@/temp-ui-string';
-
 // Mock react-router
 const mockNavigation = {
     state: 'idle' as 'idle' | 'submitting' | 'loading',
 };
 
-vi.mock('react-router', () => ({
-    Form: ({ children, ...props }: any) => <form {...props}>{children}</form>,
-    Link: ({ children, to, ...props }: any) => (
-        <a href={to} {...props}>
-            {children}
-        </a>
-    ),
-    useNavigation: () => mockNavigation,
-}));
+vi.mock('react-router', async (importOriginal) => {
+    const actual = (await importOriginal()) as any;
+    return {
+        ...actual,
+        Form: ({ children, ...props }: any) => <form {...props}>{children}</form>,
+        Link: ({ children, to, ...props }: any) => (
+            <a href={to} {...props}>
+                {children}
+            </a>
+        ),
+        useNavigation: () => mockNavigation,
+    };
+});
 
 describe('StandardLoginForm', () => {
     const defaultProps = {
@@ -34,40 +39,40 @@ describe('StandardLoginForm', () => {
             const { container } = render(<StandardLoginForm {...defaultProps} />);
 
             // Email field
-            const emailInput = screen.getByLabelText(uiStrings.login.emailLabel);
+            const emailInput = screen.getByLabelText(t('login:emailLabel'));
             expect(emailInput).toBeInTheDocument();
             expect(emailInput).toHaveAttribute('type', 'email');
             expect(emailInput).toHaveAttribute('name', 'email');
             expect(emailInput).toHaveAttribute('id', 'email');
-            expect(emailInput).toHaveAttribute('placeholder', uiStrings.login.emailPlaceholder);
+            expect(emailInput).toHaveAttribute('placeholder', t('login:emailPlaceholder'));
             expect(emailInput).toHaveAttribute('autocomplete', 'email');
             expect(emailInput).toBeRequired();
 
             // Password field
-            const passwordInput = screen.getByLabelText(uiStrings.login.passwordLabel);
+            const passwordInput = screen.getByLabelText(t('login:passwordLabel'));
             expect(passwordInput).toBeInTheDocument();
             expect(passwordInput).toHaveAttribute('type', 'password');
             expect(passwordInput).toHaveAttribute('name', 'password');
             expect(passwordInput).toHaveAttribute('id', 'password');
-            expect(passwordInput).toHaveAttribute('placeholder', uiStrings.login.passwordPlaceholder);
+            expect(passwordInput).toHaveAttribute('placeholder', t('login:passwordPlaceholder'));
             expect(passwordInput).toHaveAttribute('autocomplete', 'current-password');
             expect(passwordInput).toBeRequired();
 
             // Submit button
-            const submitButton = screen.getByRole('button', { name: uiStrings.login.signIn });
+            const submitButton = screen.getByRole('button', { name: t('login:signIn') });
             expect(submitButton).toBeInTheDocument();
 
             // Links
-            const forgotPasswordLink = screen.getByRole('link', { name: uiStrings.login.forgotPassword });
+            const forgotPasswordLink = screen.getByRole('link', { name: t('login:forgotPassword') });
             expect(forgotPasswordLink).toBeInTheDocument();
             expect(forgotPasswordLink).toHaveAttribute('href', '/forgot-password');
             expect(forgotPasswordLink).toHaveClass('text-primary', 'hover:text-primary/80');
 
-            const signUpLink = screen.getByRole('link', { name: uiStrings.login.signUp });
+            const signUpLink = screen.getByRole('link', { name: t('login:signUp') });
             expect(signUpLink).toBeInTheDocument();
             expect(signUpLink).toHaveAttribute('href', '/signup');
 
-            const passwordlessLink = screen.getByRole('link', { name: uiStrings.login.loginWithoutPassword });
+            const passwordlessLink = screen.getByRole('link', { name: t('login:loginWithoutPassword') });
             expect(passwordlessLink).toBeInTheDocument();
             expect(passwordlessLink).toHaveAttribute('href', '/login?mode=passwordless');
             expect(passwordlessLink).toHaveClass('text-primary', 'hover:text-primary/80');
@@ -107,8 +112,8 @@ describe('StandardLoginForm', () => {
             const user = userEvent.setup();
             render(<StandardLoginForm {...defaultProps} />);
 
-            const emailInput = screen.getByLabelText(uiStrings.login.emailLabel);
-            const passwordInput = screen.getByLabelText(uiStrings.login.passwordLabel);
+            const emailInput = screen.getByLabelText(t('login:emailLabel'));
+            const passwordInput = screen.getByLabelText(t('login:passwordLabel'));
 
             // Type in email field
             await user.type(emailInput, 'test@example.com');
@@ -131,14 +136,14 @@ describe('StandardLoginForm', () => {
             // With passwordless enabled
             const { rerender } = render(<StandardLoginForm isPasswordlessEnabled={true} />);
             let passwordlessLink: HTMLElement | null = screen.getByRole('link', {
-                name: uiStrings.login.loginWithoutPassword,
+                name: t('login:loginWithoutPassword'),
             });
             expect(passwordlessLink).toBeInTheDocument();
             expect(passwordlessLink).toHaveAttribute('href', '/login?mode=passwordless');
 
             // Without passwordless enabled
             rerender(<StandardLoginForm isPasswordlessEnabled={false} />);
-            passwordlessLink = screen.queryByRole('link', { name: uiStrings.login.loginWithoutPassword });
+            passwordlessLink = screen.queryByRole('link', { name: t('login:loginWithoutPassword') });
             expect(passwordlessLink).not.toBeInTheDocument();
         });
     });

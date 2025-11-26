@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from 'react-router';
 import type { ShopperLoginTypes } from 'commerce-sdk-isomorphic';
 import type { CustomQueryParameters } from '@/lib/api/types';
 import { flashAuth, updateAuth, loginRegisteredUser as authLoginRegisteredUser } from '@/middlewares/auth.server';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 export const loginRegisteredUser = async (
     context: ActionFunctionArgs['context'],
@@ -11,7 +11,10 @@ export const loginRegisteredUser = async (
 ): Promise<{
     success: boolean;
     error?: string;
+    errorDetails?: string;
 }> => {
+    const { t } = getTranslation(context);
+
     try {
         const tokenResponse: ShopperLoginTypes.TokenResponse = await authLoginRegisteredUser(
             context,
@@ -40,7 +43,7 @@ export const loginRegisteredUser = async (
         // eslint-disable-next-line no-console
         console.error('[Standard Login] Error details:', errorDetails);
 
-        const errorMessage = uiStrings.errors.loginFailed;
+        const errorMessage = t('errors:loginFailed');
 
         flashAuth(context, errorMessage);
 

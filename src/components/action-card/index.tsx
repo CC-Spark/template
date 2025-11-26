@@ -3,8 +3,8 @@ import { type ComponentProps, type ReactNode, type Ref, useState } from 'react';
 import { Card, CardContent, CardFooter } from '../ui/card';
 import { Button } from '../ui/button';
 import { Spinner } from '@/components/spinner';
-import uiStrings from '@/temp-ui-string';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export interface ActionCardProps extends ComponentProps<'div'> {
     children?: ReactNode;
@@ -34,6 +34,7 @@ const ActionCard = ({
     ...props
 }: ActionCardProps) => {
     const [showLoading, setShowLoading] = useState(false);
+    const { t } = useTranslation('actionCard');
 
     const handleRemove = async () => {
         if (!onRemove) {
@@ -66,19 +67,19 @@ const ActionCard = ({
                             variant="link"
                             size="sm"
                             className="font-bold"
-                            aria-label={editBtnLabel ?? uiStrings.actionCard.edit}>
-                            {uiStrings.actionCard.edit}
+                            aria-label={editBtnLabel ?? t('edit')}>
+                            {t('edit')}
                         </Button>
                     )}
                     {onRemove && (
                         <Button
-                            aria-label={removeBtnLabel ?? uiStrings.actionCard.remove}
+                            aria-label={removeBtnLabel ?? t('remove')}
                             className="text-destructive hover:text-destructive/80 font-bold"
                             onClick={() => void handleRemove()}
                             ref={removeBtnRef}
                             size="sm"
                             variant="link">
-                            {uiStrings.actionCard.remove}
+                            {t('remove')}
                         </Button>
                     )}
                 </CardFooter>

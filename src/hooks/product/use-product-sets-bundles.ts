@@ -8,8 +8,8 @@
 'use client';
 
 import { useState, useCallback, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import uiStrings from '@/temp-ui-string';
 import { isProductSet, isProductBundle, isStandardProduct } from '@/lib/product-utils';
 import {
     type ChildProductSelection,
@@ -95,6 +95,7 @@ export function useProductSetsBundles({
     basketPickupStore,
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 }: UseProductSetsBundlesProps) {
+    const { t } = useTranslation();
     const isProductASet = isProductSet(product);
     const isProductABundle = isProductBundle(product);
 
@@ -190,10 +191,9 @@ export function useProductSetsBundles({
             if (!selection) {
                 return {
                     isValid: false,
-                    errorMessage: uiStrings.product.pleaseSelectOptionsFor.replace(
-                        '{productName}',
-                        childProduct.name || 'product'
-                    ),
+                    errorMessage: t('product:pleaseSelectOptionsFor', {
+                        productName: childProduct.name || 'product',
+                    }),
                     firstUnselectedProduct: childProduct,
                 };
             }
@@ -204,14 +204,14 @@ export function useProductSetsBundles({
                     isValid: false,
                     errorMessage:
                         orderability.errorMessage ||
-                        uiStrings.product.productNotOrderable.replace('{productName}', childProduct.name || 'product'),
+                        t('product:productNotOrderable', { productName: childProduct.name || 'product' }),
                     firstUnselectedProduct: childProduct,
                 };
             }
         }
 
         return { isValid: true };
-    }, [comboProduct.childProducts, childProductSelection, childProductOrderability]);
+    }, [comboProduct.childProducts, childProductSelection, childProductOrderability, t]);
 
     // Handle child product validation with scrolling
     const handleChildProductValidation = useCallback(() => {

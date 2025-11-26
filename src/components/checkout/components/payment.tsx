@@ -11,14 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useBasket } from '@/providers/basket';
-import { paymentSchema, getPaymentDefaultValues, type PaymentData } from '@/lib/checkout-schemas';
+import { createPaymentSchema, getPaymentDefaultValues, type PaymentData } from '@/lib/checkout-schemas';
 import { formatCardNumber, formatExpiryDate } from '@/lib/form-utils';
 import { getFormattedMaskedCardNumber, getCardTypeDisplay, detectCardType } from '@/lib/payment-utils';
 import { getCardIcon } from '@/lib/card-icon-utils';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
-import uiStrings from '@/temp-ui-string';
 import type { CheckoutActionData } from '../types';
+import { useTranslation } from 'react-i18next';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
 
@@ -47,6 +47,7 @@ export default function Payment({
     let showBillingSameAsShipping = true;
     // @sfdc-extension-line SFDC_EXT_BOPIS
     showBillingSameAsShipping = !isStorePickup(cart);
+    const { t } = useTranslation('checkout');
 
     // Get customer's saved payment methods
     const savedPaymentMethods = getPaymentMethodsFromCustomer(customerProfile);
@@ -138,8 +139,10 @@ export default function Payment({
         return computedDefaults;
     }, [selectedPaymentMethod, shippingAddress, paymentMethod, savedPaymentMethods.length, showBillingSameAsShipping]);
 
+    const schema = useMemo(() => createPaymentSchema(t), [t]);
+
     const form = useForm<PaymentData>({
-        resolver: zodResolver(paymentSchema),
+        resolver: zodResolver(schema),
         defaultValues,
         mode: 'onSubmit', // Only validate on submit, not on change/blur
     });
@@ -176,7 +179,7 @@ export default function Payment({
     // For single page layout, always show the component but in collapsed state when not editing
     // The ToggleCard will handle the collapsed/expanded state based on editing prop
 
-    const stepTitle = <span className="text-lg font-semibold text-foreground">{uiStrings.checkout.payment.title}</span>;
+    const stepTitle = <span className="text-lg font-semibold text-foreground">{t('payment.title')}</span>;
 
     return (
         <ToggleCard
@@ -184,7 +187,7 @@ export default function Payment({
             title={stepTitle as React.ReactNode}
             editing={isEditing}
             onEdit={onEdit}
-            editLabel={uiStrings.checkout.common.edit}
+            editLabel={t('common.edit')}
             isLoading={isLoading}>
             <ToggleCardEdit>
                 <Form {...form}>
@@ -298,15 +301,13 @@ export default function Payment({
                                             return (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.payment.cardNumberLabel}
+                                                        {t('payment.cardNumberLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex-1">
                                                                 <Input
-                                                                    placeholder={
-                                                                        uiStrings.checkout.payment.cardNumberPlaceholder
-                                                                    }
+                                                                    placeholder={t('payment.cardNumberPlaceholder')}
                                                                     autoComplete="cc-number"
                                                                     maxLength={23} // 19 digits + 4 spaces
                                                                     autoFocus={
@@ -346,11 +347,11 @@ export default function Payment({
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                    {uiStrings.checkout.payment.cardholderLabel}
+                                                    {t('payment.cardholderLabel')}
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        placeholder={uiStrings.checkout.payment.cardholderPlaceholder}
+                                                        placeholder={t('payment.cardholderPlaceholder')}
                                                         autoComplete="cc-name"
                                                         {...field}
                                                     />
@@ -367,11 +368,11 @@ export default function Payment({
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.payment.expiryLabel}
+                                                        {t('payment.expiryLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={uiStrings.checkout.payment.expiryPlaceholder}
+                                                            placeholder={t('payment.expiryPlaceholder')}
                                                             autoComplete="cc-exp"
                                                             maxLength={5} // MM/YY
                                                             {...field}
@@ -392,11 +393,11 @@ export default function Payment({
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.payment.cvvLabel}
+                                                        {t('payment.cvvLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={uiStrings.checkout.payment.cvvPlaceholder}
+                                                            placeholder={t('payment.cvvPlaceholder')}
                                                             autoComplete="cc-csc"
                                                             maxLength={4} // Max 4 digits for CVV
                                                             {...field}
@@ -435,20 +436,15 @@ export default function Payment({
                                                                 field.onChange(checked === true);
                                                             }}
                                                             className="mt-0.5"
-                                                            aria-label={
-                                                                uiStrings.checkout.payment.billingSameAsShipping
-                                                            }
+                                                            aria-label={t('payment.billingSameAsShipping')}
                                                         />
                                                     </FormControl>
                                                     <div className="space-y-1 leading-none">
                                                         <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                            {uiStrings.checkout.payment.billingSameAsShipping}
+                                                            {t('payment.billingSameAsShipping')}
                                                         </FormLabel>
                                                         <Typography variant="small" className="text-muted-foreground">
-                                                            {
-                                                                uiStrings.checkout.payment
-                                                                    .billingSameAsShippingDescription
-                                                            }
+                                                            {t('payment.billingSameAsShippingDescription')}
                                                         </Typography>
                                                     </div>
                                                 </div>
@@ -471,13 +467,11 @@ export default function Payment({
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.shippingAddress.firstNameLabel}
+                                                        {t('shippingAddress.firstNameLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={
-                                                                uiStrings.checkout.shippingAddress.firstNamePlaceholder
-                                                            }
+                                                            placeholder={t('shippingAddress.firstNamePlaceholder')}
                                                             autoComplete="billing given-name"
                                                             {...field}
                                                         />
@@ -493,13 +487,11 @@ export default function Payment({
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.shippingAddress.lastNameLabel}
+                                                        {t('shippingAddress.lastNameLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={
-                                                                uiStrings.checkout.shippingAddress.lastNamePlaceholder
-                                                            }
+                                                            placeholder={t('shippingAddress.lastNamePlaceholder')}
                                                             autoComplete="billing family-name"
                                                             {...field}
                                                         />
@@ -516,13 +508,11 @@ export default function Payment({
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                    {uiStrings.checkout.shippingAddress.addressLabel}
+                                                    {t('shippingAddress.addressLabel')}
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        placeholder={
-                                                            uiStrings.checkout.shippingAddress.addressPlaceholder
-                                                        }
+                                                        placeholder={t('shippingAddress.addressPlaceholder')}
                                                         autoComplete="billing address-line1"
                                                         {...field}
                                                     />
@@ -538,13 +528,11 @@ export default function Payment({
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                    {uiStrings.checkout.shippingAddress.address2Label}
+                                                    {t('shippingAddress.address2Label')}
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        placeholder={
-                                                            uiStrings.checkout.shippingAddress.address2Placeholder
-                                                        }
+                                                        placeholder={t('shippingAddress.address2Placeholder')}
                                                         autoComplete="billing address-line2"
                                                         {...field}
                                                     />
@@ -561,13 +549,11 @@ export default function Payment({
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.shippingAddress.cityLabel}
+                                                        {t('shippingAddress.cityLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={
-                                                                uiStrings.checkout.shippingAddress.cityPlaceholder
-                                                            }
+                                                            placeholder={t('shippingAddress.cityPlaceholder')}
                                                             autoComplete="billing address-level2"
                                                             {...field}
                                                         />
@@ -583,13 +569,11 @@ export default function Payment({
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.shippingAddress.stateLabel}
+                                                        {t('shippingAddress.stateLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={
-                                                                uiStrings.checkout.shippingAddress.statePlaceholder
-                                                            }
+                                                            placeholder={t('shippingAddress.statePlaceholder')}
                                                             autoComplete="billing address-level1"
                                                             {...field}
                                                         />
@@ -605,13 +589,11 @@ export default function Payment({
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {uiStrings.checkout.shippingAddress.zipLabel}
+                                                        {t('shippingAddress.zipLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={
-                                                                uiStrings.checkout.shippingAddress.zipPlaceholder
-                                                            }
+                                                            placeholder={t('shippingAddress.zipPlaceholder')}
                                                             autoComplete="billing postal-code"
                                                             {...field}
                                                         />
@@ -637,7 +619,7 @@ export default function Payment({
                                         void form.trigger();
                                     }
                                 }}>
-                                {isLoading ? uiStrings.checkout.payment.saving : uiStrings.checkout.payment.continue}
+                                {isLoading ? t('payment.saving') : t('payment.continue')}
                             </Button>
                         </div>
                     </form>
@@ -710,8 +692,8 @@ export default function Payment({
                         ) : (
                             <Typography variant="p" className="text-muted-foreground">
                                 {showBillingSameAsShipping
-                                    ? uiStrings.checkout.payment.sameAsShippingAddress
-                                    : uiStrings.checkout.payment.noBillingAddressSaved}
+                                    ? t('payment.sameAsShippingAddress')
+                                    : t('payment.noBillingAddressSaved')}
                             </Typography>
                         )}
                     </div>

@@ -28,7 +28,7 @@ import { convertProductToProductSearchHit } from '@/lib/product-conversion';
 import { ProductTile } from '@/components/product-tile';
 import { useToast } from '@/components/toast';
 import PaginatedProductCarousel from '@/components/product-carousel/paginated-carousel';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
@@ -369,6 +369,7 @@ function WishlistRemoveButton({
     isDisabled?: boolean;
     onRemove?: (productId: string) => void;
 }) {
+    const { t } = useTranslation('product');
     const removeFetcher = useFetcher();
     const { addToast } = useToast();
     const hasHandledResponse = useRef(false);
@@ -391,14 +392,14 @@ function WishlistRemoveButton({
             const result = removeFetcher.data as { success: boolean; error?: string } | undefined;
             if (result?.success) {
                 hasHandledResponse.current = true;
-                addToast(uiStrings.product.removedFromWishlist, 'success');
+                addToast(t('removedFromWishlist'), 'success');
                 // Notify parent to mark product as disabled
                 if (onRemove) {
                     onRemove(productId);
                 }
             } else if (result?.success === false || result?.error) {
                 hasHandledResponse.current = true;
-                addToast(result.error || uiStrings.product.failedToRemoveFromWishlist, 'error');
+                addToast(result.error || t('failedToRemoveFromWishlist'), 'error');
             }
         }
 
@@ -406,7 +407,7 @@ function WishlistRemoveButton({
         if (removeFetcher.state === 'submitting') {
             hasHandledResponse.current = false;
         }
-    }, [removeFetcher.state, removeFetcher.data, addToast, onRemove, productId]);
+    }, [removeFetcher.state, removeFetcher.data, addToast, onRemove, productId, t]);
 
     return (
         <Button
@@ -422,6 +423,9 @@ function WishlistRemoveButton({
 }
 
 export default function AccountWishlist(): ReactElement {
+    const { t } = useTranslation('account');
+    const { t: tProduct } = useTranslation('product');
+
     const loaderData = useLoaderData<Awaited<ReturnType<typeof clientLoader>>>();
     const { items, productsByProductId: productsPromise } = loaderData || {
         items: [] as CustomerProductListItem[],
@@ -639,7 +643,7 @@ export default function AccountWishlist(): ReactElement {
                     {isDisabled && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="bg-background/80 backdrop-blur-sm px-4 py-2 rounded-md">
-                                <span className="text-sm font-medium">{uiStrings.product.removedLabel}</span>
+                                <span className="text-sm font-medium">{tProduct('removedLabel')}</span>
                             </div>
                         </div>
                     )}
@@ -648,7 +652,7 @@ export default function AccountWishlist(): ReactElement {
         };
         renderTileFunction.displayName = 'RenderTile';
         return renderTileFunction;
-    }, [allItems, allProductsByProductId, disabledProductIds, handleProductRemove]);
+    }, [allItems, allProductsByProductId, disabledProductIds, handleProductRemove, tProduct]);
 
     return (
         <div className="pb-16">
@@ -656,14 +660,14 @@ export default function AccountWishlist(): ReactElement {
                 {/* Page Header */}
                 <div className="mb-8">
                     <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                        {uiStrings.account.navigation.wishlist}
+                        {t('navigation.wishlist')}
                     </h1>
                 </div>
 
                 {/* Wishlist Content */}
                 {allItems.length === 0 ? (
                     <div className="text-center py-12">
-                        <p className="text-lg text-muted-foreground">{uiStrings.account.wishlist.empty}</p>
+                        <p className="text-lg text-muted-foreground">{t('wishlist.empty')}</p>
                     </div>
                 ) : (
                     <div className="flex-grow">

@@ -5,11 +5,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/typography';
 import { useBasket } from '@/providers/basket';
-import uiStrings from '@/temp-ui-string';
 import { getDefaultShippingMethod } from '@/lib/customer-profile-utils';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { CheckoutActionData } from '../types';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { useTranslation } from 'react-i18next';
 
 interface ShippingMethod {
     id: string;
@@ -57,6 +57,7 @@ export default function ShippingOptions({
                 })) || [],
         [shippingMethods?.applicableShippingMethods]
     );
+    const { t } = useTranslation('checkout');
 
     const selectedMethod = cart?.shipments?.[0]?.shippingMethod;
 
@@ -118,9 +119,7 @@ export default function ShippingOptions({
     // For single page layout, always show the component but in collapsed state when not editing
     // The ToggleCard will handle the collapsed/expanded state based on editing prop
 
-    const stepTitle = (
-        <span className="text-lg font-semibold text-foreground">{uiStrings.checkout.shippingOptions.title}</span>
-    );
+    const stepTitle = <span className="text-lg font-semibold text-foreground">{t('shippingOptions.title')}</span>;
 
     return (
         <ToggleCard
@@ -139,16 +138,14 @@ export default function ShippingOptions({
                     )}
 
                     <div className="space-y-4">
-                        <label className="text-sm font-medium text-foreground">
-                            {uiStrings.checkout.shippingOptions.title}
-                        </label>
+                        <label className="text-sm font-medium text-foreground">{t('shippingOptions.title')}</label>
 
                         {availableShippingMethods.length > 0 ? (
                             <RadioGroup
                                 name="shippingMethodId"
                                 defaultValue={selectedMethod?.id || defaultShippingMethodId || ''}
                                 required
-                                aria-label={uiStrings.checkout.shippingOptions.title}>
+                                aria-label={t('shippingOptions.title')}>
                                 {availableShippingMethods.map((method) => (
                                     <div
                                         key={method.id}
@@ -165,23 +162,21 @@ export default function ShippingOptions({
                                                     <Typography
                                                         variant="small"
                                                         className="text-muted-foreground font-bold text-base">
-                                                        {uiStrings.checkout.shippingOptions.arrives.replace(
-                                                            '{estimatedArrivalTime}',
-                                                            method.estimatedArrivalTime
-                                                        )}
+                                                        {t('shippingOptions.arrives', {
+                                                            estimatedArrivalTime: method.estimatedArrivalTime,
+                                                        })}
                                                     </Typography>
                                                 )}
                                                 <Typography
                                                     variant="small"
                                                     className="text-muted-foreground font-bold text-base">
-                                                    {uiStrings.checkout.shippingOptions.priceAndMethod
-                                                        .replace(
-                                                            '{price}',
+                                                    {t('shippingOptions.priceAndMethod', {
+                                                        price:
                                                             method.price === 0
-                                                                ? uiStrings.checkout.shippingOptions.free
-                                                                : `$${method.price.toFixed(2)}`
-                                                        )
-                                                        .replace('{methodName}', method.name)}
+                                                                ? t('shippingOptions.free')
+                                                                : `$${method.price.toFixed(2)}`,
+                                                        methodName: method.name,
+                                                    })}
                                                 </Typography>
                                                 {method.description && (
                                                     <Typography
@@ -216,10 +211,10 @@ export default function ShippingOptions({
                             size="lg"
                             className="min-w-48">
                             {isLoading
-                                ? uiStrings.checkout.shippingOptions.saving
+                                ? t('shippingOptions.saving')
                                 : availableShippingMethods.length === 0
                                   ? 'No shipping methods available'
-                                  : uiStrings.checkout.shippingOptions.continue}
+                                  : t('shippingOptions.continue')}
                         </Button>
                     </div>
                 </form>
@@ -234,26 +229,24 @@ export default function ShippingOptions({
                         <div className="space-y-1">
                             {selectedMethod.estimatedArrivalTime && (
                                 <Typography variant="small" className="text-muted-foreground">
-                                    {uiStrings.checkout.shippingOptions.arrives.replace(
-                                        '{estimatedArrivalTime}',
-                                        selectedMethod.estimatedArrivalTime
-                                    )}
+                                    {t('shippingOptions.arrives', {
+                                        estimatedArrivalTime: selectedMethod.estimatedArrivalTime,
+                                    })}
                                 </Typography>
                             )}
                             <Typography variant="small" className="text-muted-foreground">
-                                {uiStrings.checkout.shippingOptions.priceAndMethod
-                                    .replace(
-                                        '{price}',
+                                {t('shippingOptions.priceAndMethod', {
+                                    price:
                                         selectedMethod.price === 0
-                                            ? uiStrings.checkout.shippingOptions.free
-                                            : `$${(selectedMethod.price ?? 0).toFixed(2)}`
-                                    )
-                                    .replace('{methodName}', selectedMethod.name || '')}
+                                            ? t('shippingOptions.free')
+                                            : `$${(selectedMethod.price ?? 0).toFixed(2)}`,
+                                    methodName: selectedMethod.name || '',
+                                })}
                             </Typography>
                         </div>
                     ) : (
                         <Typography variant="p" className="text-muted-foreground">
-                            {uiStrings.checkout.shippingOptions.enterAddressFirst}
+                            {t('shippingOptions.enterAddressFirst')}
                         </Typography>
                     )}
                 </div>

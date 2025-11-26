@@ -10,6 +10,9 @@ import { render, screen } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import type { LoaderFunctionArgs, ClientLoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch, ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import HomeView, { loader, clientLoader, type HomePageData } from './_index';
 import { createTestContext } from '@/lib/test-utils';
 import { fetchPageFromLoader, collectComponentDataPromises } from '@/lib/util/pageLoader';
@@ -152,35 +155,6 @@ vi.mock('@/components/create-page', () => ({
     },
 }));
 
-// Mock UI strings
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        home: {
-            newArrivals: {
-                title: 'New Arrivals',
-                description:
-                    'Discover the latest additions to our collection. From statement pieces to everyday essentials.',
-                ctaText: 'SHOP NEW ARRIVALS',
-            },
-            featuredContent: {
-                women: {
-                    title: 'Women',
-                    description:
-                        'Discover our curated collection of sophisticated footwear designed for the modern woman.',
-                    ctaText: 'EXPLORE COLLECTION',
-                    imageAlt: "Women's Collection",
-                },
-                men: {
-                    title: 'Men',
-                    description: "Timeless craftsmanship meets contemporary style in our men's footwear collection.",
-                    ctaText: 'EXPLORE COLLECTION',
-                    imageAlt: "Men's Collection",
-                },
-            },
-        },
-    },
-}));
-
 // Mock images
 vi.mock('/images/hero-new-arrivals.png', () => ({ default: '/mock-image.png' }));
 
@@ -245,7 +219,7 @@ describe('HomeView', () => {
         const renderingTests = [
             {
                 description: 'renders new arrivals section',
-                assertion: () => expect(screen.getByText('New Arrivals')).toBeInTheDocument(),
+                assertion: () => expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument(),
             },
             {
                 description: 'renders popular categories section',
@@ -254,8 +228,8 @@ describe('HomeView', () => {
             {
                 description: 'renders featured content cards',
                 assertion: () => {
-                    expect(screen.getByText('Women')).toBeInTheDocument();
-                    expect(screen.getByText('Men')).toBeInTheDocument();
+                    expect(screen.getByText(t('home:featuredContent.women.title'))).toBeInTheDocument();
+                    expect(screen.getByText(t('home:featuredContent.men.title'))).toBeInTheDocument();
                 },
             },
         ];
@@ -271,7 +245,7 @@ describe('HomeView', () => {
             // Should not render region when no regions are available
             expect(screen.queryByTestId('region')).not.toBeInTheDocument();
             // But should still render other sections
-            expect(screen.getByText('New Arrivals')).toBeInTheDocument();
+            expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument();
         });
 
         test('renders header banner region when headerbanner region is provided', () => {
@@ -302,7 +276,7 @@ describe('HomeView', () => {
             expect(screen.getByTestId('region')).toBeInTheDocument();
             expect(screen.getByTestId('region')).toHaveAttribute('data-region-id', 'headerbanner');
             // Should still render other sections
-            expect(screen.getByText('New Arrivals')).toBeInTheDocument();
+            expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument();
         });
     });
 
@@ -310,22 +284,21 @@ describe('HomeView', () => {
         const newArrivalsTests = [
             {
                 description: 'renders new arrivals with correct title',
-                expectedText: 'New Arrivals',
+                translationKey: 'home:newArrivals.title',
             },
             {
                 description: 'renders new arrivals with correct description',
-                expectedText:
-                    'Discover the latest additions to our collection. From statement pieces to everyday essentials.',
+                translationKey: 'home:newArrivals.description',
             },
             {
                 description: 'renders new arrivals CTA button',
-                expectedText: 'SHOP NEW ARRIVALS',
+                translationKey: 'home:newArrivals.ctaText',
             },
         ];
 
-        test.each(newArrivalsTests)('$description', ({ expectedText }) => {
+        test.each(newArrivalsTests)('$description', ({ translationKey }) => {
             renderComponent(<HomeView loaderData={defaultLoaderData} />);
-            expect(screen.getByText(expectedText)).toBeInTheDocument();
+            expect(screen.getByText(t(translationKey))).toBeInTheDocument();
         });
     });
 
@@ -354,20 +327,20 @@ describe('HomeView', () => {
         const contentCardTests = [
             {
                 description: 'renders women content card',
-                title: 'Women',
-                content: 'Discover our curated collection of sophisticated footwear designed for the modern woman.',
+                titleKey: 'home:featuredContent.women.title',
+                contentKey: 'home:featuredContent.women.description',
             },
             {
                 description: 'renders men content card',
-                title: 'Men',
-                content: "Timeless craftsmanship meets contemporary style in our men's footwear collection.",
+                titleKey: 'home:featuredContent.men.title',
+                contentKey: 'home:featuredContent.men.description',
             },
         ];
 
-        test.each(contentCardTests)('$description', ({ title, content }) => {
+        test.each(contentCardTests)('$description', ({ titleKey, contentKey }) => {
             renderComponent(<HomeView loaderData={defaultLoaderData} />);
-            expect(screen.getByText(title)).toBeInTheDocument();
-            expect(screen.getByText(content)).toBeInTheDocument();
+            expect(screen.getByText(t(titleKey))).toBeInTheDocument();
+            expect(screen.getByText(t(contentKey))).toBeInTheDocument();
         });
 
         test('renders both content cards with correct count', () => {
@@ -381,7 +354,7 @@ describe('HomeView', () => {
         test('handles page promise rejection gracefully', () => {
             renderComponent(<HomeView loaderData={defaultLoaderData} />);
             // Should still render other sections
-            expect(screen.getByText('New Arrivals')).toBeInTheDocument();
+            expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument();
         });
 
         test('handles categories promise rejection', () => {
@@ -398,7 +371,7 @@ describe('HomeView', () => {
             );
 
             // Should still render other sections
-            expect(screen.getByText('New Arrivals')).toBeInTheDocument();
+            expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument();
         });
     });
 
@@ -414,7 +387,7 @@ describe('HomeView', () => {
             {
                 description: 'applies correct spacing between sections',
                 assertion: () => {
-                    const newArrivalsTitle = screen.getByText('New Arrivals');
+                    const newArrivalsTitle = screen.getByText(t('home:newArrivals.title'));
                     const sectionWithPadding = newArrivalsTitle.closest('[class*="pt-16"]');
                     expect(sectionWithPadding).toBeInTheDocument();
                     expect(sectionWithPadding).toHaveClass('pt-16');
@@ -423,7 +396,9 @@ describe('HomeView', () => {
             {
                 description: 'applies correct grid layout for content cards',
                 assertion: () => {
-                    const contentCardsGrid = screen.getByText('Women').closest('div')?.parentElement;
+                    const contentCardsGrid = screen
+                        .getByText(t('home:featuredContent.women.title'))
+                        .closest('div')?.parentElement;
                     expect(contentCardsGrid).toHaveClass('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-6');
                 },
             },

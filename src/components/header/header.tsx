@@ -3,12 +3,13 @@ import { Link, useLocation } from 'react-router';
 import Search from './search';
 import CartBadge from './cart-badge';
 import UserActions from './user-actions';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 // @sfdc-extension-line SFDC_EXT_STORE_LOCATOR
 import StoreLocatorBadge from '@/extensions/store-locator/components/header/store-locator-badge';
 import logo from '/images/market-logo.svg';
 
 export default function Header({ children }: PropsWithChildren): ReactElement {
+    const { t } = useTranslation('header');
     const location = useLocation();
 
     return (
@@ -17,9 +18,9 @@ export default function Header({ children }: PropsWithChildren): ReactElement {
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link to="/" className="flex items-center space-x-4">
-                        <img className="w-10 h-10 text-primary" src={logo} alt={uiStrings.header.logoAlt} />
+                        <img className="w-10 h-10 text-primary" src={logo} alt={t('logoAlt')} />
                         <div className="text-xl font-bold text-primary-600 whitespace-pre-line leading-tight">
-                            {uiStrings.header.brand}
+                            {t('brand')}
                         </div>
                     </Link>
 

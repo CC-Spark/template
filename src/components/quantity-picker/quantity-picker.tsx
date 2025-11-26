@@ -19,9 +19,9 @@ import { useQuantityPicker } from '@/hooks/use-quantity-picker';
 
 // Utils
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
 
 interface QuantityPickerProps {
     /** Current quantity value as string */
@@ -57,6 +57,9 @@ export default function QuantityPicker({
     productName,
     disabled = false,
 }: QuantityPickerProps): ReactElement {
+    const { t: tQuantity } = useTranslation('quantitySelector');
+    const { t: tCommon } = useTranslation('common');
+
     const {
         inputValue,
         inputRef,
@@ -83,10 +86,7 @@ export default function QuantityPicker({
                 onClick={handleDecrement}
                 disabled={disabled || isDecrementDisabled}
                 className="h-8 w-8 p-0"
-                aria-label={uiStrings.quantitySelector.decreaseQuantityForProduct.replace(
-                    '{productName}',
-                    productName || uiStrings.common.product
-                )}
+                aria-label={tQuantity('decreaseQuantityForProduct', { productName: productName || tCommon('product') })}
                 data-testid="quantity-decrement">
                 <span className="text-sm">−</span>
             </Button>
@@ -107,7 +107,7 @@ export default function QuantityPicker({
                     'h-8 w-11 text-center text-sm',
                     '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                 )}
-                aria-label={uiStrings.quantitySelector.quantity}
+                aria-label={tQuantity('quantity')}
             />
 
             {/* Increment Button */}
@@ -117,10 +117,7 @@ export default function QuantityPicker({
                 onClick={handleIncrement}
                 disabled={disabled}
                 className="h-8 w-8 p-0"
-                aria-label={uiStrings.quantitySelector.increaseQuantityForProduct.replace(
-                    '{productName}',
-                    productName || uiStrings.common.product
-                )}
+                aria-label={tQuantity('increaseQuantityForProduct', { productName: productName || tCommon('product') })}
                 data-testid="quantity-increment">
                 <span className="text-sm">+</span>
             </Button>

@@ -4,8 +4,8 @@ import { customAlphabet, nanoid } from 'nanoid';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
 import { getAuth, updateAuth, clearInvalidSessionAndRestoreGuest } from '@/middlewares/auth.client';
-import uiStrings from '@/temp-ui-string';
 import { extractResponseError } from '@/lib/utils';
+import { getTranslation } from '@/lib/i18next';
 
 /**
  * Customer lookup result
@@ -24,23 +24,25 @@ export interface CustomerLookupResult {
  * @throws Error if any required field is missing
  */
 function validateAddress(address: ShopperBasketsV2.schemas['OrderAddress']): void {
+    const { t } = getTranslation();
+
     if (!address.countryCode) {
-        throw new Error(uiStrings.errors.customer.countryCodeRequired);
+        throw new Error(t('errors:customer.countryCodeRequired'));
     }
     if (!address.address1) {
-        throw new Error(uiStrings.errors.customer.addressLine1Required);
+        throw new Error(t('errors:customer.addressLine1Required'));
     }
     if (!address.city) {
-        throw new Error(uiStrings.errors.customer.cityRequired);
+        throw new Error(t('errors:customer.cityRequired'));
     }
     if (!address.firstName) {
-        throw new Error(uiStrings.errors.customer.firstNameRequired);
+        throw new Error(t('errors:customer.firstNameRequired'));
     }
     if (!address.lastName) {
-        throw new Error(uiStrings.errors.customer.lastNameRequired);
+        throw new Error(t('errors:customer.lastNameRequired'));
     }
     if (!address.postalCode) {
-        throw new Error(uiStrings.errors.customer.postalCodeRequired);
+        throw new Error(t('errors:customer.postalCodeRequired'));
     }
 }
 
@@ -57,12 +59,14 @@ export async function lookupCustomerByEmail(
     context: ActionFunctionArgs['context'],
     email: string
 ): Promise<CustomerLookupResult> {
+    const { t } = getTranslation();
+
     try {
         // Validate email format
         if (!email || !email.includes('@')) {
             return {
                 isRegistered: false,
-                error: uiStrings.errors.customer.invalidEmailFormat,
+                error: t('errors:customer.invalidEmailFormat'),
             };
         }
 
@@ -110,7 +114,7 @@ export async function lookupCustomerByEmail(
     } catch {
         return {
             isRegistered: false,
-            error: uiStrings.errors.customer.customerLookupUnavailable,
+            error: t('errors:customer.customerLookupUnavailable'),
         };
     }
 }
@@ -206,6 +210,7 @@ export async function customerLookup(
         message?: string;
     }
 > {
+    const { t } = getTranslation();
     const basicResult = await lookupCustomerByEmail(context, email);
 
     // If current user is logged in and email matches
@@ -213,7 +218,7 @@ export async function customerLookup(
         return {
             ...basicResult,
             recommendation: 'current_user' as const,
-            message: uiStrings.customer.messages.currentUserRecommendation,
+            message: t('customer:messages.currentUserRecommendation'),
         };
     }
 
@@ -221,7 +226,7 @@ export async function customerLookup(
     return {
         ...basicResult,
         recommendation: 'guest' as const,
-        message: uiStrings.customer.messages.guestRecommendation,
+        message: t('customer:messages.guestRecommendation'),
     };
 }
 
@@ -253,11 +258,13 @@ export function generateRandomPassword(): string {
  * @returns Object with firstName and lastName
  */
 export function extractNameFromEmail(email: string): { firstName: string; lastName: string } {
+    const { t } = getTranslation();
+
     // Input validation and sanitization
     if (!email || typeof email !== 'string') {
         return {
-            firstName: uiStrings.customer.defaults.guestFirstName,
-            lastName: uiStrings.customer.defaults.guestLastName,
+            firstName: t('customer:defaults.guestFirstName'),
+            lastName: t('customer:defaults.guestLastName'),
         };
     }
 
@@ -265,8 +272,8 @@ export function extractNameFromEmail(email: string): { firstName: string; lastNa
     const username = email.split('@')[0]?.toLowerCase().trim();
     if (!username) {
         return {
-            firstName: uiStrings.customer.defaults.guestFirstName,
-            lastName: uiStrings.customer.defaults.guestLastName,
+            firstName: t('customer:defaults.guestFirstName'),
+            lastName: t('customer:defaults.guestLastName'),
         };
     }
 
@@ -304,8 +311,8 @@ export function extractNameFromEmail(email: string): { firstName: string; lastNa
 
     // Fallback: use cleaned username as first name
     return {
-        firstName: capitalizeFirstLetter(cleanUsername) || uiStrings.customer.defaults.guestFirstName,
-        lastName: uiStrings.customer.defaults.guestLastName,
+        firstName: capitalizeFirstLetter(cleanUsername) || t('customer:defaults.guestFirstName'),
+        lastName: t('customer:defaults.guestLastName'),
     };
 }
 
@@ -384,12 +391,13 @@ export async function registerGuestUser(
     error?: string;
     autoLoggedIn?: boolean;
 }> {
+    const { t } = getTranslation();
     try {
         // Validate email format
         if (!email || !email.includes('@')) {
             return {
                 success: false,
-                error: uiStrings.errors.customer.invalidEmailFormat,
+                error: t('errors:customer.invalidEmailFormat'),
             };
         }
 
@@ -454,14 +462,14 @@ export async function registerGuestUser(
                 success: true,
                 password,
                 autoLoggedIn: false,
-                error: uiStrings.errors.customer.autoLoginAfterRegistrationFailed,
+                error: t('errors:customer.autoLoginAfterRegistrationFailed'),
             };
         }
     } catch {
         // Guest user registration failed
         return {
             success: false,
-            error: uiStrings.errors.customer.registrationFailed,
+            error: t('errors:customer.registrationFailed'),
         };
     }
 }
@@ -479,8 +487,12 @@ export async function saveShippingAddressToCustomer(
     context: ActionFunctionArgs['context'],
     customerId: string,
     address: ShopperBasketsV2.schemas['OrderAddress'],
-    _addressName: string = uiStrings.customer.defaults.defaultAddressName
+    _addressName?: string
 ): Promise<boolean> {
+    const { t } = getTranslation();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const addressName = _addressName ?? t('customer:defaults.defaultAddressName');
+
     try {
         const config = getConfig(context);
         const clients = createApiClients(context);
@@ -536,8 +548,12 @@ export async function saveBillingAddressToCustomer(
     context: ActionFunctionArgs['context'],
     customerId: string,
     address: ShopperBasketsV2.schemas['OrderAddress'],
-    _addressName: string = uiStrings.customer.defaults.defaultBillingAddressName
+    _addressName?: string
 ): Promise<boolean> {
+    const { t } = getTranslation();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const addressName = _addressName ?? t('customer:defaults.defaultBillingAddressName');
+
     try {
         const config = getConfig(context);
         const clients = createApiClients(context);

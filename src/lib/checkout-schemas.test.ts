@@ -1,9 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { paymentSchema, getPaymentDefaultValues } from './checkout-schemas';
+import { createPaymentSchema, getPaymentDefaultValues } from './checkout-schemas';
+import { getTranslation } from './i18next';
+
+const { t } = getTranslation();
 
 describe('Payment Schema and Validation', () => {
     describe('paymentSchema', () => {
         it('should validate new credit card payment', () => {
+            const paymentSchema = createPaymentSchema(t);
             const validNewCardData = {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
@@ -19,6 +23,7 @@ describe('Payment Schema and Validation', () => {
         });
 
         it('should validate saved payment method', () => {
+            const paymentSchema = createPaymentSchema(t);
             const validSavedPaymentData = {
                 useSavedPaymentMethod: true,
                 selectedSavedPaymentMethod: 'card_123',
@@ -35,6 +40,7 @@ describe('Payment Schema and Validation', () => {
         });
 
         it('should reject new card payment with missing fields', () => {
+            const paymentSchema = createPaymentSchema(t);
             const invalidNewCardData = {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
@@ -57,6 +63,7 @@ describe('Payment Schema and Validation', () => {
         });
 
         it('should reject saved payment without selected method', () => {
+            const paymentSchema = createPaymentSchema(t);
             const invalidSavedPaymentData = {
                 useSavedPaymentMethod: true,
                 selectedSavedPaymentMethod: undefined, // Missing
@@ -79,6 +86,7 @@ describe('Payment Schema and Validation', () => {
         });
 
         it('should validate card number format', () => {
+            const paymentSchema = createPaymentSchema(t);
             const invalidCardNumber = {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
@@ -101,6 +109,7 @@ describe('Payment Schema and Validation', () => {
         });
 
         it('should validate expiry date format', () => {
+            const paymentSchema = createPaymentSchema(t);
             const invalidExpiryDate = {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
@@ -123,6 +132,7 @@ describe('Payment Schema and Validation', () => {
         });
 
         it('should validate CVV length', () => {
+            const paymentSchema = createPaymentSchema(t);
             const invalidCVV = {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,

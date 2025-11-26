@@ -1,211 +1,234 @@
 import { z } from 'zod';
-import uiStrings from '@/temp-ui-string';
+import type { TFunction } from 'i18next';
 
-// Contact Info Schema
-export const contactInfoSchema = z.object({
-    email: z
-        .string()
-        .min(1, uiStrings.checkout.contactInfo.emailRequired)
-        .email(uiStrings.checkout.contactInfo.emailInvalid),
-    countryCode: z
-        .string()
-        .optional()
-        .refine((val) => !val || val.startsWith('+'), {
-            message: 'Country code must start with +',
-        }),
-    phone: z
-        .string()
-        .optional()
-        .refine((val) => !val || val.length >= 10, {
-            message: 'Phone number must be at least 10 digits',
-        }),
-});
+/**
+ * Checkout validation schemas using factory functions to prevent i18next race conditions.
+ *
+ * Factory pattern ensures t() is called at runtime (not module load time), avoiding
+ * validation messages showing as keys instead of translated text. Critical for RSC where
+ * client-side i18next initializes separately from server-side.
+ *
+ * @example
+ * const { t } = useTranslation(); // or getTranslation() or getTranslation(context)
+ * const contactInfoSchema = createContactInfoSchema(t);
+ * const shippingSchema = createShippingAddressSchema(t);
+ */
 
-// Shipping Address Schema
-export const shippingAddressSchema = z.object({
-    firstName: z.string().min(1, uiStrings.checkout.shippingAddress.firstNameRequired),
-    lastName: z.string().min(1, uiStrings.checkout.shippingAddress.lastNameRequired),
-    address1: z.string().min(1, uiStrings.checkout.shippingAddress.addressRequired),
-    address2: z.string().optional(),
-    city: z.string().min(1, uiStrings.checkout.shippingAddress.cityRequired),
-    stateCode: z.string().optional(), // Optional for international compatibility
-    postalCode: z.string().optional(), // Optional for international compatibility
-    phone: z.string().optional(),
-});
+// Contact Info Schema Factory
+export const createContactInfoSchema = (t: TFunction) => {
+    return z.object({
+        email: z.string().min(1, t('checkout:contactInfo.emailRequired')).email(t('checkout:contactInfo.emailInvalid')),
+        countryCode: z
+            .string()
+            .optional()
+            .refine((val) => !val || val.startsWith('+'), {
+                message: 'Country code must start with +',
+            }),
+        phone: z
+            .string()
+            .optional()
+            .refine((val) => !val || val.length >= 10, {
+                message: 'Phone number must be at least 10 digits',
+            }),
+    });
+};
 
-// Shipping Options Schema
-export const shippingOptionsSchema = z.object({
-    shippingMethodId: z.string().min(1, uiStrings.checkout.shippingOptions.selectRequired),
-});
+// Shipping Address Schema Factory
+export const createShippingAddressSchema = (t: TFunction) => {
+    return z.object({
+        firstName: z.string().min(1, t('checkout:shippingAddress.firstNameRequired')),
+        lastName: z.string().min(1, t('checkout:shippingAddress.lastNameRequired')),
+        address1: z.string().min(1, t('checkout:shippingAddress.addressRequired')),
+        address2: z.string().optional(),
+        city: z.string().min(1, t('checkout:shippingAddress.cityRequired')),
+        stateCode: z.string().optional(), // Optional for international compatibility
+        postalCode: z.string().optional(), // Optional for international compatibility
+        phone: z.string().optional(),
+    });
+};
 
-// Payment Schema with conditional billing validation. TBD: Revisit this to make this better
-export const paymentSchema = z
-    .object({
-        cardNumber: z.string().optional(),
-        cardholderName: z.string().optional(),
-        expiryDate: z.string().optional(),
-        cvv: z.string().optional(),
-        billingSameAsShipping: z.boolean(),
-        // Saved payment method fields
-        selectedSavedPaymentMethod: z.string().optional(),
-        useSavedPaymentMethod: z.boolean().optional(),
-        // Billing address fields (optional by default, conditionally required)
-        billingFirstName: z.string().optional(),
-        billingLastName: z.string().optional(),
-        billingAddress1: z.string().optional(),
-        billingAddress2: z.string().optional(),
-        billingCity: z.string().optional(),
-        billingStateCode: z.string().optional(),
-        billingPostalCode: z.string().optional(),
-        billingPhone: z.string().optional(),
-    })
-    .superRefine((data, ctx) => {
-        // If using saved payment method, skip all card validations
-        if (data.useSavedPaymentMethod && data.selectedSavedPaymentMethod) {
-            return; // No validation errors for saved payment methods
-        }
+// Shipping Options Schema Factory
+export const createShippingOptionsSchema = (t: TFunction) => {
+    return z.object({
+        shippingMethodId: z.string().min(1, t('checkout:shippingOptions.selectRequired')),
+    });
+};
 
-        // For new payment methods, validate all required fields
-
-        // Check that all required fields are present
-        if (!data.cardNumber?.trim()) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['cardNumber'],
-                message: 'Please fill in all payment fields or select a saved payment method',
-            });
-        }
-
-        if (!data.cardholderName?.trim()) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['cardholderName'],
-                message: 'Cardholder name is required',
-            });
-        }
-
-        if (!data.expiryDate?.trim()) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['expiryDate'],
-                message: 'Expiry date is required',
-            });
-        }
-
-        if (!data.cvv?.trim()) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['cvv'],
-                message: 'CVV is required',
-            });
-        }
-
-        // If basic validation fails, don't continue with detailed validation
-        if (!data.cardNumber?.trim() || !data.cardholderName?.trim() || !data.expiryDate?.trim() || !data.cvv?.trim()) {
-            return;
-        }
-
-        // Detailed card number validation
-        const cleanNumber = data.cardNumber.replace(/\D/g, '');
-        if (cleanNumber.length < 13 || cleanNumber.length > 19) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['cardNumber'],
-                message: uiStrings.checkout.payment.cardNumberInvalidLength,
-            });
-        } else {
-            // Luhn algorithm validation
-            const testCardNumbers = [
-                '4111111111111111',
-                '5555555555554444',
-                '378282246310005',
-                '30569309025904',
-                '6011111111111117',
-                '4000000000000002',
-                '1234567890123456789',
-                '123456789012345',
-                '12345678901234',
-                '1234567890123',
-            ];
-
-            if (!testCardNumbers.includes(cleanNumber)) {
-                let sum = 0;
-                let isEven = false;
-
-                for (let i = cleanNumber.length - 1; i >= 0; i--) {
-                    let digit = parseInt(cleanNumber[i]);
-                    if (isEven) {
-                        digit *= 2;
-                        if (digit > 9) digit -= 9;
-                    }
-                    sum += digit;
-                    isEven = !isEven;
-                }
-
-                const isValidLuhn = sum % 10 === 0;
-                if (!isValidLuhn && process.env.NODE_ENV !== 'development') {
-                    ctx.addIssue({
-                        code: 'custom',
-                        path: ['cardNumber'],
-                        message: uiStrings.checkout.payment.cardNumberInvalid,
-                    });
-                }
+// Payment Schema Factory with conditional billing validation
+export const createPaymentSchema = (t: TFunction) => {
+    return z
+        .object({
+            cardNumber: z.string().optional(),
+            cardholderName: z.string().optional(),
+            expiryDate: z.string().optional(),
+            cvv: z.string().optional(),
+            billingSameAsShipping: z.boolean(),
+            // Saved payment method fields
+            selectedSavedPaymentMethod: z.string().optional(),
+            useSavedPaymentMethod: z.boolean().optional(),
+            // Billing address fields (optional by default, conditionally required)
+            billingFirstName: z.string().optional(),
+            billingLastName: z.string().optional(),
+            billingAddress1: z.string().optional(),
+            billingAddress2: z.string().optional(),
+            billingCity: z.string().optional(),
+            billingStateCode: z.string().optional(),
+            billingPostalCode: z.string().optional(),
+            billingPhone: z.string().optional(),
+        })
+        .superRefine((data, ctx) => {
+            // If using saved payment method, skip all card validations
+            if (data.useSavedPaymentMethod && data.selectedSavedPaymentMethod) {
+                return; // No validation errors for saved payment methods
             }
-        }
 
-        // Expiry date validation
-        const formatMatch = /^(0[1-9]|1[0-2])\/\d{2}$/.test(data.expiryDate);
-        if (!formatMatch) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['expiryDate'],
-                message: uiStrings.checkout.payment.expiryInvalid,
-            });
-        } else {
-            const [month, year] = data.expiryDate.split('/');
-            const currentDate = new Date();
-            const currentYear = currentDate.getFullYear() % 100;
-            const currentMonth = currentDate.getMonth() + 1;
-            const expYear = parseInt(year, 10);
-            const expMonth = parseInt(month, 10);
+            // For new payment methods, validate all required fields
 
-            if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+            // Check that all required fields are present
+            if (!data.cardNumber?.trim()) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['cardNumber'],
+                    message: 'Please fill in all payment fields or select a saved payment method',
+                });
+            }
+
+            if (!data.cardholderName?.trim()) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['cardholderName'],
+                    message: 'Cardholder name is required',
+                });
+            }
+
+            if (!data.expiryDate?.trim()) {
                 ctx.addIssue({
                     code: 'custom',
                     path: ['expiryDate'],
-                    message: uiStrings.checkout.payment.expiryInvalid,
+                    message: 'Expiry date is required',
                 });
             }
-        }
 
-        // CVV validation
-        const digits = data.cvv.replace(/\D/g, '');
-        if (digits.length < 3 || digits.length > 4 || digits !== data.cvv) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['cvv'],
-                message: uiStrings.checkout.payment.cvvInvalidFormat,
-            });
-        }
-    })
-    .refine(
-        (data) => {
-            // If billing is NOT same as shipping, require billing address fields
-            if (!data.billingSameAsShipping) {
-                return (
-                    data.billingFirstName?.trim() &&
-                    data.billingLastName?.trim() &&
-                    data.billingAddress1?.trim() &&
-                    data.billingCity?.trim()
-                );
+            if (!data.cvv?.trim()) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['cvv'],
+                    message: 'CVV is required',
+                });
             }
-            return true;
-        },
-        {
-            message: uiStrings.checkout.payment.billingAddressRequired,
-            path: ['billingFirstName'], // Show error on first name field
-        }
-    );
+
+            // If basic validation fails, don't continue with detailed validation
+            if (
+                !data.cardNumber?.trim() ||
+                !data.cardholderName?.trim() ||
+                !data.expiryDate?.trim() ||
+                !data.cvv?.trim()
+            ) {
+                return;
+            }
+
+            // Detailed card number validation
+            const cleanNumber = data.cardNumber.replace(/\D/g, '');
+            if (cleanNumber.length < 13 || cleanNumber.length > 19) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['cardNumber'],
+                    message: t('checkout:payment.cardNumberInvalidLength'),
+                });
+            } else {
+                // Luhn algorithm validation
+                const testCardNumbers = [
+                    '4111111111111111',
+                    '5555555555554444',
+                    '378282246310005',
+                    '30569309025904',
+                    '6011111111111117',
+                    '4000000000000002',
+                    '1234567890123456789',
+                    '123456789012345',
+                    '12345678901234',
+                    '1234567890123',
+                ];
+
+                if (!testCardNumbers.includes(cleanNumber)) {
+                    let sum = 0;
+                    let isEven = false;
+
+                    for (let i = cleanNumber.length - 1; i >= 0; i--) {
+                        let digit = parseInt(cleanNumber[i]);
+                        if (isEven) {
+                            digit *= 2;
+                            if (digit > 9) digit -= 9;
+                        }
+                        sum += digit;
+                        isEven = !isEven;
+                    }
+
+                    const isValidLuhn = sum % 10 === 0;
+                    if (!isValidLuhn && process.env.NODE_ENV !== 'development') {
+                        ctx.addIssue({
+                            code: 'custom',
+                            path: ['cardNumber'],
+                            message: t('checkout:payment.cardNumberInvalid'),
+                        });
+                    }
+                }
+            }
+
+            // Expiry date validation
+            const formatMatch = /^(0[1-9]|1[0-2])\/\d{2}$/.test(data.expiryDate);
+            if (!formatMatch) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['expiryDate'],
+                    message: t('checkout:payment.expiryInvalid'),
+                });
+            } else {
+                const [month, year] = data.expiryDate.split('/');
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear() % 100;
+                const currentMonth = currentDate.getMonth() + 1;
+                const expYear = parseInt(year, 10);
+                const expMonth = parseInt(month, 10);
+
+                if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+                    ctx.addIssue({
+                        code: 'custom',
+                        path: ['expiryDate'],
+                        message: t('checkout:payment.expiryInvalid'),
+                    });
+                }
+            }
+
+            // CVV validation
+            const digits = data.cvv.replace(/\D/g, '');
+            if (digits.length < 3 || digits.length > 4 || digits !== data.cvv) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['cvv'],
+                    message: t('checkout:payment.cvvInvalidFormat'),
+                });
+            }
+        })
+        .refine(
+            (data) => {
+                // If billing is NOT same as shipping, require billing address fields
+                if (!data.billingSameAsShipping) {
+                    return (
+                        data.billingFirstName?.trim() &&
+                        data.billingLastName?.trim() &&
+                        data.billingAddress1?.trim() &&
+                        data.billingCity?.trim()
+                    );
+                }
+                return true;
+            },
+            {
+                message: t('checkout:payment.billingAddressRequired'),
+                path: ['billingFirstName'], // Show error on first name field
+            }
+        );
+};
 
 // Default values generators
 export const getPaymentDefaultValues = (params: {
@@ -297,8 +320,8 @@ export const parsePaymentFromFormData = (formData: FormData): PaymentData => {
     };
 };
 
-// Type exports - These are TypeScript data models, not browser FormData objects
-export type ContactInfoData = z.infer<typeof contactInfoSchema>;
-export type ShippingAddressData = z.infer<typeof shippingAddressSchema>;
-export type ShippingOptionsData = z.infer<typeof shippingOptionsSchema>;
-export type PaymentData = z.infer<typeof paymentSchema>;
+// Type exports - Infer from factory functions
+export type ContactInfoData = z.infer<ReturnType<typeof createContactInfoSchema>>;
+export type ShippingAddressData = z.infer<ReturnType<typeof createShippingAddressSchema>>;
+export type ShippingOptionsData = z.infer<ReturnType<typeof createShippingOptionsSchema>>;
+export type PaymentData = z.infer<ReturnType<typeof createPaymentSchema>>;

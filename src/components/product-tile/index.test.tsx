@@ -2,6 +2,9 @@ import { vi, test, describe, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import { ProductTile } from './index';
 import { type ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { ConfigWrapper } from '@/test-utils/config';
@@ -31,14 +34,6 @@ vi.mock('@/lib/product-badges', () => ({
         hasBadges: true,
         badges: [{ label: 'Sale' }, { label: 'New' }],
     })),
-}));
-
-vi.mock('@/temp-ui-string', () => ({
-    default: {
-        product: {
-            moreOptions: 'More Options',
-        },
-    },
 }));
 
 const mockNavigate = vi.fn();
@@ -125,7 +120,7 @@ describe('ProductTile', () => {
 
         expect(screen.getByText('Test Product')).toBeInTheDocument();
         expect(screen.getByText('$99.99')).toBeInTheDocument();
-        expect(screen.getByText('More Options')).toBeInTheDocument();
+        expect(screen.getByText(t('product:moreOptions'))).toBeInTheDocument();
     });
 
     test('displays product badges', () => {
@@ -142,7 +137,9 @@ describe('ProductTile', () => {
         const swatches = screen
             .getAllByRole('button')
             .filter(
-                (button) => button.className.includes('cursor-pointer') && !button.textContent?.includes('More Options')
+                (button) =>
+                    button.className.includes('cursor-pointer') &&
+                    !button.textContent?.includes(t('product:moreOptions'))
             );
 
         if (swatches.length > 0) {
@@ -159,7 +156,9 @@ describe('ProductTile', () => {
         const swatches = screen
             .getAllByRole('button')
             .filter(
-                (button) => button.className.includes('cursor-pointer') && !button.textContent?.includes('More Options')
+                (button) =>
+                    button.className.includes('cursor-pointer') &&
+                    !button.textContent?.includes(t('product:moreOptions'))
             );
 
         if (swatches.length >= 2) {
@@ -189,7 +188,9 @@ describe('ProductTile', () => {
         const swatches = screen
             .getAllByRole('button')
             .filter(
-                (button) => button.className.includes('cursor-pointer') && !button.textContent?.includes('More Options')
+                (button) =>
+                    button.className.includes('cursor-pointer') &&
+                    !button.textContent?.includes(t('product:moreOptions'))
             );
 
         if (swatches.length > 1) {
@@ -197,7 +198,7 @@ describe('ProductTile', () => {
         }
 
         // Then click More Options button
-        const moreOptionsButton = screen.getByText('More Options');
+        const moreOptionsButton = screen.getByText(t('product:moreOptions'));
         await user.click(moreOptionsButton);
 
         expect(mockNavigate).toHaveBeenCalledWith('/product/test-product');
@@ -209,7 +210,9 @@ describe('ProductTile', () => {
         const swatches = screen
             .getAllByRole('button')
             .filter(
-                (button) => button.className.includes('cursor-pointer') && !button.textContent?.includes('More Options')
+                (button) =>
+                    button.className.includes('cursor-pointer') &&
+                    !button.textContent?.includes(t('product:moreOptions'))
             );
 
         // Should only show 2 swatches (maxSwatches prop)

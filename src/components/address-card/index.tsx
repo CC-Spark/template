@@ -6,13 +6,13 @@
  */
 
 import { type ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/spinner';
 import AddressDisplay from '@/components/address-display';
 import type { ShopperCustomersTypes } from 'commerce-sdk-isomorphic';
-import uiStrings from '@/temp-ui-string';
 
 interface AddressCardProps {
     /** The address data to display */
@@ -54,6 +54,7 @@ export default function AddressCard({
     isPreferred = false,
     isRemoving = false,
 }: AddressCardProps): ReactElement {
+    const { t } = useTranslation(['account', 'actionCard']);
     return (
         <Card className="border-border gap-0 py-4 relative">
             <CardHeader>
@@ -61,7 +62,7 @@ export default function AddressCard({
                 <CardAction>
                     {isPreferred && (
                         <Badge variant="default" className="text-xs">
-                            {uiStrings.account.addresses.preferred}
+                            {t('account:addresses.preferred')}
                         </Badge>
                     )}
                 </CardAction>
@@ -77,8 +78,8 @@ export default function AddressCard({
                             variant="link"
                             size="sm"
                             className="font-bold"
-                            aria-label={uiStrings.actionCard.edit}>
-                            {uiStrings.actionCard.edit}
+                            aria-label={t('actionCard:edit')}>
+                            {t('actionCard:edit')}
                         </Button>
                     )}
                     {onRemove && (
@@ -87,9 +88,9 @@ export default function AddressCard({
                             variant="link"
                             size="sm"
                             className="text-destructive hover:text-destructive font-bold"
-                            aria-label={uiStrings.actionCard.remove}
+                            aria-label={t('actionCard:remove')}
                             disabled={isRemoving}>
-                            {uiStrings.actionCard.remove}
+                            {t('actionCard:remove')}
                         </Button>
                     )}
                 </CardFooter>

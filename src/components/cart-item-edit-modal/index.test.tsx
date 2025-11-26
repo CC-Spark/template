@@ -2,6 +2,9 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // React Router
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -13,7 +16,6 @@ import { CartItemEditModal } from './index';
 import { variantProduct } from '@/components/__mocks__/master-variant-product';
 
 // Utils
-import uiStrings from '@/temp-ui-string';
 import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 // Mock useScapiFetcher to prevent actual API calls
@@ -65,14 +67,14 @@ describe('CartItemEditModal', () => {
         renderCartItemEditModal(defaultProps);
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.editItem.title)).toBeInTheDocument();
+        expect(screen.getByText(t('editItem:title'))).toBeInTheDocument();
     });
 
     test('does not render modal when open is false', () => {
         renderCartItemEditModal({ ...defaultProps, open: false });
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-        expect(screen.queryByText(uiStrings.editItem.title)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('editItem:title'))).not.toBeInTheDocument();
     });
 
     test('displays product name in modal content', () => {
@@ -96,7 +98,7 @@ describe('CartItemEditModal', () => {
     test('displays correct dialog title', () => {
         renderCartItemEditModal(defaultProps);
 
-        expect(screen.getByText(uiStrings.editItem.title)).toBeInTheDocument();
+        expect(screen.getByText(t('editItem:title'))).toBeInTheDocument();
     });
 
     test('maintains accessibility with proper ARIA attributes', () => {
@@ -106,7 +108,7 @@ describe('CartItemEditModal', () => {
         expect(dialog).toBeInTheDocument();
 
         // Check for dialog title
-        const title = screen.getByText(uiStrings.editItem.title);
+        const title = screen.getByText(t('editItem:title'));
         expect(title).toBeInTheDocument();
     });
 });

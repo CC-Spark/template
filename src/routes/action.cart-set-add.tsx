@@ -10,9 +10,9 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
+import { getTranslation } from '@/lib/i18next';
 
 async function addMultipleItemsToCart(
     context: ActionFunctionArgs['context'],
@@ -26,6 +26,7 @@ async function addMultipleItemsToCart(
     basket?: ShopperBasketsV2.schemas['Basket'];
     error?: string;
 }> {
+    const { t } = getTranslation();
     const basket = getBasket(context);
     const basketId = basket?.basketId;
 
@@ -33,7 +34,7 @@ async function addMultipleItemsToCart(
         // This state should never happen as it would indicate that the basket middleware is broken
         return {
             success: false,
-            error: uiStrings.errors.noBasketFound,
+            error: t('errors:noBasketFound'),
         };
     }
 
@@ -91,8 +92,10 @@ async function addMultipleItemsToCart(
  * Client action to add multiple items to the cart (for product sets).
  */
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     if (request.method !== 'POST') {
-        throw new Response(uiStrings.product.methodNotAllowed, { status: 405 });
+        throw new Response(t('product:methodNotAllowed'), { status: 405 });
     }
 
     try {
@@ -100,7 +103,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         const productItemsJson = formData.get('productItems') as string;
 
         if (!productItemsJson) {
-            throw new Error(uiStrings.product.productItemsRequired);
+            throw new Error(t('product:productItemsRequired'));
         }
 
         const productItems = JSON.parse(productItemsJson);

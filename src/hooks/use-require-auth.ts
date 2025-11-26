@@ -9,9 +9,9 @@
 
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/auth';
 import { useToast } from '@/components/toast';
-import uiStrings from '@/temp-ui-string';
 
 export interface RequireAuthOptions {
     actionName: string;
@@ -46,6 +46,7 @@ export function useRequireAuth<T extends (...args: unknown[]) => Promise<unknown
     action: T,
     options: RequireAuthOptions
 ): T {
+    const { t } = useTranslation();
     const session = useAuth();
     const navigate = useNavigate();
     const { addToast } = useToast();
@@ -85,16 +86,16 @@ export function useRequireAuth<T extends (...args: unknown[]) => Promise<unknown
             const signupUrl = baseAuthUrl('/signup');
 
             // Show toast with Sign In and Sign Up buttons
-            addToast(options.toastMessage || uiStrings.product.signInToContinue, 'info', {
+            addToast(options.toastMessage || t('product:signInToContinue'), 'info', {
                 duration: 8000, // Longer duration for actionable toast
                 action: {
-                    label: uiStrings.header.signIn,
+                    label: t('login:signIn'),
                     onClick: () => {
                         void navigate(loginUrl);
                     },
                 },
                 cancel: {
-                    label: uiStrings.login.signUp || 'Sign Up',
+                    label: t('signup:signIn'),
                     onClick: () => {
                         void navigate(signupUrl);
                     },
@@ -105,6 +106,6 @@ export function useRequireAuth<T extends (...args: unknown[]) => Promise<unknown
             // Note: This error is internal and won't be displayed to users
             return Promise.reject(new Error('Authentication required'));
         },
-        [session, action, options, navigate, addToast]
+        [session, action, options, navigate, addToast, t]
     ) as T;
 }

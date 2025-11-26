@@ -1,17 +1,20 @@
 import type { ActionFunctionArgs } from 'react-router';
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
-import { paymentSchema, parsePaymentFromFormData } from '@/lib/checkout-schemas';
+import { createPaymentSchema, parsePaymentFromFormData } from '@/lib/checkout-schemas';
 import { addPaymentInstrumentToBasket, updateBillingAddressForBasket } from '@/lib/api/basket';
 import { detectCardType } from '@/lib/payment-utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 export async function clientAction({ request, context }: ActionFunctionArgs) {
+    const { t } = getTranslation();
+
     const formData = await request.formData();
 
     // Parse and validate using shared schema
     // This ensures server-side validation matches client-side validation exactly
     const paymentData = parsePaymentFromFormData(formData);
 
+    const paymentSchema = createPaymentSchema(t);
     const result = paymentSchema.safeParse(paymentData);
 
     if (!result.success) {
@@ -104,7 +107,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             return Response.json(
                 {
                     success: false,
-                    error: uiStrings.errors.api.basketNotFound,
+                    error: t('errors:api.basketNotFound'),
                     step: 'payment',
                 },
                 { status: 400 }
@@ -157,7 +160,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         return Response.json(
             {
                 success: false,
-                error: uiStrings.errors.checkout.paymentProcessingFailed,
+                error: t('errors:checkout.paymentProcessingFailed'),
                 step: 'payment',
             },
             { status: 500 }

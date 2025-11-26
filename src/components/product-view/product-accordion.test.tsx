@@ -1,3 +1,6 @@
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 /*
  * Copyright (c) 2025, Salesforce, Inc.
  * All rights reserved.
@@ -15,8 +18,6 @@ import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi'
 import { createMemoryRouter, RouterProvider } from 'react-router';
 // Components
 import ProductAccordion from './product-accordion';
-import uiStrings from '@/temp-ui-string';
-
 const renderProductAccordion = (props: React.ComponentProps<typeof ProductAccordion>) => {
     // Using createMemoryRouter in framework mode is fine
     // because both framework and data routers share the same underlying architecture, so it provides a valid navigation context for hooks and <Link>.
@@ -55,10 +56,10 @@ describe('ProductAccordion', () => {
         test('should render accordion with all sections', () => {
             renderProductAccordion({ product: basicProduct });
 
-            expect(screen.getByText(uiStrings.product.productDetails)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.sizeAndFit)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.shippingAndReturns)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.reviews)).toBeInTheDocument();
+            expect(screen.getByText(t('product:productDetails'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:sizeAndFit'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:shippingAndReturns'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:reviews'))).toBeInTheDocument();
         });
 
         test('should render all accordion triggers with correct text', () => {
@@ -67,23 +68,23 @@ describe('ProductAccordion', () => {
             const triggers = screen.getAllByRole('button', { expanded: false });
             expect(triggers).toHaveLength(4); // 4 main sections
 
-            expect(screen.getByText(uiStrings.product.productDetails)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.sizeAndFit)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.shippingAndReturns)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.reviews)).toBeInTheDocument();
+            expect(screen.getByText(t('product:productDetails'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:sizeAndFit'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:shippingAndReturns'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:reviews'))).toBeInTheDocument();
         });
 
         test('should render care instructions section for item type products', () => {
             renderProductAccordion({ product: detailedProduct });
 
-            expect(screen.getByText(uiStrings.product.careInstructions)).toBeInTheDocument();
+            expect(screen.getByText(t('product:careInstructions'))).toBeInTheDocument();
         });
 
         test('should not render care instructions section for non-item products', () => {
             const nonItemProduct = { ...basicProduct, type: { set: true } };
             renderProductAccordion({ product: nonItemProduct });
 
-            expect(screen.queryByText(uiStrings.product.careInstructions)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:careInstructions'))).not.toBeInTheDocument();
         });
     });
 
@@ -93,7 +94,7 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: detailedProduct });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
             expect(screen.getByText('This is a detailed long description of the product.')).toBeInTheDocument();
         });
@@ -103,7 +104,7 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: basicProduct });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
             expect(screen.getByText('Test short description')).toBeInTheDocument();
         });
@@ -118,9 +119,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: productWithoutDescription });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
-            expect(screen.getByText(uiStrings.product.noDetailedDescription)).toBeInTheDocument();
+            expect(screen.getByText(t('product:noDetailedDescription'))).toBeInTheDocument();
         });
 
         test('should display brand information when available', async () => {
@@ -128,9 +129,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: detailedProduct });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
-            expect(screen.getByText(uiStrings.product.brand)).toBeInTheDocument();
+            expect(screen.getByText(t('product:brand'))).toBeInTheDocument();
             expect(screen.getByText('Test Brand')).toBeInTheDocument();
         });
 
@@ -139,9 +140,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: detailedProduct });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
-            expect(screen.getByText(uiStrings.product.manufacturer)).toBeInTheDocument();
+            expect(screen.getByText(t('product:manufacturer'))).toBeInTheDocument();
             expect(screen.getByText('Test Manufacturer')).toBeInTheDocument();
         });
 
@@ -150,9 +151,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: detailedProduct });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
-            expect(screen.getByText(uiStrings.product.sku)).toBeInTheDocument();
+            expect(screen.getByText(t('product:sku'))).toBeInTheDocument();
             expect(screen.getByText('TEST-SKU-123')).toBeInTheDocument();
         });
 
@@ -161,11 +162,11 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: basicProduct });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
-            expect(screen.queryByText(uiStrings.product.brand)).not.toBeInTheDocument();
-            expect(screen.queryByText(uiStrings.product.manufacturer)).not.toBeInTheDocument();
-            expect(screen.queryByText(uiStrings.product.sku)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:brand'))).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:manufacturer'))).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:sku'))).not.toBeInTheDocument();
         });
     });
 
@@ -175,9 +176,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: basicProduct });
 
             // Open the Size & Fit accordion
-            await user.click(screen.getByText(uiStrings.product.sizeAndFit));
+            await user.click(screen.getByText(t('product:sizeAndFit')));
 
-            expect(screen.getByText(uiStrings.product.sizeAndFitComingSoon)).toBeInTheDocument();
+            expect(screen.getByText(t('product:sizeAndFitComingSoon'))).toBeInTheDocument();
         });
     });
 
@@ -187,12 +188,12 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: basicProduct });
 
             // Open the Shipping & Returns accordion
-            await user.click(screen.getByText(uiStrings.product.shippingAndReturns));
+            await user.click(screen.getByText(t('product:shippingAndReturns')));
 
-            expect(screen.getByText(uiStrings.product.freeShipping)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.standardShipping)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.expressShipping)).toBeInTheDocument();
-            expect(screen.getByText(uiStrings.product.returns)).toBeInTheDocument();
+            expect(screen.getByText(t('product:freeShipping'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:standardShipping'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:expressShipping'))).toBeInTheDocument();
+            expect(screen.getByText(t('product:returns'))).toBeInTheDocument();
         });
     });
 
@@ -202,9 +203,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: basicProduct });
 
             // Open the Reviews accordion
-            await user.click(screen.getByText(uiStrings.product.reviews));
+            await user.click(screen.getByText(t('product:reviews')));
 
-            expect(screen.getByText(uiStrings.product.reviewsComingSoon)).toBeInTheDocument();
+            expect(screen.getByText(t('product:reviewsComingSoon'))).toBeInTheDocument();
         });
     });
 
@@ -214,9 +215,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: detailedProduct });
 
             // Open the Care Instructions accordion
-            await user.click(screen.getByText(uiStrings.product.careInstructions));
+            await user.click(screen.getByText(t('product:careInstructions')));
 
-            expect(screen.getByText(uiStrings.product.careInstructionsComingSoon)).toBeInTheDocument();
+            expect(screen.getByText(t('product:careInstructionsComingSoon'))).toBeInTheDocument();
         });
     });
 
@@ -225,14 +226,14 @@ describe('ProductAccordion', () => {
             const productWithoutType = { ...basicProduct, type: undefined };
             renderProductAccordion({ product: productWithoutType });
 
-            expect(screen.queryByText(uiStrings.product.careInstructions)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:careInstructions'))).not.toBeInTheDocument();
         });
 
         test('should handle product with empty type object', () => {
             const productWithEmptyType = { ...basicProduct, type: {} };
             renderProductAccordion({ product: productWithEmptyType });
 
-            expect(screen.queryByText(uiStrings.product.careInstructions)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:careInstructions'))).not.toBeInTheDocument();
         });
 
         test('should handle product with null values', async () => {
@@ -247,11 +248,11 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: productWithNulls });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
-            expect(screen.queryByText(uiStrings.product.brand)).not.toBeInTheDocument();
-            expect(screen.queryByText(uiStrings.product.manufacturer)).not.toBeInTheDocument();
-            expect(screen.queryByText(uiStrings.product.sku)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:brand'))).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:manufacturer'))).not.toBeInTheDocument();
+            expect(screen.queryByText(t('product:sku'))).not.toBeInTheDocument();
         });
 
         test('should handle empty strings for product attributes', async () => {
@@ -267,9 +268,9 @@ describe('ProductAccordion', () => {
             renderProductAccordion({ product: productWithEmptyStrings });
 
             // Open the Product Details accordion
-            await user.click(screen.getByText(uiStrings.product.productDetails));
+            await user.click(screen.getByText(t('product:productDetails')));
 
-            expect(screen.getByText(uiStrings.product.noDetailedDescription)).toBeInTheDocument();
+            expect(screen.getByText(t('product:noDetailedDescription'))).toBeInTheDocument();
         });
     });
 });

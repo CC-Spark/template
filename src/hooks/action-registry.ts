@@ -5,9 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
+import { getTranslation } from '@/lib/i18next';
 import type { useToast } from '@/components/toast';
-import uiStrings from '@/temp-ui-string';
-
 /**
  * Type definition for action response
  */
@@ -57,10 +56,11 @@ export const actionRegistry: Record<string, ActionHandler> = {
             return formData;
         },
         handleSuccess: (result, _params, addToast) => {
+            const { t } = getTranslation();
             if ((result as { alreadyInWishlist?: boolean }).alreadyInWishlist) {
-                addToast(uiStrings.product.itemAlreadyInWishlist, 'info');
+                addToast(t('product:itemAlreadyInWishlist'), 'info');
             } else {
-                addToast(uiStrings.product.addedToWishlistGeneric, 'success');
+                addToast(t('product:addedToWishlistGeneric'), 'success');
             }
         },
         handleError: (result, _params, addToast) => {

@@ -7,7 +7,7 @@ vi.mock('@/config', () => ({
     getConfig: vi.fn(() => ({
         i18n: {
             fallbackLng: 'en',
-            supportedLngs: ['en', 'es'],
+            supportedLngs: ['es', 'en'], // Fallback language should be last
         },
     })),
 }));
@@ -28,27 +28,30 @@ vi.mock('@/locales/es/index.ts', () => ({
 }));
 
 describe('i18next.client', () => {
-    beforeEach(async () => {
-        // Create a fresh i18next instance for each test
-        await i18next.init({
-            lng: 'en',
-            fallbackLng: 'en',
-            ns: [],
-            defaultNS: false,
-        });
+    let testInstance: ReturnType<typeof i18next.createInstance>;
+
+    beforeEach(() => {
+        // Create a fresh isolated i18next instance for each test
+        testInstance = i18next.createInstance();
     });
 
     describe('initI18next', () => {
-        it('should return the i18next instance', () => {
+        it('should return the global i18next instance when no instance is provided', () => {
             const result = initI18next();
 
             expect(result).toBe(i18next);
         });
 
-        it('should initialize with correct configuration', () => {
-            const initSpy = vi.spyOn(i18next, 'init');
+        it('should return the provided instance when an instance is passed', () => {
+            const result = initI18next(testInstance);
 
-            initI18next();
+            expect(result).toBe(testInstance);
+        });
+
+        it('should initialize with correct configuration', () => {
+            const initSpy = vi.spyOn(testInstance, 'init');
+
+            initI18next(testInstance);
 
             const callArgs = initSpy.mock.calls[0][0];
             expect(callArgs).toBeDefined();
@@ -63,79 +66,74 @@ describe('i18next.client', () => {
     });
 
     describe('dynamic import backend behavior', () => {
-        it('should load all namespaces for a language when a translation is requested', async () => {
-            const i18n = initI18next();
+        beforeEach(() => {
+            // Initialize the test instance using initI18next
+            initI18next(testInstance);
+        });
 
+        it('should load all namespaces for a language when a translation is requested', async () => {
             // Request a translation that will trigger loading
-            await i18n.loadNamespaces('translations');
+            await testInstance.loadNamespaces('translations');
 
             // Verify all namespaces for English are now in the store
-            expect(i18n.store.data.en?.translations).toEqual({
+            expect(testInstance.store.data.en?.translations).toEqual({
                 hello: 'Hello',
                 welcome: 'Welcome',
             });
-            expect(i18n.store.data.en?.common).toEqual({
+            expect(testInstance.store.data.en?.common).toEqual({
                 yes: 'Yes',
                 no: 'No',
             });
         });
 
         it('should load translations for different languages', async () => {
-            const i18n = initI18next();
-
             // Change language to Spanish
-            await i18n.changeLanguage('es');
-            await i18n.loadNamespaces('translations');
+            await testInstance.changeLanguage('es');
+            await testInstance.loadNamespaces('translations');
 
             // Verify Spanish translations are in the store
-            expect(i18n.store.data.es?.translations).toEqual({
+            expect(testInstance.store.data.es?.translations).toEqual({
                 hello: 'Hola',
                 welcome: 'Bienvenido',
             });
-            expect(i18n.store.data.es?.common).toEqual({
+            expect(testInstance.store.data.es?.common).toEqual({
                 yes: 'Sí',
                 no: 'No',
             });
         });
 
         it('should handle non-existent namespace gracefully', async () => {
-            const i18n = initI18next();
-
             // Load a namespace that doesn't exist in the mocked translations
-            await i18n.loadNamespaces('nonexistent-namespace');
+            await testInstance.loadNamespaces('nonexistent-namespace');
 
             // Verify empty or undefined data for the nonexistent namespace
-            const data = i18n.store.data.en?.['nonexistent-namespace'];
+            const data = testInstance.store.data.en?.['nonexistent-namespace'];
             expect(data).toEqual({});
         });
 
         it('should handle import errors gracefully', async () => {
-            const i18n = initI18next();
-
             // Try to load a language that doesn't exist
-            await i18n.changeLanguage('fr');
+            await testInstance.changeLanguage('fr');
 
             // Attempt to load - this will fail but should not crash
             try {
-                await i18n.loadNamespaces('translations');
+                await testInstance.loadNamespaces('translations');
             } catch (error) {
                 // Expected to catch an error for a non-existent language
                 expect(error).toBeDefined();
             }
 
             // Verify the store doesn't have French translations
-            expect(i18n.store.data.fr?.translations).toBeUndefined();
+            expect(testInstance.store.data.fr?.translations).toBeUndefined();
         });
 
         it('should load multiple namespaces at once', async () => {
-            const i18n = initI18next();
-
             // Load multiple namespaces
-            await i18n.loadNamespaces(['translations', 'common']);
+            await testInstance.loadNamespaces(['translations', 'common']);
 
             // Verify both are in the store
-            expect(i18n.store.data.en?.translations).toBeDefined();
-            expect(i18n.store.data.en?.common).toBeDefined();
+            expect(testInstance.store.data.en?.translations).toBeDefined();
+            expect(testInstance.store.data.en?.common).toBeDefined();
         });
     });
 });

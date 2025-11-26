@@ -1,16 +1,17 @@
-import uiStrings from '@/temp-ui-string';
+import type translations from '@/locales/en/translations.json';
 
-// Type for country code
-export type CountryCode = keyof typeof uiStrings.countries;
+// Derive country codes from translations.json
+export type CountryCode = keyof typeof translations.countries;
 
-// Type for state/province code
-export type StateCode<T extends CountryCode> = keyof (typeof uiStrings.countries)[T]['states'];
+// Derive state codes from translations.json
+type USStateCode = keyof typeof translations.countries.US.states;
+type CAStateCode = keyof typeof translations.countries.CA.states;
 
-// Get countries list
-export const COUNTRIES = Object.entries(uiStrings.countries).map(([code, data]) => ({
-    code: code as CountryCode,
-    name: data.name,
-}));
+// Type for state/province code based on country
+export type StateCode<T extends CountryCode> = T extends 'US' ? USStateCode : T extends 'CA' ? CAStateCode : never;
+
+// List of supported country codes (names are retrieved from i18next at runtime)
+export const COUNTRY_CODES: readonly CountryCode[] = ['US', 'CA'] as const;
 
 // US Postal Code validation (5 digits or 5+4 format)
 export const usPostalCodeRegex = /^\d{5}(-\d{4})?$/;

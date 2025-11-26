@@ -2,9 +2,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider, type FetcherWithComponents } from 'react-router';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import CartQuantityPicker from './cart-quantity-picker';
 import { useCartQuantityUpdate } from '@/hooks/use-cart-quantity-update';
-import uiStrings from '@/temp-ui-string';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
@@ -66,7 +68,7 @@ describe('CartQuantityPicker', () => {
     test('renders quantity picker with correct label and value', () => {
         renderComponent(defaultProps);
 
-        expect(screen.getByText(uiStrings.quantitySelector.quantity)).toBeInTheDocument();
+        expect(screen.getByText(t('quantitySelector:quantity'))).toBeInTheDocument();
         expect(screen.getByDisplayValue('2')).toBeInTheDocument();
     });
 
@@ -116,16 +118,16 @@ describe('CartQuantityPicker', () => {
 
         renderComponent(defaultProps);
 
-        expect(screen.getByText(uiStrings.removeItem.confirmTitle)).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.cart.removeItemConfirmDescription)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: uiStrings.removeItem.keepItemAriaLabel })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: uiStrings.removeItem.removeItemAriaLabel })).toBeInTheDocument();
+        expect(screen.getByText(t('removeItem:confirmTitle'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:removeItemConfirmDescription'))).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('removeItem:keepItemAriaLabel') })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('removeItem:removeItemAriaLabel') })).toBeInTheDocument();
     });
 
     test('does not show remove confirmation dialog when showRemoveConfirmation is false', () => {
         renderComponent(defaultProps);
 
-        expect(screen.queryByText(uiStrings.removeItem.confirmTitle)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('removeItem:confirmTitle'))).not.toBeInTheDocument();
     });
 
     test('calls handleKeepItem when keep item button is clicked', async () => {
@@ -144,7 +146,7 @@ describe('CartQuantityPicker', () => {
 
         renderComponent(defaultProps);
 
-        const keepButton = screen.getByRole('button', { name: uiStrings.removeItem.keepItemAriaLabel });
+        const keepButton = screen.getByRole('button', { name: t('removeItem:keepItemAriaLabel') });
         await user.click(keepButton);
 
         expect(mockHandleKeepItem).toHaveBeenCalledTimes(1);
@@ -166,7 +168,7 @@ describe('CartQuantityPicker', () => {
 
         renderComponent(defaultProps);
 
-        const removeButton = screen.getByRole('button', { name: uiStrings.removeItem.removeItemAriaLabel });
+        const removeButton = screen.getByRole('button', { name: t('removeItem:removeItemAriaLabel') });
         await user.click(removeButton);
 
         expect(mockHandleRemoveItem).toHaveBeenCalledTimes(1);
@@ -224,11 +226,11 @@ describe('CartQuantityPicker', () => {
 
         renderComponent(defaultProps);
 
-        const keepButton = screen.getByRole('button', { name: uiStrings.removeItem.keepItemAriaLabel });
-        const removeButton = screen.getByRole('button', { name: uiStrings.removeItem.removeItemAriaLabel });
+        const keepButton = screen.getByRole('button', { name: t('removeItem:keepItemAriaLabel') });
+        const removeButton = screen.getByRole('button', { name: t('removeItem:removeItemAriaLabel') });
 
-        expect(keepButton).toHaveAttribute('aria-label', uiStrings.removeItem.keepItemAriaLabel);
-        expect(removeButton).toHaveAttribute('aria-label', uiStrings.removeItem.removeItemAriaLabel);
+        expect(keepButton).toHaveAttribute('aria-label', t('removeItem:keepItemAriaLabel'));
+        expect(removeButton).toHaveAttribute('aria-label', t('removeItem:removeItemAriaLabel'));
     });
 
     test('handles quantity changes through QuantityPicker', async () => {

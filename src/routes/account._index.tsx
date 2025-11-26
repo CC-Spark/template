@@ -5,13 +5,13 @@ import { AccountDetailSkeleton } from '@/components/account-detail-skeleton';
 import { PasswordUpdateForm } from '@/components/password-update-form';
 import { CustomerProfileForm } from '@/components/customer-profile-form';
 import { useToast } from '@/components/toast';
-import uiStrings from '@/temp-ui-string';
 import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 import { useFetcherEffect } from '@/hooks/use-fetcher-effect';
 import { useScapiFetcher, type ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { useAuth } from '@/providers/auth';
 import type { CustomerProfileFetcherData } from '@/components/customer-profile-form/types';
 import type { PasswordUpdateFetcherData } from '@/components/password-update-form/types';
+import { useTranslation } from 'react-i18next';
 
 type Customer = ShopperCustomers.schemas['Customer'];
 
@@ -31,6 +31,7 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
     const loginFetcher = useFetcher();
     const revalidator = useRevalidator();
     const auth = useAuth();
+    const { t } = useTranslation('account');
     const customerId = auth?.customer_id;
 
     // Create fetchers for profile and password updates
@@ -123,7 +124,7 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
         phone?: string;
     }) => {
         // Show success toast
-        addToast(uiStrings.account.profile.successMessage, 'success');
+        addToast(t('profile.successMessage'), 'success');
         // Add your additional logic here
 
         // Close the editing mode
@@ -168,7 +169,7 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
         confirmPassword: string;
     }) => {
         // Show success toast
-        addToast(uiStrings.account.password.successMessage, 'success');
+        addToast(t('password.successMessage'), 'success');
         // Close the editing mode
         setIsEditingPassword(false);
 
@@ -223,23 +224,17 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
             {/* Page Header */}
             <div>
                 <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                    {uiStrings.account.title}
+                    {t('title')}
                 </h1>
             </div>
 
             {/* My Profile Toggle Card */}
-            <ToggleCard
-                id="profile"
-                title={uiStrings.account.profile.title}
-                editing={isEditingProfile}
-                onEdit={handleProfileEdit}>
+            <ToggleCard id="profile" title={t('profile.title')} editing={isEditingProfile} onEdit={handleProfileEdit}>
                 <ToggleCardSummary>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         <div>
                             <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">
-                                    {uiStrings.account.profile.fullName}
-                                </p>
+                                <p className="text-sm font-bold text-foreground">{t('profile.fullName')}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-foreground">{userInfo.fullName}</p>
@@ -247,7 +242,7 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
                         </div>
                         <div>
                             <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">{uiStrings.account.profile.email}</p>
+                                <p className="text-sm font-bold text-foreground">{t('profile.email')}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-foreground">{userInfo.email}</p>
@@ -255,15 +250,11 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
                         </div>
                         <div>
                             <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">
-                                    {uiStrings.account.profile.phoneNumber}
-                                </p>
+                                <p className="text-sm font-bold text-foreground">{t('profile.phoneNumber')}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-foreground">
-                                    {userInfo.phoneNumber === 'N/A'
-                                        ? uiStrings.account.profile.notProvided
-                                        : userInfo.phoneNumber}
+                                    {userInfo.phoneNumber === 'N/A' ? t('profile.notProvided') : userInfo.phoneNumber}
                                 </p>
                             </div>
                         </div>
@@ -289,16 +280,14 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
             {/* Password Toggle Card */}
             <ToggleCard
                 id="password"
-                title={uiStrings.account.password.title}
+                title={t('password.title')}
                 editing={isEditingPassword}
                 onEdit={handlePasswordEdit}>
                 <ToggleCardSummary>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         <div>
                             <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">
-                                    {uiStrings.account.password.password}
-                                </p>
+                                <p className="text-sm font-bold text-foreground">{t('password.password')}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-foreground">••••••••</p>

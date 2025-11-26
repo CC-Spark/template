@@ -5,6 +5,7 @@ import {
     type RouterContextProvider,
 } from 'react-router';
 import type { ShopperLoginTypes } from 'commerce-sdk-isomorphic';
+import { getTranslation } from '@/lib/i18next';
 import type { SessionData } from '@/lib/api/types';
 import { getAllCookies, removeCookie } from '@/lib/cookies.client';
 import { getCookieNameWithSiteId } from '@/lib/cookie-utils';
@@ -24,7 +25,6 @@ import {
     COOKIE_IDP_ACCESS_TOKEN,
     // Note: COOKIE_CODE_VERIFIER is NOT imported - it's httpOnly and server-only
 } from '@/middlewares/auth.utils';
-import uiStrings from '@/temp-ui-string';
 import { PERFORMANCE_MARKS, performanceTimerContext } from '@/middlewares/performance-metrics';
 import { getConfig } from '@/config';
 
@@ -184,6 +184,8 @@ const retrieveAuthStorageData = async (
     storage: Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>,
     cache: { ref: AuthData | undefined }
 ): Promise<void> => {
+    const { t } = getTranslation();
+
     const accessToken = storage.get('access_token');
     const accessTokenExpiry = storage.get('access_token_expiry');
     const refreshToken = storage.get('refresh_token');
@@ -216,7 +218,7 @@ const retrieveAuthStorageData = async (
             return;
         } catch {
             // Invalid/expired refresh token: clear tokens and fall back to guest login
-            storage.set('error', uiStrings.errors.accessTokenRefreshFailed);
+            storage.set('error', t('errors:accessTokenRefreshFailed'));
         }
     }
 
@@ -232,7 +234,7 @@ const retrieveAuthStorageData = async (
         performanceTimer?.mark(PERFORMANCE_MARKS.authGuestLogin, 'end');
         await updateStorageAndCache(context, storage, cache, tokenResponse, 'guest');
     } catch {
-        storage.set('error', uiStrings.errors.guestAccessTokenFailed);
+        storage.set('error', t('errors:guestAccessTokenFailed'));
     }
 };
 
@@ -490,6 +492,7 @@ export const refreshAuthFromCookie = (context: Readonly<RouterContextProvider>):
  * @returns Promise that resolves when cleanup and guest session setup is complete
  */
 export const clearInvalidSessionAndRestoreGuest = async (context: Readonly<RouterContextProvider>): Promise<void> => {
+    const { t } = getTranslation();
     const storage = context.get(authStorageContext);
     const cache = context.get(authCacheContext);
     const promiseCache = context.get(authContext);
@@ -518,7 +521,7 @@ export const clearInvalidSessionAndRestoreGuest = async (context: Readonly<Route
     } catch (error) {
         // If guest session setup fails, set error in storage
         // The auth middleware will attempt to get a guest token on the next request
-        storage.set('error', uiStrings.errors.guestAccessTokenFailed);
+        storage.set('error', t('errors:guestAccessTokenFailed'));
         promiseCache.ref = createAuthPromise(context, cache.ref);
         throw error;
     }

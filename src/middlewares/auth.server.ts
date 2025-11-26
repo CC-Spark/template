@@ -24,11 +24,11 @@ import {
 } from '@/middlewares/auth.utils';
 import { getAppOrigin, isAbsoluteURL, stringToBase64 } from '@/lib/utils';
 import createClient from '@/lib/scapi';
-import uiStrings from '@/temp-ui-string';
 import { performanceTimerContext, PERFORMANCE_MARKS } from '@/middlewares/performance-metrics';
 import { getConfig } from '@/config';
 import { getCookieConfig, getCookieNameWithSiteId } from '@/lib/cookie-utils';
 import { createCookie, parseAllCookies } from '@/lib/cookies.server';
+import { getTranslation } from '@/lib/i18next';
 
 /**
  * Utility to get the SLAS client secret with proper validation
@@ -340,6 +340,8 @@ const retrieveAuthStorageData = async (
     storage: Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>,
     cache: { ref: AuthData | undefined }
 ): Promise<void> => {
+    const { t } = getTranslation(context);
+
     const accessToken = storage.get('access_token');
     const accessTokenExpiry = storage.get('access_token_expiry');
     const refreshToken = storage.get('refresh_token');
@@ -372,7 +374,7 @@ const retrieveAuthStorageData = async (
             return;
         } catch {
             // Invalid/expired refresh token: clear tokens and fall back to guest login
-            storage.set('error', uiStrings.errors.accessTokenRefreshFailed);
+            storage.set('error', t('errors:accessTokenRefreshFailed'));
         }
     }
 
@@ -390,7 +392,7 @@ const retrieveAuthStorageData = async (
         performanceTimer?.mark(PERFORMANCE_MARKS.authGuestLogin, 'end');
         await updateStorageAndCache(context, storage, cache, tokenResponse, 'guest');
     } catch {
-        storage.set('error', uiStrings.errors.guestAccessTokenFailed);
+        storage.set('error', t('errors:guestAccessTokenFailed'));
     }
 };
 

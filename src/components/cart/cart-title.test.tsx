@@ -1,13 +1,14 @@
 // Testing libraries
 import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 
 // Components
 import CartTitle from './cart-title';
 
 // Utils
-import uiStrings from '@/temp-ui-string';
-
 describe('CartTitle', () => {
     const mockBasket = {
         basketId: 'test-basket-id',
@@ -22,36 +23,35 @@ describe('CartTitle', () => {
         const emptyBasket = { ...mockBasket, productItems: [] };
         render(<CartTitle basket={emptyBasket} />);
 
-        expect(screen.getByText(uiStrings.cart.itemCount.zero)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:itemCount.zero'))).toBeInTheDocument();
     });
 
     test('renders correct title for one item', () => {
         const singleItemBasket = { ...mockBasket, productItems: [{ itemId: 'item-1', quantity: 1 }] };
         render(<CartTitle basket={singleItemBasket} />);
 
-        expect(screen.getByText(uiStrings.cart.itemCount.one)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:itemCount.one'))).toBeInTheDocument();
     });
 
     test('renders correct title for multiple items', () => {
         render(<CartTitle basket={mockBasket} />);
 
         // Total items: 2 + 1 + 3 = 6
-        const expectedText = uiStrings.cart.itemCount.other.replace('{count}', '6');
-        expect(screen.getByText(expectedText)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:itemCount.other', { count: 6 }))).toBeInTheDocument();
     });
 
     test('handles basket with undefined productItems', () => {
         const basketWithoutItems = { basketId: 'test-basket-id' };
         render(<CartTitle basket={basketWithoutItems as { basketId: string }} />);
 
-        expect(screen.getByText(uiStrings.cart.itemCount.zero)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:itemCount.zero'))).toBeInTheDocument();
     });
 
     test('handles basket with null productItems', () => {
         const basketWithNullItems = { basketId: 'test-basket-id', productItems: undefined };
         render(<CartTitle basket={basketWithNullItems} />);
 
-        expect(screen.getByText(uiStrings.cart.itemCount.zero)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:itemCount.zero'))).toBeInTheDocument();
     });
 
     test('handles items with undefined quantity', () => {
@@ -66,8 +66,7 @@ describe('CartTitle', () => {
         render(<CartTitle basket={basketWithUndefinedQuantity} />);
 
         // Total items: 2 + 0 + 3 = 5
-        const expectedText = uiStrings.cart.itemCount.other.replace('{count}', '5');
-        expect(screen.getByText(expectedText)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:itemCount.other', { count: 5 }))).toBeInTheDocument();
     });
 
     test('renders with correct heading level', () => {
@@ -90,7 +89,6 @@ describe('CartTitle', () => {
         render(<CartTitle basket={mixedQuantityBasket} />);
 
         // Total items: 0 + 1 + 10 + 0 = 11
-        const expectedText = uiStrings.cart.itemCount.other.replace('{count}', '11');
-        expect(screen.getByText(expectedText)).toBeInTheDocument();
+        expect(screen.getByText(t('cart:itemCount.other', { count: 11 }))).toBeInTheDocument();
     });
 });

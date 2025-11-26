@@ -6,7 +6,7 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import type { PasswordUpdateFetcherData, PasswordUpdateFormData } from '../types';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function PasswordUpdateFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -198,10 +198,11 @@ Default password update form with mock submission.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for current password field
         const currentPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.currentPasswordPlaceholder,
+            t('account:password.currentPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -209,7 +210,7 @@ Default password update form with mock submission.
 
         // Check for new password field
         const newPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.newPasswordPlaceholder,
+            t('account:password.newPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -275,10 +276,11 @@ Password update form with pre-filled initial data.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify form fields are populated using placeholder text to avoid duplicates
         const currentPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.currentPasswordPlaceholder,
+            t('account:password.currentPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -286,7 +288,7 @@ Password update form with pre-filled initial data.
         await expect(currentPasswordInput).toHaveValue('OldPassword123');
 
         const newPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.newPasswordPlaceholder,
+            t('account:password.newPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -349,10 +351,11 @@ Interactive password update form for testing user interactions.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Find and interact with form fields
         const currentPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.currentPasswordPlaceholder,
+            t('account:password.currentPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -360,7 +363,7 @@ Interactive password update form for testing user interactions.
         await expect(currentPasswordInput).toHaveValue('CurrentPass123');
 
         const newPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.newPasswordPlaceholder,
+            t('account:password.newPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -368,7 +371,7 @@ Interactive password update form for testing user interactions.
         await expect(newPasswordInput).toHaveValue('NewSecurePass123!');
 
         const confirmPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.account.password.confirmPasswordPlaceholder,
+            t('account:password.confirmPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );

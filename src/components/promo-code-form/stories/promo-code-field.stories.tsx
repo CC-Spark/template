@@ -6,7 +6,8 @@ import { action } from 'storybook/actions';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
-import { PromoCodeFields, promoCodeFormSchema } from '../index';
+import { PromoCodeFields, createPromoCodeFormSchema } from '../index';
+import { getTranslation } from '@/lib/i18next';
 
 // Mock fetcher for Storybook
 const mockFetcher = {
@@ -200,6 +201,8 @@ type Story = StoryObj<typeof meta>;
 
 // Wrapper components for each story
 const DefaultWrapper = () => {
+    const { t } = getTranslation();
+    const promoCodeFormSchema = createPromoCodeFormSchema(t);
     const form = useForm({
         resolver: zodResolver(promoCodeFormSchema),
         defaultValues: { code: '' },
@@ -212,6 +215,8 @@ const DefaultWrapper = () => {
 };
 
 const WithInitialValueWrapper = () => {
+    const { t } = getTranslation();
+    const promoCodeFormSchema = createPromoCodeFormSchema(t);
     const form = useForm({
         resolver: zodResolver(promoCodeFormSchema),
         defaultValues: { code: 'SAVE10' },
@@ -224,6 +229,8 @@ const WithInitialValueWrapper = () => {
 };
 
 const LoadingStateWrapper = () => {
+    const { t } = getTranslation();
+    const promoCodeFormSchema = createPromoCodeFormSchema(t);
     const form = useForm({
         resolver: zodResolver(promoCodeFormSchema),
         defaultValues: { code: '' },
@@ -237,6 +244,8 @@ const LoadingStateWrapper = () => {
 };
 
 const WithValidationErrorWrapper = () => {
+    const { t } = getTranslation();
+    const promoCodeFormSchema = createPromoCodeFormSchema(t);
     const form = useForm({
         resolver: zodResolver(promoCodeFormSchema),
         defaultValues: { code: 'A' },
@@ -250,6 +259,8 @@ const WithValidationErrorWrapper = () => {
 };
 
 const WithLongPromoCodeWrapper = () => {
+    const { t } = getTranslation();
+    const promoCodeFormSchema = createPromoCodeFormSchema(t);
     const form = useForm({
         resolver: zodResolver(promoCodeFormSchema),
         defaultValues: { code: 'SUMMER2024SAVE20PERCENT' },

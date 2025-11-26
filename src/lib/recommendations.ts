@@ -1,9 +1,9 @@
 import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import type { LoaderFunctionArgs } from 'react-router';
+import i18next, { type i18n } from 'i18next';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { getConfig } from '@/config';
 import type { AppConfig } from '@/config/context';
-import uiStrings from '@/temp-ui-string';
 
 export interface RecommendationType {
     id: string;
@@ -21,18 +21,24 @@ export interface RecommendationContext {
 }
 
 /**
- * Get title from UI strings key
+ * Get title from UI strings key using i18next
+ * Converts dot notation (recommendations.youMayAlsoLike) to namespace:key format
  */
-function getTitleFromKey(titleKey: string): string {
-    const keys = titleKey.split('.');
-    let value: unknown = uiStrings;
+function getTitleFromKey(titleKey: string, i18nextInstance: i18n | null): string {
+    if (!titleKey) return '';
 
-    for (const key of keys) {
-        value = (value as Record<string, unknown>)?.[key];
-        if (value === undefined) break;
-    }
+    // Use the provided i18next instance (server-side) or the default i18next instance (client-side)
+    const i18n = i18nextInstance || i18next;
 
-    return (value as string) || titleKey;
+    // Convert recommendations.youMayAlsoLike to recommendations:youMayAlsoLike
+    const parts = titleKey.split('.');
+    if (parts.length < 2) return titleKey;
+
+    const namespace = parts[0];
+    const key = parts.slice(1).join('.');
+
+    const result = i18n.t(`${namespace}:${key}`, { defaultValue: titleKey }) as string;
+    return result;
 }
 
 /**
@@ -124,7 +130,8 @@ export function getSearchParamsForType(
  */
 export function generateRecommendationPromises(
     context: LoaderFunctionArgs['context'],
-    recommendationContext: RecommendationContext
+    recommendationContext: RecommendationContext,
+    i18nextInstance: i18n | null = null
 ): Array<{
     config: RecommendationType;
     promise: Promise<ShopperSearch.schemas['ProductSearchResult']>;
@@ -147,7 +154,7 @@ export function generateRecommendationPromises(
             return {
                 config: {
                     id: typeId,
-                    title: getTitleFromKey(typeConfig?.titleKey || ''),
+                    title: getTitleFromKey(typeConfig?.titleKey || '', i18nextInstance),
                     enabled: false,
                     priority: typeConfig?.priority || 999,
                     sort: typeConfig?.sort || 'best-matches',
@@ -174,7 +181,7 @@ export function generateRecommendationPromises(
             return {
                 config: {
                     id: typeId,
-                    title: getTitleFromKey(typeConfig.titleKey),
+                    title: getTitleFromKey(typeConfig.titleKey, i18nextInstance),
                     enabled: typeConfig.enabled,
                     priority: typeConfig.priority,
                     sort: typeConfig.sort,
@@ -248,7 +255,7 @@ export function generateRecommendationPromises(
                 return {
                     config: {
                         id: typeId,
-                        title: getTitleFromKey(typeConfig.titleKey),
+                        title: getTitleFromKey(typeConfig.titleKey, i18nextInstance),
                         enabled: typeConfig.enabled,
                         priority: typeConfig.priority,
                         sort: typeConfig.sort,
@@ -278,7 +285,7 @@ export function generateRecommendationPromises(
         return {
             config: {
                 id: typeId,
-                title: getTitleFromKey(typeConfig.titleKey),
+                title: getTitleFromKey(typeConfig.titleKey, i18nextInstance),
                 enabled: typeConfig.enabled,
                 priority: typeConfig.priority,
                 sort: typeConfig.sort,

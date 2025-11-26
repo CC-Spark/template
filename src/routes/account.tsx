@@ -14,9 +14,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AccountNavList, type AccountNavItemData } from '@/components/account-navigation';
 import { createPage, type RouteComponentProps } from '@/components/create-page';
 import { AccountSkeleton } from '@/components/account-skeleton';
-import uiStrings from '@/temp-ui-string';
 import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 import type { SessionData } from '@/lib/api/types';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Type definition for the account page data including page key
@@ -116,30 +116,31 @@ export function shouldRevalidate({ defaultShouldRevalidate, formData }: ShouldRe
  * @returns JSX element representing the account layout
  */
 function AccountLayoutView({ loaderData }: RouteComponentProps<AccountPageData>): ReactElement {
+    const { t } = useTranslation('account');
     const navigationItems: AccountNavItemData[] = useMemo(
         () => [
             {
                 path: '/account',
                 icon: User,
-                label: uiStrings.account.navigation.accountDetails,
+                label: t('navigation.accountDetails'),
             },
             {
                 path: '/account/wishlist',
                 icon: Heart,
-                label: uiStrings.account.navigation.wishlist,
+                label: t('navigation.wishlist'),
             },
             {
                 path: '/account/orders',
                 icon: Receipt,
-                label: uiStrings.account.navigation.orderHistory,
+                label: t('navigation.orderHistory'),
             },
             {
                 path: '/account/addresses',
                 icon: MapPin,
-                label: uiStrings.account.navigation.addresses,
+                label: t('navigation.addresses'),
             },
         ],
-        []
+        [t]
     );
 
     return (
@@ -150,9 +151,7 @@ function AccountLayoutView({ loaderData }: RouteComponentProps<AccountPageData>)
                     <div className="lg:hidden">
                         <Card className="bg-muted/30">
                             <CardContent className="p-4">
-                                <h2 className="text-lg font-semibold text-foreground mb-4">
-                                    {uiStrings.account.myAccount}
-                                </h2>
+                                <h2 className="text-lg font-semibold text-foreground mb-4">{t('myAccount')}</h2>
                                 <nav className="space-y-1">
                                     <AccountNavList items={navigationItems} isMobile={true} />
                                 </nav>
@@ -163,7 +162,7 @@ function AccountLayoutView({ loaderData }: RouteComponentProps<AccountPageData>)
                     {/* Desktop Sidebar Navigation */}
                     <div className="hidden lg:block lg:col-span-1">
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-foreground">{uiStrings.account.myAccount}</h2>
+                            <h2 className="text-lg font-semibold text-foreground">{t('myAccount')}</h2>
                             <nav className="space-y-1">
                                 <AccountNavList items={navigationItems} />
                             </nav>

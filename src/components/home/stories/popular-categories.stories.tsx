@@ -5,7 +5,6 @@ import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import type { ShopperProductsTypes } from 'commerce-sdk-isomorphic';
-// @ts-expect-error Mock data file is JavaScript
 import { mockCategory } from '@/components/__mocks__/mock-data';
 
 function PopularCategoriesStoryHarness({ children }: { children: ReactNode }): ReactElement {

@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { DynamicImage } from '@/components/dynamic-image';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface ProductImageProps {
     src: string;
@@ -26,6 +26,7 @@ export function ProductImage({ src, alt, className, ...dynamicImageProps }: Prod
     const handleError = useCallback(() => {
         setHasError(true);
     }, []);
+    const { t } = useTranslation('common');
 
     // If there's an error, show simple fallback (centered vertically in expanded header)
     if (hasError) {
@@ -39,7 +40,7 @@ export function ProductImage({ src, alt, className, ...dynamicImageProps }: Prod
                 }}>
                 <div className="text-center text-muted-foreground">
                     <div className="text-4xl mb-2">📷</div>
-                    <p>{uiStrings.common.noImageAvailable}</p>
+                    <p>{t('noImageAvailable')}</p>
                 </div>
             </div>
         );

@@ -1,22 +1,27 @@
+import { getTranslation } from '@/lib/i18next';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import LogoutButton from './logout-button';
-import uiStrings from '@/temp-ui-string';
-
 // Mock react-router
 const mockNavigation = {
     state: 'idle' as 'idle' | 'submitting' | 'loading',
     formAction: undefined as string | undefined,
 };
 
-vi.mock('react-router', () => ({
-    Form: ({ children, ...props }: { children: React.ReactNode; method: string; action: string }) => (
-        <form {...props}>{children}</form>
-    ),
-    useNavigation: () => mockNavigation,
-}));
+vi.mock('react-router', async (importOriginal) => {
+    const actual = (await importOriginal()) as any;
+    return {
+        ...actual,
+        Form: ({ children, ...props }: { children: React.ReactNode; method: string; action: string }) => (
+            <form {...props}>{children}</form>
+        ),
+        useNavigation: () => mockNavigation,
+    };
+});
 
 describe('LogoutButton', () => {
+    const { t } = getTranslation();
+
     beforeEach(() => {
         vi.clearAllMocks();
         // Reset to default state
@@ -28,7 +33,7 @@ describe('LogoutButton', () => {
         test('renders sign out button when not submitting', () => {
             render(<LogoutButton />);
 
-            const button = screen.getByRole('button', { name: uiStrings.header.signOut });
+            const button = screen.getByRole('button', { name: t('header:signOut') });
             expect(button).toBeInTheDocument();
             expect(button).toHaveAttribute('type', 'submit');
             expect(button).not.toBeDisabled();
@@ -52,7 +57,7 @@ describe('LogoutButton', () => {
             render(<LogoutButton />);
 
             const button = screen.getByRole('button');
-            expect(button).toHaveTextContent(uiStrings.header.signingOut);
+            expect(button).toHaveTextContent(t('header:signingOut'));
         });
 
         test('disables button when submitting to /logout', () => {
@@ -83,7 +88,7 @@ describe('LogoutButton', () => {
 
             const button = screen.getByRole('button');
             expect(button).not.toBeDisabled();
-            expect(button).toHaveTextContent(uiStrings.header.signOut);
+            expect(button).toHaveTextContent(t('header:signOut'));
         });
 
         test('does not show spinner when submitting to different action', () => {
@@ -101,7 +106,7 @@ describe('LogoutButton', () => {
         test('button text changes appropriately for screen readers', () => {
             const { rerender } = render(<LogoutButton />);
 
-            let button = screen.getByRole('button', { name: uiStrings.header.signOut });
+            let button = screen.getByRole('button', { name: t('header:signOut') });
             expect(button).toBeInTheDocument();
 
             mockNavigation.state = 'submitting';
@@ -110,7 +115,7 @@ describe('LogoutButton', () => {
 
             // When submitting, the button text includes "Signing out..."
             button = screen.getByRole('button');
-            expect(button).toHaveAccessibleName(expect.stringContaining(uiStrings.header.signingOut));
+            expect(button).toHaveAccessibleName(expect.stringContaining(t('header:signingOut')));
         });
 
         test('button is focusable when not disabled', () => {
@@ -145,10 +150,10 @@ describe('LogoutButton', () => {
 
                 if (action === '/logout') {
                     expect(button).toBeDisabled();
-                    expect(button).toHaveTextContent(uiStrings.header.signingOut);
+                    expect(button).toHaveTextContent(t('header:signingOut'));
                 } else {
                     expect(button).not.toBeDisabled();
-                    expect(button).toHaveTextContent(uiStrings.header.signOut);
+                    expect(button).toHaveTextContent(t('header:signOut'));
                 }
 
                 rerender(<div />); // Clean up for next iteration

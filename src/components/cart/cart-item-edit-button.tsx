@@ -16,9 +16,9 @@ import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-n
 // Components
 import { Button } from '@/components/ui/button';
 import { CartItemEditModal } from '@/components/cart-item-edit-modal';
+import { useTranslation } from 'react-i18next';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
 
 interface CartItemEditButtonProps {
     product: ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>;
@@ -40,6 +40,7 @@ interface CartItemEditButtonProps {
  */
 export function CartItemEditButton({ product, className = '' }: CartItemEditButtonProps): ReactElement {
     // Modal state management
+    const { t } = useTranslation('actionCard');
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -48,10 +49,10 @@ export function CartItemEditButton({ product, className = '' }: CartItemEditButt
                 variant="link"
                 size="sm"
                 className={`font-bold ${className ?? ''}`}
-                title={uiStrings.actionCard.edit}
+                title={t('edit')}
                 data-testid={`edit-item-${product.itemId}`}
                 onClick={() => setIsOpen(true)}>
-                {uiStrings.actionCard.edit}
+                {t('edit')}
             </Button>
 
             {product.itemId && (

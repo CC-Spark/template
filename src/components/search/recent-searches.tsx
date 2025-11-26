@@ -1,7 +1,7 @@
 'use client';
 
 import { searchUrlBuilder } from '@/lib/url';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 
 interface RecentSearchesProps {
     recentSearches?: string[];
@@ -14,13 +14,12 @@ export default function RecentSearches({
     closeAndNavigate,
     clearRecentSearches,
 }: RecentSearchesProps) {
+    const { t } = useTranslation('search');
     return (
         <div className="p-6">
             {recentSearches.length > 0 && (
                 <div>
-                    <div className="text-sm font-semibold text-foreground mb-2">
-                        {uiStrings.search.suggestions.recentSearches}
-                    </div>
+                    <div className="text-sm font-semibold text-foreground mb-2">{t('suggestions.recentSearches')}</div>
                     <div className="-mx-6">
                         {recentSearches.map((recentSearch) => (
                             <button
@@ -37,7 +36,7 @@ export default function RecentSearches({
                             type="button"
                             onMouseDown={clearRecentSearches}
                             className="w-full text-left px-12 py-2 hover:bg-accent text-primary text-base font-normal">
-                            {uiStrings.search.suggestions.clearRecentSearches}
+                            {t('suggestions.clearRecentSearches')}
                         </button>
                     </div>
                 </div>

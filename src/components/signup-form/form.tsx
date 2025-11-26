@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PasswordRequirement } from '@/components/password-requirements';
 import { usePasswordValidation } from '@/hooks/use-password-validation';
-import uiStrings from '@/temp-ui-string';
 import { type SignupFormProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 export function SignupForm({ error }: SignupFormProps) {
     const {
@@ -16,6 +16,7 @@ export function SignupForm({ error }: SignupFormProps) {
         handleConfirmPasswordChange,
         isFormValid,
     } = usePasswordValidation();
+    const { t } = useTranslation('signup');
 
     return (
         <>
@@ -29,7 +30,7 @@ export function SignupForm({ error }: SignupFormProps) {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="firstName" className="block text-sm font-medium text-foreground">
-                            {uiStrings.signup.form.firstNameLabel}
+                            {t('form.firstNameLabel')}
                         </label>
                         <Input
                             id="firstName"
@@ -38,12 +39,12 @@ export function SignupForm({ error }: SignupFormProps) {
                             autoComplete="given-name"
                             required
                             className="mt-1"
-                            placeholder={uiStrings.signup.form.firstNamePlaceholder}
+                            placeholder={t('form.firstNamePlaceholder')}
                         />
                     </div>
                     <div>
                         <label htmlFor="lastName" className="block text-sm font-medium text-foreground">
-                            {uiStrings.signup.form.lastNameLabel}
+                            {t('form.lastNameLabel')}
                         </label>
                         <Input
                             id="lastName"
@@ -52,14 +53,14 @@ export function SignupForm({ error }: SignupFormProps) {
                             autoComplete="family-name"
                             required
                             className="mt-1"
-                            placeholder={uiStrings.signup.form.lastNamePlaceholder}
+                            placeholder={t('form.lastNamePlaceholder')}
                         />
                     </div>
                 </div>
 
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                        {uiStrings.signup.form.emailLabel}
+                        {t('form.emailLabel')}
                     </label>
                     <Input
                         id="email"
@@ -68,13 +69,13 @@ export function SignupForm({ error }: SignupFormProps) {
                         autoComplete="email"
                         required
                         className="mt-1"
-                        placeholder={uiStrings.signup.form.emailPlaceholder}
+                        placeholder={t('form.emailPlaceholder')}
                     />
                 </div>
 
                 <div>
                     <label htmlFor="password" className="block text-sm font-medium text-foreground">
-                        {uiStrings.signup.form.passwordLabel}
+                        {t('form.passwordLabel')}
                     </label>
                     <Input
                         id="password"
@@ -85,14 +86,14 @@ export function SignupForm({ error }: SignupFormProps) {
                         value={password}
                         onChange={handlePasswordChange}
                         className="mt-1"
-                        placeholder={uiStrings.signup.form.passwordPlaceholder}
+                        placeholder={t('form.passwordPlaceholder')}
                     />
                     <PasswordRequirement password={password} />
                 </div>
 
                 <div>
                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
-                        {uiStrings.signup.form.confirmPasswordLabel}
+                        {t('form.confirmPasswordLabel')}
                     </label>
                     <Input
                         id="confirmPassword"
@@ -104,10 +105,10 @@ export function SignupForm({ error }: SignupFormProps) {
                         onChange={handleConfirmPasswordChange}
                         className={`mt-1`}
                         aria-invalid={showPasswordMismatch && confirmPassword ? true : undefined}
-                        placeholder={uiStrings.signup.form.confirmPasswordPlaceholder}
+                        placeholder={t('form.confirmPasswordPlaceholder')}
                     />
                     {showPasswordMismatch && confirmPassword && (
-                        <p className="mt-1 text-sm text-destructive">{uiStrings.signup.passwordsDoNotMatch}</p>
+                        <p className="mt-1 text-sm text-destructive">{t('passwordsDoNotMatch')}</p>
                     )}
                 </div>
 
@@ -117,7 +118,7 @@ export function SignupForm({ error }: SignupFormProps) {
                         disabled={!isFormValid}
                         className="w-full"
                         variant={isFormValid ? 'default' : 'secondary'}>
-                        {uiStrings.signup.form.createAccountButton}
+                        {t('form.createAccountButton')}
                     </Button>
                 </div>
             </div>

@@ -14,10 +14,10 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { Form } from '@/components/ui/form';
 import { CustomerProfileFields } from '../customer-profile-fields';
-import { customerProfileFormSchema } from '../index';
-import type { CustomerProfileFormData, CustomerProfileFetcherData } from '../types';
+import { createCustomerProfileFormSchema, type CustomerProfileFormData } from '../index';
+import type { CustomerProfileFetcherData } from '../types';
 import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -188,6 +188,8 @@ type Story = StoryObj<typeof CustomerProfileFields>;
  */
 export const Default: Story = {
     render: function DefaultStory() {
+        const { t } = getTranslation();
+        const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
             // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
@@ -216,22 +218,23 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify form fields are present
-        const firstNameInput = canvas.getByPlaceholderText(uiStrings.account.profile.firstNamePlaceholder);
+        const firstNameInput = canvas.getByPlaceholderText(t('account:profile.firstNamePlaceholder'));
         await expect(firstNameInput).toBeInTheDocument();
 
-        const lastNameInput = canvas.getByPlaceholderText(uiStrings.account.profile.lastNamePlaceholder);
+        const lastNameInput = canvas.getByPlaceholderText(t('account:profile.lastNamePlaceholder'));
         await expect(lastNameInput).toBeInTheDocument();
 
-        const emailInput = canvas.getByPlaceholderText(uiStrings.account.profile.emailPlaceholder);
+        const emailInput = canvas.getByPlaceholderText(t('account:profile.emailPlaceholder'));
         await expect(emailInput).toBeInTheDocument();
 
-        const phoneInput = canvas.getByPlaceholderText(uiStrings.account.profile.phonePlaceholder);
+        const phoneInput = canvas.getByPlaceholderText(t('account:profile.phonePlaceholder'));
         await expect(phoneInput).toBeInTheDocument();
 
         // Verify submit button
-        const submitButton = canvas.getByRole('button', { name: uiStrings.account.profile.saveButton });
+        const submitButton = canvas.getByRole('button', { name: t('account:profile.saveButton') });
         await expect(submitButton).toBeInTheDocument();
     },
 };
@@ -241,6 +244,8 @@ export const Default: Story = {
  */
 export const WithInitialValues: Story = {
     render: function WithInitialValuesStory() {
+        const { t } = getTranslation();
+        const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
             // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
@@ -287,6 +292,8 @@ export const WithInitialValues: Story = {
  */
 export const WithCancelButton: Story = {
     render: function WithCancelButtonStory() {
+        const { t } = getTranslation();
+        const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
             // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
@@ -318,11 +325,12 @@ export const WithCancelButton: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify cancel button is present
         const cancelButton = await canvas.findByRole(
             'button',
-            { name: uiStrings.account.profile.cancelButton },
+            { name: t('account:profile.cancelButton') },
             { timeout: 5000 }
         );
         await expect(cancelButton).toBeInTheDocument();
@@ -334,6 +342,8 @@ export const WithCancelButton: Story = {
  */
 export const Submitting: Story = {
     render: function SubmittingStory() {
+        const { t } = getTranslation();
+        const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
             // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
@@ -362,11 +372,12 @@ export const Submitting: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify submit button is disabled during submission
         const submitButton = await canvas.findByRole(
             'button',
-            { name: uiStrings.account.profile.savingButton },
+            { name: t('account:profile.savingButton') },
             { timeout: 5000 }
         );
         await expect(submitButton).toBeInTheDocument();
@@ -379,6 +390,8 @@ export const Submitting: Story = {
  */
 export const Interactive: Story = {
     render: function InteractiveStory() {
+        const { t } = getTranslation();
+        const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
             // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
@@ -407,17 +420,18 @@ export const Interactive: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Interact with form fields
-        const firstNameInput = canvas.getByPlaceholderText(uiStrings.account.profile.firstNamePlaceholder);
+        const firstNameInput = canvas.getByPlaceholderText(t('account:profile.firstNamePlaceholder'));
         await userEvent.type(firstNameInput, 'Jane');
         await expect(firstNameInput).toHaveValue('Jane');
 
-        const lastNameInput = canvas.getByPlaceholderText(uiStrings.account.profile.lastNamePlaceholder);
+        const lastNameInput = canvas.getByPlaceholderText(t('account:profile.lastNamePlaceholder'));
         await userEvent.type(lastNameInput, 'Smith');
         await expect(lastNameInput).toHaveValue('Smith');
 
-        const emailInput = canvas.getByPlaceholderText(uiStrings.account.profile.emailPlaceholder);
+        const emailInput = canvas.getByPlaceholderText(t('account:profile.emailPlaceholder'));
         await userEvent.type(emailInput, 'jane.smith@example.com');
         await expect(emailInput).toHaveValue('jane.smith@example.com');
     },

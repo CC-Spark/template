@@ -3,7 +3,7 @@ import type { ShopperCustomersTypes } from 'commerce-sdk-isomorphic';
 import type { CustomQueryParameters } from '@/lib/api/types';
 import createClient from '@/lib/scapi';
 import { loginRegisteredUser } from './standard-login';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 // Helper to extract custom parameters (keys starting with c_ with allowed value types)
 const extractCustomParameters = (parameters: {
@@ -21,13 +21,15 @@ export const registerCustomer = async (
     success: boolean;
     error?: string;
 }> => {
+    const { t } = getTranslation(context);
+
     try {
         const { customer, password, ...parameters } = registrationData;
         const { login, firstName, lastName } = customer;
         const customParameters = extractCustomParameters(parameters);
 
         if (!login || !firstName || !lastName) {
-            throw new Error(uiStrings.errors.missingRegistrationField);
+            throw new Error(t('errors:missingRegistrationField'));
         }
 
         // The registerCustomer endpoint currently does not support custom parameters
@@ -56,10 +58,10 @@ export const registerCustomer = async (
             };
         } else {
             // Login after registration failed
-            throw new Error(uiStrings.errors.autoLoginAfterRegistrationFailed);
+            throw new Error(t('errors:autoLoginAfterRegistrationFailed'));
         }
     } catch {
-        const errorMessage = uiStrings.errors.genericTryAgain;
+        const errorMessage = t('errors:genericTryAgain');
 
         return {
             success: false,

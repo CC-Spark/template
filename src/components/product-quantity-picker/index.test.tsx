@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import ProductQuantityPicker from './index';
-import uiStrings from '@/temp-ui-string';
 
 describe('ProductQuantityPicker', () => {
     const defaultProps = {
@@ -17,7 +19,7 @@ describe('ProductQuantityPicker', () => {
     test('renders quantity picker with correct label and value', () => {
         render(<ProductQuantityPicker {...defaultProps} />);
 
-        expect(screen.getByText(uiStrings.quantitySelector.quantity)).toBeInTheDocument();
+        expect(screen.getByText(t('quantitySelector:quantity'))).toBeInTheDocument();
         expect(screen.getByDisplayValue('1')).toBeInTheDocument();
     });
 
@@ -44,7 +46,7 @@ describe('ProductQuantityPicker', () => {
     test('displays out of stock message when isOutOfStock is true', () => {
         render(<ProductQuantityPicker {...defaultProps} isOutOfStock={true} productName="Test Product" />);
 
-        const expectedMessage = uiStrings.product.outOfStock.replace('{productName}', 'Test Product');
+        const expectedMessage = t('product:outOfStock', { productName: 'Test Product' });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
         expect(screen.getByText(expectedMessage)).toHaveAttribute('role', 'alert');
         expect(screen.getByText(expectedMessage)).toHaveAttribute('aria-live', 'polite');
@@ -53,14 +55,14 @@ describe('ProductQuantityPicker', () => {
     test('displays out of stock message with default product name when productName is not provided', () => {
         render(<ProductQuantityPicker {...defaultProps} isOutOfStock={true} />);
 
-        const expectedMessage = uiStrings.product.outOfStock.replace('{productName}', uiStrings.common.product);
+        const expectedMessage = t('product:outOfStock', { productName: t('common:product') });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
 
     test('displays stock level warning when quantity exceeds stock level', () => {
         render(<ProductQuantityPicker {...defaultProps} value={5} stockLevel={3} />);
 
-        const expectedMessage = uiStrings.quantitySelector.onlyLeft.replace('{stockLevel}', '3');
+        const expectedMessage = t('quantitySelector:onlyLeft', { stockLevel: '3' });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
         expect(screen.getByText(expectedMessage)).toHaveAttribute('role', 'alert');
         expect(screen.getByText(expectedMessage)).toHaveAttribute('aria-live', 'polite');
@@ -77,18 +79,20 @@ describe('ProductQuantityPicker', () => {
             />
         );
 
-        const expectedMessage = uiStrings.quantitySelector.onlyLeftForProduct
-            .replace('{stockLevel}', '3')
-            .replace('{productName}', 'Bundle Product');
+        const expectedMessage = t('quantitySelector:onlyLeftForProduct', {
+            stockLevel: '3',
+            productName: 'Bundle Product',
+        });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
 
     test('displays bundle stock warning with default product name when productName is not provided', () => {
         render(<ProductQuantityPicker {...defaultProps} value={5} stockLevel={3} isBundle={true} />);
 
-        const expectedMessage = uiStrings.quantitySelector.onlyLeftForProduct
-            .replace('{stockLevel}', '3')
-            .replace('{productName}', uiStrings.common.product);
+        const expectedMessage = t('quantitySelector:onlyLeftForProduct', {
+            stockLevel: '3',
+            productName: t('common:product'),
+        });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
 
@@ -122,8 +126,8 @@ describe('ProductQuantityPicker', () => {
         );
 
         // Should show out of stock message, not stock level warning
-        const expectedOutOfStockMessage = uiStrings.product.outOfStock.replace('{productName}', 'Test Product');
-        const stockLevelMessage = uiStrings.quantitySelector.onlyLeft.replace('{stockLevel}', '3');
+        const expectedOutOfStockMessage = t('product:outOfStock', { productName: 'Test Product' });
+        const stockLevelMessage = t('quantitySelector:onlyLeft', { stockLevel: '3' });
 
         expect(screen.getByText(expectedOutOfStockMessage)).toBeInTheDocument();
         expect(screen.queryByText(stockLevelMessage)).not.toBeInTheDocument();
@@ -169,7 +173,7 @@ describe('ProductQuantityPicker', () => {
         render(<ProductQuantityPicker {...defaultProps} isOutOfStock={true} productName="" />);
 
         // Component uses default product name when productName is empty
-        const expectedMessage = uiStrings.product.outOfStock.replace('{productName}', uiStrings.common.product);
+        const expectedMessage = t('product:outOfStock', { productName: t('common:product') });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
 
@@ -177,9 +181,10 @@ describe('ProductQuantityPicker', () => {
         render(<ProductQuantityPicker {...defaultProps} value={5} stockLevel={3} isBundle={true} productName="" />);
 
         // Component uses default product name when productName is empty
-        const expectedMessage = uiStrings.quantitySelector.onlyLeftForProduct
-            .replace('{stockLevel}', '3')
-            .replace('{productName}', uiStrings.common.product);
+        const expectedMessage = t('quantitySelector:onlyLeftForProduct', {
+            stockLevel: '3',
+            productName: t('common:product'),
+        });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
 
@@ -241,7 +246,7 @@ describe('ProductQuantityPicker', () => {
         await user.type(quantityInput, '5');
 
         // Now warning should be shown
-        const expectedMessage = uiStrings.quantitySelector.onlyLeft.replace('{stockLevel}', '3');
+        const expectedMessage = t('quantitySelector:onlyLeft', { stockLevel: '3' });
         expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
 
@@ -260,7 +265,7 @@ describe('ProductQuantityPicker', () => {
 
         // Should render with all props
         expect(screen.getByDisplayValue('2')).toBeInTheDocument();
-        expect(screen.getByText(uiStrings.quantitySelector.quantity)).toBeInTheDocument();
+        expect(screen.getByText(t('quantitySelector:quantity'))).toBeInTheDocument();
 
         // Should not show any warnings since quantity (2) < stockLevel (10)
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();

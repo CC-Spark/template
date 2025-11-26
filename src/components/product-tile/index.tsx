@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
 import { createProductUrl, getDecoratedVariationAttributes } from '@/lib/product-utils';
 import { getProductBadges } from '@/lib/product-badges';
-import uiStrings from '@/temp-ui-string';
+import { useTranslation } from 'react-i18next';
 import { useConfig } from '@/config';
 
 // Components
@@ -69,6 +69,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
     ) => {
         const navigate = useNavigate();
         const config = useConfig();
+        const { t } = useTranslation('product');
         const { hasBadges, badges } = getProductBadges({
             product,
             badgeDetails: config.global.badges,
@@ -137,7 +138,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                         footerAction
                     ) : (
                         <Button className="w-full text-sm font-normal" size="default" onClick={handleMoreOptions}>
-                            {uiStrings.product.moreOptions}
+                            {t('moreOptions')}
                         </Button>
                     )}
                 </CardFooter>

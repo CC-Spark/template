@@ -12,14 +12,13 @@ import CartEmpty from './cart-empty';
 import CartTitle from './cart-title';
 import OrderSummary from '@/components/order-summary';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useTranslation } from 'react-i18next';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import PickupStoreInfo from '@/extensions/bopis/components/pickup-store-info';
 import { usePickup } from '@/extensions/bopis/context/pickup-context';
 import { getStoreIdsFromBasket, filterPickupProductItems } from '@/extensions/bopis/lib/basket-utils';
 import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
-
-import tempUiString from '@/temp-ui-string';
 
 // utils
 import { isStandardProduct } from '@/lib/product-utils';
@@ -53,6 +52,8 @@ interface CartContentProps {
  * @returns JSX element representing the cart content
  */
 export default function CartContent({ basket, productsByItemId, promotions }: CartContentProps): ReactElement {
+    const { t } = useTranslation('cart');
+
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
     const pickup = usePickup();
     const pickupBasketItems = pickup?.pickupBasketItems;
@@ -103,9 +104,7 @@ export default function CartContent({ basket, productsByItemId, promotions }: Ca
                 <div className="md:hidden mb-3">
                     <Accordion type="single" collapsible className="border rounded-md bg-card px-5 py=3">
                         <AccordionItem value="order-summary">
-                            <AccordionTrigger className="text-xl">
-                                {tempUiString.cart.summary.showOrderSummary}
-                            </AccordionTrigger>
+                            <AccordionTrigger className="text-xl">{t('summary.showOrderSummary')}</AccordionTrigger>
                             <AccordionContent>
                                 <OrderSummary
                                     basket={basket}

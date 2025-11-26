@@ -4,7 +4,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import uiStrings from '@/temp-ui-string';
+import { getTranslation } from '@/lib/i18next';
 
 function SignupFormStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -105,26 +105,23 @@ Default signup form.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for first name input
         const firstNameInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.firstNamePlaceholder,
+            t('signup:form.firstNamePlaceholder'),
             {},
             { timeout: 5000 }
         );
         await expect(firstNameInput).toBeInTheDocument();
 
         // Check for email input
-        const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.emailPlaceholder,
-            {},
-            { timeout: 5000 }
-        );
+        const emailInput = await canvas.findByPlaceholderText(t('signup:form.emailPlaceholder'), {}, { timeout: 5000 });
         await expect(emailInput).toBeInTheDocument();
 
         // Check for password input
         const passwordInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.passwordPlaceholder,
+            t('signup:form.passwordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -155,17 +152,14 @@ Signup form with error message.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Check for error message
         const errorMessage = await canvas.findByText(/email address is already registered/i, {}, { timeout: 5000 });
         await expect(errorMessage).toBeInTheDocument();
 
         // Check for email input
-        const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.emailPlaceholder,
-            {},
-            { timeout: 5000 }
-        );
+        const emailInput = await canvas.findByPlaceholderText(t('signup:form.emailPlaceholder'), {}, { timeout: 5000 });
         await expect(emailInput).toBeInTheDocument();
     },
 };
@@ -187,10 +181,11 @@ Interactive signup form for testing user interactions.
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Find and interact with first name input
         const firstNameInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.firstNamePlaceholder,
+            t('signup:form.firstNamePlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -199,7 +194,7 @@ Interactive signup form for testing user interactions.
 
         // Find and interact with last name input
         const lastNameInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.lastNamePlaceholder,
+            t('signup:form.lastNamePlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -207,17 +202,13 @@ Interactive signup form for testing user interactions.
         await expect(lastNameInput).toHaveValue('Smith');
 
         // Find and interact with email input
-        const emailInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.emailPlaceholder,
-            {},
-            { timeout: 5000 }
-        );
+        const emailInput = await canvas.findByPlaceholderText(t('signup:form.emailPlaceholder'), {}, { timeout: 5000 });
         await userEvent.type(emailInput, 'jane.smith@example.com');
         await expect(emailInput).toHaveValue('jane.smith@example.com');
 
         // Find and interact with password input
         const passwordInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.passwordPlaceholder,
+            t('signup:form.passwordPlaceholder'),
             {},
             { timeout: 5000 }
         );
@@ -226,7 +217,7 @@ Interactive signup form for testing user interactions.
 
         // Find and interact with confirm password input
         const confirmPasswordInput = await canvas.findByPlaceholderText(
-            uiStrings.signup.form.confirmPasswordPlaceholder,
+            t('signup:form.confirmPasswordPlaceholder'),
             {},
             { timeout: 5000 }
         );

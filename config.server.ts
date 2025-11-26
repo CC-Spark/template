@@ -113,6 +113,8 @@ export default defineConfig({
                 guestCheckout: true,
             },
         },
+        // When updating these i18n properties, please also check that the middleware configurations are in sync
+        // See src/middlewares/i18next.ts
         i18n: {
             fallbackLng: 'en',
             supportedLngs: ['es', 'en'], // Your supported languages, the fallback should be last

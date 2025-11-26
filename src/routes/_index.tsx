@@ -10,13 +10,13 @@ import { PopularCategories } from '@/components/home/popular-categories';
 import { ContentCard } from '@/components/content-card';
 import { Button } from '@/components/ui/button';
 import { getConfig } from '@/config';
-import uiStrings from '@/temp-ui-string';
 import { PageType } from '@/lib/decorators/page-type';
 import { getRegionDefinition, RegionDefinition } from '@/lib/decorators/region-definition';
 
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
 
 import heroNewArrivals from '/images/hero-new-arrivals.png';
+import { useTranslation } from 'react-i18next';
 
 @PageType({
     name: 'Home Page',
@@ -91,6 +91,7 @@ export function clientLoader(args: ClientLoaderFunctionArgs) {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
+    const { t } = useTranslation('home');
     return (
         <div className="pb-16 -mt-8">
             <Suspense fallback={<div />}>
@@ -125,20 +126,18 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
                         <div className="relative h-64 lg:h-96">
                             <img
                                 src={heroNewArrivals}
-                                alt={uiStrings.home.newArrivals.title}
+                                alt={t('newArrivals.title')}
                                 className="w-full h-full object-contain"
                                 loading="lazy"
                             />
                         </div>
                         <div className="p-8 lg:p-12">
                             <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground mb-4">
-                                {uiStrings.home.newArrivals.title}
+                                {t('newArrivals.title')}
                             </h2>
-                            <p className="text-lg text-muted-foreground mb-6">
-                                {uiStrings.home.newArrivals.description}
-                            </p>
+                            <p className="text-lg text-muted-foreground mb-6">{t('newArrivals.description')}</p>
                             <Button size="lg" asChild>
-                                <a href="/category/newarrivals">{uiStrings.home.newArrivals.ctaText}</a>
+                                <a href="/category/newarrivals">{t('newArrivals.ctaText')}</a>
                             </Button>
                         </div>
                     </div>
@@ -153,22 +152,22 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <ContentCard
-                            title={uiStrings.home.featuredContent.women.title}
-                            description={uiStrings.home.featuredContent.women.description}
+                            title={t('featuredContent.women.title')}
+                            description={t('featuredContent.women.description')}
                             imageUrl={heroNewArrivals}
-                            imageAlt={uiStrings.home.featuredContent.women.imageAlt}
-                            buttonText={uiStrings.home.featuredContent.women.ctaText}
+                            imageAlt={t('featuredContent.women.imageAlt')}
+                            buttonText={t('featuredContent.women.ctaText')}
                             buttonLink="/category/womens"
                             showBackground={false}
                             showBorder={false}
                             loading="lazy"
                         />
                         <ContentCard
-                            title={uiStrings.home.featuredContent.men.title}
-                            description={uiStrings.home.featuredContent.men.description}
+                            title={t('featuredContent.men.title')}
+                            description={t('featuredContent.men.description')}
                             imageUrl={heroNewArrivals}
-                            imageAlt={uiStrings.home.featuredContent.men.imageAlt}
-                            buttonText={uiStrings.home.featuredContent.men.ctaText}
+                            imageAlt={t('featuredContent.men.imageAlt')}
+                            buttonText={t('featuredContent.men.ctaText')}
                             buttonLink="/category/mens"
                             showBackground={false}
                             showBorder={false}

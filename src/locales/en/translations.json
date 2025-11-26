@@ -5,11 +5,22 @@
     },
     "common": {
         "loading": "Loading",
+        "loadingMore": "Loading more...",
         "product": "the product",
-        "noImageAvailable": "No image available"
+        "noImageAvailable": "No image available",
+        "productGeneric": "Product"
     },
     "search": {
-        "results": "Search Results for"
+        "results": "Search Results for",
+        "suggestions": {
+            "didYouMean": "Did you mean",
+            "categories": "Categories",
+            "products": "Products",
+            "popularSearches": "Popular Searches",
+            "recentSearches": "Recent Searches",
+            "clearRecentSearches": "Clear recent searches",
+            "viewAll": "View All"
+        }
     },
     "customer": {
         "defaults": {
@@ -54,9 +65,9 @@
     "login": {
         "title": "Sign in to your account",
         "subtitle": "Enter your credentials to access your account",
-        "continueWithProvider": "Continue with {provider}",
+        "continueWithProvider": "Continue with {{provider}}",
         "checkEmailTitle": "Check Your Email",
-        "checkEmailDescription": "We've sent a login link to {email}. Click the link to sign in.",
+        "checkEmailDescription": "We've sent a login link to {{email}}. Click the link to sign in.",
         "backToLogin": "Back to Login",
         "emailLabel": "Email address",
         "emailPlaceholder": "Enter your email",
@@ -77,7 +88,7 @@
         "title": "Reset Password",
         "subtitle": "Enter your email to receive instructions on how to reset your password",
         "checkEmailTitle": "Check Your Email",
-        "checkEmailDescription": "You will receive an email at {email} with a link to reset your password shortly.",
+        "checkEmailDescription": "You will receive an email at {{email}} with a link to reset your password shortly.",
         "backToSignIn": "Back To Sign In",
         "emailLabel": "Email address",
         "emailPlaceholder": "Enter your email",
@@ -163,7 +174,8 @@
             "unauthorized": "Your session has expired. Please log in again.",
             "badRequest": "Invalid request. Please check your information and try again.",
             "forbidden": "Access denied. You do not have permission to perform this action.",
-            "timeout": "Request timeout. Please try again."
+            "timeout": "Request timeout. Please try again.",
+            "unexpectedError": "An unexpected error occurred"
         },
         "validation": {
             "required": "This field is required.",
@@ -171,8 +183,8 @@
             "invalidCreditCard": "Please enter a valid credit card number.",
             "invalidExpiryDate": "Please enter a valid expiry date.",
             "invalidCvv": "Please enter a valid CVV code.",
-            "minLength": "This field must be at least {min} characters long.",
-            "maxLength": "This field cannot exceed {max} characters.",
+            "minLength": "This field must be at least {{min}} characters long.",
+            "maxLength": "This field cannot exceed {{max}} characters.",
             "invalidPhoneNumber": "Please enter a valid phone number.",
             "invalidPostalCode": "Please enter a valid postal code."
         },
@@ -187,6 +199,7 @@
             "stockNotAvailable": "Insufficient stock for one or more items in your cart."
         },
         "customer": {
+            "addressIdRequired": "Address title is required for customer address",
             "countryCodeRequired": "Country code is required for customer address",
             "addressLine1Required": "Address line 1 is required for customer address",
             "cityRequired": "City is required for customer address",
@@ -197,7 +210,8 @@
             "customerLookupUnavailable": "Customer lookup service unavailable",
             "registrationFailed": "Registration failed. Please try again.",
             "autoLoginFailed": "Auto-login failed. Please log in manually.",
-            "autoLoginAfterRegistrationFailed": "Account created successfully, but auto-login failed. Please log in manually."
+            "autoLoginAfterRegistrationFailed": "Account created successfully, but auto-login failed. Please log in manually.",
+            "notAuthenticated": "Customer ID not found"
         },
         "passwordless": {
             "missingToken": "Missing token",
@@ -220,13 +234,13 @@
         "quantity": "Quantity:",
         "decreaseQuantity": "Decrease quantity",
         "increaseQuantity": "Increase quantity",
-        "decreaseQuantityForProduct": "Decrement Quantity for {productName}",
-        "increaseQuantityForProduct": "Increment Quantity for {productName}",
+        "decreaseQuantityForProduct": "Decrement Quantity for {{productName}}",
+        "increaseQuantityForProduct": "Increment Quantity for {{productName}}",
         "quantityInput": "Quantity",
         "quantityUpdated": "Quantity updated",
         "quantityUpdateFailed": "Failed to update quantity",
-        "onlyLeft": "Only {stockLevel} left!",
-        "onlyLeftForProduct": "Only {stockLevel} left for {productName}!"
+        "onlyLeft": "Only {{stockLevel}} left!",
+        "onlyLeftForProduct": "Only {{stockLevel}} left for {{productName}}!"
     },
     "product": {
         "recommendations": {
@@ -235,8 +249,8 @@
             "recentlyViewed": "Recently viewed"
         },
         "from": "from",
-        "outOfStock": "Out of stock for {productName}",
-        "onlyLeft": "Only {stockLevel} left for {productName}!",
+        "outOfStock": "Out of stock for {{productName}}",
+        "onlyLeft": "Only {{stockLevel}} left for {{productName}}!",
         "inStock": "In stock",
         "preOrder": "Available for pre-order",
         "backOrder": "Available for back order",
@@ -250,6 +264,7 @@
         "updateCart": "Update",
         "addingToWishlist": "Adding to Wishlist...",
         "addToWishlist": "Add to Wishlist",
+        "share": "Share",
         "productSetNotice": "This is a product set. Select individual items below to add to cart.",
         "productBundleNotice": "This is a product bundle. All items will be added together.",
         "productDetails": "Product Details",
@@ -275,7 +290,7 @@
         "productBundle": "Product Bundle",
         "setDescription": "Choose from the items below to create your perfect set",
         "bundleDescription": "All items in this bundle will be added to your cart together",
-        "selectedOf": "{selected} of {total} selected",
+        "selectedOf": "{{selected}} of {{total}} selected",
         "addSetToCart": "Add Set to Cart",
         "addBundleToCart": "Add Bundle to Cart",
         "adding": "Adding...",
@@ -283,16 +298,28 @@
         "outOfStockStatus": "Out of stock",
         "selected": "✓ Selected",
         "selectOptionsAbove": "Select options above",
-        "addedToCart": "Added {productName} to cart",
-        "updatedCart": "Updated {productName} in cart",
+        "bonusProduct": "Bonus Product",
+        "bonusProductAriaLabel": "This item is a free bonus product",
+        "addedToCart": "Added {{productName}} to cart",
+        "updatedCart": "Updated {{productName}} in cart",
         "addedSetToCart": "Added product set to cart",
         "addedBundleToCart": "Added product bundle to cart",
-        "failedToAddToCart": "Failed to add to cart: {error}",
-        "failedToUpdateCart": "Failed to update cart: {error}",
-        "failedToAddItemsToCart": "Failed to add items to cart: {error}",
-        "failedToAddBundleToCart": "Failed to add bundle to cart: {error}",
-        "addedToWishlist": "Added {productName} to wishlist",
+        "failedToAddToCart": "Failed to add to cart: {{error}}",
+        "failedToUpdateCart": "Failed to update cart: {{error}}",
+        "failedToAddItemsToCart": "Failed to add items to cart: {{error}}",
+        "failedToAddBundleToCart": "Failed to add bundle to cart: {{error}}",
+        "addedToWishlist": "Added {{productName}} to wishlist",
+        "alreadyInWishlist": "{{productName}} is already in your wishlist",
         "failedToAddToWishlist": "Failed to add item to wishlist",
+        "signInToAddToWishlist": "Sign in to add items to your wishlist",
+        "signInToContinue": "Sign in to continue",
+        "removedFromWishlist": "Removed from wishlist",
+        "failedToRemoveFromWishlist": "Failed to remove item from wishlist",
+        "removeFromWishlist": "Remove from wishlist",
+        "removedLabel": "Removed",
+        "itemAlreadyInWishlist": "Item is already in your wishlist",
+        "addedToWishlistGeneric": "Added to wishlist",
+        "productIdRequired": "Product ID is required",
         "methodNotAllowed": "Method not allowed",
         "productItemRequired": "Product item data is required",
         "productItemsRequired": "Product items data is required",
@@ -304,16 +331,16 @@
         "failedToAddItemsToCartError": "Failed to add items to cart",
         "failedToAddBundleToCartError": "Failed to add bundle to cart",
         "failedToUpdateBundleToCartError": "Failed to update bundle to cart",
-        "pleaseSelectOptionsFor": "Please select options for {productName}",
-        "productNotOrderable": "{productName} is not orderable",
+        "pleaseSelectOptionsFor": "Please select options for {{productName}}",
+        "productNotOrderable": "{{productName}} is not orderable",
         "cannotAddToCartValidationFailed": "Cannot add to cart: validation failed",
         "failedToAddProductToCart": "Failed to add product to cart",
         "failedToAddProductToWishlist": "Failed to add product to wishlist",
         "noProductIdForCart": "No product ID available for cart addition",
-        "invalidQuantityForCart": "Invalid quantity for cart addition: {quantity}",
+        "invalidQuantityForCart": "Invalid quantity for cart addition: {{quantity}}",
         "noProductSelectionsForSet": "No product selections provided for set cart addition",
         "noProductIdForBundle": "No product ID available for bundle cart addition",
-        "invalidQuantityForBundle": "Invalid quantity for bundle cart addition: {quantity}",
+        "invalidQuantityForBundle": "Invalid quantity for bundle cart addition: {{quantity}}",
         "noChildSelectionsForBundle": "No child product selections provided for bundle cart addition",
         "cartOperationFailed": "Cart operation failed:",
         "multipleItemsCartOperationFailed": "Multiple items cart operation failed:",
@@ -331,7 +358,7 @@
         "itemCount": {
             "zero": "Cart (0 items)",
             "one": "Cart (1 item)",
-            "other": "Cart ({count} items)"
+            "other": "Cart ({{count}} items)"
         },
         "empty": {
             "title": "Your cart is empty.",
@@ -382,7 +409,7 @@
             "itemsInCart": {
                 "zero": "0 items in cart",
                 "one": "1 item in cart",
-                "other": "{count} items in cart"
+                "other": "{{count}} items in cart"
             },
             "editCart": "Edit cart"
         },
@@ -406,7 +433,7 @@
             }
         },
         "badge": {
-            "ariaLabel": "My cart, number of items: {count}"
+            "ariaLabel": "My cart, number of items: {{count}}"
         },
         "bundle": {
             "selectedOptions": "Selected Options"
@@ -415,6 +442,7 @@
     "checkout": {
         "contactInfo": {
             "title": "Contact Information",
+            "emailLabel": "Email Address",
             "emailPlaceholder": "Enter your email address",
             "emailRequired": "Please enter your email address",
             "emailInvalid": "Please enter a valid email address",
@@ -463,8 +491,8 @@
             "saving": "Saving...",
             "continue": "Continue to Payment",
             "enterAddressFirst": "Enter your shipping address to view available shipping methods.",
-            "arrives": "Arrives: {estimatedArrivalTime}",
-            "priceAndMethod": "{price} | {methodName}",
+            "arrives": "Arrives: {{estimatedArrivalTime}}",
+            "priceAndMethod": "{{price}} | {{methodName}}",
             "free": "Free"
         },
         "payment": {
@@ -489,6 +517,8 @@
             "billingAddressRequired": "Billing address is required when different from shipping",
             "billingSameAsShipping": "Same as shipping address",
             "billingSameAsShippingDescription": "Use the same address for billing and shipping",
+            "sameAsShippingAddress": "Same as shipping address",
+            "noBillingAddressSaved": "No billing address saved",
             "continue": "Continue to Review",
             "saving": "Saving...",
             "saved": "Payment information saved",
@@ -525,7 +555,7 @@
         "confirmation": {
             "title": "Thank you for your order!",
             "orderNumber": "Order Number:",
-            "confirmationEmailSent": "We've sent a confirmation email to {email}",
+            "confirmationEmailSent": "We've sent a confirmation email to {{email}}",
             "orderNotFound": "Order Not Found",
             "orderNotFoundDescription": "We could not find the order you are looking for.",
             "orderNumberRequired": "Order number is required",
@@ -573,13 +603,63 @@
             "logOut": "Log Out"
         },
         "wishlist": {
-            "empty": "Your wishlist is empty. Start adding items you love!"
+            "empty": "Your wishlist is empty. Start adding items you love!",
+            "wishlistName": "Wishlist",
+            "failedToCreate": "Failed to create wishlist: listId not available after creation",
+            "unableToRetrieveId": "Unable to retrieve wishlist ID. Please try again.",
+            "notFound": "Wishlist not found",
+            "idNotFound": "Wishlist ID not found",
+            "itemNotFound": "Item not found in wishlist",
+            "mustLoginToAdd": "You must be logged in to add items to your wishlist",
+            "mustLoginToRemove": "You must be logged in to remove items from your wishlist"
         },
         "orders": {
             "empty": "No orders found. Start shopping to see your order history!"
         },
         "addresses": {
-            "empty": "No addresses saved. Add an address to make checkout faster!"
+            "empty": "No addresses saved. Add an address to make checkout faster!",
+            "noSavedAddresses": "No Saved Addresses",
+            "addAddress": "Add Address",
+            "editAddress": "Edit Address",
+            "preferred": "Preferred",
+            "billing": "Billing",
+            "shipping": "Shipping",
+            "removeSuccess": "Address removed successfully",
+            "removeError": "Failed to remove address. Please try again.",
+            "addSuccess": "Address added successfully",
+            "addError": "Failed to add address",
+            "updateSuccess": "Address updated successfully",
+            "updateError": "Failed to update address",
+            "removeConfirmTitle": "Confirm Remove Address",
+            "removeConfirmDescription": "Are you sure you want to remove address \"{{addressName}}\"?",
+            "removeCancelButton": "Cancel",
+            "removeConfirmButton": "Yes, remove address"
+        },
+        "addressForm": {
+            "addressTitleLabel": "Address Title",
+            "firstNameLabel": "First Name",
+            "lastNameLabel": "Last Name",
+            "phoneLabel": "Phone",
+            "countryLabel": "Country",
+            "addressLabel": "Address",
+            "address2Label": "Address Line 2",
+            "address2Placeholder": "Apartment, suite, etc. (optional)",
+            "cityLabel": "City",
+            "stateLabel": "State",
+            "provinceLabel": "Province",
+            "postalCodeLabel": "Postal Code",
+            "zipCodeLabel": "Zip Code",
+            "preferredLabel": "Set as default",
+            "saveButton": "Save",
+            "savingButton": "Saving...",
+            "cancelButton": "Cancel",
+            "selectStatePlaceholder": "Select State",
+            "selectProvincePlaceholder": "Select Province",
+            "successMessage": "Address saved successfully",
+            "errorMessage": "Failed to save address. Please try again.",
+            "validation": {
+                "stateRequired": "State/Province is required"
+            }
         },
         "profile": {
             "title": "My Profile",
@@ -709,5 +789,86 @@
             "facebookLabel": "Facebook"
         },
         "copyright": "Salesforce or its affiliates. All rights reserved. This is a demo store only. Orders made WILL NOT be processed."
+    },
+    "countries": {
+        "US": {
+            "name": "United States",
+            "states": {
+                "AL": "Alabama",
+                "AK": "Alaska",
+                "AZ": "Arizona",
+                "AR": "Arkansas",
+                "CA": "California",
+                "CO": "Colorado",
+                "CT": "Connecticut",
+                "DE": "Delaware",
+                "DC": "District Of Columbia",
+                "FL": "Florida",
+                "GA": "Georgia",
+                "HI": "Hawaii",
+                "ID": "Idaho",
+                "IL": "Illinois",
+                "IN": "Indiana",
+                "IA": "Iowa",
+                "KS": "Kansas",
+                "KY": "Kentucky",
+                "LA": "Louisiana",
+                "ME": "Maine",
+                "MD": "Maryland",
+                "MA": "Massachusetts",
+                "MI": "Michigan",
+                "MN": "Minnesota",
+                "MS": "Mississippi",
+                "MO": "Missouri",
+                "MT": "Montana",
+                "NE": "Nebraska",
+                "NV": "Nevada",
+                "NH": "New Hampshire",
+                "NJ": "New Jersey",
+                "NM": "New Mexico",
+                "NY": "New York",
+                "NC": "North Carolina",
+                "ND": "North Dakota",
+                "OH": "Ohio",
+                "OK": "Oklahoma",
+                "OR": "Oregon",
+                "PA": "Pennsylvania",
+                "RI": "Rhode Island",
+                "SC": "South Carolina",
+                "SD": "South Dakota",
+                "TN": "Tennessee",
+                "TX": "Texas",
+                "UT": "Utah",
+                "VT": "Vermont",
+                "VA": "Virginia",
+                "WA": "Washington",
+                "WV": "West Virginia",
+                "WI": "Wisconsin",
+                "WY": "Wyoming"
+            }
+        },
+        "CA": {
+            "name": "Canada",
+            "states": {
+                "AB": "Alberta",
+                "BC": "British Columbia",
+                "MB": "Manitoba",
+                "NB": "New Brunswick",
+                "NL": "Newfoundland and Labrador",
+                "NS": "Nova Scotia",
+                "NT": "Northwest Territories",
+                "NU": "Nunavut",
+                "ON": "Ontario",
+                "PE": "Prince Edward Island",
+                "QC": "Quebec",
+                "SK": "Saskatchewan",
+                "YT": "Yukon"
+            }
+        }
+    },
+    "themeSwitcher": {
+        "ariaLabel": "Theme switcher",
+        "lightTheme": "Light Theme",
+        "darkTheme": "Dark Theme"
     }
 }

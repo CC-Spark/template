@@ -13,8 +13,8 @@ import type {
 import AddressDisplay from '@/components/address-display';
 import { getConfig } from '@/config';
 import { getCardTypeDisplay, getFormattedMaskedCardNumber } from '@/lib/payment-utils';
-import uiStrings from '@/temp-ui-string';
 import OrderSkeleton from '@/components/order-skeleton';
+import { useTranslation } from 'react-i18next';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { fetchStoresForOrder } from '@/extensions/bopis/lib/api/stores';
 import { getOrderPickupShipment } from '@/extensions/bopis/lib/order-utils';
@@ -104,23 +104,24 @@ export function HydrateFallback() {
  * @returns JSX element representing the error state with user-friendly messaging
  */
 export function ErrorBoundary() {
+    const { t } = useTranslation('checkout');
     // NOTE: We are making the decision to use custom error messages. If you want to use the default messages
     // from the API, you can use the `useRouteError` hook to get the error message.
-    const errorMessage: string = uiStrings.checkout.confirmation.orderNotFoundDescription;
+    const errorMessage: string = t('confirmation.orderNotFoundDescription');
 
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-center">{uiStrings.checkout.confirmation.orderNotFound}</CardTitle>
+                        <CardTitle className="text-center">{t('confirmation.orderNotFound')}</CardTitle>
                     </CardHeader>
                     <CardContent className="text-center space-y-4">
                         <Typography variant="p" className="text-muted-foreground">
                             {errorMessage}
                         </Typography>
                         <Button asChild>
-                            <Link to="/">{uiStrings.checkout.confirmation.actions.continueShopping}</Link>
+                            <Link to="/">{t('confirmation.actions.continueShopping')}</Link>
                         </Button>
                     </CardContent>
                 </Card>
@@ -144,6 +145,8 @@ function CheckoutConfirmation({
     },
 }: RouteComponentProps<CheckoutConfirmationLoaderData>): ReactElement {
     const order = use(orderPromise);
+    const { t } = useTranslation('checkout');
+
     let showShippingDetails = true;
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
     const storesByStoreId = use(storesByStoreIdPromise);
@@ -168,39 +171,38 @@ function CheckoutConfirmation({
                     </div>
 
                     <Typography variant="h1" as="h1" className="mb-4 text-accent">
-                        {uiStrings.checkout.confirmation.title}
+                        {t('confirmation.title')}
                     </Typography>
 
                     <Typography variant="p" className="text-muted-foreground">
-                        {uiStrings.checkout.confirmation.fields.orderNumber}{' '}
+                        {t('confirmation.fields.orderNumber')}{' '}
                         <span className="font-mono font-medium">{order.orderNo}</span>
                     </Typography>
 
                     <Typography variant="p" className="text-muted-foreground mt-2">
-                        {uiStrings.checkout.confirmation.confirmationEmailSent.replace(
-                            '{email}',
-                            order.customerInfo?.email || ''
-                        )}
+                        {t('confirmation.confirmationEmailSent', {
+                            email: order.customerInfo?.email || '',
+                        })}
                     </Typography>
                 </div>
 
                 {/* Order Summary */}
                 <Card className="mb-8">
                     <CardHeader>
-                        <CardTitle>{uiStrings.checkout.confirmation.sections.orderSummary}</CardTitle>
+                        <CardTitle>{t('confirmation.sections.orderSummary')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span>{uiStrings.checkout.confirmation.fields.orderNumber}</span>
+                                <span>{t('confirmation.fields.orderNumber')}</span>
                                 <span className="font-mono">{order.orderNo}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span>{uiStrings.checkout.confirmation.fields.status}</span>
+                                <span>{t('confirmation.fields.status')}</span>
                                 <span>{order.status}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span>{uiStrings.checkout.confirmation.fields.total}</span>
+                                <span>{t('confirmation.fields.total')}</span>
                                 <span className="font-medium">
                                     {new Intl.NumberFormat('en-US', {
                                         style: 'currency',
@@ -238,13 +240,13 @@ function CheckoutConfirmation({
                 {showShippingDetails && (
                     <Card className="mb-8">
                         <CardHeader>
-                            <CardTitle>{uiStrings.checkout.confirmation.sections.shippingDetails}</CardTitle>
+                            <CardTitle>{t('confirmation.sections.shippingDetails')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div>
                                     <Typography variant="h5" as="h3" className="mb-2">
-                                        {uiStrings.checkout.confirmation.fields.shippingAddress}
+                                        {t('confirmation.fields.shippingAddress')}
                                     </Typography>
                                     {order.shipments?.[0]?.shippingAddress && (
                                         <AddressDisplay address={order.shipments[0].shippingAddress} />
@@ -252,11 +254,11 @@ function CheckoutConfirmation({
                                 </div>
                                 <div>
                                     <Typography variant="h5" as="h3" className="mb-2">
-                                        {uiStrings.checkout.confirmation.fields.shippingMethod}
+                                        {t('confirmation.fields.shippingMethod')}
                                     </Typography>
                                     <Typography variant="p" className="text-muted-foreground">
                                         {order.shipments?.[0]?.shippingMethod?.name ||
-                                            uiStrings.checkout.confirmation.fields.defaultShippingMethod}
+                                            t('confirmation.fields.defaultShippingMethod')}
                                     </Typography>
                                 </div>
                             </div>
@@ -267,26 +269,26 @@ function CheckoutConfirmation({
                 {/* Payment Details */}
                 <Card className="mb-8">
                     <CardHeader>
-                        <CardTitle>{uiStrings.checkout.confirmation.sections.paymentDetails}</CardTitle>
+                        <CardTitle>{t('confirmation.sections.paymentDetails')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="grid md:grid-cols-2 gap-6">
                             <div>
                                 <Typography variant="h5" as="h3" className="mb-2">
-                                    {uiStrings.checkout.confirmation.fields.billingAddress}
+                                    {t('confirmation.fields.billingAddress')}
                                 </Typography>
                                 {order.billingAddress && <AddressDisplay address={order.billingAddress} />}
                             </div>
                             <div>
                                 <Typography variant="h5" as="h3" className="mb-2">
-                                    {uiStrings.checkout.confirmation.fields.paymentMethod}
+                                    {t('confirmation.fields.paymentMethod')}
                                 </Typography>
                                 {order.paymentInstruments?.[0] && (
                                     <div>
                                         <Typography variant="p" className="text-muted-foreground">
                                             {getCardTypeDisplay(
                                                 order.paymentInstruments[0],
-                                                uiStrings.checkout.confirmation.fields.defaultPaymentMethod
+                                                t('confirmation.fields.defaultPaymentMethod')
                                             )}
                                         </Typography>
                                         <Typography variant="p" className="text-muted-foreground">
@@ -302,10 +304,10 @@ function CheckoutConfirmation({
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button asChild size="lg">
-                        <Link to="/">{uiStrings.checkout.confirmation.actions.continueShopping}</Link>
+                        <Link to="/">{t('confirmation.actions.continueShopping')}</Link>
                     </Button>
                     <Button asChild variant="outline" size="lg">
-                        <Link to="/account">{uiStrings.checkout.confirmation.actions.viewAccount}</Link>
+                        <Link to="/account">{t('confirmation.actions.viewAccount')}</Link>
                     </Button>
                 </div>
             </div>

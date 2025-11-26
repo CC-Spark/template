@@ -24,9 +24,9 @@ import {
     createBasketSuccessResponse,
     createBasketErrorResponse,
 } from './types/action-responses';
+import { getTranslation } from '@/lib/i18next';
 
 // Constants
-import uiStrings from '@/temp-ui-string';
 
 /**
  * Client action for updating a cart item (variant and/or quantity)
@@ -62,13 +62,15 @@ import uiStrings from '@/temp-ui-string';
  * @throws Error if no basket is found in the session
  */
 export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<BasketActionResponse> {
+    const { t } = getTranslation();
+
     if (request.method !== 'PATCH') {
-        throw new Response(uiStrings.errors.methodNotAllowed, { status: 405 });
+        throw new Response(t('errors:methodNotAllowed'), { status: 405 });
     }
 
     const { basketId } = getBasket(context);
     if (!basketId) {
-        return createBasketErrorResponse(uiStrings.errors.noBasketFound);
+        return createBasketErrorResponse(t('errors:noBasketFound'));
     }
 
     try {

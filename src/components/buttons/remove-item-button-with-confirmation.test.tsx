@@ -2,9 +2,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { PropsWithChildren } from 'react';
+import { getTranslation } from '@/lib/i18next';
+
+const { t } = getTranslation();
 import { RemoveItemButtonWithConfirmation } from './remove-item-button-with-confirmation';
 import type { ActionResponse } from '@/routes/types/action-responses';
-import uiStrings from '@/temp-ui-string';
 import { useItemFetcher } from '@/hooks/use-item-fetcher';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
@@ -32,10 +34,11 @@ vi.mock('@/hooks/use-item-fetcher', () => ({
 const mockUseItemFetcher = vi.mocked(useItemFetcher);
 
 describe('RemoveItemButtonWithConfirmation', () => {
-    const defaultConfig = {
+    // Create a function to get defaultConfig with i18next called at test runtime
+    const getDefaultConfig = () => ({
         action: '/action/cart-item-remove',
-        confirmDescription: uiStrings.cart.removeItemConfirmDescription,
-    };
+        confirmDescription: t('cart:removeItemConfirmDescription'),
+    });
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -48,14 +51,14 @@ describe('RemoveItemButtonWithConfirmation', () => {
     test('renders remove button with correct text and attributes', () => {
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
         const button = screen.getByTestId('remove-item-item-123');
         expect(button).toBeInTheDocument();
-        expect(button).toHaveTextContent(uiStrings.removeItem.button);
-        expect(button).toHaveAttribute('title', uiStrings.removeItem.title);
+        expect(button).toHaveTextContent(t('removeItem:button'));
+        expect(button).toHaveAttribute('title', t('removeItem:title'));
     });
 
     test('renders confirmation dialog content when opened', async () => {
@@ -63,7 +66,7 @@ describe('RemoveItemButtonWithConfirmation', () => {
 
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
@@ -72,10 +75,10 @@ describe('RemoveItemButtonWithConfirmation', () => {
         await user.click(triggerButton);
 
         // Now the dialog content should be rendered
-        expect(screen.getByText(uiStrings.removeItem.confirmTitle)).toBeInTheDocument();
-        expect(screen.getByText(defaultConfig.confirmDescription)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: uiStrings.removeItem.cancelButton })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: uiStrings.removeItem.confirmAction })).toBeInTheDocument();
+        expect(screen.getByText(t('removeItem:confirmTitle'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:removeItemConfirmDescription'))).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('removeItem:cancelButton') })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('removeItem:confirmAction') })).toBeInTheDocument();
     });
 
     test('shows removing text when status is loading', () => {
@@ -85,12 +88,12 @@ describe('RemoveItemButtonWithConfirmation', () => {
 
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
         const button = screen.getByTestId('remove-item-item-123');
-        expect(button).toHaveTextContent(uiStrings.removeItem.removing);
+        expect(button).toHaveTextContent(t('removeItem:removing'));
         expect(button).toBeDisabled();
         expect(button).toHaveAttribute('aria-busy', 'true');
     });
@@ -100,7 +103,7 @@ describe('RemoveItemButtonWithConfirmation', () => {
 
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
@@ -109,7 +112,7 @@ describe('RemoveItemButtonWithConfirmation', () => {
         await user.click(removeButton);
 
         // Click the confirm button in the dialog
-        const confirmButton = screen.getByRole('button', { name: uiStrings.removeItem.confirmAction });
+        const confirmButton = screen.getByRole('button', { name: t('removeItem:confirmAction') });
         await user.click(confirmButton);
 
         // Verify that fetcher.submit was called with correct parameters
@@ -117,7 +120,7 @@ describe('RemoveItemButtonWithConfirmation', () => {
             expect.any(FormData),
             expect.objectContaining({
                 method: 'POST',
-                action: defaultConfig.action,
+                action: getDefaultConfig().action,
             })
         );
     });
@@ -130,11 +133,11 @@ describe('RemoveItemButtonWithConfirmation', () => {
 
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
-        expect(mockAddToast).toHaveBeenCalledWith(uiStrings.removeItem.success, 'success');
+        expect(mockAddToast).toHaveBeenCalledWith(t('removeItem:success'), 'success');
     });
 
     test('shows error toast when fetcher returns error data', () => {
@@ -145,11 +148,11 @@ describe('RemoveItemButtonWithConfirmation', () => {
 
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
-        expect(mockAddToast).toHaveBeenCalledWith(uiStrings.removeItem.failed, 'error');
+        expect(mockAddToast).toHaveBeenCalledWith(t('removeItem:failed'), 'error');
     });
 
     test('disables trigger button when status is loading', () => {
@@ -159,13 +162,13 @@ describe('RemoveItemButtonWithConfirmation', () => {
 
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
         const removeButton = screen.getByTestId('remove-item-item-123');
         expect(removeButton).toBeDisabled();
-        expect(removeButton).toHaveTextContent(uiStrings.removeItem.removing);
+        expect(removeButton).toHaveTextContent(t('removeItem:removing'));
         expect(removeButton).toHaveAttribute('aria-busy', 'true');
     });
 
@@ -174,7 +177,7 @@ describe('RemoveItemButtonWithConfirmation', () => {
 
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} />
+                <RemoveItemButtonWithConfirmation itemId="item-123" config={getDefaultConfig()} />
             </ConfigProvider>
         );
 
@@ -183,20 +186,24 @@ describe('RemoveItemButtonWithConfirmation', () => {
         await user.click(triggerButton);
 
         // Verify dialog is open
-        expect(screen.getByText(uiStrings.removeItem.confirmTitle)).toBeInTheDocument();
+        expect(screen.getByText(t('removeItem:confirmTitle'))).toBeInTheDocument();
 
         // Click cancel button
-        const cancelButton = screen.getByRole('button', { name: uiStrings.removeItem.cancelButton });
+        const cancelButton = screen.getByRole('button', { name: t('removeItem:cancelButton') });
         await user.click(cancelButton);
 
         // Verify dialog is closed
-        expect(screen.queryByText(uiStrings.removeItem.confirmTitle)).not.toBeInTheDocument();
+        expect(screen.queryByText(t('removeItem:confirmTitle'))).not.toBeInTheDocument();
     });
 
     test('applies custom className', () => {
         render(
             <ConfigProvider config={mockConfig}>
-                <RemoveItemButtonWithConfirmation itemId="item-123" config={defaultConfig} className="custom-class" />
+                <RemoveItemButtonWithConfirmation
+                    itemId="item-123"
+                    config={getDefaultConfig()}
+                    className="custom-class"
+                />
             </ConfigProvider>
         );
 

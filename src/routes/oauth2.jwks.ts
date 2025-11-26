@@ -6,8 +6,8 @@
  *
  */
 import type { LoaderFunctionArgs } from 'react-router';
-import uiStrings from '@/temp-ui-string';
 import { getConfig } from '@/config';
+import { getTranslation } from '@/lib/i18next';
 
 interface JWKSResponse {
     keys: Array<{
@@ -29,6 +29,7 @@ interface JWKSResponse {
  * Fetch JWKS from upstream SLAS server
  */
 async function fetchUpstreamJWKS(context: LoaderFunctionArgs['context']): Promise<JWKSResponse> {
+    const { t } = getTranslation(context);
     const config = getConfig(context);
     if (!config) {
         throw new Error('App configuration not found in context');
@@ -38,7 +39,7 @@ async function fetchUpstreamJWKS(context: LoaderFunctionArgs['context']): Promis
     const organizationId = config.commerce.api.organizationId;
 
     if (!shortCode || !organizationId) {
-        throw new Error(uiStrings.errors.jwks.missingEnvironmentVariables);
+        throw new Error(t('errors:jwks.missingEnvironmentVariables'));
     }
 
     const upstreamUrl = `https://${shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/${organizationId}/oauth2/jwks`;
@@ -61,7 +62,7 @@ async function fetchUpstreamJWKS(context: LoaderFunctionArgs['context']): Promis
 
     // Validate JWKS structure
     if (!jwks.keys || !Array.isArray(jwks.keys)) {
-        throw new Error(uiStrings.errors.jwks.invalidResponse);
+        throw new Error(t('errors:jwks.invalidResponse'));
     }
 
     return jwks;
@@ -72,6 +73,8 @@ async function fetchUpstreamJWKS(context: LoaderFunctionArgs['context']): Promis
  */
 // eslint-disable-next-line custom/no-async-page-loader, custom/no-universal-loaders -- Resource route for JWKS proxy serving
 export async function loader({ context }: LoaderFunctionArgs) {
+    const { t } = getTranslation(context);
+
     try {
         // Fetch JWKS from upstream
         const jwks = await fetchUpstreamJWKS(context);
@@ -91,7 +94,7 @@ export async function loader({ context }: LoaderFunctionArgs) {
     } catch (error) {
         // For errors, we need to throw to trigger proper HTTP error responses
         // since JWKS consumers expect either valid JWKS or HTTP errors
-        const errorMessage = error instanceof Error ? error.message : uiStrings.errors.jwks.unknownError;
+        const errorMessage = error instanceof Error ? error.message : t('errors:jwks.unknownError');
         throw new Error(errorMessage);
     }
 }

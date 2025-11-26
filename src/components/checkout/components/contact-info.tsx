@@ -1,3 +1,4 @@
+import { useMemo, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
@@ -7,14 +8,13 @@ import { SelectNative } from '@/components/ui/select-native';
 import { Typography } from '@/components/typography';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useBasket } from '@/providers/basket';
-import { contactInfoSchema, type ContactInfoData } from '@/lib/checkout-schemas';
+import { createContactInfoSchema, type ContactInfoData } from '@/lib/checkout-schemas';
 import { useLoginSuggestion } from '@/hooks/use-customer-lookup';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import { getContactInfoFromCustomer } from '@/lib/customer-profile-utils';
 import { getCommonPhoneCountryCodes } from '@/lib/country-codes';
-import uiStrings from '@/temp-ui-string';
 import type { CheckoutActionData } from '../types';
-import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ContactInfoProps {
     onSubmit: (data: ContactInfoData) => void;
@@ -39,12 +39,15 @@ export default function ContactInfo({
     const cart = useBasket();
     const loginSuggestion = useLoginSuggestion();
     const customerProfile = useCustomerProfile();
+    const { t } = useTranslation('checkout');
 
     // Get auto-populated contact info from customer profile
     const customerContactInfo = getContactInfoFromCustomer(customerProfile);
 
+    const schema = useMemo(() => createContactInfoSchema(t), [t]);
+
     const form = useForm<ContactInfoData>({
-        resolver: zodResolver(contactInfoSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             email: cart?.customerInfo?.email || customerContactInfo.email || '',
             countryCode: '',
@@ -57,7 +60,7 @@ export default function ContactInfo({
     };
 
     const stepTitle: ReactNode = (
-        <span className="text-lg font-semibold text-foreground">{uiStrings.checkout.contactInfo.title}</span>
+        <span className="text-lg font-semibold text-foreground">{t('contactInfo.title')}</span>
     );
 
     return (
@@ -66,7 +69,7 @@ export default function ContactInfo({
             title={stepTitle}
             editing={isEditing}
             onEdit={onEdit}
-            editLabel={uiStrings.checkout.common.edit}
+            editLabel={t('common.edit')}
             isLoading={isLoading}>
             <ToggleCardEdit>
                 <Form {...form}>
@@ -83,12 +86,12 @@ export default function ContactInfo({
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                        {uiStrings.checkout.contactInfo.emailPlaceholder}
+                                        {t('contactInfo.emailPlaceholder')}
                                     </FormLabel>
                                     <FormControl>
                                         <Input
                                             type="email"
-                                            placeholder={uiStrings.checkout.contactInfo.emailPlaceholder}
+                                            placeholder={t('contactInfo.emailPlaceholder')}
                                             autoComplete="email"
                                             autoFocus={isEditing}
                                             className="h-12 text-base border-2 focus:border-primary transition-colors"
@@ -109,11 +112,11 @@ export default function ContactInfo({
                                     render={({ field }) => (
                                         <FormItem className="w-24">
                                             <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                {uiStrings.checkout.contactInfo.countryCodeLabel}
+                                                {t('contactInfo.countryCodeLabel')}
                                             </FormLabel>
                                             <FormControl>
                                                 <SelectNative
-                                                    aria-label={uiStrings.checkout.contactInfo.countryCodeLabel}
+                                                    aria-label={t('contactInfo.countryCodeLabel')}
                                                     value={field.value}
                                                     onChange={(e) => field.onChange(e.target.value)}
                                                     className="h-12 text-base border-2 focus:border-primary transition-colors">
@@ -139,12 +142,12 @@ export default function ContactInfo({
                                     render={({ field }) => (
                                         <FormItem className="flex-1">
                                             <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                {uiStrings.checkout.contactInfo.phonePlaceholder}
+                                                {t('contactInfo.phonePlaceholder')}
                                             </FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="tel"
-                                                    placeholder={uiStrings.checkout.contactInfo.phonePlaceholder}
+                                                    placeholder={t('contactInfo.phonePlaceholder')}
                                                     autoComplete="tel-national"
                                                     className="h-12 text-base border-2 focus:border-primary transition-colors"
                                                     {...field}
@@ -163,9 +166,7 @@ export default function ContactInfo({
                                 disabled={isLoading || !form.formState.isValid}
                                 size="lg"
                                 className="min-w-56 h-12 text-base font-semibold">
-                                {isLoading
-                                    ? uiStrings.checkout.contactInfo.saving
-                                    : uiStrings.checkout.contactInfo.continue}
+                                {isLoading ? t('contactInfo.saving') : t('contactInfo.continue')}
                             </Button>
                         </div>
                     </form>
@@ -177,7 +178,7 @@ export default function ContactInfo({
                     <Typography variant="p" className="font-medium">
                         {cart?.customerInfo?.email ||
                             (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('checkoutEmail')) ||
-                            uiStrings.checkout.contactInfo.notProvided}
+                            t('contactInfo.notProvided')}
                     </Typography>
 
                     {/* Show phone number for guest users only */}
@@ -189,15 +190,15 @@ export default function ContactInfo({
 
                     {loginSuggestion.shouldSuggestLogin && (
                         <Typography variant="small" className="text-accent-foreground">
-                            {uiStrings.checkout.contactInfo.loginSuggestion}
+                            {t('contactInfo.loginSuggestion')}
                             <a href="/login" className="underline hover:no-underline">
-                                {uiStrings.checkout.contactInfo.loginSuggestionLink}
+                                {t('contactInfo.loginSuggestionLink')}
                             </a>
                         </Typography>
                     )}
                     {loginSuggestion.isCurrentUser && (
                         <Typography variant="small" className="text-success-foreground">
-                            {uiStrings.checkout.contactInfo.usingRegisteredAccount}
+                            {t('contactInfo.usingRegisteredAccount')}
                         </Typography>
                     )}
                 </div>

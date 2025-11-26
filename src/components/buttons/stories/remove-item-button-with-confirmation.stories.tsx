@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RemoveItemButtonWithConfirmation } from '../remove-item-button-with-confirmation';
 import { Button } from '@/components/ui/button';
-import uiStrings from '@/temp-ui-string';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { ConfigProvider } from '@/config/context';
@@ -9,6 +8,7 @@ import { mockConfig } from '@/test-utils/config';
 
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
+import { getTranslation } from '@/lib/i18next';
 
 const STORYBOOK_REMOVE_BASE = '/__storybook/remove';
 
@@ -34,18 +34,19 @@ function RemoveItemStoryHarness({ children }: { children: ReactNode }): ReactEle
     useEffect(() => {
         const root = containerRef.current;
         if (!root) return;
+        const { t } = getTranslation();
 
         const identifyButtonType = (button: HTMLButtonElement, label: string) => {
             if (button.dataset.testid?.startsWith('remove-item-')) {
                 return 'trigger' as const;
             }
-            if (label === uiStrings.removeItem.button || label === uiStrings.removeItem.removing) {
+            if (label === t('removeItem:button') || label === t('removeItem:removing')) {
                 return 'trigger' as const;
             }
-            if (label === uiStrings.removeItem.confirmAction) {
+            if (label === t('removeItem:confirmAction')) {
                 return 'confirm' as const;
             }
-            if (label === uiStrings.removeItem.cancelButton) {
+            if (label === t('removeItem:cancelButton')) {
                 return 'cancel' as const;
             }
             return null;
@@ -180,7 +181,7 @@ function CartItem({ item }) {
   return (
     <div>
       {/* item content */}
-      <RemoveItemButtonWithConfirmation 
+      <RemoveItemButtonWithConfirmation
         itemId={item.id}
         config={customConfig}
       />

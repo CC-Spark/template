@@ -11,13 +11,13 @@ import ProductQuantityPicker from '@/components/product-quantity-picker';
 import { SwatchGroup, Swatch } from '@/components/swatch-group';
 import { useVariationAttributes } from '@/hooks/product/use-variation-attributes';
 import { useProductView } from '@/providers/product-view';
-import uiStrings from '@/temp-ui-string';
 import ProductPrice from '../product-price';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import ProductFeatures from './product-features';
 import { DEFAULT_PRODUCT_FEATURES_CONFIG } from '@/config/product-features';
 import InventoryMessage from '../inventory-message';
 import { useCurrentVariant } from '@/hooks/product/use-current-variant';
+import { useTranslation } from 'react-i18next';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import DeliveryOptions from '@/extensions/bopis/components/delivery-options/delivery-options';
 
@@ -75,6 +75,8 @@ export default function ProductInfo({
         // @sfdc-extension-line SFDC_EXT_BOPIS
         basketPickupStore,
     } = useProductView();
+
+    const { t } = useTranslation('product');
 
     return (
         <div className="grid gap-4">
@@ -180,7 +182,7 @@ export default function ProductInfo({
             {(isProductASet || isProductABundle) && (
                 <div className="bg-primary/10 border border-primary rounded-lg p-4">
                     <p className="text-sm text-primary">
-                        {isProductASet ? uiStrings.product.productSetNotice : uiStrings.product.productBundleNotice}
+                        {isProductASet ? t('productSetNotice') : t('productBundleNotice')}
                     </p>
                 </div>
             )}
