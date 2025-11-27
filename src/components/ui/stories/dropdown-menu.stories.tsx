@@ -1,0 +1,150 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    DropdownMenuCheckboxItem,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+} from '../dropdown-menu';
+import { Button } from '../button';
+import { expect, within, userEvent } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
+
+const meta: Meta<typeof DropdownMenu> = {
+    title: 'UI/DropdownMenu',
+    component: DropdownMenu,
+    parameters: {
+        layout: 'centered',
+        docs: {
+            description: {
+                component:
+                    'Displays a menu to the user — such as a set of actions or functions — triggered by a button. Built with Radix UI Dropdown Menu primitives.',
+            },
+        },
+    },
+    tags: ['autodocs', 'interaction'],
+};
+
+export default meta;
+type Story = StoryObj<typeof DropdownMenu>;
+
+export const Default: Story = {
+    render: () => (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">Open Menu</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem>Team</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    ),
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const trigger = canvas.getByRole('button', { name: /open menu/i });
+        await expect(trigger).toBeInTheDocument();
+
+        await userEvent.click(trigger);
+
+        const documentBody = within(document.body);
+        const profileItem = await documentBody.findByText('Profile', {}, { timeout: 5000 });
+        await expect(profileItem).toBeInTheDocument();
+    },
+};
+
+export const WithCheckboxes: Story = {
+    render: () => (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">View Options</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuLabel>View Options</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem checked>Show Status</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem>Show Timestamps</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked>Show Avatars</DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    ),
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const trigger = canvas.getByRole('button', { name: /view options/i });
+        await userEvent.click(trigger);
+
+        const documentBody = within(document.body);
+        const statusItem = await documentBody.findByText('Show Status', {}, { timeout: 5000 });
+        await expect(statusItem).toBeInTheDocument();
+    },
+};
+
+export const WithRadioGroup: Story = {
+    render: () => (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">Theme</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuLabel>Theme</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup value="light">
+                    <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    ),
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const trigger = canvas.getByRole('button', { name: /theme/i });
+        await userEvent.click(trigger);
+
+        const documentBody = within(document.body);
+        const lightItem = await documentBody.findByText('Light', {}, { timeout: 5000 });
+        await expect(lightItem).toBeInTheDocument();
+    },
+};
+
+export const Destructive: Story = {
+    render: () => (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">Actions</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem>Edit</DropdownMenuItem>
+                <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    ),
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const trigger = canvas.getByRole('button', { name: /actions/i });
+        await userEvent.click(trigger);
+
+        const documentBody = within(document.body);
+        const deleteItem = await documentBody.findByText('Delete', {}, { timeout: 5000 });
+        await expect(deleteItem).toBeInTheDocument();
+    },
+};

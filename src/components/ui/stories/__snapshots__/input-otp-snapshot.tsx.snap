@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`InputOTP stories snapshot > Default story renders and matches snapshot 1`] = `<noscript />`;
+
+exports[`InputOTP stories snapshot > Disabled story renders and matches snapshot 1`] = `<noscript />`;
+
+exports[`InputOTP stories snapshot > FourDigits story renders and matches snapshot 1`] = `<noscript />`;
+
+exports[`InputOTP stories snapshot > WithSeparator story renders and matches snapshot 1`] = `<noscript />`;
