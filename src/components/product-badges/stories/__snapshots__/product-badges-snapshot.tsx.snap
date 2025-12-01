@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ProductBadges stories snapshot > Default story renders and matches snapshot 1`] = `<div />`;
+
+exports[`ProductBadges stories snapshot > LimitedBadges story renders and matches snapshot 1`] = `<div />`;
+
+exports[`ProductBadges stories snapshot > NoBadges story renders and matches snapshot 1`] = `<div />`;
+
+exports[`ProductBadges stories snapshot > WithCustomBadges story renders and matches snapshot 1`] = `<div />`;

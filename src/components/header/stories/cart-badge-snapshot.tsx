@@ -6,12 +6,12 @@ vi.mock('react-router', () => ({
     useFetcher: () => ({
         data: null,
         state: 'idle',
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         submit: () => {},
         Form: (props: React.PropsWithChildren<Record<string, unknown>>) => <form {...props}>{props.children}</form>,
     }),
     useFetchers: () => [],
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     useNavigate: () => () => {},
     useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
     useNavigation: () => ({
@@ -44,7 +44,7 @@ vi.mock('@/providers/basket', () => ({
 }));
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as CartBadgeStories from './cart-badge.stories';
 import { render, cleanup } from '@testing-library/react';
 

@@ -15,7 +15,7 @@ const meta: Meta<typeof Label> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         htmlFor: {
             description: 'Associates the label with a form control',

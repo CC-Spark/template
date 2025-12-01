@@ -1,6 +1,6 @@
 import { expect, test, describe, afterEach } from 'vitest';
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as RefineColorStories from './refine-color.stories';
 import { render, cleanup } from '@testing-library/react';
 

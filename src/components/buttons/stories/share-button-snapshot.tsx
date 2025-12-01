@@ -2,7 +2,6 @@ import { vi, expect, test, describe, afterEach } from 'vitest';
 
 vi.mock('@/components/toast', () => ({
     useToast: () => ({
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         addToast: () => {},
     }),
 }));
@@ -28,7 +27,7 @@ Object.defineProperty(navigator, 'share', {
 });
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as ShareButtonStories from './share-button.stories';
 import { render, cleanup } from '@testing-library/react';
 import { ConfigProvider } from '@/config';

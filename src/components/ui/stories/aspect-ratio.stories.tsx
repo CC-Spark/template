@@ -15,7 +15,7 @@ const meta: Meta<typeof AspectRatio> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         ratio: {
             description: 'Aspect ratio (width/height)',

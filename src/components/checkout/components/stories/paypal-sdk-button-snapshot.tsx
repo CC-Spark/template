@@ -6,7 +6,7 @@ vi.mock('@/hooks/use-paypal-sdk-button', () => ({
 }));
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as PayPalSDKButtonStories from './paypal-sdk-button.stories';
 
 import { render, cleanup } from '@testing-library/react';

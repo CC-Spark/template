@@ -24,6 +24,16 @@ const EXCLUDED_COMPONENTS = new Set([
     'icons/heart-icon',
     'icons/mastercard-icon',
     'icons/visa-icon',
+    'product-carousel/index',
+    'product-cart-actions/index',
+    'product-image/index',
+    'product-item-skeleton/index',
+    'product-item/index',
+    'product-items-list/index',
+    'product-price/index',
+    'product-skeleton/index',
+    'product-tile/index',
+    'product-view/index',
 ]);
 // Ensure OUTPUT DIR exists
 if (!fs.existsSync(OUTPUT_DIR)) {

@@ -2,27 +2,17 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Component } from '../component';
 import { expect } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import { vi } from 'vitest';
+import { registry } from '@/lib/registry';
 
-// Mock registry
-const MockComponent = ({ component, className }: { component: { name: string }; className?: string }) => (
+// Register a test component in the registry so the Component wrapper can find it
+const TestComponent = ({ component, className }: { component: { name: string }; className?: string }) => (
     <div className={className} data-testid="dynamic-component">
         Component: {component.name}
     </div>
 );
-MockComponent.displayName = 'MockComponent';
+TestComponent.displayName = 'TestComponent';
 
-const MockFallback = () => <div>Fallback</div>;
-MockFallback.displayName = 'MockFallback';
-
-vi.mock('@/lib/registry', () => ({
-    registry: {
-        getFallback: vi.fn(() => MockFallback),
-        getMetadata: vi.fn(() => ({ name: 'Test Component' })),
-        getComponent: vi.fn(() => MockComponent),
-        preload: vi.fn(),
-    },
-}));
+registry.registerComponent('test-component', TestComponent);
 
 const meta: Meta<typeof Component> = {
     title: 'REGION/Component',
@@ -36,7 +26,7 @@ const meta: Meta<typeof Component> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         component: {
             description: 'Component definition from Page Designer',

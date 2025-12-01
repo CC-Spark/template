@@ -16,7 +16,7 @@ const meta: Meta<typeof Alert> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         variant: {
             description: 'Visual style variant of the alert',

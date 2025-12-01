@@ -13,18 +13,8 @@ exports[`Region stories snapshot > Default story renders and matches snapshot 1`
     <div
       class="container"
     >
-      <div
-        data-testid="component-component-1"
-      >
-        Component: 
-        Test Component 1
-      </div>
-      <div
-        data-testid="component-component-2"
-      >
-        Component: 
-        Test Component 2
-      </div>
+      <div />
+      <div />
     </div>
   </div>
 </div>
@@ -60,12 +50,7 @@ exports[`Region stories snapshot > SingleComponent story renders and matches sna
     <div
       class="container"
     >
-      <div
-        data-testid="component-component-1"
-      >
-        Component: 
-        Single Component
-      </div>
+      <div />
     </div>
   </div>
 </div>

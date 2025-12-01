@@ -71,7 +71,7 @@ export const Default: Story = {
     args: {
         value: 'red',
         label: 'Red',
-        // eslint-disable-next-line custom/color-linter
+
         children: <div className="w-full h-full bg-red-500 rounded-full" />,
         handleSelect: action('handleSelect'),
         mode: 'click',
@@ -92,7 +92,7 @@ export const Selected: Story = {
         value: 'blue',
         label: 'Blue',
         selected: true,
-        // eslint-disable-next-line custom/color-linter
+
         children: <div className="w-full h-full bg-blue-500 rounded-full" />,
         handleSelect: action('handleSelect'),
         mode: 'click',
@@ -112,7 +112,7 @@ export const Disabled: Story = {
         value: 'green',
         label: 'Green',
         disabled: true,
-        // eslint-disable-next-line custom/color-linter
+
         children: <div className="w-full h-full bg-green-500 rounded-full" />,
         handleSelect: action('handleSelect'),
         mode: 'click',
@@ -150,7 +150,7 @@ export const WithHref: Story = {
         value: 'product-1',
         label: 'Product Variant',
         href: '/products/1',
-        // eslint-disable-next-line custom/color-linter
+
         children: <div className="w-full h-full bg-purple-500 rounded-full" />,
     },
     play: async ({ canvasElement }) => {
@@ -169,7 +169,7 @@ export const HoverMode: Story = {
     args: {
         value: 'yellow',
         label: 'Yellow',
-        // eslint-disable-next-line custom/color-linter
+
         children: <div className="w-full h-full bg-yellow-500 rounded-full" />,
         handleSelect: action('handleSelect'),
         mode: 'hover',

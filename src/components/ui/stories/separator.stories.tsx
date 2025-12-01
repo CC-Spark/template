@@ -15,7 +15,7 @@ const meta: Meta<typeof Separator> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         orientation: {
             description: 'Orientation of the separator',

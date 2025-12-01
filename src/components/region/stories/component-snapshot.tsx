@@ -1,8 +1,8 @@
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as ComponentStories from './component.stories';
 import { expect, test, describe, afterEach } from 'vitest';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 const composed = composeStories(ComponentStories);
 
 afterEach(() => {
@@ -11,9 +11,9 @@ afterEach(() => {
 
 describe('Component stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
-        test(`${storyName} story renders and matches snapshot`, () => {
+        test(`${storyName} story renders and matches snapshot`, async () => {
             const { container } = render(<Story />);
-            expect(container.firstChild).toMatchSnapshot();
+            await waitFor(() => expect(container.firstChild).toMatchSnapshot());
         });
     }
 });

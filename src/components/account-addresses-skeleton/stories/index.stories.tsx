@@ -15,8 +15,7 @@ const meta: Meta<typeof AccountAddressesSkeleton> = {
             },
         },
     },
-    tags: ['autodocs'],
-    argTypes: {},
+    tags: ['autodocs', 'interaction'],
 };
 
 export default meta;

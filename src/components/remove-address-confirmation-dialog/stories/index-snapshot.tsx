@@ -50,7 +50,7 @@ vi.mock('@/components/toast', () => ({
 }));
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as RemoveAddressConfirmationDialogStories from './index.stories';
 import { render, cleanup } from '@testing-library/react';
 const composed = composeStories(RemoveAddressConfirmationDialogStories);

@@ -172,9 +172,9 @@ function createMockFetcher<TData = unknown>(
         data: initialData,
         success: initialSuccess,
         errors: initialErrors,
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         load: async () => {},
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         submit: async () => {},
         formAction: undefined,
         formData: undefined,
@@ -184,7 +184,7 @@ function createMockFetcher<TData = unknown>(
         text: undefined,
         json: undefined,
         Form: undefined as unknown,
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         unstable_reset: () => {},
         type: 'init',
     } as unknown as ScapiFetcher<TData>;

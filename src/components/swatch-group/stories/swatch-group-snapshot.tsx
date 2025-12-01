@@ -1,5 +1,5 @@
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as SwatchGroupStories from './swatch-group.stories';
 import { expect, test, describe, afterEach, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/react';

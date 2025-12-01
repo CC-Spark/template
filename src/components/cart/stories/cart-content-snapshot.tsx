@@ -75,7 +75,7 @@ vi.mock('@/components/toast', () => ({
 }));
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as CartStories from './cart-content.stories';
 import { render, cleanup } from '@testing-library/react';
 import { ConfigProvider } from '@/config/context';

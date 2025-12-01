@@ -14,7 +14,7 @@ const meta: Meta<typeof RemoveAddressConfirmationDialog> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         open: {
             description: 'Whether the dialog is open',

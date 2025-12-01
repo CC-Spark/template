@@ -15,7 +15,7 @@ const meta: Meta<typeof Skeleton> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
 };
 
 export default meta;

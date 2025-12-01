@@ -21,7 +21,6 @@ const meta: Meta<typeof CustomerAddressFields> = {
         },
     },
     tags: ['autodocs', 'interaction'],
-    argTypes: {},
 };
 
 export default meta;

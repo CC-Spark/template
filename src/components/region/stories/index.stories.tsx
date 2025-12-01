@@ -2,16 +2,16 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Region } from '../index';
 import { expect } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import { vi } from 'vitest';
+import { registry } from '@/lib/registry';
 
-// Mock Component
-vi.mock('../component', () => ({
-    Component: ({
-        component,
-    }: {
-        component: { id: string; typeId: string; name: string; data?: Record<string, unknown> };
-    }) => <div data-testid={`component-${component.id}`}>Component: {component.name}</div>,
-}));
+// Register a test component in the registry so the Region component can find it
+const TestComponent = ({
+    component,
+}: {
+    component: { id: string; typeId: string; name: string; data?: Record<string, unknown> };
+}) => <div data-testid={`component-${component.id}`}>Component: {component.name}</div>;
+
+registry.registerComponent('test-component', TestComponent);
 
 const meta: Meta<typeof Region> = {
     title: 'REGION/Region',
@@ -25,7 +25,7 @@ const meta: Meta<typeof Region> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         region: {
             description: 'Region object from Page Designer API',

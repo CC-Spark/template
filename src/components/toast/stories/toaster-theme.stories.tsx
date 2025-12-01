@@ -15,8 +15,7 @@ const meta: Meta<typeof ToasterTheme> = {
             },
         },
     },
-    tags: ['autodocs'],
-    argTypes: {},
+    tags: ['autodocs', 'interaction'],
 };
 
 export default meta;

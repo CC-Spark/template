@@ -31,7 +31,7 @@ vi.mock('../venmo-button', () => ({
 }));
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as ExpressPaymentsStories from './express-payments.stories';
 
 import { render, cleanup } from '@testing-library/react';

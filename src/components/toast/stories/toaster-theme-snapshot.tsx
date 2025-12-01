@@ -1,5 +1,5 @@
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as ToasterThemeStories from './toaster-theme.stories';
 import { expect, test, describe, afterEach } from 'vitest';
 import { render, cleanup } from '@testing-library/react';

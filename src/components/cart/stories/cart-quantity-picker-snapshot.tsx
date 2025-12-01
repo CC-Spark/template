@@ -6,7 +6,7 @@ type MockLinkProps = React.PropsWithChildren<{ to?: string; href?: string; [key:
 const fetcherMock = {
     data: null,
     state: 'idle' as const,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     submit: () => {},
     Form: (props: MockFormProps) => <form {...props}>{props.children}</form>,
 };
@@ -15,7 +15,7 @@ vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
     useFetcher: () => fetcherMock,
     useFetchers: () => [],
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     useNavigate: () => () => {},
     useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
     useNavigation: () => ({
@@ -44,7 +44,7 @@ vi.mock('react-router-dom', async () => {
         ...(actual as Record<string, unknown>),
         useFetcher: () => fetcherMock,
         useFetchers: () => [],
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         useNavigate: () => () => {},
         useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
         useNavigation: () => ({
@@ -81,7 +81,7 @@ vi.mock('@/config', async () => {
 });
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as CartQuantityPickerStories from './cart-quantity-picker.stories';
 import { render, cleanup } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';

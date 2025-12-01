@@ -130,7 +130,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as NavItemStories from './nav-item.stories';
 import { render, cleanup } from '@testing-library/react';
 

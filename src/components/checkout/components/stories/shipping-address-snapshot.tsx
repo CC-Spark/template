@@ -6,7 +6,7 @@ type MockLinkProps = React.PropsWithChildren<{ to?: string; href?: string; [key:
 const fetcherMock = {
     data: null,
     state: 'idle',
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     submit: () => {},
     Form: (props: MockFormProps) => <form {...props}>{props.children}</form>,
 };
@@ -15,7 +15,7 @@ vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
     useFetcher: () => fetcherMock,
     useFetchers: () => [],
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     useNavigate: () => () => {},
     useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
     useNavigation: () => ({
@@ -38,7 +38,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
         ...actual,
         useFetcher: () => fetcherMock,
         useFetchers: () => [],
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         useNavigate: () => () => {},
         useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
         useNavigation: () => ({
@@ -57,7 +57,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 vi.mock('@/components/toast', () => ({
     useToast: () => ({
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         addToast: () => {},
     }),
 }));
@@ -79,7 +78,7 @@ vi.mock('@/hooks/checkout/use-customer-profile', () => ({
 }));
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as ShippingAddressStories from './shipping-address.stories';
 import { render, cleanup } from '@testing-library/react';
 

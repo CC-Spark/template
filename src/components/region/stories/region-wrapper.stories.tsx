@@ -2,12 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionWrapper } from '../region-wrapper';
 import { expect } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import { vi } from 'vitest';
-
-// Mock design mode
-vi.mock('@salesforce/storefront-next-runtime/design', () => ({
-    isDesignModeActive: vi.fn(() => false),
-}));
 
 const meta: Meta<typeof RegionWrapper> = {
     title: 'REGION/RegionWrapper',
@@ -21,7 +15,7 @@ const meta: Meta<typeof RegionWrapper> = {
             },
         },
     },
-    tags: ['autodocs'],
+    tags: ['autodocs', 'interaction'],
     argTypes: {
         region: {
             description: 'Region object from Page Designer API',

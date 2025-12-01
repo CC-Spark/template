@@ -90,7 +90,7 @@ vi.mock('@/config', async () => {
 });
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as NavigationMenuStories from './index.stories';
 import { render, cleanup } from '@testing-library/react';
 

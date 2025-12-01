@@ -15,8 +15,7 @@ const meta: Meta<typeof CartSkeleton> = {
             },
         },
     },
-    tags: ['autodocs'],
-    argTypes: {},
+    tags: ['autodocs', 'interaction'],
 };
 
 export default meta;

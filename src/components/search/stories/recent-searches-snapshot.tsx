@@ -1,5 +1,5 @@
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as RecentSearchesStories from './recent-searches.stories';
 
 import { expect, test, describe, afterEach } from 'vitest';

@@ -57,15 +57,15 @@ export const Default: Story = {
         children: (
             <>
                 <Swatch value="red" label="Red" mode="hover">
-                    {/* eslint-disable-next-line custom/color-linter */}
+                    {}
                     <div className="w-full h-full bg-red-500 rounded-full" />
                 </Swatch>
                 <Swatch value="blue" label="Blue" mode="hover">
-                    {/* eslint-disable-next-line custom/color-linter */}
+                    {}
                     <div className="w-full h-full bg-blue-500 rounded-full" />
                 </Swatch>
                 <Swatch value="green" label="Green" mode="hover">
-                    {/* eslint-disable-next-line custom/color-linter */}
+                    {}
                     <div className="w-full h-full bg-green-500 rounded-full" />
                 </Swatch>
             </>
@@ -166,15 +166,15 @@ export const NoSelection: Story = {
         children: (
             <>
                 <Swatch value="red" label="Red" mode="hover">
-                    {/* eslint-disable-next-line custom/color-linter */}
+                    {}
                     <div className="w-full h-full bg-red-500 rounded-full" />
                 </Swatch>
                 <Swatch value="blue" label="Blue" mode="hover">
-                    {/* eslint-disable-next-line custom/color-linter */}
+                    {}
                     <div className="w-full h-full bg-blue-500 rounded-full" />
                 </Swatch>
                 <Swatch value="green" label="Green" mode="hover">
-                    {/* eslint-disable-next-line custom/color-linter */}
+                    {}
                     <div className="w-full h-full bg-green-500 rounded-full" />
                 </Swatch>
             </>

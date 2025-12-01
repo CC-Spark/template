@@ -6,7 +6,7 @@ type MockLinkProps = React.PropsWithChildren<{ to?: string; href?: string; [key:
 const fetcherMock = {
     data: null,
     state: 'idle' as const,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     submit: () => {},
     Form: (props: MockFormProps) => <form {...props}>{props.children}</form>,
 };
@@ -15,7 +15,7 @@ vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
     useFetcher: () => fetcherMock,
     useFetchers: () => [],
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     useNavigate: () => () => {},
     useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
     useNavigation: () => ({
@@ -47,7 +47,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
         ...actual,
         useFetcher: () => fetcherMock,
         useFetchers: () => [],
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         useNavigate: () => () => {},
         useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
         useNavigation: () => ({
@@ -71,7 +71,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as FormSubmitButtonStories from './form-submit-button.stories';
 import { render, cleanup } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';

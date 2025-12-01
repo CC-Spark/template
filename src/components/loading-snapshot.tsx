@@ -1,6 +1,6 @@
 import { vi, expect, test, describe, afterEach } from 'vitest';
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as LoadingStories from './loading.stories';
 import { render, cleanup } from '@testing-library/react';
 

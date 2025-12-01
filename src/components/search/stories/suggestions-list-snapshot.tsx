@@ -1,5 +1,5 @@
 import { composeStories } from '@storybook/react-vite';
-// eslint-disable-next-line import/no-namespace
+
 import * as SuggestionsListStories from './suggestions-list.stories';
 
 import { expect, test, describe, afterEach } from 'vitest';
