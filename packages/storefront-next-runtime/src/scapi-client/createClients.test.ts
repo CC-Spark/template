@@ -5,10 +5,15 @@ import type { Middleware } from 'openapi-fetch';
 
 describe('createCommerceApiClients', () => {
     const baseUrl = 'https://test.commercecloud.salesforce.com';
+    const organizationId = 'f_ecom_test_prd';
+    const siteId = 'RefArch';
+
+    // Default config with required injection parameters
+    const defaultConfig = { baseUrl, organizationId, siteId };
 
     describe('client creation', () => {
         it('should create all required client instances', () => {
-            const clients = createCommerceApiClients({ baseUrl });
+            const clients = createCommerceApiClients(defaultConfig);
 
             expect(clients.shopperBasketsV1).toBeDefined();
             expect(clients.shopperBasketsV2).toBeDefined();
@@ -27,7 +32,7 @@ describe('createCommerceApiClients', () => {
         });
 
         it('should create a use method', () => {
-            const clients = createCommerceApiClients({ baseUrl });
+            const clients = createCommerceApiClients(defaultConfig);
 
             expect(clients.use).toBeDefined();
             expect(typeof clients.use).toBe('function');
@@ -38,7 +43,7 @@ describe('createCommerceApiClients', () => {
         it('should use custom fetch when provided', () => {
             const customFetch = vi.fn();
             const clients = createCommerceApiClients({
-                baseUrl,
+                ...defaultConfig,
                 fetch: customFetch,
             });
 
@@ -48,7 +53,7 @@ describe('createCommerceApiClients', () => {
         });
 
         it('should work without custom fetch', () => {
-            const clients = createCommerceApiClients({ baseUrl });
+            const clients = createCommerceApiClients(defaultConfig);
 
             expect(clients.shopperBasketsV1).toBeDefined();
             expect(clients.shopperProducts).toBeDefined();
@@ -57,7 +62,7 @@ describe('createCommerceApiClients', () => {
 
     describe('middleware', () => {
         it('should apply middleware to all clients via use method', () => {
-            const clients = createCommerceApiClients({ baseUrl });
+            const clients = createCommerceApiClients(defaultConfig);
 
             // Spy on each client's use method
             const basketsV1Spy = vi.spyOn(clients.shopperBasketsV1, 'use');
@@ -99,7 +104,7 @@ describe('createCommerceApiClients', () => {
         });
 
         it('should apply multiple middlewares to all clients', () => {
-            const clients = createCommerceApiClients({ baseUrl });
+            const clients = createCommerceApiClients(defaultConfig);
 
             const middleware1: Middleware = { onRequest: vi.fn((req) => req) };
             const middleware2: Middleware = { onResponse: vi.fn((res) => res) };
@@ -116,7 +121,7 @@ describe('createCommerceApiClients', () => {
 
     describe('client types', () => {
         it('should return properly typed Clients object', () => {
-            const clients: Clients = createCommerceApiClients({ baseUrl });
+            const clients: Clients = createCommerceApiClients(defaultConfig);
 
             // Type checking - these should compile without errors
             expect(clients.shopperBasketsV1).toBeDefined();
@@ -165,7 +170,7 @@ describe('createCommerceApiClients', () => {
                 mockFetch.mockResolvedValue(createMockResponse({ data: [] }));
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -188,7 +193,7 @@ describe('createCommerceApiClients', () => {
                 mockFetch.mockResolvedValue(createMockResponse({ data: [] }));
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -217,7 +222,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -252,7 +257,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -284,7 +289,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -321,7 +326,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -351,7 +356,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -387,7 +392,7 @@ describe('createCommerceApiClients', () => {
                 });
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -421,7 +426,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -453,7 +458,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -483,7 +488,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -515,7 +520,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -548,7 +553,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -587,7 +592,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 
@@ -630,7 +635,7 @@ describe('createCommerceApiClients', () => {
                 } as Response);
 
                 const clients = createCommerceApiClients({
-                    baseUrl,
+                    ...defaultConfig,
                     fetch: mockFetch,
                 });
 

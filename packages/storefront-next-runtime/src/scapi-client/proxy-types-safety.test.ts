@@ -15,7 +15,11 @@ import { createCommerceApiClients, type Clients } from './createClients';
 import { ApiError } from './ApiError';
 
 describe('SCAPI Client Type Safety', () => {
-    const clients = createCommerceApiClients({ baseUrl: 'https://test.com' });
+    const clients = createCommerceApiClients({
+        baseUrl: 'https://test.com',
+        organizationId: 'f_ecom_test_prd',
+        siteId: 'RefArch',
+    });
 
     describe('valid API calls', () => {
         it('should allow valid getCategories call', () => {
@@ -705,12 +709,12 @@ describe('SCAPI Client Type Safety', () => {
             }
         });
 
-        it('should catch missing required path parameter', () => {
+        it('should allow omitting path when only organizationId is required (global param)', () => {
             if (false as boolean) {
+                // path is optional because organizationId (the only required path param) is provided by global params
                 clients.shopperProducts.getCategories({
-                    // @ts-expect-error - path.organizationId is required
                     params: {
-                        query: { ids: ['root'], siteId: 'RefArch' },
+                        query: { ids: ['root'] },
                     },
                 });
             }
@@ -728,16 +732,17 @@ describe('SCAPI Client Type Safety', () => {
             }
         });
 
-        it('should catch missing required query parameter - siteId', () => {
-            if (false as boolean) {
+        it('should allow missing siteId since it is auto-injected', () => {
+            // With injection, siteId is optional - the client injects it automatically
+            const validCall = () =>
                 clients.shopperProducts.getCategories({
                     params: {
                         path: { organizationId: 'org123' },
-                        // @ts-expect-error - query.siteId is required
-                        query: { ids: ['root'] },
+                        query: { ids: ['root'] }, // siteId not required - injected
                     },
                 });
-            }
+            // This should compile without errors
+            expectTypeOf(validCall).toBeFunction();
         });
 
         it('should catch wrong path parameter type', () => {
@@ -862,21 +867,19 @@ describe('SCAPI Client Type Safety', () => {
             }
         });
 
-        it('should catch missing params in empty suffix operation (createBasket)', () => {
-            if (false as boolean) {
-                // Even though createBasket has empty suffix, params are still required
-                // @ts-expect-error - params object is required
-                clients.shopperBasketsV1.createBasket();
-            }
+        it('should allow missing params in createBasket since organizationId/siteId are auto-injected', () => {
+            // With injection, createBasket can be called without params
+            // since organizationId and siteId (the only required params) are injected
+            const validCall = () => clients.shopperBasketsV1.createBasket();
+            // This should compile without errors
+            expectTypeOf(validCall).toBeFunction();
         });
 
-        it('should catch missing required path param in empty suffix operation', () => {
+        it('should allow omitting path in empty suffix operation (global param)', () => {
             if (false as boolean) {
+                // path is optional because organizationId is provided by global params
                 clients.shopperBasketsV1.createBasket({
-                    // @ts-expect-error - path.organizationId is required even for empty suffix operations
-                    params: {
-                        query: { siteId: 'RefArch' },
-                    },
+                    params: {},
                     body: {},
                 });
             }

@@ -15,9 +15,22 @@ import type {
     ShopperSeo,
     ShopperStores,
 } from './types';
-import { createClient } from './createClient';
+import { createClient, type GlobalRequestParameters } from './createClient';
 import { defaultQuerySerializer } from './defaultQuerySerializer';
 import type { ProxyClient } from './proxy-types';
+
+/**
+ * Configuration for creating Commerce API clients.
+ *
+ * Extends openapi-fetch ClientOptions with required organizationId and siteId
+ * which will be automatically merged into all API calls as global request parameters.
+ */
+export interface CommerceApiClientConfig extends ClientOptions {
+    /** Organization ID - automatically merged into path parameters */
+    organizationId: string;
+    /** Site ID - automatically merged into query parameters */
+    siteId: string;
+}
 
 // Import operation maps for all APIs
 import { operations as shopperBasketsV1Ops } from './generated/shopper-baskets-v1.operations';
@@ -53,8 +66,8 @@ export type Clients = {
     use: (middleware: Middleware) => void;
 };
 
-export function createCommerceApiClients(config: ClientOptions): Clients {
-    const { baseUrl, fetch: customFetch, querySerializer, ...rest } = config;
+export function createCommerceApiClients(config: CommerceApiClientConfig): Clients {
+    const { baseUrl, fetch: customFetch, querySerializer, organizationId, siteId, ...rest } = config;
 
     const clientOptions = {
         ...(customFetch ? { fetch: customFetch } : {}),
@@ -62,104 +75,121 @@ export function createCommerceApiClients(config: ClientOptions): Clients {
         ...rest,
     };
 
+    // Global request parameters to merge organizationId and siteId into all calls
+    const globalParams: GlobalRequestParameters = { organizationId, siteId };
+
     // Create base clients and wrap with proxy for operation methods
     const shopperBasketsV1 = createClient(
         createBaseClient<ShopperBasketsV1.endpoints>({
             baseUrl: `${baseUrl}/checkout/shopper-baskets/v1`,
             ...clientOptions,
         }),
-        shopperBasketsV1Ops
+        shopperBasketsV1Ops,
+        globalParams
     );
     const shopperBasketsV2 = createClient(
         createBaseClient<ShopperBasketsV2.endpoints>({
             baseUrl: `${baseUrl}/checkout/shopper-baskets/v2`,
             ...clientOptions,
         }),
-        shopperBasketsV2Ops
+        shopperBasketsV2Ops,
+        globalParams
     );
     const shopperConsents = createClient(
         createBaseClient<ShopperConsents.endpoints>({
             baseUrl: `${baseUrl}/shopper/shopper-consents/v1`,
             ...clientOptions,
         }),
-        shopperConsentsOps
+        shopperConsentsOps,
+        globalParams
     );
     const shopperContext = createClient(
         createBaseClient<ShopperContext.endpoints>({
             baseUrl: `${baseUrl}/shopper/shopper-context/v1`,
             ...clientOptions,
         }),
-        shopperContextOps
+        shopperContextOps,
+        globalParams
     );
     const shopperCustomers = createClient(
         createBaseClient<ShopperCustomers.endpoints>({
             baseUrl: `${baseUrl}/customer/shopper-customers/v1`,
             ...clientOptions,
         }),
-        shopperCustomersOps
+        shopperCustomersOps,
+        globalParams
     );
     const shopperExperience = createClient(
         createBaseClient<ShopperExperience.endpoints>({
             baseUrl: `${baseUrl}/experience/shopper-experience/v1`,
             ...clientOptions,
         }),
-        shopperExperienceOps
+        shopperExperienceOps,
+        globalParams
     );
     const shopperGiftCertificates = createClient(
         createBaseClient<ShopperGiftCertificates.endpoints>({
             baseUrl: `${baseUrl}/pricing/shopper-gift-certificates/v1`,
             ...clientOptions,
         }),
-        shopperGiftCertificatesOps
+        shopperGiftCertificatesOps,
+        globalParams
     );
     const shopperLogin = createClient(
         createBaseClient<ShopperLogin.endpoints>({
             baseUrl: `${baseUrl}/shopper/auth/v1`,
             ...clientOptions,
         }),
-        shopperLoginOps
+        shopperLoginOps,
+        globalParams
     );
     const shopperOrders = createClient(
         createBaseClient<ShopperOrders.endpoints>({
             baseUrl: `${baseUrl}/checkout/shopper-orders/v1`,
             ...clientOptions,
         }),
-        shopperOrdersOps
+        shopperOrdersOps,
+        globalParams
     );
     const shopperProducts = createClient(
         createBaseClient<ShopperProducts.endpoints>({
             baseUrl: `${baseUrl}/product/shopper-products/v1`,
             ...clientOptions,
         }),
-        shopperProductsOps
+        shopperProductsOps,
+        globalParams
     );
     const shopperPromotions = createClient(
         createBaseClient<ShopperPromotions.endpoints>({
             baseUrl: `${baseUrl}/pricing/shopper-promotions/v1`,
             ...clientOptions,
         }),
-        shopperPromotionsOps
+        shopperPromotionsOps,
+        globalParams
     );
     const shopperSearch = createClient(
         createBaseClient<ShopperSearch.endpoints>({
             baseUrl: `${baseUrl}/search/shopper-search/v1`,
             ...clientOptions,
         }),
-        shopperSearchOps
+        shopperSearchOps,
+        globalParams
     );
     const shopperSeo = createClient(
         createBaseClient<ShopperSeo.endpoints>({
             baseUrl: `${baseUrl}/site/shopper-seo/v1`,
             ...clientOptions,
         }),
-        shopperSeoOps
+        shopperSeoOps,
+        globalParams
     );
     const shopperStores = createClient(
         createBaseClient<ShopperStores.endpoints>({
             baseUrl: `${baseUrl}/store/shopper-stores/v1`,
             ...clientOptions,
         }),
-        shopperStoresOps
+        shopperStoresOps,
+        globalParams
     );
 
     const allClients = [

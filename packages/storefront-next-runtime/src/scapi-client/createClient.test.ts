@@ -523,4 +523,121 @@ describe('createClient', () => {
             expect(mockClient.POST).toHaveBeenCalledWith('/api/test');
         });
     });
+
+    describe('global request parameters', () => {
+        const globalParams = { organizationId: 'test-org', siteId: 'test-site' };
+
+        it('should merge organizationId into path params and siteId into query params', async () => {
+            const proxyClient = createClient(mockClient, mockOperations, globalParams) as any;
+
+            await proxyClient.getTest({ params: { path: { id: '123' } } });
+
+            expect(mockClient.GET).toHaveBeenCalledWith('/api/v1/test/{id}', {
+                params: {
+                    path: { id: '123', organizationId: 'test-org' },
+                    query: { siteId: 'test-site' },
+                },
+            });
+        });
+
+        it('should merge global params with existing query params', async () => {
+            const proxyClient = createClient(mockClient, mockOperations, globalParams) as any;
+
+            await proxyClient.getTest({
+                params: {
+                    path: { id: '123' },
+                    query: { filter: 'active' },
+                },
+            });
+
+            expect(mockClient.GET).toHaveBeenCalledWith('/api/v1/test/{id}', {
+                params: {
+                    path: { id: '123', organizationId: 'test-org' },
+                    query: { filter: 'active', siteId: 'test-site' },
+                },
+            });
+        });
+
+        it('should work when caller provides no options', async () => {
+            const proxyClient = createClient(mockClient, mockOperations, globalParams) as any;
+
+            await proxyClient.listUsers();
+
+            expect(mockClient.GET).toHaveBeenCalledWith('/api/v1/users', {
+                params: {
+                    path: { organizationId: 'test-org' },
+                    query: { siteId: 'test-site' },
+                },
+            });
+        });
+
+        it('should allow caller-provided organizationId/siteId to override global values', async () => {
+            const proxyClient = createClient(mockClient, mockOperations, globalParams) as any;
+
+            await proxyClient.getTest({
+                params: {
+                    path: { id: '123', organizationId: 'caller-org' },
+                    query: { siteId: 'caller-site' },
+                },
+            });
+
+            // Caller-provided values override global defaults
+            expect(mockClient.GET).toHaveBeenCalledWith('/api/v1/test/{id}', {
+                params: {
+                    path: { id: '123', organizationId: 'caller-org' },
+                    query: { siteId: 'caller-site' },
+                },
+            });
+        });
+
+        it('should preserve other options like headers and body', async () => {
+            const proxyClient = createClient(mockClient, mockOperations, globalParams) as any;
+
+            await proxyClient.createTest({
+                params: { path: { id: '123' } },
+                body: { value: 42 },
+                headers: { 'X-Custom': 'header' },
+            });
+
+            expect(mockClient.POST).toHaveBeenCalledWith('/api/v1/test/{id}', {
+                params: {
+                    path: { id: '123', organizationId: 'test-org' },
+                    query: { siteId: 'test-site' },
+                },
+                body: { value: 42 },
+                headers: { 'X-Custom': 'header' },
+            });
+        });
+
+        it('should work without global params (backward compatible)', async () => {
+            const proxyClient = createClient(mockClient, mockOperations) as any;
+
+            await proxyClient.getTest({
+                params: {
+                    path: { id: '123', organizationId: 'manual-org' },
+                    query: { siteId: 'manual-site', filter: 'active' },
+                },
+            });
+
+            expect(mockClient.GET).toHaveBeenCalledWith('/api/v1/test/{id}', {
+                params: {
+                    path: { id: '123', organizationId: 'manual-org' },
+                    query: { siteId: 'manual-site', filter: 'active' },
+                },
+            });
+        });
+
+        it('should merge into empty options object', async () => {
+            const proxyClient = createClient(mockClient, mockOperations, globalParams) as any;
+
+            await proxyClient.listUsers({});
+
+            expect(mockClient.GET).toHaveBeenCalledWith('/api/v1/users', {
+                params: {
+                    path: { organizationId: 'test-org' },
+                    query: { siteId: 'test-site' },
+                },
+            });
+        });
+    });
 });

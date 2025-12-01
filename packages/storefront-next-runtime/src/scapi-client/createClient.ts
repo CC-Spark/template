@@ -17,6 +17,57 @@ import type { OperationMap, ProxyClient } from './proxy-types';
 import { ApiError, type ErrorDetail } from './ApiError';
 
 /**
+ * Global request parameters that are automatically merged into every API call.
+ *
+ * When provided to createClient, these values will be merged into every
+ * operation call, eliminating the need to pass them manually each time.
+ */
+export interface GlobalRequestParameters {
+    /** Organization ID to merge into path parameters */
+    organizationId: string;
+    /** Site ID to merge into query parameters */
+    siteId: string;
+}
+
+/**
+ * Build request options by applying global request parameters as defaults.
+ *
+ * This function specifically places:
+ * - organizationId into params.path
+ * - siteId into params.query
+ *
+ * Caller-provided values take precedence over global defaults, allowing
+ * overrides when needed while reducing boilerplate for the common case.
+ *
+ * @param options - The options provided by the caller (may be undefined)
+ * @param globalParams - The global request parameters containing organizationId and siteId
+ * @returns Options with global values applied as defaults
+ */
+function buildRequestOptions(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    options: any,
+    globalParams?: GlobalRequestParameters
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
+    if (!globalParams) return options;
+
+    return {
+        ...options,
+        params: {
+            ...options?.params,
+            path: {
+                organizationId: globalParams.organizationId, // Global default
+                ...options?.params?.path, // Caller-provided overrides
+            },
+            query: {
+                siteId: globalParams.siteId, // Global default
+                ...options?.params?.query, // Caller-provided overrides
+            },
+        },
+    };
+}
+
+/**
  * Create a proxied client with operation methods
  *
  * This function wraps an openapi-fetch client with a JavaScript Proxy that
@@ -40,6 +91,7 @@ import { ApiError, type ErrorDetail } from './ApiError';
  *
  * @param client - The base openapi-fetch client instance
  * @param operations - The operation map object (generated at build time)
+ * @param globalParams - Optional global request parameters to merge into every call (organizationId, siteId)
  * @returns A proxied client with operation methods
  *
  * @example
@@ -49,13 +101,20 @@ import { ApiError, type ErrorDetail } from './ApiError';
  * import type { paths } from './generated/shopper-products-v1';
  *
  * const baseClient = createClient<paths>({ baseUrl: 'https://api.example.com' });
+ *
+ * // Without global params - caller must provide organizationId and siteId
  * const client = createClient(baseClient, operations);
  *
- * // Now you can call operations directly:
- * const response = await client.getCategories({
+ * // With global params - organizationId and siteId are automatically merged
+ * const clientWithGlobalParams = createClient(baseClient, operations, {
+ *   organizationId: 'f_ecom_xxx',
+ *   siteId: 'RefArch'
+ * });
+ *
+ * // Now you can call operations without passing organizationId/siteId:
+ * const response = await clientWithGlobalParams.getCategories({
  *   params: {
- *     path: { organizationId: 'xxx' },
- *     query: { ids: ['root'], siteId: 'RefArch' }
+ *     query: { ids: ['root'] }
  *   }
  * });
  * ```
@@ -63,7 +122,8 @@ import { ApiError, type ErrorDetail } from './ApiError';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createClient<TClient extends Client<any, any>, TOperations extends OperationMap>(
     client: TClient,
-    operations: TOperations
+    operations: TOperations,
+    globalParams?: GlobalRequestParameters
 ): ProxyClient<TClient, TOperations> {
     // Create and return the proxy
     return new Proxy(client, {
@@ -93,7 +153,7 @@ export function createClient<TClient extends Client<any, any>, TOperations exten
 
                 // Return an async function that calls the HTTP method and handles errors
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                return async function (this: any, ...args: any[]) {
+                return async function (this: any, options?: any) {
                     // Get the HTTP method function (GET, POST, etc.)
                     const httpMethod = method.toUpperCase();
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -105,11 +165,17 @@ export function createClient<TClient extends Client<any, any>, TOperations exten
                         );
                     }
 
-                    // Call the HTTP method with the path and options
+                    // Build request options with global params (organizationId, siteId) applied as defaults
+                    const mergedOptions = buildRequestOptions(options, globalParams);
+
+                    // Call the HTTP method with the path and merged options
                     // The path is bound, options are passed from the operation call
                     // openapi-fetch returns { data, error, response }
-
-                    const result = await clientMethod.call(target, path, ...args);
+                    // Only pass options if they're defined (maintains backward compatibility)
+                    const result =
+                        mergedOptions !== undefined
+                            ? await clientMethod.call(target, path, mergedOptions)
+                            : await clientMethod.call(target, path);
 
                     // If there's an error, throw ApiError with the parsed error from openapi-fetch
                     if (result.error !== undefined) {

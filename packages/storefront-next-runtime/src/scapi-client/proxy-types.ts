@@ -23,11 +23,132 @@ type RequiredKeysOf<T> = {
 }[keyof T];
 
 /**
- * Resolve FetchOptions to show the actual structure in tooltips
- * This expands the type so IntelliSense shows "params" instead of "parameters"
+ * Simplify a type by forcing TypeScript to evaluate and flatten it.
+ * This improves IntelliSense display by showing the resolved type
+ * instead of the type transformation (e.g., Omit<...> & Partial<...>).
+ *
+ * @example
+ * // Without Simplify: Omit<{a: string; b: number}, "a"> & {c?: boolean}
+ * // With Simplify: { b: number; c?: boolean }
  */
-type ResolvedFetchOptions<OpDef> =
-    FetchOptions<OpDef> extends infer Resolved
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+// ============================================================================
+// Global Request Parameter Types - Make organizationId and siteId optional
+// ============================================================================
+
+/**
+ * Path parameter keys provided by global request parameters.
+ * These become optional in the caller's type signature.
+ */
+type GlobalPathParamsKeys = 'organizationId';
+
+/**
+ * Query parameter keys provided by global request parameters.
+ * These become optional in the caller's type signature.
+ */
+type GlobalQueryParamsKeys = 'siteId';
+
+/**
+ * Make global path parameters optional.
+ * Preserves all other path parameters as-is.
+ * Uses Simplify to flatten the type for better IntelliSense display.
+ *
+ * @example
+ * type Before = { organizationId: string; id: string };
+ * type After = OptionalizePathParams<Before>;
+ * // { id: string; organizationId?: string }
+ */
+type OptionalizePathParams<P> = P extends object
+    ? Simplify<Omit<P, GlobalPathParamsKeys> & Partial<Pick<P, GlobalPathParamsKeys & keyof P>>>
+    : P;
+
+/**
+ * Make global query parameters optional.
+ * Preserves all other query parameters as-is.
+ * Uses Simplify to flatten the type for better IntelliSense display.
+ *
+ * @example
+ * type Before = { siteId: string; expand?: string[] };
+ * type After = OptionalizeQueryParams<Before>;
+ * // { expand?: string[]; siteId?: string }
+ */
+type OptionalizeQueryParams<Q> = Q extends object
+    ? Simplify<Omit<Q, GlobalQueryParamsKeys> & Partial<Pick<Q, GlobalQueryParamsKeys & keyof Q>>>
+    : Q;
+
+/**
+ * Check if an object type has any required keys after removing global keys.
+ * Returns true if there are remaining required keys, false otherwise.
+ */
+type HasRequiredKeysAfterGlobalParams<T, GlobalParamsKeys extends string> =
+    Exclude<RequiredKeysOf<T>, GlobalParamsKeys> extends never ? false : true;
+
+/**
+ * Transform params to make global keys optional.
+ * Also makes the entire path/query object optional if all its required keys are global.
+ * Handles path-only, query-only, and combined path+query params.
+ *
+ * @example
+ * type Before = { path: { organizationId: string; id: string }; query: { siteId: string } };
+ * type After = TransformParams<Before>;
+ * // { path: { id: string; organizationId?: string }; query?: { siteId?: string } }
+ * // Note: query becomes optional because siteId was the only required key
+ */
+type TransformParams<Params> = Params extends { path: infer P; query: infer Q }
+    ? (HasRequiredKeysAfterGlobalParams<P, GlobalPathParamsKeys> extends true
+          ? { path: OptionalizePathParams<P> }
+          : { path?: OptionalizePathParams<P> }) &
+          (HasRequiredKeysAfterGlobalParams<Q, GlobalQueryParamsKeys> extends true
+              ? { query: OptionalizeQueryParams<Q> }
+              : { query?: OptionalizeQueryParams<Q> }) &
+          Omit<Params, 'path' | 'query'>
+    : Params extends { path: infer P }
+      ? (HasRequiredKeysAfterGlobalParams<P, GlobalPathParamsKeys> extends true
+            ? { path: OptionalizePathParams<P> }
+            : { path?: OptionalizePathParams<P> }) &
+            Omit<Params, 'path'>
+      : Params extends { query: infer Q }
+        ? (HasRequiredKeysAfterGlobalParams<Q, GlobalQueryParamsKeys> extends true
+              ? { query: OptionalizeQueryParams<Q> }
+              : { query?: OptionalizeQueryParams<Q> }) &
+              Omit<Params, 'query'>
+        : Params;
+
+/**
+ * Check if the transformed params have any remaining required fields.
+ * This is used to determine if the entire options object can be optional.
+ */
+type HasRequiredTransformedParams<Params> = Params extends { path: infer P; query: infer Q }
+    ? HasRequiredKeysAfterGlobalParams<P, GlobalPathParamsKeys> extends true
+        ? true
+        : HasRequiredKeysAfterGlobalParams<Q, GlobalQueryParamsKeys>
+    : Params extends { path: infer P }
+      ? HasRequiredKeysAfterGlobalParams<P, GlobalPathParamsKeys>
+      : Params extends { query: infer Q }
+        ? HasRequiredKeysAfterGlobalParams<Q, GlobalQueryParamsKeys>
+        : false;
+
+/**
+ * Transform FetchOptions to make global params optional.
+ * The params object itself remains, but organizationId and siteId within become optional.
+ */
+type WithOptionalGlobalParams<OpDef> =
+    FetchOptions<OpDef> extends infer Opts
+        ? Opts extends { params: infer P }
+            ? Omit<Opts, 'params'> & { params: TransformParams<P> }
+            : Opts
+        : never;
+
+/**
+ * Resolved version of FetchOptions with global params made optional.
+ * This is the final type used for operation method signatures.
+ *
+ * Expands the type for better IntelliSense display while making
+ * organizationId (in path) and siteId (in query) optional.
+ */
+type ResolvedGlobalParamsFetchOptions<OpDef> =
+    WithOptionalGlobalParams<OpDef> extends infer Resolved
         ? {
               [K in keyof Resolved]: Resolved[K];
           }
@@ -187,12 +308,22 @@ type OperationMethod<
                     ? ExtractPaths<TClient>[Path][Method] extends infer OpDef
                         ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           OpDef extends Record<string | number, any>
-                            ? RequiredKeysOf<FetchOptions<OpDef>> extends never
-                                ? (options?: ResolvedFetchOptions<OpDef>) => Promise<{
-                                      data: ExtractSuccessData<OpDef, ExtractMedia<TClient>>;
-                                      response: Response;
-                                  }>
-                                : (options: ResolvedFetchOptions<OpDef>) => Promise<{
+                            ? // With global params, organizationId and siteId are auto-provided.
+                              // Options are optional if there are no OTHER required fields.
+                              FetchOptions<OpDef> extends { params: infer P }
+                                ? HasRequiredTransformedParams<P> extends true
+                                    ? // Other required params exist (e.g., productId) - options required
+                                      (options: ResolvedGlobalParamsFetchOptions<OpDef>) => Promise<{
+                                          data: ExtractSuccessData<OpDef, ExtractMedia<TClient>>;
+                                          response: Response;
+                                      }>
+                                    : // Only global params were required - options now optional
+                                      (options?: ResolvedGlobalParamsFetchOptions<OpDef>) => Promise<{
+                                          data: ExtractSuccessData<OpDef, ExtractMedia<TClient>>;
+                                          response: Response;
+                                      }>
+                                : // No params at all - options optional
+                                  (options?: ResolvedGlobalParamsFetchOptions<OpDef>) => Promise<{
                                       data: ExtractSuccessData<OpDef, ExtractMedia<TClient>>;
                                       response: Response;
                                   }>

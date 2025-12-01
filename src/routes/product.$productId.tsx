@@ -6,7 +6,6 @@ import {
     type ShopperExperience,
 } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import ProductSkeleton from '@/components/product-skeleton';
 import { createPage, type RouteComponentProps } from '@/components/create-page';
 import ProductView from '@/components/product-view';
@@ -83,7 +82,6 @@ function getPageData(
 ): ProductPageData {
     const { productId = '' } = params;
     const { searchParams } = new URL(request.url);
-    const config = getConfig(context);
 
     // Check for variant product ID in search params (for product variants)
     const clients = createApiClients(context);
@@ -91,11 +89,9 @@ function getPageData(
         .getProduct({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     id: searchParams.get('pid') || productId,
                 },
                 query: {
-                    siteId: config.commerce.api.siteId,
                     expand: [
                         'availability',
                         'bundled_products',
@@ -125,11 +121,9 @@ function getPageData(
                 .getCategory({
                     params: {
                         path: {
-                            organizationId: config.commerce.api.organizationId,
                             id: product.primaryCategoryId,
                         },
                         query: {
-                            siteId: config.commerce.api.siteId,
                             levels: 1,
                         },
                     },
@@ -144,11 +138,7 @@ function getPageData(
                 .getProduct({
                     params: {
                         path: {
-                            organizationId: config.commerce.api.organizationId,
                             id: product.master.masterId,
-                        },
-                        query: {
-                            siteId: config.commerce.api.siteId,
                         },
                     },
                 })
@@ -158,11 +148,9 @@ function getPageData(
                             .getCategory({
                                 params: {
                                     path: {
-                                        organizationId: config.commerce.api.organizationId,
                                         id: masterProduct.primaryCategoryId,
                                     },
                                     query: {
-                                        siteId: config.commerce.api.siteId,
                                         levels: 1, // Get subcategories
                                     },
                                 },
@@ -192,11 +180,9 @@ function getPageData(
             const parentCategoryResponse = await clients.shopperProducts.getCategory({
                 params: {
                     path: {
-                        organizationId: config.commerce.api.organizationId,
                         id: category.parentCategoryId,
                     },
                     query: {
-                        siteId: config.commerce.api.siteId,
                         levels: 1, // Get subcategories
                     },
                 },

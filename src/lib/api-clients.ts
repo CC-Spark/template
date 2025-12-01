@@ -16,6 +16,8 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
 
     const clients = createCommerceApiClients({
         baseUrl,
+        organizationId: config.commerce.api.organizationId,
+        siteId: config.commerce.api.siteId,
     });
 
     // Add authentication middleware - inject Bearer token from auth context
