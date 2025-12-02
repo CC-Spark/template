@@ -107,7 +107,7 @@ export default function CategoryPage({
             void Promise.all([Promise.resolve(category), searchResult])
                 .then(([categoryData, searchData]) => {
                     if (analytics) {
-                        analytics.trackViewCategory({
+                        void analytics.trackViewCategory({
                             category: categoryData,
                             searchResults: searchData.hits ?? [],
                         });
@@ -166,7 +166,7 @@ export default function CategoryPage({
                                 {([categoryData, searchResultData]) => {
                                     const handleProductClick = (product: ShopperSearch.schemas['ProductSearchHit']) => {
                                         if (analytics) {
-                                            analytics.trackClickProductInCategory({
+                                            void analytics.trackClickProductInCategory({
                                                 category: categoryData,
                                                 product,
                                             });

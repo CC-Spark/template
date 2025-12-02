@@ -425,7 +425,7 @@ function ProductDetailView({ loaderData }: RouteComponentProps<ProductPageData>)
     useEffect(() => {
         // Only track if we haven't already tracked this product
         if (productData.id !== lastTrackedProductIdRef.current) {
-            analytics.trackViewProduct({
+            void analytics.trackViewProduct({
                 product: productData,
             });
             lastTrackedProductIdRef.current = productData.id;

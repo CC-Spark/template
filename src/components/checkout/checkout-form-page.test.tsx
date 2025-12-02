@@ -186,6 +186,16 @@ vi.mock('@/components/my-cart', () => ({
     default: () => <div data-testid="my-cart">My Cart</div>,
 }));
 
+vi.mock('@/config', () => ({
+    useConfig: vi.fn(() => ({
+        engagement: {
+            adapters: {
+                einstein: { enabled: true },
+            },
+        },
+    })),
+}));
+
 describe('CheckoutFormPage', () => {
     // Default test props
     const defaultProps = {

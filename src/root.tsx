@@ -45,10 +45,7 @@ import { useExecutePendingAction } from '@/hooks/use-execute-pending-action';
 import './app.css';
 import { initI18next } from '@/lib/i18next.client';
 import { PageDesignerProvider } from '@salesforce/storefront-next-runtime/design/react';
-import AnalyticsProvider from '@/providers/analytics';
-import viewPageEventMiddleware, { getOrInitializeEventMediator } from '@/middlewares/view-page-event.client';
-import { adaptersMiddlewareServer } from './middlewares/adapters.server';
-import { adaptersMiddlewareClient } from './middlewares/adapters.client';
+import { PageViewTracker } from '@/lib/analytics/page-view-tracker';
 
 // On the client side, initialize i18next.
 // (On the server side, it's initialized elsewhere in middlewares/i18next.ts file)
@@ -61,7 +58,6 @@ export const middleware: MiddlewareFunction<Response>[] = [
     i18nextMiddleware,
     performanceMetricsMiddlewareServer,
     authMiddlewareServer,
-    adaptersMiddlewareServer,
 ];
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -71,8 +67,6 @@ export const clientMiddleware: MiddlewareFunction<Record<string, DataStrategyRes
     appConfigMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Must run first to set config in context
     performanceMetricsMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
     authMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
-    adaptersMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
-    viewPageEventMiddleware as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Run after adapters are initialized to ensure there are adapters available for event tracking
     basketMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
 ];
 
@@ -273,9 +267,6 @@ export default function App({ loaderData: { root, subs, auth, basket, getI18next
     const loaderSession = auth?.();
     const sessionData = loaderSession ?? bootstrapAuth;
 
-    // The event mediator only exists on the client side since we do not need the server to send events.
-    const eventMediatorInstance = typeof window !== 'undefined' ? getOrInitializeEventMediator() : undefined;
-
     // Memoize the providers array to prevent unnecessary remounting of providers on render
     const providers = useMemo(
         () =>
@@ -283,12 +274,11 @@ export default function App({ loaderData: { root, subs, auth, basket, getI18next
                 [I18nextProvider, { i18n: i18next }],
                 [ConfigProvider, { config: appConfig }],
                 [AuthProvider, { value: sessionData }],
-                [AnalyticsProvider, { value: eventMediatorInstance }],
                 [BasketProvider, { value: basket }],
                 /* @sfdc-extension-line SFDC_EXT_STORE_LOCATOR */
                 [StoreLocatorProvider, undefined],
             ] as const,
-        [i18next, appConfig, eventMediatorInstance, sessionData, basket]
+        [i18next, appConfig, sessionData, basket]
     );
 
     return (
@@ -307,6 +297,8 @@ export default function App({ loaderData: { root, subs, auth, basket, getI18next
                 </main>
             </PageDesignerProvider>
             <Footer />
+            {/* Track page views asynchronously */}
+            {typeof window !== 'undefined' && <PageViewTracker />}
         </ComposeProviders>
     );
 }

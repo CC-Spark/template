@@ -172,14 +172,20 @@ declare function sendViewPageEvent(event: ViewPageEvent, eventMediator: EventMed
 //#endregion
 //#region src/events/mediator.d.ts
 /**
- * Initialize event mediator
+ * Get the event mediator singleton instance
  *
- * @param getAdapters - Function that returns the current array of engagmenet adapters.
- *                      This function is called on each track() invocation to ensure
- *                      the mediator always uses the latest adapters from the adapter registry.
- * @returns EventMediator instance
+ * Returns the singleton EventMediator instance, creating it if it doesn't exist.
+ *
+ * @param getAdapters - Function that returns the current array of engagement adapters.
+ * @returns EventMediator instance (singleton) or undefined if not on client side
  */
-declare function initializeEventMediator(getAdapters: () => EventAdapter[]): EventMediator;
+declare function getEventMediator(getAdapters: () => EventAdapter[]): EventMediator | undefined;
+/**
+ * Reset the event mediator singleton (for testing only)
+ *
+ * This function clears the singleton instance, allowing tests to create a fresh mediator.
+ */
+declare function resetEventMediator(): void;
 //#endregion
-export { AnalyticsEvent, AnalyticsEventExtensions, AnalyticsPayload, AnalyticsUser, BaseEvent, CartItemAddEvent, CheckoutStartEvent, CheckoutStepEvent, ClickProductInCategoryEvent, ClickProductInRecommenderEvent, ClickProductInSearchEvent, EventAdapter, EventMediator, EventPayload, EventTypeMap, PayloadTbd, ViewCategoryEvent, ViewPageEvent, ViewProductEvent, ViewRecommenderEvent, ViewSearchEvent, createEvent, initializeEventMediator, sendViewPageEvent };
+export { AnalyticsEvent, AnalyticsEventExtensions, AnalyticsPayload, AnalyticsUser, BaseEvent, CartItemAddEvent, CheckoutStartEvent, CheckoutStepEvent, ClickProductInCategoryEvent, ClickProductInRecommenderEvent, ClickProductInSearchEvent, EventAdapter, EventMediator, EventPayload, EventTypeMap, PayloadTbd, ViewCategoryEvent, ViewPageEvent, ViewProductEvent, ViewRecommenderEvent, ViewSearchEvent, createEvent, getEventMediator, resetEventMediator, sendViewPageEvent };
 //# sourceMappingURL=events.d.ts.map

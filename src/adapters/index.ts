@@ -1,6 +1,8 @@
 import type { AppConfig } from '@/config';
-import { createEinsteinAdapter, type EinsteinConfig } from './einstein';
-import { registerAdapter } from '@/lib/adapters';
+import { createEinsteinAdapter } from './einstein';
+import { addAdapter } from '@/lib/adapters';
+
+// import { createActiveDataAdapter } from './active-data';
 
 /**
  * Initialize engagement adapterss.
@@ -9,21 +11,49 @@ import { registerAdapter } from '@/lib/adapters';
  *
  * This is the place to modify when adding new engagement adapters to the system.
  */
-export function initializeEngagementAdapters(engagementAdapterConfigs: AppConfig['engagement']['adapters']) {
+export function initializeEngagementAdapters(appConfig: AppConfig) {
+    const engagementAdapterConfigs = appConfig?.engagement?.adapters;
+
     // Register default adapters
     // Comment these out to disable the default adapters
-    const einsteinConfig = engagementAdapterConfigs?.einstein as EinsteinConfig;
-    if (einsteinConfig?.enabled) {
+    if (engagementAdapterConfigs?.einstein?.enabled) {
         try {
-            registerAdapter('einstein', createEinsteinAdapter(einsteinConfig));
+            addAdapter(
+                'einstein',
+                createEinsteinAdapter({
+                    host: engagementAdapterConfigs.einstein.host || '',
+                    einsteinId: engagementAdapterConfigs.einstein.einsteinId || '',
+                    realm: engagementAdapterConfigs.einstein.realm || '',
+                    siteId: engagementAdapterConfigs.einstein.siteId || appConfig.commerce.api.siteId,
+                    isProduction: engagementAdapterConfigs.einstein.isProduction || false,
+                    eventToggles: engagementAdapterConfigs.einstein.eventToggles || {},
+                })
+            );
         } catch (error) {
             // eslint-disable-next-line no-console
-            console.warn('Failed to initialize Einstein adapter:', error);
+            console.warn('Failed to initialize Einstein adapter:', (error as Error).message);
         }
     }
 
+    // if (engagementAdapterConfigs.activeData.enabled) {
+    //     try {
+    //         addAdapter(
+    //             'active-data',
+    //             createActiveDataAdapter({
+    //                 host: engagementAdapterConfigs.activeData.host || '',
+    //                 siteId: engagementAdapterConfigs.activeData.siteId || appConfig.commerce.api.siteId,
+    //                 locale: engagementAdapterConfigs.activeData.locale || appConfig.site.locale,
+    //                 eventToggles: engagementAdapterConfigs.activeData.eventToggles || {},
+    //             })
+    //         );
+    //     } catch (error) {
+    //         // eslint-disable-next-line no-console
+    //         console.warn('Failed to initialize Active Data adapter:', (error as Error).message);
+    //     }
+    // }
+
     /* Example custom adapter registration
-    registerAdapter('custom', {
+    addAdapter('custom', {
         name: 'custom',
         // sendEvent handles how to send the event to the analytics provider
         sendEvent: async (event: AnalyticsEvent) => Promise.resolve({}),

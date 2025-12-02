@@ -1,0 +1,97 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router';
+import { useConfig } from '@/config';
+import { useAuth } from '@/providers/auth';
+import { ensureAdaptersInitialized } from '@/lib/adapters/initialize-adapters';
+import { getAllAdapters } from '@/lib/adapters';
+
+/**
+ * Component that tracks page view events asynchronously
+ *
+ * This component lazy loads analytics dependencies and tracks page views on location changes.
+ * All tracking work is async and non-blocking, so it doesn't impact page load performance.
+ *
+ * Note: This is a non-visual component (returns null) and is located in lib/analytics
+ * rather than components/ to avoid Storybook coverage issues.
+ */
+export function PageViewTracker() {
+    const location = useLocation();
+    const config = useConfig();
+    const auth = useAuth();
+    const hasTrackedRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        // Only track on client side
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const pathname = location.pathname;
+        const queryParams = location.search;
+        const hash = location.hash;
+        const fullPath = `${pathname}${queryParams}${hash}`;
+
+        // Skip if we've already tracked this exact path
+        if (hasTrackedRef.current === fullPath) {
+            return;
+        }
+
+        // Check if this path should be tracked
+        const blockedPaths = config.engagement.analytics.pageViewsBlocklist;
+        const shouldTrackPath = !blockedPaths.some((blocked) => pathname.startsWith(blocked));
+
+        if (!shouldTrackPath) {
+            return;
+        }
+
+        // Track page view asynchronously
+        const trackPageView = async () => {
+            try {
+                // Ensure adapters are initialized before getting mediator so we have adapters to track the event
+                await ensureAdaptersInitialized(config);
+
+                // Dynamically import event creation functions - these are not in the initial bundle
+                const { createEvent, getEventMediator, sendViewPageEvent } = await import(
+                    '@salesforce/storefront-next-runtime/events'
+                );
+
+                const mediator = getEventMediator(getAllAdapters);
+                if (!mediator) {
+                    return;
+                }
+
+                // Create and send the page view event
+                const event = createEvent('view_page', {
+                    path: pathname,
+                    payload: {
+                        userType: auth?.userType ?? 'guest',
+                        usid: auth?.usid,
+                    },
+                });
+                sendViewPageEvent(event, mediator);
+            } catch (error) {
+                // Silently fail - analytics should not break the app
+                hasTrackedRef.current = null; // Reset the tracked path to allow tracking again
+                if (import.meta.env.DEV) {
+                    // eslint-disable-next-line no-console
+                    console.warn('Failed to load and send page view tracking:', error);
+                }
+            }
+        };
+
+        void trackPageView();
+        hasTrackedRef.current = fullPath;
+    }, [
+        location.pathname,
+        location.search,
+        location.hash,
+        config.engagement.analytics.pageViewsBlocklist,
+        config,
+        auth?.userType,
+        auth?.usid,
+    ]);
+
+    return null;
+}

@@ -260,6 +260,16 @@ vi.mock('@/hooks/checkout/use-completed-steps', () => ({
     useCompletedSteps: () => [],
 }));
 
+vi.mock('@/config', () => ({
+    useConfig: vi.fn(() => ({
+        engagement: {
+            adapters: {
+                einstein: { enabled: true },
+            },
+        },
+    })),
+}));
+
 vi.mock('@/hooks/use-customer-lookup', () => ({
     useLoginSuggestion: () => null,
 }));

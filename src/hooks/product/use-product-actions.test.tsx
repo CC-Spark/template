@@ -50,6 +50,16 @@ vi.mock('@/hooks/product/use-current-variant', () => ({
     useCurrentVariant: () => null,
 }));
 
+vi.mock('@/config', () => ({
+    useConfig: vi.fn(() => ({
+        engagement: {
+            adapters: {
+                einstein: { enabled: true },
+            },
+        },
+    })),
+}));
+
 // Note: usePickup context is not mocked
 // We wrap components with PickupProvider to provide the real context
 // This allows tests to use the actual pickup context for proper integration testing

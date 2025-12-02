@@ -46,6 +46,7 @@ export type EinsteinConfig = EngagementAdapterConfig & {
     host: string;
     einsteinId: string;
     isProduction: boolean;
+    realm: string;
 };
 
 /**
@@ -158,13 +159,14 @@ function isAnalyticsUser(payload: unknown): payload is AnalyticsUser {
 /**
  * Convert an analytics event to an Einstein activity
  */
-function convertEventToEinsteinActivity(event: AnalyticsEvent, isProduction: 'prd' | 'sbx'): EinsteinActivity {
+function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, isProduction: boolean): EinsteinActivity {
     // For now, payload will always be AnalyticsUser, but we check for type safety
     const user = isAnalyticsUser(event.payload) ? event.payload : null;
     const baseActivity: EinsteinActivity = {
         userId: user?.userType === 'registered' ? user?.encUserId : undefined,
         cookieId: user?.usid ?? '', // Ensure string type for cookieId
-        instanceType: isProduction, // instanceType should be prd for the event to appear in Reports & Dashboards
+        instanceType: isProduction ? 'prd' : 'sbx',
+        realm,
     };
 
     switch (event.eventType) {
@@ -268,16 +270,19 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, isProduction: 'pr
 function validateEinsteinConfig(config: EinsteinConfig): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     if (!config.host || config.host.trim() === '') {
-        errors.push(`Einstein adapter is missing required field: host`);
+        errors.push(`Missing required field: host`);
     }
     if (!config.einsteinId || config.einsteinId.trim() === '') {
-        errors.push(`Einstein adapter is missing required field: einsteinId`);
+        errors.push(`Missing required field: einsteinId`);
     }
     if (!config.siteId || config.siteId.trim() === '') {
-        errors.push(`Einstein adapter is missing required field: siteId`);
+        errors.push(`Missing required field: siteId`);
+    }
+    if (!config.realm || config.realm.trim() === '') {
+        errors.push(`Missing required field: realm`);
     }
     if (!config.eventToggles) {
-        errors.push(`Einstein adapter is missing required field: eventToggles`);
+        errors.push(`Missing required field: eventToggles`);
     }
     return { valid: errors.length === 0, errors };
 }
@@ -288,7 +293,8 @@ function validateEinsteinConfig(config: EinsteinConfig): { valid: boolean; error
 export function createEinsteinAdapter(config: EinsteinConfig): EngagementAdapter {
     const validConfig = validateEinsteinConfig(config);
     if (!validConfig.valid) {
-        throw new Error('Einstein adapter configuration is invalid:', { cause: validConfig.errors });
+        const errorMessage = `Einstein adapter configuration is invalid: ${validConfig.errors.join('; ')}`;
+        throw new Error(errorMessage, { cause: validConfig.errors });
     }
 
     return {
@@ -300,9 +306,9 @@ export function createEinsteinAdapter(config: EinsteinConfig): EngagementAdapter
             const endpoint = mapEventTypeToEinsteinEndpoint(event.eventType);
             if (!endpoint) throw new Error('Unsupported event type in Einstein adapter', { cause: event.eventType });
 
-            const activity = convertEventToEinsteinActivity(event, config.isProduction ? 'prd' : 'sbx');
+            const activity = convertEventToEinsteinActivity(event, config.realm, config.isProduction);
 
-            const targetEndpointUrl = `${config.host}/v3/activities/${config.siteId}/${endpoint}?clientId=${config.einsteinId}`;
+            const targetEndpointUrl = `${config.host}/v3/activities/${config.realm}-${config.siteId}/${endpoint}?clientId=${config.einsteinId}`;
             const payload = new Blob([JSON.stringify(activity)], { type: 'application/json' });
 
             navigator.sendBeacon(targetEndpointUrl, payload);

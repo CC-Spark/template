@@ -8,17 +8,11 @@ import { mockConfig } from '@/test-utils/config';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
-import AnalyticsProvider from '@/providers/analytics';
 import { action } from 'storybook/actions';
 
 // Mock ProductViewProvider to control internal state if needed,
 // but using the real one is better for integration testing if possible.
 // We need to ensure all dependencies of ProductViewProvider are met.
-
-// Create a mock analytics value
-const mockAnalytics = {
-    track: () => {},
-};
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -68,13 +62,11 @@ const meta: Meta<typeof ProductCartActions> = {
         (Story: React.ComponentType, context) => {
             return (
                 <ConfigProvider config={mockConfig}>
-                    <AnalyticsProvider value={mockAnalytics}>
-                        <ProductViewProvider product={context.args.product as any} initialQuantity={1} mode="add">
-                            <ActionLogger>
-                                <Story />
-                            </ActionLogger>
-                        </ProductViewProvider>
-                    </AnalyticsProvider>
+                    <ProductViewProvider product={context.args.product as any} initialQuantity={1} mode="add">
+                        <ActionLogger>
+                            <Story />
+                        </ActionLogger>
+                    </ProductViewProvider>
                 </ConfigProvider>
             );
         },
@@ -107,13 +99,11 @@ export const EditMode: Story = {
     decorators: [
         (Story: React.ComponentType, context) => (
             <ConfigProvider config={mockConfig}>
-                <AnalyticsProvider value={mockAnalytics}>
-                    <ProductViewProvider product={context.args.product as any} initialQuantity={1} mode="edit">
-                        <ActionLogger>
-                            <Story />
-                        </ActionLogger>
-                    </ProductViewProvider>
-                </AnalyticsProvider>
+                <ProductViewProvider product={context.args.product as any} initialQuantity={1} mode="edit">
+                    <ActionLogger>
+                        <Story />
+                    </ActionLogger>
+                </ProductViewProvider>
             </ConfigProvider>
         ),
     ],

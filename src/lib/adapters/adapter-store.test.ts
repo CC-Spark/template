@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { registerAdapter, unregisterAdapter, getAdapter } from './adapter-registry';
+import { addAdapter, removeAdapter, getAdapter } from './adapter-store';
 import type { EngagementAdapter } from './types';
 
-describe('Adapter Registry', () => {
+describe('Adapter Store', () => {
     let mockAdapter: EngagementAdapter;
 
     beforeEach(() => {
@@ -12,35 +12,35 @@ describe('Adapter Registry', () => {
         };
 
         // Clear any existing adapters
-        unregisterAdapter('test-adapter');
+        removeAdapter('test-adapter');
     });
 
     afterEach(() => {
         // Clean up
-        unregisterAdapter('test-adapter');
+        removeAdapter('test-adapter');
         vi.clearAllMocks();
     });
 
-    describe('adapter registry', () => {
+    describe('adapter store', () => {
         it('should register, unregister, and retrieve adapters', () => {
-            registerAdapter('test-adapter', mockAdapter);
+            addAdapter('test-adapter', mockAdapter);
             expect(getAdapter('test-adapter')).toBe(mockAdapter);
 
-            unregisterAdapter('test-adapter');
+            removeAdapter('test-adapter');
             expect(getAdapter('test-adapter')).toBeUndefined();
         });
 
         it('should handle non-existent adapters gracefully', () => {
             expect(getAdapter('non-existent')).toBeUndefined();
-            expect(() => unregisterAdapter('non-existent')).not.toThrow();
+            expect(() => removeAdapter('non-existent')).not.toThrow();
         });
 
         it('should allow multiple adapters with different names', () => {
             const adapter1 = { ...mockAdapter, name: 'adapter-1' };
             const adapter2 = { ...mockAdapter, name: 'adapter-2' };
 
-            registerAdapter('adapter-1', adapter1);
-            registerAdapter('adapter-2', adapter2);
+            addAdapter('adapter-1', adapter1);
+            addAdapter('adapter-2', adapter2);
 
             expect(getAdapter('adapter-1')).toBe(adapter1);
             expect(getAdapter('adapter-2')).toBe(adapter2);

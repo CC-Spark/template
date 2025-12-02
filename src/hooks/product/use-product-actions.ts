@@ -478,7 +478,7 @@ export function useProductActions({
             );
 
             // Track cart item add
-            analytics.trackCartItemAdd({
+            void analytics.trackCartItemAdd({
                 cartItems: [productItem as ShopperBasketsV2.schemas['ProductItem']],
             });
         } catch {
@@ -636,7 +636,7 @@ export function useProductActions({
                 );
 
                 // Track cart item add
-                analytics.trackCartItemAdd({
+                void analytics.trackCartItemAdd({
                     cartItems: productItems as ShopperBasketsV2.schemas['ProductItem'][],
                 });
             } catch {
@@ -700,7 +700,7 @@ export function useProductActions({
                 );
 
                 // Track cart item add
-                analytics.trackCartItemAdd({
+                void analytics.trackCartItemAdd({
                     cartItems: [bundleItem, ...childSelections],
                 });
             } catch {

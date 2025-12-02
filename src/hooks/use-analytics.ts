@@ -1,29 +1,30 @@
-import { useRef } from 'react';
-import { useAnalytics as useAnalyticsContext } from '@/providers/analytics';
 import { useAuth } from '@/providers/auth';
 import type { ShopperBasketsV2, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { createEvent } from '@salesforce/storefront-next-runtime/events';
+import { createEvent, getEventMediator, type EventMediator } from '@salesforce/storefront-next-runtime/events';
+import { useConfig, type AppConfig } from '@/config';
+import { ensureAdaptersInitialized } from '@/lib/adapters/initialize-adapters';
+import { getAllAdapters } from '@/lib/adapters';
 
 /**
- * Enhanced analytics hook with helper functions
+ * Ensures adapters are initialized and returns the event mediator
+ *
+ * @param appConfig - The application configuration needed to initialize adapters
+ * @returns EventMediator instance or undefined if not available
+ */
+async function getInitializedMediator(appConfig: AppConfig): Promise<EventMediator | undefined> {
+    await ensureAdaptersInitialized(appConfig);
+    return getEventMediator(getAllAdapters);
+}
+
+/**
+ * Analytics hook provides tracking functions
  */
 export const useAnalytics = () => {
-    const analytics = useAnalyticsContext();
     const auth = useAuth();
+    const appConfig = useConfig();
 
-    // We want to track page view only once per component mount
-    const hasTrackedPageViewRef = useRef(false);
-
-    // On the server, analytics context is not available, so we return empty functions.
-    if (!analytics) {
-        // Warn on the client side if analytics context is not found since we expect it to be available on the client side.
-        if (typeof window !== 'undefined') {
-            // eslint-disable-next-line no-console
-            console.warn(
-                'Analytics context not found. Please ensure the AnalyticsProvider is mounted. No events will be tracked.'
-            );
-        }
-
+    // On the server, return empty functions
+    if (typeof window === 'undefined') {
         /* eslint-disable @typescript-eslint/no-empty-function */
         return {
             trackViewPage: () => {},
@@ -40,28 +41,34 @@ export const useAnalytics = () => {
     }
 
     /**
-     * Tracks a page view event on component mount
+     * Tracks a page view event
      *
-     * Calling this function after mount will not send an event.
+     * Page view events are sent automatically by the PageViewTracker component but this
+     * function is provided for manual firing of page views.
      */
-    const trackViewPage = (data: { url: string }) => {
-        if (!hasTrackedPageViewRef.current) {
-            const event = createEvent('view_page', {
-                path: data.url,
-                payload: {
-                    userType: auth?.userType ?? 'guest',
-                    usid: auth?.usid,
-                },
-            });
-            hasTrackedPageViewRef.current = true;
-            return void analytics.track(event);
+    const trackViewPage = async (data: { url: string }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
         }
+        const event = createEvent('view_page', {
+            path: data.url,
+            payload: {
+                userType: auth?.userType ?? 'guest',
+                usid: auth?.usid,
+            },
+        });
+        return void mediator.track(event);
     };
 
     /**
      * Track a product view
      */
-    const trackViewProduct = (data: { product: ShopperProducts.schemas['Product'] }) => {
+    const trackViewProduct = async (data: { product: ShopperProducts.schemas['Product'] }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('view_product', {
             product: data.product,
             payload: {
@@ -69,13 +76,17 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     /**
      * Track add to cart
      */
-    const trackCartItemAdd = (data: { cartItems: ShopperBasketsV2.schemas['ProductItem'][] }) => {
+    const trackCartItemAdd = async (data: { cartItems: ShopperBasketsV2.schemas['ProductItem'][] }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('cart_item_add', {
             cartItems: data.cartItems,
             payload: {
@@ -83,13 +94,17 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     /**
      * Track start of checkout process
      */
-    const trackCheckoutStart = (data: { basket: ShopperBasketsV2.schemas['Basket'] }) => {
+    const trackCheckoutStart = async (data: { basket: ShopperBasketsV2.schemas['Basket'] }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('checkout_start', {
             basket: data.basket,
             payload: {
@@ -97,17 +112,21 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     /**
      * Track start of given checkout step
      */
-    const trackCheckoutStep = (data: {
+    const trackCheckoutStep = async (data: {
         stepName: string;
         stepNumber: number;
         basket: ShopperBasketsV2.schemas['Basket'];
     }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('checkout_step', {
             stepName: data.stepName,
             stepNumber: data.stepNumber,
@@ -117,16 +136,20 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     /**
      * Track search
      */
-    const trackViewSearch = (data: {
+    const trackViewSearch = async (data: {
         searchInputText: string;
         searchResults: ShopperSearch.schemas['ProductSearchHit'][];
     }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('view_search', {
             searchInputText: data.searchInputText,
             searchResults: data.searchResults,
@@ -135,16 +158,20 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     /**
      * Track category view
      */
-    const trackViewCategory = (data: {
+    const trackViewCategory = async (data: {
         category: ShopperProducts.schemas['Category'];
         searchResults: ShopperSearch.schemas['ProductSearchHit'][];
     }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('view_category', {
             category: data.category,
             searchResults: data.searchResults,
@@ -153,16 +180,20 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     /**
      * Track click on a product in a category
      */
-    const trackClickProductInCategory = (data: {
+    const trackClickProductInCategory = async (data: {
         category: ShopperProducts.schemas['Category'];
         product: ShopperSearch.schemas['ProductSearchHit'];
     }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('click_product_in_category', {
             category: data.category,
             product: data.product,
@@ -171,16 +202,20 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     /**
      * Track click on a product in a search
      */
-    const trackClickProductInSearch = (data: {
+    const trackClickProductInSearch = async (data: {
         searchInputText: string;
         product: ShopperSearch.schemas['ProductSearchHit'];
     }) => {
+        const mediator = await getInitializedMediator(appConfig);
+        if (!mediator) {
+            return;
+        }
         const event = createEvent('click_product_in_search', {
             searchInputText: data.searchInputText,
             product: data.product,
@@ -189,7 +224,7 @@ export const useAnalytics = () => {
                 usid: auth?.usid,
             },
         });
-        return void analytics.track(event);
+        return void mediator.track(event);
     };
 
     return {

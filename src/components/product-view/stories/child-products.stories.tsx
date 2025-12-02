@@ -7,14 +7,8 @@ import { mockConfig } from '@/test-utils/config';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import ProductViewProvider from '@/providers/product-view';
-import AnalyticsProvider from '@/providers/analytics';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
-
-// Create a mock analytics value
-const mockAnalytics = {
-    track: () => {},
-};
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -74,13 +68,11 @@ const meta: Meta<typeof ChildProducts> = {
 
             return (
                 <ConfigProvider config={mockConfig}>
-                    <AnalyticsProvider value={mockAnalytics}>
-                        <ProductViewProvider product={context.args.parentProduct as any} mode="add">
-                            <ActionLogger>
-                                <Story />
-                            </ActionLogger>
-                        </ProductViewProvider>
-                    </AnalyticsProvider>
+                    <ProductViewProvider product={context.args.parentProduct as any} mode="add">
+                        <ActionLogger>
+                            <Story />
+                        </ActionLogger>
+                    </ProductViewProvider>
                 </ConfigProvider>
             );
         },

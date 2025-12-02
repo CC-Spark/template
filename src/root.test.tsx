@@ -74,10 +74,20 @@ vi.mock('@/extensions/store-locator/providers/store-locator', async () => ({
 }));
 // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
 
-vi.mock('@/config', async () => ({
-    ...(await vi.importActual('@/config')),
-    ConfigProvider: ({ children }: PropsWithChildren) => <div data-testid="config-provider">{children}</div>,
-}));
+vi.mock('@/config', async () => {
+    const actual = await vi.importActual('@/config');
+    const { ConfigContext, createAppConfig } = await import('@/config/context');
+    const { mockBuildConfig } = await import('@/test-utils/config');
+
+    return {
+        ...actual,
+        ConfigProvider: ({ children }: PropsWithChildren) => (
+            <ConfigContext.Provider value={createAppConfig(mockBuildConfig)}>
+                <div data-testid="config-provider">{children}</div>
+            </ConfigContext.Provider>
+        ),
+    };
+});
 
 vi.mock('@/providers/auth', async () => ({
     ...(await vi.importActual('@/providers/auth')),

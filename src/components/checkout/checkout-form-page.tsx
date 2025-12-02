@@ -109,7 +109,7 @@ export default function CheckoutFormPage({ shippingMethods, productMapPromise }:
     useEffect(() => {
         // Only track checkout start once on mount if baseket is not empty
         if (!hasTrackedCheckoutStartRef.current && cart?.productItems && cart.productItems.length > 0) {
-            analytics.trackCheckoutStart({
+            void analytics.trackCheckoutStart({
                 basket: cart,
             });
             hasTrackedCheckoutStartRef.current = true;
@@ -119,7 +119,7 @@ export default function CheckoutFormPage({ shippingMethods, productMapPromise }:
     useEffect(() => {
         if (!previousStepRef.current && cart?.productItems && cart.productItems.length > 0) {
             const stepName = Object.keys(STEPS).find((key) => STEPS[key as keyof typeof STEPS] === step) || '';
-            analytics.trackCheckoutStep({
+            void analytics.trackCheckoutStep({
                 stepName,
                 stepNumber: step,
                 basket: cart,

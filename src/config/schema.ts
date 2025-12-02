@@ -162,7 +162,7 @@ export type Config = {
         engagement: {
             adapters: Record<string, EngagementAdapterConfig>;
             analytics: {
-                doNotTrackPaths: string[];
+                pageViewsBlocklist: string[];
             };
         };
         development: {

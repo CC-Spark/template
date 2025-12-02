@@ -34,20 +34,47 @@ function sendViewPageEvent(event, eventMediator) {
 
 //#endregion
 //#region src/events/mediator.ts
+let mediatorInstance;
 /**
-* Initialize event mediator
+* Create an event mediator instance
 *
-* @param getAdapters - Function that returns the current array of engagmenet adapters.
+* Creates a new EventMediator that processes events through the provided adapters.
+* The mediator uses the getAdapters function on each track() invocation to ensure
+* it always uses the latest adapters from the adapter registry.
+*
+* @param getAdapters - Function that returns the current array of engagement adapters.
 *                      This function is called on each track() invocation to ensure
 *                      the mediator always uses the latest adapters from the adapter registry.
 * @returns EventMediator instance
 */
-function initializeEventMediator(getAdapters) {
+function createEventMediator(getAdapters) {
 	return { track: (event) => {
 		processEventWithAdapters(event, getAdapters).catch((error) => {
 			console.error("Analytics tracking failed:", error);
 		});
 	} };
+}
+/**
+* Get the event mediator singleton instance
+*
+* Returns the singleton EventMediator instance, creating it if it doesn't exist.
+*
+* @param getAdapters - Function that returns the current array of engagement adapters.
+* @returns EventMediator instance (singleton) or undefined if not on client side
+*/
+function getEventMediator(getAdapters) {
+	if (mediatorInstance) return mediatorInstance;
+	if (typeof window === "undefined") return;
+	mediatorInstance = createEventMediator(getAdapters);
+	return mediatorInstance;
+}
+/**
+* Reset the event mediator singleton (for testing only)
+*
+* This function clears the singleton instance, allowing tests to create a fresh mediator.
+*/
+function resetEventMediator() {
+	mediatorInstance = void 0;
 }
 /**
 * Process an event with all registered adapters
@@ -73,5 +100,5 @@ async function processEventWithAdapters(event, getAdapters) {
 }
 
 //#endregion
-export { createEvent, initializeEventMediator, sendViewPageEvent };
+export { createEvent, getEventMediator, resetEventMediator, sendViewPageEvent };
 //# sourceMappingURL=events.js.map

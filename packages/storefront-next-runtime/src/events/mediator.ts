@@ -7,15 +7,23 @@
 
 import type { EventMediator, AnalyticsEvent, EventAdapter } from './types';
 
+// Module-level storage for the event mediator singleton
+// This ensures a single mediator instance across all usages
+let mediatorInstance: EventMediator | undefined;
+
 /**
- * Initialize event mediator
+ * Create an event mediator instance
  *
- * @param getAdapters - Function that returns the current array of engagmenet adapters.
+ * Creates a new EventMediator that processes events through the provided adapters.
+ * The mediator uses the getAdapters function on each track() invocation to ensure
+ * it always uses the latest adapters from the adapter registry.
+ *
+ * @param getAdapters - Function that returns the current array of engagement adapters.
  *                      This function is called on each track() invocation to ensure
  *                      the mediator always uses the latest adapters from the adapter registry.
  * @returns EventMediator instance
  */
-export function initializeEventMediator(getAdapters: () => EventAdapter[]): EventMediator {
+function createEventMediator(getAdapters: () => EventAdapter[]): EventMediator {
     return {
         track: (event: AnalyticsEvent) => {
             processEventWithAdapters(event, getAdapters).catch((error) => {
@@ -24,6 +32,39 @@ export function initializeEventMediator(getAdapters: () => EventAdapter[]): Even
             });
         },
     };
+}
+
+/**
+ * Get the event mediator singleton instance
+ *
+ * Returns the singleton EventMediator instance, creating it if it doesn't exist.
+ *
+ * @param getAdapters - Function that returns the current array of engagement adapters.
+ * @returns EventMediator instance (singleton) or undefined if not on client side
+ */
+export function getEventMediator(getAdapters: () => EventAdapter[]): EventMediator | undefined {
+    // If mediator already exists, return it
+    if (mediatorInstance) {
+        return mediatorInstance;
+    }
+
+    // Only create on client side
+    if (typeof window === 'undefined') {
+        return undefined;
+    }
+
+    // Create the event mediator singleton
+    mediatorInstance = createEventMediator(getAdapters);
+    return mediatorInstance;
+}
+
+/**
+ * Reset the event mediator singleton (for testing only)
+ *
+ * This function clears the singleton instance, allowing tests to create a fresh mediator.
+ */
+export function resetEventMediator(): void {
+    mediatorInstance = undefined;
 }
 
 /**

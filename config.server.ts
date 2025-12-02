@@ -195,6 +195,7 @@ export default defineConfig({
                     host: '',
                     einsteinId: '',
                     isProduction: false,
+                    realm: '',
                     siteId: '',
                     eventToggles: {
                         view_page: true,
@@ -233,6 +234,7 @@ export default defineConfig({
                     enabled: false,
                     host: '',
                     siteId: '',
+                    locale: '',
                     eventToggles: {
                         view_page: true,
                         view_product: true,
@@ -249,7 +251,22 @@ export default defineConfig({
                 },
             },
             analytics: {
-                doNotTrackPaths: ['/action', '/callback', '/oauth2', '/resource'],
+                // Do not send viewPage events for the following paths
+                // We omit /action because we don't want to trigger viewPage events for actions
+                // like modifying the quanity of an item in the cart
+                // We omit /callback, /oauth2, and /resource because these do not correspond to pages
+                // We omit /search, /category, and /product because they are tracked with different
+                // events (viewSearch, viewCategory, and viewProduct) triggered from the
+                // search, category, and product pages respectively
+                pageViewsBlocklist: [
+                    '/action',
+                    '/callback',
+                    '/oauth2',
+                    '/resource',
+                    '/search',
+                    '/category',
+                    '/product',
+                ],
             },
         },
         development: { enableDevtools: true, hotReload: true, strictMode: true },

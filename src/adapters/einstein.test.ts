@@ -46,7 +46,8 @@ const getBeaconPayload = async (): Promise<any> => {
 // Mock configuration
 const mockConfig: EinsteinConfig = {
     enabled: true,
-    siteId: 'test-site-id',
+    realm: 'realm',
+    siteId: 'siteId',
     host: 'https://api.cquotient.com',
     einsteinId: 'test-einstein-id',
     isProduction: false,
@@ -159,7 +160,7 @@ describe('Einstein Adapter', () => {
             await adapter.sendEvent(mockPageViewEvent);
 
             expect(mockSendBeacon).toHaveBeenCalledWith(
-                'https://api.cquotient.com/v3/activities/test-site-id/viewPage?clientId=test-einstein-id',
+                'https://api.cquotient.com/v3/activities/realm-siteId/viewPage?clientId=test-einstein-id',
                 expect.any(Blob)
             );
 
@@ -169,6 +170,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 path: '/test-page',
             });
         });
@@ -178,7 +180,7 @@ describe('Einstein Adapter', () => {
             await adapter.sendEvent(mockProductViewEvent);
 
             expect(mockSendBeacon).toHaveBeenCalledWith(
-                'https://api.cquotient.com/v3/activities/test-site-id/viewProduct?clientId=test-einstein-id',
+                'https://api.cquotient.com/v3/activities/realm-siteId/viewProduct?clientId=test-einstein-id',
                 expect.any(Blob)
             );
 
@@ -188,6 +190,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 product: {
                     id: 'test-product-id',
                 },
@@ -199,7 +202,7 @@ describe('Einstein Adapter', () => {
             await adapter.sendEvent(mockSearchEvent);
 
             expect(mockSendBeacon).toHaveBeenCalledWith(
-                'https://api.cquotient.com/v3/activities/test-site-id/viewSearch?clientId=test-einstein-id',
+                'https://api.cquotient.com/v3/activities/realm-siteId/viewSearch?clientId=test-einstein-id',
                 expect.any(Blob)
             );
 
@@ -209,6 +212,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 searchText: 'test search',
                 showProducts: true,
                 products: [
@@ -225,7 +229,7 @@ describe('Einstein Adapter', () => {
             await adapter.sendEvent(mockCartItemAddEvent);
 
             expect(mockSendBeacon).toHaveBeenCalledWith(
-                'https://api.cquotient.com/v3/activities/test-site-id/addToCart?clientId=test-einstein-id',
+                'https://api.cquotient.com/v3/activities/realm-siteId/addToCart?clientId=test-einstein-id',
                 expect.any(Blob)
             );
 
@@ -235,6 +239,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 products: [
                     {
                         id: 'test-product-id',
@@ -250,7 +255,7 @@ describe('Einstein Adapter', () => {
             await adapter.sendEvent(mockCheckoutStartEvent);
 
             expect(mockSendBeacon).toHaveBeenCalledWith(
-                'https://api.cquotient.com/v3/activities/test-site-id/beginCheckout?clientId=test-einstein-id',
+                'https://api.cquotient.com/v3/activities/realm-siteId/beginCheckout?clientId=test-einstein-id',
                 expect.any(Blob)
             );
 
@@ -260,6 +265,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 products: [
                     {
                         id: 'test-product-id',
@@ -283,6 +289,7 @@ describe('Einstein Adapter', () => {
                 userId: undefined,
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 path: '/test-page',
             });
         });
@@ -346,6 +353,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 category: {
                     id: 'test-category-id',
                 },
@@ -376,6 +384,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 recoId: 'test-recommender-id',
                 recoType: 'Test Recommender',
                 products: ['test-product-id'],
@@ -400,6 +409,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 category: {
                     id: 'test-category-id',
                 },
@@ -426,6 +436,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 searchText: 'test search',
                 product: {
                     id: 'test-product-id',
@@ -451,6 +462,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 recoId: 'test-recommender-id',
                 recoType: 'Test Recommender',
                 product: {
@@ -477,6 +489,7 @@ describe('Einstein Adapter', () => {
                 userId: 'test-enc-user-id',
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
+                realm: 'realm',
                 stepName: 'shipping',
                 stepNumber: 1,
                 basketId: 'test-basket-id',
@@ -577,7 +590,9 @@ describe('Einstein Adapter', () => {
                 host: '',
             };
 
-            expect(() => createEinsteinAdapter(invalidConfig)).toThrow('Einstein adapter configuration is invalid:');
+            expect(() => createEinsteinAdapter(invalidConfig)).toThrow(
+                /Einstein adapter configuration is invalid:.*Missing required field: host/
+            );
         });
 
         it('should throw error when host is whitespace-only string', () => {
@@ -586,7 +601,9 @@ describe('Einstein Adapter', () => {
                 host: '   ',
             };
 
-            expect(() => createEinsteinAdapter(invalidConfig)).toThrow('Einstein adapter configuration is invalid:');
+            expect(() => createEinsteinAdapter(invalidConfig)).toThrow(
+                /Einstein adapter configuration is invalid:.*Missing required field: host/
+            );
         });
 
         it('should throw error when einsteinId is empty string', () => {
@@ -595,7 +612,9 @@ describe('Einstein Adapter', () => {
                 einsteinId: '',
             };
 
-            expect(() => createEinsteinAdapter(invalidConfig)).toThrow('Einstein adapter configuration is invalid:');
+            expect(() => createEinsteinAdapter(invalidConfig)).toThrow(
+                /Einstein adapter configuration is invalid:.*Missing required field: einsteinId/
+            );
         });
 
         it('should throw error when einsteinId is whitespace-only string', () => {
@@ -604,7 +623,9 @@ describe('Einstein Adapter', () => {
                 einsteinId: '\t\n  ',
             };
 
-            expect(() => createEinsteinAdapter(invalidConfig)).toThrow('Einstein adapter configuration is invalid:');
+            expect(() => createEinsteinAdapter(invalidConfig)).toThrow(
+                /Einstein adapter configuration is invalid:.*Missing required field: einsteinId/
+            );
         });
 
         it('should throw error when siteId is empty string', () => {
@@ -613,7 +634,9 @@ describe('Einstein Adapter', () => {
                 siteId: '',
             };
 
-            expect(() => createEinsteinAdapter(invalidConfig)).toThrow('Einstein adapter configuration is invalid:');
+            expect(() => createEinsteinAdapter(invalidConfig)).toThrow(
+                /Einstein adapter configuration is invalid:.*Missing required field: siteId/
+            );
         });
 
         it('should throw error when siteId is whitespace-only string', () => {
@@ -622,7 +645,9 @@ describe('Einstein Adapter', () => {
                 siteId: '  \r\n  ',
             };
 
-            expect(() => createEinsteinAdapter(invalidConfig)).toThrow('Einstein adapter configuration is invalid:');
+            expect(() => createEinsteinAdapter(invalidConfig)).toThrow(
+                /Einstein adapter configuration is invalid:.*Missing required field: siteId/
+            );
         });
 
         it('should accept valid config with trimmed strings', () => {
@@ -630,7 +655,8 @@ describe('Einstein Adapter', () => {
                 ...mockConfig,
                 host: '  https://api.cquotient.com  ',
                 einsteinId: '  test-einstein-id  ',
-                siteId: '  test-site-id  ',
+                siteId: '  siteId  ',
+                realm: '  realm  ',
             };
 
             // Should not throw
@@ -645,7 +671,9 @@ describe('Einstein Adapter', () => {
                 siteId: '',
             };
 
-            expect(() => createEinsteinAdapter(invalidConfig)).toThrow('Einstein adapter configuration is invalid:');
+            expect(() => createEinsteinAdapter(invalidConfig)).toThrow(
+                /Einstein adapter configuration is invalid:.*Missing required field: host.*Missing required field: einsteinId.*Missing required field: siteId/
+            );
         });
     });
 });

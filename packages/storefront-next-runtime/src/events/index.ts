@@ -9,4 +9,4 @@ export type * from './types';
 
 export { createEvent, sendViewPageEvent } from './events';
 
-export { initializeEventMediator } from './mediator';
+export { getEventMediator, resetEventMediator } from './mediator';

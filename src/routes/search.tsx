@@ -133,7 +133,7 @@ export default function SearchPage({
     const handleProductClick = useCallback(
         (product: ShopperSearch.schemas['ProductSearchHit']) => {
             if (analytics) {
-                analytics.trackClickProductInSearch({
+                void analytics.trackClickProductInSearch({
                     searchInputText: searchTerm,
                     product,
                 });
@@ -150,7 +150,7 @@ export default function SearchPage({
         if (searchKey !== lastTrackedSearchRef.current) {
             void searchResult
                 .then((data: ShopperSearch.schemas['ProductSearchResult']) => {
-                    analytics.trackViewSearch({
+                    void analytics.trackViewSearch({
                         searchInputText: searchTerm,
                         searchResults: data.hits ?? [],
                     });

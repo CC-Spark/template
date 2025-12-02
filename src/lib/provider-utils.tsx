@@ -17,8 +17,7 @@ type ProviderComponent = ComponentType<ProviderProps>;
  * const withAppProviders = applyProviders(
  *   ThemeProvider,
  *   AuthProvider,
- *   I18nProvider,
- *   AnalyticsProvider
+ *   I18nProvider
  * );
  *
  * const AppWithProviders = withAppProviders(App);
