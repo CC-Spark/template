@@ -15,7 +15,6 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 
 // API
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 
 // Utils
 import {
@@ -93,16 +92,12 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
             }
         }
 
-        const config = getConfig(context);
         const clients = createApiClients(context);
 
         // Update all items in the bundle using updateItemsInBasket
         const { data: updatedBasket } = await clients.shopperBasketsV2.updateItemsInBasket({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, basketId },
-                query: {
-                    siteId: config.commerce.api.siteId,
-                },
+                path: { basketId },
             },
             body: items,
         });

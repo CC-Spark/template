@@ -11,7 +11,6 @@ import { getShippingMethodsForShipment } from '@/lib/api/shipping-methods';
 import type { SessionData as AuthData } from '@/lib/api/types';
 import type { CustomerProfile } from '@/components/checkout/utils/checkout-context-types';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import { getBasket } from '@/middlewares/basket.client';
 
 /**
@@ -35,7 +34,6 @@ export function getServerCustomerProfile(
         }
 
         // Use the provided auth session and proper context
-        const config = getConfig(context);
         const clients = createApiClients(context);
 
         // Fetch customer data and return promise for streaming
@@ -43,11 +41,7 @@ export function getServerCustomerProfile(
             .getCustomer({
                 params: {
                     path: {
-                        organizationId: config.commerce.api.organizationId,
                         customerId: authSession.customer_id,
-                    },
-                    query: {
-                        siteId: config.commerce.api.siteId,
                     },
                 },
             })

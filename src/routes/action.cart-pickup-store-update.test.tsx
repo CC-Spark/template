@@ -375,11 +375,9 @@ describe('action.cart-pickup-store-update', () => {
 
             // Verify basket was refreshed using new API clients
             expect(createApiClients).toHaveBeenCalledWith(mockContext);
-            expect(getConfig).toHaveBeenCalledWith(mockContext);
             expect(mockApiClients.shopperBasketsV2.getBasket).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'org-123', basketId: mockBasketId },
-                    query: { siteId: 'site-123' },
+                    path: { basketId: mockBasketId },
                 },
             });
 

@@ -21,16 +21,6 @@ const mockClient: MockShopperCustomersClient = {
 // Mock the dependencies
 vi.mock('@/middlewares/auth.client');
 vi.mock('@/lib/api-clients');
-vi.mock('@/config', () => ({
-    getConfig: vi.fn(() => ({
-        commerce: {
-            api: {
-                organizationId: 'test-org-id',
-                siteId: 'test-site-id',
-            },
-        },
-    })),
-}));
 
 const mockContext = {
     env: {
@@ -209,11 +199,7 @@ describe('Customer Lookup Functions', () => {
             expect(mockClient.getCustomer).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         customerId: 'customer123',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
                     },
                 },
             });

@@ -9,19 +9,14 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { clearPickupFromShipment, updateShipmentForPickup, setAddressAndMethodForPickup } from './shipment';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import type { RouterContextProvider } from 'react-router';
-import { getConfig } from '@/config';
 import { createApiClients } from '@/lib/api-clients';
 import { getShippingMethodsForShipment } from '@/lib/api/shipping-methods';
 import { PICKUP_SHIPPING_METHOD_ID } from '@/extensions/bopis/constants';
 import { createMockBasketWithPickupItems, createMockStore } from '@/extensions/bopis/tests/__mocks__/basket';
 
-// Mock createApiClients and getConfig
+// Mock createApiClients
 vi.mock('@/lib/api-clients', () => ({
     createApiClients: vi.fn(),
-}));
-
-vi.mock('@/config', () => ({
-    getConfig: vi.fn(),
 }));
 
 vi.mock('@/lib/api/shipping-methods', () => ({
@@ -34,18 +29,8 @@ describe('Shipment API utilities', () => {
         set: vi.fn(),
     } as unknown as RouterContextProvider;
 
-    const mockConfig = {
-        commerce: {
-            api: {
-                organizationId: 'test-org',
-                siteId: 'test-site',
-            },
-        },
-    };
-
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(getConfig).mockReturnValue(mockConfig as any);
     });
 
     // Helper function to setup mock API clients with updateShipmentForBasket
@@ -61,12 +46,8 @@ describe('Shipment API utilities', () => {
     function createShipmentParams(basketId: string, shipmentId: string = 'me') {
         return {
             path: {
-                organizationId: 'test-org',
                 basketId,
                 shipmentId,
-            },
-            query: {
-                siteId: 'test-site',
             },
         };
     }

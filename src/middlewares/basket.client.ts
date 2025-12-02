@@ -14,7 +14,6 @@ import {
     updateStorageObject,
 } from '@/lib/middleware';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 
 type BasketStorageData = ShopperBasketsV2.schemas['Basket'] & StorageMetaData & StorageErrorData;
 
@@ -29,21 +28,13 @@ const retrieveBasket = (
     context: Readonly<RouterContextProvider>,
     storage: Map<keyof BasketStorageData, BasketStorageData[keyof BasketStorageData]>
 ): Promise<ShopperBasketsV2.schemas['Basket']> => {
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const basketId = storage.get('basketId');
 
     const createBasket = async (): Promise<ShopperBasketsV2.schemas['Basket']> => {
         try {
             const { data } = await clients.shopperBasketsV2.createBasket({
-                params: {
-                    path: {
-                        organizationId: config.commerce.api.organizationId,
-                    },
-                    query: {
-                        siteId: config.commerce.api.siteId,
-                    },
-                },
+                params: {},
                 body: {
                     currency: import.meta.env.PUBLIC__app__site__currency || 'USD',
                 },
@@ -60,10 +51,7 @@ const retrieveBasket = (
                     const id = (Array.isArray(basketIds) ? basketIds : [String(basketIds)]).at(0) as string;
                     const { data } = await clients.shopperBasketsV2.getBasket({
                         params: {
-                            path: { organizationId: config.commerce.api.organizationId, basketId: id },
-                            query: {
-                                siteId: config.commerce.api.siteId,
-                            },
+                            path: { basketId: id },
                         },
                     });
                     return data;
@@ -77,10 +65,7 @@ const retrieveBasket = (
         return clients.shopperBasketsV2
             .getBasket({
                 params: {
-                    path: { organizationId: config.commerce.api.organizationId, basketId },
-                    query: {
-                        siteId: config.commerce.api.siteId,
-                    },
+                    path: { basketId },
                 },
             })
             .then(({ data }) => data)

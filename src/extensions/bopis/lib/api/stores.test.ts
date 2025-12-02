@@ -9,19 +9,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import type { ShopperBasketsV2, ShopperOrders, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import { fetchStoresForBasket, fetchStoresForOrder } from './stores';
 
 vi.mock('@/lib/api-clients', () => ({
     createApiClients: vi.fn(),
 }));
 
-vi.mock('@/config', () => ({
-    getConfig: vi.fn(),
-}));
-
 const mockedCreateApiClients = vi.mocked(createApiClients);
-const mockedGetConfig = vi.mocked(getConfig);
 
 beforeEach(() => {
     vi.resetAllMocks();
@@ -31,15 +25,6 @@ describe('fetchStoresForBasket', () => {
     const context = {} as ClientLoaderFunctionArgs['context'];
 
     const setupApiClients = (storesResponse: unknown) => {
-        mockedGetConfig.mockReturnValue({
-            commerce: {
-                api: {
-                    organizationId: 'org-123',
-                    siteId: 'site-456',
-                },
-            },
-        } as never);
-
         const getStores = vi.fn().mockResolvedValue(storesResponse);
 
         mockedCreateApiClients.mockReturnValue({
@@ -60,7 +45,6 @@ describe('fetchStoresForBasket', () => {
         const result = await fetchStoresForBasket(context, basket);
 
         expect(result.size).toBe(0);
-        expect(mockedGetConfig).not.toHaveBeenCalled();
         expect(mockedCreateApiClients).not.toHaveBeenCalled();
     });
 
@@ -84,15 +68,10 @@ describe('fetchStoresForBasket', () => {
 
         const result = await fetchStoresForBasket(context, basket);
 
-        expect(mockedGetConfig).toHaveBeenCalledWith(context);
         expect(mockedCreateApiClients).toHaveBeenCalledWith(context);
         expect(getStores).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: 'org-123',
-                },
                 query: {
-                    siteId: 'site-456',
                     ids: 'store-1,store-2',
                 },
             },
@@ -120,15 +99,6 @@ describe('fetchStoresForOrder', () => {
     const context = {} as ClientLoaderFunctionArgs['context'];
 
     const setupApiClients = (storesResponse: unknown) => {
-        mockedGetConfig.mockReturnValue({
-            commerce: {
-                api: {
-                    organizationId: 'org-123',
-                    siteId: 'site-456',
-                },
-            },
-        } as never);
-
         const getStores = vi.fn().mockResolvedValue(storesResponse);
 
         mockedCreateApiClients.mockReturnValue({
@@ -149,7 +119,6 @@ describe('fetchStoresForOrder', () => {
         const result = await fetchStoresForOrder(context, order);
 
         expect(result.size).toBe(0);
-        expect(mockedGetConfig).not.toHaveBeenCalled();
         expect(mockedCreateApiClients).not.toHaveBeenCalled();
     });
 
@@ -173,15 +142,10 @@ describe('fetchStoresForOrder', () => {
 
         const result = await fetchStoresForOrder(context, order);
 
-        expect(mockedGetConfig).toHaveBeenCalledWith(context);
         expect(mockedCreateApiClients).toHaveBeenCalledWith(context);
         expect(getStores).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: 'org-123',
-                },
                 query: {
-                    siteId: 'site-456',
                     ids: 'store-1,store-2',
                 },
             },

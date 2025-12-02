@@ -362,12 +362,8 @@ describe('loader.wishlist-products', () => {
             expect(mockGetCustomerProductList).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         customerId: 'test-customer-id',
                         listId: 'wishlist-1',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
                     },
                 },
             });

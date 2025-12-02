@@ -15,7 +15,6 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import createClient, { type CommerceSdkClient } from '@/lib/scapi';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import {
     type BasketActionResponse,
     createBasketSuccessResponse,
@@ -196,14 +195,10 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
 
                 // Get the updated basket after items update
                 // Use new client to get correct return type
-                const config = getConfig(context);
                 const clients = createApiClients(context);
                 const { data: refreshedBasket } = await clients.shopperBasketsV2.getBasket({
                     params: {
-                        path: { organizationId: config.commerce.api.organizationId, basketId },
-                        query: {
-                            siteId: config.commerce.api.siteId,
-                        },
+                        path: { basketId },
                     },
                 });
                 updatedBasket = refreshedBasket;

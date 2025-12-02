@@ -3,7 +3,6 @@ import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-run
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import { getTranslation } from '@/lib/i18next';
 
 /**
@@ -60,17 +59,12 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
             };
         }
 
-        const config = getConfig(context);
         const clients = createApiClients(context);
         const { data: updatedBasket } = await clients.shopperBasketsV2.removeCouponFromBasket({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     basketId,
                     couponItemId,
-                },
-                query: {
-                    siteId: config.commerce.api.siteId,
                 },
             },
         });

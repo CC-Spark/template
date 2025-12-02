@@ -10,7 +10,6 @@ import { getAuth } from '@/middlewares/auth.client';
 import { extractStatusCode } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { isRegisteredCustomer } from '@/lib/api/customer';
-import { getConfig } from '@/config';
 import { getTranslation } from '@/lib/i18next';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
@@ -48,13 +47,11 @@ async function removeFromWishlist(
     try {
         const customerId = session.customer_id;
         const clients = createApiClients(context);
-        const config = getConfig(context);
 
         // Get the customer's product lists
         const { data: productLists } = await clients.shopperCustomers.getCustomerProductLists({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, customerId },
-                query: { siteId: config.commerce.api.siteId },
+                path: { customerId },
             },
         });
 
@@ -81,11 +78,9 @@ async function removeFromWishlist(
         const { data: fullWishlist } = await clients.shopperCustomers.getCustomerProductList({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     customerId,
                     listId,
                 },
-                query: { siteId: config.commerce.api.siteId },
             },
         });
 
@@ -104,12 +99,10 @@ async function removeFromWishlist(
         await clients.shopperCustomers.deleteCustomerProductListItem({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     customerId,
                     listId,
                     itemId: wishlistItem.id,
                 },
-                query: { siteId: config.commerce.api.siteId },
             },
         });
 
@@ -117,11 +110,9 @@ async function removeFromWishlist(
         const { data: updatedList } = await clients.shopperCustomers.getCustomerProductList({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     customerId,
                     listId,
                 },
-                query: { siteId: config.commerce.api.siteId },
             },
         });
 

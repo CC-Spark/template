@@ -1,7 +1,6 @@
 import { createApiClients } from '@/lib/api-clients';
 import type { RouterContextProvider } from 'react-router';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
-import { getConfig } from '@/config';
 
 /**
  * Get the appropriate currency for basket calculations
@@ -25,14 +24,10 @@ export async function addPaymentInstrumentToBasket(
     basketId: string,
     paymentInstrument: ShopperBasketsV2.schemas['OrderPaymentInstrument']
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const { data: basket } = await clients.shopperBasketsV2.addPaymentInstrumentToBasket({
         params: {
-            path: { organizationId: config.commerce.api.organizationId, basketId },
-            query: {
-                siteId: config.commerce.api.siteId,
-            },
+            path: { basketId },
         },
         body: paymentInstrument,
     });
@@ -47,14 +42,10 @@ export async function updateBillingAddressForBasket(
     basketId: string,
     billingAddress: ShopperBasketsV2.schemas['OrderAddress']
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const { data: basket } = await clients.shopperBasketsV2.updateBillingAddressForBasket({
         params: {
-            path: { organizationId: config.commerce.api.organizationId, basketId },
-            query: {
-                siteId: config.commerce.api.siteId,
-            },
+            path: { basketId },
         },
         body: billingAddress,
     });
@@ -83,14 +74,10 @@ export async function calculateBasket(
 
     // Use updateBasket with currency to trigger calculation
     // This follows the PWA Kit pattern - updating currency forces recalculation
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const { data: basket } = await clients.shopperBasketsV2.updateBasket({
         params: {
-            path: { organizationId: config.commerce.api.organizationId, basketId },
-            query: {
-                siteId: config.commerce.api.siteId,
-            },
+            path: { basketId },
         },
         body,
     });
@@ -112,15 +99,10 @@ export async function calculateBasket(
 export async function mergeBasket(
     context: Readonly<RouterContextProvider>
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const { data: basket } = await clients.shopperBasketsV2.transferBasket({
         params: {
-            path: {
-                organizationId: config.commerce.api.organizationId,
-            },
             query: {
-                siteId: config.commerce.api.siteId,
                 overrideExisting: true,
             },
         },

@@ -13,20 +13,6 @@ import type { ActionFunctionArgs } from 'react-router';
 
 vi.mock('@/middlewares/auth.client');
 vi.mock('@/lib/api-clients');
-vi.mock('@/config', async (importOriginal) => {
-    const actual = await importOriginal();
-    return {
-        ...actual,
-        getConfig: vi.fn(() => ({
-            commerce: {
-                api: {
-                    organizationId: 'test-org-id',
-                    siteId: 'test-site-id',
-                },
-            },
-        })),
-    };
-});
 
 const mockContext = {} as ActionFunctionArgs['context'];
 
@@ -80,11 +66,7 @@ describe('Customer API', () => {
             expect(mockClient.getCustomer).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         customerId: 'cust123',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
                     },
                 },
             });
@@ -260,11 +242,7 @@ describe('Customer API', () => {
             expect(mockClient.getCustomer).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         customerId: 'cust123',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
                     },
                 },
             });
@@ -589,14 +567,6 @@ describe('Customer API', () => {
 
             // Verify registration was called
             expect(mockRegisterCustomer).toHaveBeenCalledWith({
-                params: {
-                    path: {
-                        organizationId: 'test-org-id',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
-                    },
-                },
                 body: expect.objectContaining({
                     customer: expect.objectContaining({
                         login: 'test@example.com',

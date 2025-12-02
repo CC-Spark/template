@@ -286,7 +286,6 @@ describe('action.wishlist-add', () => {
                         customerId: 'customer-123',
                         listId: 'wishlist-123',
                     }),
-                    query: expect.any(Object),
                 },
                 body: expect.objectContaining({
                     productId: 'product-123',

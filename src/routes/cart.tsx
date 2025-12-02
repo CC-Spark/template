@@ -18,7 +18,6 @@ import { getBasket } from '@/middlewares/basket.client';
 
 // API
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 
 // Components
 import CartContent from '@/components/cart/cart-content';
@@ -76,15 +75,10 @@ async function fetchPromotionsForBasket(
     }
 
     // Fetch promotion details for all unique promotion IDs
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const { data: promotionsData } = await clients.shopperPromotions.getPromotions({
         params: {
-            path: {
-                organizationId: config.commerce.api.organizationId,
-            },
             query: {
-                siteId: config.commerce.api.siteId,
                 ids: Array.from(promotionIds),
             },
         },
@@ -152,15 +146,10 @@ async function fetchProductsInBasket(
     const inventoryIds = getInventoryIdsFromPickupShipments(basket);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const { data: productsData } = await clients.shopperProducts.getProducts({
         params: {
-            path: {
-                organizationId: config.commerce.api.organizationId,
-            },
             query: {
-                siteId: config.commerce.api.siteId,
                 ids,
                 allImages: true,
                 perPricebook: true,

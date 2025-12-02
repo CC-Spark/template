@@ -82,17 +82,6 @@ vi.mock('@/lib/api-clients', () => ({
     })),
 }));
 
-vi.mock('@/config', () => ({
-    getConfig: vi.fn(() => ({
-        commerce: {
-            api: {
-                organizationId: 'test-org-id',
-                siteId: 'test-site-id',
-            },
-        },
-    })),
-}));
-
 vi.mock('@/lib/payment-utils', () => ({
     getCardTypeDisplay: vi.fn(
         (instrument: any, defaultValue: string) => instrument?.paymentCard?.cardType || defaultValue
@@ -135,7 +124,6 @@ vi.mock('@/components/create-page', () => ({
 
 // Import the functions we want to test
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { fetchStoresForOrder } from '@/extensions/bopis/lib/api/stores';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
@@ -252,7 +240,6 @@ describe('Order Confirmation Route', () => {
 
             loader(mockArgs);
 
-            expect(getConfig).toHaveBeenCalledWith(mockContext);
             expect(createApiClients).toHaveBeenCalledWith(mockContext);
         });
 

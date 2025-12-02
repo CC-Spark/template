@@ -470,11 +470,7 @@ describe('Checkout Utils', () => {
             expect(mockShopperBasketsClient.updateCustomerForBasket).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         basketId: 'test-basket',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
                     },
                 },
                 body: { email: 'test@example.com' },
@@ -491,12 +487,8 @@ describe('Checkout Utils', () => {
             expect(mockShopperBasketsClient.updateShippingAddressForShipment).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         basketId: 'test-basket',
                         shipmentId: 'me',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
                     },
                 },
                 body: expect.objectContaining({

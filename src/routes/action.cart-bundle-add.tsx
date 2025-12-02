@@ -8,7 +8,6 @@ import { data, type ActionFunctionArgs } from 'react-router';
 import { ApiError, type ShopperBasketsV2, type ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
 import { getTranslation } from '@/lib/i18next';
@@ -55,14 +54,10 @@ async function addBundleToCart(
         }));
 
         // Add bundle to basket with bundled product items
-        const config = getConfig(context);
         const clients = createApiClients(context);
         const { data: initialBasket } = await clients.shopperBasketsV2.addItemToBasket({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, basketId },
-                query: {
-                    siteId: config.commerce.api.siteId,
-                },
+                path: { basketId },
             },
             body: [
                 {
@@ -106,10 +101,7 @@ async function addBundleToCart(
 
                 await clients.shopperBasketsV2.updateItemsInBasket({
                     params: {
-                        path: { organizationId: config.commerce.api.organizationId, basketId },
-                        query: {
-                            siteId: config.commerce.api.siteId,
-                        },
+                        path: { basketId },
                     },
                     body: itemsToUpdate,
                 });
@@ -117,10 +109,7 @@ async function addBundleToCart(
                 // Get the updated basket after child items update
                 const { data: refreshedBasket } = await clients.shopperBasketsV2.getBasket({
                     params: {
-                        path: { organizationId: config.commerce.api.organizationId, basketId },
-                        query: {
-                            siteId: config.commerce.api.siteId,
-                        },
+                        path: { basketId },
                     },
                 });
                 updatedBasket = refreshedBasket;

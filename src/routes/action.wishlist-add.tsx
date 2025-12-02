@@ -10,7 +10,6 @@ import { getAuth } from '@/middlewares/auth.client';
 import { extractStatusCode } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { isRegisteredCustomer } from '@/lib/api/customer';
-import { getConfig } from '@/config';
 import { getTranslation } from '@/lib/i18next';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
@@ -31,14 +30,12 @@ async function getOrCreateWishlist(
 ): Promise<CustomerProductList> {
     const { t } = getTranslation();
     const clients = createApiClients(context);
-    const config = getConfig(context);
 
     try {
         // Try to get the default wishlist (product list type 'wish_list')
         const { data: productLists } = await clients.shopperCustomers.getCustomerProductLists({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, customerId },
-                query: { siteId: config.commerce.api.siteId },
+                path: { customerId },
             },
         });
 
@@ -54,8 +51,7 @@ async function getOrCreateWishlist(
         // So we'll always fetch the list after creation to ensure we have the listId
         await clients.shopperCustomers.createCustomerProductList({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, customerId },
-                query: { siteId: config.commerce.api.siteId },
+                path: { customerId },
             },
             body: {
                 type: 'wish_list',
@@ -71,8 +67,7 @@ async function getOrCreateWishlist(
         // Fetch the newly created wishlist
         const { data: productListsResponse } = await clients.shopperCustomers.getCustomerProductLists({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, customerId },
-                query: { siteId: config.commerce.api.siteId },
+                path: { customerId },
             },
         });
 
@@ -88,8 +83,7 @@ async function getOrCreateWishlist(
         // If creating fails, try to get the first available list
         const { data: productLists } = await clients.shopperCustomers.getCustomerProductLists({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, customerId },
-                query: { siteId: config.commerce.api.siteId },
+                path: { customerId },
             },
         });
         const firstList = productLists?.data?.[0];
@@ -132,7 +126,6 @@ async function addToWishlist(
     try {
         const customerId = session.customer_id;
         const clients = createApiClients(context);
-        const config = getConfig(context);
 
         // Get or create the wishlist
         const wishlist = await getOrCreateWishlist(context, customerId);
@@ -147,8 +140,7 @@ async function addToWishlist(
                 await new Promise((resolve) => setTimeout(resolve, WISHLIST_RETRY_DELAY_MS));
                 const { data: retryProductLists } = await clients.shopperCustomers.getCustomerProductLists({
                     params: {
-                        path: { organizationId: config.commerce.api.organizationId, customerId },
-                        query: { siteId: config.commerce.api.siteId },
+                        path: { customerId },
                     },
                 });
                 const retryWishlist = retryProductLists?.data?.find((list) => list.type === 'wish_list');
@@ -159,11 +151,9 @@ async function addToWishlist(
                     const { data: fullWishlist } = await clients.shopperCustomers.getCustomerProductList({
                         params: {
                             path: {
-                                organizationId: config.commerce.api.organizationId,
                                 customerId,
                                 listId: retryListId,
                             },
-                            query: { siteId: config.commerce.api.siteId },
                         },
                     });
 
@@ -183,11 +173,9 @@ async function addToWishlist(
                         await clients.shopperCustomers.createCustomerProductListItem({
                             params: {
                                 path: {
-                                    organizationId: config.commerce.api.organizationId,
                                     customerId,
                                     listId: retryListId,
                                 },
-                                query: { siteId: config.commerce.api.siteId },
                             },
                             body: {
                                 productId,
@@ -219,11 +207,9 @@ async function addToWishlist(
                                 await clients.shopperCustomers.getCustomerProductList({
                                     params: {
                                         path: {
-                                            organizationId: config.commerce.api.organizationId,
                                             customerId,
                                             listId: retryListId,
                                         },
-                                        query: { siteId: config.commerce.api.siteId },
                                     },
                                 });
                             return {
@@ -239,11 +225,9 @@ async function addToWishlist(
                     const { data: updatedList } = await clients.shopperCustomers.getCustomerProductList({
                         params: {
                             path: {
-                                organizationId: config.commerce.api.organizationId,
                                 customerId,
                                 listId: retryListId,
                             },
-                            query: { siteId: config.commerce.api.siteId },
                         },
                     });
 
@@ -267,11 +251,9 @@ async function addToWishlist(
         const { data: fullWishlist } = await clients.shopperCustomers.getCustomerProductList({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     customerId,
                     listId,
                 },
-                query: { siteId: config.commerce.api.siteId },
             },
         });
 
@@ -293,11 +275,9 @@ async function addToWishlist(
             await clients.shopperCustomers.createCustomerProductListItem({
                 params: {
                     path: {
-                        organizationId: config.commerce.api.organizationId,
                         customerId,
                         listId,
                     },
-                    query: { siteId: config.commerce.api.siteId },
                 },
                 body: {
                     productId,
@@ -313,11 +293,9 @@ async function addToWishlist(
             const { data: refetchedList } = await clients.shopperCustomers.getCustomerProductList({
                 params: {
                     path: {
-                        organizationId: config.commerce.api.organizationId,
                         customerId,
                         listId,
                     },
-                    query: { siteId: config.commerce.api.siteId },
                 },
             });
             updatedList = refetchedList;
@@ -359,11 +337,9 @@ async function addToWishlist(
                 const { data: duplicateWishlist } = await clients.shopperCustomers.getCustomerProductList({
                     params: {
                         path: {
-                            organizationId: config.commerce.api.organizationId,
                             customerId,
                             listId,
                         },
-                        query: { siteId: config.commerce.api.siteId },
                     },
                 });
                 return {
@@ -382,11 +358,9 @@ async function addToWishlist(
             const { data: fetchedList } = await clients.shopperCustomers.getCustomerProductList({
                 params: {
                     path: {
-                        organizationId: config.commerce.api.organizationId,
                         customerId,
                         listId,
                     },
-                    query: { siteId: config.commerce.api.siteId },
                 },
             });
             updatedList = fetchedList;
@@ -429,18 +403,15 @@ async function addToWishlist(
             try {
                 const customerId = session.customer_id;
                 const clients = createApiClients(context);
-                const config = getConfig(context);
                 const wishlist = await getOrCreateWishlist(context, customerId);
                 const listId = wishlist.listId || wishlist.id;
                 if (listId) {
                     const { data: duplicateCheckList } = await clients.shopperCustomers.getCustomerProductList({
                         params: {
                             path: {
-                                organizationId: config.commerce.api.organizationId,
                                 customerId,
                                 listId,
                             },
-                            query: { siteId: config.commerce.api.siteId },
                         },
                     });
                     return {

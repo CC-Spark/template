@@ -3,7 +3,6 @@ import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-run
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import { createPromoCodeFormSchema } from '@/components/promo-code-form';
 import { getTranslation } from '@/lib/i18next';
 
@@ -65,14 +64,10 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         }
 
         const { code: validatedPromoCode } = validationResult.data;
-        const config = getConfig(context);
         const clients = createApiClients(context);
         const { data: updatedBasket } = await clients.shopperBasketsV2.addCouponToBasket({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, basketId },
-                query: {
-                    siteId: config.commerce.api.siteId,
-                },
+                path: { basketId },
             },
             body: {
                 code: validatedPromoCode,

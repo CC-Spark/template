@@ -181,10 +181,7 @@ describe('action.cart-bundle-add', () => {
             // The server action extracts productId and quantity from ProductSelectionValues
             expect(mockClients.shopperBasketsV2.addItemToBasket).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org', basketId: 'test-basket-123' },
-                    query: {
-                        siteId: 'test-site',
-                    },
+                    path: { basketId: 'test-basket-123' },
                 },
                 body: [
                     {

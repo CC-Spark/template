@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 
 export const fetchSearchProducts = (
     context: LoaderFunctionArgs['context'],
@@ -49,17 +48,12 @@ export const fetchSearchProducts = (
         });
     }
 
-    const config = getConfig(context);
     const clients = createApiClients(context);
 
     return clients.shopperSearch
         .productSearch({
             params: {
-                path: {
-                    organizationId: config.commerce.api.organizationId,
-                },
                 query: {
-                    siteId: config.commerce.api.siteId,
                     q,
                     sort,
                     limit,
@@ -89,17 +83,12 @@ export const fetchSearchSuggestions = (
     }
 ): Promise<ShopperSearch.schemas['SuggestionResult']> => {
     const { q, expand, limit, currency, includeEinsteinSuggestedPhrases } = parameters;
-    const config = getConfig(context);
     const clients = createApiClients(context);
 
     return clients.shopperSearch
         .getSearchSuggestions({
             params: {
-                path: {
-                    organizationId: config.commerce.api.organizationId,
-                },
                 query: {
-                    siteId: config.commerce.api.siteId,
                     q,
                     ...(expand && { expand }),
                     ...(limit && { limit }),

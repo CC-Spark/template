@@ -8,7 +8,6 @@
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import type { ShopperBasketsV2, ShopperOrders, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import { getStoreIdsFromBasket } from '@/extensions/bopis/lib/basket-utils';
 import { getStoreIdsFromOrder } from '@/extensions/bopis/lib/order-utils';
 
@@ -30,15 +29,10 @@ export async function fetchStores(
     }
 
     // Fetch store details for all unique store IDs
-    const config = getConfig(context);
     const clients = createApiClients(context);
     const { data: storesData } = await clients.shopperStores.getStores({
         params: {
-            path: {
-                organizationId: config.commerce.api.organizationId,
-            },
             query: {
-                siteId: config.commerce.api.siteId,
                 ids: storeIds.join(','),
             },
         },

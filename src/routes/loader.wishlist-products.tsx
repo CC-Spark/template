@@ -69,8 +69,7 @@ export async function clientLoader({ request, context }: ClientLoaderFunctionArg
     // Get the customer's product lists
     const { data: productListsResponse } = await clients.shopperCustomers.getCustomerProductLists({
         params: {
-            path: { organizationId: config.commerce.api.organizationId, customerId },
-            query: { siteId: config.commerce.api.siteId },
+            path: { customerId },
         },
     });
 
@@ -104,11 +103,9 @@ export async function clientLoader({ request, context }: ClientLoaderFunctionArg
     const { data: fullWishlist } = await clients.shopperCustomers.getCustomerProductList({
         params: {
             path: {
-                organizationId: config.commerce.api.organizationId,
                 customerId,
                 listId,
             },
-            query: { siteId: config.commerce.api.siteId },
         },
     });
 

@@ -3,7 +3,6 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { createApiClients } from '@/lib/api-clients';
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 import { createShippingAddressSchema, parseShippingAddressFromFormData } from '@/lib/checkout-schemas';
-import { getConfig } from '@/config';
 import { getTranslation } from '@/lib/i18next';
 
 export async function clientAction({ request, context }: ActionFunctionArgs) {
@@ -49,17 +48,14 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
     }
 
     try {
-        const config = getConfig(context);
         const clients = createApiClients(context);
         const { data: updatedBasket } = await clients.shopperBasketsV2.updateShippingAddressForShipment({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     basketId: basket.basketId,
                     shipmentId: 'me',
                 },
                 query: {
-                    siteId: config.commerce.api.siteId,
                     useAsBilling: false,
                 },
             },

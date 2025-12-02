@@ -274,7 +274,6 @@ describe('action.wishlist-remove', () => {
                         listId: 'wishlist-123',
                         itemId: 'item-123',
                     }),
-                    query: expect.any(Object),
                 },
             });
         });
@@ -448,7 +447,6 @@ describe('action.wishlist-remove', () => {
                         listId: 'wishlist-123',
                         itemId: 'item-123',
                     }),
-                    query: expect.any(Object),
                 },
             });
         });

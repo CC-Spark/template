@@ -9,7 +9,6 @@ import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-run
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
 import { getTranslation } from '@/lib/i18next';
@@ -40,14 +39,10 @@ async function addMultipleItemsToCart(
 
     try {
         // Add all items to basket in a single API call
-        const config = getConfig(context);
         const clients = createApiClients(context);
         const { data: updatedBasket } = await clients.shopperBasketsV2.addItemToBasket({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, basketId },
-                query: {
-                    siteId: config.commerce.api.siteId,
-                },
+                path: { basketId },
             },
             body: productItems.map((item) => ({
                 productId: item.productId,

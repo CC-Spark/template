@@ -5,7 +5,6 @@ import { createApiClients } from '@/lib/api-clients';
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 import { createContactInfoSchema, parseContactInfoFromFormData } from '@/lib/checkout-schemas';
 import { customerLookup } from '@/lib/api/customer';
-import { getConfig } from '@/config';
 import { getTranslation } from '@/lib/i18next';
 
 export async function clientAction({ request, context }: ActionFunctionArgs) {
@@ -65,16 +64,11 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
 
     // Always update basket with customer email and phone (required for order placement)
     try {
-        const config = getConfig(context);
         const clients = createApiClients(context);
         const { data: updatedBasket } = await clients.shopperBasketsV2.updateCustomerForBasket({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     basketId: basket.basketId,
-                },
-                query: {
-                    siteId: config.commerce.api.siteId,
                 },
             },
             body: {

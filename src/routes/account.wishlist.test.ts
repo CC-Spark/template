@@ -116,9 +116,7 @@ describe('fetchProductsForWishlist', () => {
             expect(mockGetProducts).toHaveBeenCalledTimes(1);
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: items.map((item) => item.productId),
                         allImages: true,
                         perPricebook: true,
@@ -172,9 +170,7 @@ describe('fetchProductsForWishlist', () => {
             // Verify first batch
             expect(mockGetProducts).toHaveBeenNthCalledWith(1, {
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: Array.from({ length: 24 }, (_, i) => `product-${i}`),
                         allImages: true,
                         perPricebook: true,
@@ -185,9 +181,7 @@ describe('fetchProductsForWishlist', () => {
             // Verify second batch
             expect(mockGetProducts).toHaveBeenNthCalledWith(2, {
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: Array.from({ length: 24 }, (_, i) => `product-${i + 24}`),
                         allImages: true,
                         perPricebook: true,
@@ -198,9 +192,7 @@ describe('fetchProductsForWishlist', () => {
             // Verify third batch
             expect(mockGetProducts).toHaveBeenNthCalledWith(3, {
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: Array.from({ length: 2 }, (_, i) => `product-${i + 48}`),
                         allImages: true,
                         perPricebook: true,
@@ -269,9 +261,7 @@ describe('fetchProductsForWishlist', () => {
 
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: ['product-1', 'product-3'],
                         allImages: true,
                         perPricebook: true,
@@ -301,9 +291,7 @@ describe('fetchProductsForWishlist', () => {
 
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: ['product-1', 'product-3'],
                         allImages: true,
                         perPricebook: true,
@@ -333,9 +321,7 @@ describe('fetchProductsForWishlist', () => {
 
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: ['product-1', 'product-3'],
                         allImages: true,
                         perPricebook: true,
@@ -366,9 +352,7 @@ describe('fetchProductsForWishlist', () => {
 
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: ['product-1', 'product-4'],
                         allImages: true,
                         perPricebook: true,
@@ -665,8 +649,7 @@ describe('account.wishlist loaders', () => {
             expect(mockGetCustomerProductList).toHaveBeenCalled();
             expect(mockGetCustomerProductLists).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id', customerId: 'test-customer-id' },
-                    query: { siteId: 'test-site-id' },
+                    path: { customerId: 'test-customer-id' },
                 },
             });
             // getConfig should be called after auth check
@@ -715,9 +698,7 @@ describe('account.wishlist loaders', () => {
             expect(mockGetProducts).toHaveBeenCalledTimes(1);
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: Array.from({ length: 8 }, (_, i) => `product-${i}`),
                         allImages: true,
                         perPricebook: true,
@@ -767,11 +748,9 @@ describe('account.wishlist loaders', () => {
             expect(mockGetCustomerProductList).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         customerId: 'test-customer-id',
                         listId: 'wishlist-1',
                     },
-                    query: { siteId: 'test-site-id' },
                 },
             });
         });
@@ -1019,9 +998,7 @@ describe('account.wishlist loaders', () => {
             expect(mockGetProducts).toHaveBeenCalledTimes(1);
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
-                    path: { organizationId: 'test-org-id' },
                     query: {
-                        siteId: 'test-site-id',
                         ids: Array.from({ length: 8 }, (_, i) => `product-${i}`),
                         allImages: true,
                         perPricebook: true,

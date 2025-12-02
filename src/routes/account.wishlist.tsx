@@ -81,9 +81,7 @@ export async function fetchProductsForWishlist(
         try {
             const { data: productsResponse } = await clients.shopperProducts.getProducts({
                 params: {
-                    path: { organizationId: config.commerce.api.organizationId },
                     query: {
-                        siteId: config.commerce.api.siteId,
                         ids: batchIds,
                         allImages: true,
                         perPricebook: true,
@@ -145,8 +143,7 @@ export async function loader({ context }: LoaderFunctionArgs): Promise<{
         // Get the customer's product lists
         const { data: productLists } = await clients.shopperCustomers.getCustomerProductLists({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, customerId },
-                query: { siteId: config.commerce.api.siteId },
+                path: { customerId },
             },
         });
 
@@ -177,11 +174,9 @@ export async function loader({ context }: LoaderFunctionArgs): Promise<{
         const { data: fullWishlistRaw } = await clients.shopperCustomers.getCustomerProductList({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     customerId,
                     listId,
                 },
-                query: { siteId: config.commerce.api.siteId },
             },
         });
 
@@ -262,8 +257,7 @@ export async function clientLoader({ context }: ClientLoaderFunctionArgs): Promi
         // Get the customer's product lists
         const { data: productLists } = await clients.shopperCustomers.getCustomerProductLists({
             params: {
-                path: { organizationId: config.commerce.api.organizationId, customerId },
-                query: { siteId: config.commerce.api.siteId },
+                path: { customerId },
             },
         });
 
@@ -294,11 +288,9 @@ export async function clientLoader({ context }: ClientLoaderFunctionArgs): Promi
         const { data: fullWishlistRaw } = await clients.shopperCustomers.getCustomerProductList({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     customerId,
                     listId,
                 },
-                query: { siteId: config.commerce.api.siteId },
             },
         });
 

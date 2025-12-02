@@ -9,7 +9,6 @@ import { type ClientLoaderFunctionArgs, data, type LoaderFunctionArgs } from 're
 import type { ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 
 /**
  * Client resource to search for stores
@@ -27,10 +26,9 @@ export async function searchStores(context: LoaderFunctionArgs['context'], reque
         const distanceUnit = url.searchParams.get('distanceUnit') ?? 'km';
         const limit = url.searchParams.get('limit');
 
-        const config = getConfig(context);
         const clients = createApiClients(context);
 
-        const queryParams: ShopperStores.operations['searchStores']['parameters']['query'] =
+        const queryParams: Omit<ShopperStores.operations['searchStores']['parameters']['query'], 'siteId'> =
             mode === 'device'
                 ? {
                       latitude: latitude ? Number(latitude) : undefined,
@@ -38,7 +36,6 @@ export async function searchStores(context: LoaderFunctionArgs['context'], reque
                       maxDistance: maxDistance ? Number(maxDistance) : undefined,
                       distanceUnit: distanceUnit as 'mi' | 'km',
                       limit: limit ? Number(limit) : undefined,
-                      siteId: config.commerce.api.siteId,
                   }
                 : {
                       countryCode,
@@ -46,14 +43,10 @@ export async function searchStores(context: LoaderFunctionArgs['context'], reque
                       maxDistance: maxDistance ? Number(maxDistance) : undefined,
                       distanceUnit: distanceUnit as 'mi' | 'km',
                       limit: limit ? Number(limit) : undefined,
-                      siteId: config.commerce.api.siteId,
                   };
 
         const { data: stores } = await clients.shopperStores.searchStores({
             params: {
-                path: {
-                    organizationId: config.commerce.api.organizationId,
-                },
                 query: queryParams,
             },
         });

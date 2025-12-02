@@ -9,7 +9,6 @@ import type { RouterContextProvider } from 'react-router';
 import { PICKUP_SHIPPING_METHOD_ID } from '@/extensions/bopis/constants';
 import type { ShopperBasketsV2, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import { getTranslation } from '@/lib/i18next';
 import { getShippingMethodsForShipment } from '@/lib/api/shipping-methods';
 
@@ -29,19 +28,14 @@ export async function updateShipmentForPickup(
     shipmentId: string = 'me',
     storeId: string
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
-    const config = getConfig(context);
     const clients = createApiClients(context);
 
     // Update shipment with custom attributes
     const { data: updatedBasket } = await clients.shopperBasketsV2.updateShipmentForBasket({
         params: {
             path: {
-                organizationId: config.commerce.api.organizationId,
                 basketId,
                 shipmentId,
-            },
-            query: {
-                siteId: config.commerce.api.siteId,
             },
         },
         body: {
@@ -68,8 +62,7 @@ export async function setAddressAndMethodForPickup(
     store: ShopperStores.schemas['Store'],
     shipmentId: string = 'me'
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
-    const { t } = getTranslation(context);
-    const config = getConfig(context);
+    const { t } = getTranslation();
     const clients = createApiClients(context);
 
     if (!basketId) {
@@ -91,12 +84,8 @@ export async function setAddressAndMethodForPickup(
     const { data: updatedBasket } = await clients.shopperBasketsV2.updateShipmentForBasket({
         params: {
             path: {
-                organizationId: config.commerce.api.organizationId,
                 basketId,
                 shipmentId,
-            },
-            query: {
-                siteId: config.commerce.api.siteId,
             },
         },
         body: {
@@ -125,7 +114,6 @@ export async function clearPickupFromShipment(
     basketId: string,
     shipmentId: string = 'me'
 ): Promise<ShopperBasketsV2.schemas['Basket']> {
-    const config = getConfig(context);
     const clients = createApiClients(context);
 
     // Fetch shipping methods to get defaultShippingMethodId
@@ -137,12 +125,8 @@ export async function clearPickupFromShipment(
     const { data: updatedBasket } = await clients.shopperBasketsV2.updateShipmentForBasket({
         params: {
             path: {
-                organizationId: config.commerce.api.organizationId,
                 basketId,
                 shipmentId,
-            },
-            query: {
-                siteId: config.commerce.api.siteId,
             },
         },
         body: {

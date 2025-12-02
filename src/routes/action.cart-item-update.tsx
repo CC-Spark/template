@@ -15,7 +15,6 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 
 // API
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 
 // Utils
 import { cartItemUpdateSchema, parseCartItemUpdateFromFormData } from '@/lib/basket-schemas';
@@ -87,7 +86,6 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         // Extract the validated fields
         const { itemId, productId, quantity } = validationResult.data;
 
-        const config = getConfig(context);
         const clients = createApiClients(context);
 
         // Build the update body - only include productId if it's provided (for variant changes)
@@ -103,12 +101,8 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         const { data: updatedBasket } = await clients.shopperBasketsV2.updateItemInBasket({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     basketId,
                     itemId,
-                },
-                query: {
-                    siteId: config.commerce.api.siteId,
                 },
             },
             body: updateBody,

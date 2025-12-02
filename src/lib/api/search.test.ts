@@ -32,11 +32,7 @@ describe('fetchSearchSuggestions', () => {
         expect(createApiClients).toHaveBeenCalledWith(mockContext);
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'dress',
                 },
             },
@@ -57,11 +53,7 @@ describe('fetchSearchSuggestions', () => {
 
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'shirt',
                     expand: ['images', 'prices'],
                     limit: 10,
@@ -84,11 +76,7 @@ describe('fetchSearchSuggestions', () => {
 
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'jacket',
                 },
             },
@@ -106,11 +94,7 @@ describe('fetchSearchSuggestions', () => {
 
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'shoes',
                     includeEinsteinSuggestedPhrases: true,
                 },
@@ -129,11 +113,7 @@ describe('fetchSearchSuggestions', () => {
 
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'shoes',
                     includeEinsteinSuggestedPhrases: false,
                 },
@@ -152,11 +132,7 @@ describe('fetchSearchSuggestions', () => {
 
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'shoes',
                 },
             },
@@ -177,11 +153,7 @@ describe('fetchSearchSuggestions', () => {
 
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'accessories',
                     expand: ['images', 'prices'],
                     limit: 15,
@@ -206,11 +178,7 @@ describe('fetchSearchSuggestions', () => {
 
         expect(mockGetSearchSuggestions).toHaveBeenCalledWith({
             params: {
-                path: {
-                    organizationId: expect.any(String),
-                },
                 query: {
-                    siteId: expect.any(String),
                     q: 'bags',
                     expand: ['images'],
                     currency: 'USD',

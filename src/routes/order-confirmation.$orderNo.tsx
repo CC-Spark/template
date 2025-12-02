@@ -11,7 +11,6 @@ import type {
     ShopperStores,
 } from '@salesforce/storefront-next-runtime/scapi';
 import AddressDisplay from '@/components/address-display';
-import { getConfig } from '@/config';
 import { getCardTypeDisplay, getFormattedMaskedCardNumber } from '@/lib/payment-utils';
 import OrderSkeleton from '@/components/order-skeleton';
 import { useTranslation } from 'react-i18next';
@@ -37,18 +36,13 @@ type CheckoutConfirmationLoaderData = {
  */
 function getPageData({ context, params }: LoaderFunctionArgs): CheckoutConfirmationLoaderData {
     const { orderNo } = params;
-    const config = getConfig(context);
     const clients = createApiClients(context);
 
     const orderPromise = clients.shopperOrders
         .getOrder({
             params: {
                 path: {
-                    organizationId: config.commerce.api.organizationId,
                     orderNo: orderNo as string,
-                },
-                query: {
-                    siteId: config.commerce.api.siteId,
                 },
             },
         })

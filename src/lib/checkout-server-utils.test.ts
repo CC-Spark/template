@@ -97,11 +97,7 @@ describe('Checkout Server Utils', () => {
             expect(mockCustomerClient.getCustomer).toHaveBeenCalledWith({
                 params: {
                     path: {
-                        organizationId: 'test-org-id',
                         customerId: 'test-customer-id',
-                    },
-                    query: {
-                        siteId: 'test-site-id',
                     },
                 },
             });

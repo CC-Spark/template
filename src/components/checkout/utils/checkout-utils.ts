@@ -7,7 +7,6 @@ import { CHECKOUT_STEPS, type CheckoutStep, type CustomerProfile } from './check
 import type { ClientLoaderFunctionArgs } from 'react-router';
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
 import { getShippingMethodsForShipment } from '@/lib/api/shipping-methods';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
@@ -199,7 +198,6 @@ export async function initializeBasketForReturningCustomer(
             return null;
         }
 
-        const config = getConfig(context);
         const clients = createApiClients(context);
         let updatedBasket = basket;
         let hasUpdates = false;
@@ -208,11 +206,7 @@ export async function initializeBasketForReturningCustomer(
             const { data } = await clients.shopperBasketsV2.updateCustomerForBasket({
                 params: {
                     path: {
-                        organizationId: config.commerce.api.organizationId,
                         basketId: updatedBasket.basketId,
-                    },
-                    query: {
-                        siteId: config.commerce.api.siteId,
                     },
                 },
                 body: { email: customerProfile.customer.login },
@@ -247,12 +241,8 @@ export async function initializeBasketForReturningCustomer(
                 const { data } = await clients.shopperBasketsV2.updateShippingAddressForShipment({
                     params: {
                         path: {
-                            organizationId: config.commerce.api.organizationId,
                             basketId: updatedBasket.basketId,
                             shipmentId: updatedBasket.shipments?.[0]?.shipmentId || 'me',
-                        },
-                        query: {
-                            siteId: config.commerce.api.siteId,
                         },
                     },
                     body: shippingAddress,
@@ -270,11 +260,7 @@ export async function initializeBasketForReturningCustomer(
                     const { data } = await clients.shopperBasketsV2.updateBillingAddressForBasket({
                         params: {
                             path: {
-                                organizationId: config.commerce.api.organizationId,
                                 basketId: updatedBasket.basketId,
-                            },
-                            query: {
-                                siteId: config.commerce.api.siteId,
                             },
                         },
                         body: {
@@ -312,12 +298,8 @@ export async function initializeBasketForReturningCustomer(
                     const { data } = await clients.shopperBasketsV2.updateShippingMethodForShipment({
                         params: {
                             path: {
-                                organizationId: config.commerce.api.organizationId,
                                 basketId: updatedBasket.basketId,
                                 shipmentId: updatedBasket.shipments[0].shipmentId || 'me',
-                            },
-                            query: {
-                                siteId: config.commerce.api.siteId,
                             },
                         },
                         body: { id: defaultMethod.id },
