@@ -90,6 +90,12 @@ const mockSearchResult: ShopperSearch.schemas['ProductSearchHit'] = {
     price: 29.99,
 } as ShopperSearch.schemas['ProductSearchHit'];
 
+// Mock category data
+const mockCategory: ShopperProducts.schemas['Category'] = {
+    id: 'test-category-id',
+    name: 'Test Category',
+} as ShopperProducts.schemas['Category'];
+
 describe('useAnalytics', () => {
     const mockConfig = {
         engagement: {
@@ -168,7 +174,7 @@ describe('useAnalytics', () => {
         });
     });
 
-    describe('trackProductView', () => {
+    describe('trackViewProduct', () => {
         it('should track product view with correct user context', async () => {
             vi.mocked(useAuth).mockReturnValue(mockAuth);
 
@@ -231,31 +237,6 @@ describe('useAnalytics', () => {
         });
     });
 
-    describe('trackSearch', () => {
-        it('should track search with query and results', async () => {
-            vi.mocked(useAuth).mockReturnValue(mockAuth);
-
-            const { result } = renderHook(() => useAnalytics());
-
-            await result.current.trackViewSearch({
-                searchInputText: 'test search',
-                searchResults: [mockSearchResult],
-            });
-
-            expect(mockAnalytics.track).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    eventType: 'view_search',
-                    searchInputText: 'test search',
-                    searchResults: [mockSearchResult],
-                    payload: {
-                        userType: 'registered',
-                        usid: 'test-usid',
-                    },
-                })
-            );
-        });
-    });
-
     describe('trackCheckoutStep', () => {
         it('should track checkout step with step name, number, and basket', async () => {
             vi.mocked(useAuth).mockReturnValue(mockAuth);
@@ -283,26 +264,23 @@ describe('useAnalytics', () => {
         });
     });
 
-    describe('trackViewCategory', () => {
-        it('should track category view with category and search results', async () => {
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'test-category-id',
-                name: 'Test Category',
-            } as ShopperProducts.schemas['Category'];
-
+    describe('trackViewSearch', () => {
+        it('should track search with query and results', async () => {
             vi.mocked(useAuth).mockReturnValue(mockAuth);
 
             const { result } = renderHook(() => useAnalytics());
 
-            await result.current.trackViewCategory({
-                category: mockCategory,
+            await result.current.trackViewSearch({
+                searchInputText: 'test search',
                 searchResults: [mockSearchResult],
+                sort: 'price-asc',
+                refinements: {},
             });
 
             expect(mockAnalytics.track).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    eventType: 'view_category',
-                    category: mockCategory,
+                    eventType: 'view_search',
+                    searchInputText: 'test search',
                     searchResults: [mockSearchResult],
                     payload: {
                         userType: 'registered',
@@ -313,27 +291,24 @@ describe('useAnalytics', () => {
         });
     });
 
-    describe('trackClickProductInCategory', () => {
-        it('should track product click in category with category and product', async () => {
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'test-category-id',
-                name: 'Test Category',
-            } as ShopperProducts.schemas['Category'];
-
+    describe('trackViewCategory', () => {
+        it('should track category view with category and search results', async () => {
             vi.mocked(useAuth).mockReturnValue(mockAuth);
 
             const { result } = renderHook(() => useAnalytics());
 
-            await result.current.trackClickProductInCategory({
+            await result.current.trackViewCategory({
                 category: mockCategory,
-                product: mockSearchResult,
+                searchResults: [mockSearchResult],
+                sort: 'price-asc',
+                refinements: {},
             });
 
             expect(mockAnalytics.track).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    eventType: 'click_product_in_category',
+                    eventType: 'view_category',
                     category: mockCategory,
-                    product: mockSearchResult,
+                    searchResults: [mockSearchResult],
                     payload: {
                         userType: 'registered',
                         usid: 'test-usid',
@@ -358,6 +333,31 @@ describe('useAnalytics', () => {
                 expect.objectContaining({
                     eventType: 'click_product_in_search',
                     searchInputText: 'test search',
+                    product: mockSearchResult,
+                    payload: {
+                        userType: 'registered',
+                        usid: 'test-usid',
+                    },
+                })
+            );
+        });
+    });
+
+    describe('trackClickProductInCategory', () => {
+        it('should track product click in category with category and product', async () => {
+            vi.mocked(useAuth).mockReturnValue(mockAuth);
+
+            const { result } = renderHook(() => useAnalytics());
+
+            await result.current.trackClickProductInCategory({
+                category: mockCategory,
+                product: mockSearchResult,
+            });
+
+            expect(mockAnalytics.track).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    eventType: 'click_product_in_category',
+                    category: mockCategory,
                     product: mockSearchResult,
                     payload: {
                         userType: 'registered',

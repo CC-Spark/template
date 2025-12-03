@@ -1,8 +1,7 @@
 import type { AppConfig } from '@/config';
 import { createEinsteinAdapter } from './einstein';
 import { addAdapter } from '@/lib/adapters';
-
-// import { createActiveDataAdapter } from './active-data';
+import { createActiveDataAdapter } from './active-data';
 
 /**
  * Initialize engagement adapterss.
@@ -35,22 +34,23 @@ export function initializeEngagementAdapters(appConfig: AppConfig) {
         }
     }
 
-    // if (engagementAdapterConfigs.activeData.enabled) {
-    //     try {
-    //         addAdapter(
-    //             'active-data',
-    //             createActiveDataAdapter({
-    //                 host: engagementAdapterConfigs.activeData.host || '',
-    //                 siteId: engagementAdapterConfigs.activeData.siteId || appConfig.commerce.api.siteId,
-    //                 locale: engagementAdapterConfigs.activeData.locale || appConfig.site.locale,
-    //                 eventToggles: engagementAdapterConfigs.activeData.eventToggles || {},
-    //             })
-    //         );
-    //     } catch (error) {
-    //         // eslint-disable-next-line no-console
-    //         console.warn('Failed to initialize Active Data adapter:', (error as Error).message);
-    //     }
-    // }
+    if (engagementAdapterConfigs.activeData.enabled) {
+        try {
+            addAdapter(
+                'active-data',
+                createActiveDataAdapter({
+                    host: engagementAdapterConfigs.activeData.host || '',
+                    siteId: engagementAdapterConfigs.activeData.siteId || appConfig.commerce.api.siteId,
+                    locale: engagementAdapterConfigs.activeData.locale || appConfig.site.locale,
+                    siteUUID: engagementAdapterConfigs.activeData.siteUUID || '',
+                    eventToggles: engagementAdapterConfigs.activeData.eventToggles || {},
+                })
+            );
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.warn('Failed to initialize Active Data adapter:', (error as Error).message);
+        }
+    }
 
     /* Example custom adapter registration
     addAdapter('custom', {

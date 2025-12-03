@@ -110,6 +110,8 @@ export default function CategoryPage({
                         void analytics.trackViewCategory({
                             category: categoryData,
                             searchResults: searchData.hits ?? [],
+                            sort: searchData.selectedSortingOption || searchData.sortingOptions?.[0]?.label || '',
+                            refinements: searchData.selectedRefinements ?? {},
                         });
                     }
                 })

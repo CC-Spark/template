@@ -77,12 +77,16 @@ export interface ViewSearchEvent extends BaseEvent {
     eventType: 'view_search';
     searchInputText: string;
     searchResults: ShopperSearchTypes.ProductSearchHit[];
+    sort: string;
+    refinements: ShopperSearchTypes.ProductSearchResult['selectedRefinements'];
 }
 
 export interface ViewCategoryEvent extends BaseEvent {
     eventType: 'view_category';
     category: ShopperProductsTypes.Category;
     searchResults: ShopperSearchTypes.ProductSearchHit[];
+    sort: string;
+    refinements: ShopperSearchTypes.ProductSearchResult['selectedRefinements'];
 }
 
 export interface ViewRecommenderEvent extends BaseEvent {

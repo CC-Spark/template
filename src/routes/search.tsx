@@ -153,6 +153,8 @@ export default function SearchPage({
                     void analytics.trackViewSearch({
                         searchInputText: searchTerm,
                         searchResults: data.hits ?? [],
+                        sort: data.selectedSortingOption || data.sortingOptions?.[0]?.label || '',
+                        refinements: data.selectedRefinements ?? {},
                     });
                 })
                 .catch(() => {

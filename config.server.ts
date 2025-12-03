@@ -231,10 +231,11 @@ export default defineConfig({
                     },
                 },
                 activeData: {
-                    enabled: false,
+                    enabled: true,
                     host: '',
                     siteId: '',
                     locale: '',
+                    siteUUID: '',
                     eventToggles: {
                         view_page: true,
                         view_product: true,

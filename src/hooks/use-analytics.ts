@@ -145,6 +145,8 @@ export const useAnalytics = () => {
     const trackViewSearch = async (data: {
         searchInputText: string;
         searchResults: ShopperSearch.schemas['ProductSearchHit'][];
+        sort: string;
+        refinements: ShopperSearch.schemas['ProductSearchResult']['selectedRefinements'];
     }) => {
         const mediator = await getInitializedMediator(appConfig);
         if (!mediator) {
@@ -153,6 +155,8 @@ export const useAnalytics = () => {
         const event = createEvent('view_search', {
             searchInputText: data.searchInputText,
             searchResults: data.searchResults,
+            sort: data.sort || '',
+            refinements: data.refinements || {},
             payload: {
                 userType: auth?.userType ?? 'guest',
                 usid: auth?.usid,
@@ -167,6 +171,8 @@ export const useAnalytics = () => {
     const trackViewCategory = async (data: {
         category: ShopperProducts.schemas['Category'];
         searchResults: ShopperSearch.schemas['ProductSearchHit'][];
+        sort: string;
+        refinements: ShopperSearch.schemas['ProductSearchResult']['selectedRefinements'];
     }) => {
         const mediator = await getInitializedMediator(appConfig);
         if (!mediator) {
@@ -175,6 +181,8 @@ export const useAnalytics = () => {
         const event = createEvent('view_category', {
             category: data.category,
             searchResults: data.searchResults,
+            sort: data.sort || '',
+            refinements: data.refinements || {},
             payload: {
                 userType: auth?.userType ?? 'guest',
                 usid: auth?.usid,
