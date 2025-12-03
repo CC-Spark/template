@@ -75,10 +75,10 @@ html.dark [data-theme='inverse'] {
     --accent: #dbeafe;
     --accent-foreground: #1e3a8a;
 
-    --destructive: #ef4444;
+    --destructive: #b91c1c;
     --destructive-foreground: #ffffff;
 
-    --success: #29a73a;
+    --success: #166534;
     --success-foreground: #ffffff;
 
     --border: #fafafa;
@@ -148,8 +148,11 @@ html:not(.dark) [data-theme='inverse'] {
     --accent: #1e3a8a;
     --accent-foreground: #bfdbfe;
 
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
+    --destructive: #f87171;
+    --destructive-foreground: #450a0a;
+
+    --success: #4ade80;
+    --success-foreground: #052e16;
 
     --border: #404040;
     --input: #404040;

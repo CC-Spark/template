@@ -58,8 +58,8 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
 
-        // Find input by id directly since label association uses generated IDs
-        const firstNameInput = canvasElement.querySelector('input[id="firstName"]') as HTMLInputElement;
+        // Find input by name attribute for reliable selection
+        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
         await expect(firstNameInput).toBeInTheDocument();
         if (firstNameInput) {
             await userEvent.type(firstNameInput, 'John');
@@ -134,8 +134,8 @@ export const WithCanadianAddress: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
 
-        // Find select by id directly since label association uses generated IDs
-        const provinceSelect = canvasElement.querySelector('select[id="stateCode"]') as HTMLSelectElement;
+        // Find select by name attribute for reliable selection
+        const provinceSelect = canvasElement.querySelector('select[name="stateCode"]') as HTMLSelectElement;
         await expect(provinceSelect).toBeInTheDocument();
     },
 };

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 import { FETCHER_STATES } from '@/lib/fetcher-states';
@@ -21,6 +21,7 @@ export function PromoCodeFields({ form, applyFetcher }: PromoCodeFieldsProps) {
                 name="code"
                 render={({ field }) => (
                     <FormItem>
+                        <FormLabel className="sr-only">{t('promoCode.label')}</FormLabel>
                         <div className="flex gap-2">
                             <FormControl>
                                 <Input placeholder={t('promoCode.placeholder')} className="rounded-md" {...field} />

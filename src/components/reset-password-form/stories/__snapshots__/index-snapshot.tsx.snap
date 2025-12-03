@@ -58,11 +58,13 @@ exports[`ResetPasswordForm stories snapshot > Default story renders and matches 
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >
@@ -302,11 +304,13 @@ exports[`ResetPasswordForm stories snapshot > Interactive story renders and matc
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >
@@ -555,11 +559,13 @@ exports[`ResetPasswordForm stories snapshot > WithError story renders and matche
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >

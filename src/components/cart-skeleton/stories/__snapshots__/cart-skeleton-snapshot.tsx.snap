@@ -797,7 +797,7 @@ exports[`CartSkeleton stories snapshot > LoadingState story renders and matches 
     style="position: relative;"
   >
     <div
-      style="position: absolute; top: 20px; left: 20px; background: rgb(0, 123, 255); color: white; padding: 8px 16px; border-radius: 4px; font-size: 14px; z-index: 10;"
+      style="position: absolute; top: 20px; left: 20px; background: rgb(0, 86, 179); color: white; padding: 8px 16px; border-radius: 4px; font-size: 14px; z-index: 10;"
     >
       Loading cart data...
     </div>
@@ -1324,7 +1324,7 @@ exports[`CartSkeleton stories snapshot > PerformanceDemo story renders and match
 >
   <div>
     <div
-      style="position: absolute; top: 10px; right: 10px; background: rgb(40, 167, 69); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; z-index: 10;"
+      style="position: absolute; top: 10px; right: 10px; background: rgb(30, 126, 52); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; z-index: 10;"
     >
       ⚡ Fast Loading
     </div>

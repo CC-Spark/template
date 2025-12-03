@@ -320,9 +320,12 @@ export const Required: Story = {
 };
 
 export const File: Story = {
-    args: {
-        type: 'file',
-    },
+    render: () => (
+        <div className="space-y-2">
+            <Label htmlFor="file-input">Upload File</Label>
+            <Input id="file-input" type="file" />
+        </div>
+    ),
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const fileInput = canvasElement.querySelector('input[type="file"]');
@@ -332,9 +335,12 @@ export const File: Story = {
 };
 
 export const Date: Story = {
-    args: {
-        type: 'date',
-    },
+    render: () => (
+        <div className="space-y-2">
+            <Label htmlFor="date-input">Select Date</Label>
+            <Input id="date-input" type="date" />
+        </div>
+    ),
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         // Date inputs don't have textbox role, use querySelector instead
@@ -344,9 +350,12 @@ export const Date: Story = {
 };
 
 export const Time: Story = {
-    args: {
-        type: 'time',
-    },
+    render: () => (
+        <div className="space-y-2">
+            <Label htmlFor="time-input">Select Time</Label>
+            <Input id="time-input" type="time" />
+        </div>
+    ),
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         // Time inputs don't have textbox role, use querySelector instead

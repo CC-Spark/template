@@ -15,6 +15,15 @@ const meta: Meta<typeof Popover> = {
                     'Displays rich content in a portal, triggered by a button. Built with Radix UI Popover primitives.',
             },
         },
+        a11y: {
+            config: {
+                rules: [
+                    // Radix UI intentionally sets aria-hidden="true" on #storybook-root when popover opens
+                    // This is correct accessibility behavior for modal focus trapping
+                    { id: 'aria-hidden-focus', enabled: false },
+                ],
+            },
+        },
     },
     tags: ['autodocs', 'interaction'],
 };
@@ -28,10 +37,11 @@ export const Default: Story = {
             <PopoverTrigger asChild>
                 <Button variant="outline">Open Popover</Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent aria-label="Dimensions settings">
                 <div className="space-y-2">
                     <h4 className="font-medium leading-none">Dimensions</h4>
-                    <p className="text-sm text-muted-foreground">Set the dimensions for the layer.</p>
+                    {/* Use text-foreground/80 for better contrast */}
+                    <p className="text-sm text-foreground/80">Set the dimensions for the layer.</p>
                 </div>
             </PopoverContent>
         </Popover>
@@ -56,7 +66,7 @@ export const Simple: Story = {
             <PopoverTrigger asChild>
                 <Button>Click me</Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent aria-label="Information">
                 <p>This is a simple popover with just text content.</p>
             </PopoverContent>
         </Popover>
@@ -80,19 +90,34 @@ export const WithForm: Story = {
             <PopoverTrigger asChild>
                 <Button variant="outline">Open Form</Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent aria-label="Settings form">
                 <div className="space-y-4">
                     <div className="space-y-2">
                         <h4 className="font-medium">Settings</h4>
-                        <p className="text-sm text-muted-foreground">Configure your preferences.</p>
+                        {/* Use text-foreground/80 for better contrast */}
+                        <p className="text-sm text-foreground/80">Configure your preferences.</p>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Width</label>
-                        <input type="number" placeholder="100" className="w-full border rounded px-2 py-1" />
+                        <label htmlFor="width-input" className="text-sm font-medium">
+                            Width
+                        </label>
+                        <input
+                            id="width-input"
+                            type="number"
+                            placeholder="100"
+                            className="w-full border rounded px-2 py-1"
+                        />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Height</label>
-                        <input type="number" placeholder="100" className="w-full border rounded px-2 py-1" />
+                        <label htmlFor="height-input" className="text-sm font-medium">
+                            Height
+                        </label>
+                        <input
+                            id="height-input"
+                            type="number"
+                            placeholder="100"
+                            className="w-full border rounded px-2 py-1"
+                        />
                     </div>
                     <Button className="w-full">Apply</Button>
                 </div>

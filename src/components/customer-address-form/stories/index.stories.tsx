@@ -70,8 +70,8 @@ export const Default: Story = {
         // Wait for form to be fully rendered
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // Find input by id attribute directly
-        const firstNameInput = canvasElement.querySelector('input[id="firstName"]') as HTMLInputElement;
+        // Find input by name attribute
+        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
         await expect(firstNameInput).toBeInTheDocument();
         if (firstNameInput) {
             await userEvent.type(firstNameInput, 'John');

@@ -382,6 +382,7 @@
             "noBasketData": "No basket data available"
         },
         "promoCode": {
+            "label": "Promo code",
             "placeholder": "Promo code...",
             "apply": "Apply",
             "applying": "Applying...",

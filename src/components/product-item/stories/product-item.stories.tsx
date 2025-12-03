@@ -113,8 +113,8 @@ export const SummaryVariant: Story = {
 export const WithActions: Story = {
     args: {
         productItem: mockProductItem,
-        primaryAction: () => <button className="text-red-500">Remove</button>,
-        secondaryActions: () => <button className="text-blue-500">Edit</button>,
+        primaryAction: () => <button className="text-destructive">Remove</button>,
+        secondaryActions: () => <button className="text-primary">Edit</button>,
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);

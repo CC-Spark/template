@@ -57,6 +57,15 @@ A radio card component group that provides a card-based selection interface for 
                 `,
             },
         },
+        a11y: {
+            config: {
+                rules: [
+                    // In isolated Storybook context, heading hierarchy is incomplete
+                    // Real page provides proper h1/h2 context from page layout
+                    { id: 'heading-order', enabled: false },
+                ],
+            },
+        },
     },
     decorators: [
         (Story) => (
@@ -76,19 +85,20 @@ export const Default: Story = {
             <RadioCard value="option1">
                 <div>
                     <h3 className="font-semibold">Option 1</h3>
-                    <p className="text-sm text-muted-foreground">This is the first option</p>
+                    {/* Use text-foreground/80 for better contrast on selected (blue) background */}
+                    <p className="text-sm text-foreground/80">This is the first option</p>
                 </div>
             </RadioCard>
             <RadioCard value="option2">
                 <div>
                     <h3 className="font-semibold">Option 2</h3>
-                    <p className="text-sm text-muted-foreground">This is the second option</p>
+                    <p className="text-sm text-foreground/80">This is the second option</p>
                 </div>
             </RadioCard>
             <RadioCard value="option3">
                 <div>
                     <h3 className="font-semibold">Option 3</h3>
-                    <p className="text-sm text-muted-foreground">This is the third option</p>
+                    <p className="text-sm text-foreground/80">This is the third option</p>
                 </div>
             </RadioCard>
         </RadioCardGroup>
@@ -164,19 +174,20 @@ export const WithDisabled: Story = {
             <RadioCard value="option1">
                 <div>
                     <h3 className="font-semibold">Option 1</h3>
-                    <p className="text-sm text-muted-foreground">Available</p>
+                    {/* Use text-foreground/80 for better contrast on selected (blue) background */}
+                    <p className="text-sm text-foreground/80">Available</p>
                 </div>
             </RadioCard>
             <RadioCard value="option2" disabled>
                 <div>
                     <h3 className="font-semibold">Option 2</h3>
-                    <p className="text-sm text-muted-foreground">Unavailable</p>
+                    <p className="text-sm text-foreground/80">Unavailable</p>
                 </div>
             </RadioCard>
             <RadioCard value="option3">
                 <div>
                     <h3 className="font-semibold">Option 3</h3>
-                    <p className="text-sm text-muted-foreground">Available</p>
+                    <p className="text-sm text-foreground/80">Available</p>
                 </div>
             </RadioCard>
         </RadioCardGroup>

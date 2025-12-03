@@ -89,11 +89,13 @@ exports[`PasswordUpdateForm stories snapshot > Default story renders and matches
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >
@@ -346,11 +348,13 @@ exports[`PasswordUpdateForm stories snapshot > Interactive story renders and mat
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >
@@ -603,11 +607,13 @@ exports[`PasswordUpdateForm stories snapshot > WithInitialData story renders and
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >

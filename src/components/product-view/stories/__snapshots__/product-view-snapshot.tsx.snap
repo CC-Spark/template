@@ -277,11 +277,13 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
             <div
               class="space-y-4"
             >
-              <h3
+              <p
+                aria-level="3"
                 class="tracking-tight text-left text-lg font-semibold"
+                role="heading"
               >
                 Delivery:
-              </h3>
+              </p>
               <div
                 class="space-y-3"
               >
@@ -706,11 +708,13 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
             <div
               class="space-y-4"
             >
-              <h3
+              <p
+                aria-level="3"
                 class="tracking-tight text-left text-lg font-semibold"
+                role="heading"
               >
                 Delivery:
-              </h3>
+              </p>
               <div
                 class="space-y-3"
               >

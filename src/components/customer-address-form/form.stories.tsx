@@ -181,12 +181,12 @@ export const Empty: Story = {
         const form = canvasElement.querySelector('[data-testid="customer-address-form"]');
         await expect(form).toBeInTheDocument();
 
-        // Verify form fields are empty - use querySelector with IDs since labels might not be properly associated
-        const addressTitleInput = canvasElement.querySelector('#addressId') as HTMLInputElement;
+        // Verify form fields are empty - use name attribute for reliable selection
+        const addressTitleInput = canvasElement.querySelector('input[name="addressId"]') as HTMLInputElement;
         await expect(addressTitleInput).toBeInTheDocument();
         await expect(addressTitleInput).toHaveValue('');
 
-        const firstNameInput = canvasElement.querySelector('#firstName') as HTMLInputElement;
+        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
         await expect(firstNameInput).toBeInTheDocument();
         await expect(firstNameInput).toHaveValue('');
 
@@ -194,7 +194,7 @@ export const Empty: Story = {
         await userEvent.type(firstNameInput, 'John');
         await expect(firstNameInput).toHaveValue('John');
 
-        const lastNameInput = canvasElement.querySelector('#lastName') as HTMLInputElement;
+        const lastNameInput = canvasElement.querySelector('input[name="lastName"]') as HTMLInputElement;
         await expect(lastNameInput).toBeInTheDocument();
         await userEvent.type(lastNameInput, 'Doe');
         await expect(lastNameInput).toHaveValue('Doe');
@@ -356,20 +356,20 @@ export const Interactive: Story = {
         const form = canvasElement.querySelector('[data-testid="customer-address-form"]');
         await expect(form).toBeInTheDocument();
 
-        // Test form field interactions - use querySelector with IDs since labels might not be properly associated
-        const firstNameInput = canvasElement.querySelector('#firstName') as HTMLInputElement;
+        // Test form field interactions - use name attribute for reliable selection
+        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
         await expect(firstNameInput).toBeInTheDocument();
         await userEvent.clear(firstNameInput);
         await userEvent.type(firstNameInput, 'Jane');
         await expect(firstNameInput).toHaveValue('Jane');
 
-        const lastNameInput = canvasElement.querySelector('#lastName') as HTMLInputElement;
+        const lastNameInput = canvasElement.querySelector('input[name="lastName"]') as HTMLInputElement;
         await expect(lastNameInput).toBeInTheDocument();
         await userEvent.clear(lastNameInput);
         await userEvent.type(lastNameInput, 'Smith');
         await expect(lastNameInput).toHaveValue('Smith');
 
-        const addressInput = canvasElement.querySelector('#address1') as HTMLInputElement;
+        const addressInput = canvasElement.querySelector('input[name="address1"]') as HTMLInputElement;
         await expect(addressInput).toBeInTheDocument();
         await userEvent.clear(addressInput);
         await userEvent.type(addressInput, '789 Elm Street');

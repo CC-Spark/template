@@ -326,13 +326,13 @@ exports[`ProductItem stories snapshot > WithActions story renders and matches sn
                       data-testid="mobile-primary-action"
                     >
                       <button
-                        class="text-red-500"
+                        class="text-destructive"
                       >
                         Remove
                       </button>
                     </div>
                     <button
-                      class="text-blue-500"
+                      class="text-primary"
                     >
                       Edit
                     </button>

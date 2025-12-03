@@ -72,7 +72,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             {t('addressForm.addressTitleLabel')}
                         </FormLabel>
                         <FormControl>
-                            <Input type="text" autoComplete="off" id="addressId" className="rounded-md" {...field} />
+                            <Input type="text" autoComplete="off" className="rounded-md" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -91,13 +91,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                                 {t('addressForm.firstNameLabel')}
                             </FormLabel>
                             <FormControl>
-                                <Input
-                                    type="text"
-                                    autoComplete="given-name"
-                                    id="firstName"
-                                    className="rounded-md"
-                                    {...field}
-                                />
+                                <Input type="text" autoComplete="given-name" className="rounded-md" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -114,13 +108,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                                 {t('addressForm.lastNameLabel')}
                             </FormLabel>
                             <FormControl>
-                                <Input
-                                    type="text"
-                                    autoComplete="family-name"
-                                    id="lastName"
-                                    className="rounded-md"
-                                    {...field}
-                                />
+                                <Input type="text" autoComplete="family-name" className="rounded-md" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -142,7 +130,6 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                                 type="tel"
                                 autoComplete="tel"
                                 inputMode="numeric"
-                                id="phone"
                                 className="rounded-md"
                                 {...field}
                             />
@@ -163,7 +150,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                         </FormLabel>
                         <FormControl>
                             <SelectNative
-                                id="countryCode"
+                                name={field.name}
                                 value={field.value}
                                 onChange={(e) => {
                                     field.onChange(e.target.value);
@@ -194,13 +181,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             {t('addressForm.addressLabel')}
                         </FormLabel>
                         <FormControl>
-                            <Input
-                                type="text"
-                                autoComplete="address-line1"
-                                id="address1"
-                                className="rounded-md"
-                                {...field}
-                            />
+                            <Input type="text" autoComplete="address-line1" className="rounded-md" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -220,7 +201,6 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             <Input
                                 type="text"
                                 autoComplete="address-line2"
-                                id="address2"
                                 placeholder={t('addressForm.address2Placeholder')}
                                 className="rounded-md"
                                 {...field}
@@ -241,13 +221,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             {t('addressForm.cityLabel')}
                         </FormLabel>
                         <FormControl>
-                            <Input
-                                type="text"
-                                autoComplete="address-level2"
-                                id="city"
-                                className="rounded-md"
-                                {...field}
-                            />
+                            <Input type="text" autoComplete="address-level2" className="rounded-md" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -265,7 +239,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             <FormLabel className="text-sm font-medium text-foreground">{stateLabel}</FormLabel>
                             <FormControl>
                                 <SelectNative
-                                    id="stateCode"
+                                    name={field.name}
                                     value={field.value || ''}
                                     onChange={(e) => field.onChange(e.target.value)}
                                     className="rounded-md">
@@ -290,13 +264,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-foreground">{postalCodeLabel}</FormLabel>
                             <FormControl>
-                                <Input
-                                    type="text"
-                                    autoComplete="postal-code"
-                                    id="postalCode"
-                                    className="rounded-md"
-                                    {...field}
-                                />
+                                <Input type="text" autoComplete="postal-code" className="rounded-md" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -314,7 +282,6 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             <Checkbox
                                 checked={field.value}
                                 onCheckedChange={(checked) => field.onChange(checked === true)}
-                                id="preferred"
                             />
                         </FormControl>
                         <div className="space-y-1 leading-none">

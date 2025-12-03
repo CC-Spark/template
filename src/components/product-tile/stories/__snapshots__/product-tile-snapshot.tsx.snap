@@ -14,7 +14,7 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
         data-slot="card-footer"
       >
         <button
-          class="w-full bg-blue-500 text-white p-2 rounded"
+          class="w-full bg-primary text-primary-foreground p-2 rounded"
         >
           Custom Action
         </button>

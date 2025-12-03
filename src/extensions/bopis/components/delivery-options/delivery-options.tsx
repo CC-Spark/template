@@ -93,7 +93,7 @@ export default function DeliveryOptions({
                 {/* Hide title and radio options when editing from cart */}
                 {!isInBasket && (
                     <>
-                        <Typography variant="h3" className="text-lg font-semibold">
+                        <Typography variant="h3" as="p" role="heading" aria-level={3} className="text-lg font-semibold">
                             {t('deliveryOptions.title')}
                         </Typography>
 

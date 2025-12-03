@@ -130,9 +130,9 @@ export const WithActions: Story = {
     args: {
         productItems: basketItems,
         productsByItemId,
-        primaryAction: (item) => <button className="text-red-500">Remove {item.itemId}</button>,
+        primaryAction: (item) => <button className="text-destructive">Remove {item.itemId}</button>,
 
-        secondaryActions: (_item) => <button className="text-blue-500">Edit</button>,
+        secondaryActions: (_item) => <button className="text-primary">Edit</button>,
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);

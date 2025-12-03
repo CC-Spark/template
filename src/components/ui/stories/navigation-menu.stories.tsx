@@ -21,6 +21,15 @@ const meta: Meta<typeof NavigationMenu> = {
                     'A collection of links for navigating websites. Built with Radix UI Navigation Menu primitives. Supports dropdown menus and viewport positioning.',
             },
         },
+        a11y: {
+            config: {
+                rules: [
+                    // Radix UI intentionally sets aria-hidden="true" on #storybook-root when menu opens
+                    // This is correct accessibility behavior for modal focus trapping
+                    { id: 'aria-hidden-focus', enabled: false },
+                ],
+            },
+        },
     },
     tags: ['autodocs', 'interaction'],
     argTypes: {

@@ -90,7 +90,9 @@ export function PasswordRequirement({ password, className }: PasswordRequirement
 
     return (
         <div className={cn('space-y-2', className)}>
-            <h4 className="text-sm font-medium text-foreground">{t('password.requirements.title')}</h4>
+            <p role="heading" aria-level={4} className="text-sm font-medium text-foreground">
+                {t('password.requirements.title')}
+            </p>
             <div className="space-y-1.5">
                 {requirements.map((requirement) => {
                     const isValid = requirement.validator(password);

@@ -563,14 +563,14 @@ exports[`ProductItemsList stories snapshot > WithActions story renders and match
                         data-testid="mobile-primary-action"
                       >
                         <button
-                          class="text-red-500"
+                          class="text-destructive"
                         >
                           Remove 
                           item-1
                         </button>
                       </div>
                       <button
-                        class="text-blue-500"
+                        class="text-primary"
                       >
                         Edit
                       </button>
@@ -741,14 +741,14 @@ exports[`ProductItemsList stories snapshot > WithActions story renders and match
                         data-testid="mobile-primary-action"
                       >
                         <button
-                          class="text-red-500"
+                          class="text-destructive"
                         >
                           Remove 
                           item-2
                         </button>
                       </div>
                       <button
-                        class="text-blue-500"
+                        class="text-primary"
                       >
                         Edit
                       </button>

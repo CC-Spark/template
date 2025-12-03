@@ -463,11 +463,13 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
         <div
           class="space-y-4"
         >
-          <h3
+          <p
+            aria-level="3"
             class="tracking-tight text-left text-lg font-semibold"
+            role="heading"
           >
             Delivery:
-          </h3>
+          </p>
           <div
             class="space-y-3"
           >
@@ -942,11 +944,13 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             <div
               class="space-y-4"
             >
-              <h3
+              <p
+                aria-level="3"
                 class="tracking-tight text-left text-lg font-semibold"
+                role="heading"
               >
                 Delivery:
-              </h3>
+              </p>
               <div
                 class="space-y-3"
               >
@@ -1397,11 +1401,13 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             <div
               class="space-y-4"
             >
-              <h3
+              <p
+                aria-level="3"
                 class="tracking-tight text-left text-lg font-semibold"
+                role="heading"
               >
                 Delivery:
-              </h3>
+              </p>
               <div
                 class="space-y-3"
               >
@@ -2009,11 +2015,13 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             <div
               class="space-y-4"
             >
-              <h3
+              <p
+                aria-level="3"
                 class="tracking-tight text-left text-lg font-semibold"
+                role="heading"
               >
                 Delivery:
-              </h3>
+              </p>
               <div
                 class="space-y-3"
               >
@@ -2134,11 +2142,13 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
         <div
           class="space-y-4"
         >
-          <h3
+          <p
+            aria-level="3"
             class="tracking-tight text-left text-lg font-semibold"
+            role="heading"
           >
             Delivery:
-          </h3>
+          </p>
           <div
             class="space-y-3"
           >

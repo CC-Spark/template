@@ -25,6 +25,15 @@ const meta: Meta<typeof DropdownMenu> = {
                     'Displays a menu to the user — such as a set of actions or functions — triggered by a button. Built with Radix UI Dropdown Menu primitives.',
             },
         },
+        a11y: {
+            config: {
+                rules: [
+                    // Radix UI intentionally sets aria-hidden="true" on #storybook-root when dropdown opens
+                    // This is correct accessibility behavior for modal focus trapping
+                    { id: 'aria-hidden-focus', enabled: false },
+                ],
+            },
+        },
     },
     tags: ['autodocs', 'interaction'],
 };

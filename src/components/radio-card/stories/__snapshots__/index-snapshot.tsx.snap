@@ -50,7 +50,7 @@ exports[`RadioCard stories snapshot > Default story renders and matches snapshot
             Option 1
           </h3>
           <p
-            class="text-sm text-muted-foreground"
+            class="text-sm text-foreground/80"
           >
             This is the first option
           </p>
@@ -79,7 +79,7 @@ exports[`RadioCard stories snapshot > Default story renders and matches snapshot
             Option 2
           </h3>
           <p
-            class="text-sm text-muted-foreground"
+            class="text-sm text-foreground/80"
           >
             This is the second option
           </p>
@@ -108,7 +108,7 @@ exports[`RadioCard stories snapshot > Default story renders and matches snapshot
             Option 3
           </h3>
           <p
-            class="text-sm text-muted-foreground"
+            class="text-sm text-foreground/80"
           >
             This is the third option
           </p>
@@ -273,7 +273,7 @@ exports[`RadioCard stories snapshot > WithDisabled story renders and matches sna
             Option 1
           </h3>
           <p
-            class="text-sm text-muted-foreground"
+            class="text-sm text-foreground/80"
           >
             Available
           </p>
@@ -303,7 +303,7 @@ exports[`RadioCard stories snapshot > WithDisabled story renders and matches sna
             Option 2
           </h3>
           <p
-            class="text-sm text-muted-foreground"
+            class="text-sm text-foreground/80"
           >
             Unavailable
           </p>
@@ -332,7 +332,7 @@ exports[`RadioCard stories snapshot > WithDisabled story renders and matches sna
             Option 3
           </h3>
           <p
-            class="text-sm text-muted-foreground"
+            class="text-sm text-foreground/80"
           >
             Available
           </p>

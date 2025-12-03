@@ -127,7 +127,7 @@ export const MasterProductWithSwatches: Story = {
 export const CustomAction: Story = {
     args: {
         product: mockProductSearchItem,
-        footerAction: <button className="w-full bg-blue-500 text-white p-2 rounded">Custom Action</button>,
+        footerAction: <button className="w-full bg-primary text-primary-foreground p-2 rounded">Custom Action</button>,
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);

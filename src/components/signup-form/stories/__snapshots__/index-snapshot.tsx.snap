@@ -88,11 +88,13 @@ exports[`SignupForm stories snapshot > Default story renders and matches snapsho
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >
@@ -362,11 +364,13 @@ exports[`SignupForm stories snapshot > Interactive story renders and matches sna
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >
@@ -645,11 +649,13 @@ exports[`SignupForm stories snapshot > WithError story renders and matches snaps
           <div
             class="space-y-2"
           >
-            <h4
+            <p
+              aria-level="4"
               class="text-sm font-medium text-foreground"
+              role="heading"
             >
               Password Requirements
-            </h4>
+            </p>
             <div
               class="space-y-1.5"
             >

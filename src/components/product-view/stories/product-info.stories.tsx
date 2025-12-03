@@ -204,6 +204,15 @@ The Product Info component is the main information panel on the Product Detail P
                 `,
             },
         },
+        a11y: {
+            config: {
+                rules: [
+                    // In isolated Storybook context, heading hierarchy is incomplete (h1 -> h3)
+                    // Real PDP page provides proper h1/h2 context from page layout
+                    { id: 'heading-order', enabled: false },
+                ],
+            },
+        },
     },
     decorators: [
         (Story: React.ComponentType, context) => {
