@@ -18,15 +18,17 @@ export function convertProductToProductSearchHit(
     const firstImageGroup = product.imageGroups?.[0];
     const firstImage = firstImageGroup?.images?.[0];
 
-    return {
-        productId: product.id || product.productId || '',
+    const productId = product.id || product.productId || '';
+    const productPrice = product.price ?? product.priceMax ?? 0;
+    const converted: ShopperSearch.schemas['ProductSearchHit'] = {
+        productId,
         productName: product.name || product.productName || '',
-        price: product.price || product.priceMax || 0,
+        price: productPrice,
         currency: product.currency || 'USD',
         image: firstImage
             ? {
-                  disBaseLink: firstImage.disBaseLink,
-                  link: firstImage.link,
+                  disBaseLink: firstImage.disBaseLink || firstImage.link || '',
+                  link: firstImage.link || firstImage.disBaseLink || '',
                   alt: firstImage.alt || product.name || '',
               }
             : undefined,
@@ -34,7 +36,7 @@ export function convertProductToProductSearchHit(
         variationAttributes: product.variationAttributes,
         variants: product.variationAttributes
             ? product.variationAttributes.map((attr) => ({
-                  productId: product.id || '',
+                  productId: productId || '',
                   variationValues: attr.values?.reduce(
                       (acc, val) => {
                           if (attr.id && val.value) {
@@ -51,4 +53,6 @@ export function convertProductToProductSearchHit(
         promotions: [],
         customProperties: product.customProperties,
     };
+
+    return converted;
 }

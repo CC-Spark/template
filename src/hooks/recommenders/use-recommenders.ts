@@ -106,9 +106,16 @@ function enrichRecommendationsWithProducts(
 
             const productSearchHit = convertProductToProductSearchHit(product);
 
+            if (!productSearchHit.productId) {
+                return null;
+            }
+
+            const finalProductId = productSearchHit.productId || product.id || rec.id || '';
+
             return {
                 ...productSearchHit,
-                id: product.id,
+                productId: finalProductId,
+                id: product.id || finalProductId,
                 image_url: rec.image_url,
                 product_name: rec.product_name,
                 product_url: rec.product_url,
@@ -161,6 +168,7 @@ export const useRecommenders = (isEnabled: boolean = true) => {
 
     /**
      * Fetch product details from SCAPI using the resource API
+     * Uses the same encoding format as useScapiFetcher for consistency
      */
     const fetchProducts = useCallback(async (ids: string[]): Promise<ShopperProductsTypes.Product[]> => {
         if (!ids.length) {
@@ -168,11 +176,21 @@ export const useRecommenders = (isEnabled: boolean = true) => {
         }
 
         try {
-            const resource = encodeBase64Url(
-                JSON.stringify(['ShopperProducts', 'getProducts', [{ parameters: { ids, allImages: true } }]])
-            );
+            const client = 'shopperProducts';
+            const method = 'getProducts';
+            const options = {
+                params: {
+                    query: {
+                        ids,
+                        allImages: true,
+                    },
+                },
+            };
+            const parameters = JSON.stringify(options);
+            const resource = encodeBase64Url(`["${client}","${method}",${parameters}]`);
+            const url = `/resource/api/client/${resource}`;
 
-            const response = await fetch(`/resource/api/client/${resource}`);
+            const response = await fetch(url);
 
             if (!response.ok) {
                 return [];
