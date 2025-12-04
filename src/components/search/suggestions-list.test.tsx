@@ -39,11 +39,14 @@ describe('Suggestions Component', () => {
             { name: 'Category without image', link: '/category/1' },
         ];
 
-        render(<Suggestions suggestions={mixedSuggestions} />);
+        const { container } = render(<Suggestions suggestions={mixedSuggestions} />);
 
-        const images = screen.getAllByRole('img');
+        // Images are decorative (aria-hidden), so use querySelector instead of getByRole
+        const images = container.querySelectorAll('img');
         expect(images).toHaveLength(1);
-        expect(images[0]).toHaveAttribute('alt', 'Product with image');
+        // Decorative images have empty alt text to avoid redundant-alt a11y violation
+        expect(images[0]).toHaveAttribute('alt', '');
+        expect(images[0]).toHaveAttribute('aria-hidden', 'true');
     });
 
     it('should call closeAndNavigate when clicked, or handle gracefully if undefined', () => {

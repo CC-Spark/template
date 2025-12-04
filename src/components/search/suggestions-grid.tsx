@@ -44,14 +44,15 @@ const SearchSuggestionsPopup: React.FC<SearchSuggestionsPopupProps> = ({ suggest
                                     {suggestion.image ? (
                                         <DynamicImage
                                             src={`${suggestion.image}[?sw={width}&q=60]`}
-                                            alt={suggestion.name}
+                                            alt=""
                                             imageProps={{
                                                 className: 'absolute inset-0 w-full h-full object-cover block',
+                                                'aria-hidden': true,
                                             }}
                                             loading="eager"
                                         />
                                     ) : (
-                                        <div className="absolute inset-0 w-full h-full flex items-center justify-center text-muted-foreground">
+                                        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-muted text-foreground">
                                             <div className="text-center">
                                                 <div className="text-2xl mb-1">📷</div>
                                                 <div className="text-xs">No image available</div>

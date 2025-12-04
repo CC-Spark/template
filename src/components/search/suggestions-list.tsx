@@ -42,10 +42,11 @@ const Suggestions: React.FC<SuggestionsProps> = ({ suggestions, closeAndNavigate
                                 {suggestion.image ? (
                                     <DynamicImage
                                         src={`${suggestion.image}[?sw={width}&q=60]`}
-                                        alt={suggestion.name}
+                                        alt=""
                                         className="w-full h-full"
                                         imageProps={{
                                             className: 'w-full h-full object-cover rounded-full',
+                                            'aria-hidden': true,
                                         }}
                                         loading="eager"
                                     />

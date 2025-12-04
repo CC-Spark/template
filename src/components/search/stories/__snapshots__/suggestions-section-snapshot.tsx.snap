@@ -35,7 +35,8 @@ exports[`SuggestionsSection stories snapshot > CategoriesOnly story renders and 
                   class="w-full h-full"
                 >
                   <img
-                    alt="Footwear"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -112,7 +113,8 @@ exports[`SuggestionsSection stories snapshot > CategoriesOnly story renders and 
                     class="w-full h-full"
                   >
                     <img
-                      alt="Footwear"
+                      alt=""
+                      aria-hidden="true"
                       class="w-full h-full object-cover rounded-full"
                       fetchpriority="low"
                       loading="eager"
@@ -200,7 +202,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                   class="w-full h-full"
                 >
                   <img
-                    alt="Footwear"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -270,7 +273,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                   class="w-full h-full"
                 >
                   <img
-                    alt="Running Shoes"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -302,7 +306,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                   class="w-full h-full"
                 >
                   <img
-                    alt="Hiking Boots"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -334,7 +339,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                   class="w-full h-full"
                 >
                   <img
-                    alt="Casual Sneakers"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -449,7 +455,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                     class="w-full h-full"
                   >
                     <img
-                      alt="Footwear"
+                      alt=""
+                      aria-hidden="true"
                       class="w-full h-full object-cover rounded-full"
                       fetchpriority="low"
                       loading="eager"
@@ -578,7 +585,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                     class=""
                   >
                     <img
-                      alt="Running Shoes"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -618,7 +626,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                     class=""
                   >
                     <img
-                      alt="Hiking Boots"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -658,7 +667,8 @@ exports[`SuggestionsSection stories snapshot > Default story renders and matches
                     class=""
                   >
                     <img
-                      alt="Casual Sneakers"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -877,7 +887,8 @@ exports[`SuggestionsSection stories snapshot > ProductsOnly story renders and ma
                   class="w-full h-full"
                 >
                   <img
-                    alt="Running Shoes"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -909,7 +920,8 @@ exports[`SuggestionsSection stories snapshot > ProductsOnly story renders and ma
                   class="w-full h-full"
                 >
                   <img
-                    alt="Hiking Boots"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -941,7 +953,8 @@ exports[`SuggestionsSection stories snapshot > ProductsOnly story renders and ma
                   class="w-full h-full"
                 >
                   <img
-                    alt="Casual Sneakers"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -998,7 +1011,8 @@ exports[`SuggestionsSection stories snapshot > ProductsOnly story renders and ma
                     class=""
                   >
                     <img
-                      alt="Running Shoes"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -1038,7 +1052,8 @@ exports[`SuggestionsSection stories snapshot > ProductsOnly story renders and ma
                     class=""
                   >
                     <img
-                      alt="Hiking Boots"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -1078,7 +1093,8 @@ exports[`SuggestionsSection stories snapshot > ProductsOnly story renders and ma
                     class=""
                   >
                     <img
-                      alt="Casual Sneakers"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -1173,7 +1189,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                   class="w-full h-full"
                 >
                   <img
-                    alt="Footwear"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -1243,7 +1260,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                   class="w-full h-full"
                 >
                   <img
-                    alt="Running Shoes"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -1275,7 +1293,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                   class="w-full h-full"
                 >
                   <img
-                    alt="Hiking Boots"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -1307,7 +1326,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                   class="w-full h-full"
                 >
                   <img
-                    alt="Casual Sneakers"
+                    alt=""
+                    aria-hidden="true"
                     class="w-full h-full object-cover rounded-full"
                     fetchpriority="low"
                     loading="eager"
@@ -1439,7 +1459,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                     class="w-full h-full"
                   >
                     <img
-                      alt="Footwear"
+                      alt=""
+                      aria-hidden="true"
                       class="w-full h-full object-cover rounded-full"
                       fetchpriority="low"
                       loading="eager"
@@ -1568,7 +1589,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                     class=""
                   >
                     <img
-                      alt="Running Shoes"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -1608,7 +1630,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                     class=""
                   >
                     <img
-                      alt="Hiking Boots"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"
@@ -1648,7 +1671,8 @@ exports[`SuggestionsSection stories snapshot > WithDidYouMean story renders and 
                     class=""
                   >
                     <img
-                      alt="Casual Sneakers"
+                      alt=""
+                      aria-hidden="true"
                       class="absolute inset-0 w-full h-full object-cover block"
                       fetchpriority="low"
                       loading="eager"

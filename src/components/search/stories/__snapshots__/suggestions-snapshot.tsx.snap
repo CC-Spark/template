@@ -177,7 +177,8 @@ exports[`Suggestions stories snapshot > Default story renders and matches snapsh
                     class="w-full h-full"
                   >
                     <img
-                      alt="Running Shoes"
+                      alt=""
+                      aria-hidden="true"
                       class="w-full h-full object-cover rounded-full"
                       fetchpriority="low"
                       loading="eager"
@@ -349,7 +350,8 @@ exports[`Suggestions stories snapshot > Default story renders and matches snapsh
                       class=""
                     >
                       <img
-                        alt="Running Shoes"
+                        alt=""
+                        aria-hidden="true"
                         class="absolute inset-0 w-full h-full object-cover block"
                         fetchpriority="low"
                         loading="eager"
@@ -437,7 +439,8 @@ exports[`Suggestions stories snapshot > ProductsOnly story renders and matches s
                     class="w-full h-full"
                   >
                     <img
-                      alt="Running Shoes"
+                      alt=""
+                      aria-hidden="true"
                       class="w-full h-full object-cover rounded-full"
                       fetchpriority="low"
                       loading="eager"
@@ -494,7 +497,8 @@ exports[`Suggestions stories snapshot > ProductsOnly story renders and matches s
                       class=""
                     >
                       <img
-                        alt="Running Shoes"
+                        alt=""
+                        aria-hidden="true"
                         class="absolute inset-0 w-full h-full object-cover block"
                         fetchpriority="low"
                         loading="eager"
