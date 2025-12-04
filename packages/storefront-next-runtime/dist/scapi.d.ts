@@ -24636,6 +24636,24 @@ type OperationMethod<TClient extends Client<any, any>, TOperation extends Operat
  * // With full type inference for options and Response!
  */
 type ProxyClient<TClient extends Client<any, any>, TOperations extends OperationMap> = { [K in keyof TOperations]: OperationMethod<TClient, TOperations[K]> } & Pick<TClient, 'use' | 'eject'>;
+/**
+ * Utility type that extracts only operation methods from a ProxyClient,
+ * excluding middleware methods (use, eject).
+ *
+ * This is useful for type constraints where you want to ensure only
+ * actual API operation methods are allowed, not middleware methods.
+ *
+ * Uses a distributive conditional type to work correctly with union types.
+ *
+ * @typeParam T - A ProxyClient type (or union of ProxyClient types)
+ * @returns The ProxyClient type(s) with middleware methods excluded
+ *
+ * @example
+ * type MyClient = ProxyClient<Client<paths>, typeof operations>;
+ * type OperationsOnly = OperationMethodsOnly<MyClient>;
+ * // OperationsOnly has getCategories, createBasket, etc., but NOT use or eject
+ */
+type OperationMethodsOnly<T> = T extends ProxyClient<any, any> ? Omit<T, 'use' | 'eject'> : never;
 //#endregion
 //#region src/scapi-client/generated/shopper-baskets-v1.operations.d.ts
 declare const operations: {
@@ -25650,5 +25668,5 @@ declare class ApiError extends Error {
   };
 }
 //#endregion
-export { ApiError, Clients, CommerceApiClientConfig, type ErrorDetail, GlobalRequestParameters, ShopperBasketsV1, ShopperBasketsV2, ShopperConsents, ShopperContext, ShopperCustomers, ShopperExperience, ShopperGiftCertificates, ShopperLogin, ShopperOrders, ShopperProducts, ShopperPromotions, ShopperSearch, ShopperSeo, ShopperStores, createClient, createCommerceApiClients };
+export { ApiError, Clients, CommerceApiClientConfig, type ErrorDetail, GlobalRequestParameters, type OperationMethodsOnly, ShopperBasketsV1, ShopperBasketsV2, ShopperConsents, ShopperContext, ShopperCustomers, ShopperExperience, ShopperGiftCertificates, ShopperLogin, ShopperOrders, ShopperProducts, ShopperPromotions, ShopperSearch, ShopperSeo, ShopperStores, createClient, createCommerceApiClients };
 //# sourceMappingURL=scapi.d.ts.map

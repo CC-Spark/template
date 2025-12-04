@@ -37,7 +37,7 @@ function createMockFetcher<TData = unknown>(
         formMethod: 'GET',
         formTarget: undefined,
         type: 'init',
-    } as ScapiFetcher<TData>;
+    } as unknown as ScapiFetcher<TData>;
 }
 
 describe('useScapiFetcherEffect', () => {
@@ -56,13 +56,21 @@ describe('useScapiFetcherEffect', () => {
     describe('Success scenarios', () => {
         it('should call onSuccess when fetcher completes successfully', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, true);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Initially no callbacks should be called
+            expect(mockOnSuccess).not.toHaveBeenCalled();
+            expect(mockOnError).not.toHaveBeenCalled();
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher('idle', testData, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(testData);
@@ -71,13 +79,17 @@ describe('useScapiFetcherEffect', () => {
 
         it('should call onSuccess with different data types', () => {
             const productData: ProductData = { productId: 'prod-123', name: 'Test Product', price: 29.99 };
-            const fetcher = createMockFetcher('idle', productData, true);
+            let fetcher = createMockFetcher<ProductData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<ProductData> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher('idle', productData, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(productData);
@@ -85,13 +97,17 @@ describe('useScapiFetcherEffect', () => {
 
         it('should call onSuccess with primitive data types', () => {
             const stringData = 'test string';
-            const fetcher = createMockFetcher('idle', stringData, true);
+            let fetcher = createMockFetcher<string>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<string> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher('idle', stringData, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(stringData);
@@ -99,26 +115,34 @@ describe('useScapiFetcherEffect', () => {
 
         it('should call onSuccess with array data', () => {
             const arrayData = [1, 2, 3, 4, 5];
-            const fetcher = createMockFetcher('idle', arrayData, true);
+            let fetcher = createMockFetcher<number[]>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<number[]> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher('idle', arrayData, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(arrayData);
         });
 
         it('should call onSuccess with null data', () => {
-            const fetcher = createMockFetcher('idle', null, true);
+            let fetcher = createMockFetcher<null>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<null> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher('idle', null, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(null);
@@ -126,7 +150,7 @@ describe('useScapiFetcherEffect', () => {
 
         it('should not call onSuccess when fetcher is not in idle state', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('loading', testData, true);
+            const fetcher = createMockFetcher<TestData>('loading', testData, true);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
@@ -140,7 +164,7 @@ describe('useScapiFetcherEffect', () => {
 
         it('should not call onSuccess when success is false', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, false);
+            const fetcher = createMockFetcher<TestData>('idle', testData, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
@@ -153,13 +177,17 @@ describe('useScapiFetcherEffect', () => {
         });
 
         it('should call onSuccess when data is undefined if success is true', () => {
-            const fetcher = createMockFetcher('idle', undefined, true);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<TestData>('idle', undefined, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(undefined);
@@ -170,13 +198,17 @@ describe('useScapiFetcherEffect', () => {
     describe('Error scenarios', () => {
         it('should call onError when fetcher completes with errors', () => {
             const errors = ['Validation failed', 'Email already exists'];
-            const fetcher = createMockFetcher('idle', undefined, false, errors);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onError: mockOnError,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with error
+            fetcher = createMockFetcher<TestData>('idle', undefined, false, errors);
+            rerender();
 
             expect(mockOnError).toHaveBeenCalledTimes(1);
             expect(mockOnError).toHaveBeenCalledWith(errors);
@@ -185,13 +217,17 @@ describe('useScapiFetcherEffect', () => {
 
         it('should call onError with single error', () => {
             const errors = ['Network error'];
-            const fetcher = createMockFetcher('idle', undefined, false, errors);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onError: mockOnError,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with error
+            fetcher = createMockFetcher<TestData>('idle', undefined, false, errors);
+            rerender();
 
             expect(mockOnError).toHaveBeenCalledTimes(1);
             expect(mockOnError).toHaveBeenCalledWith(errors);
@@ -199,13 +235,17 @@ describe('useScapiFetcherEffect', () => {
 
         it('should call onError with empty errors array', () => {
             const errors: string[] = [];
-            const fetcher = createMockFetcher('idle', undefined, false, errors);
+            let fetcher = createMockFetcher('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onError: mockOnError,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with error
+            fetcher = createMockFetcher('idle', undefined, false, errors);
+            rerender();
 
             expect(mockOnError).toHaveBeenCalledTimes(1);
             expect(mockOnError).toHaveBeenCalledWith(errors);
@@ -257,7 +297,7 @@ describe('useScapiFetcherEffect', () => {
     describe('State transitions', () => {
         it('should handle state transition from loading to idle with success', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            let fetcher = createMockFetcher('loading', undefined, false);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
@@ -271,7 +311,7 @@ describe('useScapiFetcherEffect', () => {
             expect(mockOnError).not.toHaveBeenCalled();
 
             // Simulate state transition to idle with success
-            fetcher = createMockFetcher('idle', testData, true);
+            fetcher = createMockFetcher<TestData>('idle', testData, true);
             rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
@@ -281,7 +321,7 @@ describe('useScapiFetcherEffect', () => {
 
         it('should handle state transition from loading to idle with error', () => {
             const errors = ['Validation failed'];
-            let fetcher = createMockFetcher('loading', undefined, false);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
@@ -295,7 +335,7 @@ describe('useScapiFetcherEffect', () => {
             expect(mockOnError).not.toHaveBeenCalled();
 
             // Simulate state transition to idle with error
-            fetcher = createMockFetcher('idle', undefined, false, errors);
+            fetcher = createMockFetcher<TestData>('idle', undefined, false, errors);
             rerender();
 
             expect(mockOnError).toHaveBeenCalledTimes(1);
@@ -305,7 +345,7 @@ describe('useScapiFetcherEffect', () => {
 
         it('should handle state transition from submitting to idle with success', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            let fetcher = createMockFetcher('submitting', undefined, false);
+            let fetcher = createMockFetcher<TestData>('submitting', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
@@ -319,7 +359,7 @@ describe('useScapiFetcherEffect', () => {
             expect(mockOnError).not.toHaveBeenCalled();
 
             // Simulate state transition to idle with success
-            fetcher = createMockFetcher('idle', testData, true);
+            fetcher = createMockFetcher<TestData>('idle', testData, true);
             rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
@@ -329,7 +369,7 @@ describe('useScapiFetcherEffect', () => {
 
         it('should not call callbacks multiple times for same state', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, true);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
@@ -337,7 +377,9 @@ describe('useScapiFetcherEffect', () => {
 
             const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
 
-            // First render should call onSuccess
+            // Transition to idle with success - should call onSuccess
+            fetcher = createMockFetcher<TestData>('idle', testData, true);
+            rerender();
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
 
             // Re-render with same state should not call onSuccess again
@@ -348,7 +390,7 @@ describe('useScapiFetcherEffect', () => {
         it.skip('should call callbacks when data changes', () => {
             const initialData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
             const updatedData: TestData = { id: '456', name: 'Jane Doe', email: 'jane@example.com' };
-            let fetcher = createMockFetcher('idle', initialData, true);
+            let fetcher = createMockFetcher<TestData>('idle', initialData, true);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
@@ -361,7 +403,7 @@ describe('useScapiFetcherEffect', () => {
             expect(mockOnSuccess).toHaveBeenCalledWith(initialData);
 
             // Update data and re-render
-            fetcher = createMockFetcher('idle', updatedData, true);
+            fetcher = createMockFetcher<TestData>('idle', updatedData, true);
             rerender();
 
             // Should call onSuccess again with updated data
@@ -373,13 +415,17 @@ describe('useScapiFetcherEffect', () => {
     describe('Callback configuration', () => {
         it('should work with only onSuccess callback', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, true);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<TestData>('idle', testData, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(testData);
@@ -387,13 +433,17 @@ describe('useScapiFetcherEffect', () => {
 
         it('should work with only onError callback', () => {
             const errors = ['Validation failed'];
-            const fetcher = createMockFetcher('idle', undefined, false, errors);
+            let fetcher = createMockFetcher('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onError: mockOnError,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with error
+            fetcher = createMockFetcher('idle', undefined, false, errors);
+            rerender();
 
             expect(mockOnError).toHaveBeenCalledTimes(1);
             expect(mockOnError).toHaveBeenCalledWith(errors);
@@ -401,14 +451,18 @@ describe('useScapiFetcherEffect', () => {
 
         it('should work with both callbacks', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, true);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: mockOnSuccess,
                 onError: mockOnError,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<TestData>('idle', testData, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(testData);
@@ -417,7 +471,7 @@ describe('useScapiFetcherEffect', () => {
 
         it('should work with empty config object', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, true);
+            const fetcher = createMockFetcher<TestData>('idle', testData, true);
 
             const config: ScapiFetcherEffectConfig<TestData> = {};
 
@@ -429,7 +483,7 @@ describe('useScapiFetcherEffect', () => {
 
         it('should work with undefined callbacks', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, true);
+            const fetcher = createMockFetcher<TestData>('idle', testData, true);
 
             const config: ScapiFetcherEffectConfig<TestData> = {
                 onSuccess: undefined,
@@ -445,78 +499,102 @@ describe('useScapiFetcherEffect', () => {
 
     describe('Edge cases', () => {
         it('should handle fetcher with null data and success true', () => {
-            const fetcher = createMockFetcher('idle', null, true);
+            let fetcher = createMockFetcher<null>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<null> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<null>('idle', null, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(null);
         });
 
         it('should handle fetcher with empty string data', () => {
-            const fetcher = createMockFetcher('idle', '', true);
+            let fetcher = createMockFetcher<string>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<string> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<string>('idle', '', true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith('');
         });
 
         it('should handle fetcher with zero data', () => {
-            const fetcher = createMockFetcher('idle', 0, true);
+            let fetcher = createMockFetcher<number>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<number> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<number>('idle', 0, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(0);
         });
 
         it('should handle fetcher with false data', () => {
-            const fetcher = createMockFetcher('idle', false, true);
+            let fetcher = createMockFetcher<boolean>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<boolean> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<boolean>('idle', false, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(false);
         });
 
         it('should handle fetcher with empty array data', () => {
-            const fetcher = createMockFetcher('idle', [], true);
+            let fetcher = createMockFetcher<unknown[]>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<unknown[]> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<unknown[]>('idle', [], true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith([]);
         });
 
         it('should handle fetcher with empty object data', () => {
-            const fetcher = createMockFetcher('idle', {}, true);
+            let fetcher = createMockFetcher<Record<string, unknown>>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<Record<string, unknown>> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<Record<string, unknown>>('idle', {}, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith({});
@@ -539,13 +617,17 @@ describe('useScapiFetcherEffect', () => {
                     { id: 2, name: 'Item 2' },
                 ],
             };
-            const fetcher = createMockFetcher('idle', complexData, true);
+            let fetcher = createMockFetcher<typeof complexData>('loading', undefined, false);
 
             const config: ScapiFetcherEffectConfig<typeof complexData> = {
                 onSuccess: mockOnSuccess,
             };
 
-            renderHook(() => useScapiFetcherEffect(fetcher, config));
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<typeof complexData>('idle', complexData, true);
+            rerender();
 
             expect(mockOnSuccess).toHaveBeenCalledTimes(1);
             expect(mockOnSuccess).toHaveBeenCalledWith(complexData);
@@ -555,7 +637,7 @@ describe('useScapiFetcherEffect', () => {
     describe('Callback stability', () => {
         it('should handle callback functions that throw errors gracefully', () => {
             const testData: TestData = { id: '123', name: 'John Doe', email: 'john@example.com' };
-            const fetcher = createMockFetcher('idle', testData, true);
+            let fetcher = createMockFetcher<TestData>('loading', undefined, false);
 
             const throwingOnSuccess = vi.fn(() => {
                 throw new Error('Callback error');
@@ -565,9 +647,14 @@ describe('useScapiFetcherEffect', () => {
                 onSuccess: throwingOnSuccess,
             };
 
+            const { rerender } = renderHook(() => useScapiFetcherEffect(fetcher, config));
+
+            // Simulate state transition to idle with success
+            fetcher = createMockFetcher<TestData>('idle', testData, true);
+
             // This should not throw an error
             expect(() => {
-                renderHook(() => useScapiFetcherEffect(fetcher, config));
+                rerender();
             }).not.toThrow();
 
             expect(throwingOnSuccess).toHaveBeenCalledTimes(1);

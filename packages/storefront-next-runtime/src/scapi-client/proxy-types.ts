@@ -366,6 +366,26 @@ export type ProxyClient<TClient extends Client<any, any>, TOperations extends Op
 } & Pick<TClient, 'use' | 'eject'>;
 
 /**
+ * Utility type that extracts only operation methods from a ProxyClient,
+ * excluding middleware methods (use, eject).
+ *
+ * This is useful for type constraints where you want to ensure only
+ * actual API operation methods are allowed, not middleware methods.
+ *
+ * Uses a distributive conditional type to work correctly with union types.
+ *
+ * @typeParam T - A ProxyClient type (or union of ProxyClient types)
+ * @returns The ProxyClient type(s) with middleware methods excluded
+ *
+ * @example
+ * type MyClient = ProxyClient<Client<paths>, typeof operations>;
+ * type OperationsOnly = OperationMethodsOnly<MyClient>;
+ * // OperationsOnly has getCategories, createBasket, etc., but NOT use or eject
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type OperationMethodsOnly<T> = T extends ProxyClient<any, any> ? Omit<T, 'use' | 'eject'> : never;
+
+/**
  * Utility type to extract the Paths type from a Client
  *
  * @example

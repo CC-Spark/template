@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useMemo, useRef } from 'react';
 import {
     useFetcher,
@@ -6,14 +5,17 @@ import {
     type FetcherSubmitOptions,
     type SubmitTarget as ReactRouterSubmitTarget,
 } from 'react-router';
-import type { CommerceSdkKeyMap, CommerceSdkCtorFromKey } from '@/lib/scapi';
+import type {
+    CommerceSdkKeyMap,
+    CommerceSdkMethodName,
+    CommerceSdkMethodReturnType,
+    CommerceSdkMethodParameters,
+    ApiResponse,
+} from '@/routes/resource.api.client.$resource';
 import { encodeBase64Url } from '@/lib/url';
-import type { ApiResponse } from '@/routes/resource.api.client.$resource';
 
 // API route for Commerce SDK resource endpoints
 const RESOURCE_API_ROUTE = '/resource/api/client';
-
-// type FetchConfig = { timeoutMs?: number };
 
 type FilterResponseFromUnion<T> = T extends Promise<Response | infer U> ? Promise<U> : T;
 
@@ -35,15 +37,9 @@ export type ScapiFetcher<TData = unknown> = Omit<FetcherWithComponents<ApiRespon
     success: boolean;
 };
 
-type ExtractMethodNames<T> = {
-    [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
-}[keyof T & string];
-
-type ExtractMethodParams<T, M extends ExtractMethodNames<T>> = T[M] extends (...args: infer P) => any ? P : never;
-
-type ExtractMethodReturnType<T, M extends ExtractMethodNames<T>> = T[M] extends (...args: any[]) => infer R
-    ? FilterResponseFromUnion<R>
-    : never;
+// Type helper to filter Response from union types (e.g., Promise<Response | U> -> Promise<U>)
+type FilterResponseFromReturnType<T> =
+    T extends Promise<infer U> ? Promise<FilterResponseFromUnion<U>> : FilterResponseFromUnion<T>;
 
 /**
  * A React hook that's part of our Commerce SDK fetch API trinity. The trinity consists of this hook, the `fetch`
@@ -81,8 +77,11 @@ type ExtractMethodReturnType<T, M extends ExtractMethodNames<T>> = T[M] extends 
  * import { useScapiFetcher } from '@/hooks/use-scapi-fetcher';
  *
  * export default function MyComponent() {
- *   const fetcher = useScapiFetcher('ShopperProducts', 'getCategory', {
- *     parameters: { id: 'test', levels: 2 }
+ *   const config = useConfig();
+ *   const fetcher = useScapiFetcher('shopperProducts', 'getCategory', {
+ *     params: {
+ *       query: { id: 'test', levels: 2 }
+ *     }
  *   });
  *
  *   useEffect(() => {
@@ -99,8 +98,10 @@ type ExtractMethodReturnType<T, M extends ExtractMethodNames<T>> = T[M] extends 
  * import { useScapiFetcher } from '@/hooks/use-scapi-fetcher';
  *
  * export default function MyComponent() {
- *   const fetcher = useScapiFetcher('ShopperCustomers', 'updateCustomer', {
- *     parameters: { customerId: 'customer-123' },
+ *   const fetcher = useScapiFetcher('shopperCustomers', 'updateCustomer', {
+ *     params: {
+ *       path: { customerId: 'customer-123' }
+ *     },
  *     body: {}
  *   });
  *
@@ -113,19 +114,17 @@ type ExtractMethodReturnType<T, M extends ExtractMethodNames<T>> = T[M] extends 
  */
 export function useScapiFetcher<
     C extends CommerceSdkKeyMap,
-    M extends ExtractMethodNames<I>,
-    I extends InstanceType<CommerceSdkCtorFromKey<C>>,
-    R extends ExtractMethodReturnType<I, M>,
->(client: C, method: M, ...options: ExtractMethodParams<I, M>): ScapiFetcher<Awaited<R>> {
-    // Use the spread options directly as method parameters
+    M extends CommerceSdkMethodName<C>,
+    R extends FilterResponseFromReturnType<CommerceSdkMethodReturnType<C, M>>,
+>(client: C, method: M, options: CommerceSdkMethodParameters<C, M>[0]): ScapiFetcher<Awaited<R>> {
     // Memoize the method parameters to prevent creating new fetchers on every render
     // We use refs to track the previous options string and params for deep comparison
     const prevOptionsStringRef = useRef<string>('');
-    const prevMethodParamsRef = useRef<ExtractMethodParams<I, M>>(options as unknown as ExtractMethodParams<I, M>);
-    const currentOptionsRef = useRef<ExtractMethodParams<I, M>>(options as unknown as ExtractMethodParams<I, M>);
+    const prevMethodParamsRef = useRef<CommerceSdkMethodParameters<C, M>[0]>(options);
+    const currentOptionsRef = useRef<CommerceSdkMethodParameters<C, M>[0]>(options);
 
     // Update the current options ref on every render
-    currentOptionsRef.current = options as unknown as ExtractMethodParams<I, M>;
+    currentOptionsRef.current = options;
     const optionsString = JSON.stringify(options);
 
     // Only update methodParams when the stringified options actually change
@@ -137,8 +136,8 @@ export function useScapiFetcher<
         return prevMethodParamsRef.current;
     }, [optionsString]);
 
-    /* c8 ignore next */
-    const parameters = Array.isArray(methodParams) ? JSON.stringify(methodParams) : '[]';
+    // Encode the single options object
+    const parameters = JSON.stringify(methodParams);
     const resource = encodeBase64Url(`["${client}","${method}",${parameters}]`);
     const fetcher = useFetcher<ApiResponse<Awaited<R>>>({ key: resource });
 

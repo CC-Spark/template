@@ -99,14 +99,18 @@ export function CartItemEditModal({
     }, [initialProduct.variants, variationValues]);
 
     // Create fetcher with the current matching variant's product ID
-    const fetcher = useScapiFetcher('ShopperProducts', 'getProduct', {
-        parameters: {
-            id: matchingVariant?.productId,
-            allImages: true,
-            // @sfdc-extension-block-start SFDC_EXT_BOPIS
-            // Include store inventory when fetching variants for pickup items
-            ...(pickupInfo?.inventoryId ? { inventoryIds: [pickupInfo.inventoryId] } : {}),
-            // @sfdc-extension-block-end SFDC_EXT_BOPIS
+    const fetcher = useScapiFetcher('shopperProducts', 'getProduct', {
+        params: {
+            path: {
+                id: matchingVariant?.productId || '',
+            },
+            query: {
+                allImages: true,
+                // @sfdc-extension-block-start SFDC_EXT_BOPIS
+                // Include store inventory when fetching variants for pickup items
+                ...(pickupInfo?.inventoryId ? { inventoryIds: [pickupInfo.inventoryId] } : {}),
+                // @sfdc-extension-block-end SFDC_EXT_BOPIS
+            },
         },
     });
     const selectedAttributes = useSelectedVariations({ product: currentProduct });

@@ -5,13 +5,55 @@ import type {
     ClientLoaderFunctionArgs,
     LoaderFunctionArgs,
 } from 'react-router';
-import type { InstanceMethodKeysOf } from '+types/lang';
 import { decodeBase64Url } from '@/lib/url';
 import { extractResponseError } from '@/lib/utils';
-import createClient, { type CommerceSdkCtorFromKey, type CommerceSdkKeyMap } from '@/lib/scapi';
+import { createApiClients } from '@/lib/api-clients';
+import type { Clients, OperationMethodsOnly } from '@salesforce/storefront-next-runtime/scapi';
 
 // Default empty array string for resource parameter fallback
 const DEFAULT_RESOURCE_ARRAY = '[]';
+
+/**
+ * Type representing Commerce SDK client names (camelCase)
+ * These are the keys from the Clients object
+ */
+export type CommerceSdkKeyMap = Exclude<keyof Clients, 'use'>;
+
+/**
+ * Type helper to get the client type from a client name
+ */
+export type CommerceSdkCtorFromKey<C extends CommerceSdkKeyMap> = Clients[C];
+
+/**
+ * Type representing valid operation method names for a Commerce SDK client.
+ * This relies on OperationMethodsOnly (from storefront-next-runtime) to exclude
+ * 'use' and 'eject' methods. The intersection with keyof CommerceSdkCtorFromKey<C>
+ * is needed for type inference, but TypeScript's intersection of keyof types can
+ * reintroduce excluded keys, so we explicitly exclude them again as a safeguard.
+ * @template C - The Commerce SDK client key
+ */
+export type CommerceSdkMethodName<C extends CommerceSdkKeyMap> = Exclude<
+    keyof OperationMethodsOnly<CommerceSdkCtorFromKey<C>> & string & keyof CommerceSdkCtorFromKey<C>,
+    'use' | 'eject'
+>;
+
+/**
+ * Type helper to extract the return type of a Commerce SDK method.
+ * @template C - The Commerce SDK client key
+ * @template M - The method name on the Commerce SDK client
+ */
+export type CommerceSdkMethodReturnType<C extends CommerceSdkKeyMap, M extends CommerceSdkMethodName<C>> = ReturnType<
+    CommerceSdkCtorFromKey<C>[M] extends (...a: any[]) => any ? CommerceSdkCtorFromKey<C>[M] : never
+>;
+
+/**
+ * Type helper to extract the parameters of a Commerce SDK method.
+ * @template C - The Commerce SDK client key
+ * @template M - The method name on the Commerce SDK client
+ */
+export type CommerceSdkMethodParameters<C extends CommerceSdkKeyMap, M extends CommerceSdkMethodName<C>> = Parameters<
+    CommerceSdkCtorFromKey<C>[M] extends (...a: any[]) => any ? CommerceSdkCtorFromKey<C>[M] : never
+>;
 
 /**
  * Structured response type for API operations
@@ -29,7 +71,7 @@ export interface ApiResponse<T = unknown> {
 /**
  * Parses the resource parameter from the URL, handling null/undefined cases
  * @param resourceParam - The resource parameter from the URL params
- * @returns Parsed resource array or throws TypeError if invalid
+ * @returns Parsed resource array [client, method, options] or throws TypeError if invalid
  */
 function parseResourceParameter<T = [unknown, string, unknown[]]>(resourceParam: string | null | undefined): T {
     const resourceString = resourceParam ?? DEFAULT_RESOURCE_ARRAY;
@@ -44,18 +86,10 @@ function parseResourceParameter<T = [unknown, string, unknown[]]>(resourceParam:
 }
 
 async function load<
-    R extends ReturnType<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
-    M extends InstanceMethodKeysOf<CommerceSdkCtorFromKey<C>>,
-    P extends Parameters<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    M extends CommerceSdkMethodName<C>,
+    P extends CommerceSdkMethodParameters<C, M>,
 >({ params, context }: LoaderFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
     let resource: [C, M, P];
     try {
@@ -68,7 +102,24 @@ async function load<
     }
 
     try {
-        const data = await createClient(context)?.[resource[0]]?.[resource[1]]?.(...(resource[2] as unknown[]));
+        const clients = createApiClients(context);
+        const clientKey = resource[0] as keyof Clients;
+        const client = clients[clientKey] as any;
+        const methodName = resource[1] as string;
+
+        if (!client || typeof client[methodName] !== 'function') {
+            throw new TypeError(`Method not found: "${resource[0]}.${methodName}"`);
+        }
+
+        // Parameters are already in the new format: { params: { path: {...}, query: {...} }, body: {...} }
+        const options = (resource[2] as any) || {};
+
+        // Call the method - new API returns { data, response }
+        const result = await client[methodName](options);
+
+        // Extract data from the new response format
+        const data = result?.data;
+
         return {
             success: true,
             data,
@@ -102,18 +153,10 @@ async function load<
  * @returns Promise resolving to ApiResponse with success/error/data structure
  */
 async function act<
-    R extends ReturnType<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
-    M extends InstanceMethodKeysOf<CommerceSdkCtorFromKey<C>>,
-    P extends Parameters<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    M extends CommerceSdkMethodName<C>,
+    P extends CommerceSdkMethodParameters<C, M>,
 >({ params, context, request }: ActionFunctionArgs | ClientActionFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
     let resource: [C, M, P];
     try {
@@ -141,41 +184,33 @@ async function act<
             }
         }
 
-        // Merge the original parameters with the form data as body
-        const parameters = resource[2] as unknown[];
-        const updatedParameters = parameters.map((param, index) => {
-            // Check if this is the last parameter and it's an object (likely a body parameter)
-            // If so, merge our form data into it, otherwise leave it unchanged
-            if (index === parameters.length - 1 && typeof param === 'object' && param !== null) {
-                return {
-                    ...param,
-                    body: bodyData,
-                };
-            }
-            return param;
-        });
+        // Parameters are already in the new format: { params: { path: {...}, query: {...} }, body: {...} }
+        const options = (resource[2] as any) || {};
 
-        // If no body parameter exists, add one to the last parameter or create a new one
-        const lastParam = updatedParameters[updatedParameters.length - 1];
-        if (
-            updatedParameters.length === 0 ||
-            !lastParam ||
-            typeof lastParam !== 'object' ||
-            lastParam === null ||
-            !('body' in lastParam)
-        ) {
-            if (updatedParameters.length === 0) {
-                updatedParameters.push({ body: bodyData });
-            } else {
-                // Add body to the last parameter
-                updatedParameters[updatedParameters.length - 1] = {
-                    ...(lastParam as Record<string, unknown>),
-                    body: bodyData,
-                };
-            }
+        // Merge form data into the body
+        const newParams = {
+            ...options,
+            body: {
+                ...(options.body || {}),
+                ...bodyData,
+            },
+        };
+
+        const clients = createApiClients(context);
+        const clientKey = resource[0] as keyof Clients;
+        const client = clients[clientKey] as any;
+        const methodName = resource[1] as string;
+
+        if (!client || typeof client[methodName] !== 'function') {
+            throw new TypeError(`Method not found: "${resource[0]}.${methodName}"`);
         }
 
-        const data = await createClient(context)?.[resource[0]]?.[resource[1]]?.(...updatedParameters);
+        // Call the method - new API returns { data, response }
+        const result = await client[methodName](newParams);
+
+        // Extract data from the new response format
+        const data = result?.data;
+
         return {
             success: true,
             data,
@@ -206,21 +241,13 @@ async function act<
  * If an error occurs, it returns an ApiResponse with success: false and error message.
  * @see {@link import('react-router').ClientLoaderFunction}
  * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
- * @see {@link import('@/lib/scapi.ts').default}
+ * @see {@link import('@/lib/api-clients.ts').createApiClients}
  */
 export function loader<
-    R extends ReturnType<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
-    M extends InstanceMethodKeysOf<CommerceSdkCtorFromKey<C>>,
-    P extends Parameters<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    M extends CommerceSdkMethodName<C>,
+    P extends CommerceSdkMethodParameters<C, M>,
 >(args: LoaderFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
     return load<R, C, M, P>(args);
 }
@@ -236,21 +263,13 @@ export function loader<
  * If an error occurs, it returns an ApiResponse with success: false and error message.
  * @see {@link import('react-router').ClientLoaderFunction}
  * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
- * @see {@link import('@/lib/scapi.ts').default}
+ * @see {@link import('@/lib/api-clients.ts').createApiClients}
  */
 export function clientLoader<
-    R extends ReturnType<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
-    M extends InstanceMethodKeysOf<CommerceSdkCtorFromKey<C>>,
-    P extends Parameters<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    M extends CommerceSdkMethodName<C>,
+    P extends CommerceSdkMethodParameters<C, M>,
 >(args: ClientLoaderFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
     return load<R, C, M, P>(args);
 }
@@ -273,18 +292,10 @@ export function clientLoader<
  */
 // eslint-disable-next-line custom/no-server-actions
 export function action<
-    R extends ReturnType<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
-    M extends InstanceMethodKeysOf<CommerceSdkCtorFromKey<C>>,
-    P extends Parameters<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    M extends CommerceSdkMethodName<C>,
+    P extends CommerceSdkMethodParameters<C, M>,
 >(args: ActionFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
     return act<R, C, M, P>(args);
 }
@@ -306,18 +317,10 @@ export function action<
  * @see {@link import('@/lib/scapi.ts').default}
  */
 export function clientAction<
-    R extends ReturnType<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
-    M extends InstanceMethodKeysOf<CommerceSdkCtorFromKey<C>>,
-    P extends Parameters<
-        InstanceType<CommerceSdkCtorFromKey<C>>[M] extends (...a: any[]) => any
-            ? InstanceType<CommerceSdkCtorFromKey<C>>[M]
-            : never
-    >,
+    M extends CommerceSdkMethodName<C>,
+    P extends CommerceSdkMethodParameters<C, M>,
 >(args: ClientActionFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
     return act<R, C, M, P>(args);
 }

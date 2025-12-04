@@ -59,8 +59,12 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
     const [editingAddressId, setEditingAddressId] = useState<EditingAddressId>(null);
 
     // Create fetcher for creating customer address
-    const createAddressFetcher = useScapiFetcher('ShopperCustomers', 'createCustomerAddress', {
-        parameters: { customerId: customerId || '' },
+    const createAddressFetcher = useScapiFetcher('shopperCustomers', 'createCustomerAddress', {
+        params: {
+            path: {
+                customerId: customerId || '',
+            },
+        },
         body: {} as ShopperCustomersTypes.CustomerAddress,
     });
 
@@ -71,8 +75,13 @@ function AccountAddressesContent({ customer }: { customer: ShopperCustomersTypes
     // to make an additional PATCH request to the new resource which will always fail. I believe this is a bug in the API
     // and that the 301 was incorrectly returned.
     const [updateAddressName, setUpdateAddressName] = useState<string>('');
-    const updateAddressFetcher = useScapiFetcher('ShopperCustomers', 'updateCustomerAddress', {
-        parameters: { customerId: customerId || '', addressName: updateAddressName },
+    const updateAddressFetcher = useScapiFetcher('shopperCustomers', 'updateCustomerAddress', {
+        params: {
+            path: {
+                customerId: customerId || '',
+                addressName: updateAddressName,
+            },
+        },
         body: {} as ShopperCustomersTypes.CustomerAddress,
     });
 

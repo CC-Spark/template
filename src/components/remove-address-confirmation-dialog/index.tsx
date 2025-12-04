@@ -59,10 +59,12 @@ export function RemoveAddressConfirmationDialog({
 
     // Create fetcher for removing this specific address
     // The fetcher is stable because addressId doesn't change while modal is open
-    const removeFetcher = useScapiFetcher('ShopperCustomers', 'removeCustomerAddress', {
-        parameters: {
-            customerId,
-            addressName: addressId,
+    const removeFetcher = useScapiFetcher('shopperCustomers', 'removeCustomerAddress', {
+        params: {
+            path: {
+                customerId,
+                addressName: addressId,
+            },
         },
     });
 

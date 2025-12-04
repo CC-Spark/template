@@ -31,8 +31,11 @@ export interface ScapiFetcherEffectConfig<TData = unknown> {
  * import { useScapiFetcherEffect } from '@/hooks/use-scapi-fetcher-effect';
  *
  * export default function MyForm() {
- *   const fetcher = useScapiFetcher('ShopperCustomers', 'updateCustomer', {
- *     parameters: { customerId: 'customer-123' }
+ *   const fetcher = useScapiFetcher('shopperCustomers', 'updateCustomer', {
+ *     params: {
+ *       path: { customerId: 'customer-123' },
+ *     },
+ *     body: {}
  *   });
  *
  *   useScapiFetcherEffect(fetcher, {
@@ -61,9 +64,12 @@ export interface ScapiFetcherEffectConfig<TData = unknown> {
  * @example
  * ```tsx
  * // Using with load operations
+ *
  * export default function ProductList() {
- *   const fetcher = useScapiFetcher('ShopperProducts', 'getProducts', {
- *     parameters: { limit: 20 }
+ *   const fetcher = useScapiFetcher('shopperProducts', 'getProducts', {
+ *     params: {
+ *       query: { ids: 'apple-ipod-shuffle,apple-ipod-nano }
+ *     }
  *   });
  *
  *   useScapiFetcherEffect(fetcher, {
@@ -91,7 +97,7 @@ export function useScapiFetcherEffect<TData = unknown>(
     const { onSuccess, onError } = config;
 
     // Track the previous state to detect changes
-    const previousStateRef = useRef<string | undefined>(undefined);
+    const previousStateRef = useRef<string | undefined>(fetcher.state);
 
     useEffect(() => {
         const currentState = fetcher.state;

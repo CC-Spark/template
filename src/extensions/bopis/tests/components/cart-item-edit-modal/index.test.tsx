@@ -58,7 +58,7 @@ describe('CartItemEditModal', () => {
 
             // Mock useScapiFetcher to capture parameters
             vi.mocked(useScapiFetcher).mockImplementation((_service, _method, options) => {
-                capturedParameters = (options as any)?.parameters;
+                capturedParameters = (options as any)?.params;
                 return {
                     load: mockLoad,
                     data: variantProduct,
@@ -95,7 +95,7 @@ describe('CartItemEditModal', () => {
 
             // Check that inventoryIds parameter was included
             expect(capturedParameters).toBeDefined();
-            expect(capturedParameters.inventoryIds).toEqual(['inventory-store-123']);
+            expect(capturedParameters.query.inventoryIds).toEqual(['inventory-store-123']);
         });
 
         test('does not include inventoryIds when editing non-pickup item', async () => {
@@ -104,7 +104,7 @@ describe('CartItemEditModal', () => {
 
             // Mock useScapiFetcher to capture parameters
             vi.mocked(useScapiFetcher).mockImplementation((_service, _method, options) => {
-                capturedParameters = (options as any)?.parameters;
+                capturedParameters = (options as any)?.params;
                 return {
                     load: mockLoad,
                     data: variantProduct,
@@ -136,7 +136,7 @@ describe('CartItemEditModal', () => {
 
             // Check that inventoryIds parameter was not included
             expect(capturedParameters).toBeDefined();
-            expect(capturedParameters.inventoryIds).toBeUndefined();
+            expect(capturedParameters.query.inventoryIds).toBeUndefined();
         });
 
         test('works without pickup context', async () => {
@@ -145,7 +145,7 @@ describe('CartItemEditModal', () => {
 
             // Mock useScapiFetcher to capture parameters
             vi.mocked(useScapiFetcher).mockImplementation((_service, _method, options) => {
-                capturedParameters = (options as any)?.parameters;
+                capturedParameters = (options as any)?.params;
                 return {
                     load: mockLoad,
                     data: variantProduct,
@@ -173,7 +173,7 @@ describe('CartItemEditModal', () => {
 
             // Should not crash and should not include inventoryIds
             expect(capturedParameters).toBeDefined();
-            expect(capturedParameters.inventoryIds).toBeUndefined();
+            expect(capturedParameters.query.inventoryIds).toBeUndefined();
         });
     });
 });

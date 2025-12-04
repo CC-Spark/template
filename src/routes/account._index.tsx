@@ -34,14 +34,21 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
     const { t } = useTranslation('account');
     const customerId = auth?.customer_id;
 
-    // Create fetchers for profile and password updates
-    const updateProfileFetcher = useScapiFetcher('ShopperCustomers', 'updateCustomer', {
-        parameters: { customerId: customerId || '' },
+    const updateProfileFetcher = useScapiFetcher('shopperCustomers', 'updateCustomer', {
+        params: {
+            path: {
+                customerId: customerId || '',
+            },
+        },
         body: {},
     });
 
-    const passwordFetcher = useScapiFetcher('ShopperCustomers', 'updateCustomerPassword', {
-        parameters: { customerId: customerId || '' },
+    const passwordFetcher = useScapiFetcher('shopperCustomers', 'updateCustomerPassword', {
+        params: {
+            path: {
+                customerId: customerId || '',
+            },
+        },
         body: { currentPassword: '', password: '' },
     });
 

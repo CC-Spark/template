@@ -38,8 +38,11 @@ describe('useScapiFetcher', () => {
     describe('load method', () => {
         it('should call fetcher.load with correct resource URL', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'getCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'getCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                 })
             );
 
@@ -47,15 +50,20 @@ describe('useScapiFetcher', () => {
                 void result.current.load();
             });
 
-            expect(mockFetcher.load).toHaveBeenCalledWith(
-                '/resource/api/client/WyJTaG9wcGVyQ3VzdG9tZXJzIiwiZ2V0Q3VzdG9tZXIiLFt7InBhcmFtZXRlcnMiOnsiY3VzdG9tZXJJZCI6InRlc3QifX1dXQ=='
+            expect(mockFetcher.load).toHaveBeenCalled();
+            const callArg = mockFetcher.load.mock.calls[0][0];
+            expect(callArg).toEqual(
+                '/resource/api/client/WyJzaG9wcGVyQ3VzdG9tZXJzIiwiZ2V0Q3VzdG9tZXIiLHsicGFyYW1zIjp7InBhdGgiOnsib3JnYW5pemF0aW9uSWQiOiJvcmctMTIzIiwiY3VzdG9tZXJJZCI6InRlc3QifSwicXVlcnkiOnsic2l0ZUlkIjoic2l0ZS0xMjMifX19XQ=='
             );
         });
 
         it('should call fetcher.load and return a promise', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'getCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'getCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                 })
             );
 
@@ -65,8 +73,11 @@ describe('useScapiFetcher', () => {
 
         it('should handle timeout configuration', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'getCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'getCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                 })
             );
 
@@ -74,8 +85,10 @@ describe('useScapiFetcher', () => {
                 void result.current.load();
             });
 
-            expect(mockFetcher.load).toHaveBeenCalledWith(
-                '/resource/api/client/WyJTaG9wcGVyQ3VzdG9tZXJzIiwiZ2V0Q3VzdG9tZXIiLFt7InBhcmFtZXRlcnMiOnsiY3VzdG9tZXJJZCI6InRlc3QifX1dXQ=='
+            expect(mockFetcher.load).toHaveBeenCalled();
+            const callArg = mockFetcher.load.mock.calls[0][0];
+            expect(callArg).toEqual(
+                '/resource/api/client/WyJzaG9wcGVyQ3VzdG9tZXJzIiwiZ2V0Q3VzdG9tZXIiLHsicGFyYW1zIjp7InBhdGgiOnsib3JnYW5pemF0aW9uSWQiOiJvcmctMTIzIiwiY3VzdG9tZXJJZCI6InRlc3QifSwicXVlcnkiOnsic2l0ZUlkIjoic2l0ZS0xMjMifX19XQ=='
             );
         });
     });
@@ -83,8 +96,11 @@ describe('useScapiFetcher', () => {
     describe('submit method', () => {
         it('should call fetcher.submit with correct resource URL and POST method', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'updateCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'updateCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: {},
                 })
             );
@@ -97,26 +113,32 @@ describe('useScapiFetcher', () => {
 
             expect(mockFetcher.submit).toHaveBeenCalledWith(submitData, {
                 method: 'POST',
-                action: '/resource/api/client/WyJTaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLFt7InBhcmFtZXRlcnMiOnsiY3VzdG9tZXJJZCI6InRlc3QifSwiYm9keSI6e319XV0=',
+                action: '/resource/api/client/WyJzaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLHsicGFyYW1zIjp7InBhdGgiOnsib3JnYW5pemF0aW9uSWQiOiJvcmctMTIzIiwiY3VzdG9tZXJJZCI6InRlc3QifSwicXVlcnkiOnsic2l0ZUlkIjoic2l0ZS0xMjMifX0sImJvZHkiOnt9fV0=',
             });
         });
 
         it('should call fetcher.submit and return a promise', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'updateCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'updateCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: {},
                 })
             );
 
-            const returnValue = result.current.submit({ email: 'new@example.com' }, { method: 'POST' });
+            const returnValue = result.current.submit({ email: 'new@example.com' });
             expect(returnValue).toBeInstanceOf(Promise);
         });
 
         it('should handle timeout configuration', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'updateCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'updateCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: {},
                 })
             );
@@ -124,74 +146,83 @@ describe('useScapiFetcher', () => {
             const submitData = { email: 'new@example.com' };
 
             act(() => {
-                void result.current.submit(submitData, { method: 'POST' });
+                void result.current.submit(submitData);
             });
 
             expect(mockFetcher.submit).toHaveBeenCalledWith(submitData, {
                 method: 'POST',
-                action: '/resource/api/client/WyJTaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLFt7InBhcmFtZXRlcnMiOnsiY3VzdG9tZXJJZCI6InRlc3QifSwiYm9keSI6e319XV0=',
+                action: '/resource/api/client/WyJzaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLHsicGFyYW1zIjp7InBhdGgiOnsib3JnYW5pemF0aW9uSWQiOiJvcmctMTIzIiwiY3VzdG9tZXJJZCI6InRlc3QifSwicXVlcnkiOnsic2l0ZUlkIjoic2l0ZS0xMjMifX0sImJvZHkiOnt9fV0=',
             });
         });
 
         it('should use empty object when no target is provided', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'updateCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'updateCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: {},
                 })
             );
 
             act(() => {
-                void result.current.submit({}, { method: 'POST' });
+                void result.current.submit({});
             });
 
             expect(mockFetcher.submit).toHaveBeenCalledWith(
                 {},
                 {
                     method: 'POST',
-                    action: '/resource/api/client/WyJTaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLFt7InBhcmFtZXRlcnMiOnsiY3VzdG9tZXJJZCI6InRlc3QifSwiYm9keSI6e319XV0=',
+                    action: '/resource/api/client/WyJzaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLHsicGFyYW1zIjp7InBhdGgiOnsib3JnYW5pemF0aW9uSWQiOiJvcmctMTIzIiwiY3VzdG9tZXJJZCI6InRlc3QifSwicXVlcnkiOnsic2l0ZUlkIjoic2l0ZS0xMjMifX0sImJvZHkiOnt9fV0=',
                 }
             );
         });
 
         it('should use empty object when target is null', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'updateCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'updateCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: {},
                 })
             );
 
             act(() => {
-                void result.current.submit(null as any, { method: 'POST' });
+                void result.current.submit(null as any);
             });
 
             expect(mockFetcher.submit).toHaveBeenCalledWith(
                 {},
                 {
                     method: 'POST',
-                    action: '/resource/api/client/WyJTaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLFt7InBhcmFtZXRlcnMiOnsiY3VzdG9tZXJJZCI6InRlc3QifSwiYm9keSI6e319XV0=',
+                    action: '/resource/api/client/WyJzaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLHsicGFyYW1zIjp7InBhdGgiOnsib3JnYW5pemF0aW9uSWQiOiJvcmctMTIzIiwiY3VzdG9tZXJJZCI6InRlc3QifSwicXVlcnkiOnsic2l0ZUlkIjoic2l0ZS0xMjMifX0sImJvZHkiOnt9fV0=',
                 }
             );
         });
 
         it('should use empty object when target is undefined', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'updateCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'updateCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: {},
                 })
             );
 
             act(() => {
-                void result.current.submit(undefined as any, { method: 'POST' });
+                void result.current.submit(undefined as any);
             });
 
             expect(mockFetcher.submit).toHaveBeenCalledWith(
                 {},
                 {
                     method: 'POST',
-                    action: '/resource/api/client/WyJTaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLFt7InBhcmFtZXRlcnMiOnsiY3VzdG9tZXJJZCI6InRlc3QifSwiYm9keSI6e319XV0=',
+                    action: '/resource/api/client/WyJzaG9wcGVyQ3VzdG9tZXJzIiwidXBkYXRlQ3VzdG9tZXIiLHsicGFyYW1zIjp7InBhdGgiOnsib3JnYW5pemF0aW9uSWQiOiJvcmctMTIzIiwiY3VzdG9tZXJJZCI6InRlc3QifSwicXVlcnkiOnsic2l0ZUlkIjoic2l0ZS0xMjMifX0sImJvZHkiOnt9fV0=',
                 }
             );
         });
@@ -202,8 +233,11 @@ describe('useScapiFetcher', () => {
             mockFetcher.state = 'loading';
 
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'getCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'getCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                 })
             );
 
@@ -218,8 +252,11 @@ describe('useScapiFetcher', () => {
             mockFetcher.success = true;
 
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'getCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'getCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                 })
             );
 
@@ -230,8 +267,11 @@ describe('useScapiFetcher', () => {
     describe('request cancellation', () => {
         it('should handle multiple concurrent requests', () => {
             const { result } = renderHook(() =>
-                useScapiFetcher('ShopperCustomers', 'getCustomer', {
-                    parameters: { customerId: 'test' },
+                useScapiFetcher('shopperCustomers', 'getCustomer', {
+                    params: {
+                        path: { organizationId: 'org-123', customerId: 'test' },
+                        query: { siteId: 'site-123' },
+                    },
                 })
             );
 

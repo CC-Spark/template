@@ -75,14 +75,16 @@ export function useBulkChildProductInventory({
     }, [childSelections]);
 
     // Bulk fetch all child variants/products in one API call
-    const fetcher = useScapiFetcher('ShopperProducts', 'getProducts', {
-        parameters: {
-            // Only include ids when productIds is available
-            // When undefined, the load() call won't execute, so this won't cause issues
-            ...(productIds ? { ids: productIds.split(',') } : {}),
-            // @sfdc-extension-line SFDC_EXT_BOPIS
-            ...(inventoryId ? { inventoryIds: [inventoryId] } : {}),
-            allImages: false,
+    const fetcher = useScapiFetcher('shopperProducts', 'getProducts', {
+        params: {
+            query: {
+                // Only include ids when productIds is available
+                // When undefined, the load() call won't execute, so this won't cause issues
+                ...(productIds ? { ids: productIds.split(',') } : {}),
+                // @sfdc-extension-line SFDC_EXT_BOPIS
+                ...(inventoryId ? { inventoryIds: [inventoryId] } : {}),
+                allImages: false,
+            },
         },
     });
 

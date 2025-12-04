@@ -38,21 +38,29 @@ vi.mock('commerce-sdk-isomorphic/shopperCustomers', async () => {
     };
 });
 
-// Mock the createClient function
-vi.mock('@/lib/scapi', () => ({
-    default: vi.fn(() => ({
-        ShopperCustomers: {
+// Mock the createApiClients function
+vi.mock('@/lib/api-clients', () => ({
+    createApiClients: vi.fn(() => ({
+        shopperCustomers: {
             getCustomer: mockShopperCustomersGetCustomer,
             updateCustomer: mockShopperCustomersUpdateCustomer,
         },
-        ShopperBaskets: {
+        shopperBasketsV2: {
             addItemToBasket: mockShopperBasketsAddItemToBasket,
         },
     })),
 }));
 
 describe('Commerce SDK resource', () => {
-    const validResource = ['ShopperCustomers', 'getCustomer', [{ parameters: { customerId: 'customer-123' } }]];
+    const validResource = [
+        'shopperCustomers',
+        'getCustomer',
+        {
+            params: {
+                path: { customerId: 'customer-123' },
+            },
+        },
+    ];
     const encodedValidResource = encodeBase64Url(JSON.stringify(validResource));
     const mockResponseData = { customerId: 'customer-123', email: 'test@example.com' };
     let mockContextProvider: ReturnType<typeof createTestContext>;
@@ -65,7 +73,8 @@ describe('Commerce SDK resource', () => {
 
         mockContextProvider = createTestContext();
 
-        mockShopperCustomersGetCustomer.mockResolvedValue(mockResponseData);
+        // New API returns { data, response } format
+        mockShopperCustomersGetCustomer.mockResolvedValue({ data: mockResponseData });
     });
 
     afterEach(() => {
@@ -100,7 +109,7 @@ describe('Commerce SDK resource', () => {
             });
 
             it('should handle invalid resource format - wrong array length', async () => {
-                const invalid = encodeBase64Url(JSON.stringify(['ShopperProducts', 'getProducts']));
+                const invalid = encodeBase64Url(JSON.stringify(['shopperProducts', 'getProducts']));
                 const args = createLoaderArgs(invalid);
                 const result = await loader(args);
                 expect(result).toEqual({
@@ -222,7 +231,7 @@ describe('Commerce SDK resource', () => {
             });
 
             it('should handle invalid resource format - wrong array length', async () => {
-                const invalid = encodeBase64Url(JSON.stringify(['ShopperProducts', 'getProducts']));
+                const invalid = encodeBase64Url(JSON.stringify(['shopperProducts', 'getProducts']));
                 const args = createLoaderArgs(invalid);
                 const result = await clientLoader(args);
                 expect(result).toEqual({
@@ -319,9 +328,13 @@ describe('Commerce SDK resource', () => {
 
     describe('action()', () => {
         const validActionResource = [
-            'ShopperCustomers',
+            'shopperCustomers',
             'updateCustomer',
-            [{ parameters: { customerId: 'customer-123' } }],
+            {
+                params: {
+                    path: { customerId: 'customer-123' },
+                },
+            },
         ];
         const encodedValidActionResource = encodeBase64Url(JSON.stringify(validActionResource));
         const mockActionResponseData = { customerId: 'customer-123', email: 'updated@example.com' };
@@ -343,7 +356,7 @@ describe('Commerce SDK resource', () => {
         };
 
         beforeEach(() => {
-            mockShopperCustomersUpdateCustomer.mockResolvedValue(mockActionResponseData);
+            mockShopperCustomersUpdateCustomer.mockResolvedValue({ data: mockActionResponseData });
         });
 
         describe('successful requests', () => {
@@ -356,9 +369,11 @@ describe('Commerce SDK resource', () => {
                     data: mockActionResponseData,
                 });
 
-                // Verify the method was called with merged parameters
+                // Verify the method was called with merged parameters (new API format)
                 expect(mockShopperCustomersUpdateCustomer).toHaveBeenCalledWith({
-                    parameters: { customerId: 'customer-123' },
+                    params: {
+                        path: { customerId: 'customer-123' },
+                    },
                     body: formData,
                 });
             });
@@ -371,18 +386,25 @@ describe('Commerce SDK resource', () => {
                     data: mockActionResponseData,
                 });
 
-                // Verify the method was called with empty body
+                // Verify the method was called with empty body (new API format)
                 expect(mockShopperCustomersUpdateCustomer).toHaveBeenCalledWith({
-                    parameters: { customerId: 'customer-123' },
+                    params: {
+                        path: { customerId: 'customer-123' },
+                    },
                     body: {},
                 });
             });
 
             it('should handle action call with existing body parameter', async () => {
                 const resourceWithBody = [
-                    'ShopperCustomers',
+                    'shopperCustomers',
                     'updateCustomer',
-                    [{ parameters: { customerId: 'customer-123' } }, { body: { existingData: 'test' } }],
+                    {
+                        params: {
+                            path: { customerId: 'customer-123' },
+                        },
+                        body: { existingData: 'test' },
+                    },
                 ];
                 const encodedResourceWithBody = encodeBase64Url(JSON.stringify(resourceWithBody));
                 const formData = { email: 'updated@example.com' };
@@ -394,15 +416,21 @@ describe('Commerce SDK resource', () => {
                     data: mockActionResponseData,
                 });
 
-                // Verify the method was called with merged body
-                expect(mockShopperCustomersUpdateCustomer).toHaveBeenCalledWith(
-                    { parameters: { customerId: 'customer-123' } },
-                    { body: formData }
-                );
+                // Verify the method was called with merged body (new API format)
+                // FormData should merge with existing body
+                expect(mockShopperCustomersUpdateCustomer).toHaveBeenCalledWith({
+                    params: {
+                        path: { customerId: 'customer-123' },
+                    },
+                    body: {
+                        existingData: 'test',
+                        ...formData,
+                    },
+                });
             });
 
             it('should add body parameter when no parameters exist', async () => {
-                const resourceWithNoParams = ['ShopperCustomers', 'updateCustomer', []];
+                const resourceWithNoParams = ['shopperCustomers', 'updateCustomer', {}];
                 const encodedResourceWithNoParams = encodeBase64Url(JSON.stringify(resourceWithNoParams));
                 const formData = { email: 'updated@example.com' };
 
@@ -419,9 +447,13 @@ describe('Commerce SDK resource', () => {
 
             it('should add body parameter when last parameter has no body property', async () => {
                 const resourceWithNoBody = [
-                    'ShopperCustomers',
+                    'shopperCustomers',
                     'updateCustomer',
-                    [{ parameters: { customerId: 'customer-123' } }],
+                    {
+                        params: {
+                            path: { customerId: 'customer-123' },
+                        },
+                    },
                 ];
                 const encodedResourceWithNoBody = encodeBase64Url(JSON.stringify(resourceWithNoBody));
                 const formData = { email: 'updated@example.com' };
@@ -433,9 +465,11 @@ describe('Commerce SDK resource', () => {
                     data: mockActionResponseData,
                 });
 
-                // Verify the method was called with parameters and added body
+                // Verify the method was called with parameters and added body (new API format)
                 expect(mockShopperCustomersUpdateCustomer).toHaveBeenCalledWith({
-                    parameters: { customerId: 'customer-123' },
+                    params: {
+                        path: { customerId: 'customer-123' },
+                    },
                     body: formData,
                 });
             });
@@ -452,7 +486,7 @@ describe('Commerce SDK resource', () => {
             });
 
             it('should handle invalid resource format - wrong array length', async () => {
-                const invalid = encodeBase64Url(JSON.stringify(['ShopperCustomers', 'updateCustomer']));
+                const invalid = encodeBase64Url(JSON.stringify(['shopperCustomers', 'updateCustomer']));
                 const args = createActionArgs(invalid);
                 const result = await action(args);
                 expect(result).toEqual({
@@ -562,7 +596,11 @@ describe('Commerce SDK resource', () => {
     });
 
     describe('clientAction()', () => {
-        const validActionResource = ['ShopperBaskets', 'addItemToBasket', [{ parameters: { basketId: 'basket-123' } }]];
+        const validActionResource = [
+            'shopperBasketsV2',
+            'addItemToBasket',
+            { params: { path: { organizationId: 'org-123', basketId: 'basket-123' }, query: { siteId: 'site-123' } } },
+        ];
         const encodedValidActionResource = encodeBase64Url(JSON.stringify(validActionResource));
         const mockActionResponseData = { basketId: 'basket-123', items: [{ productId: 'product-123', quantity: 1 }] };
 
@@ -585,7 +623,7 @@ describe('Commerce SDK resource', () => {
         };
 
         beforeEach(() => {
-            mockShopperBasketsAddItemToBasket.mockResolvedValue(mockActionResponseData);
+            mockShopperBasketsAddItemToBasket.mockResolvedValue({ data: mockActionResponseData });
         });
 
         describe('successful requests', () => {
@@ -598,9 +636,12 @@ describe('Commerce SDK resource', () => {
                     data: mockActionResponseData,
                 });
 
-                // Verify the method was called with merged parameters
+                // Verify the method was called with merged parameters (new API format)
                 expect(mockShopperBasketsAddItemToBasket).toHaveBeenCalledWith({
-                    parameters: { basketId: 'basket-123' },
+                    params: {
+                        path: { organizationId: 'org-123', basketId: 'basket-123' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: formData,
                 });
             });
@@ -613,15 +654,18 @@ describe('Commerce SDK resource', () => {
                     data: mockActionResponseData,
                 });
 
-                // Verify the method was called with empty body
+                // Verify the method was called with empty body (new API format)
                 expect(mockShopperBasketsAddItemToBasket).toHaveBeenCalledWith({
-                    parameters: { basketId: 'basket-123' },
+                    params: {
+                        path: { organizationId: 'org-123', basketId: 'basket-123' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: {},
                 });
             });
 
             it('should add body parameter when no parameters exist in clientAction', async () => {
-                const resourceWithNoParams = ['ShopperBaskets', 'addItemToBasket', []];
+                const resourceWithNoParams = ['shopperBasketsV2', 'addItemToBasket', {}];
                 const encodedResourceWithNoParams = encodeBase64Url(JSON.stringify(resourceWithNoParams));
                 const formData = { productId: 'product-123', quantity: '2' };
 
@@ -638,9 +682,14 @@ describe('Commerce SDK resource', () => {
 
             it('should add body parameter when last parameter has no body property in clientAction', async () => {
                 const resourceWithNoBody = [
-                    'ShopperBaskets',
+                    'shopperBasketsV2',
                     'addItemToBasket',
-                    [{ parameters: { basketId: 'basket-123' } }],
+                    {
+                        params: {
+                            path: { organizationId: 'org-123', basketId: 'basket-123' },
+                            query: { siteId: 'site-123' },
+                        },
+                    },
                 ];
                 const encodedResourceWithNoBody = encodeBase64Url(JSON.stringify(resourceWithNoBody));
                 const formData = { productId: 'product-123', quantity: '2' };
@@ -652,9 +701,12 @@ describe('Commerce SDK resource', () => {
                     data: mockActionResponseData,
                 });
 
-                // Verify the method was called with parameters and added body
+                // Verify the method was called with parameters and added body (new API format)
                 expect(mockShopperBasketsAddItemToBasket).toHaveBeenCalledWith({
-                    parameters: { basketId: 'basket-123' },
+                    params: {
+                        path: { organizationId: 'org-123', basketId: 'basket-123' },
+                        query: { siteId: 'site-123' },
+                    },
                     body: formData,
                 });
             });
@@ -671,7 +723,7 @@ describe('Commerce SDK resource', () => {
             });
 
             it('should handle invalid resource format - wrong array length', async () => {
-                const invalid = encodeBase64Url(JSON.stringify(['ShopperBaskets', 'addItemToBasket']));
+                const invalid = encodeBase64Url(JSON.stringify(['shopperBasketsV2', 'addItemToBasket']));
                 const args = createClientActionArgs(invalid);
                 const result = await clientAction(args);
                 expect(result).toEqual({
@@ -825,14 +877,18 @@ describe('Commerce SDK resource', () => {
 
         it('should handle empty form data in action', async () => {
             const validActionResource = [
-                'ShopperCustomers',
+                'shopperCustomers',
                 'updateCustomer',
-                [{ parameters: { customerId: 'customer-123' } }],
+                {
+                    params: {
+                        path: { customerId: 'customer-123' },
+                    },
+                },
             ];
             const encodedValidActionResource = encodeBase64Url(JSON.stringify(validActionResource));
 
             // Set up the mock for this specific test
-            mockShopperCustomersUpdateCustomer.mockResolvedValue(mockResponseData);
+            mockShopperCustomersUpdateCustomer.mockResolvedValue({ data: mockResponseData });
 
             const createActionArgsWithEmptyForm = (): ActionFunctionArgs => {
                 const request = new Request('http://localhost/test', {
@@ -854,9 +910,11 @@ describe('Commerce SDK resource', () => {
                 data: mockResponseData,
             });
 
-            // Verify the method was called with empty body
+            // Verify the method was called with empty body (new API format)
             expect(mockShopperCustomersUpdateCustomer).toHaveBeenCalledWith({
-                parameters: { customerId: 'customer-123' },
+                params: {
+                    path: { customerId: 'customer-123' },
+                },
                 body: {},
             });
         });

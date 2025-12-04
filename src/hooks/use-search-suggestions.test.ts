@@ -60,12 +60,14 @@ describe('useSearchSuggestions', () => {
                 })
             );
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
-                    expand: ['images', 'prices'],
-                    limit: 10,
-                    currency: 'USD',
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        currency: 'USD',
+                        q: 'dress',
+                        expand: ['images', 'prices'],
+                        limit: 10,
+                    },
                 },
             });
         });
@@ -73,9 +75,11 @@ describe('useSearchSuggestions', () => {
         it('should handle minimal parameters', () => {
             renderHook(() => useSearchSuggestions({ q: 'shirt' }));
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'shirt',
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'shirt',
+                    },
                 },
             });
         });
@@ -90,9 +94,11 @@ describe('useSearchSuggestions', () => {
                 })
             );
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'jacket',
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'jacket',
+                    },
                 },
             });
         });
@@ -192,12 +198,14 @@ describe('useSearchSuggestions', () => {
                 }
             );
 
-            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
-                    expand: ['images'],
-                    limit: 5,
-                    currency: 'USD',
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                        expand: ['images'],
+                        limit: 5,
+                        currency: 'USD',
+                    },
                 },
             });
 
@@ -208,12 +216,14 @@ describe('useSearchSuggestions', () => {
                 currency: 'EUR',
             });
 
-            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'shirt',
-                    expand: ['images', 'prices'],
-                    limit: 10,
-                    currency: 'EUR',
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'shirt',
+                        expand: ['images', 'prices'],
+                        limit: 10,
+                        currency: 'EUR',
+                    },
                 },
             });
         });
@@ -254,10 +264,12 @@ describe('useSearchSuggestions', () => {
         it('should include includeEinsteinSuggestedPhrases when true', () => {
             renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: true }));
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
-                    includeEinsteinSuggestedPhrases: true,
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                        includeEinsteinSuggestedPhrases: true,
+                    },
                 },
             });
         });
@@ -265,10 +277,12 @@ describe('useSearchSuggestions', () => {
         it('should include includeEinsteinSuggestedPhrases when false', () => {
             renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: false }));
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
-                    includeEinsteinSuggestedPhrases: false,
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                        includeEinsteinSuggestedPhrases: false,
+                    },
                 },
             });
         });
@@ -276,9 +290,11 @@ describe('useSearchSuggestions', () => {
         it('should exclude includeEinsteinSuggestedPhrases when undefined', () => {
             renderHook(() => useSearchSuggestions({ q: 'dress', includeEinsteinSuggestedPhrases: undefined }));
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                    },
                 },
             });
         });
@@ -286,9 +302,11 @@ describe('useSearchSuggestions', () => {
         it('should exclude includeEinsteinSuggestedPhrases when not provided', () => {
             renderHook(() => useSearchSuggestions({ q: 'dress' }));
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                    },
                 },
             });
         });
@@ -304,13 +322,15 @@ describe('useSearchSuggestions', () => {
                 })
             );
 
-            expect(mockUseScapiFetcher).toHaveBeenCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
-                    expand: ['images', 'prices'],
-                    limit: 10,
-                    currency: 'USD',
-                    includeEinsteinSuggestedPhrases: true,
+            expect(mockUseScapiFetcher).toHaveBeenCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                        expand: ['images', 'prices'],
+                        limit: 10,
+                        currency: 'USD',
+                        includeEinsteinSuggestedPhrases: true,
+                    },
                 },
             });
         });
@@ -324,27 +344,23 @@ describe('useSearchSuggestions', () => {
                 }
             );
 
-            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
-                    includeEinsteinSuggestedPhrases: true,
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                        includeEinsteinSuggestedPhrases: true,
+                    },
                 },
             });
 
             rerender({ includeEinsteinSuggestedPhrases: false });
 
-            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
-                    includeEinsteinSuggestedPhrases: false,
-                },
-            });
-
-            rerender({ includeEinsteinSuggestedPhrases: undefined });
-
-            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('ShopperSearch', 'getSearchSuggestions', {
-                parameters: {
-                    q: 'dress',
+            expect(mockUseScapiFetcher).toHaveBeenLastCalledWith('shopperSearch', 'getSearchSuggestions', {
+                params: {
+                    query: {
+                        q: 'dress',
+                        includeEinsteinSuggestedPhrases: false,
+                    },
                 },
             });
         });

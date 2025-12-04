@@ -32,19 +32,21 @@ export function useSearchSuggestions({
     // Prepare parameters for Commerce SDK getSearchSuggestions method
     const parameters = useMemo(
         () => ({
-            parameters: {
-                q,
-                ...(expand && { expand }),
-                ...(limit && { limit }),
-                ...(currency && { currency }),
-                ...(includeEinsteinSuggestedPhrases !== undefined && { includeEinsteinSuggestedPhrases }),
+            params: {
+                query: {
+                    q,
+                    ...(expand && { expand }),
+                    ...(limit && { limit }),
+                    ...(currency && { currency }),
+                    ...(includeEinsteinSuggestedPhrases !== undefined && { includeEinsteinSuggestedPhrases }),
+                },
             },
         }),
         [q, expand, limit, currency, includeEinsteinSuggestedPhrases]
     );
 
     // Use useScapiFetcher hook for Commerce SDK operations
-    const fetcher = useScapiFetcher('ShopperSearch', 'getSearchSuggestions', parameters);
+    const fetcher = useScapiFetcher('shopperSearch', 'getSearchSuggestions', parameters);
 
     const refetch = useCallback(async (): Promise<void> => {
         if (!enabled || !q?.trim()) {
@@ -55,7 +57,7 @@ export function useSearchSuggestions({
     }, [fetcher, enabled, q]);
 
     return {
-        data: fetcher.data,
+        data: fetcher.data as ShopperSearch.schemas['SuggestionResult'] | undefined,
         isLoading: fetcher.state === 'loading',
         refetch,
     };
