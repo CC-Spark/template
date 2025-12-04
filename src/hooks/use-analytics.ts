@@ -1,6 +1,13 @@
+import { useRef, useEffect } from 'react';
 import { useAuth } from '@/providers/auth';
+import type { SessionData } from '@/lib/api/types';
 import type { ShopperBasketsV2, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { createEvent, getEventMediator, type EventMediator } from '@salesforce/storefront-next-runtime/events';
+import {
+    createEvent,
+    getEventMediator,
+    type EventMediator,
+    type AnalyticsEvent,
+} from '@salesforce/storefront-next-runtime/events';
 import { useConfig, type AppConfig } from '@/config';
 import { ensureAdaptersInitialized } from '@/lib/adapters/initialize-adapters';
 import { getAllAdapters } from '@/lib/adapters';
@@ -17,11 +24,79 @@ async function getInitializedMediator(appConfig: AppConfig): Promise<EventMediat
 }
 
 /**
+ * Helper function to track an event with auth validation and mediator initialization
+ *
+ * @param authPromise - Promise that resolves when auth is available
+ * @param appConfig - The application configuration
+ * @param eventType - The type of event to track
+ * @param eventData - The event data (without user payload, as payload is added automatically)
+ * @returns Promise that resolves when tracking is complete or undefined if auth/mediator is unavailable
+ */
+async function trackEvent<TEventType extends AnalyticsEvent['eventType']>(
+    authPromise: Promise<SessionData | undefined>,
+    appConfig: AppConfig,
+    eventType: TEventType,
+    eventData: Omit<Parameters<typeof createEvent<TEventType>>[1], 'payload'>
+): Promise<void> {
+    // Wait for auth to be defined before tracking
+    const auth = await authPromise;
+    if (auth === undefined) {
+        // Auth not available - silently fail to not break the app
+        return;
+    }
+
+    const mediator = await getInitializedMediator(appConfig);
+    if (!mediator) {
+        return;
+    }
+
+    const event = createEvent(eventType, {
+        ...eventData,
+        payload: {
+            userType: auth.userType ?? 'guest',
+            usid: auth.usid,
+        },
+    } as Parameters<typeof createEvent<TEventType>>[1]);
+    return void mediator.track(event);
+}
+
+/**
  * Analytics hook provides tracking functions
  */
 export const useAnalytics = () => {
     const auth = useAuth();
     const appConfig = useConfig();
+
+    // Store the promise resolver so we can resolve it when auth becomes available
+    const authResolverRef = useRef<((value: SessionData | undefined) => void) | null>(null);
+
+    // Create a promise that resolves when auth is available
+    // This promise is updated via useEffect when auth changes
+    const authPromiseRef = useRef<Promise<SessionData | undefined>>(
+        auth !== undefined
+            ? Promise.resolve(auth)
+            : new Promise<SessionData | undefined>((resolve) => {
+                  authResolverRef.current = resolve;
+              })
+    );
+
+    // Update the promise when auth changes
+    useEffect(() => {
+        if (auth !== undefined) {
+            // Auth is now available - resolve any pending promises
+            if (authResolverRef.current) {
+                authResolverRef.current(auth);
+                authResolverRef.current = null;
+            }
+            // Create a new resolved promise for future calls
+            authPromiseRef.current = Promise.resolve(auth);
+        } else {
+            // Auth is undefined - create a new pending promise
+            authPromiseRef.current = new Promise<SessionData | undefined>((resolve) => {
+                authResolverRef.current = resolve;
+            });
+        }
+    }, [auth]);
 
     // On the server, return empty functions
     if (typeof window === 'undefined') {
@@ -47,72 +122,36 @@ export const useAnalytics = () => {
      * function is provided for manual firing of page views.
      */
     const trackViewPage = async (data: { url: string }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('view_page', {
+        return trackEvent(authPromiseRef.current, appConfig, 'view_page', {
             path: data.url,
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
      * Track a product view
      */
     const trackViewProduct = async (data: { product: ShopperProducts.schemas['Product'] }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('view_product', {
+        return trackEvent(authPromiseRef.current, appConfig, 'view_product', {
             product: data.product,
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
      * Track add to cart
      */
     const trackCartItemAdd = async (data: { cartItems: ShopperBasketsV2.schemas['ProductItem'][] }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('cart_item_add', {
+        return trackEvent(authPromiseRef.current, appConfig, 'cart_item_add', {
             cartItems: data.cartItems,
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
      * Track start of checkout process
      */
     const trackCheckoutStart = async (data: { basket: ShopperBasketsV2.schemas['Basket'] }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('checkout_start', {
+        return trackEvent(authPromiseRef.current, appConfig, 'checkout_start', {
             basket: data.basket,
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
@@ -123,20 +162,11 @@ export const useAnalytics = () => {
         stepNumber: number;
         basket: ShopperBasketsV2.schemas['Basket'];
     }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('checkout_step', {
+        return trackEvent(authPromiseRef.current, appConfig, 'checkout_step', {
             stepName: data.stepName,
             stepNumber: data.stepNumber,
             basket: data.basket,
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
@@ -148,21 +178,12 @@ export const useAnalytics = () => {
         sort: string;
         refinements: ShopperSearch.schemas['ProductSearchResult']['selectedRefinements'];
     }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('view_search', {
+        return trackEvent(authPromiseRef.current, appConfig, 'view_search', {
             searchInputText: data.searchInputText,
             searchResults: data.searchResults,
             sort: data.sort || '',
             refinements: data.refinements || {},
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
@@ -174,21 +195,12 @@ export const useAnalytics = () => {
         sort: string;
         refinements: ShopperSearch.schemas['ProductSearchResult']['selectedRefinements'];
     }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('view_category', {
+        return trackEvent(authPromiseRef.current, appConfig, 'view_category', {
             category: data.category,
             searchResults: data.searchResults,
             sort: data.sort || '',
             refinements: data.refinements || {},
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
@@ -198,19 +210,10 @@ export const useAnalytics = () => {
         category: ShopperProducts.schemas['Category'];
         product: ShopperSearch.schemas['ProductSearchHit'];
     }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('click_product_in_category', {
+        return trackEvent(authPromiseRef.current, appConfig, 'click_product_in_category', {
             category: data.category,
             product: data.product,
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     /**
@@ -220,19 +223,10 @@ export const useAnalytics = () => {
         searchInputText: string;
         product: ShopperSearch.schemas['ProductSearchHit'];
     }) => {
-        const mediator = await getInitializedMediator(appConfig);
-        if (!mediator) {
-            return;
-        }
-        const event = createEvent('click_product_in_search', {
+        return trackEvent(authPromiseRef.current, appConfig, 'click_product_in_search', {
             searchInputText: data.searchInputText,
             product: data.product,
-            payload: {
-                userType: auth?.userType ?? 'guest',
-                usid: auth?.usid,
-            },
         });
-        return void mediator.track(event);
     };
 
     return {

@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useAnalytics } from './use-analytics';
 import type { SessionData } from '@/lib/api/types';
 import type { ShopperBasketsV2, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
@@ -154,8 +154,33 @@ describe('useAnalytics', () => {
             );
         });
 
-        it('should handle undefined auth gracefully', async () => {
+        it('should not track when auth is undefined', async () => {
             vi.mocked(useAuth).mockReturnValue(undefined);
+
+            const { result } = renderHook(() => useAnalytics());
+
+            // Call tracking function - promise will hang waiting for auth
+            void result.current.trackViewPage({ url: '/test-page' });
+
+            // Wait a bit to ensure no tracking happens when auth is undefined
+            await act(async () => {
+                await new Promise((resolve) => setTimeout(resolve, 100));
+            });
+
+            // Tracking should not have occurred because auth is undefined
+            expect(mockAnalytics.track).not.toHaveBeenCalled();
+
+            // The promise is still pending (won't resolve without auth)
+            // We can't easily test the promise resolution in this scenario,
+            // but we've verified that tracking doesn't happen when auth is undefined
+        });
+
+        it('should track page view for guest user', async () => {
+            const guestAuth: SessionData = {
+                userType: 'guest',
+            };
+
+            vi.mocked(useAuth).mockReturnValue(guestAuth);
 
             const { result } = renderHook(() => useAnalytics());
 

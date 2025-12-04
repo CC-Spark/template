@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, act } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { PageViewTracker } from './page-view-tracker';
 import type { SessionData } from '@/lib/api/types';
@@ -74,15 +74,21 @@ describe('PageViewTracker', () => {
         engagement: {
             analytics: {
                 pageViewsBlocklist: [],
+                pageViewsResetDuration: 1500, // 1.5 seconds
             },
         },
+    };
+
+    // Default guest auth object for tests (auth must be defined to track)
+    const defaultGuestAuth: SessionData = {
+        userType: 'guest',
     };
 
     beforeEach(() => {
         vi.clearAllMocks();
 
-        // Setup default mocks
-        mockUseAuth.mockReturnValue(undefined);
+        // Setup default mocks - auth must be defined for tracking to occur
+        mockUseAuth.mockReturnValue(defaultGuestAuth);
         mockUseConfig.mockReturnValue(defaultConfig);
 
         // Setup dynamic import mocks
@@ -120,21 +126,99 @@ describe('PageViewTracker', () => {
         return { ...render(<RouterProvider router={router} />), router };
     };
 
+    // Helper to wait for async tracking operations to complete
+    const waitForAsyncTracking = async (delay = 100) => {
+        await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, delay));
+        });
+    };
+
+    // Helper to wait for tracking to complete and verify call count
+    const waitForTracking = async (expectedCallCount: number, timeout = 2000) => {
+        await waitFor(
+            () => {
+                expect(createEvent).toHaveBeenCalledTimes(expectedCallCount);
+            },
+            { timeout }
+        );
+        await waitForAsyncTracking();
+    };
+
+    // Helper to wait and verify no tracking occurred
+    const waitForNoTracking = async () => {
+        await waitForAsyncTracking();
+        expect(createEvent).not.toHaveBeenCalled();
+        expect(sendViewPageEvent).not.toHaveBeenCalled();
+    };
+
+    // Helper to create an updated config object (new reference to trigger re-render)
+    const createUpdatedConfig = (baseConfig = defaultConfig) => ({
+        ...baseConfig,
+        engagement: {
+            ...baseConfig.engagement,
+            analytics: {
+                ...baseConfig.engagement.analytics,
+                pageViewsBlocklist: [], // Same blocklist, but new object reference
+            },
+        },
+    });
+
+    // Helper to re-render the PageViewTracker component
+    const rerenderPageViewTracker = (rerender: ReturnType<typeof render>['rerender'], path: string) => {
+        const updatedConfig = createUpdatedConfig();
+        mockUseConfig.mockReturnValue(updatedConfig);
+
+        rerender(
+            <RouterProvider
+                router={createMemoryRouter(
+                    [
+                        {
+                            path: '*',
+                            element: <PageViewTracker />,
+                        },
+                    ],
+                    {
+                        initialEntries: [path],
+                    }
+                )}
+            />
+        );
+    };
+
+    // Helper to wait for the reset duration to pass
+    const waitForResetDuration = async () => {
+        await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 1600));
+        });
+    };
+
+    // Helper to verify a page view event was tracked
+    const expectPageViewTracked = (path: string, payload: { userType: string; usid?: string }, callNumber?: number) => {
+        if (callNumber) {
+            expect(createEvent).toHaveBeenNthCalledWith(callNumber, 'view_page', { path, payload });
+        } else {
+            expect(createEvent).toHaveBeenCalledWith('view_page', { path, payload });
+        }
+    };
+
     describe('Basic tracking', () => {
-        it('should track page view for guest user', async () => {
+        it('should wait for auth to be defined before tracking', async () => {
             mockUseAuth.mockReturnValue(undefined);
             mockUseConfig.mockReturnValue(defaultConfig);
 
             renderPageViewTracker('/test-page');
 
+            await waitForNoTracking();
+        });
+
+        it('should track page view for guest user', async () => {
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
+            mockUseConfig.mockReturnValue(defaultConfig);
+
+            renderPageViewTracker('/test-page');
+
             await waitFor(() => {
-                expect(createEvent).toHaveBeenCalledWith('view_page', {
-                    path: '/test-page',
-                    payload: {
-                        userType: 'guest',
-                        usid: undefined,
-                    },
-                });
+                expectPageViewTracked('/test-page', { userType: 'guest', usid: undefined });
             });
 
             await waitFor(() => {
@@ -156,13 +240,7 @@ describe('PageViewTracker', () => {
             renderPageViewTracker('/test-page');
 
             await waitFor(() => {
-                expect(createEvent).toHaveBeenCalledWith('view_page', {
-                    path: '/test-page',
-                    payload: {
-                        userType: 'registered',
-                        usid: 'test-usid',
-                    },
-                });
+                expectPageViewTracked('/test-page', { userType: 'registered', usid: 'test-usid' });
             });
 
             await waitFor(() => {
@@ -173,7 +251,7 @@ describe('PageViewTracker', () => {
 
     describe('Blocklist functionality', () => {
         it('should not track page views for blocked paths', async () => {
-            mockUseAuth.mockReturnValue(undefined);
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
             mockUseConfig.mockReturnValue({
                 engagement: {
                     analytics: {
@@ -184,103 +262,98 @@ describe('PageViewTracker', () => {
 
             renderPageViewTracker('/action/cart-item-remove');
 
-            // Wait a bit to ensure tracking doesn't happen
-            await new Promise((resolve) => setTimeout(resolve, 100));
-
-            expect(createEvent).not.toHaveBeenCalled();
-            expect(sendViewPageEvent).not.toHaveBeenCalled();
+            await waitForNoTracking();
         });
     });
 
     describe('Duplicate tracking prevention', () => {
-        it('should not track the same path twice', async () => {
-            mockUseAuth.mockReturnValue(undefined);
+        it('should not track the same path twice if page re-renders before reset duration', async () => {
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
             mockUseConfig.mockReturnValue(defaultConfig);
 
-            const { router } = renderPageViewTracker('/test-page');
+            const { rerender } = renderPageViewTracker('/test-page');
 
-            await waitFor(() => {
-                expect(createEvent).toHaveBeenCalledTimes(1);
-            });
+            await waitForTracking(1);
 
-            // Navigate to the same path
-            await router.navigate('/test-page');
+            // Force a re-render immediately (within reset duration of 1.5 seconds)
+            rerenderPageViewTracker(rerender, '/test-page');
 
-            // Wait a bit to ensure no duplicate tracking
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await waitForAsyncTracking();
 
             expect(createEvent).toHaveBeenCalledTimes(1);
         });
 
+        it('should track the same path again after reset duration when page re-renders', async () => {
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
+            mockUseConfig.mockReturnValue(defaultConfig);
+
+            const { rerender } = renderPageViewTracker('/test-page');
+
+            await waitForTracking(1);
+
+            // Wait for the reset duration to pass (1.5 seconds + buffer)
+            await waitForResetDuration();
+
+            // Force a re-render by changing the config (which is a dependency of useEffect)
+            rerenderPageViewTracker(rerender, '/test-page');
+
+            await waitForTracking(2);
+
+            // Verify both calls were for the exact same path /test-page (no query params, no hash)
+            expectPageViewTracked('/test-page', { userType: 'guest', usid: undefined }, 1);
+            expectPageViewTracked('/test-page', { userType: 'guest', usid: undefined }, 2);
+        });
+
         it('should track different paths separately', async () => {
-            mockUseAuth.mockReturnValue(undefined);
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
             mockUseConfig.mockReturnValue(defaultConfig);
 
             const { router } = renderPageViewTracker('/page1');
 
-            await waitFor(() => {
-                expect(createEvent).toHaveBeenCalledTimes(1);
+            await waitForTracking(1);
+
+            await act(async () => {
+                await router.navigate('/page2');
             });
 
-            // Navigate to a different path
-            await router.navigate('/page2');
-
-            await waitFor(
-                () => {
-                    expect(createEvent).toHaveBeenCalledTimes(2);
-                },
-                { timeout: 2000 }
-            );
+            await waitForTracking(2);
         });
 
         it('should track same pathname with different query params separately', async () => {
-            mockUseAuth.mockReturnValue(undefined);
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
             mockUseConfig.mockReturnValue(defaultConfig);
 
             const { router } = renderPageViewTracker('/test-page?param1=value1');
 
-            await waitFor(() => {
-                expect(createEvent).toHaveBeenCalledTimes(1);
+            await waitForTracking(1);
+
+            await act(async () => {
+                await router.navigate('/test-page?param2=value2');
             });
 
-            // Navigate with different query params
-            await router.navigate('/test-page?param2=value2');
-
-            await waitFor(
-                () => {
-                    expect(createEvent).toHaveBeenCalledTimes(2);
-                },
-                { timeout: 2000 }
-            );
+            await waitForTracking(2);
         });
     });
 
     describe('Error handling', () => {
         it('should skip tracking when analytics initialization fails', async () => {
-            // Make getEventMediator return undefined
             vi.mocked(getEventMediator).mockReturnValue(undefined);
-            mockUseAuth.mockReturnValue(undefined);
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
             mockUseConfig.mockReturnValue(defaultConfig);
 
             renderPageViewTracker('/test-page');
 
-            // Wait a bit to ensure no tracking happens
-            await new Promise((resolve) => setTimeout(resolve, 100));
-
-            // Should not have called createEvent or sendViewPageEvent
-            expect(createEvent).not.toHaveBeenCalled();
-            expect(sendViewPageEvent).not.toHaveBeenCalled();
+            await waitForNoTracking();
         });
 
         it('should handle sendPageViewEvent errors gracefully', async () => {
             const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-            // Make sendViewPageEvent throw an error
             vi.mocked(sendViewPageEvent).mockImplementation(() => {
                 throw new Error('Send failed');
             });
 
-            mockUseAuth.mockReturnValue(undefined);
+            mockUseAuth.mockReturnValue(defaultGuestAuth);
             mockUseConfig.mockReturnValue(defaultConfig);
 
             renderPageViewTracker('/test-page');
@@ -289,10 +362,8 @@ describe('PageViewTracker', () => {
                 expect(createEvent).toHaveBeenCalled();
             });
 
-            // Wait for error handling
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await waitForAsyncTracking();
 
-            // In dev mode, should warn
             if (import.meta.env.DEV) {
                 expect(consoleWarnSpy).toHaveBeenCalledWith(
                     'Failed to load and send page view tracking:',
@@ -317,13 +388,7 @@ describe('PageViewTracker', () => {
             renderPageViewTracker('/test-page');
 
             await waitFor(() => {
-                expect(createEvent).toHaveBeenCalledWith('view_page', {
-                    path: '/test-page',
-                    payload: {
-                        userType: 'guest',
-                        usid: 'test-usid',
-                    },
-                });
+                expectPageViewTracked('/test-page', { userType: 'guest', usid: 'test-usid' });
             });
 
             await waitFor(() => {
@@ -345,13 +410,7 @@ describe('PageViewTracker', () => {
             renderPageViewTracker('/test-page');
 
             await waitFor(() => {
-                expect(createEvent).toHaveBeenCalledWith('view_page', {
-                    path: '/test-page',
-                    payload: {
-                        userType: 'registered',
-                        usid: undefined,
-                    },
-                });
+                expectPageViewTracked('/test-page', { userType: 'registered', usid: undefined });
             });
 
             await waitFor(() => {

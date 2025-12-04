@@ -20,7 +20,8 @@ export function PageViewTracker() {
     const location = useLocation();
     const config = useConfig();
     const auth = useAuth();
-    const hasTrackedRef = useRef<string | null>(null);
+    const trackedRef = useRef<{ path: string; timestamp: number } | null>(null);
+    const trackingResetDuration = config.engagement.analytics.pageViewsResetDuration;
 
     useEffect(() => {
         // Only track on client side
@@ -32,9 +33,15 @@ export function PageViewTracker() {
         const queryParams = location.search;
         const hash = location.hash;
         const fullPath = `${pathname}${queryParams}${hash}`;
+        const now = Date.now();
 
-        // Skip if we've already tracked this exact path
-        if (hasTrackedRef.current === fullPath) {
+        // Wait for auth to be defined before tracking
+        if (auth === undefined) {
+            return;
+        }
+
+        // Skip if we've already tracked this exact path and it's within the reset duration
+        if (trackedRef.current?.path === fullPath && now - trackedRef.current.timestamp < trackingResetDuration) {
             return;
         }
 
@@ -63,17 +70,18 @@ export function PageViewTracker() {
                 }
 
                 // Create and send the page view event
+                // Auth is guaranteed to be defined at this point due to the check above
                 const event = createEvent('view_page', {
                     path: pathname,
                     payload: {
-                        userType: auth?.userType ?? 'guest',
-                        usid: auth?.usid,
+                        userType: auth.userType ?? 'guest',
+                        usid: auth.usid,
                     },
                 });
                 sendViewPageEvent(event, mediator);
             } catch (error) {
                 // Silently fail - analytics should not break the app
-                hasTrackedRef.current = null; // Reset the tracked path to allow tracking again
+                trackedRef.current = null; // Reset the tracked path to allow tracking again
                 if (import.meta.env.DEV) {
                     // eslint-disable-next-line no-console
                     console.warn('Failed to load and send page view tracking:', error);
@@ -82,15 +90,15 @@ export function PageViewTracker() {
         };
 
         void trackPageView();
-        hasTrackedRef.current = fullPath;
+        trackedRef.current = { path: fullPath, timestamp: now };
     }, [
         location.pathname,
         location.search,
         location.hash,
         config.engagement.analytics.pageViewsBlocklist,
         config,
-        auth?.userType,
-        auth?.usid,
+        auth,
+        trackingResetDuration,
     ]);
 
     return null;

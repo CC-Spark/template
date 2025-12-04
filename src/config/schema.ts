@@ -169,6 +169,7 @@ export type Config = {
                     position?: 'bottom-left' | 'bottom-right' | 'bottom-center';
                 };
                 pageViewsBlocklist: string[];
+                pageViewsResetDuration: number;
             };
         };
         development: {

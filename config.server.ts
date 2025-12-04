@@ -274,6 +274,8 @@ export default defineConfig({
                     '/category',
                     '/product',
                 ],
+                // Time in milliseconds before a ViewPage tracked path can be tracked again
+                pageViewsResetDuration: 1500, // 1.5 seconds
             },
         },
         development: { enableDevtools: true, hotReload: true, strictMode: true },
