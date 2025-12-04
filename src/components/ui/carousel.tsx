@@ -27,6 +27,7 @@ type CarouselContextProps = {
     scrollNext: () => void;
     canScrollPrev: boolean;
     canScrollNext: boolean;
+    isScrollable: boolean;
 } & CarouselProps;
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
@@ -59,11 +60,16 @@ function Carousel({
     );
     const [canScrollPrev, setCanScrollPrev] = React.useState(false);
     const [canScrollNext, setCanScrollNext] = React.useState(false);
+    const [isScrollable, setIsScrollable] = React.useState(false);
 
     const onSelect = React.useCallback((api: CarouselApi) => {
         if (!api) return;
         setCanScrollPrev(api.canScrollPrev());
         setCanScrollNext(api.canScrollNext());
+        // Carousel is considered scrollable if user can scroll in either direction.
+        // This accounts for RTL layouts and edge cases where only one direction is available.
+        // When not scrollable (all content fits), navigation arrows will be hidden.
+        setIsScrollable(api.canScrollPrev() || api.canScrollNext());
     }, []);
 
     const scrollPrev = React.useCallback(() => {
@@ -114,6 +120,7 @@ function Carousel({
                 scrollNext,
                 canScrollPrev,
                 canScrollNext,
+                isScrollable,
             }}>
             <div
                 onKeyDownCapture={handleKeyDown}
@@ -129,12 +136,22 @@ function Carousel({
 }
 
 function CarouselContent({ className, ...props }: React.ComponentProps<'div'>) {
-    const { carouselRef, orientation } = useCarousel();
+    const { carouselRef, orientation, isScrollable } = useCarousel();
 
     return (
         <div ref={carouselRef} className="overflow-hidden" data-slot="carousel-content">
             <div
-                className={cn('flex', orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col', className)}
+                className={cn(
+                    'flex',
+                    orientation === 'horizontal'
+                        ? isScrollable
+                            ? '-ml-4'
+                            : 'justify-center'
+                        : isScrollable
+                          ? '-mt-4 flex-col'
+                          : 'flex-col items-center',
+                    className
+                )}
                 {...props}
             />
         </div>
@@ -165,7 +182,12 @@ function CarouselPrevious({
     size = 'icon',
     ...props
 }: React.ComponentProps<typeof Button>) {
-    const { orientation, scrollPrev, canScrollPrev } = useCarousel();
+    const { orientation, scrollPrev, canScrollPrev, isScrollable } = useCarousel();
+
+    // Don't render if the carousel has no scrollable content
+    if (!isScrollable) {
+        return null;
+    }
 
     return (
         <Button
@@ -194,7 +216,12 @@ function CarouselNext({
     size = 'icon',
     ...props
 }: React.ComponentProps<typeof Button>) {
-    const { orientation, scrollNext, canScrollNext } = useCarousel();
+    const { orientation, scrollNext, canScrollNext, isScrollable } = useCarousel();
+
+    // Don't render if the carousel has no scrollable content
+    if (!isScrollable) {
+        return null;
+    }
 
     return (
         <Button
@@ -217,4 +244,5 @@ function CarouselNext({
     );
 }
 
-export { type CarouselApi, Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext };
+// eslint-disable-next-line react-refresh/only-export-components
+export { type CarouselApi, Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, useCarousel };

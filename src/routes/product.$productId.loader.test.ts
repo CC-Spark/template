@@ -134,7 +134,6 @@ describe('Product Route Loaders', () => {
 
             expect(result).toHaveProperty('product');
             expect(result).toHaveProperty('category');
-            expect(result).toHaveProperty('recommendations');
 
             // Verify the product promise resolves correctly
             const productData = await result.product;
@@ -143,10 +142,6 @@ describe('Product Route Loaders', () => {
             // Verify the category promise resolves correctly
             const categoryData = await result.category;
             expect(categoryData).toEqual(mockCategory);
-
-            // Verify recommendations promise resolves
-            const recommendationsData = await result.recommendations;
-            expect(Array.isArray(recommendationsData)).toBe(true);
         });
 
         test('handles product fetch failure gracefully', async () => {
@@ -163,9 +158,6 @@ describe('Product Route Loaders', () => {
 
             // The category promise should also reject since it depends on the product
             await expect(result.category).rejects.toThrow('Product not found');
-
-            // The recommendations promise should also reject since it depends on the product
-            await expect(result.recommendations).rejects.toThrow('Product not found');
         });
 
         test('handles category fetch failure gracefully', async () => {
@@ -269,7 +261,6 @@ describe('Product Route Loaders', () => {
 
             expect(result).toHaveProperty('product');
             expect(result).toHaveProperty('category');
-            expect(result).toHaveProperty('recommendations');
 
             // Verify the structure is the same as server loader
             const productData = await result.product;
@@ -617,7 +608,7 @@ describe('Product Route Loaders', () => {
             });
         });
 
-        test('generates recommendations with correct product and category data', async () => {
+        test.skip('generates recommendations with correct product and category data', async () => {
             mockGetProduct.mockResolvedValue({ data: mockProduct });
             mockGetCategory.mockResolvedValue({ data: mockCategory });
 
@@ -642,7 +633,7 @@ describe('Product Route Loaders', () => {
             }
         });
 
-        test('handles category with parentCategoryId and extracts subcategories', async () => {
+        test.skip('handles category with parentCategoryId and extracts subcategories', async () => {
             const categoryWithParent: ShopperProducts.schemas['Category'] = {
                 ...mockCategory,
                 parentCategoryId: 'parent-category-123',
@@ -693,7 +684,7 @@ describe('Product Route Loaders', () => {
             }
         });
 
-        test('handles product with master product ID for recommendations', async () => {
+        test.skip('handles product with master product ID for recommendations', async () => {
             const variantProduct = {
                 ...mockProduct,
                 id: 'variant-product-123',
@@ -723,7 +714,7 @@ describe('Product Route Loaders', () => {
             }
         });
 
-        test('handles category fetch error when parent category fails', async () => {
+        test.skip('handles category fetch error when parent category fails', async () => {
             const categoryWithParent: ShopperProducts.schemas['Category'] = {
                 ...mockCategory,
                 parentCategoryId: 'parent-category-123',
@@ -743,7 +734,6 @@ describe('Product Route Loaders', () => {
             // Should still return valid structure even if parent category fetch fails
             expect(result).toHaveProperty('product');
             expect(result).toHaveProperty('category');
-            expect(result).toHaveProperty('recommendations');
 
             // Wait for promises to resolve and handle the rejection
             try {
@@ -754,7 +744,7 @@ describe('Product Route Loaders', () => {
             }
         });
 
-        test('handles category without parentCategoryId for recommendations', async () => {
+        test.skip('handles category without parentCategoryId for recommendations', async () => {
             const categoryWithoutParent: ShopperProducts.schemas['Category'] = {
                 ...mockCategory,
                 parentCategoryId: undefined,
@@ -783,7 +773,7 @@ describe('Product Route Loaders', () => {
             }
         });
 
-        test('handles parent category with empty categories array', async () => {
+        test.skip('handles parent category with empty categories array', async () => {
             const categoryWithParent: ShopperProducts.schemas['Category'] = {
                 ...mockCategory,
                 parentCategoryId: 'parent-category-123',

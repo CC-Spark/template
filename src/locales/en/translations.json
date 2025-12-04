@@ -8,7 +8,9 @@
         "loadingMore": "Loading more...",
         "product": "the product",
         "noImageAvailable": "No image available",
-        "productGeneric": "Product"
+        "productGeneric": "Product",
+        "noProductsFound": "No products found",
+        "productCarousel": "Product carousel"
     },
     "search": {
         "results": "Search Results for",

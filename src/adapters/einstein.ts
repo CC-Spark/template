@@ -1,6 +1,49 @@
 import type { AnalyticsEvent, AnalyticsUser } from '@salesforce/storefront-next-runtime/events';
 import type { EngagementAdapter, EngagementAdapterConfig } from '@/lib/adapters';
 import type { ShopperProducts, ShopperBasketsV2, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import type { Recommendation, RecommendersAdapter, Product } from '@/hooks/recommenders/use-recommenders';
+
+export const EINSTEIN_ADAPTER_NAME = 'einstein' as const;
+
+/**
+ * Einstein Recommender Name Constants
+ *
+ * These constants represent the recommender names configured in Business Manager
+ * and can be used when calling the recommendations API.
+ *
+ * @example
+ * ```tsx
+ * import { EINSTEIN_RECOMMENDERS } from '@/adapters/einstein';
+ *
+ * <ProductRecommendations
+ *   recommenderName={EINSTEIN_RECOMMENDERS.PDP_MIGHT_ALSO_LIKE}
+ *   title="You May Also Like"
+ * />
+ * ```
+ */
+export const EINSTEIN_RECOMMENDERS = {
+    /** Similar items modal shown when adding product to cart */
+    ADD_TO_CART_MODAL: 'pdp-similar-items',
+    /** Recently viewed products shown on cart page */
+    CART_RECENTLY_VIEWED: 'viewed-recently-einstein',
+    /** You may also like products shown on cart page */
+    CART_MAY_ALSO_LIKE: 'product-to-product-einstein',
+    /** Complete the set recommendations on PDP */
+    PDP_COMPLETE_SET: 'complete-the-set',
+    /** Similar items recommendations on PDP */
+    PDP_MIGHT_ALSO_LIKE: 'pdp-similar-items',
+    /** Recently viewed products shown on PDP */
+    PDP_RECENTLY_VIEWED: 'viewed-recently-einstein',
+    /** Top selling products for empty search results */
+    EMPTY_SEARCH_RESULTS_TOP_SELLERS: 'home-top-revenue-for-category',
+    /** Most viewed products for empty search results */
+    EMPTY_SEARCH_RESULTS_MOST_VIEWED: 'products-in-all-categories',
+} as const;
+
+/**
+ * Type representing all valid Einstein recommender names
+ */
+export type EinsteinRecommenderName = (typeof EINSTEIN_RECOMMENDERS)[keyof typeof EINSTEIN_RECOMMENDERS];
 
 const einteinEventToEndpointMap: Record<AnalyticsEvent['eventType'], string> = {
     view_page: 'viewPage',
@@ -27,19 +70,23 @@ export type EinsteinActivity = {
     [key: string]: any;
 };
 
-type EinsteinProduct = {
-    id: string;
-    sku?: string;
-    altId?: string;
-    altIdType?: string;
-};
-
 type EinsteinItem = {
     id: string;
     quantity: number;
     price: number;
     sku?: string;
     type?: string;
+};
+
+/**
+ * Product format for Einstein API requests
+ */
+export type EinsteinProduct = {
+    id: string;
+    sku?: string;
+    altId?: string;
+    type?: string;
+    price?: number;
 };
 
 export type EinsteinConfig = EngagementAdapterConfig & {
@@ -63,56 +110,50 @@ function mapEventTypeToEinsteinEndpoint(eventType: AnalyticsEvent['eventType']):
 }
 
 /**
- * Given a product or item source, returns the product data that Einstein requires
+ * Helper to extract base product mapping (id and sku) based on product type
+ *
+ * @param product - Product data to map
+ * @param price - Optional price to include in mapping (undefined = not included, 0 = included as 0)
  */
-function extractEinsteinProductInfoFromProduct(product: ShopperProducts.schemas['Product']): EinsteinProduct {
-    // Handle variants for PDP / viewProduct
-    if (product.type) {
-        if (product.type.variant) {
-            return {
-                id: product.master?.masterId ?? product.id,
-                sku: product.id,
-            };
-        }
+function getProductMapping(product: Partial<ShopperProducts.schemas['Product']>, price?: number): EinsteinProduct {
+    const productId = product.id || '';
+    const masterId = product.master?.masterId ?? productId;
 
-        // In case of variation group, send the "altId" and "type" attributes
-        if (product.type.variationGroup) {
-            return {
-                id: product.master?.masterId ?? product.id,
-                sku: product.id,
-                altId: product.id,
-                altIdType: 'vgroup',
-            };
-        }
+    let mapping: EinsteinProduct;
+
+    if (product.type?.variant) {
+        mapping = { id: masterId, sku: productId };
+    } else if (product.type?.variationGroup) {
+        mapping = { id: masterId, sku: productId, altId: productId, type: 'vgroup' };
+    } else {
+        // Handles all other product types or scenarios where type is not defined
+        mapping = { id: productId };
     }
-    // Handle non-variant products, like master, set, bundle, item.
-    // This code follows the implementation in the plugin_einstein_api.
-    // https://github.com/SalesforceCommerceCloud/plugin_einstein_api/blob/c8168d5b8e2e34bfb9413da73969d59b0f3adabd/plugin_einstein_api/cartridge/scripts/helpers/RecommendationsHelper.js#L315
-    return {
-        id: product.id,
-    };
+
+    // Only include price if explicitly provided (even if 0)
+    if (price !== undefined) {
+        mapping.price = price;
+    }
+
+    return mapping;
 }
 
 /**
- * Extract Einstein product info from a product search hit
+ * Helper to map ProductSearchHit to Einstein product format
+ * Used for consistent mapping of search results in analytics events
  */
-function extractEinsteinProductInfoFromProductSearchHit(
-    product: ShopperSearch.schemas['ProductSearchHit']
-): EinsteinProduct {
+function mapProductSearchHitToEinstein(p: ShopperSearch.schemas['ProductSearchHit']): EinsteinProduct {
     return {
-        id: product.productId,
-        sku: product.productId, //TODO: Should we switch this to product.representedProduct.id once we allow non-master products in search results?
+        id: p.productId,
+        sku: p.productId,
     };
 }
 
 /**
  * Given a cart item, returns the data that Einstein requires
  *
- * Assumes item is a ProductItemfrom SCAPI Shopper-Baskets:
+ * Assumes item is a ProductItem from SCAPI Shopper-Baskets:
  * https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=type%3AProductItem
- *
- * This code follows the implementation in the plugin_einstein_api.
- * https://github.com/SalesforceCommerceCloud/plugin_einstein_api/blob/c8168d5b8e2e34bfb9413da73969d59b0f3adabd/plugin_einstein_api/cartridge/scripts/helpers/RecommendationsHelper.js#L315
  */
 function extractEinsteinItemInfoFromCartItem(item: ShopperBasketsV2.schemas['ProductItem']): EinsteinItem {
     const { product, productId, price, quantity } = item;
@@ -120,32 +161,14 @@ function extractEinsteinItemInfoFromCartItem(item: ShopperBasketsV2.schemas['Pro
     // Type assertion: product can contain product data even though schema types it as {}
     const productData = product as Partial<ShopperProducts.schemas['Product']> | undefined;
 
-    // In case of variant, send the "sku" attribute
-    if (productData?.type?.variant) {
-        return {
-            id: productData.master?.masterId ?? productId ?? '',
-            quantity: quantity ?? 0,
-            price: price ?? 0,
-            sku: productData.id ?? productId ?? '',
-        };
-    }
+    // If product data exists and has meaningful data (id or type), use it; otherwise use productId from item
+    const hasProductData = productData && (productData.id || productData.type);
+    const mapping = getProductMapping(hasProductData ? productData : { id: productId ?? '' });
 
-    // In case of variation group, send the "altId" and "type" attributes
-    if (productData?.type?.variationGroup) {
-        return {
-            id: productData.master?.masterId ?? productId ?? '',
-            quantity: quantity ?? 0,
-            price: price ?? 0,
-            sku: productData.id ?? productId ?? '',
-            type: 'vgroup',
-        };
-    }
-
-    // Otherwise send default attributes.
     return {
-        id: productId ?? '',
-        price: price ?? 0,
+        ...mapping,
         quantity: quantity ?? 0,
+        price: price ?? 0,
     };
 }
 
@@ -173,7 +196,7 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
         case 'view_product':
             return {
                 ...baseActivity,
-                product: extractEinsteinProductInfoFromProduct(event.product),
+                product: getProductMapping(event.product, event.product.price),
             };
 
         case 'cart_item_add':
@@ -189,9 +212,7 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
                 ...baseActivity,
                 searchText: event.searchInputText,
                 showProducts: Boolean(event.searchResults.length),
-                products: event.searchResults.map((p: ShopperSearch.schemas['ProductSearchHit']) => {
-                    return extractEinsteinProductInfoFromProductSearchHit(p);
-                }),
+                products: event.searchResults.map(mapProductSearchHitToEinstein),
             };
 
         case 'view_category':
@@ -201,9 +222,7 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
                     id: event.category.id,
                 },
                 showProducts: Boolean(event.searchResults.length),
-                products: event.searchResults.map((p: ShopperSearch.schemas['ProductSearchHit']) => {
-                    return extractEinsteinProductInfoFromProductSearchHit(p);
-                }),
+                products: event.searchResults.map(mapProductSearchHitToEinstein),
             };
 
         case 'view_recommender':
@@ -211,6 +230,7 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
                 ...baseActivity,
                 recoId: event.recommenderId,
                 recoType: event.recommenderName,
+                // For view_recommender, we only need product IDs (not full product objects)
                 products: event.products.map((p: ShopperSearch.schemas['ProductSearchHit']) => p.productId),
             };
 
@@ -220,20 +240,20 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
                 category: {
                     id: event.category.id,
                 },
-                product: extractEinsteinProductInfoFromProductSearchHit(event.product),
+                product: mapProductSearchHitToEinstein(event.product),
             };
         case 'click_product_in_search':
             return {
                 ...baseActivity,
                 searchText: event.searchInputText,
-                product: extractEinsteinProductInfoFromProductSearchHit(event.product),
+                product: mapProductSearchHitToEinstein(event.product),
             };
         case 'click_product_in_recommender':
             return {
                 ...baseActivity,
                 recoId: event.recommenderId,
                 recoType: event.recommenderName,
-                product: extractEinsteinProductInfoFromProductSearchHit(event.product),
+                product: mapProductSearchHitToEinstein(event.product),
             };
 
         case 'checkout_start':
@@ -288,9 +308,158 @@ function validateEinsteinConfig(config: EinsteinConfig): { valid: boolean; error
 }
 
 /**
- * Create an Einstein adapter function that implements the EngagementAdapter interface
+ * Get site identifier in realm-siteId format for Einstein API endpoints
  */
-export function createEinsteinAdapter(config: EinsteinConfig): EngagementAdapter {
+function getSiteIdentifier(config: EinsteinConfig): string {
+    return config.realm ? `${config.realm}-${config.siteId}` : config.siteId;
+}
+
+/**
+ * Utility to transform a product to Einstein product format
+ *
+ * This is the unified function for all product mapping to Einstein format.
+ * Use this instead of inline mapping to ensure consistency.
+ */
+function transformProductToEinsteinProduct(product: Product): EinsteinProduct {
+    // Check if it's a ShopperSearch ProductSearchHit
+    if ('hitType' in product || 'productId' in product) {
+        // ProductSearchHit format - use productId for both id and sku
+        return {
+            id: product.productId,
+            sku: product.productId,
+        };
+    }
+
+    // Otherwise it's a ShopperProducts Product
+    const fullProduct = product as ShopperProducts.schemas['Product'];
+    return getProductMapping(fullProduct, fullProduct.price);
+}
+
+/**
+ * Make an Einstein API request
+ */
+async function einsteinFetch(
+    config: EinsteinConfig,
+    endpoint: string,
+    method: 'GET' | 'POST',
+    body?: Record<string, unknown>
+): Promise<Recommendation> {
+    const headers = {
+        'Content-Type': 'application/json',
+        'x-cq-client-id': config.einsteinId,
+    };
+
+    const url = `${config.host}/v3${endpoint}`;
+
+    try {
+        const response = await fetch(url, {
+            method,
+            headers,
+            ...(body && {
+                body: JSON.stringify(body),
+            }),
+        });
+
+        if (!response.ok) {
+            return {};
+        }
+
+        const responseJson = await response.json();
+
+        // Convert snake_case keys to camelCase
+        const camelCased = keysToCamel(responseJson);
+        return camelCased;
+    } catch {
+        return {};
+    }
+}
+
+/**
+ * Get a list of available recommenders
+ */
+async function getEinsteinRecommenders(config: EinsteinConfig): Promise<Recommendation> {
+    const siteIdentifier = getSiteIdentifier(config);
+    const endpoint = `/personalization/recommenders/${siteIdentifier}`;
+    return einsteinFetch(config, endpoint, 'GET');
+}
+
+/**
+ * Get recommendations by recommender name
+ *
+ */
+async function getEinsteinRecommendations(
+    config: EinsteinConfig,
+    recommenderName: string,
+    products?: Product[],
+    args?: Record<string, unknown>
+): Promise<Recommendation> {
+    const siteIdentifier = getSiteIdentifier(config);
+    const endpoint = `/personalization/recs/${siteIdentifier}/${recommenderName}`;
+    const body: Record<string, unknown> = {
+        ...args,
+    };
+
+    if (products && products.length > 0) {
+        body.products = products.map(transformProductToEinsteinProduct);
+    }
+
+    return einsteinFetch(config, endpoint, 'POST', body);
+}
+
+/**
+ * Get recommendations for a specific zone
+ *
+ */
+async function getEinsteinZoneRecommendations(
+    config: EinsteinConfig,
+    zoneName: string,
+    products?: Product[],
+    args?: Record<string, unknown>
+): Promise<Recommendation> {
+    const siteIdentifier = getSiteIdentifier(config);
+    const endpoint = `/personalization/${siteIdentifier}/zones/${zoneName}/recs`;
+    const body: Record<string, unknown> = {
+        ...args,
+    };
+
+    if (products && products.length > 0) {
+        body.products = products.map(transformProductToEinsteinProduct);
+    }
+
+    return einsteinFetch(config, endpoint, 'POST', body);
+}
+
+/**
+ * Helper function to convert snake_case keys to camelCase
+ */
+function keysToCamel(obj: unknown): Recommendation {
+    if (Array.isArray(obj)) {
+        return obj.map((item) => keysToCamel(item)) as Recommendation;
+    }
+
+    if (obj !== null && typeof obj === 'object') {
+        return Object.keys(obj).reduce(
+            (result, key) => {
+                const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+                result[camelKey] = keysToCamel((obj as Record<string, unknown>)[key]);
+                return result;
+            },
+            {} as Record<string, unknown>
+        ) as Recommendation;
+    }
+
+    return obj as Recommendation;
+}
+
+/**
+ * Extended Einstein adapter type that implements both EngagementAdapter and RecommendersAdapter
+ */
+export type EinsteinUnifiedAdapter = EngagementAdapter & RecommendersAdapter;
+
+/**
+ * Create an Einstein adapter that implements both EngagementAdapter and RecommendersAdapter interfaces
+ */
+export function createEinsteinAdapter(config: EinsteinConfig): EinsteinUnifiedAdapter {
     const validConfig = validateEinsteinConfig(config);
     if (!validConfig.valid) {
         const errorMessage = `Einstein adapter configuration is invalid: ${validConfig.errors.join('; ')}`;
@@ -298,10 +467,14 @@ export function createEinsteinAdapter(config: EinsteinConfig): EngagementAdapter
     }
 
     return {
-        name: 'einstein',
+        name: EINSTEIN_ADAPTER_NAME,
+
+        // EngagementAdapter methods
         sendEvent: async (event: AnalyticsEvent): Promise<unknown> => {
             // Don't send events that are not enabled for this adapter
-            if (!config.eventToggles[event.eventType]) return Promise.resolve({});
+            if (!config.eventToggles[event.eventType]) {
+                return Promise.resolve({});
+            }
 
             const endpoint = mapEventTypeToEinsteinEndpoint(event.eventType);
             if (!endpoint) throw new Error('Unsupported event type in Einstein adapter', { cause: event.eventType });
@@ -311,7 +484,16 @@ export function createEinsteinAdapter(config: EinsteinConfig): EngagementAdapter
             const targetEndpointUrl = `${config.host}/v3/activities/${config.realm}-${config.siteId}/${endpoint}?clientId=${config.einsteinId}`;
             const payload = new Blob([JSON.stringify(activity)], { type: 'application/json' });
 
-            navigator.sendBeacon(targetEndpointUrl, payload);
+            const success = navigator.sendBeacon(targetEndpointUrl, payload);
+
+            return Promise.resolve({ success });
         },
+
+        // RecommendersAdapter methods
+        getRecommenders: () => getEinsteinRecommenders(config),
+        getRecommendations: (recommenderName, products, args) =>
+            getEinsteinRecommendations(config, recommenderName, products, args),
+        getZoneRecommendations: (zoneName, products, args) =>
+            getEinsteinZoneRecommendations(config, zoneName, products, args),
     };
 }

@@ -34,6 +34,8 @@ import { appConfigMiddlewareClient } from '@/middlewares/app-config.client';
 import { getLocale, i18nextMiddleware, getInstance } from '@/middlewares/i18next';
 import BasketProvider from '@/providers/basket';
 import { ComposeProviders } from '@/providers/compose-providers';
+import RecommendersProvider from '@/providers/recommenders';
+import { EINSTEIN_ADAPTER_NAME } from '@/adapters/einstein';
 import type { SessionData } from '@/lib/api/types';
 import { fetchCategory } from '@/lib/api/categories';
 import Header from '@/components/header';
@@ -277,6 +279,7 @@ export default function App({ loaderData: { root, subs, auth, basket, getI18next
                 [ConfigProvider, { config: appConfig }],
                 [AuthProvider, { value: sessionData }],
                 [BasketProvider, { value: basket }],
+                [RecommendersProvider, { adapterName: EINSTEIN_ADAPTER_NAME }],
                 /* @sfdc-extension-line SFDC_EXT_STORE_LOCATOR */
                 [StoreLocatorProvider, undefined],
             ] as const,

@@ -1,10 +1,6 @@
 import { use, useEffect, useRef } from 'react';
 import { type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
-import {
-    type ShopperProducts,
-    type ShopperSearch,
-    type ShopperExperience,
-} from '@salesforce/storefront-next-runtime/scapi';
+import { type ShopperProducts, type ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
 import ProductSkeleton from '@/components/product-skeleton';
 import { createPage, type RouteComponentProps } from '@/components/create-page';
@@ -12,16 +8,14 @@ import ProductView from '@/components/product-view';
 import { Typography } from '@/components/typography';
 import ChildProducts from '@/components/product-view/child-products';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
-import { generateRecommendationPromises } from '@/lib/recommendations';
-import { ProductRecommendationsSkeleton } from '@/components/product/skeletons';
-import withSuspense from '@/components/with-suspense';
-import { ProductCarouselWithSuspense } from '@/components/product-carousel';
+import ProductRecommendations from '@/components/product-recommendations';
+import { EINSTEIN_RECOMMENDERS } from '@/adapters/einstein';
+import { useTranslation } from 'react-i18next';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { Region } from '@/components/region';
 import { PageType } from '@/lib/decorators/page-type';
 import { getRegionDefinition, RegionDefinition } from '@/lib/decorators/region-definition';
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
-import { getTranslation } from '@/lib/i18next';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import {
     getCookieFromRequestAs,
@@ -56,12 +50,6 @@ export class ProductPageMetadata {}
 type ProductPageData = {
     product: Promise<ShopperProducts.schemas['Product']>;
     category: Promise<ShopperProducts.schemas['Category'] | undefined>;
-    recommendations: Promise<
-        Array<{
-            config: { id: string; title: string };
-            promise: Promise<ShopperSearch.schemas['ProductSearchResult']>;
-        }>
-    >;
     page: Promise<ShopperExperience.schemas['Page']>;
     componentData: Promise<Record<string, Promise<unknown>>>;
     pageKey: string;
@@ -71,14 +59,12 @@ type ProductPageData = {
  * Internal helper function that fetches product data and category information.
  * This function handles the actual data fetching logic shared between server and client loaders.
  * @param selectedStoreInfo - Optional store information for inventory-specific data
- * @param i18nextInstance - i18next instance for translations (server-only, null on client)
  * @returns Promise that resolves to an object containing product and category data promises
  */
 function getPageData(
     // @sfdc-extension-line SFDC_EXT_BOPIS
     selectedStoreInfo: SelectedStoreInfo | null,
-    { request, params, context }: LoaderFunctionArgs,
-    i18nextInstance: i18n | null = null
+    { request, params, context }: LoaderFunctionArgs
 ): ProductPageData {
     const { productId = '' } = params;
     const { searchParams } = new URL(request.url);
@@ -165,48 +151,6 @@ function getPageData(
         return undefined;
     });
 
-    // Generate recommendations promise that depends on product and category data
-    const recommendationsPromise = Promise.all([productPromise, categoryPromise]).then(async ([product, category]) => {
-        // Always use the master product ID for recommendations to ensure consistency
-        const baseProduct = {
-            ...product,
-            // Force the ID to be the master product ID for recommendations
-            id: product.master?.masterId || product.id,
-        };
-
-        // Extract subcategories from the parent category for recommendations
-        let subcategories: Array<{ id: string; name: string; parentCategoryId: string }> = [];
-        if (category?.parentCategoryId) {
-            const parentCategoryResponse = await clients.shopperProducts.getCategory({
-                params: {
-                    path: {
-                        id: category.parentCategoryId,
-                    },
-                    query: {
-                        levels: 1, // Get subcategories
-                    },
-                },
-            });
-            const parentCategory = parentCategoryResponse.data;
-            subcategories =
-                parentCategory.categories?.map((sub) => ({
-                    id: sub.id,
-                    name: sub.name || '',
-                    parentCategoryId: sub.parentCategoryId || category.parentCategoryId || '',
-                })) || [];
-        }
-
-        return generateRecommendationPromises(
-            context,
-            {
-                product: baseProduct,
-                category,
-                subcategories,
-            },
-            i18nextInstance
-        );
-    });
-
     // Fetch page data from Page Designer API
     // Catch 404 errors (page doesn't exist) and return empty page structure
     const pagePromise = fetchPageFromLoader(
@@ -242,7 +186,6 @@ function getPageData(
     return {
         product: productPromise,
         category: categoryPromise,
-        recommendations: recommendationsPromise,
         page: pagePromise,
         componentData: componentDataPromises,
         pageKey: productId,
@@ -259,13 +202,10 @@ export function loader({ request, params, context }: LoaderFunctionArgs) {
     const selectedStoreInfo = getCookieFromRequestAs<SelectedStoreInfo>(request, cookieName);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
-    const { i18next } = getTranslation(context);
-
     return getPageData(
         // @sfdc-extension-line SFDC_EXT_BOPIS
         selectedStoreInfo,
-        { request, params, context },
-        i18next
+        { request, params, context }
     );
 }
 
@@ -281,13 +221,10 @@ export function clientLoader({ request, params, context }: ClientLoaderFunctionA
     const selectedStoreInfo = getCookieFromDocumentAs<SelectedStoreInfo>(cookieName);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
-    // On client side, we don't have access to i18next instance (server-only)
-    // Fall back to titleKey as the title
     return getPageData(
         // @sfdc-extension-line SFDC_EXT_BOPIS
         selectedStoreInfo,
-        { request, params, context },
-        null
+        { request, params, context }
     );
 }
 
@@ -345,44 +282,39 @@ function processPageData() {
 }
 
 /**
- * Component that handles async loading of recommendations with Suspense
+ * Product Recommendations Section
+ * Displays 3 Einstein recommenders: You might also like, Complete the look, and Recently viewed
  */
 // eslint-disable-next-line react-refresh/only-export-components
-const RecommendationsContent = ({
-    data,
-}: {
-    data: Array<{
-        config: { id: string; title: string };
-        promise: Promise<ShopperSearch.schemas['ProductSearchResult']>;
-    }>;
-}) => {
-    if (!data || data.length === 0) {
-        return null;
-    }
+function ProductRecommendationsSection({ product }: { product: ShopperProducts.schemas['Product'] }) {
+    const { t } = useTranslation('product');
 
-    // Render all carousels - individual carousels will return null if they have no products
-    // React will automatically filter out null values from the rendered output
     return (
-        <>
-            {data.map(({ config, promise }, idx) => (
-                <ProductCarouselWithSuspense
-                    className={idx > 0 ? 'mt-16' : ''}
-                    key={config.id}
-                    resolve={promise}
-                    title={config.title}
-                />
-            ))}
-        </>
+        <div className="mt-16 space-y-16">
+            <ProductRecommendations
+                recommender={{
+                    name: EINSTEIN_RECOMMENDERS.PDP_COMPLETE_SET,
+                    title: t('recommendations.completeTheLook'),
+                }}
+                products={[product]}
+            />
+            <ProductRecommendations
+                recommender={{
+                    name: EINSTEIN_RECOMMENDERS.PDP_MIGHT_ALSO_LIKE,
+                    title: t('recommendations.youMightAlsoLike'),
+                }}
+                products={[product]}
+            />
+            <ProductRecommendations
+                recommender={{
+                    name: EINSTEIN_RECOMMENDERS.PDP_RECENTLY_VIEWED,
+                    title: t('recommendations.recentlyViewed'),
+                }}
+                products={[product]}
+            />
+        </div>
     );
-};
-
-const Recommendations = withSuspense(RecommendationsContent, {
-    fallback: <ProductRecommendationsSkeleton />,
-}) as React.ComponentType<{
-    resolve: Promise<
-        Array<{ config: { id: string; title: string }; promise: Promise<ShopperSearch.schemas['ProductSearchResult']> }>
-    >;
-}>;
+}
 
 /**
  * Product view component that displays the product content.
@@ -392,7 +324,7 @@ const Recommendations = withSuspense(RecommendationsContent, {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 function ProductDetailView({ loaderData }: RouteComponentProps<ProductPageData>) {
-    const { product, category, recommendations: recommendationsPromise } = loaderData;
+    const { product, category } = loaderData;
     const productData = use(product);
     const categoryData = use(category);
     const analytics = useAnalytics();
@@ -474,17 +406,15 @@ function ProductDetailView({ loaderData }: RouteComponentProps<ProductPageData>)
                 {mainProductContent}
 
                 {/* Engagement Content Region - Shows page content or recommendations */}
-                {
-                    <div className="mt-16">
-                        <Region
-                            page={page}
-                            regionId="engagementContent"
-                            metadata={engagementContentDesignMetadata}
-                            componentData={loaderData.componentData}
-                            fallback={<Recommendations resolve={recommendationsPromise} />}
-                        />
-                    </div>
-                }
+                <div className="mt-16">
+                    <Region
+                        page={page}
+                        regionId="engagementContent"
+                        metadata={engagementContentDesignMetadata}
+                        componentData={loaderData.componentData}
+                        fallback={<ProductRecommendationsSection product={productData} />}
+                    />
+                </div>
             </>
         );
     };

@@ -1,10 +1,22 @@
+'use client';
+
 import { type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ProductTile } from '@/components/product-tile';
 import withSuspense from '@/components/with-suspense';
 import ProductCarouselSkeleton from './skeleton';
 import { cn } from '@/lib/utils';
+
+export interface ProductCarouselProps {
+    /** Array of product search hits to display in the carousel */
+    products: ShopperSearch.schemas['ProductSearchHit'][];
+    /** Optional title to display above the carousel */
+    title?: string;
+    /** Optional className to apply to the carousel wrapper */
+    className?: string;
+}
 
 /**
  * ProductCarousel component displays a horizontal carousel of product tiles.
@@ -18,7 +30,7 @@ import { cn } from '@/lib/utils';
  * @param props.title - Optional title to display above the carousel
  * @param props.className - Optional className to apply to the carousel wrapper
  *
- * @returns JSX element representing the product carousel, or a "No products found" message
+ * @returns JSX element representing the product carousel, or a translated "No products found" message
  *
  * @example
  * ```tsx
@@ -37,18 +49,16 @@ import { cn } from '@/lib/utils';
  *
  * @since 1.0.0
  */
-export default function ProductCarousel({
-    products,
-    title,
-    className,
-}: {
-    products: ShopperSearch.schemas['ProductSearchHit'][];
-    title?: string;
-    className?: string;
-}): ReactNode {
+export default function ProductCarousel({ products, title, className }: ProductCarouselProps): ReactNode {
+    const { t } = useTranslation('common');
+
     // Safety check for undefined or null products
     if (!products || products.length === 0) {
-        return <div>No products found</div>;
+        return (
+            <div className={cn(className)} role="status" aria-live="polite">
+                {t('noProductsFound')}
+            </div>
+        );
     }
 
     return (
@@ -59,25 +69,31 @@ export default function ProductCarousel({
                 </div>
             )}
 
-            <Carousel
-                className="w-full"
-                opts={{
-                    align: 'start',
-                }}>
-                <CarouselContent className="items-stretch flex-nowrap">
-                    {products.map((product) => (
-                        <CarouselItem
-                            key={product.productId}
-                            className="basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0">
-                            <div className="w-full max-w-full min-w-0">
-                                <ProductTile product={product} className="h-auto" />
-                            </div>
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-            </Carousel>
+            {/* Add horizontal padding to prevent arrows from overlapping products */}
+            {/* px-14 (3.5rem) provides space for navigation arrows positioned at -left-14/-right-14 */}
+            <div className="px-14">
+                <Carousel
+                    className="w-full"
+                    opts={{
+                        align: 'start',
+                    }}
+                    aria-label={title ? `${title} carousel` : t('productCarousel')}>
+                    <CarouselContent className="items-stretch flex-nowrap">
+                        {products.map((product) => (
+                            <CarouselItem
+                                key={product.productId}
+                                className="basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0">
+                                <div className="w-full max-w-full min-w-0">
+                                    <ProductTile product={product} className="h-auto" />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    {/* Position arrows outside the product area */}
+                    <CarouselPrevious className="-left-14" />
+                    <CarouselNext className="-right-14" />
+                </Carousel>
+            </div>
         </div>
     );
 }
