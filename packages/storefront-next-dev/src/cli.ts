@@ -6,7 +6,11 @@ import { generateInstructions } from './extensibility/create-instructions';
 import { error, info, success } from './utils/logger';
 import { generateMetadata } from './cartridge-services/generate-cartridge';
 import { deployCode } from './cartridge-services/deploy-cartridge';
-import { CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR } from './config';
+import {
+    CARTRIDGES_BASE_DIR,
+    SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR,
+    GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH,
+} from './config';
 import { DEFAULT_CLOUD_ORIGIN } from './utils';
 import pkg from '../package.json' with { type: 'json' };
 import { fileURLToPath } from 'url';
@@ -14,6 +18,10 @@ import path, { dirname } from 'path';
 import fs from 'fs-extra';
 import { createStorefront } from './create-storefront';
 import { manageExtensions } from './extensibility/manage-extensions';
+
+// Get the directory of this CLI file for resolving dw.json path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Shared path resolution and validation
 interface PathOptions {
@@ -45,9 +53,70 @@ function validateAndBuildPaths(options: PathOptions): {
     return { projectDirectory: options.projectDirectory, cartridgeBaseDir, metadataDir };
 }
 
+/**
+ * Shared function to generate cartridge metadata
+ * Used by both the generate-cartridge command and the push command (when enabled)
+ */
+async function runGenerateCartridge(projectDirectory: string): Promise<void> {
+    const { projectDirectory: validatedProjectDir, metadataDir } = validateAndBuildPaths({ projectDirectory });
+
+    // Ensure the full metadata directory path exists
+    if (!fs.existsSync(metadataDir)) {
+        info(`Creating metadata directory: ${metadataDir}`);
+        fs.mkdirSync(metadataDir, { recursive: true });
+    }
+
+    await generateMetadata(validatedProjectDir, metadataDir);
+}
+
+/**
+ * Shared function to deploy cartridge to Commerce Cloud
+ * Used by both the deploy-cartridge command and the push command (when enabled)
+ */
+async function runDeployCartridge(projectDirectory: string): Promise<void> {
+    // Read credentials from dw.json in the storefront-next-dev package directory
+    // __dirname points to dist/, so go up one level to package root
+    const dwJsonPath = path.join(__dirname, '..', 'dw.json');
+
+    if (!fs.existsSync(dwJsonPath)) {
+        throw new Error(
+            `dw.json file not found in storefront-next-dev directory. Please ensure dw.json exists at ${dwJsonPath}`
+        );
+    }
+
+    const dwConfig = JSON.parse(fs.readFileSync(dwJsonPath, 'utf8'));
+
+    const { cartridgeBaseDir, metadataDir } = validateAndBuildPaths({ projectDirectory });
+
+    // Verify metadata directory exists within cartridge base
+    if (!fs.existsSync(metadataDir)) {
+        throw new Error(`Metadata directory does not exist: ${metadataDir}. Run 'generate-cartridge' first.`);
+    }
+
+    if (!dwConfig.username || !dwConfig.password) {
+        throw new Error('Username and password are required in dw.json file.');
+    }
+
+    const instance = dwConfig.hostname;
+    if (!instance) {
+        throw new Error('Instance is required. Add "hostname" to dw.json file.');
+    }
+
+    const codeVersion = dwConfig['code-version'];
+    if (!codeVersion) {
+        throw new Error('Code version is required. Add "code-version" to dw.json file.');
+    }
+
+    const credentials = `${dwConfig.username}:${dwConfig.password}`;
+    const encoded = Buffer.from(credentials).toString('base64');
+
+    // Deploy the cartridge base directory (includes full cartridge path structure)
+    const result = await deployCode(instance, codeVersion, cartridgeBaseDir, encoded);
+
+    success(`Code deployed to version "${result.version}" successfully!`);
+}
+
 const program = new Command();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 // allow the default template git url to be overridden by an environment variable
 const DEFAULT_TEMPLATE_GIT_URL =
     process.env.DEFAULT_TEMPLATE_GIT_URL || 'https://github.com/SalesforceCommerceCloud/storefront-next-template.git';
@@ -95,6 +164,22 @@ program
     .option('-k, --key <api-key>', 'API key for Managed Runtime')
     .action(async (options) => {
         try {
+            // Optionally generate and deploy cartridge metadata before MRT push
+            if (GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH) {
+                try {
+                    info('Generating cartridge metadata before MRT push...');
+                    await runGenerateCartridge(options.projectDirectory);
+                    success('Cartridge metadata generated successfully!');
+
+                    info('Deploying cartridge to Commerce Cloud...');
+                    await runDeployCartridge(options.projectDirectory);
+                    success('Cartridge deployed successfully!');
+                } catch (cartridgeError) {
+                    // Don't fail the push if cartridge generation/deployment fails
+                    error(`Warning: Failed to generate/deploy cartridge: ${(cartridgeError as Error).message}`);
+                }
+            }
+
             await push({
                 projectDirectory: options.projectDirectory,
                 buildDirectory: options.buildDirectory,
@@ -107,6 +192,7 @@ program
                 user: options.user,
                 key: options.key,
             });
+
             process.exit(0);
         } catch (err) {
             handleCommandError('Push', err);
@@ -236,15 +322,7 @@ program
     .requiredOption('-d, --project-directory <dir>', 'Project directory containing the source code')
     .action(async (options) => {
         try {
-            const { projectDirectory, metadataDir } = validateAndBuildPaths(options);
-
-            // Ensure the full metadata directory path exists
-            if (!fs.existsSync(metadataDir)) {
-                info(`Creating metadata directory: ${metadataDir}`);
-                fs.mkdirSync(metadataDir, { recursive: true });
-            }
-
-            await generateMetadata(projectDirectory, metadataDir);
+            await runGenerateCartridge(options.projectDirectory);
             process.exit(0);
         } catch (err) {
             error(`Generate metadata failed: ${(err as Error).message}`);
@@ -258,52 +336,7 @@ program
     .requiredOption('-d, --project-directory <dir>', 'Project directory containing the source code')
     .action(async (options) => {
         try {
-            // Read credentials from dw.json
-            const dwJsonPath = path.join(process.cwd(), 'dw.json');
-
-            if (!fs.existsSync(dwJsonPath)) {
-                error('dw.json file not found. Please ensure dw.json exists in the current directory.');
-                process.exit(1);
-            }
-
-            const dwConfig = JSON.parse(fs.readFileSync(dwJsonPath, 'utf8'));
-
-            const { cartridgeBaseDir, metadataDir } = validateAndBuildPaths(options);
-
-            // Verify metadata directory exists within cartridge base
-            if (!fs.existsSync(metadataDir)) {
-                info(`Warning: Metadata directory does not exist: ${metadataDir}`);
-                info(`Run 'generate-cartridge' first to create metadata files.`);
-                process.exit(1);
-            }
-
-            if (!dwConfig.username || !dwConfig.password) {
-                error('Username and password are required in dw.json file.');
-                process.exit(1);
-            }
-
-            const instance = dwConfig.hostname;
-
-            if (!instance) {
-                error('Instance is required. Add "hostname" to dw.json file.');
-                process.exit(1);
-            }
-
-            const codeVersion = dwConfig['code-version'];
-
-            if (!codeVersion) {
-                error('Code version is required. Add "code-version" to dw.json file.');
-                process.exit(1);
-            }
-
-            const credentials = `${dwConfig.username}:${dwConfig.password}`;
-            const encoded = Buffer.from(credentials).toString('base64');
-
-            // Deploy the cartridge base directory (includes full cartridge path structure)
-            const result = await deployCode(instance, codeVersion, cartridgeBaseDir, encoded);
-
-            success(`Code deployed to version "${result.version}" successfully!`);
-
+            await runDeployCartridge(options.projectDirectory);
             process.exit(0);
         } catch (err) {
             error(`Deploy failed: ${(err as Error).message}`);

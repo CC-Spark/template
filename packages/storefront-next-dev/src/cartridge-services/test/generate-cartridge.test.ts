@@ -2753,4 +2753,67 @@ describe('generateMetadata integration tests', () => {
         // Should handle directory creation errors gracefully and still write the file
         expect(writeFile).toHaveBeenCalled();
     });
+
+    test('should convert defaultValue to default_value in generated JSON', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        const componentCode = `
+            @Component({ id: 'testComponent', name: 'Test Component' })
+            class TestComponent {
+                @AttributeDefinition({ 
+                    type: 'string',
+                    defaultValue: 'default value' 
+                })
+                title: string;
+                
+                @AttributeDefinition({ 
+                    type: 'integer',
+                    defaultValue: 42 
+                })
+                count: number;
+                
+                @AttributeDefinition({ 
+                    type: 'boolean',
+                    defaultValue: true 
+                })
+                enabled: boolean;
+            }
+        `;
+
+        vi.mocked(readdir)
+            .mockResolvedValueOnce([{ name: 'components', isDirectory: () => true, isFile: () => false } as any])
+            .mockResolvedValueOnce([
+                { name: 'TestComponent.tsx', isDirectory: () => false, isFile: () => true } as any,
+            ]);
+
+        vi.mocked(readFile).mockResolvedValue(componentCode);
+        vi.mocked(rm).mockResolvedValue(undefined);
+        vi.mocked(mkdir).mockResolvedValue(undefined);
+        vi.mocked(access).mockResolvedValue(undefined);
+        vi.mocked(writeFile).mockResolvedValue(undefined);
+
+        await generateMetadata(projectDir, metadataDir);
+
+        expect(writeFile).toHaveBeenCalled();
+        const writeCall = vi.mocked(writeFile).mock.calls[0];
+        const writtenData = JSON.parse(writeCall[1] as string);
+        const attributes = writtenData.attribute_definition_groups[0].attribute_definitions;
+
+        // Verify all attributes have default_value (snake_case), not defaultValue (camelCase)
+        const titleAttr = attributes.find((attr: any) => attr.id === 'title');
+        expect(titleAttr).toBeDefined();
+        expect(titleAttr.default_value).toBe('default value');
+        expect(titleAttr.defaultValue).toBeUndefined();
+
+        const countAttr = attributes.find((attr: any) => attr.id === 'count');
+        expect(countAttr).toBeDefined();
+        expect(countAttr.default_value).toBe(42);
+        expect(countAttr.defaultValue).toBeUndefined();
+
+        const enabledAttr = attributes.find((attr: any) => attr.id === 'enabled');
+        expect(enabledAttr).toBeDefined();
+        expect(enabledAttr.default_value).toBe(true);
+        expect(enabledAttr.defaultValue).toBeUndefined();
+    });
 });

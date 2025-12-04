@@ -2,7 +2,7 @@ import { createRef } from 'react';
 import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { ContentCard } from './index';
+import ContentCard from './index';
 
 describe('ContentCard', () => {
     const defaultProps = {

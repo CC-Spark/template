@@ -6,6 +6,20 @@ export const SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR = `${SFNEXT_BASE_CARTRIDGE_NAME}/c
 export const SFNEXT_BASE_CARTRIDGE_VERSION = '0.0.1';
 
 /**
+ * When enabled, automatically generates and deploys cartridge metadata before an MRT push.
+ * This is useful for keeping Page Designer metadata in sync with component changes.
+ *
+ * When enabled:
+ * 1. Generates cartridge metadata from decorated components
+ * 2. Deploys the cartridge to Commerce Cloud (requires dw.json configuration)
+ * 3. Proceeds with the MRT push
+ *
+ * To enable: Set this to `true` in your local config.ts
+ * Default: false (manual cartridge generation/deployment via `sfnext generate-cartridge` and `sfnext deploy-cartridge`)
+ */
+export const GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH = false;
+
+/**
  * Build MRT SSR configuration for bundle deployment
  *
  * Defines which files should be:

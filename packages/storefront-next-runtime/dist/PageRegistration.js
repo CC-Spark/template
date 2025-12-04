@@ -17,10 +17,10 @@ import { Fragment, jsx } from "react/jsx-runtime";
 * @param props.page - The page data to communicate back to the host Page Designer.
 */
 function PageRegistration({ page, children }) {
-	const { clientApi, setClientPage } = useDesignContext();
+	const { clientApi, setClientPage, clientPage } = useDesignContext();
 	const { isDesignMode } = usePageDesignerMode();
 	useEffect(() => {
-		if (isDesignMode) {
+		if (isDesignMode && !clientPage) {
 			setClientPage(page);
 			clientApi?.notifyClientPageChanged({ page });
 		}
@@ -28,7 +28,8 @@ function PageRegistration({ page, children }) {
 		clientApi,
 		page,
 		isDesignMode,
-		setClientPage
+		setClientPage,
+		clientPage
 	]);
 	return /* @__PURE__ */ jsx(Fragment, { children });
 }

@@ -227,10 +227,11 @@ function parseDecoratorArgs(decorator: Decorator): Record<string, unknown> {
             return result;
         }
 
-        // Handle the first argument (usually an object literal)
+        // Handle the first argument
         const firstArg = args[0];
 
         if (Node.isObjectLiteralExpression(firstArg)) {
+            // First argument is an object literal - parse all its properties
             const properties = firstArg.getProperties();
 
             for (const property of properties) {
@@ -244,13 +245,32 @@ function parseDecoratorArgs(decorator: Decorator): Record<string, unknown> {
                 }
             }
         } else if (Node.isStringLiteral(firstArg)) {
-            // Handle string literal argument
+            // First argument is a string literal - use it as the id
             result.id = parseExpression(firstArg);
+
+            // Check if there's a second argument (options object)
+            if (args.length > 1) {
+                const secondArg = args[1];
+                if (Node.isObjectLiteralExpression(secondArg)) {
+                    const properties = secondArg.getProperties();
+
+                    for (const property of properties) {
+                        if (Node.isPropertyAssignment(property)) {
+                            const name = property.getName();
+                            const initializer = property.getInitializer();
+
+                            if (initializer) {
+                                result[name] = parseExpression(initializer);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return result;
-    } catch {
-        console.warn(`Warning: Could not parse decorator arguments`);
+    } catch (error) {
+        console.warn(`Warning: Could not parse decorator arguments: ${(error as Error).message}`);
         return result;
     }
 }
@@ -295,7 +315,7 @@ function extractAttributesFromSource(sourceFile: SourceFile, className: string):
             }
 
             if (config.defaultValue !== undefined) {
-                attribute.defaultValue = config.defaultValue;
+                attribute.default_value = config.defaultValue;
             }
 
             attributes.push(attribute);

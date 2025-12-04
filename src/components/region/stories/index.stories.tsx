@@ -27,9 +27,13 @@ const meta: Meta<typeof Region> = {
     },
     tags: ['autodocs', 'interaction'],
     argTypes: {
-        region: {
-            description: 'Region object from Page Designer API',
+        page: {
+            description: 'Promise of Page object from Page Designer API',
             control: 'object',
+        },
+        regionId: {
+            description: 'ID of the region to render',
+            control: 'text',
         },
         componentData: {
             description: 'Promise of component data',
@@ -63,7 +67,12 @@ const mockRegion = {
 
 export const Default: Story = {
     args: {
-        region: mockRegion,
+        page: Promise.resolve({
+            id: 'test-page',
+            typeId: 'storePage',
+            regions: [mockRegion],
+        }),
+        regionId: 'region-1',
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -74,16 +83,23 @@ export const Default: Story = {
 
 export const SingleComponent: Story = {
     args: {
-        region: {
-            id: 'region-2',
-            components: [
+        page: Promise.resolve({
+            id: 'test-page',
+            typeId: 'storePage',
+            regions: [
                 {
-                    id: 'component-1',
-                    typeId: 'test-component',
-                    name: 'Single Component',
+                    id: 'region-2',
+                    components: [
+                        {
+                            id: 'component-1',
+                            typeId: 'test-component',
+                            name: 'Single Component',
+                        },
+                    ],
                 },
             ],
-        },
+        }),
+        regionId: 'region-2',
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -94,10 +110,17 @@ export const SingleComponent: Story = {
 
 export const Empty: Story = {
     args: {
-        region: {
-            id: 'region-3',
-            components: [],
-        },
+        page: Promise.resolve({
+            id: 'test-page',
+            typeId: 'storePage',
+            regions: [
+                {
+                    id: 'region-3',
+                    components: [],
+                },
+            ],
+        }),
+        regionId: 'region-3',
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);

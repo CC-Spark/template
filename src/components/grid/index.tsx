@@ -2,7 +2,9 @@ import { type ComponentPropsWithoutRef, type CSSProperties, type ReactNode, forw
 import { cn } from '@/lib/utils';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
-import { RegionDefinition } from '@/lib/decorators';
+import { RegionDefinition, getRegionDefinition } from '@/lib/decorators';
+import { Region } from '@/components/region';
+import type { ShopperExperienceTypes } from 'commerce-sdk-isomorphic';
 
 // Based on Radix UI Themes Grid component API
 // Reference: https://www.radix-ui.com/themes/docs/components/grid
@@ -12,7 +14,12 @@ import { RegionDefinition } from '@/lib/decorators';
     name: 'Grid',
     description: 'A flexible grid layout component for organizing content in columns',
 })
-@RegionDefinition([])
+@RegionDefinition([
+    {
+        id: 'main',
+        name: 'Main',
+    },
+])
 export class GridMetadata {
     @AttributeDefinition({
         description: 'Number of columns in the grid (1-6)',
@@ -37,6 +44,13 @@ interface GridProps extends Omit<ComponentPropsWithoutRef<'div'>, 'children'> {
     px?: string;
     py?: string;
     children?: ReactNode;
+
+    // Page Designer props (need to be extracted to avoid passing to DOM)
+    page?: Promise<ShopperExperienceTypes.Page>;
+    componentData?: Promise<Record<string, Promise<unknown>>>;
+    designMetadata?: unknown;
+    regionId?: string;
+    data?: unknown;
 }
 
 // Mapping functions
@@ -70,6 +84,11 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
             py,
             style,
             children,
+            page,
+            componentData,
+            designMetadata: _designMetadata,
+            regionId: _regionId,
+            data: _data,
             ...props
         },
         ref
@@ -107,7 +126,17 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 
         return (
             <ComponentElement ref={ref} className={classes} style={gridStyles} data-slot="grid" {...props}>
-                {children}
+                {page ? (
+                    <Region
+                        page={page}
+                        regionId="main"
+                        metadata={getRegionDefinition(GridMetadata, 'main')}
+                        componentData={componentData}
+                        fallback={children}
+                    />
+                ) : (
+                    children
+                )}
             </ComponentElement>
         );
     }
@@ -117,3 +146,4 @@ Grid.displayName = 'Grid';
 
 export { Grid };
 export type { GridProps };
+export default Grid;

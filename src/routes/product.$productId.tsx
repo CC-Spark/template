@@ -1,5 +1,5 @@
-import { use, useEffect, useRef, Suspense } from 'react';
-import { Await, type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
+import { use, useEffect, useRef } from 'react';
+import { type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
 import {
     type ShopperProducts,
     type ShopperSearch,
@@ -331,39 +331,16 @@ export function shouldRevalidate({
     return false;
 }
 
-type PageRegion = NonNullable<ShopperExperience.schemas['Page']['regions']>[number];
-
-/**
- * Helper function to check if a region exists and has valid components
- */
-function hasRegionWithComponents(region: PageRegion | undefined): boolean {
-    if (!region || !region.components || region.components.length === 0) {
-        return false;
-    }
-    // Check if components have valid id and typeId (required for rendering)
-    return region.components.some((component: { id?: string; typeId?: string }) => component.id && component.typeId);
-}
-
 /**
  * Processes page data to extract regions and metadata for rendering
  */
-function processPageData(page: ShopperExperience.schemas['Page']) {
-    const { regions } = page;
-    const promoContentRegion = regions?.find((region) => region.id === 'promoContent');
-    const engagementContentRegion = regions?.find((region) => region.id === 'engagementContent');
+function processPageData() {
     const promoContentDesignMetadata = getRegionDefinition(ProductPageMetadata, 'promoContent');
     const engagementContentDesignMetadata = getRegionDefinition(ProductPageMetadata, 'engagementContent');
 
-    const hasPromoContent = hasRegionWithComponents(promoContentRegion);
-    const hasEngagementContent = hasRegionWithComponents(engagementContentRegion);
-
     return {
-        promoContentRegion,
-        engagementContentRegion,
         promoContentDesignMetadata,
         engagementContentDesignMetadata,
-        hasPromoContent,
-        hasEngagementContent,
     };
 }
 
@@ -463,29 +440,23 @@ function ProductDetailView({ loaderData }: RouteComponentProps<ProductPageData>)
     /**
      * Renders the page content based on Page Designer regions
      */
-    const renderPageContent = (page: ShopperExperience.schemas['Page']) => {
-        const {
-            promoContentRegion,
-            engagementContentRegion,
-            promoContentDesignMetadata,
-            engagementContentDesignMetadata,
-            hasPromoContent,
-            hasEngagementContent,
-        } = processPageData(page);
+    const renderPageContent = (page: Promise<ShopperExperience.schemas['Page']>) => {
+        const { promoContentDesignMetadata, engagementContentDesignMetadata } = processPageData();
 
         return (
             <>
                 {/* Promo Content Region - Promotional content above main product */}
-                {hasPromoContent && promoContentRegion && (
+                {
                     <div className="mb-8">
                         <Region
-                            region={promoContentRegion}
+                            page={page}
+                            regionId="promoContent"
                             metadata={promoContentDesignMetadata}
-                            key={promoContentRegion.id}
                             componentData={loaderData.componentData}
+                            fallback={<div />}
                         />
                     </div>
-                )}
+                }
 
                 {/* Mobile Product Title - shown on mobile only, always shown */}
                 <div className="block md:hidden mb-8">
@@ -503,33 +474,24 @@ function ProductDetailView({ loaderData }: RouteComponentProps<ProductPageData>)
                 {mainProductContent}
 
                 {/* Engagement Content Region - Shows page content or recommendations */}
-                {hasEngagementContent && engagementContentRegion ? (
+                {
                     <div className="mt-16">
                         <Region
-                            region={engagementContentRegion}
+                            page={page}
+                            regionId="engagementContent"
                             metadata={engagementContentDesignMetadata}
-                            key={engagementContentRegion.id}
                             componentData={loaderData.componentData}
+                            fallback={<Recommendations resolve={recommendationsPromise} />}
                         />
                     </div>
-                ) : (
-                    <div className="mt-16">
-                        <Recommendations resolve={recommendationsPromise} />
-                    </div>
-                )}
+                }
             </>
         );
     };
 
     const content = (
         <div className="min-h-screen bg-background">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <Suspense fallback={<div />}>
-                    <Await resolve={loaderData.page} errorElement={<div />}>
-                        {renderPageContent}
-                    </Await>
-                </Suspense>
-            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{renderPageContent(loaderData.page)}</div>
         </div>
     );
 

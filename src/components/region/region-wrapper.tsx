@@ -12,7 +12,6 @@ import {
     type RegionDesignMetadata,
 } from '@salesforce/storefront-next-runtime/design/react';
 import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
-import { cn } from '@/lib/utils';
 
 /**
  * Props for the base region renderer
@@ -27,23 +26,8 @@ export interface RegionRendererProps extends React.HTMLAttributes<HTMLDivElement
  * Base region renderer component that handles the actual DOM structure
  * This is the component that gets decorated in design mode
  */
-function RegionRenderer({
-    region,
-    children,
-    className,
-    designMetadata: _designMetadata,
-    ...rest
-}: RegionRendererProps) {
-    return (
-        <div
-            id={region.id}
-            className={cn('region', className)}
-            data-testid="region"
-            data-region-id={region.id}
-            {...rest}>
-            <div className="container">{children}</div>
-        </div>
-    );
+function RegionRenderer({ children, designMetadata: _designMetadata }: RegionRendererProps) {
+    return <>{children}</>;
 }
 
 /**

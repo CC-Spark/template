@@ -1,14 +1,14 @@
 {
-    "name": "Hero Metadata",
-    "description": "Custom component: HeroMetadata",
+    "name": "Hero Banner",
+    "description": "Prominent banner section with title, subtitle, image, and call-to-action",
     "group": "odyssey_base",
     "arch_type": "headless",
     "region_definitions": [],
     "attribute_definition_groups": [
         {
             "id": "hero",
-            "name": "Hero Metadata",
-            "description": "Custom component: HeroMetadata",
+            "name": "Hero Banner",
+            "description": "Prominent banner section with title, subtitle, image, and call-to-action",
             "attribute_definitions": [
                 {
                     "id": "title",

@@ -437,6 +437,19 @@ const CARTRIDGES_BASE_DIR = "cartridges";
 const SFNEXT_BASE_CARTRIDGE_NAME = "app_storefrontnext_base";
 const SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR = `${SFNEXT_BASE_CARTRIDGE_NAME}/cartridge/experience`;
 /**
+* When enabled, automatically generates and deploys cartridge metadata before an MRT push.
+* This is useful for keeping Page Designer metadata in sync with component changes.
+*
+* When enabled:
+* 1. Generates cartridge metadata from decorated components
+* 2. Deploys the cartridge to Commerce Cloud (requires dw.json configuration)
+* 3. Proceeds with the MRT push
+*
+* To enable: Set this to `true` in your local config.ts
+* Default: false (manual cartridge generation/deployment via `sfnext generate-cartridge` and `sfnext deploy-cartridge`)
+*/
+const GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH = false;
+/**
 * Build MRT SSR configuration for bundle deployment
 *
 * Defines which files should be:
@@ -1195,10 +1208,23 @@ function parseDecoratorArgs(decorator) {
 				const initializer = property.getInitializer();
 				if (initializer) result[name] = parseExpression(initializer);
 			}
-		} else if (Node.isStringLiteral(firstArg)) result.id = parseExpression(firstArg);
+		} else if (Node.isStringLiteral(firstArg)) {
+			result.id = parseExpression(firstArg);
+			if (args.length > 1) {
+				const secondArg = args[1];
+				if (Node.isObjectLiteralExpression(secondArg)) {
+					const properties = secondArg.getProperties();
+					for (const property of properties) if (Node.isPropertyAssignment(property)) {
+						const name = property.getName();
+						const initializer = property.getInitializer();
+						if (initializer) result[name] = parseExpression(initializer);
+					}
+				}
+			}
+		}
 		return result;
-	} catch {
-		console.warn(`Warning: Could not parse decorator arguments`);
+	} catch (error$1) {
+		console.warn(`Warning: Could not parse decorator arguments: ${error$1.message}`);
 		return result;
 	}
 }
@@ -1223,7 +1249,7 @@ function extractAttributesFromSource(sourceFile, className) {
 				description: config.description || `Field: ${fieldName}`
 			};
 			if (config.values) attribute.values = config.values;
-			if (config.defaultValue !== void 0) attribute.defaultValue = config.defaultValue;
+			if (config.defaultValue !== void 0) attribute.default_value = config.defaultValue;
 			attributes.push(attribute);
 		}
 	} catch (error$1) {
@@ -2321,6 +2347,7 @@ const manageExtensions = async (options) => {
 
 //#endregion
 //#region src/cli.ts
+const __dirname = dirname(fileURLToPath(import.meta.url));
 function validateAndBuildPaths(options) {
 	if (!options.projectDirectory) {
 		error("--project-directory is required");
@@ -2338,8 +2365,37 @@ function validateAndBuildPaths(options) {
 		metadataDir
 	};
 }
+/**
+* Shared function to generate cartridge metadata
+* Used by both the generate-cartridge command and the push command (when enabled)
+*/
+async function runGenerateCartridge(projectDirectory) {
+	const { projectDirectory: validatedProjectDir, metadataDir } = validateAndBuildPaths({ projectDirectory });
+	if (!fs.existsSync(metadataDir)) {
+		info(`Creating metadata directory: ${metadataDir}`);
+		fs.mkdirSync(metadataDir, { recursive: true });
+	}
+	await generateMetadata(validatedProjectDir, metadataDir);
+}
+/**
+* Shared function to deploy cartridge to Commerce Cloud
+* Used by both the deploy-cartridge command and the push command (when enabled)
+*/
+async function runDeployCartridge(projectDirectory) {
+	const dwJsonPath = path.join(__dirname, "..", "dw.json");
+	if (!fs.existsSync(dwJsonPath)) throw new Error(`dw.json file not found in storefront-next-dev directory. Please ensure dw.json exists at ${dwJsonPath}`);
+	const dwConfig = JSON.parse(fs.readFileSync(dwJsonPath, "utf8"));
+	const { cartridgeBaseDir, metadataDir } = validateAndBuildPaths({ projectDirectory });
+	if (!fs.existsSync(metadataDir)) throw new Error(`Metadata directory does not exist: ${metadataDir}. Run 'generate-cartridge' first.`);
+	if (!dwConfig.username || !dwConfig.password) throw new Error("Username and password are required in dw.json file.");
+	const instance = dwConfig.hostname;
+	if (!instance) throw new Error("Instance is required. Add \"hostname\" to dw.json file.");
+	const codeVersion = dwConfig["code-version"];
+	if (!codeVersion) throw new Error("Code version is required. Add \"code-version\" to dw.json file.");
+	const credentials = `${dwConfig.username}:${dwConfig.password}`;
+	success(`Code deployed to version "${(await deployCode(instance, codeVersion, cartridgeBaseDir, Buffer.from(credentials).toString("base64"))).version}" successfully!`);
+}
 const program = new Command();
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_TEMPLATE_GIT_URL = process.env.DEFAULT_TEMPLATE_GIT_URL || "https://github.com/SalesforceCommerceCloud/storefront-next-template.git";
 const handleCommandError = (label, err) => {
 	if (err instanceof Error) {
@@ -2361,6 +2417,16 @@ program.command("create-storefront").description("Create a new storefront projec
 });
 program.command("push").description("Create and push bundle to Managed Runtime").requiredOption("-d, --project-directory <dir>", "Project directory").option("-b, --build-directory <dir>", "Build directory to push (default: auto-detected)").option("-m, --message <message>", "Bundle message (default: git branch:commit)").option("-s, --project-slug <slug>", "Project slug - the unique identifier for your project on Managed Runtime (default: from .env MRT_PROJECT or package.json name)").option("-t, --target <target>", "Deploy target environment (default: from .env MRT_TARGET)").option("-w, --wait", "Wait for deployment to complete", false).option("--cloud-origin <origin>", "API origin", DEFAULT_CLOUD_ORIGIN).option("-c, --credentials-file <file>", "Credentials file location").option("-u, --user <email>", "User email for Managed Runtime").option("-k, --key <api-key>", "API key for Managed Runtime").action(async (options) => {
 	try {
+		if (GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH) try {
+			info("Generating cartridge metadata before MRT push...");
+			await runGenerateCartridge(options.projectDirectory);
+			success("Cartridge metadata generated successfully!");
+			info("Deploying cartridge to Commerce Cloud...");
+			await runDeployCartridge(options.projectDirectory);
+			success("Cartridge deployed successfully!");
+		} catch (cartridgeError) {
+			error(`Warning: Failed to generate/deploy cartridge: ${cartridgeError.message}`);
+		}
 		await push({
 			projectDirectory: options.projectDirectory,
 			buildDirectory: options.buildDirectory,
@@ -2438,12 +2504,7 @@ extensionsCommand.command("remove").description("Remove one or more installed ex
 });
 program.command("generate-cartridge").description("Generate component cartridge metadata from decorated components").requiredOption("-d, --project-directory <dir>", "Project directory containing the source code").action(async (options) => {
 	try {
-		const { projectDirectory, metadataDir } = validateAndBuildPaths(options);
-		if (!fs.existsSync(metadataDir)) {
-			info(`Creating metadata directory: ${metadataDir}`);
-			fs.mkdirSync(metadataDir, { recursive: true });
-		}
-		await generateMetadata(projectDirectory, metadataDir);
+		await runGenerateCartridge(options.projectDirectory);
 		process.exit(0);
 	} catch (err) {
 		error(`Generate metadata failed: ${err.message}`);
@@ -2452,34 +2513,7 @@ program.command("generate-cartridge").description("Generate component cartridge 
 });
 program.command("deploy-cartridge").description("Deploy a cartridge to Commerce Cloud (zips and uploads the metadata directory)").requiredOption("-d, --project-directory <dir>", "Project directory containing the source code").action(async (options) => {
 	try {
-		const dwJsonPath = path.join(process.cwd(), "dw.json");
-		if (!fs.existsSync(dwJsonPath)) {
-			error("dw.json file not found. Please ensure dw.json exists in the current directory.");
-			process.exit(1);
-		}
-		const dwConfig = JSON.parse(fs.readFileSync(dwJsonPath, "utf8"));
-		const { cartridgeBaseDir, metadataDir } = validateAndBuildPaths(options);
-		if (!fs.existsSync(metadataDir)) {
-			info(`Warning: Metadata directory does not exist: ${metadataDir}`);
-			info(`Run 'generate-cartridge' first to create metadata files.`);
-			process.exit(1);
-		}
-		if (!dwConfig.username || !dwConfig.password) {
-			error("Username and password are required in dw.json file.");
-			process.exit(1);
-		}
-		const instance = dwConfig.hostname;
-		if (!instance) {
-			error("Instance is required. Add \"hostname\" to dw.json file.");
-			process.exit(1);
-		}
-		const codeVersion = dwConfig["code-version"];
-		if (!codeVersion) {
-			error("Code version is required. Add \"code-version\" to dw.json file.");
-			process.exit(1);
-		}
-		const credentials = `${dwConfig.username}:${dwConfig.password}`;
-		success(`Code deployed to version "${(await deployCode(instance, codeVersion, cartridgeBaseDir, Buffer.from(credentials).toString("base64"))).version}" successfully!`);
+		await runDeployCartridge(options.projectDirectory);
 		process.exit(0);
 	} catch (err) {
 		error(`Deploy failed: ${err.message}`);

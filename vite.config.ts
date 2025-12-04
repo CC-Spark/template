@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { dirname, resolve, join } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, existsSync } from 'node:fs';
 import { defineConfig, perEnvironmentPlugin, loadEnv } from 'vite';
@@ -217,27 +217,6 @@ export default defineConfig(({ mode }) => {
                                     } else {
                                         const bodyStr = body.toString();
                                         console.log('❌ Fetch page error:', proxyRes.statusCode, req.url, bodyStr);
-
-                                        // Try to serve local fallback for error responses
-                                        const pageId = req.url?.match(/\/pages\/([^/?#]+)/i)?.[1];
-                                        if (pageId) {
-                                            try {
-                                                const localPath = join(process.cwd(), `_local/pages/${pageId}.json`);
-                                                const file = readFileSync(localPath, 'utf-8');
-                                                console.log(`✅ Serving fallback for ${pageId}`);
-
-                                                console.log('PAGE', file);
-
-                                                // Override the response
-                                                res.statusCode = 200;
-                                                res.setHeader('Content-Type', 'application/json; charset=utf-8');
-                                                res.setHeader('X-Dev-Fallback', 'local-json');
-                                                res.end(file);
-                                                return;
-                                            } catch {
-                                                console.log(`❌ No fallback found for ${pageId}`);
-                                            }
-                                        }
 
                                         // No fallback available, return original error
                                         res.statusCode = proxyRes.statusCode || 404;

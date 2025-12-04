@@ -1,12 +1,17 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { PopularCategories } from './popular-categories';
+import PopularCategories from './popular-categories';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
 // Mock decorators (minimal mocking to avoid testing them)
-vi.mock('@/lib/decorators/component', () => ({
-    Component: () => (target: any) => target,
-}));
+vi.mock('@/lib/decorators/component', async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...actual,
+        Component: () => (target: any) => target,
+        Loader: () => (target: any) => target,
+    };
+});
 
 vi.mock('@/lib/decorators', () => ({
     RegionDefinition: () => (target: any) => target,
@@ -18,7 +23,7 @@ vi.mock('@/lib/decorators/attribute-definition', () => ({
 
 // Mock the ContentCard component to avoid Link issues
 vi.mock('@/components/content-card', () => ({
-    ContentCard: ({
+    default: ({
         title,
         description,
         imageUrl,

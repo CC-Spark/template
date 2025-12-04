@@ -1,57 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Region stories snapshot > Default story renders and matches snapshot 1`] = `
-<div
-  class="container"
->
-  <div
-    class="region"
-    data-region-id="region-1"
-    data-testid="region"
-    id="region-1"
-  >
-    <div
-      class="container"
-    >
-      <div />
-      <div />
-    </div>
-  </div>
-</div>
-`;
+exports[`Region stories snapshot > Default story renders and matches snapshot 1`] = `<div />`;
 
-exports[`Region stories snapshot > Empty story renders and matches snapshot 1`] = `
-<div
-  class="container"
->
-  <div
-    class="region"
-    data-region-id="region-3"
-    data-testid="region"
-    id="region-3"
-  >
-    <div
-      class="container"
-    />
-  </div>
-</div>
-`;
+exports[`Region stories snapshot > Empty story renders and matches snapshot 1`] = `<div />`;
 
-exports[`Region stories snapshot > SingleComponent story renders and matches snapshot 1`] = `
-<div
-  class="container"
->
-  <div
-    class="region"
-    data-region-id="region-2"
-    data-testid="region"
-    id="region-2"
-  >
-    <div
-      class="container"
-    >
-      <div />
-    </div>
-  </div>
-</div>
-`;
+exports[`Region stories snapshot > SingleComponent story renders and matches snapshot 1`] = `<div />`;

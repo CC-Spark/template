@@ -1,14 +1,14 @@
 {
-    "name": "Hero Carousel Metadata",
-    "description": "Custom component: HeroCarouselMetadata",
+    "name": "Hero Carousel",
+    "description": "Interactive carousel component with multiple hero slides, autoplay, navigation controls, and dot indicators",
     "group": "odyssey_base",
     "arch_type": "headless",
     "region_definitions": [],
     "attribute_definition_groups": [
         {
             "id": "heroCarousel",
-            "name": "Hero Carousel Metadata",
-            "description": "Custom component: HeroCarouselMetadata",
+            "name": "Hero Carousel",
+            "description": "Interactive carousel component with multiple hero slides, autoplay, navigation controls, and dot indicators",
             "attribute_definitions": [
                 {
                     "id": "autoPlay",

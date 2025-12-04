@@ -85,14 +85,14 @@ const createMockPage = (regions: any[] = []): ShopperExperience.schemas['Page'] 
         regions,
     }) as ShopperExperience.schemas['Page'];
 
-// Mock the Region component
+// Mock the Region component to render fallback
 vi.mock('@/components/region', () => ({
-    Region: ({ region }: any) => <div data-testid="region" data-region-id={region?.id} />,
+    Region: ({ fallback }: any) => <>{fallback}</>,
 }));
 
 // Mock the PopularCategories component
 vi.mock('@/components/home/popular-categories', () => ({
-    PopularCategories: () => (
+    default: () => (
         <div data-testid="popular-categories">
             <h2>Step into Elegance</h2>
         </div>
@@ -101,12 +101,22 @@ vi.mock('@/components/home/popular-categories', () => ({
 
 // Mock the ContentCard component
 vi.mock('@/components/content-card', () => ({
-    ContentCard: ({ title, description }: any) => (
+    default: ({ title, description }: any) => (
         <div data-testid="content-card">
             <h3>{title}</h3>
             <p>{description}</p>
         </div>
     ),
+}));
+
+// Mock HeroCarousel component
+vi.mock('@/components/hero-carousel', () => ({
+    default: () => <div data-testid="hero-carousel">Hero Carousel</div>,
+}));
+
+// Mock ProductCarousel component
+vi.mock('@/components/product-carousel', () => ({
+    ProductCarouselWithSuspense: () => <div data-testid="product-carousel">Product Carousel</div>,
 }));
 
 // Mock the Button component
@@ -157,6 +167,56 @@ vi.mock('@/components/create-page', () => ({
 
 // Mock images
 vi.mock('/images/hero-new-arrivals.png', () => ({ default: '/mock-image.png' }));
+vi.mock('/images/hero-cube.png', () => ({ default: '/mock-hero-cube.png' }));
+
+// Mock react-i18next with partial mock to preserve other exports
+vi.mock('react-i18next', async () => {
+    const actual: any = await vi.importActual('react-i18next');
+    return {
+        ...actual,
+        useTranslation: () => ({
+            t: (key: string) => {
+                // Simple translation mock that returns the translation key used in tests
+                // Handle both with and without the 'home:' namespace prefix
+                const normalizedKey = key.startsWith('home:') ? key.substring(5) : key;
+                const translations: Record<string, string> = {
+                    'hero.slide1.title': 'Welcome to Our Store',
+                    'hero.slide1.subtitle': 'Discover amazing products',
+                    'hero.slide1.imageAlt': 'Hero image',
+                    'hero.slide1.ctaText': 'Shop Now',
+                    'hero.slide2.title': 'Summer Collection',
+                    'hero.slide2.subtitle': 'Hot deals on trending items',
+                    'hero.slide2.ctaText': 'Explore',
+                    'hero.slide3.title': 'Free Shipping',
+                    'hero.slide3.subtitle': 'On orders over $50',
+                    'hero.slide3.ctaText': 'Learn More',
+                    'featuredProducts.title': 'Featured Products',
+                    'newArrivals.title': 'New Arrivals',
+                    'newArrivals.description':
+                        'Discover the latest additions to our collection. From statement pieces to everyday essentials.',
+                    'newArrivals.ctaText': 'SHOP NEW ARRIVALS',
+                    'categoryGrid.title': 'Step into Elegance',
+                    'categoryGrid.shopNowButton': 'Shop Now',
+                    'featuredContent.women.title': 'Women',
+                    'featuredContent.women.description':
+                        'Discover our curated collection of sophisticated footwear designed for the modern woman.',
+                    'featuredContent.women.imageAlt': "Women's Collection",
+                    'featuredContent.women.ctaText': 'EXPLORE COLLECTION',
+                    'featuredContent.men.title': 'Men',
+                    'featuredContent.men.description':
+                        "Timeless craftsmanship meets contemporary style in our men's footwear collection.",
+                    'featuredContent.men.imageAlt': "Men's Collection",
+                    'featuredContent.men.ctaText': 'EXPLORE COLLECTION',
+                };
+                return translations[normalizedKey] || key;
+            },
+            i18n: {
+                language: 'en',
+                changeLanguage: vi.fn(),
+            },
+        }),
+    };
+});
 
 // Mock decorators and utilities
 vi.mock('@/lib/decorators/page-type', () => ({
@@ -272,9 +332,9 @@ describe('HomeView', () => {
                 />
             );
 
-            // Should render the region component
-            expect(screen.getByTestId('region')).toBeInTheDocument();
-            expect(screen.getByTestId('region')).toHaveAttribute('data-region-id', 'headerbanner');
+            // Region mock always renders fallback, so check for fallback content
+            expect(screen.getByTestId('hero-carousel')).toBeInTheDocument();
+            expect(screen.getByTestId('product-carousel')).toBeInTheDocument();
             // Should still render other sections
             expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument();
         });

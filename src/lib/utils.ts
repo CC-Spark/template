@@ -196,3 +196,59 @@ export const clearSessionJSONItem = (key: string): void => {
         // Failed to remove, ignore silently
     }
 };
+
+/**
+ * Resolves a local asset URL to work correctly in both local and MRT (Managed Runtime) environments.
+ *
+ * When assets are imported directly (e.g., `import hero from '/images/hero.png'`), Vite handles
+ * the bundle path transformation at build time. However, for dynamic string paths passed as props,
+ * we need to resolve them at runtime.
+ *
+ * This function:
+ * - Returns absolute URLs (http://, https://, data:, //) unchanged
+ * - Returns URLs that already contain the bundle path unchanged (e.g., statically imported images)
+ * - In local dev, returns paths as-is (e.g., '/images/hero.png')
+ * - In MRT, prepends the bundle path (e.g., '/mobify/bundle/60/client/images/hero.png')
+ * - Works isomorphically (client and server)
+ *
+ * @param url The asset URL to resolve (e.g., '/images/hero.png' or 'images/hero.png')
+ * @returns The resolved URL with bundle path for MRT, or the original path for local dev
+ *
+ * @example
+ * // Local dev:
+ * resolveAssetUrl('/images/hero.png') // → '/images/hero.png'
+ * resolveAssetUrl('images/hero.png') // → '/images/hero.png'
+ * // On MRT with BUNDLE_ID=60:
+ * resolveAssetUrl('/images/hero.png') // → '/mobify/bundle/60/client/images/hero.png'
+ * resolveAssetUrl('images/hero.png') // → '/mobify/bundle/60/client/images/hero.png'
+ * // Already transformed (static import):
+ * resolveAssetUrl('/mobify/bundle/60/client/images/hero.png') // → '/mobify/bundle/60/client/images/hero.png'
+ * // External URLs (always unchanged):
+ * resolveAssetUrl('http://example.com/image.jpg') // → 'http://example.com/image.jpg'
+ */
+export const resolveAssetUrl = (url: string): string => {
+    // Return absolute URLs unchanged
+    if (isAbsoluteURL(url) || url.startsWith('data:')) {
+        return url;
+    }
+
+    // If the URL already contains the bundle path (e.g., from a static import), return it as-is
+    if (url.includes('/mobify/bundle/')) {
+        return url;
+    }
+
+    // Determine the bundle ID
+    const bundleId = typeof window !== 'undefined' ? window._BUNDLE_ID : process.env.BUNDLE_ID || 'local';
+
+    // In local development, don't prepend bundle path
+    if (bundleId === 'local') {
+        // Ensure the URL starts with a slash for consistency
+        return url.startsWith('/') ? url : `/${url}`;
+    }
+
+    // In MRT, prepend the bundle path
+    const bundlePath = `/mobify/bundle/${bundleId}/client/`;
+    const normalizedUrl = url.startsWith('/') ? url.slice(1) : url;
+
+    return `${bundlePath}${normalizedUrl}`;
+};

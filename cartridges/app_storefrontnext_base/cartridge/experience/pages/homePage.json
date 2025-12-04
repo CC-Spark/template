@@ -6,12 +6,12 @@
         {
             "id": "headerbanner",
             "name": "Header Banner Region",
-            "component_type_exclusions": [
-                {
-                    "type_id": "heroCarousel"
-                }
-            ],
             "max_components": 3
+        },
+        {
+            "id": "main",
+            "name": "Main Content Region",
+            "max_components": 5
         }
     ],
     "supported_aspect_types": [],

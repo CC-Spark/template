@@ -1295,10 +1295,23 @@ function parseDecoratorArgs(decorator) {
 				const initializer = property.getInitializer();
 				if (initializer) result[name] = parseExpression(initializer);
 			}
-		} else if (Node.isStringLiteral(firstArg)) result.id = parseExpression(firstArg);
+		} else if (Node.isStringLiteral(firstArg)) {
+			result.id = parseExpression(firstArg);
+			if (args.length > 1) {
+				const secondArg = args[1];
+				if (Node.isObjectLiteralExpression(secondArg)) {
+					const properties = secondArg.getProperties();
+					for (const property of properties) if (Node.isPropertyAssignment(property)) {
+						const name = property.getName();
+						const initializer = property.getInitializer();
+						if (initializer) result[name] = parseExpression(initializer);
+					}
+				}
+			}
+		}
 		return result;
-	} catch {
-		console.warn(`Warning: Could not parse decorator arguments`);
+	} catch (error$1) {
+		console.warn(`Warning: Could not parse decorator arguments: ${error$1.message}`);
 		return result;
 	}
 }
@@ -1323,7 +1336,7 @@ function extractAttributesFromSource(sourceFile, className) {
 				description: config.description || `Field: ${fieldName}`
 			};
 			if (config.values) attribute.values = config.values;
-			if (config.defaultValue !== void 0) attribute.defaultValue = config.defaultValue;
+			if (config.defaultValue !== void 0) attribute.default_value = config.defaultValue;
 			attributes.push(attribute);
 		}
 	} catch (error$1) {

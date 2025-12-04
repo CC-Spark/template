@@ -218,7 +218,7 @@ The tool automatically generates the following configuration:
 
 For cartridge deployment to Commerce Cloud, you need to configure credentials in `dw.json`:
 
-1. **dw.json file** (required): Create a `dw.json` file in your project root with:
+1. **dw.json file** (required): Create a `dw.json` file in the **storefront-next-dev package directory** with:
    ```json
    {
      "username": "your-username@salesforce.com",
@@ -228,7 +228,7 @@ For cartridge deployment to Commerce Cloud, you need to configure credentials in
    }
    ```
 
-2. **Authentication**: The tool will automatically read username, password, hostname, and code-version from `dw.json` and use Basic Authentication
+2. **Authentication**: The tool will automatically read username, password, hostname, and code-version from `dw.json` in the storefront-next-dev directory and use Basic Authentication
 
 ### Cartridge Commands
 
@@ -244,6 +244,38 @@ The cartridge commands are independent tools for working with Commerce Cloud met
 - Upload: Uploads the ZIP file to Commerce Cloud using WebDAV PUT
 - Unzip: Extracts the ZIP contents on the server using WebDAV POST
 - Cleanup: Deletes the temporary ZIP file from the server using WebDAV DELETE
+
+**Automatic Cartridge Generation and Deployment on Push**
+
+You can configure the tool to automatically generate and deploy cartridge metadata before an MRT push. This keeps your Page Designer metadata in sync with component changes.
+
+To enable automatic cartridge generation and deployment:
+
+1. Open `storefront-next-dev/dist/config.js`
+2. Change `GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH` from `false` to `true`:
+
+```javascript
+// In config.ts or config.js
+export const GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH = true; // Set to true to enable
+```
+
+**Default:** `false` (manual cartridge generation/deployment via `sfnext generate-cartridge` and `sfnext deploy-cartridge`)
+
+**Prerequisites:**
+- A valid `dw.json` file must be present in the storefront-next-dev package directory with Commerce Cloud credentials (see "Deploy Cartridge Command Authentication" section above)
+
+When enabled, before each `sfnext push` command:
+1. Cartridge metadata will be automatically generated from decorated components
+2. The cartridge will be automatically deployed to Commerce Cloud
+3. The MRT push will proceed as normal
+
+If generation or deployment fails:
+- A warning is displayed with manual command suggestions
+- The MRT push still succeeds (cartridge errors don't block deployments)
+
+You can still run `sfnext generate-cartridge` and `sfnext deploy-cartridge` manually at any time.
+
+> **Note:** This feature is designed for development workflows where you want to keep Page Designer metadata in sync with your deployments. For production CI/CD pipelines, consider running `sfnext generate-cartridge` and `sfnext deploy-cartridge` as separate, explicit steps for better control and error handling.
 
 ## Credentials
 

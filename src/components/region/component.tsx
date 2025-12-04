@@ -8,12 +8,15 @@ export interface ComponentProps {
     className?: string;
     componentData?: Promise<Record<string, Promise<unknown>>>;
     regionId: string;
+    page: Promise<ShopperExperience.schemas['Page']>;
 }
 
 export const Component = memo(function Component({
     component,
     componentData,
     className,
+    regionId,
+    page,
 }: ComponentProps): ReactElement {
     const FallbackComponent = registry.getFallback(component.typeId);
     const metadata = registry.getMetadata(component.typeId);
@@ -42,6 +45,9 @@ export const Component = memo(function Component({
                         }}
                         data={data}
                         className={className}
+                        page={page}
+                        componentData={componentData}
+                        regionId={regionId}
                     />
                 )}
             </Await>

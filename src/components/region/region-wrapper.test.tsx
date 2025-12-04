@@ -53,12 +53,13 @@ describe('RegionWrapper', () => {
             </RegionWrapper>
         );
 
-        const root = screen.getByTestId('region');
-        expect(root).toHaveAttribute('id', 'r1');
-        expect(root).toHaveClass('region');
-        expect(root).toHaveClass('x');
-        expect(container.querySelector('.container')?.querySelector('[data-testid="kid"]')).not.toBeNull();
+        // RegionRenderer now just returns children without a wrapper
+        const kid = screen.getByTestId('kid');
+        expect(kid).toBeInTheDocument();
         expect(decoratedCalls).toHaveLength(0);
+
+        // Verify no extra wrapper is created
+        expect(container.firstChild).toBe(kid);
     });
 
     test('(design mode) decorated renderer gets metadata', () => {
@@ -102,9 +103,18 @@ describe('RegionWrapper', () => {
         (isDesignModeActive as unknown as Mock).mockReturnValue(true);
         const region = makeRegion(undefined, ['cx']);
 
-        render(<RegionWrapper region={region}>y</RegionWrapper>);
+        const { container } = render(
+            <RegionWrapper region={region}>
+                <div data-testid="child-content">y</div>
+            </RegionWrapper>
+        );
 
-        expect(screen.getByTestId('region')).toBeInTheDocument();
+        // When no region id, falls back to RegionRenderer which just returns children
+        const child = screen.getByTestId('child-content');
+        expect(child).toBeInTheDocument();
         expect(decoratedCalls).toHaveLength(0);
+
+        // Verify no extra wrapper is created
+        expect(container.firstChild).toBe(child);
     });
 });

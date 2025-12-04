@@ -6,6 +6,7 @@
  */
 
 import 'reflect-metadata';
+import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import type { LoaderFunctionArgs, ClientLoaderFunctionArgs } from 'react-router';
@@ -56,10 +57,43 @@ const createMockPage = (regions: any[] = []): ShopperExperience.schemas['Page'] 
         regions,
     }) as ShopperExperience.schemas['Page'];
 
-// Mock the Region component
-vi.mock('@/components/region', () => ({
-    Region: ({ region }: any) => <div data-testid="region" data-region-id={region?.id} />,
+// Mock Page Designer mode - must be before Region mock
+vi.mock('@salesforce/storefront-next-runtime/design', () => ({
+    isDesignModeActive: vi.fn(() => false),
 }));
+
+// Mock the Region component
+vi.mock('@/components/region', async () => {
+    const { isDesignModeActive } = await import('@salesforce/storefront-next-runtime/design/mode');
+
+    return {
+        Region: ({ page, regionId }: any) => {
+            // Simulate the real Region component behavior
+            const MockRegion = () => {
+                const [resolvedPage, setResolvedPage] = React.useState<any>(null);
+
+                React.useEffect(() => {
+                    // eslint-disable-next-line react/prop-types
+                    page.then((p: any) => setResolvedPage(p));
+                }, []);
+
+                if (!resolvedPage) return null;
+
+                const region = resolvedPage.regions?.find((r: any) => r.id === regionId);
+                if (!region) return null;
+
+                const isDesignMode = isDesignModeActive();
+
+                // Don't render if no components and not in design mode
+                if (!region.components?.length && !isDesignMode) return null;
+
+                return <div data-testid="region" data-region-id={regionId} />;
+            };
+
+            return <MockRegion />;
+        },
+    };
+});
 
 // Mock ProductGrid component
 vi.mock('@/components/product-grid', () => ({
@@ -160,20 +194,20 @@ describe('SearchPage', () => {
         });
 
         test('should have RegionDefinition decorator with three regions', () => {
-            const topFullWidthRegion = getRegionDefinition(SearchPageMetadata, 'plp-top-full-width');
+            const topFullWidthRegion = getRegionDefinition(SearchPageMetadata, 'plpTopFullWidth');
             expect(topFullWidthRegion).toBeDefined();
-            expect(topFullWidthRegion?.id).toBe('plp-top-full-width');
+            expect(topFullWidthRegion?.id).toBe('plpTopFullWidth');
             expect(topFullWidthRegion?.name).toBe('Top Full Width Region');
             expect(topFullWidthRegion?.maxComponents).toBe(5);
 
-            const topContentRegion = getRegionDefinition(SearchPageMetadata, 'plp-top-content');
+            const topContentRegion = getRegionDefinition(SearchPageMetadata, 'plpTopContent');
             expect(topContentRegion).toBeDefined();
-            expect(topContentRegion?.id).toBe('plp-top-content');
+            expect(topContentRegion?.id).toBe('plpTopContent');
             expect(topContentRegion?.name).toBe('Top Content Region');
 
-            const bottomRegion = getRegionDefinition(SearchPageMetadata, 'plp-bottom');
+            const bottomRegion = getRegionDefinition(SearchPageMetadata, 'plpBottom');
             expect(bottomRegion).toBeDefined();
-            expect(bottomRegion?.id).toBe('plp-bottom');
+            expect(bottomRegion?.id).toBe('plpBottom');
             expect(bottomRegion?.name).toBe('Bottom Region');
         });
     });
@@ -270,7 +304,7 @@ describe('SearchPage', () => {
 
         test('should render region when it has components', async () => {
             const mockRegion = {
-                id: 'plp-top-content',
+                id: 'plpTopContent',
                 components: [
                     {
                         id: 'hero-1',
@@ -295,9 +329,9 @@ describe('SearchPage', () => {
             );
 
             await waitFor(() => {
-                const region = screen.getByTestId('region');
-                expect(region).toBeInTheDocument();
-                expect(region).toHaveAttribute('data-region-id', 'plp-top-content');
+                const regions = screen.queryAllByTestId('region');
+                expect(regions.length).toBe(1);
+                expect(regions[0]).toHaveAttribute('data-region-id', 'plpTopContent');
             });
         });
 
@@ -387,7 +421,7 @@ describe('SearchPage', () => {
             vi.mocked(isDesignModeActive).mockReturnValue(true);
 
             const mockRegion = {
-                id: 'plp-top-content',
+                id: 'plpTopContent',
                 components: [],
             };
 
@@ -406,7 +440,10 @@ describe('SearchPage', () => {
             );
 
             await waitFor(() => {
-                expect(screen.getByTestId('region')).toBeInTheDocument();
+                const regions = screen.queryAllByTestId('region');
+                expect(regions.length).toBeGreaterThan(0);
+                const plpTopContentRegion = regions.find((r) => r.getAttribute('data-region-id') === 'plpTopContent');
+                expect(plpTopContentRegion).toBeInTheDocument();
             });
         });
 
@@ -415,7 +452,7 @@ describe('SearchPage', () => {
             vi.mocked(isDesignModeActive).mockReturnValue(false);
 
             const mockRegion = {
-                id: 'plp-top-content',
+                id: 'plpTopContent',
                 components: [],
             };
 

@@ -1,22 +1,23 @@
-import { Suspense } from 'react';
-import { Await, type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
+import type { ClientLoaderFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch, ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { fetchCategories } from '@/lib/api/categories';
 import { createPage, type RouteComponentProps } from '@/components/create-page';
 import HomeSkeleton from '@/components/home/skeleton';
 import { Region } from '@/components/region';
-import { PopularCategories } from '@/components/home/popular-categories';
-import { ContentCard } from '@/components/content-card';
+import PopularCategories from '@/components/home/popular-categories';
+import ContentCard from '@/components/content-card';
 import { Button } from '@/components/ui/button';
 import { getConfig } from '@/config';
 import { PageType } from '@/lib/decorators/page-type';
 import { getRegionDefinition, RegionDefinition } from '@/lib/decorators/region-definition';
-import { PageDesignerPage } from '@salesforce/storefront-next-runtime/design/react/core';
 
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
 
 import heroNewArrivals from '/images/hero-new-arrivals.png';
+import HeroCarousel, { type HeroSlide } from '@/components/hero-carousel';
+import heroImage from '/images/hero-cube.png';
+import { ProductCarouselWithSuspense } from '@/components/product-carousel';
 import { useTranslation } from 'react-i18next';
 
 @PageType({
@@ -30,7 +31,12 @@ import { useTranslation } from 'react-i18next';
         name: 'Header Banner Region',
         description: 'Region for promotional banners and hero content',
         maxComponents: 3,
-        componentTypeExclusions: ['heroCarousel'],
+    },
+    {
+        id: 'main',
+        name: 'Main Content Region',
+        description: 'Region for main content',
+        maxComponents: 5,
     },
 ])
 export class HomePageMetadata {}
@@ -93,34 +99,68 @@ export function clientLoader(args: ClientLoaderFunctionArgs) {
 // eslint-disable-next-line react-refresh/only-export-components
 function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
     const { t } = useTranslation('home');
+
+    const heroSlides: HeroSlide[] = [
+        {
+            id: 'slide-1',
+            title: t('hero.slide1.title'),
+            subtitle: t('hero.slide1.subtitle'),
+            imageUrl: heroImage,
+            imageAlt: t('hero.slide1.imageAlt'),
+            ctaText: t('hero.slide1.ctaText'),
+            ctaLink: '/category/root',
+        },
+        {
+            id: 'slide-2',
+            title: t('hero.slide2.title'),
+            subtitle: t('hero.slide2.subtitle'),
+            imageUrl: heroImage,
+            imageAlt: t('hero.slide1.imageAlt'),
+            ctaText: t('hero.slide2.ctaText'),
+            ctaLink: '/category/root',
+        },
+        {
+            id: 'slide-3',
+            title: t('hero.slide3.title'),
+            subtitle: t('hero.slide3.subtitle'),
+            imageUrl: heroImage,
+            imageAlt: t('hero.slide1.imageAlt'),
+            ctaText: t('hero.slide3.ctaText'),
+            ctaLink: '/shipping',
+        },
+    ];
+
     return (
         <div className="pb-16 -mt-8">
-            <Suspense fallback={<div />}>
-                <Await resolve={loaderData.page} errorElement={<div />}>
-                    {(page) => {
-                        const { regions } = page;
-                        const headerBannerRegion = regions?.find((region) => region.id === 'headerbanner');
-                        const headerBannerDesignMetadata = getRegionDefinition(HomePageMetadata, 'headerbanner');
-                        return (
-                            <PageDesignerPage page={page}>
-                                {/* TODO: Once we have a universal way of fetching pages, we won't need to do manually wrap with PageDesignerPage. This will move in the future. */}
-                                <div className="py-8">
-                                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                                        {headerBannerRegion && (
-                                            <Region
-                                                region={headerBannerRegion}
-                                                metadata={headerBannerDesignMetadata}
-                                                key={headerBannerRegion.id}
-                                                componentData={loaderData.componentData}
-                                            />
-                                        )}
-                                    </div>
+            <div className="py-8">
+                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <Region
+                        page={loaderData.page}
+                        regionId="headerbanner"
+                        metadata={getRegionDefinition(HomePageMetadata, 'headerbanner')}
+                        componentData={loaderData.componentData}
+                        fallback={
+                            <>
+                                <HeroCarousel
+                                    slides={heroSlides}
+                                    autoPlay={true}
+                                    autoPlayInterval={6000}
+                                    showNavigation={true}
+                                    showDots={true}
+                                />
+
+                                {/* Featured Products */}
+                                <div className="pt-16 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                                    <ProductCarouselWithSuspense
+                                        resolve={loaderData.searchResult}
+                                        title={t('featuredProducts.title')}
+                                    />
                                 </div>
-                            </PageDesignerPage>
-                        );
-                    }}
-                </Await>
-            </Suspense>
+                            </>
+                        }
+                    />
+                </div>
+            </div>
             {/* New Arrivals */}
             <div className="pt-16">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -146,36 +186,46 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
                 </div>
             </div>
 
-            {/* Popular Categories */}
-            <PopularCategories categoriesPromise={loaderData.categories} />
-
-            {/* Featured Content Cards */}
             <div className="pt-16">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <ContentCard
-                            title={t('featuredContent.women.title')}
-                            description={t('featuredContent.women.description')}
-                            imageUrl={heroNewArrivals}
-                            imageAlt={t('featuredContent.women.imageAlt')}
-                            buttonText={t('featuredContent.women.ctaText')}
-                            buttonLink="/category/womens"
-                            showBackground={false}
-                            showBorder={false}
-                            loading="lazy"
-                        />
-                        <ContentCard
-                            title={t('featuredContent.men.title')}
-                            description={t('featuredContent.men.description')}
-                            imageUrl={heroNewArrivals}
-                            imageAlt={t('featuredContent.men.imageAlt')}
-                            buttonText={t('featuredContent.men.ctaText')}
-                            buttonLink="/category/mens"
-                            showBackground={false}
-                            showBorder={false}
-                            loading="lazy"
-                        />
-                    </div>
+                    <Region
+                        page={loaderData.page}
+                        regionId="main"
+                        metadata={getRegionDefinition(HomePageMetadata, 'main')}
+                        componentData={loaderData.componentData}
+                        fallback={
+                            <>
+                                {/* Popular Categories */}
+                                <PopularCategories categoriesPromise={loaderData.categories} />
+
+                                {/* Featured Content Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <ContentCard
+                                        title={t('featuredContent.women.title')}
+                                        description={t('featuredContent.women.description')}
+                                        imageUrl={heroNewArrivals}
+                                        imageAlt={t('featuredContent.women.imageAlt')}
+                                        buttonText={t('featuredContent.women.ctaText')}
+                                        buttonLink="/category/womens"
+                                        showBackground={false}
+                                        showBorder={false}
+                                        loading="lazy"
+                                    />
+                                    <ContentCard
+                                        title={t('featuredContent.men.title')}
+                                        description={t('featuredContent.men.description')}
+                                        imageUrl={heroNewArrivals}
+                                        imageAlt={t('featuredContent.men.imageAlt')}
+                                        buttonText={t('featuredContent.men.ctaText')}
+                                        buttonLink="/category/mens"
+                                        showBackground={false}
+                                        showBorder={false}
+                                        loading="lazy"
+                                    />
+                                </div>
+                            </>
+                        }
+                    />
                 </div>
             </div>
         </div>

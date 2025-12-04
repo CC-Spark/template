@@ -14,7 +14,6 @@ import { PageType } from '@/lib/decorators/page-type';
 import { getRegionDefinition, RegionDefinition } from '@/lib/decorators/region-definition';
 import { Region } from '@/components/region';
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
-import { isDesignModeActive } from '@salesforce/storefront-next-runtime/design/mode';
 
 @PageType({
     name: 'Product Listing Page',
@@ -23,21 +22,21 @@ import { isDesignModeActive } from '@salesforce/storefront-next-runtime/design/m
 })
 @RegionDefinition([
     {
-        id: 'plp-top-full-width',
+        id: 'plpTopFullWidth',
         name: 'Top Full Width Region',
         description: 'Full screen width region at the top of search results',
         maxComponents: 5,
         componentTypeInclusions: ['heroCarousel', 'productCarousel', 'hero'],
     },
     {
-        id: 'plp-top-content',
+        id: 'plpTopContent',
         name: 'Top Content Region',
         description: 'Content width region below sort/filter, above product grid',
         maxComponents: 5,
         componentTypeInclusions: ['heroCarousel', 'productCarousel', 'hero'],
     },
     {
-        id: 'plp-bottom',
+        id: 'plpBottom',
         name: 'Bottom Region',
         description: 'Region at the bottom of search results after product grid',
         maxComponents: 5,
@@ -88,7 +87,7 @@ function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): SearchPageDa
             // This is a known type limitation, the API intelligently serializes the refine parameter (array) automatically, but the OAS types refers to string.
             refine: refine as unknown as string,
         }),
-        page: pagePromise,
+        page: pagePromise as Promise<ShopperExperience.schemas['Page']>,
         componentData: componentDataPromises,
     };
 }
@@ -112,23 +111,6 @@ export default function SearchPage({
     const limit = config.global.productListing.productsPerPage;
     const analytics = useAnalytics();
     const lastTrackedSearchRef = useRef<string | null>(null);
-    const isDesignMode = isDesignModeActive();
-
-    const renderRegion = (pageData: ShopperExperience.schemas['Page'], regionId: string, className: string) => {
-        const { regions } = pageData;
-        const region = regions?.find((r) => r.id === regionId);
-        const metadata = getRegionDefinition(SearchPageMetadata, regionId);
-        const hasContent =
-            region?.components &&
-            region.components.length > 0 &&
-            region.components.some((component: { id?: string; typeId?: string }) => component.id && component.typeId);
-
-        return (isDesignMode || hasContent) && region ? (
-            <div className={className}>
-                <Region region={region} metadata={metadata} key={region.id} componentData={componentData} />
-            </div>
-        ) : null;
-    };
 
     const handleProductClick = useCallback(
         (product: ShopperSearch.schemas['ProductSearchHit']) => {
@@ -190,12 +172,16 @@ export default function SearchPage({
                     </Suspense>
                 </div>
 
-                {/* plp-top-full-width */}
-                <Suspense fallback={null}>
-                    <Await resolve={page} errorElement={null}>
-                        {(pageData) => renderRegion(pageData, 'plp-top-full-width', 'mb-8')}
-                    </Await>
-                </Suspense>
+                {/* plpTopFullWidth */}
+                <div className="mb-8">
+                    <Region
+                        page={page}
+                        regionId="plpTopFullWidth"
+                        metadata={getRegionDefinition(SearchPageMetadata, 'plpTopFullWidth')}
+                        componentData={componentData}
+                        fallback={<div />}
+                    />
+                </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="hidden lg:block w-64 flex-shrink-0">
@@ -207,13 +193,16 @@ export default function SearchPage({
                     </div>
 
                     <div className="flex-grow">
-                        {/* plp-top-content */}
-                        <Suspense fallback={null}>
-                            <Await resolve={page} errorElement={null}>
-                                {(pageData) => renderRegion(pageData, 'plp-top-content', 'mb-8')}
-                            </Await>
-                        </Suspense>
-
+                        {/* plpTopContent */}
+                        <div className="mb-8">
+                            <Region
+                                page={page}
+                                regionId="plpTopContent"
+                                metadata={getRegionDefinition(SearchPageMetadata, 'plpTopContent')}
+                                componentData={componentData}
+                                fallback={<div />}
+                            />
+                        </div>
                         <Suspense fallback={<CategorySkeleton />}>
                             <Await resolve={searchResult}>
                                 {(searchResultData) => (
@@ -232,12 +221,16 @@ export default function SearchPage({
                             </Await>
                         </Suspense>
 
-                        {/* plp-bottom */}
-                        <Suspense fallback={null}>
-                            <Await resolve={page} errorElement={null}>
-                                {(pageData) => renderRegion(pageData, 'plp-bottom', 'mt-8')}
-                            </Await>
-                        </Suspense>
+                        {/* plpBottom */}
+                        <div className="mt-8">
+                            <Region
+                                page={page}
+                                regionId="plpBottom"
+                                metadata={getRegionDefinition(SearchPageMetadata, 'plpBottom')}
+                                componentData={componentData}
+                                fallback={<div />}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
