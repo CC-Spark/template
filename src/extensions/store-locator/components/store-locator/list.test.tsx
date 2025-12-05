@@ -171,4 +171,29 @@ describe('StoreLocatorList', () => {
         render(<StoreLocatorList />);
         expect(screen.getByText(t('extStoreLocator:storeLocator.list.statusLocation'))).toBeInTheDocument();
     });
+
+    test('renders radio group items with disabled state when inventoryId is not present', () => {
+        const fullStoresList = [
+            ...baseState.stores,
+            {
+                id: 'd',
+                name: 'D',
+                address1: '4 Alcatraz St',
+                city: 'SF',
+                stateCode: 'CA',
+                postalCode: '94111',
+                inventoryId: null,
+            },
+        ];
+        const state = {
+            ...baseState,
+            stores: fullStoresList,
+            storesPaginated: fullStoresList,
+        };
+        vi.mocked(useStoreLocatorList).mockReturnValueOnce(state as any);
+        render(<StoreLocatorList />);
+        const radios = screen.getAllByRole('radio');
+        expect(radios.at(0)).not.toBeDisabled();
+        expect(radios.at(-1)).toBeDisabled();
+    });
 });

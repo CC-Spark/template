@@ -118,6 +118,7 @@ export default function StoreLocatorList(): ReactElement | null {
                                         value={s.id}
                                         className="mt-1"
                                         aria-describedby={`store-info-${s.id}`}
+                                        disabled={!s.inventoryId}
                                     />
                                     <StoreDetails
                                         store={s}
