@@ -9,7 +9,7 @@ exports[`CategorySorting stories snapshot > Default story renders and matches sn
   >
     <label
       class="text-sm text-muted-foreground"
-      for="«r0»"
+      for="_r_0_"
     >
       Sort by:
     </label>
@@ -19,7 +19,7 @@ exports[`CategorySorting stories snapshot > Default story renders and matches sn
       <select
         class="peer border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 has-[option[disabled]:checked]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-full cursor-pointer appearance-none items-center rounded-md border text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 h-9 ps-3 pe-8"
         data-slot="select-native"
-        id="«r0»"
+        id="_r_0_"
       >
         <option
           value="best-matches"
@@ -102,7 +102,7 @@ exports[`CategorySorting stories snapshot > Desktop story renders and matches sn
   >
     <label
       class="text-sm text-muted-foreground"
-      for="«r5»"
+      for="_r_5_"
     >
       Sort by:
     </label>
@@ -112,7 +112,7 @@ exports[`CategorySorting stories snapshot > Desktop story renders and matches sn
       <select
         class="peer border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 has-[option[disabled]:checked]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-full cursor-pointer appearance-none items-center rounded-md border text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 h-9 ps-3 pe-8"
         data-slot="select-native"
-        id="«r5»"
+        id="_r_5_"
       >
         <option
           value="best-matches"
@@ -195,7 +195,7 @@ exports[`CategorySorting stories snapshot > Mobile story renders and matches sna
   >
     <label
       class="text-sm text-muted-foreground"
-      for="«r3»"
+      for="_r_3_"
     >
       Sort by:
     </label>
@@ -205,7 +205,7 @@ exports[`CategorySorting stories snapshot > Mobile story renders and matches sna
       <select
         class="peer border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 has-[option[disabled]:checked]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-full cursor-pointer appearance-none items-center rounded-md border text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 h-9 ps-3 pe-8"
         data-slot="select-native"
-        id="«r3»"
+        id="_r_3_"
       >
         <option
           value="best-matches"
@@ -294,7 +294,7 @@ exports[`CategorySorting stories snapshot > Tablet story renders and matches sna
   >
     <label
       class="text-sm text-muted-foreground"
-      for="«r4»"
+      for="_r_4_"
     >
       Sort by:
     </label>
@@ -304,7 +304,7 @@ exports[`CategorySorting stories snapshot > Tablet story renders and matches sna
       <select
         class="peer border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 has-[option[disabled]:checked]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-full cursor-pointer appearance-none items-center rounded-md border text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 h-9 ps-3 pe-8"
         data-slot="select-native"
-        id="«r4»"
+        id="_r_4_"
       >
         <option
           value="best-matches"
@@ -387,7 +387,7 @@ exports[`CategorySorting stories snapshot > WithSelectedOption story renders and
   >
     <label
       class="text-sm text-muted-foreground"
-      for="«r2»"
+      for="_r_2_"
     >
       Sort by:
     </label>
@@ -397,7 +397,7 @@ exports[`CategorySorting stories snapshot > WithSelectedOption story renders and
       <select
         class="peer border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/50 has-[option[disabled]:checked]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-full cursor-pointer appearance-none items-center rounded-md border text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 h-9 ps-3 pe-8"
         data-slot="select-native"
-        id="«r2»"
+        id="_r_2_"
       >
         <option
           value="best-matches"

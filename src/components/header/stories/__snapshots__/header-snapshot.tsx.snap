@@ -41,7 +41,7 @@ Street
               >
                 <input
                   aria-autocomplete="list"
-                  aria-controls="radix-«r1»"
+                  aria-controls="radix-_r_1_"
                   aria-disabled="true"
                   aria-expanded="false"
                   aria-haspopup="listbox"
@@ -219,7 +219,7 @@ Street
               >
                 <input
                   aria-autocomplete="list"
-                  aria-controls="radix-«r0»"
+                  aria-controls="radix-_r_0_"
                   aria-disabled="true"
                   aria-expanded="false"
                   aria-haspopup="listbox"
@@ -385,7 +385,7 @@ Street
               >
                 <input
                   aria-autocomplete="list"
-                  aria-controls="radix-«r2»"
+                  aria-controls="radix-_r_2_"
                   aria-disabled="true"
                   aria-expanded="false"
                   aria-haspopup="listbox"
@@ -577,7 +577,7 @@ Street
                 >
                   <input
                     aria-autocomplete="list"
-                    aria-controls="radix-«r5»"
+                    aria-controls="radix-_r_5_"
                     aria-disabled="true"
                     aria-expanded="false"
                     aria-haspopup="listbox"
@@ -931,7 +931,7 @@ Street
               >
                 <input
                   aria-autocomplete="list"
-                  aria-controls="radix-«r3»"
+                  aria-controls="radix-_r_3_"
                   aria-disabled="true"
                   aria-expanded="false"
                   aria-haspopup="listbox"
@@ -1120,7 +1120,7 @@ Street
               >
                 <input
                   aria-autocomplete="list"
-                  aria-controls="radix-«r4»"
+                  aria-controls="radix-_r_4_"
                   aria-disabled="true"
                   aria-expanded="false"
                   aria-haspopup="listbox"

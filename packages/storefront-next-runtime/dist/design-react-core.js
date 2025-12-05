@@ -1,4 +1,3 @@
-import "./modeDetection.js";
 import { n as usePageDesignerMode, t as PageDesignerProvider } from "./PageDesignerProvider.js";
 import { lazy } from "react";
 import { Fragment, jsx } from "react/jsx-runtime";

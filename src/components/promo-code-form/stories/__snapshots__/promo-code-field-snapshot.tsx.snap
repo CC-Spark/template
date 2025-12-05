@@ -16,7 +16,7 @@ exports[`PromoCodeField stories snapshot > Default story renders and matches sna
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="false"
           data-slot="form-label"
-          for="«r0»-form-item"
+          for="_r_0_-form-item"
         >
           Promo code
         </label>
@@ -24,10 +24,10 @@ exports[`PromoCodeField stories snapshot > Default story renders and matches sna
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r0»-form-item-description"
+            aria-describedby="_r_0_-form-item-description"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r0»-form-item"
+            id="_r_0_-form-item"
             name="code"
             placeholder="Promo code..."
             value=""
@@ -62,7 +62,7 @@ exports[`PromoCodeField stories snapshot > DesktopView story renders and matches
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="false"
           data-slot="form-label"
-          for="«r7»-form-item"
+          for="_r_7_-form-item"
         >
           Promo code
         </label>
@@ -70,10 +70,10 @@ exports[`PromoCodeField stories snapshot > DesktopView story renders and matches
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r7»-form-item-description"
+            aria-describedby="_r_7_-form-item-description"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r7»-form-item"
+            id="_r_7_-form-item"
             name="code"
             placeholder="Promo code..."
             value=""
@@ -108,7 +108,7 @@ exports[`PromoCodeField stories snapshot > LoadingState story renders and matche
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="false"
           data-slot="form-label"
-          for="«r2»-form-item"
+          for="_r_2_-form-item"
         >
           Promo code
         </label>
@@ -116,10 +116,10 @@ exports[`PromoCodeField stories snapshot > LoadingState story renders and matche
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r2»-form-item-description"
+            aria-describedby="_r_2_-form-item-description"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r2»-form-item"
+            id="_r_2_-form-item"
             name="code"
             placeholder="Promo code..."
             value=""
@@ -155,7 +155,7 @@ exports[`PromoCodeField stories snapshot > MobileView story renders and matches 
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="false"
           data-slot="form-label"
-          for="«r5»-form-item"
+          for="_r_5_-form-item"
         >
           Promo code
         </label>
@@ -163,10 +163,10 @@ exports[`PromoCodeField stories snapshot > MobileView story renders and matches 
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r5»-form-item-description"
+            aria-describedby="_r_5_-form-item-description"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r5»-form-item"
+            id="_r_5_-form-item"
             name="code"
             placeholder="Promo code..."
             value=""
@@ -201,7 +201,7 @@ exports[`PromoCodeField stories snapshot > TabletView story renders and matches 
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="false"
           data-slot="form-label"
-          for="«r6»-form-item"
+          for="_r_6_-form-item"
         >
           Promo code
         </label>
@@ -209,10 +209,10 @@ exports[`PromoCodeField stories snapshot > TabletView story renders and matches 
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r6»-form-item-description"
+            aria-describedby="_r_6_-form-item-description"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r6»-form-item"
+            id="_r_6_-form-item"
             name="code"
             placeholder="Promo code..."
             value=""
@@ -247,7 +247,7 @@ exports[`PromoCodeField stories snapshot > WithInitialValue story renders and ma
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="false"
           data-slot="form-label"
-          for="«r1»-form-item"
+          for="_r_1_-form-item"
         >
           Promo code
         </label>
@@ -255,10 +255,10 @@ exports[`PromoCodeField stories snapshot > WithInitialValue story renders and ma
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r1»-form-item-description"
+            aria-describedby="_r_1_-form-item-description"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r1»-form-item"
+            id="_r_1_-form-item"
             name="code"
             placeholder="Promo code..."
             value="SAVE10"
@@ -293,7 +293,7 @@ exports[`PromoCodeField stories snapshot > WithLongPromoCode story renders and m
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="false"
           data-slot="form-label"
-          for="«r4»-form-item"
+          for="_r_4_-form-item"
         >
           Promo code
         </label>
@@ -301,10 +301,10 @@ exports[`PromoCodeField stories snapshot > WithLongPromoCode story renders and m
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r4»-form-item-description"
+            aria-describedby="_r_4_-form-item-description"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r4»-form-item"
+            id="_r_4_-form-item"
             name="code"
             placeholder="Promo code..."
             value="SUMMER2024SAVE20PERCENT"
@@ -339,7 +339,7 @@ exports[`PromoCodeField stories snapshot > WithValidationError story renders and
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive sr-only"
           data-error="true"
           data-slot="form-label"
-          for="«r3»-form-item"
+          for="_r_3_-form-item"
         >
           Promo code
         </label>
@@ -347,11 +347,11 @@ exports[`PromoCodeField stories snapshot > WithValidationError story renders and
           class="flex gap-2"
         >
           <input
-            aria-describedby="«r3»-form-item-description «r3»-form-item-message"
+            aria-describedby="_r_3_-form-item-description _r_3_-form-item-message"
             aria-invalid="true"
             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive rounded-md"
             data-slot="form-control"
-            id="«r3»-form-item"
+            id="_r_3_-form-item"
             name="code"
             placeholder="Promo code..."
             value="A"
@@ -367,7 +367,7 @@ exports[`PromoCodeField stories snapshot > WithValidationError story renders and
         <p
           class="text-destructive text-sm"
           data-slot="form-message"
-          id="«r3»-form-item-message"
+          id="_r_3_-form-item-message"
         >
           Promo must be at least 2 characters.
         </p>

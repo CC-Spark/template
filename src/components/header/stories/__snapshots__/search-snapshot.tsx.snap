@@ -13,7 +13,7 @@ exports[`Search stories snapshot > Default story renders and matches snapshot 1`
       >
         <input
           aria-autocomplete="list"
-          aria-controls="radix-«r0»"
+          aria-controls="radix-_r_0_"
           aria-expanded="false"
           aria-haspopup="listbox"
           aria-label="Search"
@@ -65,7 +65,7 @@ exports[`Search stories snapshot > Desktop story renders and matches snapshot 1`
       >
         <input
           aria-autocomplete="list"
-          aria-controls="radix-«r5»"
+          aria-controls="radix-_r_5_"
           aria-expanded="false"
           aria-haspopup="listbox"
           aria-label="Search"
@@ -117,7 +117,7 @@ exports[`Search stories snapshot > Interactive story renders and matches snapsho
       >
         <input
           aria-autocomplete="list"
-          aria-controls="radix-«r1»"
+          aria-controls="radix-_r_1_"
           aria-expanded="false"
           aria-haspopup="listbox"
           aria-label="Search"
@@ -169,7 +169,7 @@ exports[`Search stories snapshot > Mobile story renders and matches snapshot 1`]
       >
         <input
           aria-autocomplete="list"
-          aria-controls="radix-«r3»"
+          aria-controls="radix-_r_3_"
           aria-expanded="false"
           aria-haspopup="listbox"
           aria-label="Search"
@@ -221,7 +221,7 @@ exports[`Search stories snapshot > Tablet story renders and matches snapshot 1`]
       >
         <input
           aria-autocomplete="list"
-          aria-controls="radix-«r4»"
+          aria-controls="radix-_r_4_"
           aria-expanded="false"
           aria-haspopup="listbox"
           aria-label="Search"
@@ -273,7 +273,7 @@ exports[`Search stories snapshot > WithQuery story renders and matches snapshot 
       >
         <input
           aria-autocomplete="list"
-          aria-controls="radix-«r2»"
+          aria-controls="radix-_r_2_"
           aria-expanded="false"
           aria-haspopup="listbox"
           aria-label="Search"

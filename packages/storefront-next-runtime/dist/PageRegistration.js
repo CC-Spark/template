@@ -1,5 +1,3 @@
-import "./modeDetection.js";
-import "./messaging-api.js";
 import { r as useDesignContext } from "./DesignContext.js";
 import { n as usePageDesignerMode } from "./PageDesignerProvider.js";
 import { useEffect } from "react";

@@ -30883,7 +30883,7 @@ var require_express = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react@19.1.1/node_modules/react/cjs/react.production.js
+//#region ../../node_modules/.pnpm/react@19.2.1/node_modules/react/cjs/react.production.js
 /**
 * @license React
 * react.production.js
@@ -30894,7 +30894,7 @@ var require_express = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 * LICENSE file in the root directory of this source tree.
 */
 var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
-	var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE$1 = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
+	var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE$1 = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
 	function getIteratorFn(maybeIterable) {
 		if (null === maybeIterable || "object" !== typeof maybeIterable) return null;
 		maybeIterable = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable["@@iterator"];
@@ -30934,25 +30934,26 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	pureComponentPrototype.constructor = PureComponent;
 	assign(pureComponentPrototype, Component.prototype);
 	pureComponentPrototype.isPureReactComponent = !0;
-	var isArrayImpl = Array.isArray, ReactSharedInternals$1 = {
+	var isArrayImpl = Array.isArray;
+	function noop$2() {}
+	var ReactSharedInternals$1 = {
 		H: null,
 		A: null,
 		T: null,
-		S: null,
-		V: null
+		S: null
 	}, hasOwnProperty = Object.prototype.hasOwnProperty;
-	function ReactElement(type, key$1, self, source, owner, props) {
-		self = props.ref;
+	function ReactElement(type, key$1, props) {
+		var refProp = props.ref;
 		return {
 			$$typeof: REACT_ELEMENT_TYPE,
 			type,
 			key: key$1,
-			ref: void 0 !== self ? self : null,
+			ref: void 0 !== refProp ? refProp : null,
 			props
 		};
 	}
 	function cloneAndReplaceKey(oldElement, newKey) {
-		return ReactElement(oldElement.type, newKey, void 0, void 0, void 0, oldElement.props);
+		return ReactElement(oldElement.type, newKey, oldElement.props);
 	}
 	function isValidElement(object) {
 		return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
@@ -30970,12 +30971,11 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function getElementKey(element, index) {
 		return "object" === typeof element && null !== element && null != element.key ? escape$2("" + element.key) : index.toString(36);
 	}
-	function noop$1$1() {}
 	function resolveThenable(thenable) {
 		switch (thenable.status) {
 			case "fulfilled": return thenable.value;
 			case "rejected": throw thenable.reason;
-			default: switch ("string" === typeof thenable.status ? thenable.then(noop$1$1, noop$1$1) : (thenable.status = "pending", thenable.then(function(fulfilledValue) {
+			default: switch ("string" === typeof thenable.status ? thenable.then(noop$2, noop$2) : (thenable.status = "pending", thenable.then(function(fulfilledValue) {
 				"pending" === thenable.status && (thenable.status = "fulfilled", thenable.value = fulfilledValue);
 			}, function(error) {
 				"pending" === thenable.status && (thenable.status = "rejected", thenable.reason = error);
@@ -31055,9 +31055,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 			return;
 		}
 		console.error(error);
-	};
-	function noop$2() {}
-	exports.Children = {
+	}, Children = {
 		map: mapChildren,
 		forEach: function(children, forEachFunc, forEachContext) {
 			mapChildren(children, function() {
@@ -31081,6 +31079,8 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 			return children;
 		}
 	};
+	exports.Activity = REACT_ACTIVITY_TYPE;
+	exports.Children = Children;
 	exports.Component = Component;
 	exports.Fragment = REACT_FRAGMENT_TYPE;
 	exports.Profiler = REACT_PROFILER_TYPE;
@@ -31099,17 +31099,20 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 			return fn.apply(null, arguments);
 		};
 	};
+	exports.cacheSignal = function() {
+		return null;
+	};
 	exports.cloneElement = function(element, config, children) {
 		if (null === element || void 0 === element) throw Error("The argument must be a React element, but you passed " + element + ".");
-		var props = assign({}, element.props), key$1 = element.key, owner = void 0;
-		if (null != config) for (propName in void 0 !== config.ref && (owner = void 0), void 0 !== config.key && (key$1 = "" + config.key), config) !hasOwnProperty.call(config, propName) || "key" === propName || "__self" === propName || "__source" === propName || "ref" === propName && void 0 === config.ref || (props[propName] = config[propName]);
+		var props = assign({}, element.props), key$1 = element.key;
+		if (null != config) for (propName in void 0 !== config.key && (key$1 = "" + config.key), config) !hasOwnProperty.call(config, propName) || "key" === propName || "__self" === propName || "__source" === propName || "ref" === propName && void 0 === config.ref || (props[propName] = config[propName]);
 		var propName = arguments.length - 2;
 		if (1 === propName) props.children = children;
 		else if (1 < propName) {
 			for (var childArray = Array(propName), i$3 = 0; i$3 < propName; i$3++) childArray[i$3] = arguments[i$3 + 2];
 			props.children = childArray;
 		}
-		return ReactElement(element.type, key$1, void 0, void 0, owner, props);
+		return ReactElement(element.type, key$1, props);
 	};
 	exports.createContext = function(defaultValue) {
 		defaultValue = {
@@ -31137,7 +31140,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 			props.children = childArray;
 		}
 		if (type && type.defaultProps) for (propName in childrenLength = type.defaultProps, childrenLength) void 0 === props[propName] && (props[propName] = childrenLength[propName]);
-		return ReactElement(type, key$1, void 0, void 0, null, props);
+		return ReactElement(type, key$1, props);
 	};
 	exports.createRef = function() {
 		return { current: null };
@@ -31176,7 +31179,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 		} catch (error) {
 			reportGlobalError(error);
 		} finally {
-			ReactSharedInternals$1.T = prevTransition;
+			null !== prevTransition && null !== currentTransition.types && (prevTransition.types = currentTransition.types), ReactSharedInternals$1.T = prevTransition;
 		}
 	};
 	exports.unstable_useCacheRefresh = function() {
@@ -31198,10 +31201,11 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.useDeferredValue = function(value, initialValue) {
 		return ReactSharedInternals$1.H.useDeferredValue(value, initialValue);
 	};
-	exports.useEffect = function(create, createDeps, update) {
-		var dispatcher = ReactSharedInternals$1.H;
-		if ("function" === typeof update) throw Error("useEffect CRUD overload is not enabled in this build of React.");
-		return dispatcher.useEffect(create, createDeps);
+	exports.useEffect = function(create, deps) {
+		return ReactSharedInternals$1.H.useEffect(create, deps);
+	};
+	exports.useEffectEvent = function(callback) {
+		return ReactSharedInternals$1.H.useEffectEvent(callback);
 	};
 	exports.useId = function() {
 		return ReactSharedInternals$1.H.useId();
@@ -31236,11 +31240,11 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.useTransition = function() {
 		return ReactSharedInternals$1.H.useTransition();
 	};
-	exports.version = "19.1.1";
+	exports.version = "19.2.1";
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react@19.1.1/node_modules/react/cjs/react.development.js
+//#region ../../node_modules/.pnpm/react@19.2.1/node_modules/react/cjs/react.development.js
 /**
 * @license React
 * react.development.js
@@ -31280,6 +31284,7 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 			this.refs = emptyObject$1;
 			this.updater = updater || ReactNoopUpdateQueue$1;
 		}
+		function noop$4() {}
 		function testStringCoercion(value) {
 			return "" + value;
 		}
@@ -31308,11 +31313,11 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 				case REACT_STRICT_MODE_TYPE$1: return "StrictMode";
 				case REACT_SUSPENSE_TYPE$1: return "Suspense";
 				case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
-				case REACT_ACTIVITY_TYPE: return "Activity";
+				case REACT_ACTIVITY_TYPE$1: return "Activity";
 			}
 			if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
 				case REACT_PORTAL_TYPE$2: return "Portal";
-				case REACT_CONTEXT_TYPE$1: return (type.displayName || "Context") + ".Provider";
+				case REACT_CONTEXT_TYPE$1: return type.displayName || "Context";
 				case REACT_CONSUMER_TYPE$1: return (type._context.displayName || "Context") + ".Consumer";
 				case REACT_FORWARD_REF_TYPE$1:
 					var innerType = type.render;
@@ -31369,8 +31374,8 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 			componentName = this.props.ref;
 			return void 0 !== componentName ? componentName : null;
 		}
-		function ReactElement$1(type, key$1, self, source, owner, props, debugStack, debugTask) {
-			self = props.ref;
+		function ReactElement$1(type, key$1, props, owner, debugStack, debugTask) {
+			var refProp = props.ref;
 			type = {
 				$$typeof: REACT_ELEMENT_TYPE$1,
 				type,
@@ -31378,7 +31383,7 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 				props,
 				_owner: owner
 			};
-			null !== (void 0 !== self ? self : null) ? Object.defineProperty(type, "ref", {
+			null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
 				enumerable: !1,
 				get: elementRefGetterWithDeprecationWarning
 			}) : Object.defineProperty(type, "ref", {
@@ -31414,9 +31419,12 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 			return type;
 		}
 		function cloneAndReplaceKey$1(oldElement, newKey) {
-			newKey = ReactElement$1(oldElement.type, newKey, void 0, void 0, oldElement._owner, oldElement.props, oldElement._debugStack, oldElement._debugTask);
+			newKey = ReactElement$1(oldElement.type, newKey, oldElement.props, oldElement._owner, oldElement._debugStack, oldElement._debugTask);
 			oldElement._store && (newKey._store.validated = oldElement._store.validated);
 			return newKey;
+		}
+		function validateChildKeys(node) {
+			isValidElement$1(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE$1 && ("fulfilled" === node._payload.status ? isValidElement$1(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
 		}
 		function isValidElement$1(object) {
 			return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE$1;
@@ -31433,12 +31441,11 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 		function getElementKey$1(element, index) {
 			return "object" === typeof element && null !== element && null != element.key ? (checkKeyStringCoercion(element.key), escape$3("" + element.key)) : index.toString(36);
 		}
-		function noop$1$2() {}
 		function resolveThenable$1(thenable) {
 			switch (thenable.status) {
 				case "fulfilled": return thenable.value;
 				case "rejected": throw thenable.reason;
-				default: switch ("string" === typeof thenable.status ? thenable.then(noop$1$2, noop$1$2) : (thenable.status = "pending", thenable.then(function(fulfilledValue) {
+				default: switch ("string" === typeof thenable.status ? thenable.then(noop$4, noop$4) : (thenable.status = "pending", thenable.then(function(fulfilledValue) {
 					"pending" === thenable.status && (thenable.status = "fulfilled", thenable.value = fulfilledValue);
 				}, function(error) {
 					"pending" === thenable.status && (thenable.status = "rejected", thenable.reason = error);
@@ -31498,16 +31505,36 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 		}
 		function lazyInitializer$1(payload) {
 			if (-1 === payload._status) {
-				var ctor = payload._result;
-				ctor = ctor();
-				ctor.then(function(moduleObject) {
-					if (0 === payload._status || -1 === payload._status) payload._status = 1, payload._result = moduleObject;
+				var ioInfo = payload._ioInfo;
+				null != ioInfo && (ioInfo.start = ioInfo.end = performance.now());
+				ioInfo = payload._result;
+				var thenable = ioInfo();
+				thenable.then(function(moduleObject) {
+					if (0 === payload._status || -1 === payload._status) {
+						payload._status = 1;
+						payload._result = moduleObject;
+						var _ioInfo = payload._ioInfo;
+						null != _ioInfo && (_ioInfo.end = performance.now());
+						void 0 === thenable.status && (thenable.status = "fulfilled", thenable.value = moduleObject);
+					}
 				}, function(error) {
-					if (0 === payload._status || -1 === payload._status) payload._status = 2, payload._result = error;
+					if (0 === payload._status || -1 === payload._status) {
+						payload._status = 2;
+						payload._result = error;
+						var _ioInfo2 = payload._ioInfo;
+						null != _ioInfo2 && (_ioInfo2.end = performance.now());
+						void 0 === thenable.status && (thenable.status = "rejected", thenable.reason = error);
+					}
 				});
-				-1 === payload._status && (payload._status = 0, payload._result = ctor);
+				ioInfo = payload._ioInfo;
+				if (null != ioInfo) {
+					ioInfo.value = thenable;
+					var displayName = thenable.displayName;
+					"string" === typeof displayName && (ioInfo.name = displayName);
+				}
+				-1 === payload._status && (payload._status = 0, payload._result = thenable);
 			}
-			if (1 === payload._status) return ctor = payload._result, void 0 === ctor && console.error("lazy: Expected the result of a dynamic import() call. Instead received: %s\n\nYour code should look like: \n  const MyComponent = lazy(() => import('./MyComponent'))\n\nDid you accidentally put curly braces around the import?", ctor), "default" in ctor || console.error("lazy: Expected the result of a dynamic import() call. Instead received: %s\n\nYour code should look like: \n  const MyComponent = lazy(() => import('./MyComponent'))", ctor), ctor.default;
+			if (1 === payload._status) return ioInfo = payload._result, void 0 === ioInfo && console.error("lazy: Expected the result of a dynamic import() call. Instead received: %s\n\nYour code should look like: \n  const MyComponent = lazy(() => import('./MyComponent'))\n\nDid you accidentally put curly braces around the import?", ioInfo), "default" in ioInfo || console.error("lazy: Expected the result of a dynamic import() call. Instead received: %s\n\nYour code should look like: \n  const MyComponent = lazy(() => import('./MyComponent'))", ioInfo), ioInfo.default;
 			throw payload._result;
 		}
 		function resolveDispatcher() {
@@ -31515,7 +31542,9 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 			null === dispatcher && console.error("Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.");
 			return dispatcher;
 		}
-		function noop$4() {}
+		function releaseAsyncTransition() {
+			ReactSharedInternals$2.asyncTransitions--;
+		}
 		function enqueueTask(task) {
 			if (null === enqueueTaskImpl) try {
 				var requireString = ("require" + Math.random()).slice(0, 7);
@@ -31580,8 +31609,7 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 			}
 		}
 		"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-		var REACT_ELEMENT_TYPE$1 = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE$2 = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE$1 = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE$1 = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE$1 = Symbol.for("react.profiler");
-		var REACT_CONSUMER_TYPE$1 = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE$1 = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE$1 = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE$1 = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE$1 = Symbol.for("react.memo"), REACT_LAZY_TYPE$1 = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), MAYBE_ITERATOR_SYMBOL$1 = Symbol.iterator, didWarnStateUpdateForUnmountedComponent = {}, ReactNoopUpdateQueue$1 = {
+		var REACT_ELEMENT_TYPE$1 = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE$2 = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE$1 = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE$1 = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE$1 = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE$1 = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE$1 = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE$1 = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE$1 = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE$1 = Symbol.for("react.memo"), REACT_LAZY_TYPE$1 = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE$1 = Symbol.for("react.activity"), MAYBE_ITERATOR_SYMBOL$1 = Symbol.iterator, didWarnStateUpdateForUnmountedComponent = {}, ReactNoopUpdateQueue$1 = {
 			isMounted: function() {
 				return !1;
 			},
@@ -31607,7 +31635,7 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 		var deprecatedAPIs = {
 			isMounted: ["isMounted", "Instead, make sure to clean up subscriptions and pending requests in componentWillUnmount to prevent memory leaks."],
 			replaceState: ["replaceState", "Refactor your code to use setState instead (see https://github.com/facebook/react/issues/3236)."]
-		}, fnName;
+		};
 		for (fnName in deprecatedAPIs) deprecatedAPIs.hasOwnProperty(fnName) && defineDeprecationWarning(fnName, deprecatedAPIs[fnName]);
 		ComponentDummy$1.prototype = Component$1.prototype;
 		deprecatedAPIs = PureComponent$1.prototype = new ComponentDummy$1();
@@ -31619,8 +31647,8 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 			A: null,
 			T: null,
 			S: null,
-			V: null,
 			actQueue: null,
+			asyncTransitions: 0,
 			isBatchingLegacy: !1,
 			didScheduleLegacyUpdate: !1,
 			didUsePromise: !1,
@@ -31662,7 +31690,7 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 				return resolveDispatcher().useMemoCache(size);
 			}
 		});
-		exports.Children = {
+		var fnName = {
 			map: mapChildren$1,
 			forEach: function(children, forEachFunc, forEachContext) {
 				mapChildren$1(children, function() {
@@ -31686,6 +31714,8 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 				return children;
 			}
 		};
+		exports.Activity = REACT_ACTIVITY_TYPE$1;
+		exports.Children = fnName;
 		exports.Component = Component$1;
 		exports.Fragment = REACT_FRAGMENT_TYPE$1;
 		exports.Profiler = REACT_PROFILER_TYPE$1;
@@ -31751,6 +31781,9 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 				return fn.apply(null, arguments);
 			};
 		};
+		exports.cacheSignal = function() {
+			return null;
+		};
 		exports.captureOwnerStack = function() {
 			var getCurrentStack = ReactSharedInternals$2.getCurrentStack;
 			return null === getCurrentStack ? null : getCurrentStack();
@@ -31778,8 +31811,8 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 				for (var i$3 = 0; i$3 < propName; i$3++) JSCompiler_inline_result[i$3] = arguments[i$3 + 2];
 				props.children = JSCompiler_inline_result;
 			}
-			props = ReactElement$1(element.type, key$1, void 0, void 0, owner, props, element._debugStack, element._debugTask);
-			for (key$1 = 2; key$1 < arguments.length; key$1++) owner = arguments[key$1], isValidElement$1(owner) && owner._store && (owner._store.validated = 1);
+			props = ReactElement$1(element.type, key$1, props, owner, element._debugStack, element._debugTask);
+			for (key$1 = 2; key$1 < arguments.length; key$1++) validateChildKeys(arguments[key$1]);
 			return props;
 		};
 		exports.createContext = function(defaultValue) {
@@ -31801,13 +31834,10 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 			return defaultValue;
 		};
 		exports.createElement = function(type, config, children) {
-			for (var i$3 = 2; i$3 < arguments.length; i$3++) {
-				var node = arguments[i$3];
-				isValidElement$1(node) && node._store && (node._store.validated = 1);
-			}
+			for (var i$3 = 2; i$3 < arguments.length; i$3++) validateChildKeys(arguments[i$3]);
 			i$3 = {};
-			node = null;
-			if (null != config) for (propName in didWarnAboutOldJSXRuntime || !("__self" in config) || "key" in config || (didWarnAboutOldJSXRuntime = !0, console.warn("Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform")), hasValidKey(config) && (checkKeyStringCoercion(config.key), node = "" + config.key), config) hasOwnProperty$4.call(config, propName) && "key" !== propName && "__self" !== propName && "__source" !== propName && (i$3[propName] = config[propName]);
+			var key$1 = null;
+			if (null != config) for (propName in didWarnAboutOldJSXRuntime || !("__self" in config) || "key" in config || (didWarnAboutOldJSXRuntime = !0, console.warn("Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform")), hasValidKey(config) && (checkKeyStringCoercion(config.key), key$1 = "" + config.key), config) hasOwnProperty$4.call(config, propName) && "key" !== propName && "__self" !== propName && "__source" !== propName && (i$3[propName] = config[propName]);
 			var childrenLength = arguments.length - 2;
 			if (1 === childrenLength) i$3.children = children;
 			else if (1 < childrenLength) {
@@ -31816,9 +31846,9 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 				i$3.children = childArray;
 			}
 			if (type && type.defaultProps) for (propName in childrenLength = type.defaultProps, childrenLength) void 0 === i$3[propName] && (i$3[propName] = childrenLength[propName]);
-			node && defineKeyPropWarningGetter(i$3, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
+			key$1 && defineKeyPropWarningGetter(i$3, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
 			var propName = 1e4 > ReactSharedInternals$2.recentlyCreatedOwnerStacks++;
-			return ReactElement$1(type, node, void 0, void 0, getOwner(), i$3, propName ? Error("react-stack-top-frame") : unknownOwnerDebugStack, propName ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+			return ReactElement$1(type, key$1, i$3, getOwner(), propName ? Error("react-stack-top-frame") : unknownOwnerDebugStack, propName ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
 		};
 		exports.createRef = function() {
 			var refObject = { current: null };
@@ -31847,14 +31877,26 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 		};
 		exports.isValidElement = isValidElement$1;
 		exports.lazy = function(ctor) {
-			return {
-				$$typeof: REACT_LAZY_TYPE$1,
-				_payload: {
-					_status: -1,
-					_result: ctor
-				},
-				_init: lazyInitializer$1
+			ctor = {
+				_status: -1,
+				_result: ctor
 			};
+			var lazyType = {
+				$$typeof: REACT_LAZY_TYPE$1,
+				_payload: ctor,
+				_init: lazyInitializer$1
+			}, ioInfo = {
+				name: "lazy",
+				start: -1,
+				end: -1,
+				value: null,
+				owner: null,
+				debugStack: Error("react-stack-top-frame"),
+				debugTask: console.createTask ? console.createTask("lazy()") : null
+			};
+			ctor._ioInfo = ioInfo;
+			lazyType._debugInfo = [{ awaited: ioInfo }];
+			return lazyType;
 		};
 		exports.memo = function(type, compare$1) {
 			type ?? console.error("memo: The first argument must be a component. Instead received: %s", null === type ? "null" : typeof type);
@@ -31879,16 +31921,16 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 		};
 		exports.startTransition = function(scope) {
 			var prevTransition = ReactSharedInternals$2.T, currentTransition = {};
-			ReactSharedInternals$2.T = currentTransition;
 			currentTransition._updatedFibers = /* @__PURE__ */ new Set();
+			ReactSharedInternals$2.T = currentTransition;
 			try {
 				var returnValue = scope(), onStartTransitionFinish = ReactSharedInternals$2.S;
 				null !== onStartTransitionFinish && onStartTransitionFinish(currentTransition, returnValue);
-				"object" === typeof returnValue && null !== returnValue && "function" === typeof returnValue.then && returnValue.then(noop$4, reportGlobalError$1);
+				"object" === typeof returnValue && null !== returnValue && "function" === typeof returnValue.then && (ReactSharedInternals$2.asyncTransitions++, returnValue.then(releaseAsyncTransition, releaseAsyncTransition), returnValue.then(noop$4, reportGlobalError$1));
 			} catch (error) {
 				reportGlobalError$1(error);
 			} finally {
-				null === prevTransition && currentTransition._updatedFibers && (scope = currentTransition._updatedFibers.size, currentTransition._updatedFibers.clear(), 10 < scope && console.warn("Detected a large number of updates inside startTransition. If this is due to a subscription please re-write it to use React provided hooks. Otherwise concurrent mode guarantees are off the table.")), ReactSharedInternals$2.T = prevTransition;
+				null === prevTransition && currentTransition._updatedFibers && (scope = currentTransition._updatedFibers.size, currentTransition._updatedFibers.clear(), 10 < scope && console.warn("Detected a large number of updates inside startTransition. If this is due to a subscription please re-write it to use React provided hooks. Otherwise concurrent mode guarantees are off the table.")), null !== prevTransition && null !== currentTransition.types && (null !== prevTransition.types && prevTransition.types !== currentTransition.types && console.error("We expected inner Transitions to have transferred the outer types set and that you cannot add to the outer Transition while inside the inner.This is a bug in React."), prevTransition.types = currentTransition.types), ReactSharedInternals$2.T = prevTransition;
 			}
 		};
 		exports.unstable_useCacheRefresh = function() {
@@ -31914,11 +31956,12 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 		exports.useDeferredValue = function(value, initialValue) {
 			return resolveDispatcher().useDeferredValue(value, initialValue);
 		};
-		exports.useEffect = function(create, createDeps, update) {
+		exports.useEffect = function(create, deps) {
 			create ?? console.warn("React Hook useEffect requires an effect callback. Did you forget to pass a callback to the hook?");
-			var dispatcher = resolveDispatcher();
-			if ("function" === typeof update) throw Error("useEffect CRUD overload is not enabled in this build of React.");
-			return dispatcher.useEffect(create, createDeps);
+			return resolveDispatcher().useEffect(create, deps);
+		};
+		exports.useEffectEvent = function(callback) {
+			return resolveDispatcher().useEffectEvent(callback);
 		};
 		exports.useId = function() {
 			return resolveDispatcher().useId();
@@ -31955,20 +31998,20 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 		exports.useTransition = function() {
 			return resolveDispatcher().useTransition();
 		};
-		exports.version = "19.1.1";
+		exports.version = "19.2.1";
 		"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
 	})();
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react@19.1.1/node_modules/react/index.js
+//#region ../../node_modules/.pnpm/react@19.2.1/node_modules/react/index.js
 var require_react = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	if (process.env.NODE_ENV === "production") module.exports = require_react_production();
 	else module.exports = require_react_development();
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react-router@7.9.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-router/dist/development/chunk-TMI4QPZX.mjs
+//#region ../../node_modules/.pnpm/react-router@7.9.2_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/react-router/dist/development/chunk-TMI4QPZX.mjs
 function createMemoryHistory(options = {}) {
 	let { initialEntries = ["/"], initialIndex, v5Compat = false } = options;
 	let entries;
@@ -39481,7 +39524,7 @@ var require_set_cookie = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react-dom@19.1.1_react@19.1.1/node_modules/react-dom/cjs/react-dom.production.js
+//#region ../../node_modules/.pnpm/react-dom@19.2.1_react@19.2.1/node_modules/react-dom/cjs/react-dom.production.js
 /**
 * @license React
 * react-dom.production.js
@@ -39531,7 +39574,7 @@ var require_react_dom_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react-dom@19.1.1_react@19.1.1/node_modules/react-dom/cjs/react-dom.development.js
+//#region ../../node_modules/.pnpm/react-dom@19.2.1_react@19.2.1/node_modules/react-dom/cjs/react-dom.development.js
 /**
 * @license React
 * react-dom.development.js
@@ -39701,13 +39744,13 @@ var require_react_dom_development = /* @__PURE__ */ __commonJSMin(((exports) => 
 		exports.useFormStatus = function() {
 			return resolveDispatcher().useHostTransitionStatus();
 		};
-		exports.version = "19.1.1";
+		exports.version = "19.2.1";
 		"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
 	})();
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react-dom@19.1.1_react@19.1.1/node_modules/react-dom/index.js
+//#region ../../node_modules/.pnpm/react-dom@19.2.1_react@19.2.1/node_modules/react-dom/index.js
 var require_react_dom = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	function checkDCE() {
 		if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ === "undefined" || typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE !== "function") return;
@@ -39725,7 +39768,7 @@ var require_react_dom = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react-router@7.9.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-router/dist/development/chunk-I3JMK7SU.mjs
+//#region ../../node_modules/.pnpm/react-router@7.9.2_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/react-router/dist/development/chunk-I3JMK7SU.mjs
 function ServerRouter({ context, url: url$12, nonce }) {
 	if (typeof url$12 === "string") url$12 = new URL(url$12);
 	let { manifest, routeModules, criticalCss, serverHandoffString } = context;
@@ -41752,7 +41795,7 @@ var init_chunk_I3JMK7SU = __esmMin((() => {
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/react-router@7.9.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-router/dist/development/index.mjs
+//#region ../../node_modules/.pnpm/react-router@7.9.2_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/react-router/dist/development/index.mjs
 /**
 * react-router v7.9.2
 *
@@ -42020,7 +42063,7 @@ var require_node_fetch_server = /* @__PURE__ */ __commonJSMin(((exports, module)
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/@react-router+node@7.9.2_react-router@7.9.2_react-dom@19.1.1_react@19.1.1__react@19.1.1__typescript@5.9.2/node_modules/@react-router/node/dist/index.js
+//#region ../../node_modules/.pnpm/@react-router+node@7.9.2_react-router@7.9.2_react-dom@19.2.1_react@19.2.1__react@19.2.1__typescript@5.9.2/node_modules/@react-router/node/dist/index.js
 /**
 * @react-router/node v7.9.2
 *
@@ -42247,7 +42290,7 @@ var require_dist$2 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 }));
 
 //#endregion
-//#region ../../node_modules/.pnpm/@react-router+express@7.9.2_express@4.21.2_react-router@7.9.2_react-dom@19.1.1_react@19_7fabce0021316d2ea8b1348f31bb58e9/node_modules/@react-router/express/dist/index.js
+//#region ../../node_modules/.pnpm/@react-router+express@7.9.2_express@4.21.2_react-router@7.9.2_react-dom@19.2.1_react@19_b2f52c42b32263e5235237a9b4cedaca/node_modules/@react-router/express/dist/index.js
 /**
 * @react-router/express v7.9.2
 *
@@ -45699,7 +45742,8 @@ var require_parse$1 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			if (value === CHAR_COMMA$1 && depth$1 > 0) {
 				if (block.ranges > 0) {
 					block.ranges = 0;
-					block.nodes = [block.nodes.shift(), {
+					const open = block.nodes.shift();
+					block.nodes = [open, {
 						type: "text",
 						value: stringify$1(block)
 					}];

@@ -1,5 +1,3 @@
-import "./modeDetection.js";
-import "./messaging-api.js";
 import { a as isComponentTypeAllowedInRegion, i as useDesignState, o as useComponentDiscovery, r as useDesignContext } from "./DesignContext.js";
 import { n as usePageDesignerMode } from "./PageDesignerProvider.js";
 import React, { useCallback, useMemo, useRef } from "react";

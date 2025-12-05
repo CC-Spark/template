@@ -3,7 +3,7 @@
 exports[`Sheet stories snapshot > Bottom story renders and matches snapshot 1`] = `
 <div>
   <button
-    aria-controls="radix-«r9»"
+    aria-controls="radix-_r_9_"
     aria-expanded="false"
     aria-haspopup="dialog"
     class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
@@ -19,7 +19,7 @@ exports[`Sheet stories snapshot > Bottom story renders and matches snapshot 1`] 
 exports[`Sheet stories snapshot > Default story renders and matches snapshot 1`] = `
 <div>
   <button
-    aria-controls="radix-«r0»"
+    aria-controls="radix-_r_0_"
     aria-expanded="false"
     aria-haspopup="dialog"
     class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
@@ -35,7 +35,7 @@ exports[`Sheet stories snapshot > Default story renders and matches snapshot 1`]
 exports[`Sheet stories snapshot > Desktop story renders and matches snapshot 1`] = `
 <div>
   <button
-    aria-controls="radix-«ri»"
+    aria-controls="radix-_r_i_"
     aria-expanded="false"
     aria-haspopup="dialog"
     class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
@@ -51,7 +51,7 @@ exports[`Sheet stories snapshot > Desktop story renders and matches snapshot 1`]
 exports[`Sheet stories snapshot > Left story renders and matches snapshot 1`] = `
 <div>
   <button
-    aria-controls="radix-«r3»"
+    aria-controls="radix-_r_3_"
     aria-expanded="false"
     aria-haspopup="dialog"
     class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
@@ -67,7 +67,7 @@ exports[`Sheet stories snapshot > Left story renders and matches snapshot 1`] = 
 exports[`Sheet stories snapshot > Mobile story renders and matches snapshot 1`] = `
 <div>
   <button
-    aria-controls="radix-«rc»"
+    aria-controls="radix-_r_c_"
     aria-expanded="false"
     aria-haspopup="dialog"
     class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
@@ -83,7 +83,7 @@ exports[`Sheet stories snapshot > Mobile story renders and matches snapshot 1`] 
 exports[`Sheet stories snapshot > Tablet story renders and matches snapshot 1`] = `
 <div>
   <button
-    aria-controls="radix-«rf»"
+    aria-controls="radix-_r_f_"
     aria-expanded="false"
     aria-haspopup="dialog"
     class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"
@@ -99,7 +99,7 @@ exports[`Sheet stories snapshot > Tablet story renders and matches snapshot 1`] 
 exports[`Sheet stories snapshot > Top story renders and matches snapshot 1`] = `
 <div>
   <button
-    aria-controls="radix-«r6»"
+    aria-controls="radix-_r_6_"
     aria-expanded="false"
     aria-haspopup="dialog"
     class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3"

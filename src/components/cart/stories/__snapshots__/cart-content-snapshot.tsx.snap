@@ -34,14 +34,14 @@ exports[`CartContent stories snapshot > CartWithItems story renders and matches 
               data-state="closed"
             >
               <button
-                aria-controls="radix-«r1»"
+                aria-controls="radix-_r_1_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«r0»"
+                id="radix-_r_0_"
                 type="button"
               >
                 Show order summary
@@ -65,13 +65,13 @@ exports[`CartContent stories snapshot > CartWithItems story renders and matches 
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«r0»"
+              aria-labelledby="radix-_r_0_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«r1»"
+              id="radix-_r_1_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -399,14 +399,14 @@ exports[`CartContent stories snapshot > CartWithItems story renders and matches 
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«rc»"
+                            aria-controls="radix-_r_c_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«rb»"
+                            id="radix-_r_b_"
                             type="button"
                           >
                             <span
@@ -434,13 +434,13 @@ exports[`CartContent stories snapshot > CartWithItems story renders and matches 
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«rb»"
+                          aria-labelledby="radix-_r_b_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«rc»"
+                          id="radix-_r_c_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
@@ -726,14 +726,14 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
               data-state="closed"
             >
               <button
-                aria-controls="radix-«re»"
+                aria-controls="radix-_r_e_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«rd»"
+                id="radix-_r_d_"
                 type="button"
               >
                 Show order summary
@@ -757,13 +757,13 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«rd»"
+              aria-labelledby="radix-_r_d_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«re»"
+              id="radix-_r_e_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -1285,14 +1285,14 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«r12»"
+                            aria-controls="radix-_r_12_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«r11»"
+                            id="radix-_r_11_"
                             type="button"
                           >
                             <span
@@ -1320,13 +1320,13 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«r11»"
+                          aria-labelledby="radix-_r_11_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«r12»"
+                          id="radix-_r_12_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
@@ -1612,14 +1612,14 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
               data-state="closed"
             >
               <button
-                aria-controls="radix-«r1h»"
+                aria-controls="radix-_r_1h_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«r1g»"
+                id="radix-_r_1g_"
                 type="button"
               >
                 Show order summary
@@ -1643,13 +1643,13 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«r1g»"
+              aria-labelledby="radix-_r_1g_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«r1h»"
+              id="radix-_r_1h_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -2171,14 +2171,14 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«r25»"
+                            aria-controls="radix-_r_25_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«r24»"
+                            id="radix-_r_24_"
                             type="button"
                           >
                             <span
@@ -2206,13 +2206,13 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«r24»"
+                          aria-labelledby="radix-_r_24_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«r25»"
+                          id="radix-_r_25_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
@@ -2611,14 +2611,14 @@ exports[`CartContent stories snapshot > HighQuantityItem story renders and match
               data-state="closed"
             >
               <button
-                aria-controls="radix-«r2t»"
+                aria-controls="radix-_r_2t_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«r2s»"
+                id="radix-_r_2s_"
                 type="button"
               >
                 Show order summary
@@ -2642,13 +2642,13 @@ exports[`CartContent stories snapshot > HighQuantityItem story renders and match
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«r2s»"
+              aria-labelledby="radix-_r_2s_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«r2t»"
+              id="radix-_r_2t_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -2975,14 +2975,14 @@ exports[`CartContent stories snapshot > HighQuantityItem story renders and match
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«r38»"
+                            aria-controls="radix-_r_38_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«r37»"
+                            id="radix-_r_37_"
                             type="button"
                           >
                             <span
@@ -3010,13 +3010,13 @@ exports[`CartContent stories snapshot > HighQuantityItem story renders and match
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«r37»"
+                          aria-labelledby="radix-_r_37_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«r38»"
+                          id="radix-_r_38_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
@@ -3302,14 +3302,14 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
               data-state="closed"
             >
               <button
-                aria-controls="radix-«r27»"
+                aria-controls="radix-_r_27_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«r26»"
+                id="radix-_r_26_"
                 type="button"
               >
                 Show order summary
@@ -3333,13 +3333,13 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«r26»"
+              aria-labelledby="radix-_r_26_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«r27»"
+              id="radix-_r_27_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -3861,14 +3861,14 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«r2r»"
+                            aria-controls="radix-_r_2r_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«r2q»"
+                            id="radix-_r_2q_"
                             type="button"
                           >
                             <span
@@ -3896,13 +3896,13 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«r2q»"
+                          aria-labelledby="radix-_r_2q_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«r2r»"
+                          id="radix-_r_2r_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
@@ -4188,14 +4188,14 @@ exports[`CartContent stories snapshot > LongProductNames story renders and match
               data-state="closed"
             >
               <button
-                aria-controls="radix-«r3n»"
+                aria-controls="radix-_r_3n_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«r3m»"
+                id="radix-_r_3m_"
                 type="button"
               >
                 Show order summary
@@ -4219,13 +4219,13 @@ exports[`CartContent stories snapshot > LongProductNames story renders and match
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«r3m»"
+              aria-labelledby="radix-_r_3m_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«r3n»"
+              id="radix-_r_3n_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -4553,14 +4553,14 @@ exports[`CartContent stories snapshot > LongProductNames story renders and match
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«r42»"
+                            aria-controls="radix-_r_42_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«r41»"
+                            id="radix-_r_41_"
                             type="button"
                           >
                             <span
@@ -4588,13 +4588,13 @@ exports[`CartContent stories snapshot > LongProductNames story renders and match
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«r41»"
+                          aria-labelledby="radix-_r_41_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«r42»"
+                          id="radix-_r_42_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
@@ -4880,14 +4880,14 @@ exports[`CartContent stories snapshot > MissingProductImage story renders and ma
               data-state="closed"
             >
               <button
-                aria-controls="radix-«r3a»"
+                aria-controls="radix-_r_3a_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«r39»"
+                id="radix-_r_39_"
                 type="button"
               >
                 Show order summary
@@ -4911,13 +4911,13 @@ exports[`CartContent stories snapshot > MissingProductImage story renders and ma
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«r39»"
+              aria-labelledby="radix-_r_39_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«r3a»"
+              id="radix-_r_3a_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -5216,14 +5216,14 @@ exports[`CartContent stories snapshot > MissingProductImage story renders and ma
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«r3l»"
+                            aria-controls="radix-_r_3l_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«r3k»"
+                            id="radix-_r_3k_"
                             type="button"
                           >
                             <span
@@ -5251,13 +5251,13 @@ exports[`CartContent stories snapshot > MissingProductImage story renders and ma
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«r3k»"
+                          aria-labelledby="radix-_r_3k_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«r3l»"
+                          id="radix-_r_3l_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
@@ -5543,14 +5543,14 @@ exports[`CartContent stories snapshot > MobileLayout story renders and matches s
               data-state="closed"
             >
               <button
-                aria-controls="radix-«r14»"
+                aria-controls="radix-_r_14_"
                 aria-expanded="false"
                 class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-xl"
                 data-orientation="vertical"
                 data-radix-collection-item=""
                 data-slot="accordion-trigger"
                 data-state="closed"
-                id="radix-«r13»"
+                id="radix-_r_13_"
                 type="button"
               >
                 Show order summary
@@ -5574,13 +5574,13 @@ exports[`CartContent stories snapshot > MobileLayout story renders and matches s
               </button>
             </h3>
             <div
-              aria-labelledby="radix-«r13»"
+              aria-labelledby="radix-_r_13_"
               class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
               data-orientation="vertical"
               data-slot="accordion-content"
               data-state="closed"
               hidden=""
-              id="radix-«r14»"
+              id="radix-_r_14_"
               role="region"
               style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
             />
@@ -5908,14 +5908,14 @@ exports[`CartContent stories snapshot > MobileLayout story renders and matches s
                           data-state="closed"
                         >
                           <button
-                            aria-controls="radix-«r1f»"
+                            aria-controls="radix-_r_1f_"
                             aria-expanded="false"
                             class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
                             data-orientation="vertical"
                             data-radix-collection-item=""
                             data-slot="accordion-trigger"
                             data-state="closed"
-                            id="radix-«r1e»"
+                            id="radix-_r_1e_"
                             type="button"
                           >
                             <span
@@ -5943,13 +5943,13 @@ exports[`CartContent stories snapshot > MobileLayout story renders and matches s
                           </button>
                         </h3>
                         <div
-                          aria-labelledby="radix-«r1e»"
+                          aria-labelledby="radix-_r_1e_"
                           class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
                           data-orientation="vertical"
                           data-slot="accordion-content"
                           data-state="closed"
                           hidden=""
-                          id="radix-«r1f»"
+                          id="radix-_r_1f_"
                           role="region"
                           style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
                         />
