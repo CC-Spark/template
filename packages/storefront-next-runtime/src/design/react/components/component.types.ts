@@ -43,6 +43,10 @@ export interface ComponentDesignMetadata {
      */
     isVisible: boolean;
     /**
+     * Whether the component has been localized in the current locale.
+     */
+    isLocalized: boolean;
+    /**
      * The name of the component or region.
      */
     name?: string;

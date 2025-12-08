@@ -347,6 +347,178 @@ describe('design/react/ComponentDecorator', () => {
         });
     });
 
+    describe('when testing localization features', () => {
+        it('should include unlocalized class when component is not localized', async () => {
+            const { element } = await testBed.render(TestComponent, {
+                props: {
+                    designMetadata: {
+                        id: 'test-1',
+                        isFragment: false,
+                        isVisible: true,
+                        isLocalized: false,
+                    },
+                },
+            });
+
+            expect(element.classList.contains('pd-design__component--unlocalized')).toBe(true);
+        });
+
+        it('should not include unlocalized class when component is localized', async () => {
+            const { element } = await testBed.render(TestComponent, {
+                props: {
+                    designMetadata: {
+                        id: 'test-1',
+                        isFragment: false,
+                        isVisible: true,
+                        isLocalized: true,
+                    },
+                },
+            });
+
+            expect(element.classList.contains('pd-design__component--unlocalized')).toBe(false);
+        });
+
+        it('should show fallback badge when component is not localized', async () => {
+            const { element } = await testBed.render(TestComponent, {
+                props: {
+                    designMetadata: {
+                        id: 'test-1',
+                        isFragment: false,
+                        isVisible: true,
+                        isLocalized: false,
+                    },
+                },
+                configFactory: () =>
+                    Promise.resolve({
+                        locale: 'en-US',
+                        components: {
+                            'test-1': {
+                                id: 'test-1',
+                                name: 'Test Component',
+                                type: 'commerce.test',
+                            },
+                        },
+                        componentTypes: {
+                            'commerce.test': {
+                                id: 'commerce.test',
+                                name: 'Commerce Test',
+                                label: 'Test Component Label',
+                                image: 'test-image.png',
+                            },
+                        },
+                        labels: {
+                            fallback: 'Fallback',
+                        },
+                    }),
+            });
+
+            // Click to show the frame
+            fireEvent.click(element);
+
+            const fallbackBadge = await testBed.findBySelector(element, '.pd-design__frame__fallback-badge');
+            expect(fallbackBadge.textContent).toBe('Fallback');
+        });
+
+        it('should not show fallback badge when component is localized', async () => {
+            const { element } = await testBed.render(TestComponent, {
+                props: {
+                    designMetadata: {
+                        id: 'test-1',
+                        isFragment: false,
+                        isVisible: true,
+                        isLocalized: true,
+                    },
+                },
+                configFactory: () =>
+                    Promise.resolve({
+                        locale: 'en-US',
+                        components: {
+                            'test-1': {
+                                id: 'test-1',
+                                name: 'Test Component',
+                                type: 'commerce.test',
+                            },
+                        },
+                        componentTypes: {
+                            'commerce.test': {
+                                id: 'commerce.test',
+                                name: 'Commerce Test',
+                                label: 'Test Component Label',
+                                image: 'test-image.png',
+                            },
+                        },
+                        labels: {
+                            fallback: 'Fallback',
+                        },
+                    }),
+            });
+
+            // Click to show the frame
+            fireEvent.click(element);
+
+            const frame = await testBed.findBySelector(element, '.pd-design__frame');
+            const fallbackBadge = frame.querySelector('.pd-design__frame__fallback-badge');
+            expect(fallbackBadge).toBeNull();
+        });
+
+        it('should use custom fallback label when configured', async () => {
+            const { element } = await testBed.render(TestComponent, {
+                props: {
+                    designMetadata: {
+                        id: 'test-1',
+                        isFragment: false,
+                        isVisible: true,
+                        isLocalized: false,
+                    },
+                },
+                configFactory: () =>
+                    Promise.resolve({
+                        locale: 'en-US',
+                        components: {
+                            'test-1': {
+                                id: 'test-1',
+                                name: 'Test Component',
+                                type: 'commerce.test',
+                            },
+                        },
+                        componentTypes: {
+                            'commerce.test': {
+                                id: 'commerce.test',
+                                name: 'Commerce Test',
+                                label: 'Test Component Label',
+                                image: 'test-image.png',
+                            },
+                        },
+                        labels: {
+                            fallback: 'Custom Fallback Label',
+                        },
+                    }),
+            });
+
+            // Click to show the frame
+            fireEvent.click(element);
+
+            const fallbackBadge = await testBed.findBySelector(element, '.pd-design__frame__fallback-badge');
+            expect(fallbackBadge.textContent).toBe('Custom Fallback Label');
+        });
+
+        it('should apply unlocalized class to fragments when not localized', async () => {
+            const { element } = await testBed.render(TestComponent, {
+                props: {
+                    designMetadata: {
+                        id: 'test-1',
+                        isFragment: true,
+                        isVisible: true,
+                        isLocalized: false,
+                    },
+                },
+            });
+
+            expect(element.classList.contains('pd-design__component--unlocalized')).toBe(true);
+            expect(element.classList.contains('pd-design__fragment')).toBe(true);
+        });
+    });
+
     describe('when dragging a component', () => {
         let mockRect: Partial<DOMRect>;
 
@@ -377,6 +549,7 @@ describe('design/react/ComponentDecorator', () => {
                     const moveButton = await testBed.findBySelector(element, '.pd-design__frame__toolbox-button');
 
                     fireEvent.mouseDown(moveButton);
+                    fireEvent.dragStart(moveButton);
                     fireEvent(window, Object.assign(new DragEvent('dragover'), { clientX: x, clientY: y }));
                 });
             });

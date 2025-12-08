@@ -41,6 +41,7 @@ export const Component = memo(function Component({
                             name: metadata?.name,
                             isFragment: false,
                             isVisible: Boolean(component.visible),
+                            isLocalized: Boolean(component.localized),
                             id: component.id,
                         }}
                         data={data}

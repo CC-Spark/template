@@ -48,12 +48,15 @@ describe('Component', () => {
             id: 'c1',
             typeId: 'hero',
             data: { foo: 1 } as any,
+            localized: true,
+            visible: true,
         };
         const d = deferred<unknown>();
         const map: DataMap = { c1: d.promise };
 
         render(
             <Component
+                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
                 component={component}
                 componentData={Promise.resolve(map)}
                 className="cls"
@@ -77,7 +80,8 @@ describe('Component', () => {
         expect(lastProps?.designMetadata).toEqual({
             id: component.id,
             isFragment: false,
-            isVisible: false,
+            isVisible: true,
+            isLocalized: true,
             name: 'Hero',
         });
     });
@@ -95,7 +99,13 @@ describe('Component', () => {
 
         const component: ShopperExperience.schemas['Component'] = { id: 'c2', typeId: 'hero' };
 
-        render(<Component component={component} regionId="main-region" />);
+        render(
+            <Component
+                component={component}
+                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                regionId="main-region"
+            />
+        );
 
         expect(await screen.findByTestId('dyn-no-data')).toBeInTheDocument();
         expect(lastProps?.data).toBeUndefined();
@@ -103,6 +113,7 @@ describe('Component', () => {
             id: component.id,
             isFragment: false,
             isVisible: false,
+            isLocalized: false,
             name: 'H2',
         });
     });
@@ -119,7 +130,12 @@ describe('Component', () => {
         const map: DataMap = { c3: d.promise };
 
         const { container } = render(
-            <Component component={component} componentData={Promise.resolve(map)} regionId="main-region" />
+            <Component
+                component={component}
+                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                componentData={Promise.resolve(map)}
+                regionId="main-region"
+            />
         );
 
         // Default fallback is a bare <div>; just assert something rendered and Dynamic not yet
@@ -142,7 +158,11 @@ describe('Component', () => {
 
         render(
             <Suspense fallback={<div data-testid="outer-fallback" />}>
-                <Component component={component} regionId="main-region" />
+                <Component
+                    component={component}
+                    page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                    regionId="main-region"
+                />
             </Suspense>
         );
 
@@ -173,7 +193,14 @@ describe('Component', () => {
         const dB = deferred<unknown>();
         const map: DataMap = { A: dA.promise, B: dB.promise };
 
-        render(<Component component={compB} componentData={Promise.resolve(map)} regionId="main-region" />);
+        render(
+            <Component
+                component={compB}
+                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                componentData={Promise.resolve(map)}
+                regionId="main-region"
+            />
+        );
 
         dB.resolve({ v: 'B' });
         await waitFor(() => expect(screen.getByTestId('dyn-map')).toBeInTheDocument());

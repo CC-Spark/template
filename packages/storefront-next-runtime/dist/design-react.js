@@ -4,13 +4,13 @@ import React, { useCallback, useMemo, useRef } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 
 //#region src/design/react/hooks/useComponentDecoratorClasses.ts
-function useComponentDecoratorClasses({ componentId, isFragment }) {
+function useComponentDecoratorClasses({ componentId, isFragment, isLocalized }) {
 	const { selectedComponentId, hoveredComponentId, dragState } = useDesignState();
 	const isSelected = selectedComponentId === componentId;
 	const isHovered = !dragState.isDragging && hoveredComponentId === componentId;
 	const showFrame = (isSelected || isHovered) && !dragState.isDragging;
 	const isMoving = dragState.isDragging && dragState.sourceComponentId === componentId;
-	const isDropTarget = dragState.currentDropTarget?.componentId === componentId && dragState.sourceComponentId !== componentId;
+	const isDropTarget = dragState.currentDropTarget?.componentId === componentId;
 	const dropTargetInsertType = dragState.currentDropTarget?.insertType;
 	const dropTargetAxis = dropTargetInsertType?.axis;
 	return [
@@ -20,6 +20,7 @@ function useComponentDecoratorClasses({ componentId, isFragment }) {
 		isSelected && "pd-design__decorator--selected",
 		isHovered && "pd-design__decorator--hovered",
 		isMoving && "pd-design__decorator--moving",
+		!isLocalized && "pd-design__component--unlocalized",
 		isDropTarget && dropTargetAxis && dropTargetInsertType && `pd-design__drop-target__${dropTargetAxis}-${dropTargetInsertType.type}`
 	].filter(Boolean).join(" ");
 }
@@ -80,10 +81,11 @@ function useComponentType(componentId) {
 
 //#endregion
 //#region src/design/react/components/DeleteToolboxButton.tsx
-const DeleteToolboxButton = ({ title, onClick }) => /* @__PURE__ */ jsx("button", {
+const DeleteToolboxButton = ({ title, onClick, onMouseDown = () => {} }) => /* @__PURE__ */ jsx("button", {
 	className: "pd-design__frame__toolbox-button",
 	title,
 	type: "button",
+	onMouseDown,
 	onClick,
 	children: /* @__PURE__ */ jsx("svg", {
 		className: "pd-design__frame__delete-icon",
@@ -102,11 +104,10 @@ const DeleteToolboxButton = ({ title, onClick }) => /* @__PURE__ */ jsx("button"
 
 //#endregion
 //#region src/design/react/components/MoveToolboxButton.tsx
-const MoveToolboxButton = ({ title, onMouseDown }) => /* @__PURE__ */ jsx("button", {
+const MoveToolboxButton = ({ title }) => /* @__PURE__ */ jsx("button", {
 	className: "pd-design__frame__toolbox-button",
 	title,
 	type: "button",
-	onMouseDown,
 	children: /* @__PURE__ */ jsx("svg", {
 		className: "pd-design__frame__move-icon",
 		viewBox: "0 0 24 24",
@@ -129,59 +130,83 @@ function useLabels() {
 }
 
 //#endregion
+//#region src/design/react/components/DesignOverlay.tsx
+const DesignOverlay = () => {
+	return /* @__PURE__ */ jsx("div", {
+		className: "pd-design__frame__overlay",
+		children: /* @__PURE__ */ jsx("svg", {
+			xmlns: "http://www.w3.org/2000/svg",
+			x: "0px",
+			y: "0px",
+			width: "52px",
+			height: "52px",
+			viewBox: "0 0 52 52",
+			enableBackground: "new 0 0 52 52",
+			xmlSpace: "preserve",
+			children: /* @__PURE__ */ jsx("path", {
+				fill: "#FFFFFF",
+				d: "M26,2C12.7,2,2,12.7,2,26s10.7,24,24,24s24-10.7,24-24S39.3,2,26,2z M26,7C26,7,26,7,26,7C26,7,26,7,26,7\n	C26,7,26,7,26,7z M28,7.1c-0.1,0-0.1,0-0.2,0C27.9,7.1,28,7.1,28,7.1z M26,45C15.5,45,7,36.5,7,26c0-1,0.1-2.1,0.3-3\n	c1.3,0.2,2.9,0.7,3.7,1.5c1.7,1.8,3.6,3.9,5.4,4.3c0,0-0.2,0.1-0.4,0.4c-0.2,0.3-0.4,0.9-0.4,1.9c0,4.7,4.4,1.9,4.4,6.6\n	c0,4.7,5.3,6.6,5.3,2.8s3.5-5.6,3.5-8.5s-2.7-2.8-4.4-3.8c-1.8-0.9-2.7-2.4-6.1-1.9c-1.8-1.7-2.8-3.1-2-4.7c0.9-1.7,4.6-2,4.6-4.6\n	s-2.5-3.1-4.3-3.1c-0.8,0-2.5-0.6-3.9-1.3c1.7-1.7,3.8-3.1,6-4.1c1.6,0.7,4.3,1.8,6.6,1.8c2.7,0,4.1-1.9,3.7-3.1\n	c4.5,0.7,8.5,3,11.4,6.2c-1.5,0.9-3.5,1.9-7,1.9c-4.6,0-4.6,4.7-1.9,5.6c2.8,0.9,5.6-1.8,6.5,0c0.9,1.8-6.5,1.8-4.6,6.4\n	c1.9,4.6,3.7-0.1,5.6,4.5c1.9,4.6,5.6-0.7,2.8-4.3c-1.2-1.6-0.9-6.5,1.9-6.5h0.9c0.4,1.6,0.7,3.3,0.7,5C45,36.5,36.5,45,26,45z"
+			})
+		})
+	});
+};
+
+//#endregion
 //#region src/design/react/components/DesignFrame.tsx
-const DesignFrame = ({ componentId, children, name, parentId, regionId, showFrame = false, showToolbox = true }) => {
+const DesignFrame = ({ componentId, children, name, parentId, regionId, localized = false, showFrame = false, showToolbox = true, isMoveable = true }) => {
 	const componentType = useComponentType(componentId ?? "");
-	const { deleteComponent, startComponentMove } = useDesignState();
+	const { deleteComponent } = useDesignState();
 	const labels = useLabels();
 	const nodeRef = React.useRef(null);
-	const isComponentMoveable = Boolean(componentId && regionId && componentType?.id);
-	const handleDelete = React.useCallback(() => componentId && deleteComponent({
-		componentId,
-		sourceComponentId: parentId ?? "",
-		sourceRegionId: regionId ?? ""
-	}), [
+	const handleDelete = React.useCallback((event) => {
+		event.stopPropagation();
+		if (componentId) deleteComponent({
+			componentId,
+			sourceComponentId: parentId ?? "",
+			sourceRegionId: regionId ?? ""
+		});
+	}, [
 		deleteComponent,
 		componentId,
 		parentId,
 		regionId
 	]);
-	const handleMouseDown = React.useCallback(() => {
-		if (componentId && regionId && componentType?.id) startComponentMove(componentId, regionId, componentType.id);
-	}, [
-		componentId,
-		regionId,
-		startComponentMove,
-		componentType?.id
-	]);
+	const stopPropagation = (event) => event.stopPropagation();
 	return /* @__PURE__ */ jsxs("div", {
-		className: `pd-design__frame ${showFrame ? "pd-design__frame--visible" : ""}`.trim(),
+		className: ["pd-design__frame", showFrame && "pd-design__frame--visible"].filter(Boolean).join(" "),
 		ref: nodeRef,
 		children: [
 			showFrame && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("div", { className: "pd-design__frame--x" }), /* @__PURE__ */ jsx("div", { className: "pd-design__frame--y" })] }),
 			/* @__PURE__ */ jsxs("div", {
 				className: "pd-design__frame__label",
-				children: [componentType?.image && /* @__PURE__ */ jsx("span", {
-					className: "pd-design__icon",
-					children: /* @__PURE__ */ jsx("img", {
-						src: componentType.image,
-						alt: ""
+				onMouseDown: stopPropagation,
+				children: [
+					componentType?.image && /* @__PURE__ */ jsx("span", {
+						className: "pd-design__icon",
+						children: /* @__PURE__ */ jsx("img", {
+							src: componentType.image,
+							alt: ""
+						})
+					}),
+					/* @__PURE__ */ jsx("span", {
+						className: "pd-design__frame__name",
+						children: name
+					}),
+					!localized && /* @__PURE__ */ jsx("span", {
+						className: "pd-design__frame__fallback-badge",
+						children: labels.fallback ?? "Fallback"
 					})
-				}), /* @__PURE__ */ jsx("span", {
-					className: "pd-design__frame__name",
-					children: name
-				})]
+				]
 			}),
 			showToolbox && /* @__PURE__ */ jsxs("div", {
 				className: "pd-design__frame__toolbox",
-				children: [isComponentMoveable && /* @__PURE__ */ jsx(MoveToolboxButton, {
-					title: labels.moveComponent ?? "Move component",
-					onMouseDown: handleMouseDown
-				}), /* @__PURE__ */ jsx(DeleteToolboxButton, {
+				children: [isMoveable && /* @__PURE__ */ jsx(MoveToolboxButton, { title: labels.moveComponent ?? "Move component" }), /* @__PURE__ */ jsx(DeleteToolboxButton, {
 					title: labels.deleteComponent ?? "Delete component",
+					onMouseDown: stopPropagation,
 					onClick: handleDelete
 				})]
 			}),
+			/* @__PURE__ */ jsx(DesignOverlay, {}),
 			children
 		]
 	});
@@ -208,15 +233,15 @@ const useComponentContext = () => React.useContext(ComponentContext);
 //#region src/design/react/components/DesignComponent.tsx
 function DesignComponent(props) {
 	const { designMetadata, children } = props;
-	const { id, name, isFragment, isVisible } = designMetadata;
+	const { id, name, isFragment, isVisible, isLocalized } = designMetadata;
 	const componentId = id;
-	const componentName = useComponentType(componentId)?.label || name || "Component";
+	const componentType = useComponentType(componentId);
+	const componentName = componentType?.label || name || "Component";
 	const dragRef = useRef(null);
 	const { regionId } = useRegionContext() ?? {};
 	const { componentId: parentComponentId } = useComponentContext() ?? {};
 	const { nodeToTargetMap } = useDesignState();
-	const { selectedComponentId, hoveredComponentId, setSelectedComponent, setHoveredComponent, dragState: { isDragging, sourceComponentId: draggingSourceComponentId } } = useDesignState();
-	const isDraggingComponent = isDragging && draggingSourceComponentId === componentId;
+	const { selectedComponentId, hoveredComponentId, setSelectedComponent, setHoveredComponent, startComponentMove, setPendingComponentDragId, dragState: { pendingComponentDragId, isDragging, sourceComponentId: draggingSourceComponentId } } = useDesignState();
 	useFocusedComponentHandler(componentId, dragRef);
 	useNodeToTargetStore({
 		type: "component",
@@ -226,8 +251,13 @@ function DesignComponent(props) {
 		componentId
 	});
 	const discoverComponents = useComponentDiscovery({ nodeToTargetMap });
-	const handleMouseEnter = useCallback(() => setHoveredComponent(componentId), [setHoveredComponent, componentId]);
+	const isPendingDrag = pendingComponentDragId === componentId;
+	const handleMouseEnter = useCallback((event) => {
+		event.stopPropagation();
+		setHoveredComponent(componentId);
+	}, [setHoveredComponent, componentId]);
 	const handleMouseLeave = useCallback((event) => {
+		event.stopPropagation();
 		setHoveredComponent(discoverComponents({
 			x: event.clientX,
 			y: event.clientY,
@@ -239,8 +269,10 @@ function DesignComponent(props) {
 		setSelectedComponent(componentId);
 	}, [setSelectedComponent, componentId]);
 	const showFrame = [selectedComponentId, hoveredComponentId].includes(componentId) && !isDragging;
+	const isDraggable = Boolean(componentId && regionId && componentType?.id);
 	const classes = useComponentDecoratorClasses({
 		componentId,
+		isLocalized,
 		isFragment: Boolean(isFragment)
 	});
 	const context = React.useMemo(() => ({
@@ -250,21 +282,41 @@ function DesignComponent(props) {
 	const handleDragOver = React.useCallback((event) => {
 		if (draggingSourceComponentId !== componentId) event.preventDefault();
 	}, [draggingSourceComponentId, componentId]);
+	const handleMouseDown = React.useCallback((event) => {
+		if (componentId) {
+			event.stopPropagation();
+			setPendingComponentDragId(componentId);
+		}
+	}, [componentId, setPendingComponentDragId]);
+	const handleDragStart = React.useCallback((event) => {
+		event.stopPropagation();
+		if (componentId && regionId && componentType?.id) startComponentMove(componentId, regionId, componentType.id);
+	}, [
+		componentId,
+		regionId,
+		componentType?.id,
+		startComponentMove
+	]);
 	if (!isVisible) return /* @__PURE__ */ jsx(Fragment, {});
 	return /* @__PURE__ */ jsxs("div", {
 		ref: dragRef,
 		className: classes,
-		draggable: isDraggingComponent,
+		draggable: isPendingDrag && isDraggable,
 		onClick: handleClick,
 		onDragOver: handleDragOver,
+		onDragStart: handleDragStart,
 		onMouseEnter: handleMouseEnter,
 		onMouseLeave: handleMouseLeave,
+		onMouseDown: handleMouseDown,
+		"data-component-type": componentType?.id,
 		"data-testid": `design-component-${componentId}`,
 		children: [/* @__PURE__ */ jsx("div", { className: "pd-design__component__drop-target" }), /* @__PURE__ */ jsx(DesignFrame, {
 			showFrame,
 			componentId,
+			localized: isLocalized,
 			name: componentName,
 			parentId: parentComponentId,
+			isMoveable: isDraggable,
 			regionId,
 			children: /* @__PURE__ */ jsx(ComponentContext.Provider, {
 				value: context,
@@ -363,6 +415,7 @@ function DesignRegion(props) {
 			name: name ?? labels.defaultRegionName ?? "Region",
 			parentId: parentComponentId,
 			regionId: id,
+			localized: true,
 			showFrame,
 			showToolbox: false,
 			children: /* @__PURE__ */ jsx(RegionContext.Provider, {

@@ -9,11 +9,20 @@ import type React from 'react';
 export const DeleteToolboxButton = ({
     title,
     onClick,
+    onMouseDown = () => {
+        /* noop */
+    },
 }: {
     title: string;
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onMouseDown?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }): React.JSX.Element => (
-    <button className="pd-design__frame__toolbox-button" title={title} type="button" onClick={onClick}>
+    <button
+        className="pd-design__frame__toolbox-button"
+        title={title}
+        type="button"
+        onMouseDown={onMouseDown}
+        onClick={onClick}>
         <svg
             className="pd-design__frame__delete-icon"
             viewBox="0 0 24 24"

@@ -19,7 +19,7 @@ interface DesignContextType {
   /** Page data that the client has retrieved */
   clientPage: ShopperExperience.schemas['Page'] | null;
   /** Sets the client page data */
-  setClientPage: (page: ShopperExperience.schemas['Page'] | null) => void;
+  setClientPage: (page: ShopperExperience.schemas['Page']) => void;
 }
 /**
  * Custom hook to access the design context
@@ -65,6 +65,10 @@ interface ComponentDesignMetadata {
    * Whether the component is visible based on the current visiblity rules and context.
    */
   isVisible: boolean;
+  /**
+   * Whether the component has been localized in the current locale.
+   */
+  isLocalized: boolean;
   /**
    * The name of the component or region.
    */

@@ -17,16 +17,15 @@ export function PageRegistration({
     page,
     children,
 }: React.PropsWithChildren<{ page: ShopperExperience.schemas['Page'] }>) {
-    const { clientApi, setClientPage, clientPage } = useDesignContext();
+    const { clientApi, setClientPage } = useDesignContext();
     const { isDesignMode } = usePageDesignerMode();
 
     useEffect(() => {
         // Only register if no page is already registered
-        if (isDesignMode && !clientPage) {
+        if (isDesignMode) {
             setClientPage(page);
-            clientApi?.notifyClientPageChanged({ page });
         }
-    }, [clientApi, page, isDesignMode, setClientPage, clientPage]);
+    }, [clientApi, page, isDesignMode, setClientPage]);
 
     return <>{children}</>;
 }

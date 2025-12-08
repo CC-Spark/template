@@ -12,6 +12,10 @@
   --pd-design-outline-width: 1px;
   --pd-design-selected-color: #005fb2;
   --pd-design-drop-target-width: 2px;
+  --pd-design-fallback-badge-color: rgb(172, 47, 109);
+  --pd-design-region-border-color: #3e3e3c;
+  --pd-design-drop-target-offset: 10px;
+  --pd-design-base-z-index: 30;
 }
 
 .pd-design__component,
@@ -28,6 +32,33 @@
   --pd-design-color: #8402ad;
 }
 
+.pd-design__component.pd-design__component--unlocalized,
+.pd-design__component.pd-design__decorator--selected.pd-design__component--unlocalized {
+  --pd-design-color: rgb(215, 58, 138);
+}
+
+.pd-design__frame__overlay {
+  pointer-events: none;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: calc(var(--pd-design-base-z-index) + 2);
+}
+
+.pd-design__component--unlocalized .pd-design__frame--visible .pd-design__frame__overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.pd-design__component--unlocalized .pd-design__frame__overlay {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
 /* Shared state styles */
 .pd-design__frame.pd-design__frame--visible > .pd-design__frame--x::before,
 .pd-design__frame.pd-design__frame--visible > .pd-design__frame--x::after,
@@ -37,32 +68,32 @@
   content: '';
   display: block;
   position: absolute;
-  z-index: 1;
+  z-index: var(--pd-design-base-z-index);
 }
 
 .pd-design__frame.pd-design__frame--visible > .pd-design__frame--y::before {
   height: var(--pd-design-outline-width);
-  left: 0;
-  top: 0;
-  width: 100%;
+  left: -1px;
+  top: -1px;
+  width: calc(100% + 2px);
 }
 
 .pd-design__frame.pd-design__frame--visible > .pd-design__frame--y::after {
-  bottom: 0;
+  bottom: -1px;
   height: var(--pd-design-outline-width);
-  left: 0;
-  width: 100%;
+  left: -1px;
+  width: calc(100% + 2px)
 }
 
 .pd-design__frame.pd-design__frame--visible > .pd-design__frame--x::before {
   height: 100%;
-  left: 0;
+  left: -1px;
   width: var(--pd-design-outline-width);
 }
 
 .pd-design__frame.pd-design__frame--visible > .pd-design__frame--x::after {
   height: 100%;
-  right: 0;
+  right: -1px;
   width: var(--pd-design-outline-width);
 }
 
@@ -73,7 +104,7 @@
   border-top-right-radius: 4px;
   color: white;
   font-family: 'Salesforce Sans', sans-serif;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   height: 32px;
   left: 50%;
@@ -94,7 +125,7 @@
   right: 0;
   top: 0;
   visibility: hidden;
-  z-index: 1000;
+  z-index: calc(var(--pd-design-base-z-index) + 3);
 }
 
 .pd-design__frame.pd-design__frame--visible > .pd-design__frame__toolbox {
@@ -105,7 +136,7 @@
   display: inline-flex;
 }
 
-.pd-design__decorator--selected {
+.pd-design__component.pd-design__decorator--selected {
   --pd-design-color: var(--pd-design-selected-color);
   --pd-design-outline-width: 2px;
 }
@@ -141,9 +172,21 @@
   width: 12px;
 }
 
+.pd-design__frame__fallback-badge {
+  background: var(--pd-design-fallback-badge-color);
+  border-radius: 15rem;
+  display: inline-block;
+  font-size: .75rem;
+  line-height: normal;
+  margin-left: .5rem;
+  padding: .25rem .5rem;
+  white-space: nowrap;
+}
+
 .pd-design__region {
   --pd-design-color: var(--pd-design-drop-target-color);
 
+  outline: 1px dotted var(--pd-design-region-border-color);
   min-height: 50px;
   min-width: 50px;
 }
@@ -159,17 +202,17 @@
   position: absolute;
   top: 0;
   width: 0;
-  z-index: 1;
+  z-index: var(--pd-design-base-z-index);
 }
 
 .pd-design__drop-target__y-before > .pd-design__component__drop-target {
   height: var(--pd-design-drop-target-width);
-  top: calc(-5px - calc(var(--pd-design-drop-target-width) / 2));
+  top: calc(calc(var(--pd-design-drop-target-offset) * -1) - calc(var(--pd-design-drop-target-width) / 2));
   width: 100%;
 }
 
 .pd-design__drop-target__y-after > .pd-design__component__drop-target {
-  bottom: calc(5px - calc(var(--pd-design-drop-target-width) / 2));
+  bottom: calc(var(--pd-design-drop-target-offset) - calc(var(--pd-design-drop-target-width) / 2));
   height: var(--pd-design-drop-target-width);
   top: unset;
   width: 100%;
@@ -177,13 +220,13 @@
 
 .pd-design__drop-target__x-before > .pd-design__component__drop-target {
   height: 100%;
-  left: calc(-5px - calc(var(--pd-design-drop-target-width) / 2));
+  left: calc(calc(var(--pd-design-drop-target-offset) * -1) - calc(var(--pd-design-drop-target-width) / 2));
   width: var(--pd-design-drop-target-width);
 }
 
 .pd-design__drop-target__x-after > .pd-design__component__drop-target {
   height: 100%;
   left: unset;
-  right: calc(5px - calc(var(--pd-design-drop-target-width) / 2));
+  right: calc(var(--pd-design-drop-target-offset) - calc(var(--pd-design-drop-target-width) / 2));
   width: var(--pd-design-drop-target-width);
 }

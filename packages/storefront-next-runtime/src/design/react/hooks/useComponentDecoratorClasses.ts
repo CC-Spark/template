@@ -9,9 +9,11 @@ import { useDesignState } from './useDesignState';
 export function useComponentDecoratorClasses({
     componentId,
     isFragment,
+    isLocalized,
 }: {
     componentId: string;
     isFragment: boolean;
+    isLocalized: boolean;
 }): string {
     const { selectedComponentId, hoveredComponentId, dragState } = useDesignState();
 
@@ -19,10 +21,7 @@ export function useComponentDecoratorClasses({
     const isHovered = !dragState.isDragging && hoveredComponentId === componentId;
     const showFrame = (isSelected || isHovered) && !dragState.isDragging;
     const isMoving = dragState.isDragging && dragState.sourceComponentId === componentId;
-    const isDropTarget =
-        dragState.currentDropTarget?.componentId === componentId &&
-        // We don't want to show the drop target if we are moving a component to itself.
-        dragState.sourceComponentId !== componentId;
+    const isDropTarget = dragState.currentDropTarget?.componentId === componentId;
     const dropTargetInsertType = dragState.currentDropTarget?.insertType;
     const dropTargetAxis = dropTargetInsertType?.axis;
 
@@ -33,6 +32,7 @@ export function useComponentDecoratorClasses({
         isSelected && 'pd-design__decorator--selected',
         isHovered && 'pd-design__decorator--hovered',
         isMoving && 'pd-design__decorator--moving',
+        !isLocalized && 'pd-design__component--unlocalized',
         isDropTarget &&
             dropTargetAxis &&
             dropTargetInsertType &&

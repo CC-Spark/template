@@ -18,7 +18,7 @@ import { useComponentType } from '../hooks/useComponentType';
 
 export function DesignComponent(props: ComponentDecoratorProps<unknown>): React.JSX.Element {
     const { designMetadata, children } = props;
-    const { id, name, isFragment, isVisible } = designMetadata;
+    const { id, name, isFragment, isVisible, isLocalized } = designMetadata;
     const componentId = id;
     const componentType = useComponentType(componentId);
     const componentName = componentType?.label || name || 'Component';
@@ -32,10 +32,10 @@ export function DesignComponent(props: ComponentDecoratorProps<unknown>): React.
         hoveredComponentId,
         setSelectedComponent,
         setHoveredComponent,
-        dragState: { isDragging, sourceComponentId: draggingSourceComponentId },
+        startComponentMove,
+        setPendingComponentDragId,
+        dragState: { pendingComponentDragId, isDragging, sourceComponentId: draggingSourceComponentId },
     } = useDesignState();
-
-    const isDraggingComponent = isDragging && draggingSourceComponentId === componentId;
 
     useFocusedComponentHandler(componentId, dragRef);
     useNodeToTargetStore({
@@ -50,10 +50,20 @@ export function DesignComponent(props: ComponentDecoratorProps<unknown>): React.
         nodeToTargetMap,
     });
 
-    const handleMouseEnter = useCallback(() => setHoveredComponent(componentId), [setHoveredComponent, componentId]);
+    const isPendingDrag = pendingComponentDragId === componentId;
+
+    const handleMouseEnter = useCallback(
+        (event: React.MouseEvent) => {
+            event.stopPropagation();
+            setHoveredComponent(componentId);
+        },
+        [setHoveredComponent, componentId]
+    );
 
     const handleMouseLeave = useCallback(
         (event: React.MouseEvent) => {
+            event.stopPropagation();
+
             // If we hover off a component, we could still be hovering over a parent component
             // that contains that child. In this instance, the mouse enter doesn't fire and that parent
             // would not be highlighted. Everytime we leave a component, we check
@@ -79,9 +89,11 @@ export function DesignComponent(props: ComponentDecoratorProps<unknown>): React.
     );
 
     const showFrame = [selectedComponentId, hoveredComponentId].includes(componentId) && !isDragging;
+    const isDraggable = Boolean(componentId && regionId && componentType?.id);
 
     const classes = useComponentDecoratorClasses({
         componentId,
+        isLocalized,
         isFragment: Boolean(isFragment),
     });
 
@@ -90,12 +102,42 @@ export function DesignComponent(props: ComponentDecoratorProps<unknown>): React.
     // Makes the component a drop target.
     const handleDragOver = React.useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
+            // Don't prevent propagation here.
+            // We depend on the global listener to handle the drag over event.
             // If we are moving a component, don't let it be droppable on itself.
             if (draggingSourceComponentId !== componentId) {
                 event.preventDefault();
             }
         },
         [draggingSourceComponentId, componentId]
+    );
+
+    // When dragging, we don't consider the component as dragging until the drag start event
+    // is triggered. However, we need to mark the component as draggable on mouse down so that
+    // it can even be dragged via the native drag and drop API.
+    //
+    // If we were to mark the components as dragging on mouse down instead, a selection of a component
+    // would first remove the frame because this thinks we are dragging the component instead of selecting it.
+    // This is why it is split up into two events.
+    const handleMouseDown = React.useCallback(
+        (event: React.MouseEvent) => {
+            if (componentId) {
+                event.stopPropagation();
+                setPendingComponentDragId(componentId);
+            }
+        },
+        [componentId, setPendingComponentDragId]
+    );
+
+    const handleDragStart = React.useCallback(
+        (event: React.DragEvent) => {
+            event.stopPropagation();
+
+            if (componentId && regionId && componentType?.id) {
+                startComponentMove(componentId, regionId, componentType.id);
+            }
+        },
+        [componentId, regionId, componentType?.id, startComponentMove]
     );
 
     // Don't render anything if the components is hidden via visibility rules.
@@ -109,18 +151,23 @@ export function DesignComponent(props: ComponentDecoratorProps<unknown>): React.
         <div
             ref={dragRef}
             className={classes}
-            draggable={isDraggingComponent}
+            draggable={isPendingDrag && isDraggable}
             onClick={handleClick}
             onDragOver={handleDragOver}
+            onDragStart={handleDragStart}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onMouseDown={handleMouseDown}
+            data-component-type={componentType?.id}
             data-testid={`design-component-${componentId}`}>
             <div className="pd-design__component__drop-target" />
             <DesignFrame
                 showFrame={showFrame}
                 componentId={componentId}
+                localized={isLocalized}
                 name={componentName}
                 parentId={parentComponentId}
+                isMoveable={isDraggable}
                 regionId={regionId}>
                 <ComponentContext.Provider value={context}>{children}</ComponentContext.Provider>
             </DesignFrame>

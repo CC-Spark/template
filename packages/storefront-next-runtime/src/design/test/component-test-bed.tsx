@@ -123,10 +123,20 @@ export function createComponentTestBed<TState extends Record<string, unknown>>(s
                                 </DecoratedComponent>
                                 {/* Other components that we could drag over */}
                                 <DecoratedComponent
-                                    designMetadata={{ id: 'test-2', isFragment: false, isVisible: true }}
+                                    designMetadata={{
+                                        id: 'test-2',
+                                        isFragment: false,
+                                        isVisible: true,
+                                        isLocalized: true,
+                                    }}
                                 />
                                 <DecoratedComponent
-                                    designMetadata={{ id: 'test-3', isFragment: false, isVisible: true }}
+                                    designMetadata={{
+                                        id: 'test-3',
+                                        isFragment: false,
+                                        isVisible: true,
+                                        isLocalized: true,
+                                    }}
                                 />
                             </DecoratedRegion>
                         </ComponentContext.Provider>

@@ -63,6 +63,7 @@ export function DesignRegion(props: RegionDecoratorProps<unknown>): React.JSX.El
                 name={name ?? labels.defaultRegionName ?? 'Region'}
                 parentId={parentComponentId}
                 regionId={id}
+                localized
                 showFrame={showFrame}
                 showToolbox={false}>
                 <RegionContext.Provider value={context}>{children}</RegionContext.Provider>

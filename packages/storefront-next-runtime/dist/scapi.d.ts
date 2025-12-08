@@ -15493,6 +15493,12 @@ interface components$8 {
        */
       data?: Record<string, never>;
       /**
+       * Localized
+       * @description Whether the compononent has been localized in the current locale.
+       * @example true
+       */
+      localized?: boolean;
+      /**
        * Visibility
        * @description Whether the compononent is visible based on the current visiblity rules and context.
        * @example true

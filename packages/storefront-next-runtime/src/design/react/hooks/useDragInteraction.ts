@@ -48,10 +48,12 @@ export interface DragInteraction {
         sourceRegionId?: string;
         rectCache: WeakMap<Element, DOMRect>;
         scrollDirection: 0 | 1 | -1;
+        pendingComponentDragId: string | null;
     };
     commitCurrentDropTarget: () => void;
     startComponentMove: (componentId: string, regionId: string, componentType: string) => void;
     updateComponentMove: (params: { x: number; y: number }) => void;
+    setPendingComponentDragId: (componentId: string) => void;
     dropComponent: () => void;
     cancelDrag: () => void;
 }
@@ -267,6 +269,7 @@ export function useDragInteraction({
         startComponentMove,
         dropComponent,
         cancelDrag,
+        setPendingComponentDragId,
     } = useInteraction({
         initialState: {
             isDragging: false,
@@ -278,6 +281,7 @@ export function useDragInteraction({
             currentDropTarget: null as DropTarget | null,
             pendingTargetCommit: false,
             rectCache: new WeakMap<Element, DOMRect>(),
+            pendingComponentDragId: null,
         } as DragInteraction['dragState'],
         eventHandlers: {
             ComponentDragStarted: {
@@ -357,6 +361,7 @@ export function useDragInteraction({
                     y: 0,
                     scrollDirection: 0,
                     isDragging: false,
+                    pendingComponentDragId: null,
                 }));
             },
             updateComponentMove: ({ x, y }: { x: number; y: number }) => {
@@ -376,6 +381,12 @@ export function useDragInteraction({
                         rectCache: state.rectCache,
                         componentType: state.componentType,
                     }),
+                }));
+            },
+            setPendingComponentDragId: (componentId: string) => {
+                setState((prevState) => ({
+                    ...prevState,
+                    pendingComponentDragId: componentId,
                 }));
             },
             dropComponent: () => {
@@ -450,6 +461,7 @@ export function useDragInteraction({
                     scrollDirection: 0,
                     sourceComponentId: undefined,
                     sourceRegionId: undefined,
+                    pendingComponentDragId: null,
                     currentDropTarget: null,
                     pendingTargetCommit: false,
                 }));
@@ -481,6 +493,7 @@ export function useDragInteraction({
 
     return {
         dragState,
+        setPendingComponentDragId,
         commitCurrentDropTarget,
         startComponentMove,
         updateComponentMove,

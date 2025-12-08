@@ -38,7 +38,7 @@ export interface DesignContextType {
     /** Page data that the client has retrieved */
     clientPage: ShopperExperience.schemas['Page'] | null;
     /** Sets the client page data */
-    setClientPage: (page: ShopperExperience.schemas['Page'] | null) => void;
+    setClientPage: (page: ShopperExperience.schemas['Page']) => void;
 }
 
 export const DesignContext = React.createContext<DesignContextType>({
@@ -76,6 +76,7 @@ export const DesignProvider = ({
     const [isConnected, setIsConnected] = React.useState(false);
     const [pageDesignerConfig, setPageDesignerConfig] = React.useState<HostToClientConfiguration | null>(null);
     const [clientPage, setClientPage] = React.useState<ShopperExperience.schemas['Page'] | null>(null);
+    const clientPageRef = React.useRef<ShopperExperience.schemas['Page'] | null>(null);
 
     const clientApi = React.useMemo(
         () =>
@@ -130,7 +131,13 @@ export const DesignProvider = ({
             isConnected,
             pageDesignerConfig,
             clientPage,
-            setClientPage: (page: ShopperExperience.schemas['Page'] | null) => setClientPage(page),
+            setClientPage: (page: ShopperExperience.schemas['Page']) => {
+                if (page !== clientPageRef.current) {
+                    clientPageRef.current = page;
+                    setClientPage(page);
+                    clientApi?.notifyClientPageChanged({ page });
+                }
+            },
         }),
         [isDesignMode, clientApi, isConnected, pageDesignerConfig, clientPage, setClientPage]
     );

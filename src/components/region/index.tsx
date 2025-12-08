@@ -59,35 +59,37 @@ export function Region(props: RegionProps) {
                     if (!region) {
                         return fallback ?? null;
                     }
-                    <PageDesignerPage page={resolvedPage} />;
 
                     return (
-                        <RegionWrapper
-                            region={region}
-                            className={className}
-                            designMetadata={{
-                                id: region.id,
-                                componentTypeExclusions: metadata?.componentTypeExclusions ?? [],
-                                componentTypeInclusions: metadata?.componentTypeInclusions ?? [],
-                            }}
-                            {...rest}>
-                            {region.components?.map(
-                                (component) =>
-                                    component.id && (
-                                        <Component
-                                            key={component.id}
-                                            component={component}
-                                            componentData={componentData}
-                                            regionId={region.id}
-                                            page={Promise.resolve({
-                                                id: component.id,
-                                                typeId: component.typeId,
-                                                regions: component.regions || [],
-                                            } as ShopperExperience.schemas['Page'])}
-                                        />
-                                    )
-                            )}
-                        </RegionWrapper>
+                        <>
+                            <PageDesignerPage page={resolvedPage} />
+                            <RegionWrapper
+                                region={region}
+                                className={className}
+                                designMetadata={{
+                                    id: region.id,
+                                    componentTypeExclusions: metadata?.componentTypeExclusions ?? [],
+                                    componentTypeInclusions: metadata?.componentTypeInclusions ?? [],
+                                }}
+                                {...rest}>
+                                {region.components?.map(
+                                    (component) =>
+                                        component.id && (
+                                            <Component
+                                                key={component.id}
+                                                component={component}
+                                                componentData={componentData}
+                                                regionId={region.id}
+                                                page={Promise.resolve({
+                                                    id: component.id,
+                                                    typeId: component.typeId,
+                                                    regions: component.regions || [],
+                                                } as ShopperExperience.schemas['Page'])}
+                                            />
+                                        )
+                                )}
+                            </RegionWrapper>
+                        </>
                     );
                 }}
             </Await>

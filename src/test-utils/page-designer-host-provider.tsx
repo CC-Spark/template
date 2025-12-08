@@ -49,7 +49,12 @@ export function PageDesignerHostProvider({
 
     useEffect(() => {
         host.connect({
-            configFactory: () => Promise.resolve(getHostConfigFromPage(clientPage)),
+            configFactory: () =>
+                Promise.resolve({
+                    components: {},
+                    componentTypes: {},
+                    labels: {},
+                }),
             onClientConnected: (clientId) => {
                 /* eslint-disable-next-line no-console */
                 console.log(`PageDesignerHost connected to client ${clientId}`);
@@ -66,7 +71,11 @@ export function PageDesignerHostProvider({
         return () => {
             host.disconnect();
         };
-    }, [clientPage, host, logEvents]);
+    }, [host, logEvents]);
+
+    useEffect(() => {
+        host.setClientConfiguration(getHostConfigFromPage(clientPage));
+    }, [clientPage, host]);
 
     // Window won't exist during SSR.
     if (expose && typeof window !== 'undefined') {

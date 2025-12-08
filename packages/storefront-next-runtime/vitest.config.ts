@@ -26,6 +26,8 @@ export default defineConfig({
                 'src/design/test/**',
                 // Ignore coverage of public export files in design
                 'src/design/**/index.ts',
+                // Type only files
+                'src/design/**/*{-,.}types.ts'
             ],
             reporters: ['text', 'lcov', 'json-summary'],
         },

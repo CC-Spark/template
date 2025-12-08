@@ -299,7 +299,7 @@ function useDragInteraction({ nodeToTargetMap }) {
 		return 0;
 	};
 	const scrollFactorRef = useRef(0);
-	const { state: dragState, commitCurrentDropTarget, updateComponentMove, startComponentMove, dropComponent, cancelDrag } = useInteraction({
+	const { state: dragState, commitCurrentDropTarget, updateComponentMove, startComponentMove, dropComponent, cancelDrag, setPendingComponentDragId } = useInteraction({
 		initialState: {
 			isDragging: false,
 			componentType: "",
@@ -309,7 +309,8 @@ function useDragInteraction({ nodeToTargetMap }) {
 			y: 0,
 			currentDropTarget: null,
 			pendingTargetCommit: false,
-			rectCache: /* @__PURE__ */ new WeakMap()
+			rectCache: /* @__PURE__ */ new WeakMap(),
+			pendingComponentDragId: null
 		},
 		eventHandlers: {
 			ComponentDragStarted: { handler: (event, setState) => {
@@ -376,7 +377,8 @@ function useDragInteraction({ nodeToTargetMap }) {
 					x: 0,
 					y: 0,
 					scrollDirection: 0,
-					isDragging: false
+					isDragging: false,
+					pendingComponentDragId: null
 				}));
 			},
 			updateComponentMove: ({ x, y }) => {
@@ -395,6 +397,12 @@ function useDragInteraction({ nodeToTargetMap }) {
 						rectCache: state.rectCache,
 						componentType: state.componentType
 					})
+				}));
+			},
+			setPendingComponentDragId: (componentId) => {
+				setState((prevState) => ({
+					...prevState,
+					pendingComponentDragId: componentId
 				}));
 			},
 			dropComponent: () => {
@@ -457,6 +465,7 @@ function useDragInteraction({ nodeToTargetMap }) {
 					scrollDirection: 0,
 					sourceComponentId: void 0,
 					sourceRegionId: void 0,
+					pendingComponentDragId: null,
 					currentDropTarget: null,
 					pendingTargetCommit: false
 				}));
@@ -477,6 +486,7 @@ function useDragInteraction({ nodeToTargetMap }) {
 	}, [dragState.scrollDirection, scrollFactorRef]);
 	return {
 		dragState,
+		setPendingComponentDragId,
 		commitCurrentDropTarget,
 		startComponentMove,
 		updateComponentMove,
@@ -638,6 +648,7 @@ const DesignProvider = ({ children, targetOrigin, clientId, clientConnectionTime
 	const [isConnected, setIsConnected] = React.useState(false);
 	const [pageDesignerConfig, setPageDesignerConfig] = React.useState(null);
 	const [clientPage, setClientPage] = React.useState(null);
+	const clientPageRef = React.useRef(null);
 	const clientApi = React.useMemo(() => createClientApi({
 		logger: clientLogger,
 		emitter: {
@@ -685,7 +696,13 @@ const DesignProvider = ({ children, targetOrigin, clientId, clientConnectionTime
 		isConnected,
 		pageDesignerConfig,
 		clientPage,
-		setClientPage: (page) => setClientPage(page)
+		setClientPage: (page) => {
+			if (page !== clientPageRef.current) {
+				clientPageRef.current = page;
+				setClientPage(page);
+				clientApi?.notifyClientPageChanged({ page });
+			}
+		}
 	}), [
 		isDesignMode,
 		clientApi,

@@ -220,6 +220,11 @@ components:
             category: topseller
           type: object
           additionalProperties: false
+        localized:
+          title: Localized
+          description: Whether the compononent has been localized in the current locale.
+          type: boolean
+          example: true
         visible:
           title: Visibility
           description: Whether the compononent is visible based on the current visiblity rules and context.
