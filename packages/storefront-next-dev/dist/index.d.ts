@@ -139,6 +139,8 @@ interface ServerOptions extends Partial<ServerModeFeatures> {
   vite?: ViteDevServer;
   /** React Router server build (required for preview/production modes) */
   build?: ServerBuild;
+  /** Enable streaming of responses */
+  streaming?: boolean;
 }
 /**
  * Create a unified Express server for development, preview, or production mode

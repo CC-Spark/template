@@ -1,3 +1,4 @@
+import { getMrtEntryFile } from './mrt/utils';
 import type { MrtSsrConfig } from './types';
 
 export const CARTRIDGES_BASE_DIR = 'cartridges';
@@ -33,10 +34,13 @@ export const GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH = false;
 export const buildMrtConfig = (_buildDirectory: string, _projectDirectory?: string): MrtSsrConfig => {
     // SSR-only files: Server bundles and entry points
     // These are deployed only to Lambda functions, not to CDN
+    const ssrEntryPoint = getMrtEntryFile('production');
+
     const ssrOnly = [
         'server/**/*', // All server-side code
         'loader.js', // SSR entry point
-        'ssr.js', // SSR runtime
+        `${ssrEntryPoint}.{js,mjs,cjs}`, // SSR entry point (supports CJS and ESM formats)
+        `${ssrEntryPoint}.{js,mjs,cjs}.map`, // SSR source maps
         '!static/**/*', // Exclude static assets from server
         // Exclude Storybook and test files
         '!**/*.stories.tsx',

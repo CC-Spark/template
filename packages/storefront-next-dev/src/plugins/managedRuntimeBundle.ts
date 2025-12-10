@@ -2,6 +2,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import path from 'path';
 import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
+import { getMrtEntryFile } from '../mrt/utils';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,7 +24,7 @@ export const managedRuntimeBundlePlugin = (): Plugin => {
 
     /**
      * Creates the Managed Runtime production bundle assets
-     * - ssr.js
+     * - ssr.mjs or streamingHandler.mjs
      * - loader.js
      * - package.json
      *
@@ -31,13 +32,15 @@ export const managedRuntimeBundlePlugin = (): Plugin => {
      */
     const createManagedRuntimeBundleAssets = async (): Promise<void> => {
         const loaderPath = path.resolve(buildDirectory, 'loader.js');
-        const ssrPath = path.resolve(buildDirectory, 'ssr.js');
+        // TODO: Move the MRT_BUNDLE_TYPE env var to a command line option with sfnext
+        const mrtEntryFile = `${getMrtEntryFile(resolvedConfig?.mode)}.mjs`;
+        const mrtEntryPath = path.resolve(buildDirectory, mrtEntryFile);
 
         await fs.ensureDir(buildDirectory);
         await fs.outputFile(loaderPath, '// This file is intentionally empty');
 
-        const prebuiltSsrPath = path.resolve(__dirname, './mrt/ssr.js');
-        await fs.copy(prebuiltSsrPath, ssrPath);
+        const prebuiltMrtEntryPath = path.resolve(__dirname, `./mrt/${mrtEntryFile}`);
+        await fs.copy(prebuiltMrtEntryPath, mrtEntryPath);
 
         const packageJsonPath = path.resolve(resolvedConfig.root, 'package.json');
         const buildPackageJsonPath = path.resolve(buildDirectory, 'package.json');

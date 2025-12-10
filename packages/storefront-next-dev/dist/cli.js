@@ -433,6 +433,19 @@ var CloudAPIClient = class {
 };
 
 //#endregion
+//#region src/mrt/utils.ts
+const MRT_BUNDLE_TYPE_SSR = "ssr";
+const MRT_BUNDLE_TYPE_STREAMING = "streamingHandler";
+/**
+* Gets the MRT entry file for the given mode
+* @param mode - The mode to get the MRT entry file for
+* @returns The MRT entry file for the given mode
+*/
+const getMrtEntryFile = (mode) => {
+	return process.env.MRT_BUNDLE_TYPE === MRT_BUNDLE_TYPE_SSR || mode !== "production" ? MRT_BUNDLE_TYPE_SSR : MRT_BUNDLE_TYPE_STREAMING;
+};
+
+//#endregion
 //#region src/config.ts
 const CARTRIDGES_BASE_DIR = "cartridges";
 const SFNEXT_BASE_CARTRIDGE_NAME = "app_storefrontnext_base";
@@ -462,11 +475,13 @@ const GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH = false;
 * @returns MRT SSR configuration with glob patterns
 */
 const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
+	const ssrEntryPoint = getMrtEntryFile("production");
 	return {
 		ssrOnly: [
 			"server/**/*",
 			"loader.js",
-			"ssr.js",
+			`${ssrEntryPoint}.{js,mjs,cjs}`,
+			`${ssrEntryPoint}.{js,mjs,cjs}.map`,
 			"!static/**/*",
 			"!**/*.stories.tsx",
 			"!**/*.stories.ts",
@@ -812,7 +827,7 @@ const ServerModeFeatureMap = {
 * Create a unified Express server for development, preview, or production mode
 */
 async function createServer$1(options) {
-	const { mode, projectDirectory = process.cwd(), config: providedConfig, vite, build, enableProxy = ServerModeFeatureMap[mode].enableProxy, enableStaticServing = ServerModeFeatureMap[mode].enableStaticServing, enableCompression = ServerModeFeatureMap[mode].enableCompression, enableLogging = ServerModeFeatureMap[mode].enableLogging, enableAssetUrlPatching = ServerModeFeatureMap[mode].enableAssetUrlPatching } = options;
+	const { mode, projectDirectory = process.cwd(), config: providedConfig, vite, build, streaming = false, enableProxy = ServerModeFeatureMap[mode].enableProxy, enableStaticServing = ServerModeFeatureMap[mode].enableStaticServing, enableCompression = ServerModeFeatureMap[mode].enableCompression, enableLogging = ServerModeFeatureMap[mode].enableLogging, enableAssetUrlPatching = ServerModeFeatureMap[mode].enableAssetUrlPatching } = options;
 	if (mode === "development" && !vite) throw new Error("Vite dev server instance is required for development mode");
 	if ((mode === "preview" || mode === "production") && !build) throw new Error("React Router server build is required for preview/production mode");
 	const config = providedConfig ?? loadConfigFromEnv();
@@ -820,7 +835,7 @@ async function createServer$1(options) {
 	const app = express();
 	app.disable("x-powered-by");
 	if (enableLogging) app.use(createLoggingMiddleware());
-	if (enableCompression) app.use(createCompressionMiddleware());
+	if (enableCompression && !streaming) app.use(createCompressionMiddleware());
 	if (enableStaticServing && build) {
 		const bundlePath = getBundlePath(bundleId);
 		app.use(bundlePath, createStaticMiddleware(bundleId, projectDirectory));

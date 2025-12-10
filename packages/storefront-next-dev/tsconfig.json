@@ -17,6 +17,6 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "globals.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

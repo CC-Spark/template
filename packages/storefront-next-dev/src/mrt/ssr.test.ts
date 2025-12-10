@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { APIGatewayProxyEventV2, Context, Callback } from 'aws-lambda';
+import type { APIGatewayProxyEvent, Context, Callback } from 'aws-lambda';
 import type { Express } from 'express';
 
 // Mock modules with factory functions
@@ -32,7 +32,7 @@ describe('mrt/ssr', () => {
     let mockExpressApp: Express;
     let mockServerlessHandler: ReturnType<typeof vi.fn>;
     let mockContext: Context;
-    let mockEvent: APIGatewayProxyEventV2;
+    let mockEvent: APIGatewayProxyEvent;
     let mockCallback: Callback;
 
     beforeAll(() => {
@@ -70,32 +70,50 @@ describe('mrt/ssr', () => {
             succeed: vi.fn(),
         };
 
-        // Mock AWS Lambda event
+        // Mock AWS Lambda event (API Gateway v1)
         mockEvent = {
-            version: '2.0',
-            routeKey: '$default',
-            rawPath: '/',
-            rawQueryString: '',
+            resource: '/',
+            httpMethod: 'GET',
+            path: '/',
+            queryStringParameters: null,
+            multiValueQueryStringParameters: null,
             headers: {},
+            multiValueHeaders: {},
+            body: null,
+            isBase64Encoded: false,
             requestContext: {
                 accountId: '123456789012',
                 apiId: 'test-api-id',
-                domainName: 'test.execute-api.us-east-1.amazonaws.com',
-                domainPrefix: 'test',
-                http: {
-                    method: 'GET',
-                    path: '/',
-                    protocol: 'HTTP/1.1',
+                protocol: 'HTTP/1.1',
+                httpMethod: 'GET',
+                path: '/',
+                stage: '$default',
+                requestId: 'test-request-id',
+                requestTime: '01/Jan/2024:00:00:00 +0000',
+                requestTimeEpoch: 1704067200000,
+                identity: {
                     sourceIp: '127.0.0.1',
                     userAgent: 'test-agent',
+                    accessKey: null,
+                    accountId: null,
+                    apiKey: null,
+                    apiKeyId: null,
+                    caller: null,
+                    clientCert: null,
+                    cognitoAuthenticationProvider: null,
+                    cognitoAuthenticationType: null,
+                    cognitoIdentityId: null,
+                    cognitoIdentityPoolId: null,
+                    principalOrgId: null,
+                    user: null,
+                    userArn: null,
                 },
-                requestId: 'test-request-id',
-                routeKey: '$default',
-                stage: '$default',
-                time: '01/Jan/2024:00:00:00 +0000',
-                timeEpoch: 1704067200000,
+                authorizer: {},
+                resourceId: 'test-resource-id',
+                resourcePath: '/',
             },
-            isBase64Encoded: false,
+            pathParameters: null,
+            stageVariables: null,
         };
 
         // Mock callback

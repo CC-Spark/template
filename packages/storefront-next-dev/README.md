@@ -200,10 +200,12 @@ The tool automatically generates the following configuration:
     "ssrParameters": {
         "ssrFunctionNodeVersion": "22.x"
     },
-    "ssrOnly": ["loader.js", "ssr.js", "server/**/*", "!static/**/*"],
+    "ssrOnly": ["loader.js", "streamingHandler.mjs", "server/**/*", "!static/**/*"],
     "ssrShared": ["client/**/*", "static/**/*", "**/*.css", "**/*.png", "**/*.jpg", "**/*.svg", "**/*.ico"]
 }
 ```
+
+Response streaming is enabled by default for bundles pushed to MRT. To change this, export `MRT_BUNDLE_TYPE=ssr` during a push command (e.g. `MRT_BUNDLE_TYPE=ssr pnpm push ...`)
 
 ### Key Configuration Options
 

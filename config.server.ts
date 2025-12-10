@@ -23,6 +23,7 @@ import { TrackingConsent } from '@/types/tracking-consent';
  *
  * See src/config/README.md for complete documentation.
  */
+
 export default defineConfig({
     metadata: {
         projectName: 'Odyssey Retail App',

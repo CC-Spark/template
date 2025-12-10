@@ -209,9 +209,13 @@ describe('managedRuntimeBundlePlugin', () => {
         });
 
         it('should create managed runtime bundle assets', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/build',
@@ -229,12 +233,23 @@ describe('managedRuntimeBundlePlugin', () => {
             await callHook(plugin.buildApp);
 
             expect(mockEnsureDir).toHaveBeenCalledWith('/build');
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
         });
 
         it('should create empty loader.js file', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/build',
@@ -248,12 +263,23 @@ describe('managedRuntimeBundlePlugin', () => {
             await callHook(plugin.buildApp);
 
             expect(mockOutputFile).toHaveBeenCalledWith('/build/loader.js', '// This file is intentionally empty');
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
         });
 
-        it('should copy prebuilt ssr.js file', async () => {
+        it('should copy prebuilt streamingHandler.mjs file when MRT_BUNDLE_TYPE is stream', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/build',
@@ -268,14 +294,58 @@ describe('managedRuntimeBundlePlugin', () => {
 
             expect(mockCopy).toHaveBeenCalled();
             const copyCall = mockCopy.mock.calls[0];
-            expect(copyCall[0]).toContain('ssr.js');
-            expect(copyCall[1]).toBe('/build/ssr.js');
+            expect(copyCall[0]).toContain('streamingHandler.mjs');
+            expect(copyCall[1]).toBe('/build/streamingHandler.mjs');
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
         });
 
-        it('should copy package.json to build directory', async () => {
+        it('should copy prebuilt ssr.mjs file when MRT_BUNDLE_TYPE is standard', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'ssr';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
+                __reactRouterPluginContext: {
+                    reactRouterConfig: {
+                        buildDirectory: '/build',
+                    },
+                },
+            } as unknown as ResolvedConfig;
+
+            mockReadJson.mockResolvedValue({});
+
+            callHook(plugin.configResolved, mockConfig);
+            await callHook(plugin.buildApp);
+
+            expect(mockCopy).toHaveBeenCalled();
+            const copyCall = mockCopy.mock.calls[0];
+            expect(copyCall[0]).toContain('ssr.mjs');
+            expect(copyCall[1]).toBe('/build/ssr.mjs');
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
+        });
+
+        it('should copy package.json to build directory', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
+            const plugin = managedRuntimeBundlePlugin();
+            const mockConfig = {
+                root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/build',
@@ -296,12 +366,23 @@ describe('managedRuntimeBundlePlugin', () => {
 
             expect(mockReadJson).toHaveBeenCalledWith('/project/package.json');
             expect(mockWriteJson).toHaveBeenCalledWith('/build/package.json', originalPackageJson, { spaces: 2 });
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
         });
 
         it('should remove type field from package.json', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/build',
@@ -328,12 +409,23 @@ describe('managedRuntimeBundlePlugin', () => {
             expect(writtenPackageJson).toHaveProperty('name', 'test-package');
             expect(writtenPackageJson).toHaveProperty('version', '1.0.0');
             expect(writtenPackageJson).toHaveProperty('dependencies');
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
         });
 
         it('should handle package.json without type field', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/build',
@@ -356,12 +448,23 @@ describe('managedRuntimeBundlePlugin', () => {
             const writtenPackageJson = writeJsonCall[1];
 
             expect(writtenPackageJson).not.toHaveProperty('type');
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
         });
 
         it('should use custom buildDirectory from react-router config', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/custom/output/dir',
@@ -379,12 +482,23 @@ describe('managedRuntimeBundlePlugin', () => {
                 '/custom/output/dir/loader.js',
                 '// This file is intentionally empty'
             );
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
+            }
         });
 
         it('should call all file operations in correct order', async () => {
+            const originalEnv = process.env.MRT_BUNDLE_TYPE;
+            process.env.MRT_BUNDLE_TYPE = 'stream';
+
             const plugin = managedRuntimeBundlePlugin();
             const mockConfig = {
                 root: '/project',
+                mode: 'production',
                 __reactRouterPluginContext: {
                     reactRouterConfig: {
                         buildDirectory: '/build',
@@ -409,6 +523,13 @@ describe('managedRuntimeBundlePlugin', () => {
             // Each subsequent call should have a higher invocation order
             for (let i = 1; i < calls.length; i++) {
                 expect(calls[i]).toBeGreaterThan(calls[i - 1]);
+            }
+
+            // Restore original env
+            if (originalEnv) {
+                process.env.MRT_BUNDLE_TYPE = originalEnv;
+            } else {
+                delete process.env.MRT_BUNDLE_TYPE;
             }
         });
     });

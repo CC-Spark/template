@@ -29,6 +29,9 @@ export interface ServerOptions extends Partial<ServerModeFeatures> {
 
     /** React Router server build (required for preview/production modes) */
     build?: ServerBuild;
+
+    /** Enable streaming of responses */
+    streaming?: boolean;
 }
 
 /**
@@ -41,6 +44,7 @@ export async function createServer(options: ServerOptions): Promise<Express> {
         config: providedConfig,
         vite,
         build,
+        streaming = false,
         enableProxy = ServerModeFeatureMap[mode].enableProxy,
         enableStaticServing = ServerModeFeatureMap[mode].enableStaticServing,
         enableCompression = ServerModeFeatureMap[mode].enableCompression,
@@ -72,7 +76,9 @@ export async function createServer(options: ServerOptions): Promise<Express> {
         app.use(createLoggingMiddleware());
     }
 
-    if (enableCompression) {
+    // If streaming is enabled then compression needs to be handled by the streaming handler
+    // in the streamingHandler file
+    if (enableCompression && !streaming) {
         app.use(createCompressionMiddleware());
     }
 

@@ -1,10 +1,10 @@
-import type { APIGatewayProxyHandlerV2 } from 'aws-lambda';
+import type { APIGatewayProxyHandler } from 'aws-lambda';
 import serverlessExpress from '@codegenie/serverless-express';
 import type { ServerBuild } from 'react-router';
 import { createServer } from '../server/index';
 
 // cache the server instance to avoid creating a new one for each request
-let handler: APIGatewayProxyHandlerV2 | null = null;
+let handler: APIGatewayProxyHandler | null = null;
 
 const getHandler = async (): Promise<typeof handler> => {
     if (!handler) {
@@ -15,6 +15,7 @@ const getHandler = async (): Promise<typeof handler> => {
         const app = await createServer({
             mode: 'production',
             build,
+            streaming: false,
         });
         handler = serverlessExpress({ app, resolutionMode: 'CALLBACK' });
     }
@@ -24,7 +25,7 @@ const getHandler = async (): Promise<typeof handler> => {
 // Important Constraints:
 // - The export must be named "get" to be compatible with Managed Runtime
 // - The handler must follow the AWS Lambda "callback" signature ("async" lambda is not supported by MRT)
-export const get: APIGatewayProxyHandlerV2 = (event, context, callback) => {
+export const get: APIGatewayProxyHandler = (event, context, callback) => {
     // Important: It must be set to false to avoid the response
     // being delayed until the event loop is empty
     context.callbackWaitsForEmptyEventLoop = false;

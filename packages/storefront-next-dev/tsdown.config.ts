@@ -38,19 +38,17 @@ export default defineConfig([
         external: [/node_modules/],
         hash: false
     },
-    // 3. MRT SSR server build
+    // 3a. MRT SSR server build
     {
         entry: {
             ssr: 'src/mrt/ssr.ts',
         },
         platform: 'node',
         target: 'node22',
-        format: ['cjs'],
+        format: ['esm'],
         outExtensions: () => {
             return {
-                // By default, tsdown creates .cjs extension for commonjs output
-                // But, we need to create .js extension for MRT compatibility
-                js: '.js',
+                js: '.mjs',
                 dts: '.d.ts',
             };
         },
@@ -61,7 +59,32 @@ export default defineConfig([
         external: ['./server/index.js', 'vite'],
         noExternal: [/.*/],
         clean: false,
-        hash: false
+        hash: false,
+        minify: true,
+    },
+    // 3b. MRT streamingHandler build
+    {
+        entry: {
+            streamingHandler: 'src/mrt/streamingHandler.ts',
+        },
+        platform: 'node',
+        target: 'node22',
+        format: ['esm'],
+        outExtensions: () => {
+            return {
+                js: '.mjs',
+                dts: '.d.ts',
+            };
+        },
+        dts: true,
+        outDir: 'dist/mrt',
+        // This is the react-router server build entry point, it is created from the user land when running `vite build`
+        // it is a relative path from within the build directory
+        external: ['./server/index.js', 'vite'],
+        noExternal: [/.*/],
+        clean: false,
+        hash: false,
+        minify: true,
     },
     // 4. React Router preset config
     {

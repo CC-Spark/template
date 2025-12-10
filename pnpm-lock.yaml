@@ -285,6 +285,9 @@ importers:
       '@codegenie/serverless-express':
         specifier: 4.17.0
         version: 4.17.0
+      '@h4ad/serverless-adapter':
+        specifier: 4.4.0
+        version: 4.4.0(@types/aws-lambda@8.10.159)(@types/body-parser@1.19.6)(@types/cors@2.8.19)(@types/express@4.17.23)(body-parser@1.20.3)(express@4.21.2)(http-errors@2.0.0)(reflect-metadata@0.2.2)
       '@react-router/express':
         specifier: 7.9.2
         version: 7.9.2(express@4.21.2)(react-router@7.9.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(typescript@5.9.3)
@@ -297,6 +300,9 @@ importers:
       commander:
         specifier: ^12.1.0
         version: 12.1.0
+      compressible:
+        specifier: 2.0.18
+        version: 2.0.18
       compression:
         specifier: ^1.7.4
         version: 1.8.1
@@ -321,6 +327,9 @@ importers:
       morgan:
         specifier: ^1.10.0
         version: 1.10.1
+      negotiator:
+        specifier: 1.0.0
+        version: 1.0.0
       prompts:
         specifier: 2.4.2
         version: 2.4.2
@@ -346,6 +355,9 @@ importers:
       '@react-router/dev':
         specifier: 7.9.2
         version: 7.9.2(@types/node@22.19.2)(jiti@2.6.1)(lightningcss@1.30.1)(react-router@7.9.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(tsx@4.21.0)(typescript@5.9.3)(vite@7.1.7(@types/node@22.19.2)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.21.0))
+      '@serverless/event-mocks':
+        specifier: 1.1.1
+        version: 1.1.1
       '@types/archiver':
         specifier: ^6.0.2
         version: 6.0.4
@@ -355,6 +367,9 @@ importers:
       '@types/babel__traverse':
         specifier: 7.28.0
         version: 7.28.0
+      '@types/compressible':
+        specifier: 2.0.3
+        version: 2.0.3
       '@types/compression':
         specifier: ^1.7.5
         version: 1.8.1
@@ -376,6 +391,9 @@ importers:
       '@types/morgan':
         specifier: ^1.9.9
         version: 1.9.10
+      '@types/negotiator':
+        specifier: 0.6.4
+        version: 0.6.4
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.2
@@ -1171,6 +1189,71 @@ packages:
 
   '@formatjs/intl-localematcher@0.6.2':
     resolution: {integrity: sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA==}
+
+  '@h4ad/serverless-adapter@4.4.0':
+    resolution: {integrity: sha512-Cj/dBqhOmmzf1ILrXPppEA4e8qWGSm/Mod0uAsftupmMrCGUjvzLq4PBvevnK9ASC5WPbAtnbgkwao+f4tDklw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@apollo/server': '>= 4.0.0'
+      '@azure/functions': '>= 2.0.0'
+      '@deepkit/http': '>= 1.0.1-alpha.94'
+      '@google-cloud/functions-framework': '>= 3.0.0'
+      '@hapi/hapi': '>= 21.0.0'
+      '@trpc/server': '>= 10.0.0'
+      '@types/aws-lambda': '>= 8.10.92'
+      '@types/body-parser': '>= 1.19.2'
+      '@types/cors': '>= 2.8.12'
+      '@types/express': '>= 4.15.4'
+      '@types/hapi': '*'
+      '@types/koa': '>= 2.11.2'
+      body-parser: '>= 1.20.0'
+      cors: '>= 2.8.5'
+      express: '>= 4.15.4'
+      fastify: '>= 4.0.0'
+      firebase-admin: '>= 11.0.0'
+      firebase-functions: '>= 4.0.0'
+      http-errors: '>= 2.0.0'
+      koa: '>= 2.5.1'
+      reflect-metadata: '>= 0.1.13'
+    peerDependenciesMeta:
+      '@apollo/server':
+        optional: true
+      '@azure/functions':
+        optional: true
+      '@deepkit/http':
+        optional: true
+      '@google-cloud/functions-framework':
+        optional: true
+      '@hapi/hapi':
+        optional: true
+      '@trpc/server':
+        optional: true
+      '@types/aws-lambda':
+        optional: true
+      '@types/express':
+        optional: true
+      '@types/hapi':
+        optional: true
+      '@types/koa':
+        optional: true
+      body-parser:
+        optional: true
+      cors:
+        optional: true
+      express:
+        optional: true
+      fastify:
+        optional: true
+      firebase-admin:
+        optional: true
+      firebase-functions:
+        optional: true
+      http-errors:
+        optional: true
+      koa:
+        optional: true
+      reflect-metadata:
+        optional: true
 
   '@hapi/address@5.1.1':
     resolution: {integrity: sha512-A+po2d/dVoY7cYajycYI43ZbYMXukuopIsqCjh5QzsBCipDtdofHntljDlpccMjIfTy6UOkg+5KPriwYch2bXA==}
@@ -2349,6 +2432,9 @@ packages:
     resolution: {integrity: sha512-zCKpyDIWKHwtervNK2ZlaK8mMV7gVUijAgFeJStH+CU/imcdquizV3pFLlSQYRswG+Lbyd6CT/LGRh3IbtkCFw==}
     engines: {node: '>=8'}
 
+  '@serverless/event-mocks@1.1.1':
+    resolution: {integrity: sha512-YAV5V/y+XIOfd+HEVeXfPWZb8C6QLruFk9tBivoX2roQLWVq145s4uxf8D0QioCueuRzkukHUS4JIj+KVoS34A==}
+
   '@sideway/address@4.1.5':
     resolution: {integrity: sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==}
 
@@ -2710,6 +2796,9 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
+  '@types/compressible@2.0.3':
+    resolution: {integrity: sha512-ywiUZGaJqaYMIzAFslaNq3GzaAKT+Hwq0Yh1wULe3HLCdr1+cfd5RQTLQUR7MMbIedlGrotRVcfqiY4R7K9QAQ==}
+
   '@types/compression@1.8.1':
     resolution: {integrity: sha512-kCFuWS0ebDbmxs0AXYn6e2r2nrGAb5KwQhknjSPSPgJcGd8+HVSILlUyFhGqML2gk39HcG7D1ydW9/qpYkN00Q==}
 
@@ -2718,6 +2807,9 @@ packages:
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
+
+  '@types/cors@2.8.19':
+    resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
 
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
@@ -2785,6 +2877,9 @@ packages:
 
   '@types/morgan@1.9.10':
     resolution: {integrity: sha512-sS4A1zheMvsADRVfT0lYbJ4S9lmsey8Zo2F7cnbYjWHP67Q0AwMYuuzLlkIM2N8gAbb9cubhIVFwcIN2XyYCkA==}
+
+  '@types/negotiator@0.6.4':
+    resolution: {integrity: sha512-elf6BsTq+AkyNsb2h5cGNst2Mc7dPliVoAPm1fXglC/BM3f2pFA40BaSSv3E5lyHteEawVKLP+8TwiY1DMNb3A==}
 
   '@types/node@20.19.26':
     resolution: {integrity: sha512-0l6cjgF0XnihUpndDhk+nyD3exio3iKaYROSgvh/qSevPXax3L8p5DBRFjbvalnwatGgHEQn2R88y2fA3g4irg==}
@@ -5322,6 +5417,10 @@ packages:
     resolution: {integrity: sha512-myRT3DiWPHqho5PrJaIRyaMv2kgYf0mUVgBNOYMuCH5Ki1yEiQaf/ZJuQ62nvpc44wL5WDbTX7yGJi1Neevw8w==}
     engines: {node: '>= 0.6'}
 
+  negotiator@1.0.0:
+    resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
+    engines: {node: '>= 0.6'}
+
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
@@ -7613,6 +7712,18 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@h4ad/serverless-adapter@4.4.0(@types/aws-lambda@8.10.159)(@types/body-parser@1.19.6)(@types/cors@2.8.19)(@types/express@4.17.23)(body-parser@1.20.3)(express@4.21.2)(http-errors@2.0.0)(reflect-metadata@0.2.2)':
+    dependencies:
+      '@types/body-parser': 1.19.6
+      '@types/cors': 2.8.19
+    optionalDependencies:
+      '@types/aws-lambda': 8.10.159
+      '@types/express': 4.17.23
+      body-parser: 1.20.3
+      express: 4.21.2
+      http-errors: 2.0.0
+      reflect-metadata: 0.2.2
+
   '@hapi/address@5.1.1':
     dependencies:
       '@hapi/hoek': 11.0.7
@@ -9021,6 +9132,11 @@ snapshots:
     dependencies:
       '@sentry/types': 7.120.4
 
+  '@serverless/event-mocks@1.1.1':
+    dependencies:
+      '@types/lodash': 4.17.21
+      lodash: 4.17.21
+
   '@sideway/address@4.1.5':
     dependencies:
       '@hapi/hoek': 9.3.0
@@ -9402,6 +9518,8 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
+  '@types/compressible@2.0.3': {}
+
   '@types/compression@1.8.1':
     dependencies:
       '@types/express': 4.17.23
@@ -9412,6 +9530,10 @@ snapshots:
       '@types/node': 22.19.2
 
   '@types/cookie@0.6.0': {}
+
+  '@types/cors@2.8.19':
+    dependencies:
+      '@types/node': 22.19.2
 
   '@types/deep-eql@4.0.2': {}
 
@@ -9488,6 +9610,8 @@ snapshots:
   '@types/morgan@1.9.10':
     dependencies:
       '@types/node': 22.19.2
+
+  '@types/negotiator@0.6.4': {}
 
   '@types/node@20.19.26':
     dependencies:
@@ -12554,6 +12678,8 @@ snapshots:
   negotiator@0.6.3: {}
 
   negotiator@0.6.4: {}
+
+  negotiator@1.0.0: {}
 
   neo-async@2.6.2: {}
 
