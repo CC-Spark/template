@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 /**
  * Server configuration extracted from environment variables
@@ -94,7 +95,9 @@ export async function loadProjectConfig(projectDirectory: string): Promise<Serve
     // Because the tsx package is not designed to be bundlable via build tools.
     // This is okay because we are only using the tsImport on local development.
     const { tsImport } = await import('tsx/esm/api');
-    const loaded = await tsImport(configPath, {
+    // Convert Windows paths to file:// URLs for cross-platform ESM compatibility
+    const configUrl = pathToFileURL(configPath).href;
+    const loaded = await tsImport(configUrl, {
         parentURL: import.meta.url,
         tsconfig: existsSync(tsconfigPath) ? tsconfigPath : undefined,
     });

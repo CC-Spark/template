@@ -150,7 +150,7 @@ describe('server config', () => {
                 },
             });
 
-            expect(mockTsImport).toHaveBeenCalledWith(resolve('/test/project', 'config.server.ts'), {
+            expect(mockTsImport).toHaveBeenCalledWith(expect.stringMatching(/^file:\/\//), {
                 parentURL: expect.any(String),
                 tsconfig: resolve('/test/project', 'tsconfig.json'),
             });

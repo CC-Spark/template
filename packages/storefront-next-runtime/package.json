@@ -56,14 +56,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown && cp src/design/styles/base.css dist/design-styles.css",
+    "build": "tsdown && shx cp src/design/styles/base.css dist/design-styles.css",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "test": "pnpm typecheck && pnpm test:unit",
     "test:unit": "vitest --run --coverage",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "clean": "rm -rf dist",
+    "clean": "shx rm -rf dist",
     "scapi:generate-types": "openapi-typescript -c ./openapi-specs/redocly.yaml",
     "scapi:generate-operations": "pnpm dlx tsx scripts/generate-operation-maps.ts",
     "scapi:generate": "pnpm scapi:generate-types && pnpm scapi:generate-operations"
@@ -91,6 +91,7 @@
     "openapi-typescript": "7.10.1",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "shx": "^0.4.0",
     "tsdown": "^0.15.4",
     "typescript": "^5.6.0",
     "vitest": "3.2.4"

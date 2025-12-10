@@ -15,6 +15,7 @@ import express from "express";
 import { createRequestHandler } from "@react-router/express";
 import { resolve as resolve$1 } from "node:path";
 import { existsSync } from "node:fs";
+import { pathToFileURL as pathToFileURL$1 } from "node:url";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import compression from "compression";
 import zlib from "node:zlib";
@@ -607,7 +608,8 @@ async function loadProjectConfig(projectDirectory) {
 	const tsconfigPath = resolve$1(projectDirectory, "tsconfig.json");
 	if (!existsSync(configPath)) throw new Error(`config.server.ts not found at ${configPath}.\nPlease ensure config.server.ts exists in your project root.`);
 	const { tsImport } = await import("tsx/esm/api");
-	const config = (await tsImport(configPath, {
+	const configUrl = pathToFileURL$1(configPath).href;
+	const config = (await tsImport(configUrl, {
 		parentURL: import.meta.url,
 		tsconfig: existsSync(tsconfigPath) ? tsconfigPath : void 0
 	})).default;
