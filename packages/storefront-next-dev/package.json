@@ -45,6 +45,12 @@
         "types": "./dist/mrt/ssr.d.cts",
         "default": "./dist/mrt/ssr.cjs"
       }
+    },
+    "./cartridge-services": {
+      "import": {
+        "types": "./dist/cartridge-services/index.d.ts",
+        "default": "./dist/cartridge-services/index.js"
+      }
     }
   },
   "bin": {

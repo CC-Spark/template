@@ -77,7 +77,21 @@ export default defineConfig([
         external: [/node_modules/],
         hash: false
     },
-    // 5. CLI build (with shebang)
+    // 5. Cartridge services API
+    {
+        entry: {
+            index: 'src/cartridge-services/index.ts',
+        },
+        platform: 'node',
+        target: 'node22',
+        format: ['esm'],
+        dts: true,
+        outDir: 'dist/cartridge-services',
+        clean: false,
+        external: [/node_modules/],
+        hash: false
+    },
+    // 6. CLI build (with shebang)
     {
         entry: {
             cli: 'src/cli.ts',
