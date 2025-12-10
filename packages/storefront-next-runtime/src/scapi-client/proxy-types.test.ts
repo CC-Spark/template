@@ -1,7 +1,121 @@
 import { describe, it, expect } from 'vitest';
-import { isOperationMethod, type OperationMap } from './proxy-types';
+import { isOperationMethod, type OperationMap, type KnownKeys, type WithStrictCustomProperties } from './proxy-types';
 
 describe('proxy-types', () => {
+    describe('KnownKeys', () => {
+        it('should extract only literal keys, not index signatures', () => {
+            // Type with both literal keys and index signature
+            type TestType = { name: string; age: number } & { [key: string]: unknown };
+            type Keys = KnownKeys<TestType>;
+
+            // These should compile - 'name' and 'age' are known keys
+            const key1: Keys = 'name';
+            const key2: Keys = 'age';
+            expect(key1).toBe('name');
+            expect(key2).toBe('age');
+        });
+
+        it('should work with types that have no index signature', () => {
+            type SimpleType = { foo: string; bar: number };
+            type Keys = KnownKeys<SimpleType>;
+
+            const key1: Keys = 'foo';
+            const key2: Keys = 'bar';
+            expect(key1).toBe('foo');
+            expect(key2).toBe('bar');
+        });
+
+        it('should return never for types with only index signature', () => {
+            type IndexOnlyType = { [key: string]: unknown };
+            type Keys = KnownKeys<IndexOnlyType>;
+
+            // Keys should be never - no literal keys exist
+            // This is a compile-time check; we just verify the type resolves
+            const _typeCheck: Keys extends never ? true : false = true;
+            expect(_typeCheck).toBe(true);
+        });
+    });
+
+    describe('WithStrictCustomProperties', () => {
+        it('should allow known properties', () => {
+            type TestType = { name: string; age: number } & { [key: string]: unknown };
+            type Strict = WithStrictCustomProperties<TestType>;
+
+            // This should compile without errors - known properties are allowed
+            const valid: Strict = { name: 'test', age: 25 };
+            expect(valid.name).toBe('test');
+            expect(valid.age).toBe(25);
+        });
+
+        it('should allow c_* custom properties', () => {
+            type TestType = { name: string } & { [key: string]: unknown };
+            type Strict = WithStrictCustomProperties<TestType>;
+
+            // c_* properties should be allowed
+            const valid: Strict = { name: 'test', c_customField: 'value', c_anotherCustom: 123 };
+            expect(valid.name).toBe('test');
+            expect(valid.c_customField).toBe('value');
+            expect(valid.c_anotherCustom).toBe(123);
+        });
+
+        /**
+         * Type-level unit test using @ts-expect-error
+         *
+         * NOTE: The @ts-expect-error directive below is INTENTIONAL and should NOT be "fixed".
+         * This is our unit testing strategy for compile-time type checking:
+         * - @ts-expect-error asserts that the following line MUST produce a TypeScript error
+         * - If the line compiles without error, the test fails during type checking
+         * - This ensures our type transformations correctly reject invalid code
+         */
+        it('should reject unknown properties that are not c_* (compile-time check)', () => {
+            type TestType = { name: string } & { [key: string]: unknown };
+            type Strict = WithStrictCustomProperties<TestType>;
+
+            // @ts-expect-error - 'invalidProp' should not be allowed (this is a type-level assertion)
+            const invalid: Strict = { name: 'test', invalidProp: 'value' };
+            // Runtime check to ensure test runs
+            expect(invalid).toBeDefined();
+        });
+
+        it('should preserve optional properties', () => {
+            type TestType = { required: string; optional?: number } & { [key: string]: unknown };
+            type Strict = WithStrictCustomProperties<TestType>;
+
+            // Without optional property
+            const withoutOptional: Strict = { required: 'test' };
+            expect(withoutOptional.required).toBe('test');
+
+            // With optional property
+            const withOptional: Strict = { required: 'test', optional: 42 };
+            expect(withOptional.optional).toBe(42);
+        });
+
+        it('should handle nested objects without transforming them', () => {
+            type TestType = {
+                name: string;
+                address: { street: string; city: string };
+            } & { [key: string]: unknown };
+            type Strict = WithStrictCustomProperties<TestType>;
+
+            // Nested objects should keep their original type
+            const valid: Strict = {
+                name: 'test',
+                address: { street: '123 Main', city: 'Boston' },
+            };
+            expect(valid.address.street).toBe('123 Main');
+        });
+
+        it('should pass through non-object types unchanged', () => {
+            type StringType = WithStrictCustomProperties<string>;
+            type NumberType = WithStrictCustomProperties<number>;
+
+            const str: StringType = 'hello';
+            const num: NumberType = 42;
+            expect(str).toBe('hello');
+            expect(num).toBe(42);
+        });
+    });
+
     describe('isOperationMethod', () => {
         const BASE_PATH = '/api/v1' as const;
         const operations: OperationMap = {

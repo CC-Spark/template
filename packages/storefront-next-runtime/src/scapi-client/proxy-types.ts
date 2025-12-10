@@ -34,6 +34,48 @@ type RequiredKeysOf<T> = {
 type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
 // ============================================================================
+// Custom Properties Type Transformation - Restrict [key: string] to [key: `c_${string}`]
+// ============================================================================
+
+/**
+ * Extracts only the known (non-index) keys from a type.
+ * Filters out string/number index signatures, keeping only literal property keys.
+ *
+ * Uses key remapping with a conditional that checks if the key K is a subtype of
+ * a specific literal - index signatures like `string` or `number` fail this check
+ * because `string extends 'test'` is false, while literal keys pass.
+ *
+ * @example
+ * type TestType = { name: string; age: number } & { [key: string]: unknown };
+ * type Keys = KnownKeys<TestType>; // 'name' | 'age'
+ */
+export type KnownKeys<T> = keyof {
+    [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K];
+};
+
+/**
+ * Transforms a type to replace [key: string]: unknown with [key: `c_${string}`]: unknown.
+ * Only transforms at the TOP LEVEL - nested objects are not transformed.
+ * Arrays are passed through unchanged.
+ *
+ * This ensures that only SCAPI custom properties (c_*) are allowed
+ * as additional properties, while unknown properties cause TypeScript errors.
+ *
+ * @example
+ * type Original = { name: string } & { [key: string]: unknown };
+ * type Strict = WithStrictCustomProperties<Original>;
+ * // { name: string } & { [key: `c_${string}`]: unknown }
+ *
+ * // ✅ Valid: { name: 'test', c_custom: 'value' }
+ * // ❌ Error: { name: 'test', invalidProp: 'value' }
+ */
+export type WithStrictCustomProperties<T> = T extends object
+    ? T extends readonly unknown[]
+        ? T // Arrays pass through unchanged
+        : { [K in KnownKeys<T>]: T[K] } & { [key: `c_${string}`]: unknown }
+    : T;
+
+// ============================================================================
 // Global Request Parameter Types - Make organizationId and siteId optional
 // ============================================================================
 
@@ -130,14 +172,28 @@ type HasRequiredTransformedParams<Params> = Params extends { path: infer P; quer
         : false;
 
 /**
- * Transform FetchOptions to make global params optional.
+ * Transform the body property to use strict c_* custom properties.
+ * If body exists, apply WithStrictCustomProperties; otherwise pass through unchanged.
+ */
+type TransformBody<Opts> = Opts extends { body: infer B }
+    ? Omit<Opts, 'body'> & { body: WithStrictCustomProperties<B> }
+    : Opts extends { body?: infer B }
+      ? Omit<Opts, 'body'> & { body?: WithStrictCustomProperties<B> }
+      : Opts;
+
+/**
+ * Transform FetchOptions to:
+ * 1. Make global params optional (organizationId in path, siteId in query)
+ * 2. Apply strict c_* constraint to body (only allow c_* custom properties)
+ *
  * The params object itself remains, but organizationId and siteId within become optional.
+ * The body type is transformed to only allow known properties and c_* custom properties.
  */
 type WithOptionalGlobalParams<OpDef> =
     FetchOptions<OpDef> extends infer Opts
         ? Opts extends { params: infer P }
-            ? Omit<Opts, 'params'> & { params: TransformParams<P> }
-            : Opts
+            ? TransformBody<Omit<Opts, 'params'> & { params: TransformParams<P> }>
+            : TransformBody<Opts>
         : never;
 
 /**
