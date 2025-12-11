@@ -1,0 +1,229 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StorePickup stories snapshot > Default story renders and matches snapshot 1`] = `
+<div>
+  Loading...
+</div>
+`;
+
+exports[`StorePickup stories snapshot > DesktopLayout story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm gap-3"
+    data-slot="card"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+      data-slot="card-header"
+    >
+      <h3
+        class="tracking-tight text-left text-lg font-semibold"
+      >
+        Store Pickup Location
+      </h3>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <div
+        class="grid grid-cols-2 gap-2"
+      >
+        <div
+          class="col-span-2"
+        >
+          <div
+            class="text-sm text-muted-foreground text-left"
+          >
+            <div>
+              <span>
+                Downtown Store
+                 - 
+              </span>
+              123 Main Street
+            </div>
+            <div>
+              San Francisco, CA 94102
+            </div>
+          </div>
+        </div>
+        <div
+          class="col-span-2"
+        >
+          <div
+            class="w-full"
+            data-orientation="vertical"
+            data-slot="accordion"
+          >
+            <div
+              class="border-b last:border-b-0 border-none"
+              data-orientation="vertical"
+              data-slot="accordion-item"
+              data-state="closed"
+            >
+              <h3
+                class="flex"
+                data-orientation="vertical"
+                data-state="closed"
+              >
+                <button
+                  aria-controls="radix-_r_3_"
+                  aria-expanded="false"
+                  class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-sm font-semibold text-primary hover:text-primary/80 py-2 px-0"
+                  data-orientation="vertical"
+                  data-radix-collection-item=""
+                  data-slot="accordion-trigger"
+                  data-state="closed"
+                  id="radix-_r_2_"
+                  type="button"
+                >
+                  Store Details
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                    />
+                  </svg>
+                </button>
+              </h3>
+              <div
+                aria-labelledby="radix-_r_2_"
+                class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+                data-orientation="vertical"
+                data-slot="accordion-content"
+                data-state="closed"
+                hidden=""
+                id="radix-_r_3_"
+                role="region"
+                style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`StorePickup stories snapshot > MobileLayout story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="bg-card text-card-foreground flex flex-col rounded-xl border py-6 shadow-sm gap-3"
+    data-slot="card"
+  >
+    <div
+      class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+      data-slot="card-header"
+    >
+      <h3
+        class="tracking-tight text-left text-lg font-semibold"
+      >
+        Store Pickup Location
+      </h3>
+    </div>
+    <div
+      class="px-6"
+      data-slot="card-content"
+    >
+      <div
+        class="grid grid-cols-2 gap-2"
+      >
+        <div
+          class="col-span-2"
+        >
+          <div
+            class="text-sm text-muted-foreground text-left"
+          >
+            <div>
+              <span>
+                Downtown Store
+                 - 
+              </span>
+              123 Main Street
+            </div>
+            <div>
+              San Francisco, CA 94102
+            </div>
+          </div>
+        </div>
+        <div
+          class="col-span-2"
+        >
+          <div
+            class="w-full"
+            data-orientation="vertical"
+            data-slot="accordion"
+          >
+            <div
+              class="border-b last:border-b-0 border-none"
+              data-orientation="vertical"
+              data-slot="accordion-item"
+              data-state="closed"
+            >
+              <h3
+                class="flex"
+                data-orientation="vertical"
+                data-state="closed"
+              >
+                <button
+                  aria-controls="radix-_r_1_"
+                  aria-expanded="false"
+                  class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 text-sm font-semibold text-primary hover:text-primary/80 py-2 px-0"
+                  data-orientation="vertical"
+                  data-radix-collection-item=""
+                  data-slot="accordion-trigger"
+                  data-state="closed"
+                  id="radix-_r_0_"
+                  type="button"
+                >
+                  Store Details
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                    />
+                  </svg>
+                </button>
+              </h3>
+              <div
+                aria-labelledby="radix-_r_0_"
+                class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+                data-orientation="vertical"
+                data-slot="accordion-content"
+                data-state="closed"
+                hidden=""
+                id="radix-_r_1_"
+                role="region"
+                style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

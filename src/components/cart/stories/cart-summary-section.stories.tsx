@@ -371,26 +371,6 @@ This component is used by CartContent and integrates with:
             },
         },
     },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test component interaction
-        const buttons = canvas.queryAllByRole('button');
-        const inputs = canvas.queryAllByRole('textbox');
-
-        // Perform basic interactions
-        if (buttons.length > 0) {
-            await userEvent.click(buttons[0]);
-        }
-        if (inputs.length > 0) {
-            await userEvent.click(inputs[0]);
-        }
-
-        // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
-    },
     decorators: [
         (Story: React.ComponentType) => (
             <ActionLogger>

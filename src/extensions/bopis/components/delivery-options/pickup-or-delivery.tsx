@@ -135,7 +135,7 @@ export default function PickupOrDelivery({
                                     {t('deliveryOptions.pickupOrDelivery.inStockAtStore')}
                                 </span>
                             ) : (
-                                <span className="text-sm font-normal select-none text-destructive opacity-50 mt-1">
+                                <span className="text-sm font-normal select-none text-destructive mt-1">
                                     {t('deliveryOptions.pickupOrDelivery.outOfStockAtStore')}
                                 </span>
                             ))}

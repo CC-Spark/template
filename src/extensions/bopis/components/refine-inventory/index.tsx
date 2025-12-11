@@ -38,7 +38,8 @@ export default function RefineInventory({ isFilterSelected, toggleFilter }: Refi
 
     const inventoryId = selectedStoreInfo?.inventoryId || '';
     const inventoryIdRef = useRef<string>(inventoryId);
-    const isChecked = isFilterSelected('ilids', inventoryIdRef.current);
+    // Use inventoryId directly for checked state, not the ref (ref is for tracking changes)
+    const isChecked = isFilterSelected('ilids', inventoryId);
 
     // Update the inventory filter when the selected store changes
     useEffect(() => {

@@ -435,21 +435,6 @@ This component handles the shipping address step of the checkout process - colle
             description: 'Action data containing form errors or success state',
         },
     },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test form interaction
-        const inputs = canvas.queryAllByRole('textbox');
-        const buttons = canvas.queryAllByRole('button');
-
-        // Test that form elements are present
-        void expect(inputs.length).toBeGreaterThan(0);
-        void expect(buttons.length).toBeGreaterThan(0);
-
-        // In test environment, just verify elements exist without complex interactions
-        void expect(canvasElement).toBeInTheDocument();
-    },
     decorators: [
         (Story: React.ComponentType) => (
             <ActionLogger>

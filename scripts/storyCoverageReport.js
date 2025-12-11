@@ -2,7 +2,7 @@
 /**
  * Storybook Coverage Report Generator
  *
- * Scans /src/components recursively:
+ * Scans /src/components and /src/extensions recursively:
  *  - Detects all *.tsx component files (except *.stories.tsx, *.test.tsx, *.snapshot.tsx, *-snapshot.tsx)
  *  - Detects matching *.stories.tsx files
  *  - Creates coverage %, missing story list
@@ -12,6 +12,7 @@ import fs from 'fs';
 import path from 'path';
 // ---- CONFIG ----
 const COMPONENTS_DIR = path.join(process.cwd(), 'src/components');
+const EXTENSIONS_DIR = path.join(process.cwd(), 'src/extensions');
 const OUTPUT_DIR = path.join(process.cwd(), '.storybook', 'coverage');
 const JSON_PATH = path.join(OUTPUT_DIR, 'storybook-component-coverage.json');
 const MD_PATH = path.join(OUTPUT_DIR, 'storybook-component-coverage.md');
@@ -89,9 +90,9 @@ const EXCLUDED_COMPONENTS = new Set([
 if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
-// Check if components directory exists
-if (!fs.existsSync(COMPONENTS_DIR)) {
-    console.error(`❌ Components directory not found: ${COMPONENTS_DIR}`);
+// Check if at least one directory exists
+if (!fs.existsSync(COMPONENTS_DIR) && !fs.existsSync(EXTENSIONS_DIR)) {
+    console.error(`❌ Neither components nor extensions directory found: ${COMPONENTS_DIR} or ${EXTENSIONS_DIR}`);
     process.exit(1);
 }
 function walk(dir, fileCallback) {
@@ -114,35 +115,70 @@ function getComponentName(filePath, componentsDir) {
 function generateCoverage() {
     const components = new Map(); // Map<componentName, filePath>
     const stories = new Set();
-    // Collect all story files first
-    walk(COMPONENTS_DIR, (file) => {
-        if (file.endsWith('.stories.tsx')) {
-            const componentName = getComponentName(file, COMPONENTS_DIR).replace(/\.stories$/, '');
-            stories.add(componentName);
-        }
-    });
-    // Collect all component files
-    walk(COMPONENTS_DIR, (file) => {
-        // Skip story files, test files, and snapshot files
-        if (
-            file.endsWith('.stories.tsx') ||
-            file.endsWith('.test.tsx') ||
-            file.endsWith('-snapshot.tsx') ||
-            file.includes('/stories/') ||
-            file.includes('/__snapshots__/') ||
-            file.includes('/__mocks__/')
-        ) {
-            return;
-        }
-        // Only process .tsx files
-        if (file.endsWith('.tsx')) {
-            const componentName = getComponentName(file, COMPONENTS_DIR);
-            // Store both the name and path for better reporting
-            if (!components.has(componentName)) {
-                components.set(componentName, file);
+
+    // Helper function to collect stories from a directory
+    function collectStories(dir, baseDir, isExtensions = false) {
+        if (!fs.existsSync(dir)) return;
+        walk(dir, (file) => {
+            if (file.endsWith('.stories.tsx')) {
+                // For extensions, only include stories in components/ folders
+                if (isExtensions) {
+                    const rel = path.relative(baseDir, file);
+                    // Check if the relative path contains components/ folder
+                    const pathParts = rel.split(path.sep);
+                    if (!pathParts.includes('components')) {
+                        return;
+                    }
+                }
+                const componentName = getComponentName(file, baseDir).replace(/\.stories$/, '');
+                stories.add(componentName);
             }
-        }
-    });
+        });
+    }
+
+    // Helper function to collect components from a directory
+    function collectComponents(dir, baseDir, isExtensions = false) {
+        if (!fs.existsSync(dir)) return;
+        walk(dir, (file) => {
+            // For extensions, only include components in components/ folders
+            if (isExtensions) {
+                const rel = path.relative(baseDir, file);
+                // Check if the relative path contains components/ folder
+                const pathParts = rel.split(path.sep);
+                if (!pathParts.includes('components')) {
+                    return;
+                }
+            }
+
+            // Skip story files, test files, and snapshot files
+            if (
+                file.endsWith('.stories.tsx') ||
+                file.endsWith('.test.tsx') ||
+                file.endsWith('-snapshot.tsx') ||
+                file.includes('/stories/') ||
+                file.includes('/__snapshots__/') ||
+                file.includes('/__mocks__/')
+            ) {
+                return;
+            }
+            // Only process .tsx files
+            if (file.endsWith('.tsx')) {
+                const componentName = getComponentName(file, baseDir);
+                // Store both the name and path for better reporting
+                if (!components.has(componentName)) {
+                    components.set(componentName, file);
+                }
+            }
+        });
+    }
+
+    // Collect all story files first
+    collectStories(COMPONENTS_DIR, COMPONENTS_DIR, false);
+    collectStories(EXTENSIONS_DIR, EXTENSIONS_DIR, true);
+
+    // Collect all component files
+    collectComponents(COMPONENTS_DIR, COMPONENTS_DIR, false);
+    collectComponents(EXTENSIONS_DIR, EXTENSIONS_DIR, true);
     // Find missing stories
     const missing = [];
     const excluded = [];

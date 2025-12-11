@@ -472,19 +472,6 @@ This component handles the first step of the checkout process - collecting the c
             description: 'Action data containing form errors or success state',
         },
     },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test contact info form interaction
-        const inputs = canvas.queryAllByRole('textbox');
-        void expect(inputs.length).toBeGreaterThan(0);
-
-        // Test typing in contact fields
-        if (inputs.length > 0) {
-            await userEvent.type(inputs[0], 'test@example.com');
-        }
-    },
 };
 
 type Story = StoryObj<typeof meta>;

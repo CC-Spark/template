@@ -99,7 +99,9 @@ export const StorybookBasketProvider = ({ children }: PropsWithChildren) => (
  * Storybook CheckoutProvider wrapper with mock customer profile
  */
 export const StorybookCheckoutProvider = ({ children }: PropsWithChildren) => (
-    <CheckoutOneClickProvider customerProfile={undefined}>{children}</CheckoutOneClickProvider>
+    <CheckoutOneClickProvider customerProfile={undefined} shippingDefaultSet={Promise.resolve(undefined)}>
+        {children}
+    </CheckoutOneClickProvider>
 );
 
 /**

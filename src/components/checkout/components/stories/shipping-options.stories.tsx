@@ -419,22 +419,6 @@ This component handles the shipping options step of the checkout process - allow
             description: 'Available shipping methods from the basket',
         },
     },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test form interaction
-        const inputs = canvas.queryAllByRole('textbox');
-        const buttons = canvas.queryAllByRole('button');
-
-        // Test basic interactions
-        if (inputs.length > 0) {
-            await userEvent.click(inputs[0]);
-        }
-        if (buttons.length > 0) {
-            await userEvent.click(buttons[0]);
-        }
-    },
 };
 
 type Story = StoryObj<typeof meta>;

@@ -2,13 +2,14 @@
 /**
  * Generate Vitest tests from Storybook stories using composeStories
  *
- * Scans src/components recursively for *.stories.tsx files and generates
+ * Scans src/components and src/extensions recursively for *.stories.tsx files and generates
  * corresponding test files that use composeStories to render and run play() functions.
  */
 import fs from 'fs';
 import path from 'path';
 
 const componentsDir = path.join(process.cwd(), 'src/components');
+const extensionsDir = path.join(process.cwd(), 'src/extensions');
 const outputDir = path.join(process.cwd(), '.storybook/tests/generated-stories');
 
 function walk(dir, cb) {
@@ -31,25 +32,37 @@ if (!fs.existsSync(outputDir)) {
 let generatedCount = 0;
 let skippedCount = 0;
 
-walk(componentsDir, (file) => {
-    if (file.endsWith('.stories.tsx')) {
-        // Skip ui folder - these are shadcn components, exclude from test generation
-        if (file.includes(path.join('components', 'ui'))) {
-            skippedCount++;
-            return;
-        }
+function processStoriesDir(dir, baseDir, dirLabel, isExtensions = false) {
+    walk(dir, (file) => {
+        if (file.endsWith('.stories.tsx')) {
+            // For extensions, only include stories in components/ folders
+            if (isExtensions) {
+                const rel = path.relative(baseDir, file);
+                // Check if the relative path contains components/ folder
+                const pathParts = rel.split(path.sep);
+                if (!pathParts.includes('components')) {
+                    return;
+                }
+            }
 
-        const rel = path.relative(componentsDir, file);
-        // Convert path separators to double underscores for flat output structure
-        const outName = rel.replace(/[\\/]/g, '__').replace('.stories.tsx', '.story.test.tsx');
-        const outPath = path.join(outputDir, outName);
+            // Skip ui folder - these are shadcn components, exclude from test generation
+            if (file.includes(path.join('components', 'ui'))) {
+                skippedCount++;
+                return;
+            }
 
-        // Use @/ alias for cleaner imports (maps to src/)
-        const importPath = path.relative(path.join(process.cwd(), 'src'), file).replace(/\\/g, '/');
-        // Remove .tsx extension for import
-        const importPathWithoutExt = `@/${importPath.replace(/\.tsx$/, '')}`;
+            const rel = path.relative(baseDir, file);
+            // Convert path separators to double underscores for flat output structure
+            // Prefix with directory label to avoid collisions between components and extensions
+            const outName = `${dirLabel}_${rel.replace(/[\\/]/g, '__').replace('.stories.tsx', '.story.test.tsx')}`;
+            const outPath = path.join(outputDir, outName);
 
-        const content = `import React from 'react';
+            // Use @/ alias for cleaner imports (maps to src/)
+            const importPath = path.relative(path.join(process.cwd(), 'src'), file).replace(/\\/g, '/');
+            // Remove .tsx extension for import
+            const importPathWithoutExt = `@/${importPath.replace(/\.tsx$/, '')}`;
+
+            const content = `import React from 'react';
 import { render } from '@testing-library/react';
 import { describe, test } from 'vitest';
 import { composeStories } from '@storybook/react-vite';
@@ -83,10 +96,21 @@ describe('Story tests for ${rel}', () => {
 });
 `;
 
-        fs.writeFileSync(outPath, content, 'utf8');
-        generatedCount++;
-    }
-});
+            fs.writeFileSync(outPath, content, 'utf8');
+            generatedCount++;
+        }
+    });
+}
+
+// Process components directory
+if (fs.existsSync(componentsDir)) {
+    processStoriesDir(componentsDir, componentsDir, 'components', false);
+}
+
+// Process extensions directory - only include components/ folders
+if (fs.existsSync(extensionsDir)) {
+    processStoriesDir(extensionsDir, extensionsDir, 'extensions', true);
+}
 
 console.log(`✅ Generated ${generatedCount} story test file(s) in ${outputDir}`);
 if (skippedCount > 0) {

@@ -159,6 +159,7 @@
             "spinner/index",
             "swatch-group/swatch",
             "swatch-group/swatch-group",
+            "theme-switcher/components/theme-switcher/index",
             "toast/toaster-theme",
             "toggle-card/index",
             "tracking-consent-banner/index",
@@ -191,6 +192,25 @@
             "ui/skeleton",
             "ui/tooltip",
             "with-suspense/index"
+        ]
+    },
+    "team-spark": {
+        "slack": "@cc-spark",
+        "components": [
+            "bopis/components/checkout/store-pickup",
+            "bopis/components/delivery-options/delivery-options",
+            "bopis/components/delivery-options/pickup-or-delivery",
+            "bopis/components/pickup-store-info/index",
+            "bopis/components/refine-inventory/index",
+            "store-locator/components/header/store-locator-badge",
+            "store-locator/components/header/store-locator-sheet",
+            "store-locator/components/store-locator/address",
+            "store-locator/components/store-locator/details",
+            "store-locator/components/store-locator/form",
+            "store-locator/components/store-locator/index",
+            "store-locator/components/store-locator/list",
+            "store-locator/components/store-locator/list-skeleton",
+            "store-locator/components/store-locator/text-separator"
         ]
     }
 }
