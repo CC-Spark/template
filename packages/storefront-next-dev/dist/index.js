@@ -1257,6 +1257,14 @@ async function createServer(options) {
 		const bundlePath = getBundlePath(bundleId);
 		app.use(bundlePath, createStaticMiddleware(bundleId, projectDirectory));
 	}
+	const middlewareRegistryPath = resolve(projectDirectory, "src/server/middleware-registry.ts");
+	if (existsSync$1(middlewareRegistryPath)) {
+		const { tsImport } = await import("tsx/esm/api");
+		const registry = await tsImport(middlewareRegistryPath, { parentURL: import.meta.url });
+		if (registry.customMiddlewares && Array.isArray(registry.customMiddlewares)) registry.customMiddlewares.forEach((middleware) => {
+			app.use(middleware);
+		});
+	}
 	if (mode === "development" && vite) app.use(vite.middlewares);
 	if (enableProxy) app.use(config.commerce.api.proxy, createCommerceProxyMiddleware(config));
 	app.all("*", await createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching));

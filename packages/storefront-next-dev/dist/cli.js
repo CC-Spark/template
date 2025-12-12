@@ -13,8 +13,8 @@ import { URL as URL$1, fileURLToPath, pathToFileURL } from "url";
 import { createServer } from "vite";
 import express from "express";
 import { createRequestHandler } from "@react-router/express";
-import { resolve as resolve$1 } from "node:path";
 import { existsSync } from "node:fs";
+import { resolve as resolve$1 } from "node:path";
 import { pathToFileURL as pathToFileURL$1 } from "node:url";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import compression from "compression";
@@ -839,6 +839,14 @@ async function createServer$1(options) {
 	if (enableStaticServing && build) {
 		const bundlePath = getBundlePath(bundleId);
 		app.use(bundlePath, createStaticMiddleware(bundleId, projectDirectory));
+	}
+	const middlewareRegistryPath = resolve$1(projectDirectory, "src/server/middleware-registry.ts");
+	if (existsSync(middlewareRegistryPath)) {
+		const { tsImport } = await import("tsx/esm/api");
+		const registry = await tsImport(middlewareRegistryPath, { parentURL: import.meta.url });
+		if (registry.customMiddlewares && Array.isArray(registry.customMiddlewares)) registry.customMiddlewares.forEach((middleware) => {
+			app.use(middleware);
+		});
 	}
 	if (mode === "development" && vite) app.use(vite.middlewares);
 	if (enableProxy) app.use(config.commerce.api.proxy, createCommerceProxyMiddleware(config));

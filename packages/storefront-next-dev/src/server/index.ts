@@ -2,6 +2,8 @@ import express, { type Express } from 'express';
 import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
 import type { ViteDevServer } from 'vite';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { loadConfigFromEnv, type ServerConfig } from './config';
 import { createCommerceProxyMiddleware } from './middleware/proxy';
 import { createStaticMiddleware } from './middleware/static';
@@ -85,6 +87,23 @@ export async function createServer(options: ServerOptions): Promise<Express> {
     if (enableStaticServing && build) {
         const bundlePath = getBundlePath(bundleId);
         app.use(bundlePath, createStaticMiddleware(bundleId, projectDirectory));
+    }
+
+    // Load and apply custom middlewares from the app's middleware-registry.ts
+    // This allows extensions to inject middleware (e.g. Hybrid Proxy)
+    const middlewareRegistryPath = resolve(projectDirectory, 'src/server/middleware-registry.ts');
+    if (existsSync(middlewareRegistryPath)) {
+        // We must dynamically import because this file only exists in the consumer app
+        const { tsImport } = await import('tsx/esm/api');
+        const registry = await tsImport(middlewareRegistryPath, {
+            parentURL: import.meta.url,
+        });
+
+        if (registry.customMiddlewares && Array.isArray(registry.customMiddlewares)) {
+            registry.customMiddlewares.forEach((middleware: express.RequestHandler) => {
+                app.use(middleware);
+            });
+        }
     }
 
     if (mode === 'development' && vite) {

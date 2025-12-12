@@ -55,6 +55,10 @@ import { isDesignModeActive, isPreviewModeActive } from '@salesforce/storefront-
 import { PageDesignerStyles } from './page-designer-styles';
 import { PageViewTracker } from '@/lib/analytics/page-view-tracker';
 import { initializeRegistry } from '@/lib/static-registry';
+/** @sfdc-extension-line SFDC_EXT_HYBRID_PROXY */
+import { HybridProxyNavigationInterceptor } from '@/extensions/hybrid-proxy/navigation-interceptor';
+/** @sfdc-extension-line SFDC_EXT_HYBRID_PROXY */
+import { isProxyPath } from '@/extensions/hybrid-proxy/config';
 
 // On the client side, initialize i18next.
 // (On the server side, it's initialized elsewhere in middlewares/i18next.ts file)
@@ -275,6 +279,13 @@ export default function App({
     const serverData = useRouteLoaderData('root');
     const appConfig = serverData?.appConfig || (typeof window !== 'undefined' ? window.__APP_CONFIG__ : undefined);
 
+    let isProxy = false;
+    // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+    if (typeof window !== 'undefined' && isProxyPath(location.pathname)) {
+        isProxy = true;
+    }
+    // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
+
     if (!appConfig) {
         throw new Error('App configuration not available - check server loader and window.__APP_CONFIG__');
     }
@@ -311,8 +322,8 @@ export default function App({
         [i18next, appConfig, sessionData, basket]
     );
 
-    return (
-        <ComposeProviders providers={providers}>
+    let content = (
+        <>
             <AuthActionExecutor />
             <Header>
                 <CategoryNavigationMenuMega resolve={refRoot.current} defer={refSubs.current} />
@@ -331,8 +342,16 @@ export default function App({
             <TrackingConsentBanner />
             {/* Track page views asynchronously */}
             {typeof window !== 'undefined' && <PageViewTracker />}
-        </ComposeProviders>
+        </>
     );
+
+    // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+    if (isProxy) {
+        content = <HybridProxyNavigationInterceptor />;
+    }
+    // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
+
+    return <ComposeProviders providers={providers}>{content}</ComposeProviders>;
 }
 
 /**

@@ -7,6 +7,9 @@ import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-n
 import type { SessionData } from '@/lib/api/types';
 import { clientLoader, default as App, ErrorBoundary, Layout, loader } from './root';
 import { mockConfig } from '@/test-utils/config';
+// @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+import { isProxyPath } from '@/extensions/hybrid-proxy/config';
+// @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
 
 vi.mock('@/lib/i18next.client', async () => {
     const i18next = await import('i18next');
@@ -78,6 +81,16 @@ vi.mock('@/extensions/store-locator/providers/store-locator', async () => ({
     default: ({ children }: PropsWithChildren) => <div data-testid="store-locator-provider">{children}</div>,
 }));
 // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
+
+// @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+vi.mock('@/extensions/hybrid-proxy/navigation-interceptor', () => ({
+    HybridProxyNavigationInterceptor: () => <div data-testid="hybrid-proxy-interceptor">Hybrid Proxy Interceptor</div>,
+}));
+
+vi.mock('@/extensions/hybrid-proxy/config', () => ({
+    isProxyPath: vi.fn(),
+}));
+// @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
 
 vi.mock('@/config', async () => {
     const actual = await vi.importActual('@/config');
@@ -477,11 +490,12 @@ describe('root.tsx', () => {
                     loader: () => ({
                         root: Promise.resolve(mockCategory),
                         subs: Promise.resolve([mockCategory]),
-                        auth: () => ({
-                            access_token: 'test-token',
-                            customer_id: 'test-customer',
-                            userType: 'registered',
-                        }),
+                        auth: () =>
+                            ({
+                                access_token: 'test-token',
+                                customer_id: 'test-customer',
+                                userType: 'registered',
+                            }) as any,
                         basket: { basketId: 'test-basket', productItems: [] },
                         locale: 'en',
                         getI18next: () => testI18nInstance,
@@ -499,6 +513,111 @@ describe('root.tsx', () => {
             // Cleanup
             delete (window as any).__APP_CONFIG__;
         });
+
+        // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+        describe('Hybrid Proxy Integration', () => {
+            it('should render normal app structure when not on proxy path', async () => {
+                const { fetchCategory } = await import('@/lib/api/categories');
+                vi.mocked(isProxyPath).mockReturnValue(false);
+
+                const mockCategory: ShopperProducts.schemas['Category'] = {
+                    id: 'root',
+                    name: 'Root Category',
+                };
+                vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
+
+                // Create a mock i18next instance for testing
+                const i18next = await import('i18next');
+                const { initReactI18next } = await import('react-i18next');
+                const testI18nInstance = i18next.default.createInstance();
+                await testI18nInstance.use(initReactI18next).init({
+                    lng: 'en',
+                    fallbackLng: 'en',
+                    resources: { en: { translation: {} } },
+                });
+
+                const Stub = createRoutesStub([
+                    {
+                        id: 'root',
+                        path: '/',
+                        Component: App,
+                        loader: () => ({
+                            root: Promise.resolve(mockCategory),
+                            subs: Promise.resolve([mockCategory]),
+                            auth: () =>
+                                ({
+                                    access_token: 'test-token',
+                                    customer_id: 'test-customer',
+                                    userType: 'registered',
+                                }) as any,
+                            basket: { basketId: 'test-basket', productItems: [] },
+                            appConfig: mockConfig,
+                            locale: 'en',
+                            getI18next: () => testI18nInstance,
+                        }),
+                    },
+                ]);
+
+                const { getByTestId, queryByTestId } = render(<Stub initialEntries={['/']} />);
+
+                await waitFor(() => {
+                    expect(getByTestId('header')).toBeInTheDocument();
+                    expect(queryByTestId('hybrid-proxy-interceptor')).not.toBeInTheDocument();
+                });
+            });
+
+            it('should render interceptor and hide app structure when on proxy path', async () => {
+                const { fetchCategory } = await import('@/lib/api/categories');
+                vi.mocked(isProxyPath).mockReturnValue(true);
+
+                const mockCategory: ShopperProducts.schemas['Category'] = {
+                    id: 'root',
+                    name: 'Root Category',
+                };
+                vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
+
+                // Create a mock i18next instance for testing
+                const i18next = await import('i18next');
+                const { initReactI18next } = await import('react-i18next');
+                const testI18nInstance = i18next.default.createInstance();
+                await testI18nInstance.use(initReactI18next).init({
+                    lng: 'en',
+                    fallbackLng: 'en',
+                    resources: { en: { translation: {} } },
+                });
+
+                const Stub = createRoutesStub([
+                    {
+                        id: 'root',
+                        path: '/cart', // Use a proxy path
+                        Component: App,
+                        loader: () => ({
+                            root: Promise.resolve(mockCategory),
+                            subs: Promise.resolve([mockCategory]),
+                            auth: () =>
+                                ({
+                                    access_token: 'test-token',
+                                    customer_id: 'test-customer',
+                                    userType: 'registered',
+                                }) as any,
+                            basket: { basketId: 'test-basket', productItems: [] },
+                            appConfig: mockConfig,
+                            locale: 'en',
+                            getI18next: () => testI18nInstance,
+                        }),
+                    },
+                ]);
+
+                const { getByTestId, queryByTestId } = render(<Stub initialEntries={['/cart']} />);
+
+                await waitFor(() => {
+                    expect(getByTestId('hybrid-proxy-interceptor')).toBeInTheDocument();
+                    expect(queryByTestId('header')).not.toBeInTheDocument();
+                    expect(queryByTestId('footer')).not.toBeInTheDocument();
+                });
+            });
+        });
+        // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
     });
 
     describe('loader function', () => {
