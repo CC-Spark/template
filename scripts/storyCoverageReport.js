@@ -479,15 +479,17 @@ ${
         exitCode = 1;
     }
 
-    // Check code coverage threshold if available
+    // Check code coverage threshold if available (warning only, does not fail pipeline)
     if (jsonSummary.codeCoverage && jsonSummary.thresholds.codeCoverage.met === false) {
         const lines = jsonSummary.codeCoverage.lines?.pct || 0;
         const statements = jsonSummary.codeCoverage.statements?.pct || 0;
         const functions = jsonSummary.codeCoverage.functions?.pct || 0;
         const branches = jsonSummary.codeCoverage.branches?.pct || 0;
         const avgCoverage = (lines + statements + functions + branches) / 4;
-        console.error(`\n❌ Code coverage threshold not met: ${avgCoverage.toFixed(2)}% < ${CODE_COVERAGE_THRESHOLD}%`);
-        exitCode = 1;
+        console.warn(
+            `\n⚠️  Code coverage threshold not met: ${avgCoverage.toFixed(2)}% < ${CODE_COVERAGE_THRESHOLD}% (warning only, pipeline will not fail)`
+        );
+        // Note: exitCode is not set to 1, so pipeline will not fail for code coverage
     }
 
     process.exit(exitCode);

@@ -156,10 +156,6 @@ vi.mock('@/extensions/store-locator/hooks/use-store-locator-list', () => ({
 
 describe('StoreLocatorList stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
-        // Skip interaction test stories and Default story (which returns null) from snapshots
-        if (Story?.parameters?.snapshot === false || /interactiontests?/i.test(storyName) || storyName === 'Default')
-            continue;
-
         test(`${storyName} story renders and matches snapshot`, () => {
             const { container } = render(
                 <StoryTestWrapper>

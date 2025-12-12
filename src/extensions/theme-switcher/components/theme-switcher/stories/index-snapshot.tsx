@@ -25,36 +25,37 @@ vi.mock('react-router', () => ({
             </a>
         );
     },
-    Suspense: ({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) => (
-        <div>{fallback || children}</div>
+    createMemoryRouter: vi.fn(),
+    RouterProvider: ({ router }: { router: { routes: Array<{ element?: unknown }> } }) => (
+        <div>{router.routes[0]?.element || null}</div>
     ),
-    Await: ({ resolve, children }: { resolve: Promise<unknown>; children: (data: unknown) => React.ReactNode }) => {
-        // For snapshot tests, we need to handle the promise synchronously
-        const resolveObj = resolve as any;
-        const hasValue = resolveObj && typeof resolveObj === 'object' && '_value' in resolveObj;
-        if (hasValue) {
-            return <>{children(resolveObj._value)}</>;
-        }
-        return <>{children([])}</>;
-    },
 }));
 
-vi.mock('@/components/content-card', () => ({
-    default: (props: Record<string, unknown>) => <div data-testid="content-card">{JSON.stringify(props)}</div>,
+vi.mock('react-i18next', () => ({
+    useTranslation: () => ({
+        t: (key: string) => {
+            const translations: Record<string, string> = {
+                'themeSwitcher.ariaLabel': 'Select theme',
+                'themeSwitcher.lightTheme': 'Light',
+                'themeSwitcher.darkTheme': 'Dark',
+            };
+            return translations[key] || key;
+        },
+    }),
 }));
 
 import { composeStories } from '@storybook/react-vite';
 
-import * as PopularCategoryStories from '../index.stories';
+import * as ThemeSwitcherStories from './index.stories';
 import { render, cleanup } from '@testing-library/react';
 
-const composed = composeStories(PopularCategoryStories);
+const composed = composeStories(ThemeSwitcherStories);
 
 afterEach(() => {
     cleanup();
 });
 
-describe('PopularCategory stories snapshot', () => {
+describe('ThemeSwitcher stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
         // Skip interaction test stories from snapshots
         if (Story?.parameters?.snapshot === false || /interactiontests?/i.test(storyName)) continue;

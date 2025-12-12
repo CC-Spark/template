@@ -45,7 +45,7 @@ vi.mock('@/components/content-card', () => ({
 
 import { composeStories } from '@storybook/react-vite';
 
-import * as PopularCategoryStories from './popular-category.stories';
+import * as PopularCategoryStories from './index.stories';
 import { render, cleanup } from '@testing-library/react';
 
 const composed = composeStories(PopularCategoryStories);
