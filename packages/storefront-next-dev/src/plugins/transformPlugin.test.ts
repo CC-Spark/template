@@ -72,6 +72,17 @@ describe('transformPluginPlaceholderPlugin', () => {
         vi.resetAllMocks();
     });
 
+    it('should use src as default when no alias is found in the vite config', () => {
+        const viteConfig2 = {
+            resolve: {
+                alias: [{ find: '+', replacement: 'foobar' }],
+            },
+        } as unknown as ResolvedConfig;
+        plugin.configResolved(viteConfig2);
+        plugin.buildStart();
+        expect(buildPluginRegistryMock).toHaveBeenCalledWith(expect.stringContaining('/src'));
+    });
+
     it('should build registry at buildStart()', () => {
         plugin.buildStart();
         expect(buildPluginRegistryMock).toHaveBeenCalledWith('src');

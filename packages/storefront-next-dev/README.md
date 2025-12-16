@@ -134,6 +134,9 @@ Run `sfnext push --help` to see all available options:
 
 #### Manage extensions
 
+Run `sfnext extensions list` to view the list of installed extensions
+- `-d, --project-directory`: Target project directory (default: current directory)
+
 Run `sfnext extensions install` to install a new extension
 - `-d, --project-directory`: Target project directory (default: current directory)
 - `-e, --extension`: Extension marker value (e.g. SFDC_EXT_STORE_LOCATOR)

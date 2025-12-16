@@ -3,7 +3,7 @@ import fs from "fs-extra";
 import path$1, { basename, dirname, extname, join, posix, relative, resolve as resolve$1 } from "path";
 import { URL as URL$1, fileURLToPath } from "url";
 import { parse } from "@babel/parser";
-import { isJSXAttribute, isJSXElement, isJSXIdentifier, isStringLiteral, jsxClosingElement, jsxElement, jsxIdentifier, jsxOpeningElement, jsxText, stringLiteral } from "@babel/types";
+import { isJSXAttribute, isJSXElement, isJSXFragment, isJSXIdentifier, jsxClosingElement, jsxClosingFragment, jsxElement, jsxFragment, jsxIdentifier, jsxOpeningElement, jsxOpeningFragment, jsxText } from "@babel/types";
 import { generate } from "@babel/generator";
 import traverseModule from "@babel/traverse";
 import fs$1, { existsSync, readFileSync, writeFileSync } from "fs";
@@ -168,7 +168,7 @@ const getMrtEntryFile = (mode) => {
 
 //#endregion
 //#region src/plugins/managedRuntimeBundle.ts
-const __dirname = path$1.dirname(fileURLToPath(import.meta.url));
+const __dirname$1 = path$1.dirname(fileURLToPath(import.meta.url));
 /**
 * This is a Vite plugin specifically for building the Managed Runtime production bundle.
 * This plugin relies on the @react-router/dev/vite plugin to work.
@@ -192,13 +192,13 @@ const managedRuntimeBundlePlugin = () => {
 		const mrtEntryFile = `${getMrtEntryFile(resolvedConfig?.mode)}.mjs`;
 		await fs.ensureDir(buildDirectory);
 		await fs.outputFile(loaderPath, "// This file is intentionally empty");
-		const mrtAssetsDir = path$1.resolve(__dirname, "./mrt");
+		const mrtAssetsDir = path$1.resolve(__dirname$1, "./mrt");
 		if (await fs.pathExists(mrtAssetsDir)) {
 			const files = await fs.readdir(mrtAssetsDir);
 			for (const file of files) if (file.endsWith(".mjs") || file.endsWith(".map")) await fs.copy(path$1.join(mrtAssetsDir, file), path$1.join(buildDirectory, file));
 		} else {
 			const mrtEntryPath = path$1.resolve(buildDirectory, mrtEntryFile);
-			const prebuiltMrtEntryPath = path$1.resolve(__dirname, `./mrt/${mrtEntryFile}`);
+			const prebuiltMrtEntryPath = path$1.resolve(__dirname$1, `./mrt/${mrtEntryFile}`);
 			if (await fs.pathExists(prebuiltMrtEntryPath)) await fs.copy(prebuiltMrtEntryPath, mrtEntryPath);
 		}
 		const packageJsonPath = path$1.resolve(resolvedConfig.root, "package.json");
@@ -287,7 +287,11 @@ function findAndReplace(componentName, element, pluginRegistry) {
 			const pluginId = attr && isJSXAttribute(attr) && attr.value && "value" in attr.value ? attr.value.value : void 0;
 			if (pluginId == null) throw new Error(`PluginComponent must contain a pluginId attribute`);
 			if (pluginRegistry[pluginId] && pluginRegistry[pluginId].length > 0) {
-				element.replaceWith(jsxText(pluginRegistry[pluginId].map((pluginComponent) => `<${pluginComponent.componentName} />`).join("")));
+				const components = pluginRegistry[pluginId].map((pluginComponent) => {
+					return jsxElement(jsxOpeningElement(jsxIdentifier(pluginComponent.componentName), [], true), null, [], true);
+				});
+				if (components.length > 1) element.replaceWith(jsxFragment(jsxOpeningFragment(), jsxClosingFragment(), components));
+				else element.replaceWith(components[0]);
 				pluginIdReplaced = pluginId;
 				replaced = true;
 			}
@@ -308,29 +312,26 @@ function runReplacementPass(ast, tagName, pluginRegistry) {
 	const pluginIdsReplaced = /* @__PURE__ */ new Set();
 	traverse(ast, {
 		VariableDeclaration(nodePath) {
-			const declarations = nodePath.node.declarations;
-			for (const declaration of declarations) if (isStringLiteral(declaration.init) && (/* @__PURE__ */ new RegExp(`<(${tagName})(\\s|\\/|>)`)).test(declaration.init.value)) {
-				const original = declaration.init.value;
-				const jsxAst = parse(`<>${original}</>`, {
-					sourceType: "module",
-					plugins: [
-						"typescript",
-						"jsx",
-						"decorators-legacy"
-					]
-				});
-				traverse(jsxAst, { JSXFragment(fragmentPath) {
-					fragmentPath.traverse({ JSXElement(inner) {
-						const pluginIdReplaced = findAndReplace(tagName, inner, pluginRegistry);
+			const declarationPaths = nodePath.get("declarations");
+			const declarationsArray = Array.isArray(declarationPaths) ? declarationPaths : [declarationPaths];
+			for (const declarationPath of declarationsArray) {
+				const initPath = declarationPath.get("init");
+				if (initPath && isJSXElement(initPath.node)) {
+					const content = generate(initPath.node).code;
+					if ((/* @__PURE__ */ new RegExp(`<(${tagName})(\\s|\\/|>)`)).test(content)) {
+						const pluginIdReplaced = findAndReplace(tagName, initPath, pluginRegistry);
 						if (pluginIdReplaced) pluginIdsReplaced.add(pluginIdReplaced);
-					} });
-				} });
-				declaration.init = stringLiteral(generate(jsxAst).code);
+						initPath.traverse({ JSXElement(inner) {
+							const nestedPluginIdReplaced = findAndReplace(tagName, inner, pluginRegistry);
+							if (nestedPluginIdReplaced) pluginIdsReplaced.add(nestedPluginIdReplaced);
+						} });
+					}
+				}
 			}
 		},
 		ReturnStatement(nodePath) {
 			const arg = nodePath.node.argument;
-			if (!isJSXElement(arg)) return;
+			if (!isJSXElement(arg) && !isJSXFragment(arg)) return;
 			nodePath.traverse({ JSXElement(inner) {
 				const pluginIdReplaced = findAndReplace(tagName, inner, pluginRegistry);
 				if (pluginIdReplaced) pluginIdsReplaced.add(pluginIdReplaced);
@@ -486,7 +487,7 @@ function transformPluginPlaceholderPlugin() {
 		name: "odyssey:transform-plugin-placeholder",
 		enforce: "pre",
 		configResolved(config) {
-			sourceDir = config.resolve.alias.find((alias) => alias.find === "@")?.replacement || path$1.join(process.cwd(), "src");
+			sourceDir = config.resolve.alias.find((alias) => alias.find === "@")?.replacement || path$1.resolve(__dirname, "./src");
 		},
 		buildStart() {
 			({componentRegistry, contextProviders} = buildPluginRegistry(sourceDir));

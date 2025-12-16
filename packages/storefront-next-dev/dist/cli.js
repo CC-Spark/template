@@ -2154,7 +2154,7 @@ const createStorefront = async (options) => {
 				choices: Object.keys(extensionConfig.extensions).map((extension) => ({
 					title: `${extensionConfig.extensions[extension].name} - ${extensionConfig.extensions[extension].description}`,
 					value: extension,
-					selected: true
+					selected: extensionConfig.extensions[extension].defaultOn ?? true
 				})),
 				instructions: false
 			});
@@ -2205,6 +2205,11 @@ const EXTENSION_FOLDERS = [
 	"hooks",
 	"routes"
 ];
+/**
+* Console log a message with a specific type
+* @param message string
+* @param type
+*/
 const consoleLog = (message, type) => {
 	switch (type) {
 		case "error":
@@ -2241,15 +2246,16 @@ const getExtensionConfig = (projectDirectory) => {
 * @param extensionConfig Record<string, ExtensionMeta>
 * @param message string
 * @param installedExtensions string[]
+* @param excludeExtensions string[] extensions to exclude from the list, so we can filter out extensions that are already installed
 * @returns string[]
 */
-const getExtensionSelection = async (type, extensionConfig, message, installedExtensions) => {
+const getExtensionSelection = async (type, extensionConfig, message, installedExtensions, excludeExtensions = []) => {
 	consoleLog("\n", "info");
 	const { selectedExtensions } = await prompts({
 		type,
 		name: "selectedExtensions",
 		message,
-		choices: installedExtensions.map((extensionKey) => ({
+		choices: installedExtensions.filter((extensionKey) => !excludeExtensions.includes(extensionKey)).map((extensionKey) => ({
 			title: `${extensionConfig[extensionKey].name} - ${extensionConfig[extensionKey].description}`,
 			value: extensionKey
 		})),
@@ -2278,9 +2284,15 @@ const handleUninstall = async (extensionConfig, options) => {
 		consoleLog("\n Please select at least one extension to uninstall.", "error");
 		return;
 	}
+	selectedExtensions.forEach((ext) => {
+		if (extensionConfig[ext].folder) fs.rmSync(path.join(options.projectDirectory, "src", "extensions", extensionConfig[ext].folder), {
+			recursive: true,
+			force: true
+		});
+	});
 	installedExtensions = installedExtensions.filter((ext) => !selectedExtensions.includes(ext));
 	trimExtensions(options.projectDirectory, Object.fromEntries(installedExtensions.map((ext) => [ext, true])), { extensions: extensionConfig }, options.verbose ?? false);
-	consoleLog("\n Extensions uninstalled.", "success");
+	consoleLog(" Extensions uninstalled.", "success");
 };
 /**
 * Handle the installation of extensions
@@ -2294,12 +2306,6 @@ verbose?: boolean;
 * @returns 
 */
 const handleInstall = async (extensionConfig, options) => {
-	try {
-		execSync("cursor-agent -v", { stdio: "ignore" });
-	} catch (e) {
-		consoleLog(`Cursor cli is not installed. Please install it (https://cursor.com/docs/cli/overview) and try again. ${e.message}`, "error");
-		return;
-	}
 	const { sourceGitUrl } = await prompts({
 		type: "text",
 		name: "sourceGitUrl",
@@ -2313,34 +2319,38 @@ const handleInstall = async (extensionConfig, options) => {
 		consoleLog(`No extensions found in the source project, please check ${path.join(...CONFIG_PATH)} exists in ${sourceGitUrl} and contains at least one extension.`, "error");
 		return;
 	}
-	const selectedExtensions = options.extensions ? options.extensions : await getExtensionSelection("select", srcExtensionConfig, "🔌 Which extension would you like to install?", Object.keys(srcExtensionConfig));
+	const selectedExtensions = options.extensions ? options.extensions : await getExtensionSelection("select", srcExtensionConfig, "🔌 Which extension would you like to install?", Object.keys(srcExtensionConfig), Object.keys(extensionConfig));
 	if (selectedExtensions == null || selectedExtensions.length !== 1 || selectedExtensions[0] == null) {
-		consoleLog("\n Please select extactly one extension to install.", "error");
+		consoleLog("Please select extactly one extension to install.", "error");
 		return;
 	}
 	let hasError = false;
 	try {
 		const extensionKey = selectedExtensions[0];
 		const extension = srcExtensionConfig[extensionKey];
+		if (extension.installationInstructions) try {
+			execSync("cursor-agent -v", { stdio: "ignore" });
+		} catch (e) {
+			consoleLog("This extension contains LLM instructions, please install cursor cli and try again. (https://cursor.com/docs/cli/overview)", "error");
+			return;
+		}
+		const startTime = Date.now();
+		if (extension.folder) fs.copySync(path.join(tmpDir, "src", "extensions", extension.folder), path.join(options.projectDirectory, "src", "extensions", extension.folder));
 		if (extension.installationInstructions) {
 			console.log(`\n⏳ Installing ${extension.name}, this will take a few minutes...`);
-			const startTime = Date.now();
 			try {
-				execSync(`cursor-agent -p --force 'Execute the steps specified in the installation instructions file: ${extension.installationInstructions}' --model "gpt-5" --output-format text`, {
+				execSync(`cursor-agent -p --force 'Execute the steps specified in the installation instructions file: ${extension.installationInstructions}' --output-format text`, {
 					cwd: options.projectDirectory,
 					stdio: "inherit"
 				});
-				extensionConfig[extensionKey] = extension;
-				fs.writeFileSync(getExtensionConfigPath(options.projectDirectory), JSON.stringify({ extensions: extensionConfig }, null, 4));
-				consoleLog(`${extension.name} was installed successfully. (${Date.now() - startTime}ms)`, "success");
 			} catch (e) {
 				consoleLog(`Error installing ${extension.name}. ${e.message}`, "error");
 				hasError = true;
 			}
-		} else {
-			consoleLog(`${extension.name} has no installation instructions, pleae contact the extension author to get the instructions.`, "error");
-			hasError = true;
 		}
+		extensionConfig[extensionKey] = extension;
+		fs.writeFileSync(getExtensionConfigPath(options.projectDirectory), JSON.stringify({ extensions: extensionConfig }, null, 4));
+		consoleLog(`${extension.name} was installed successfully. (${Date.now() - startTime}ms)`, "success");
 	} finally {
 		fs.rmSync(tmpDir, {
 			recursive: true,
@@ -2394,6 +2404,13 @@ const getExtensionNameSchema = (projectDirectory, extensionConfig) => {
 			code: z.ZodIssueCode.custom,
 			message: `Extension directory ${getExtensionFolderName(data.name)} already exists`
 		});
+	});
+};
+const listExtensions = (options) => {
+	const extensionConfig = getExtensionConfig(options.projectDirectory);
+	consoleLog("The following extensions are installed:", "info");
+	Object.keys(extensionConfig).forEach((key) => {
+		consoleLog(`- ${extensionConfig[key].name}: ${extensionConfig[key].description}`, "info");
 	});
 };
 const createExtension = async (options) => {
@@ -2569,6 +2586,13 @@ program.command("create-instructions").description("Generate LLM instructions us
 	}
 });
 const extensionsCommand = program.command("extensions").description("Manage features extensions for a storefront project");
+extensionsCommand.command("list").description("List all installed extensions").option("-d, --project-directory <dir>", "Target project directory", process.cwd()).action((options) => {
+	try {
+		listExtensions(options);
+	} catch (err) {
+		handleCommandError("extensions list", err);
+	}
+});
 extensionsCommand.command("install").description("Install a new extension").option("-d, --project-directory <dir>", "Target project directory", process.cwd()).option("-e, --extension <extension>", "Extension marker value (e.g. SFDC_EXT_STORE_LOCATOR)").option("-s, --source-git-url <url>", "Git URL of the source template project", DEFAULT_TEMPLATE_GIT_URL).option("-v, --verbose", "Verbose mode").action(async (options) => {
 	try {
 		await manageExtensions({

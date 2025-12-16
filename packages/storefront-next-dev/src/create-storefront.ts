@@ -79,7 +79,7 @@ export const createStorefront = async (options: { verbose?: boolean }) => {
                         extensionConfig.extensions[extension].description
                     }`,
                     value: extension,
-                    selected: true,
+                    selected: extensionConfig.extensions[extension].defaultOn ?? true,
                 })),
                 instructions: false,
             });

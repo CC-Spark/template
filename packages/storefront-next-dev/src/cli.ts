@@ -17,7 +17,7 @@ import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 import fs from 'fs-extra';
 import { createStorefront } from './create-storefront';
-import { manageExtensions, createExtension } from './extensibility/manage-extensions';
+import { manageExtensions, createExtension, listExtensions } from './extensibility/manage-extensions';
 
 // Get the directory of this CLI file for resolving dw.json path
 const __filename = fileURLToPath(import.meta.url);
@@ -272,6 +272,18 @@ program
 const extensionsCommand = program
     .command('extensions')
     .description('Manage features extensions for a storefront project');
+
+extensionsCommand
+    .command('list')
+    .description('List all installed extensions')
+    .option('-d, --project-directory <dir>', 'Target project directory', process.cwd())
+    .action((options) => {
+        try {
+            listExtensions(options);
+        } catch (err) {
+            handleCommandError('extensions list', err);
+        }
+    });
 
 extensionsCommand
     .command('install')
