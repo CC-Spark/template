@@ -191,16 +191,15 @@ const managedRuntimeBundlePlugin = () => {
 	const createManagedRuntimeBundleAssets = async () => {
 		const loaderPath = path$1.resolve(buildDirectory, "loader.js");
 		const mrtEntryFile = `${getMrtEntryFile(resolvedConfig?.mode)}.mjs`;
+		const mrtEntryPath = path$1.resolve(buildDirectory, mrtEntryFile);
 		await fs.ensureDir(buildDirectory);
 		await fs.outputFile(loaderPath, "// This file is intentionally empty");
-		const mrtAssetsDir = path$1.resolve(__dirname$1, "./mrt");
-		if (await fs.pathExists(mrtAssetsDir)) {
-			const files = await fs.readdir(mrtAssetsDir);
-			for (const file of files) if (file.endsWith(".mjs") || file.endsWith(".map")) await fs.copy(path$1.join(mrtAssetsDir, file), path$1.join(buildDirectory, file));
-		} else {
-			const mrtEntryPath = path$1.resolve(buildDirectory, mrtEntryFile);
-			const prebuiltMrtEntryPath = path$1.resolve(__dirname$1, `./mrt/${mrtEntryFile}`);
-			if (await fs.pathExists(prebuiltMrtEntryPath)) await fs.copy(prebuiltMrtEntryPath, mrtEntryPath);
+		const prebuiltMrtEntryPath = path$1.resolve(__dirname$1, `./mrt/${mrtEntryFile}`);
+		await fs.copy(prebuiltMrtEntryPath, mrtEntryPath);
+		const mrtDir = path$1.resolve(__dirname$1, "./mrt");
+		if (await fs.pathExists(mrtDir)) {
+			const files = await fs.readdir(mrtDir);
+			for (const file of files) if (file.startsWith("sfnext-server-") && file.endsWith(".mjs")) await fs.copy(path$1.join(mrtDir, file), path$1.resolve(buildDirectory, file));
 		}
 		const packageJsonPath = path$1.resolve(resolvedConfig.root, "package.json");
 		const buildPackageJsonPath = path$1.resolve(buildDirectory, "package.json");
@@ -1184,9 +1183,8 @@ const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
 			"loader.js",
 			`${ssrEntryPoint}.{js,mjs,cjs}`,
 			`${ssrEntryPoint}.{js,mjs,cjs}.map`,
-			"*.mjs",
-			"*.mjs.map",
 			"!static/**/*",
+			"sfnext-server-*.mjs",
 			"!**/*.stories.tsx",
 			"!**/*.stories.ts",
 			"!**/*-snapshot.tsx",
