@@ -928,7 +928,7 @@ const getMrtConfig = (projectDir) => {
 	loadEnvFile(projectDir);
 	const pkg = getProjectPkg(projectDir);
 	const defaultMrtProject = process.env.MRT_PROJECT ?? pkg.name;
-	if (!defaultMrtProject || defaultMrtProject.trim() === "") throw new Error("Project name could not be determined. Please either:\n  1. Set MRT_PROJECT in your .env file, or\n  2. Ensure package.json has a valid \"name\" field");
+	if (!defaultMrtProject || defaultMrtProject.trim() === "") throw new Error("Project name couldn't be determined. Do one of these options:\n  1. Set MRT_PROJECT in your .env file, or\n  2. Ensure package.json has a valid \"name\" field.");
 	const defaultMrtTarget = process.env.MRT_TARGET ?? void 0;
 	debug("MRT configuration resolved", {
 		projectDir,
