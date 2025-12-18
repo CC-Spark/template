@@ -9,12 +9,14 @@ import {
 } from './customer';
 import { getAuth } from '@/middlewares/auth.client';
 import { createApiClients } from '@/lib/api-clients';
+import { getTranslation } from '@/lib/i18next';
 import type { ActionFunctionArgs } from 'react-router';
 
 vi.mock('@/middlewares/auth.client');
 vi.mock('@/lib/api-clients');
 
 const mockContext = {} as ActionFunctionArgs['context'];
+const { t } = getTranslation();
 
 describe('Customer API', () => {
     beforeEach(() => {
@@ -626,7 +628,7 @@ describe('Customer API', () => {
             expect(result.success).toBe(true);
             expect(result.password).toBeDefined();
             expect(result.autoLoggedIn).toBe(false);
-            expect(result.error).toBe('Account created successfully, but auto-login failed. Please log in manually.');
+            expect(result.error).toBe(t('errors:customer.autoLoginAfterRegistrationFailed'));
             expect(result.customerId).toBeUndefined();
         });
 
@@ -645,7 +647,7 @@ describe('Customer API', () => {
             const result = await registerGuestUser(mockContext, 'test@example.com');
 
             expect(result.success).toBe(false);
-            expect(result.error).toBe('Registration failed. Please try again.');
+            expect(result.error).toBe(t('errors:customer.registrationFailed'));
             expect(result.customerId).toBeUndefined();
             expect(result.password).toBeUndefined();
             expect(result.autoLoggedIn).toBeUndefined();

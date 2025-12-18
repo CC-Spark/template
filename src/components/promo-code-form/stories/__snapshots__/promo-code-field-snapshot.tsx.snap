@@ -369,7 +369,7 @@ exports[`PromoCodeField stories snapshot > WithValidationError story renders and
           data-slot="form-message"
           id="_r_3_-form-item-message"
         >
-          Promo must be at least 2 characters.
+          Promo must be at least 2 characters long.
         </p>
       </div>
     </div>

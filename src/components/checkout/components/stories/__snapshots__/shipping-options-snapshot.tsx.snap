@@ -112,7 +112,7 @@ exports[`ShippingOptions stories snapshot > Default story renders and matches sn
               <p
                 class="text-sm font-medium leading-none text-left text-muted-foreground"
               >
-                Please ensure your shipping address is complete and try again.
+                Make sure your shipping address is complete and try again.
               </p>
             </div>
           </div>
@@ -299,7 +299,7 @@ exports[`ShippingOptions stories snapshot > LoadingState story renders and match
               <p
                 class="text-sm font-medium leading-none text-left text-muted-foreground"
               >
-                Please ensure your shipping address is complete and try again.
+                Make sure your shipping address is complete and try again.
               </p>
             </div>
           </div>
@@ -581,7 +581,7 @@ exports[`ShippingOptions stories snapshot > NoShippingMethods story renders and 
               <p
                 class="text-sm font-medium leading-none text-left text-muted-foreground"
               >
-                Please ensure your shipping address is complete and try again.
+                Make sure your shipping address is complete and try again.
               </p>
             </div>
           </div>

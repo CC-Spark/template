@@ -21,6 +21,7 @@ import { masterProduct } from '@/components/__mocks__/master-variant-product';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 import { bundleProd } from '@/components/__mocks__/bundle-product';
 import { createConfigWrapper } from '@/test-utils/config';
+import { getTranslation } from '@/lib/i18next';
 
 // Create a wrapper with default config
 const defaultConfigWrapper = createConfigWrapper({
@@ -143,6 +144,8 @@ const renderProductCartActions = (props: ComponentProps<typeof ProductCartAction
 };
 
 describe('ProductCartActions', () => {
+    const { t } = getTranslation();
+
     beforeEach(() => {
         vi.clearAllMocks();
         mockWriteText.mockResolvedValue(undefined);
@@ -179,7 +182,7 @@ describe('ProductCartActions', () => {
             renderProductCartActions({ product: masterProduct });
 
             // User should see a message prompting them to select all options
-            expect(screen.getByText(/please select all your options/i)).toBeInTheDocument();
+            expect(screen.getByText(t('product:selectAllOptions'))).toBeInTheDocument();
         });
 
         test('product bundles do not show parent add to cart button', () => {

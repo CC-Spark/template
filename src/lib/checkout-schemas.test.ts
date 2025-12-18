@@ -102,7 +102,7 @@ describe('Payment Schema and Validation', () => {
             expect(result.error?.issues).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        message: 'Please enter a valid card number (13-19 digits)', // Updated message
+                        message: t('checkout:payment.cardNumberInvalidLength'),
                     }),
                 ])
             );
@@ -125,7 +125,7 @@ describe('Payment Schema and Validation', () => {
             expect(result.error?.issues).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        message: 'Please enter a valid expiry date (MM/YY)', // Updated message
+                        message: t('checkout:payment.expiryInvalid'),
                     }),
                 ])
             );
@@ -148,7 +148,7 @@ describe('Payment Schema and Validation', () => {
             expect(result.error?.issues).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        message: 'Please enter a valid CVV (3-4 digits)', // Updated message
+                        message: t('checkout:payment.cvvInvalidFormat'),
                     }),
                 ])
             );

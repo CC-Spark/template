@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ShippingOptions from './shipping-options';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { getTranslation } from '@/lib/i18next';
 
 // Use real hooks for integration tests
 vi.mock('@/providers/basket', () => ({ useBasket: vi.fn() }));
@@ -69,6 +70,7 @@ const createDefaultProps = (overrides = {}) => ({
 });
 
 describe('ShippingOptions Integration Tests', () => {
+    const { t } = getTranslation();
     let useBasket: ReturnType<typeof vi.fn>;
     let useCustomerProfile: ReturnType<typeof vi.fn>;
 
@@ -643,7 +645,7 @@ describe('ShippingOptions Integration Tests', () => {
             render(<ShippingOptions {...createDefaultProps({ shippingMethods: emptyMethods })} />);
 
             // Check for the descriptive message (more specific)
-            expect(screen.getByText(/ensure your shipping address is complete/i)).toBeInTheDocument();
+            expect(screen.getByText(t('checkout:shippingOptions.noMethodsAvailableHelp'))).toBeInTheDocument();
 
             // Check that multiple instances of "No shipping methods available" exist (in message and button)
             const elements = screen.getAllByText(/No shipping methods available/i);

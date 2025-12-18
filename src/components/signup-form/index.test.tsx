@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import type { ReactNode, ComponentProps } from 'react';
 import { SignupForm } from './form';
+import { getTranslation } from '@/lib/i18next';
 
 // Type definitions for mock components
 interface MockButtonProps extends ComponentProps<'button'> {
@@ -42,6 +43,8 @@ vi.mock('@/lib/utils', () => ({
 }));
 
 describe('SignupForm', () => {
+    const { t } = getTranslation();
+
     beforeEach(() => {
         vi.clearAllMocks();
         mockIsPasswordValid.mockReturnValue(true);
@@ -133,7 +136,7 @@ describe('SignupForm', () => {
         it('should not show password mismatch error initially', () => {
             render(<SignupForm />);
 
-            expect(screen.queryByText(/passwords do not match/i)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('signup:passwordsDoNotMatch'))).not.toBeInTheDocument();
         });
 
         it('should show password mismatch error when passwords do not match', () => {
@@ -145,7 +148,7 @@ describe('SignupForm', () => {
             fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
             fireEvent.change(confirmPasswordInput, { target: { value: 'Different123!' } });
 
-            expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
+            expect(screen.getByText(t('signup:passwordsDoNotMatch'))).toBeInTheDocument();
         });
 
         it('should hide password mismatch error when passwords match again', () => {
@@ -157,11 +160,11 @@ describe('SignupForm', () => {
             fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
             fireEvent.change(confirmPasswordInput, { target: { value: 'Different123!' } });
 
-            expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
+            expect(screen.getByText(t('signup:passwordsDoNotMatch'))).toBeInTheDocument();
 
             fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
 
-            expect(screen.queryByText(/passwords do not match/i)).not.toBeInTheDocument();
+            expect(screen.queryByText(t('signup:passwordsDoNotMatch'))).not.toBeInTheDocument();
         });
 
         it('should set aria-invalid when passwords do not match', () => {

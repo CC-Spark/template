@@ -11,6 +11,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import ChildProducts from './child-products';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import userEvent from '@testing-library/user-event';
+import { getTranslation } from '@/lib/i18next';
 
 // Mock hooks and components
 vi.mock('@/hooks/product/use-product-sets-bundles', () => ({
@@ -88,6 +89,7 @@ const renderChildProducts = (props: any) => {
 };
 
 describe('ChildProducts', () => {
+    const { t } = getTranslation();
     const mockHandleProductSetAddToCart = vi.fn();
     const mockHandleProductBundleAddToCart = vi.fn();
     const mockHandleUpdateBundle = vi.fn();
@@ -453,7 +455,7 @@ describe('ChildProducts', () => {
                 parentProduct: setProduct,
             });
 
-            expect(screen.getByText(/please select all your options above/i)).toBeInTheDocument();
+            expect(screen.getByText(t('product:selectAllOptionsAbove'))).toBeInTheDocument();
         });
 
         test('disables button when has unorderable child products', async () => {

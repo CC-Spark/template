@@ -8,6 +8,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import type { ShopperOrders, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
+import { getTranslation } from '@/lib/i18next';
 
 // Mock the components and utilities
 vi.mock('@/components/ui/card', () => ({
@@ -72,6 +73,10 @@ vi.mock('react-router', () => ({
             {children}
         </a>
     ),
+    createContext: (defaultValue: any) => ({
+        Provider: ({ children }: any) => children,
+        Consumer: ({ children }: any) => children(defaultValue),
+    }),
 }));
 
 const mockGetProducts = vi.fn().mockResolvedValue({ data: { data: [] } });
@@ -134,6 +139,8 @@ import { fetchStoresForOrder } from '@/extensions/bopis/lib/api/stores';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 describe('Order Confirmation Route', () => {
+    const { t } = getTranslation();
+
     beforeEach(async () => {
         mockGetProducts.mockReset();
         vi.clearAllMocks();
@@ -307,8 +314,8 @@ describe('Order Confirmation Route', () => {
 
             render(<ErrorBoundary />);
 
-            expect(screen.getByText('Order Not Found')).toBeInTheDocument();
-            expect(screen.getByText(/We could not find the order you are looking for/)).toBeInTheDocument();
+            expect(screen.getByText(t('checkout:confirmation.orderNotFound'))).toBeInTheDocument();
+            expect(screen.getByText(t('checkout:confirmation.orderNotFoundDescription'))).toBeInTheDocument();
             expect(screen.getByText('Continue Shopping')).toBeInTheDocument();
         });
 
