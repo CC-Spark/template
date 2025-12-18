@@ -121,7 +121,7 @@ export default function CheckoutFormPage({
     }, [analytics, cart]);
 
     useEffect(() => {
-        if (!previousStepRef.current && cart?.productItems && cart.productItems.length > 0) {
+        if (previousStepRef.current !== step && cart?.productItems && cart.productItems.length > 0) {
             const stepName = Object.keys(STEPS).find((key) => STEPS[key as keyof typeof STEPS] === step) || '';
             void analytics.trackCheckoutStep({
                 stepName,

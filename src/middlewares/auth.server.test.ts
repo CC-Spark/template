@@ -1331,7 +1331,7 @@ describe('auth middleware (server)', () => {
             expect(expiry).toBe(exp * 1000); // Should be in milliseconds
         });
 
-        it('should destroy all 9 cookies when isDestroyed is set', async () => {
+        it('should destroy all 10 cookies when isDestroyed is set', async () => {
             mockParseAllCookies.mockReturnValue({
                 'cc-nx-g': 'guest-refresh-token',
             });
@@ -1368,9 +1368,9 @@ describe('auth middleware (server)', () => {
 
             await authMiddleware({ request, context, params: {} }, next);
 
-            // Verify all 9 cookies were deleted:
-            // cc-nx-g, cc-nx, cc-at, usid, customerId, cc-idp-at, dwsid, cc-cv, tc
-            expect(mockSerialize).toHaveBeenCalledTimes(9);
+            // Verify all 10 cookies were deleted:
+            // cc-nx-g, cc-nx, cc-at, usid, customerId, encUserId, cc-idp-at, dwsid, cc-cv, tc
+            expect(mockSerialize).toHaveBeenCalledTimes(10);
             expect(mockSerialize).toHaveBeenCalledWith(
                 '',
                 expect.objectContaining({
@@ -1516,9 +1516,9 @@ describe('auth middleware (server)', () => {
 
             await authMiddleware({ request, context, params: {} }, next);
 
-            // Verify all 9 cookies were deleted due to error
-            // cc-nx-g, cc-nx, cc-at, usid, customerId, cc-idp-at, dwsid, cc-cv, tc
-            expect(mockSerialize).toHaveBeenCalledTimes(9);
+            // Verify all 10 cookies were deleted due to error
+            // cc-nx-g, cc-nx, cc-at, usid, customerId, encUserId, cc-idp-at, dwsid, cc-cv, tc
+            expect(mockSerialize).toHaveBeenCalledTimes(10);
         });
 
         it('should use getCookieNameWithSiteId to get cookie names', async () => {
@@ -1553,6 +1553,7 @@ describe('auth middleware (server)', () => {
             expect(mockgetCookieNameWithSiteId).toHaveBeenCalledWith('cc-at', context);
             expect(mockgetCookieNameWithSiteId).toHaveBeenCalledWith('usid', context);
             expect(mockgetCookieNameWithSiteId).toHaveBeenCalledWith('customerId', context);
+            expect(mockgetCookieNameWithSiteId).toHaveBeenCalledWith('encUserId', context);
             expect(mockgetCookieNameWithSiteId).toHaveBeenCalledWith('cc-idp-at', context);
             expect(mockgetCookieNameWithSiteId).toHaveBeenCalledWith('cc-cv', context);
         });

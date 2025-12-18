@@ -20,6 +20,7 @@ import {
     COOKIE_ACCESS_TOKEN,
     COOKIE_USID,
     COOKIE_CUSTOMER_ID,
+    COOKIE_ENC_USER_ID,
     COOKIE_IDP_ACCESS_TOKEN,
     COOKIE_CODE_VERIFIER,
     COOKIE_TRACKING_CONSENT,
@@ -399,6 +400,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     const accessToken = getAuthCookie(COOKIE_ACCESS_TOKEN);
     const usid = getAuthCookie(COOKIE_USID);
     const customerId = getAuthCookie(COOKIE_CUSTOMER_ID);
+    const encUserId = getAuthCookie(COOKIE_ENC_USER_ID);
     const idpAccessToken = getAuthCookie(COOKIE_IDP_ACCESS_TOKEN);
     const codeVerifier = getAuthCookie(COOKIE_CODE_VERIFIER);
     const dwsid = getAuthCookie(COOKIE_DWSID);
@@ -419,6 +421,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     const accessTokenCookie = createCookie<string>(COOKIE_ACCESS_TOKEN, cookieConfig, context);
     const usidCookie = createCookie<string>(COOKIE_USID, cookieConfig, context);
     const customerIdCookie = createCookie<string>(COOKIE_CUSTOMER_ID, cookieConfig, context);
+    const encUserIdCookie = createCookie<string>(COOKIE_ENC_USER_ID, cookieConfig, context);
     const idpAccessTokenCookie = createCookie<string>(COOKIE_IDP_ACCESS_TOKEN, cookieConfig, context);
     const dwsidCookie = createCookie<string>(COOKIE_DWSID, cookieConfig, context);
     // Code verifier cookie is httpOnly for security (OAuth2 PKCE flow, server-only)
@@ -481,6 +484,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     }
     if (usid) authData.usid = usid;
     if (customerId) authData.customer_id = customerId;
+    if (encUserId) authData.enc_user_id = encUserId;
     // Add IDP access token for social login (if present)
     if (idpAccessToken) authData.idp_access_token = idpAccessToken;
     // Add code verifier for OAuth2 PKCE flow (if present)
@@ -556,6 +560,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         response.headers.append('Set-Cookie', await accessTokenCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await usidCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await customerIdCookie.serialize('', deleteCookieConfig));
+        response.headers.append('Set-Cookie', await encUserIdCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await idpAccessTokenCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await dwsidCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await codeVerifierCookie.serialize('', deleteHttpOnlyCookieConfig));
@@ -655,6 +660,23 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
                 'Set-Cookie',
                 await customerIdCookie.serialize(
                     customerIdValue,
+                    getCookieConfig(
+                        {
+                            expires: new Date(refreshTokenExpiryValue),
+                        },
+                        context
+                    )
+                )
+            );
+        }
+
+        // Set encUserId cookie with refresh token expiry (same as refresh token)
+        const encUserIdValue = authStorage.get('enc_user_id');
+        if (encUserIdValue && typeof encUserIdValue === 'string' && refreshTokenExpiryValue) {
+            response.headers.append(
+                'Set-Cookie',
+                await encUserIdCookie.serialize(
+                    encUserIdValue,
                     getCookieConfig(
                         {
                             expires: new Date(refreshTokenExpiryValue),

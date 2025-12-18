@@ -171,7 +171,7 @@ describe('Einstein Adapter', () => {
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
                 realm: 'realm',
-                currentPage: '/test-page',
+                currentLocation: '/test-page',
             });
         });
 
@@ -290,7 +290,7 @@ describe('Einstein Adapter', () => {
                 cookieId: 'test-usid',
                 instanceType: 'sbx',
                 realm: 'realm',
-                currentPage: '/test-page',
+                currentLocation: '/test-page',
             });
         });
 

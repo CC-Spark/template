@@ -23,6 +23,7 @@ import {
     COOKIE_ACCESS_TOKEN,
     COOKIE_USID,
     COOKIE_CUSTOMER_ID,
+    COOKIE_ENC_USER_ID,
     COOKIE_IDP_ACCESS_TOKEN,
     COOKIE_TRACKING_CONSENT,
     COOKIE_DWSID,
@@ -82,6 +83,7 @@ export function getAuthDataFromCookies(): Partial<AuthStorageData> | undefined {
     const accessToken = allCookies[getCookieNameWithSiteId(COOKIE_ACCESS_TOKEN)] || '';
     const usid = allCookies[getCookieNameWithSiteId(COOKIE_USID)] || '';
     const customerId = allCookies[getCookieNameWithSiteId(COOKIE_CUSTOMER_ID)] || '';
+    const encUserId = allCookies[getCookieNameWithSiteId(COOKIE_ENC_USER_ID)] || '';
     const idpAccessToken = allCookies[getCookieNameWithSiteId(COOKIE_IDP_ACCESS_TOKEN)] || '';
     const dwsid = allCookies[getCookieNameWithSiteId(COOKIE_DWSID)] || '';
     // Read tracking consent cookie directly as TrackingConsent enum (values match)
@@ -120,6 +122,7 @@ export function getAuthDataFromCookies(): Partial<AuthStorageData> | undefined {
         refresh_token: refreshToken || undefined,
         usid: usid || undefined,
         customer_id: customerId || undefined,
+        enc_user_id: encUserId || undefined,
         userType,
         idp_access_token: idpAccessToken || undefined,
         dwsid: dwsid || undefined,
@@ -324,6 +327,7 @@ export const populateAuthStorage = (
     if (authData.access_token_expiry) storage.set('access_token_expiry', authData.access_token_expiry);
     if (authData.usid) storage.set('usid', authData.usid);
     if (authData.customer_id) storage.set('customer_id', authData.customer_id);
+    if (authData.enc_user_id) storage.set('enc_user_id', authData.enc_user_id);
     if (authData.idp_access_token) storage.set('idp_access_token', authData.idp_access_token);
     if (authData.userType) storage.set('userType', authData.userType);
     if (authData.dwsid) storage.set('dwsid', authData.dwsid);
@@ -572,6 +576,7 @@ export const clearInvalidSessionAndRestoreGuest = async (context: Readonly<Route
         COOKIE_ACCESS_TOKEN,
         COOKIE_USID,
         COOKIE_CUSTOMER_ID,
+        COOKIE_ENC_USER_ID,
         COOKIE_IDP_ACCESS_TOKEN,
         COOKIE_TRACKING_CONSENT,
         COOKIE_DWSID,

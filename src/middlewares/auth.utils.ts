@@ -22,6 +22,7 @@ export const COOKIE_REFRESH_TOKEN_REGISTERED = 'cc-nx'; // Registered user refre
 export const COOKIE_ACCESS_TOKEN = 'cc-at'; // Access token
 export const COOKIE_USID = 'usid'; // User session ID
 export const COOKIE_CUSTOMER_ID = 'customerId'; // Customer ID
+export const COOKIE_ENC_USER_ID = 'encUserId'; // Encoded user ID
 export const COOKIE_IDP_ACCESS_TOKEN = 'cc-idp-at'; // IDP access token (for social login)
 export const COOKIE_CODE_VERIFIER = 'cc-cv'; // OAuth2 PKCE code verifier (server-only, short-lived)
 export const COOKIE_TRACKING_CONSENT = 'dw_dnt'; // Tracking consent preference (cookie value matches TrackingConsent enum)
@@ -146,6 +147,11 @@ export const updateAuthStorageDataByTokenResponse = (
     // Store customer info if available (for registered users)
     if (tokenResponse?.customer_id) {
         storage.set('customer_id', tokenResponse.customer_id);
+    }
+
+    // Store customer encoded user id if available (for registered users)
+    if (tokenResponse?.enc_user_id) {
+        storage.set('enc_user_id', tokenResponse.enc_user_id);
     }
 
     // Store user session identifier if available

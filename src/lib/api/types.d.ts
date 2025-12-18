@@ -10,6 +10,7 @@ export type SessionData = {
     customer_id?: string;
     userType?: 'guest' | 'registered';
     usid?: string;
+    enc_user_id?: string;
 
     // social login - OAuth2 PKCE code verifier (server-side only, ephemeral)
     codeVerifier?: string;

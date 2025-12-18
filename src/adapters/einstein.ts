@@ -276,7 +276,7 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
         case 'view_page':
             return {
                 ...baseActivity,
-                currentPage: event.path,
+                currentLocation: event.path,
             };
 
         default:

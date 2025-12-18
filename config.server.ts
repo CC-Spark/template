@@ -270,9 +270,9 @@ export default defineConfig({
                 // We omit /action because we don't want to trigger viewPage events for actions
                 // like modifying the quanity of an item in the cart
                 // We omit /callback, /oauth2, and /resource because these do not correspond to pages
-                // We omit /search, /category, and /product because they are tracked with different
-                // events (viewSearch, viewCategory, and viewProduct) triggered from the
-                // search, category, and product pages respectively
+                // We omit /search, /category, /product, and /checkout because they are tracked with
+                // different events (viewSearch, viewCategory, viewProduct, and beginCheckout) triggered
+                // on the search, category, product, and checkout pages respectively
                 pageViewsBlocklist: [
                     '/action',
                     '/callback',
@@ -281,6 +281,7 @@ export default defineConfig({
                     '/search',
                     '/category',
                     '/product',
+                    '/checkout',
                 ],
                 // Time in milliseconds before a ViewPage tracked path can be tracked again
                 pageViewsResetDuration: 1500, // 1.5 seconds
