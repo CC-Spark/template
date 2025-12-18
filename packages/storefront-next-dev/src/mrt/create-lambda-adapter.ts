@@ -16,6 +16,12 @@ import type { Express, Request, Response } from 'express';
 import type { Writable } from 'stream';
 import { ServerlessRequest } from '@h4ad/serverless-adapter';
 
+/**
+ * Header keys to copy from the request to the response.
+ * These headers are typically used for tracing, correlation, or other request/response matching purposes.
+ */
+const REQUEST_HEADERS_TO_COPY = ['x-correlation-id'] as const;
+
 // Check if zstd compression is available (Node.js v22.15.0+)
 let createZstdCompress: ((options?: ZstdOptions) => ZstdCompress) | undefined;
 try {
@@ -241,10 +247,10 @@ const getPathFromEvent = (event: APIGatewayProxyEvent): string => {
 export function createExpressRequest(event: APIGatewayProxyEvent, context: Context): ExpressRequest {
     const { httpMethod, headers, multiValueHeaders, body, isBase64Encoded, requestContext } = event;
 
-    const remoteAddress = requestContext?.identity?.sourceIp ?? '';
+    const remoteAddress = requestContext?.identity?.sourceIp ?? undefined;
 
     const bodyEncoding = isBase64Encoded ? 'base64' : 'utf-8';
-    const requestBody = Buffer.from(body ?? '', bodyEncoding);
+    const requestBody: Buffer | undefined = body ? Buffer.from(body, bodyEncoding) : undefined;
 
     // Normalize headers to lowercase keys for case-insensitive lookup
     const normalizedHeaders: Record<string, string> = {};
@@ -274,47 +280,6 @@ export function createExpressRequest(event: APIGatewayProxyEvent, context: Conte
     // IncomingMessage doesn't have query, params, etc. - these are added by Express
     const req = request as unknown as ExpressRequest;
 
-    // Add Express-specific properties
-    // Object.defineProperty(req, 'path', {
-    //     value: path,
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    // });
-
-    // Object.defineProperty(req, 'params', {
-    //     value: pathParameters || {},
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    // });
-
-    // // query is not part of IncomingMessage - Express parses it from the URL
-    // Object.defineProperty(req, 'query', {
-    //     value: queryStringParameters || {},
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    // });
-
-    // Object.defineProperty(req, 'rawBody', {
-    //     value: requestBody,
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    // });
-
-    // // Lambda-specific properties
-    // Object.defineProperty(req, 'apiGateway', {
-    //     value: {
-    //         event,
-    //         context,
-    //     },
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    // });
-
     // Express-like methods
     Object.defineProperty(req, 'get', {
         value(this: ExpressRequest, headerName: string): string | string[] | undefined {
@@ -333,31 +298,6 @@ export function createExpressRequest(event: APIGatewayProxyEvent, context: Conte
         enumerable: true,
         configurable: true,
     });
-
-    // // Add common Express properties using Object.defineProperty to avoid readonly errors
-    // Object.defineProperty(req, 'protocol', {
-    //     value: headers?.['X-Forwarded-Proto'] || 'https',
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    // });
-
-    // Object.defineProperty(req, 'hostname', {
-    //     value: headers?.Host || '',
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    // });
-
-    // // ip is already set by ServerlessRequest, but we can override with X-Forwarded-For if present
-    // if (headers?.['X-Forwarded-For']) {
-    //     Object.defineProperty(req, 'ip', {
-    //         value: headers['X-Forwarded-For'].split(',')[0].trim(),
-    //         writable: true,
-    //         enumerable: true,
-    //         configurable: true,
-    //     });
-    // }
 
     return req;
 }
@@ -592,6 +532,13 @@ export function createExpressResponse(
         // Collect all current headers from the response
         const currentHeaders = response.getHeaders();
         Object.assign(headers, currentHeaders);
+
+        for (const header of REQUEST_HEADERS_TO_COPY) {
+            const value = request?.get(header);
+            if (value) {
+                headers[header] = value;
+            }
+        }
 
         const contentType = getContentType(response);
 
