@@ -25,6 +25,7 @@ import AuthProvider, { bootstrapAuth } from '@/providers/auth';
 import basketMiddlewareClient, { getBasket } from '@/middlewares/basket.client';
 import shopperContextMiddlewareServer from '@/middlewares/shopper-context.server';
 import shopperContextMiddlewareClient from '@/middlewares/shopper-context.client';
+import legacyRoutesMiddlewareClient from '@/middlewares/legacy-routes.client';
 import {
     performanceMetricsMiddlewareClient,
     performanceMetricsMiddlewareServer,
@@ -80,6 +81,7 @@ export const clientMiddleware: MiddlewareFunction<Record<string, DataStrategyRes
     // Client middleware functions have varying return types, but React Router expects Record<string, DataStrategyResult>
     // We cast through unknown to avoid type errors while maintaining runtime correctness
     appConfigMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Must run first to set config in context
+    legacyRoutesMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Checks hybrid.enabled, needs config from context
     performanceMetricsMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
     authMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
     basketMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,

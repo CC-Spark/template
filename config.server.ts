@@ -96,6 +96,10 @@ export default defineConfig({
             cookies: {
                 domain: undefined,
             },
+            hybrid: {
+                enabled: false,
+                legacyRoutes: [],
+            },
             features: {
                 passwordlessLogin: {
                     enabled: false,

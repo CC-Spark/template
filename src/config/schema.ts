@@ -67,6 +67,10 @@ export type Config = {
             cookies?: {
                 domain?: string;
             };
+            hybrid: {
+                enabled: boolean;
+                legacyRoutes?: string[];
+            };
             features: {
                 passwordlessLogin: {
                     enabled: boolean;
