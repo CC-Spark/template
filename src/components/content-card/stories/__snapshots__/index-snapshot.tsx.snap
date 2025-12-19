@@ -18,6 +18,7 @@ exports[`ContentCard stories snapshot > Default story renders and matches snapsh
           class="w-full h-full object-cover"
           loading="lazy"
           src="https://via.placeholder.com/400x300"
+          style="object-position: 50% 50%;"
         />
       </div>
     </div>
@@ -69,6 +70,7 @@ exports[`ContentCard stories snapshot > Desktop story renders and matches snapsh
           class="w-full h-full object-cover"
           loading="lazy"
           src="https://via.placeholder.com/400x300"
+          style="object-position: 50% 50%;"
         />
       </div>
     </div>
@@ -149,6 +151,7 @@ exports[`ContentCard stories snapshot > Mobile story renders and matches snapsho
           class="w-full h-full object-cover"
           loading="lazy"
           src="https://via.placeholder.com/400x300"
+          style="object-position: 50% 50%;"
         />
       </div>
     </div>
@@ -236,6 +239,7 @@ exports[`ContentCard stories snapshot > Tablet story renders and matches snapsho
           class="w-full h-full object-cover"
           loading="lazy"
           src="https://via.placeholder.com/400x300"
+          style="object-position: 50% 50%;"
         />
       </div>
     </div>

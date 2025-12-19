@@ -329,7 +329,7 @@ export default function App({
             <Header>
                 <CategoryNavigationMenuMega resolve={refRoot.current} defer={refSubs.current} />
             </Header>
-            <PageDesignerProvider clientId="odyssey" targetOrigin="*" usid={sessionData.usid} mode={pageDesignerMode}>
+            <PageDesignerProvider clientId="odyssey" targetOrigin="*" usid={sessionData?.usid} mode={pageDesignerMode}>
                 <PageDesignerStyles />
                 <main className="flex-grow pt-8">
                     {/* Outlet-level `<Suspense/>` boundary to contain pending promises. */}

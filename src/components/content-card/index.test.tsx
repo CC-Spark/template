@@ -3,12 +3,13 @@ import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import ContentCard from './index';
+import { type Image } from '@/types';
 
 describe('ContentCard', () => {
     const defaultProps = {
         title: 'Test Title',
         description: 'Test description content',
-        imageUrl: 'https://example.com/image.jpg',
+        imageUrl: { url: 'https://example.com/image.jpg' } as Image,
         imageAlt: 'Test image',
         buttonText: 'Click Me',
         buttonLink: '/test-link',
@@ -58,7 +59,7 @@ describe('ContentCard', () => {
     });
 
     test('does not render footer when no content is provided', () => {
-        const { container } = renderWithRouter(<ContentCard imageUrl="https://example.com/image.jpg" />);
+        const { container } = renderWithRouter(<ContentCard imageUrl={{ url: 'https://example.com/image.jpg' }} />);
         expect(container.querySelector('[data-slot="card-footer"]')).not.toBeInTheDocument();
     });
 
@@ -100,7 +101,7 @@ describe('ContentCard', () => {
     });
 
     test('renders with only image (no text or button)', () => {
-        renderWithRouter(<ContentCard imageUrl="https://example.com/image.jpg" imageAlt="Only image" />);
+        renderWithRouter(<ContentCard imageUrl={{ url: 'https://example.com/image.jpg' }} imageAlt="Only image" />);
         expect(screen.getByAltText('Only image')).toBeInTheDocument();
         expect(screen.queryByRole('heading')).not.toBeInTheDocument();
         expect(screen.queryByRole('link')).not.toBeInTheDocument();

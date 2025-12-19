@@ -5,11 +5,12 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
+import { type Image } from '@/types';
 
 interface ContentCardProps extends ComponentProps<'div'> {
     title?: string;
     description?: string;
-    imageUrl?: string;
+    imageUrl?: Image | string;
     imageAlt?: string;
     buttonText?: string;
     buttonLink?: string;
@@ -36,8 +37,8 @@ export class ContentCardMetadata {
     @AttributeDefinition()
     description?: string;
 
-    @AttributeDefinition()
-    imageUrl?: string;
+    @AttributeDefinition({ type: 'image' })
+    imageUrl?: Image;
 
     @AttributeDefinition()
     imageAlt?: string;
@@ -77,6 +78,15 @@ export const ContentCard = forwardRef<HTMLDivElement, ContentCardProps>(
         },
         ref
     ) => {
+        // Normalize imageUrl to handle both string and Image object
+        const imageData = typeof imageUrl === 'string' ? { url: imageUrl } : imageUrl;
+        const imageSrc = imageData?.url;
+
+        // Calculate focal point for object-position (defaults to center)
+        const focalX = imageData?.focal_point?.x ? `${imageData.focal_point.x}%` : '50%';
+        const focalY = imageData?.focal_point?.y ? `${imageData.focal_point.y}%` : '50%';
+        const objectPosition = `${focalX} ${focalY}`;
+
         return (
             <Card
                 ref={ref}
@@ -87,13 +97,14 @@ export const ContentCard = forwardRef<HTMLDivElement, ContentCardProps>(
                     className
                 )}
                 {...props}>
-                {imageUrl && (
+                {imageSrc && (
                     <CardContent className="p-0">
                         <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-secondary/20">
                             <img
-                                src={resolveAssetUrl(imageUrl)}
+                                src={resolveAssetUrl(imageSrc)}
                                 alt={imageAlt || title || ''}
                                 className="w-full h-full object-cover"
+                                style={{ objectPosition }}
                                 loading={loading}
                             />
                         </div>

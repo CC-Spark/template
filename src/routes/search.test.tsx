@@ -31,11 +31,10 @@ const mockSearchResult: ShopperSearch.schemas['ProductSearchResult'] = {
             inventory: { ats: 10 },
             representedProduct: {
                 id: 'product-1',
-                name: 'Product 1',
                 imageGroups: [],
                 variants: [],
                 type: { master: true },
-            },
+            } as any,
         },
     ],
     total: 10,
@@ -192,25 +191,25 @@ describe('SearchPage', () => {
         test('should have PageType decorator', () => {
             const metadata = Reflect.getMetadata('page:type', SearchPageMetadata);
             expect(metadata).toBeDefined();
-            expect(metadata.name).toBe('Product Listing Page');
+            expect(metadata.name).toBe('Search Results Page');
             expect(metadata.description).toBe('Search results page with product listings and personalized content');
         });
 
         test('should have RegionDefinition decorator with three regions', () => {
-            const topFullWidthRegion = getRegionDefinition(SearchPageMetadata, 'plpTopFullWidth');
+            const topFullWidthRegion = getRegionDefinition(SearchPageMetadata, 'searchTopFullWidth');
             expect(topFullWidthRegion).toBeDefined();
-            expect(topFullWidthRegion?.id).toBe('plpTopFullWidth');
+            expect(topFullWidthRegion?.id).toBe('searchTopFullWidth');
             expect(topFullWidthRegion?.name).toBe('Top Full Width Region');
             expect(topFullWidthRegion?.maxComponents).toBe(5);
 
-            const topContentRegion = getRegionDefinition(SearchPageMetadata, 'plpTopContent');
+            const topContentRegion = getRegionDefinition(SearchPageMetadata, 'searchTopContent');
             expect(topContentRegion).toBeDefined();
-            expect(topContentRegion?.id).toBe('plpTopContent');
+            expect(topContentRegion?.id).toBe('searchTopContent');
             expect(topContentRegion?.name).toBe('Top Content Region');
 
-            const bottomRegion = getRegionDefinition(SearchPageMetadata, 'plpBottom');
+            const bottomRegion = getRegionDefinition(SearchPageMetadata, 'searchBottom');
             expect(bottomRegion).toBeDefined();
-            expect(bottomRegion?.id).toBe('plpBottom');
+            expect(bottomRegion?.id).toBe('searchBottom');
             expect(bottomRegion?.name).toBe('Bottom Region');
         });
     });
@@ -242,7 +241,7 @@ describe('SearchPage', () => {
                 refine: [],
             });
 
-            expect(fetchPageFromLoader).toHaveBeenCalledWith(args, { pageId: 'plp' });
+            expect(fetchPageFromLoader).toHaveBeenCalledWith(args, { pageId: 'search' });
             expect(result.searchTerm).toBe('shoes');
         });
 
@@ -307,7 +306,7 @@ describe('SearchPage', () => {
 
         test('should render region when it has components', async () => {
             const mockRegion = {
-                id: 'plpTopContent',
+                id: 'searchTopContent',
                 components: [
                     {
                         id: 'hero-1',
@@ -334,7 +333,7 @@ describe('SearchPage', () => {
             await waitFor(() => {
                 const regions = screen.queryAllByTestId('region');
                 expect(regions.length).toBe(1);
-                expect(regions[0]).toHaveAttribute('data-region-id', 'plpTopContent');
+                expect(regions[0]).toHaveAttribute('data-region-id', 'searchTopContent');
             });
         });
 
@@ -424,7 +423,7 @@ describe('SearchPage', () => {
             vi.mocked(isDesignModeActive).mockReturnValue(true);
 
             const mockRegion = {
-                id: 'plpTopContent',
+                id: 'searchTopContent',
                 components: [],
             };
 
@@ -445,8 +444,10 @@ describe('SearchPage', () => {
             await waitFor(() => {
                 const regions = screen.queryAllByTestId('region');
                 expect(regions.length).toBeGreaterThan(0);
-                const plpTopContentRegion = regions.find((r) => r.getAttribute('data-region-id') === 'plpTopContent');
-                expect(plpTopContentRegion).toBeInTheDocument();
+                const searchTopContentRegion = regions.find(
+                    (r) => r.getAttribute('data-region-id') === 'searchTopContent'
+                );
+                expect(searchTopContentRegion).toBeInTheDocument();
             });
         });
 
@@ -455,7 +456,7 @@ describe('SearchPage', () => {
             vi.mocked(isDesignModeActive).mockReturnValue(false);
 
             const mockRegion = {
-                id: 'plpTopContent',
+                id: 'searchTopContent',
                 components: [],
             };
 

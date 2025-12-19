@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { RegionDefinition } from '@/lib/decorators';
+import { type Image } from '@/types';
 import heroImage from '/images/hero-cube.png';
 
 /* v8 ignore start - do not test decorators in unit tests, decorator functionality is tested separately*/
@@ -39,18 +40,6 @@ export class HeroMetadata {
     ctaLink?: string;
 }
 /* v8 ignore stop */
-
-type Image = {
-    url: string;
-    meta_data?: {
-        height?: string;
-        width?: string;
-    };
-    focal_point?: {
-        x?: string;
-        y?: string;
-    };
-};
 
 export default function Hero({
     title = 'Shop Now',

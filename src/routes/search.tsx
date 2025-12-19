@@ -16,25 +16,25 @@ import { Region } from '@/components/region';
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
 
 @PageType({
-    name: 'Product Listing Page',
+    name: 'Search Results Page',
     description: 'Search results page with product listings and personalized content',
     supportedAspectTypes: [],
 })
 @RegionDefinition([
     {
-        id: 'plpTopFullWidth',
+        id: 'searchTopFullWidth',
         name: 'Top Full Width Region',
         description: 'Full screen width region at the top of search results',
         maxComponents: 5,
     },
     {
-        id: 'plpTopContent',
+        id: 'searchTopContent',
         name: 'Top Content Region',
         description: 'Content width region below sort/filter, above product grid',
         maxComponents: 5,
     },
     {
-        id: 'plpBottom',
+        id: 'searchBottom',
         name: 'Bottom Region',
         description: 'Region at the bottom of search results after product grid',
         maxComponents: 5,
@@ -58,7 +58,7 @@ function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): SearchPageDa
     const refine = searchParams.getAll('refine');
 
     const pagePromise = fetchPageFromLoader(loaderCtx, {
-        pageId: 'plp',
+        pageId: 'search',
     });
 
     const componentDataPromises = collectComponentDataPromises(loaderCtx, pagePromise);
@@ -169,9 +169,14 @@ export default function SearchPage({
                     </Suspense>
                 </div>
 
-                {/* plpTopFullWidth */}
+                {/* searchTopFullWidth */}
                 <div className="mb-8">
-                    <Region page={page} regionId="plpTopFullWidth" componentData={componentData} fallback={<div />} />
+                    <Region
+                        page={page}
+                        regionId="searchTopFullWidth"
+                        componentData={componentData}
+                        fallback={<div />}
+                    />
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
@@ -184,11 +189,11 @@ export default function SearchPage({
                     </div>
 
                     <div className="flex-grow">
-                        {/* plpTopContent */}
+                        {/* searchTopContent */}
                         <div className="mb-8">
                             <Region
                                 page={page}
-                                regionId="plpTopContent"
+                                regionId="searchTopContent"
                                 componentData={componentData}
                                 fallback={<div />}
                             />
@@ -211,9 +216,14 @@ export default function SearchPage({
                             </Await>
                         </Suspense>
 
-                        {/* plpBottom */}
+                        {/* searchBottom */}
                         <div className="mt-8">
-                            <Region page={page} regionId="plpBottom" componentData={componentData} fallback={<div />} />
+                            <Region
+                                page={page}
+                                regionId="searchBottom"
+                                componentData={componentData}
+                                fallback={<div />}
+                            />
                         </div>
                     </div>
                 </div>

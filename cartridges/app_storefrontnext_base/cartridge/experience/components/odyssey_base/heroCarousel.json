@@ -3,7 +3,13 @@
     "description": "Interactive carousel component with multiple hero slides, autoplay, navigation controls, and dot indicators",
     "group": "odyssey_base",
     "arch_type": "headless",
-    "region_definitions": [],
+    "region_definitions": [
+        {
+            "id": "slides",
+            "name": "Carousel Slides",
+            "max_components": 10
+        }
+    ],
     "attribute_definition_groups": [
         {
             "id": "heroCarousel",

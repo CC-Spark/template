@@ -34,6 +34,11 @@ interface GenerateMetadataOptions {
    * If omitted, the entire src/ directory will be scanned and all existing cartridge files will be deleted first.
    */
   filePaths?: string[];
+  /**
+   * Whether to run ESLint with --fix on generated JSON files to format them according to project settings.
+   * Defaults to true.
+   */
+  lintFix?: boolean;
 }
 declare function generateMetadata(projectDirectory: string, metadataDirectory: string, options?: GenerateMetadataOptions): Promise<void>;
 //#endregion

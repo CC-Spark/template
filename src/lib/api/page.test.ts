@@ -38,9 +38,11 @@ describe('fetchPage', () => {
                 query: {
                     mode: 'edit',
                     pdToken: 'abc123',
-                    aspectType: 'mobile',
-                    categoryId: 'electronics',
-                    productId: 'laptop-001',
+                    aspectAttributes: JSON.stringify({
+                        aspectType: 'mobile',
+                        categoryId: 'electronics',
+                        productId: 'laptop-001',
+                    }),
                 },
             },
             mockResult: { id: 'product-page', name: 'Product Detail Page', pageType: 'productDetailPage' },
@@ -84,8 +86,10 @@ describe('fetchPage', () => {
                     query: {
                         mode: 'edit',
                         pdToken: 'edit-token-123',
-                        aspectType: 'category',
-                        categoryId: 'mens-clothing',
+                        aspectAttributes: JSON.stringify({
+                            aspectType: 'category',
+                            categoryId: 'mens-clothing',
+                        }),
                     },
                 },
             },
@@ -100,9 +104,11 @@ describe('fetchPage', () => {
                 expectedParams: {
                     path: { pageId: 'product-template' },
                     query: {
-                        aspectType: 'product',
-                        categoryId: 'mens-shirts',
-                        productId: 'shirt-001',
+                        aspectAttributes: JSON.stringify({
+                            aspectType: 'product',
+                            categoryId: 'mens-shirts',
+                            productId: 'shirt-001',
+                        }),
                     },
                 },
             },

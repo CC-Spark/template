@@ -1,57 +1,24 @@
 {
     "name": "Product Listing Page",
-    "description": "Search results page with product listings and personalized content",
+    "description": "Product listing page with product listings and personalized content",
     "arch_type": "headless",
     "region_definitions": [
         {
             "id": "plpTopFullWidth",
             "name": "Top Full Width Region",
-            "component_type_inclusions": [
-                {
-                    "type_id": "heroCarousel"
-                },
-                {
-                    "type_id": "productCarousel"
-                },
-                {
-                    "type_id": "hero"
-                }
-            ],
             "max_components": 5
         },
         {
             "id": "plpTopContent",
             "name": "Top Content Region",
-            "component_type_inclusions": [
-                {
-                    "type_id": "heroCarousel"
-                },
-                {
-                    "type_id": "productCarousel"
-                },
-                {
-                    "type_id": "hero"
-                }
-            ],
             "max_components": 5
         },
         {
             "id": "plpBottom",
             "name": "Bottom Region",
-            "component_type_inclusions": [
-                {
-                    "type_id": "heroCarousel"
-                },
-                {
-                    "type_id": "productCarousel"
-                },
-                {
-                    "type_id": "hero"
-                }
-            ],
             "max_components": 5
         }
     ],
-    "supported_aspect_types": [],
-    "route": "/search"
+    "supported_aspect_types": ["plp"],
+    "route": "/category/:categoryId"
 }

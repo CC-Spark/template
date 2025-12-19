@@ -157,6 +157,7 @@ function getPageData(
         { request, params, context },
         {
             pageId: 'pdp',
+            productId: searchParams.get('pid') || productId,
         }
     );
 

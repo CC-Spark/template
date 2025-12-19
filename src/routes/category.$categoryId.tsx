@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Await, type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
-import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperProducts, ShopperSearch, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchCategory } from '@/lib/api/categories';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { getAllQueryParams, getQueryParam, PRODUCT_SEARCH_QUERY_PARAMS } from '@/lib/query-params';
@@ -16,11 +16,44 @@ import CategoryRefinements from '@/components/category-refinements';
 import CategorySorting from '@/components/category-sorting';
 import ProductGrid from '@/components/product-grid';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { PageType } from '@/lib/decorators/page-type';
+import { RegionDefinition } from '@/lib/decorators/region-definition';
+import { Region } from '@/components/region';
+import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
+
+@PageType({
+    name: 'Product Listing Page',
+    description: 'Product listing page with product listings and personalized content',
+    supportedAspectTypes: ['plp'],
+})
+@RegionDefinition([
+    {
+        id: 'plpTopFullWidth',
+        name: 'Top Full Width Region',
+        description: 'Full screen width region at the top of the results',
+        maxComponents: 5,
+    },
+    {
+        id: 'plpTopContent',
+        name: 'Top Content Region',
+        description: 'Content width region below sort/filter, above product grid',
+        maxComponents: 5,
+    },
+    {
+        id: 'plpBottom',
+        name: 'Bottom Region',
+        description: 'Region at the bottom of search results after product grid',
+        maxComponents: 5,
+    },
+])
+export class ProductListingPageMetadata {}
 
 type CategoryPageData = {
     category: Promise<ShopperProducts.schemas['Category']>;
     refinements: Promise<ShopperSearch.schemas['ProductSearchResult']>;
     searchResult: Promise<ShopperSearch.schemas['ProductSearchResult']>;
+    page: Promise<ShopperExperience.schemas['Page']>;
+    componentData: Promise<Record<string, Promise<unknown>>>;
 };
 
 /**
@@ -28,9 +61,9 @@ type CategoryPageData = {
  * This function handles the actual data fetching logic shared between server and client loaders.
  * @returns Promise that resolves to an object containing search results and category data
  */
-function getPageData({ request, params, context }: LoaderFunctionArgs, limit: number): CategoryPageData {
-    const { searchParams } = new URL(request.url);
-    const { categoryId = '' } = params;
+function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): CategoryPageData {
+    const { searchParams } = new URL(loaderCtx.request.url);
+    const { categoryId = '' } = loaderCtx.params;
 
     // Ensure we have a valid category ID, fallback to 'root' if undefined or empty
     const safeCategoryId = categoryId && categoryId !== 'undefined' ? categoryId : 'root';
@@ -39,8 +72,15 @@ function getPageData({ request, params, context }: LoaderFunctionArgs, limit: nu
     const sort = getQueryParam(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.SORT);
     const refine = getAllQueryParams(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.REFINE);
 
+    const pagePromise = fetchPageFromLoader(loaderCtx, {
+        pageId: 'plp',
+        categoryId: safeCategoryId,
+    });
+
+    const componentDataPromises = collectComponentDataPromises(loaderCtx, pagePromise);
+
     return {
-        refinements: fetchSearchProducts(context, {
+        refinements: fetchSearchProducts(loaderCtx.context, {
             categoryId: safeCategoryId,
             limit: 1,
             offset: 0,
@@ -49,7 +89,7 @@ function getPageData({ request, params, context }: LoaderFunctionArgs, limit: nu
             refine: refine as unknown as string,
             expand: ['none'],
         }),
-        searchResult: fetchSearchProducts(context, {
+        searchResult: fetchSearchProducts(loaderCtx.context, {
             categoryId: safeCategoryId,
             limit,
             offset,
@@ -57,7 +97,9 @@ function getPageData({ request, params, context }: LoaderFunctionArgs, limit: nu
             // This is a known type limitation, the API intelligently serializes the refine parameter (array) automatically, but the OAS types refers to string.
             refine: refine as unknown as string,
         }),
-        category: fetchCategory(context, safeCategoryId, 0),
+        category: fetchCategory(loaderCtx.context, safeCategoryId, 0),
+        page: pagePromise,
+        componentData: componentDataPromises,
     };
 }
 
@@ -88,7 +130,7 @@ export function clientLoader(args: ClientLoaderFunctionArgs): CategoryPageData {
  * @returns JSX element representing the category page
  */
 export default function CategoryPage({
-    loaderData: { category, refinements, searchResult },
+    loaderData: { category, refinements, searchResult, page, componentData },
 }: {
     loaderData: CategoryPageData;
 }) {
@@ -157,6 +199,11 @@ export default function CategoryPage({
                     </Suspense>
                 </div>
 
+                {/* plpTopFullWidth */}
+                <div className="mb-8">
+                    <Region page={page} regionId="plpTopFullWidth" componentData={componentData} fallback={<div />} />
+                </div>
+
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="hidden lg:block w-64 flex-shrink-0">
                         <Suspense fallback={<CategoryRefinementsSkeleton />}>
@@ -164,6 +211,11 @@ export default function CategoryPage({
                                 {(refinementsData) => <CategoryRefinements result={refinementsData} />}
                             </Await>
                         </Suspense>
+                    </div>
+
+                    {/* plpTopContent */}
+                    <div className="mb-8">
+                        <Region page={page} regionId="plpTopContent" componentData={componentData} fallback={<div />} />
                     </div>
 
                     <div className="flex-grow">
@@ -195,6 +247,11 @@ export default function CategoryPage({
                                 }}
                             </Await>
                         </Suspense>
+
+                        {/* plpBottom */}
+                        <div className="mt-8">
+                            <Region page={page} regionId="plpBottom" componentData={componentData} fallback={<div />} />
+                        </div>
                     </div>
                 </div>
             </div>

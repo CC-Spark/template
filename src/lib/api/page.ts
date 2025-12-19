@@ -18,15 +18,21 @@ export const fetchPage = async (
     const { pageId = '', pdToken, mode, aspectType, categoryId, productId } = parameters || {};
     const clients = createApiClients(context);
 
+    const aspectAttributes = {
+        ...(aspectType && { aspectType }),
+        ...(categoryId && { categoryId }),
+        ...(productId && { productId }),
+    };
+
     const result = await clients.shopperExperience.getPage({
         params: {
             path: { pageId },
             query: {
                 ...(mode && { mode }),
                 ...(pdToken && { pdToken }),
-                ...(aspectType && { aspectType }),
-                ...(categoryId && { categoryId }),
-                ...(productId && { productId }),
+                ...(Object.keys(aspectAttributes).length > 0 && {
+                    aspectAttributes: JSON.stringify(aspectAttributes),
+                }),
             },
         },
     });

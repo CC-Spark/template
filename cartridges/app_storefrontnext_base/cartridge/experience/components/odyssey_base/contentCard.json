@@ -27,7 +27,7 @@
                 {
                     "id": "imageUrl",
                     "name": "Image Url",
-                    "type": "string",
+                    "type": "image",
                     "required": false,
                     "description": "Field: imageUrl"
                 },

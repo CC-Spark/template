@@ -2054,6 +2054,7 @@ function filePathToRoute(filePath, projectRoot) {
 	const routesRoot = posix.join(projectRootPosix, "src/routes");
 	const marker = "/src/routes/";
 	let routePath = (filePathPosix.includes(marker) ? filePathPosix.slice(filePathPosix.indexOf(marker) + 12) : posix.relative(routesRoot, filePathPosix)).replace(/\.(tsx|ts|jsx|js)$/i, "");
+	routePath = routePath.replace(/(?<!\.)\.(?!\.)/g, "/");
 	routePath = routePath.replace(/^_index$/i, "").replace(/^index$/i, "").replace(/\/_index$/i, "").replace(/\/index$/i, "").replace(/\$([^/]+)/g, ":$1");
 	return routePath.startsWith("/") ? routePath : `/${routePath}`;
 }
@@ -2326,6 +2327,28 @@ async function generateAspectCartridge(aspect, outputDir) {
 	await writeFile(outputPath, JSON.stringify(cartridgeData, null, 2));
 	console.log(`   - ${String(aspect.name)}: ${String(aspect.description)} (${String(aspect.attributeDefinitions.length)} attributes) → ${fileName}.json`);
 }
+/**
+* Runs ESLint with --fix on the specified directory to format JSON files.
+* This ensures generated JSON files match the project's Prettier/ESLint configuration.
+*/
+function lintGeneratedFiles(metadataDir, projectRoot) {
+	try {
+		console.log("🔧 Running ESLint --fix on generated JSON files...");
+		execSync(`npx eslint "${metadataDir}/**/*.json" --fix --no-error-on-unmatched-pattern`, {
+			cwd: projectRoot,
+			stdio: "pipe",
+			encoding: "utf-8"
+		});
+		console.log("✅ JSON files formatted successfully");
+	} catch (error$1) {
+		const execError = error$1;
+		if (execError.status === 2) {
+			const errMsg = execError.stderr || execError.stdout || "Unknown error";
+			console.warn(`⚠️  Warning: Could not run ESLint --fix: ${errMsg}`);
+		} else if (execError.stderr && execError.stderr.includes("error")) console.warn(`⚠️  Warning: Some linting issues could not be auto-fixed. Run ESLint manually to review.`);
+		else console.log("✅ JSON files formatted successfully");
+	}
+}
 async function generateMetadata(projectDirectory, metadataDirectory, options) {
 	try {
 		const filePaths = options?.filePaths;
@@ -2415,6 +2438,7 @@ async function generateMetadata(projectDirectory, metadataDirectory, options) {
 			for (const aspect of allAspects) await generateAspectCartridge(aspect, aspectsOutputDir);
 			console.log(`📄 Generated ${allAspects.length} aspect metadata file(s) in: ${aspectsOutputDir}`);
 		}
+		if (options?.lintFix !== false && (allComponents.length > 0 || allPageTypes.length > 0 || allAspects.length > 0)) lintGeneratedFiles(metadataDir, projectRoot);
 	} catch (error$1) {
 		console.error("❌ Error:", error$1.message);
 		process.exit(1);

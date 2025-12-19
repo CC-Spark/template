@@ -4,6 +4,7 @@
 import { readdir, readFile, writeFile, mkdir, access, rm } from 'fs/promises';
 import { join, extname, resolve, basename, posix as pathPosix } from 'path';
 import { Project, Node, type SourceFile, type PropertyDeclaration, type Decorator } from 'ts-morph';
+import { execSync } from 'child_process';
 
 const SKIP_DIRECTORIES = ['build', 'dist', 'node_modules', '.git', '.next', 'coverage'];
 
@@ -182,6 +183,10 @@ export function filePathToRoute(filePath: string, projectRoot: string): string {
 
     // Remove file extension
     let routePath = relativePath.replace(/\.(tsx|ts|jsx|js)$/i, '');
+
+    // Convert single dots to slashes (React Router flat routes convention)
+    // Use negative lookbehind/lookahead to avoid converting ".." (parent directory)
+    routePath = routePath.replace(/(?<!\.)\.(?!\.)/g, '/');
 
     // Handle special files and dynamic params
     routePath = routePath
@@ -689,6 +694,50 @@ export interface GenerateMetadataOptions {
      * If omitted, the entire src/ directory will be scanned and all existing cartridge files will be deleted first.
      */
     filePaths?: string[];
+
+    /**
+     * Whether to run ESLint with --fix on generated JSON files to format them according to project settings.
+     * Defaults to true.
+     */
+    lintFix?: boolean;
+}
+
+/**
+ * Runs ESLint with --fix on the specified directory to format JSON files.
+ * This ensures generated JSON files match the project's Prettier/ESLint configuration.
+ */
+function lintGeneratedFiles(metadataDir: string, projectRoot: string): void {
+    try {
+        console.log('🔧 Running ESLint --fix on generated JSON files...');
+
+        // Run ESLint from the project root directory so it picks up the correct config
+        // Use --no-error-on-unmatched-pattern to handle cases where no JSON files exist yet
+        const command = `npx eslint "${metadataDir}/**/*.json" --fix --no-error-on-unmatched-pattern`;
+
+        execSync(command, {
+            cwd: projectRoot,
+            stdio: 'pipe', // Suppress output unless there's an error
+            encoding: 'utf-8',
+        });
+
+        console.log('✅ JSON files formatted successfully');
+    } catch (error) {
+        // ESLint returns non-zero exit code even when --fix resolves all issues
+        // We only warn if there are actual unfixable issues
+        const execError = error as { status?: number; stderr?: string; stdout?: string };
+
+        // Exit code 1 usually means there were linting issues (some may have been fixed)
+        // Exit code 2 means configuration error or other fatal error
+        if (execError.status === 2) {
+            const errMsg = execError.stderr || execError.stdout || 'Unknown error';
+            console.warn(`⚠️  Warning: Could not run ESLint --fix: ${errMsg}`);
+        } else if (execError.stderr && execError.stderr.includes('error')) {
+            console.warn(`⚠️  Warning: Some linting issues could not be auto-fixed. Run ESLint manually to review.`);
+        } else {
+            // Exit code 1 with no errors in stderr usually means all issues were fixed
+            console.log('✅ JSON files formatted successfully');
+        }
+    }
 }
 
 // Main function
@@ -825,6 +874,12 @@ export async function generateMetadata(
                 await generateAspectCartridge(aspect as Record<string, unknown>, aspectsOutputDir);
             }
             console.log(`📄 Generated ${allAspects.length} aspect metadata file(s) in: ${aspectsOutputDir}`);
+        }
+
+        // Run ESLint --fix to format generated JSON files according to project settings
+        const shouldLintFix = options?.lintFix !== false; // Default to true
+        if (shouldLintFix && (allComponents.length > 0 || allPageTypes.length > 0 || allAspects.length > 0)) {
+            lintGeneratedFiles(metadataDir, projectRoot);
         }
     } catch (error) {
         console.error('❌ Error:', (error as Error).message);
