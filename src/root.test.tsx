@@ -204,8 +204,7 @@ describe('root.tsx', () => {
 
             const html = document.querySelector('html');
             expect(html).toBeInTheDocument();
-            // this is html lang attribute, it needs to be 'en', not 'en-US'
-            expect(html).toHaveAttribute('lang', 'en');
+            expect(html).toHaveAttribute('lang', 'en-US');
 
             const title = document.querySelector('title');
             expect(title).toBeInTheDocument();

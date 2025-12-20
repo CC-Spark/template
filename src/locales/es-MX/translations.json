@@ -600,7 +600,49 @@
             "actions": {
                 "continueShopping": "Continuar comprando",
                 "viewAccount": "Ver cuenta"
-            }
+            },
+            "hero": {
+                "thankYou": "¡Gracias, {{name}}!",
+                "orderConfirmed": "Tu pedido está confirmado.",
+                "emailConfirmation": "Hemos enviado un correo de confirmación a {{email}}.",
+                "needHelp": "¿Necesitas ayuda?",
+                "defaultName": "Cliente",
+                "emailFallback": "tu correo"
+            },
+            "helpLinks": {
+                "faq": "Preguntas frecuentes",
+                "contact": "Contáctanos",
+                "returns": "Política de devoluciones"
+            },
+            "summaryLabels": {
+                "arriving": "Llega el",
+                "shippingAddress": "Dirección de envío",
+                "shippingMethod": "Método de envío",
+                "noAddress": "No hay dirección disponible",
+                "estimatedDatePlaceholder": "Procesando ahora",
+                "quantity": "Cant: {{count}}",
+                "freeShipping": "Gratis"
+            },
+            "totals": {
+                "subtotal": "Subtotal",
+                "promotions": "Promociones",
+                "shipping": "Envío",
+                "tax": "Impuesto",
+                "total": "Total"
+            },
+            "payment": {
+                "methodSummary": "{{method}} terminada en {{lastDigits}}",
+                "noMethod": "Método de pago registrado"
+            },
+            "newsletter": {
+                "title": "Obtén 10% de descuento en tu próximo pedido. Únete a nuestra lista de correos.",
+                "subtitle": "Mantente al día sobre lanzamientos de productos y ofertas exclusivas.",
+                "placeholder": "Correo electrónico",
+                "cta": "Unirse"
+            },
+            "summaryTitle": "Resumen",
+            "emptyItemsFallback": "Tus artículos están siendo preparados.",
+            "productPlaceholderInitial": "Artículo"
         },
         "errorBoundary": {
             "title": "Compra temporalmente no disponible",
@@ -899,6 +941,19 @@
         "ariaLabel": "Selector de tema",
         "lightTheme": "Tema claro",
         "darkTheme": "Tema oscuro"
+    },
+    "miniCart": {
+        "noImage": "Sin imagen",
+        "quantityLabel": "Cantidad:",
+        "quantityAriaLabel": "Cantidad",
+        "customQuantityAriaLabel": "Cantidad personalizada",
+        "customOption": "Personalizado...",
+        "editQuantityAriaLabel": "Editar cantidad",
+        "promotionApplied": "Promoción aplicada",
+        "removeItemAriaLabel": "Eliminar artículo del carrito",
+        "emptyCart": "Tu carrito está vacío",
+        "loading": "Cargando...",
+        "viewCart": "Ver carrito"
     },
     "trackingConsent": {
         "title": "Consentimiento de Seguimiento",

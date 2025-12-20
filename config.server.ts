@@ -130,7 +130,7 @@ export default defineConfig({
         // See src/middlewares/i18next.ts
         i18n: {
             fallbackLng: 'en-US',
-            supportedLngs: ['en-US', 'es-MX'], // Your supported languages, the fallback should be last
+            supportedLngs: ['es-MX', 'en-US'], // Your supported languages, the fallback should be LAST
         },
         global: {
             // TODO: Allow page specific customization while keeping global defaults, e.g.:

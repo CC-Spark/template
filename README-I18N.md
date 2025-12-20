@@ -464,6 +464,34 @@ Extension translations automatically use the `extPascalCase` naming convention b
 
 This convention prevents namespace collisions between extensions and core application translations.
 
+### How Locale Discovery Works
+
+**Important**: The locale aggregation script (`aggregate-extension-locales.js`) is specifically for **extension translations only**. Main app translations in `/src/locales/` are NOT aggregated by this script—they are imported directly.
+
+The script scans **two locations** to discover all supported locales:
+
+1. **Main app locales**: `/src/locales/{locale}/`
+2. **Extension locales**: `/src/extensions/{extension-name}/locales/{locale}/`
+
+The script merges locales from both sources and generates **extension-only** aggregation files under `/src/extensions/locales/` for each discovered locale. This means:
+
+- If your main app supports Spanish (`es-MX`) but none of your extensions have Spanish translations, an empty aggregation file is still generated for `es-MX`
+- If an extension provides translations for a locale not in the main app, those translations are still aggregated (though the main app won't use them unless configured)
+- Extensions without a `locales` folder are automatically skipped - no error is thrown
+
+**Example scenario:**
+- Main app: `en-US`, `es-MX`, `fr-FR` translations
+- Extension A: `en-US`, `es-MX` translations
+- Extension B: `en-US` translations only
+- Extension C: No `locales` folder
+
+**Result:** Extension aggregation files generated in `/src/extensions/locales/` for `en-US`, `es-MX`, and `fr-FR`:
+- `en-US/index.ts`: Contains Extension A + Extension B translations only
+- `es-MX/index.ts`: Contains Extension A translations only
+- `fr-FR/index.ts`: Empty (no extensions have it)
+
+**Note:** Main app translations remain in `/src/locales/` and are not affected by this aggregation process.
+
 ### Adding Translations to an Extension
 
 **1. Create the translation files:**

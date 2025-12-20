@@ -23,7 +23,7 @@ const [originalI18nextMiddleware, getLocale, getInstance] = createI18nextMiddlew
         // Make sure the following properties are in sync with config.server.ts file
         // TODO: is there a way to call getConfig here? I can't see a way to pass in the router context.
         fallbackLanguage: 'en-US',
-        supportedLanguages: ['en-US', 'es-MX'],
+        supportedLanguages: ['es-MX', 'en-US'], // Your supported languages, the fallback should be LAST
     },
     i18next: { resources }, // Translations from all of your locales
     plugins: [initReactI18next], // Plugins you may need, like react-i18next
