@@ -15,7 +15,6 @@ import { localeCookie } from '@/middlewares/i18next.server';
  * Note: This MUST be a server action (not clientAction) because we need to set
  * the Set-Cookie HTTP header, which can only be done server-side.
  */
-// eslint-disable-next-line custom/no-server-actions
 export const action: ActionFunction = async ({ request }) => {
     const formData = await request.formData();
     const locale = formData.get('locale') as string;

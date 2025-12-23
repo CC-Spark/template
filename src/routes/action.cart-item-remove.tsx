@@ -47,6 +47,7 @@ import { getTranslation } from '@/lib/i18next';
  * </form>
  * ```
  */
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<{
     success: boolean;
     basket?: ShopperBasketsV2.schemas['Basket'];

@@ -34,7 +34,7 @@ export function loader({ request }: LoaderFunctionArgs): ResetPasswordLoaderData
 
 // Server action required for authentication - password reset must be handled
 // server-side to maintain security and proper integration with SFCC's authentication system
-// eslint-disable-next-line react-refresh/only-export-components, custom/no-server-actions
+// eslint-disable-next-line react-refresh/only-export-components
 export async function action({ request, context }: ActionFunctionArgs): Promise<ResetPasswordActionData | Response> {
     const { t } = getTranslation(context);
     const formData = await request.formData();

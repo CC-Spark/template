@@ -43,7 +43,7 @@ export function loader({ context }: LoaderFunctionArgs): null | Response {
  * and proper integration with session management and Salesforce Commerce Cloud's authentication system. It operates
  * together with the client action to ensure a smooth signup process.
  */
-// eslint-disable-next-line react-refresh/only-export-components, custom/no-server-actions
+// eslint-disable-next-line react-refresh/only-export-components
 export async function action({ request, context }: ActionFunctionArgs): Promise<SignupActionResponse> {
     const { t } = getTranslation(context);
     const formData = await request.formData();
@@ -94,7 +94,7 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
  * This client action operates together with the server action to ensure a smooth signup process. It ensures that the
  * session gets updated on both server and client side, and that the user is redirected to the correct route afterward.
  */
-// eslint-disable-next-line react-refresh/only-export-components
+// eslint-disable-next-line react-refresh/only-export-components,custom/no-client-actions
 export async function clientAction({ context, serverAction }: ClientActionFunctionArgs) {
     const result = await serverAction<SignupActionResponse>();
 

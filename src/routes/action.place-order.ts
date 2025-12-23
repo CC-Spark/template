@@ -20,6 +20,7 @@ import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
 import { createErrorResponse } from '@/lib/error-handler';
 import { getTranslation } from '@/lib/i18next';
 
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 

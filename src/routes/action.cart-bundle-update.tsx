@@ -58,6 +58,7 @@ import { getTranslation } from '@/lib/i18next';
  * @throws Error if items data is invalid or missing
  * @throws Error if no basket is found in the session
  */
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<BasketActionResponse> {
     const { t } = getTranslation();
 

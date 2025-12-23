@@ -7,6 +7,7 @@ import { createContactInfoSchema, parseContactInfoFromFormData } from '@/lib/che
 import { customerLookup } from '@/lib/api/customer';
 import { getTranslation } from '@/lib/i18next';
 
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 

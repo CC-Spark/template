@@ -91,7 +91,7 @@ export function loader({ request, context }: LoaderFunctionArgs) {
  * and proper integration with session management and Salesforce Commerce Cloud's authentication system. It operates
  * together with the client action to ensure a smooth login process.
  */
-// eslint-disable-next-line react-refresh/only-export-components, custom/no-server-actions
+// eslint-disable-next-line react-refresh/only-export-components
 export async function action({ request, context }: ActionFunctionArgs): Promise<LoginActionResponse> {
     const config = getConfig(context);
     const { t } = getTranslation(context);
@@ -230,7 +230,7 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
  * session gets updated on both server and client side, and that the user is redirected to the correct route afterward.
  * Also handles basket merge when transitioning from guest to registered user.
  */
-// eslint-disable-next-line react-refresh/only-export-components
+// eslint-disable-next-line react-refresh/only-export-components,custom/no-client-actions
 export async function clientAction({ context, serverAction }: ClientActionFunctionArgs) {
     const { t } = getTranslation(context);
     const genericError = t('errors:genericTryAgain');

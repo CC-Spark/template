@@ -5,6 +5,7 @@ import { createApiClients } from '@/lib/api-clients';
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 import { getTranslation } from '@/lib/i18next';
 
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 

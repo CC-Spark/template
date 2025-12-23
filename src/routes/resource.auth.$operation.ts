@@ -62,7 +62,6 @@ const authHandlers: Record<string, AuthHandler> = {
  * Server-side auth resource action that handles individual SLAS operations requiring client secret
  * Supports operations via URL parameter: /resource/auth/login-guest, /resource/auth/refresh-token, etc.
  */
-// eslint-disable-next-line custom/no-server-actions -- Resource routes are designed for server-side operations like authentication
 export async function action({ request, params, context }: ActionFunctionArgs) {
     const operation = params.operation as string;
     try {

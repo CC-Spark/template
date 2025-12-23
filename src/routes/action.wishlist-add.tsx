@@ -435,6 +435,7 @@ async function addToWishlist(
 /**
  * Client action to add a product to the wishlist
  */
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 

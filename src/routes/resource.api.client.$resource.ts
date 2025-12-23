@@ -290,7 +290,6 @@ export function clientLoader<
  * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
  * @see {@link import('@/lib/api-clients').createApiClients}
  */
-// eslint-disable-next-line custom/no-server-actions
 export function action<
     R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
@@ -316,6 +315,7 @@ export function action<
  * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
  * @see {@link import('@/lib/api-clients.ts').createApiClients}
  */
+// eslint-disable-next-line custom/no-client-actions
 export function clientAction<
     R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,

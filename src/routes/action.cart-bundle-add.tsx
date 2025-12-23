@@ -145,6 +145,7 @@ async function addBundleToCart(
 /**
  * Client action to add a product bundle to the cart.
  */
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 

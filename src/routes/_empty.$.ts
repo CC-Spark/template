@@ -62,7 +62,6 @@ export async function loader(args: LoaderFunctionArgs) {
     throw new Response('Not Found', { status: 404 });
 }
 
-// eslint-disable-next-line custom/no-server-actions
 export async function action(args: ActionFunctionArgs) {
     const url = new URL(args.request.url);
     const handler = getActionHandler(url.pathname, args.context);

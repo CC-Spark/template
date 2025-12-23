@@ -9,7 +9,6 @@ import { createApiClients } from '@/lib/api-clients';
  * server-side sessions and integrate with Salesforce Commerce Cloud's authentication system. It operates together with
  * the client action to ensure a smooth logout process.
  */
-// eslint-disable-next-line custom/no-server-actions
 export async function action({ context }: ActionFunctionArgs) {
     const session = getAuth(context);
     const { access_token, refresh_token } = session;
@@ -32,6 +31,7 @@ export async function action({ context }: ActionFunctionArgs) {
  * session gets destroyed on both server and client side, clears the basket to prevent customer mismatch errors,
  * and redirects the user to the home page afterward.
  */
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ context, serverAction }: ClientActionFunctionArgs) {
     await serverAction();
     destroyAuthClient(context);

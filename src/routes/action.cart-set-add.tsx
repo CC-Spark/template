@@ -86,6 +86,7 @@ async function addMultipleItemsToCart(
 /**
  * Client action to add multiple items to the cart (for product sets).
  */
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 

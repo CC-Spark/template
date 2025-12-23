@@ -5,6 +5,7 @@ import { addPaymentInstrumentToBasket, updateBillingAddressForBasket } from '@/l
 import { detectCardType } from '@/lib/payment-utils';
 import { getTranslation } from '@/lib/i18next';
 
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 

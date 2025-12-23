@@ -150,6 +150,7 @@ async function removeFromWishlist(
 /**
  * Client action to remove a product from the wishlist
  */
+// eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 
