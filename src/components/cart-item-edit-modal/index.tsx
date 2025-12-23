@@ -6,7 +6,7 @@
  */
 
 // React
-import { type ReactElement, useState, useEffect, useCallback, useMemo } from 'react';
+import { type ReactElement, useState, useCallback, useMemo } from 'react';
 
 // Types
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
@@ -25,6 +25,8 @@ import { useScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { isProductBundle, isProductSet } from '@/lib/product-utils';
 import { useSelectedVariations } from '@/hooks/product/use-selected-variations';
 import ChildProducts from '@/components/product-view/child-products';
+import { useProductFetcher } from '@/hooks/product/use-product-fetcher';
+import { useModalStateReset } from '@/hooks/use-modal-state-reset';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { usePickup } from '@/extensions/bopis/context/pickup-context';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
@@ -73,13 +75,15 @@ export function CartItemEditModal({
         initialProduct.variationValues || {}
     );
 
-    // Reset state when modal opens (but not when it closes)
-    useEffect(() => {
-        if (props.open) {
+    // Reset state when modal opens using shared hook
+    useModalStateReset({
+        open: props.open,
+        onReset: useCallback(() => {
             setCurrentProduct(initialProduct);
             setVariationValues(initialProduct.variationValues || {});
-        }
-    }, [initialProduct, props.open]);
+        }, [initialProduct]),
+        resetOn: 'open',
+    });
 
     const isProductASet = isProductSet(currentProduct);
     const isProductABundle = isProductBundle(currentProduct);
@@ -121,27 +125,13 @@ export function CartItemEditModal({
         selectedAttributes,
     });
 
-    // Trigger fetcher load when matching variant changes
-    useEffect(() => {
-        const targetProductId = matchingVariant?.productId;
-
-        // Skip if no product ID or if it's already the currently displayed product
-        if (!targetProductId || targetProductId === currentProduct.id) {
-            return;
-        }
-
-        // Trigger the fetcher load - React Router will handle the lifecycle
-        void fetcher.load();
-        // fetcher: stable fetcher, no need to recreate effect
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [matchingVariant?.productId, currentProduct.id]);
-
-    // Update current product when fetcher data changes
-    useEffect(() => {
-        if (fetcher.success && fetcher.data && fetcher.state === 'idle') {
-            setCurrentProduct(fetcher.data);
-        }
-    }, [fetcher.success, fetcher.data, fetcher.state]);
+    // Use shared product fetcher hook to load and sync variant data
+    useProductFetcher({
+        targetProductId: matchingVariant?.productId,
+        fetcher,
+        currentProductId: currentProduct.id,
+        onDataReceived: setCurrentProduct,
+    });
 
     // Handle attribute change - just update variation values, useEffect will handle the fetch
     const handleAttributeChange = useCallback((attributeId: string, value: string) => {

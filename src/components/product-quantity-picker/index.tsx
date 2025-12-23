@@ -36,6 +36,8 @@ interface ProductQuantityPickerProps {
     disabled?: boolean;
     /** Whether this is a bundle product */
     isBundle?: boolean;
+    /** Maximum quantity allowed (for bonus products, etc.) */
+    maxQuantity?: number;
 }
 
 /**
@@ -56,6 +58,7 @@ export default function ProductQuantityPicker({
     productName,
     disabled = false,
     isBundle = false,
+    maxQuantity,
 }: ProductQuantityPickerProps): ReactElement {
     const [quantity, setQuantity] = useState<string>(value);
     const { t: tQuantity } = useTranslation('quantitySelector');
@@ -106,6 +109,7 @@ export default function ProductQuantityPicker({
             <QuantityPicker
                 value={quantity}
                 min={1}
+                max={maxQuantity}
                 onChange={handleQuantityChange}
                 productName={productName}
                 disabled={disabled}

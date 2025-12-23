@@ -221,5 +221,70 @@ describe('CartContent', () => {
             renderWith({ 'item-1': { id: 'p1', type: { master: true } } } as any);
             expect(editBtn()).toBeInTheDocument();
         });
+
+        test('choice-based bonus product does not show CartItemEditButton', () => {
+            const basket = {
+                basketId: 'b1',
+                productItems: [
+                    {
+                        itemId: 'item-1',
+                        quantity: 1,
+                        productId: 'p1',
+                        bonusProductLineItem: true,
+                        bonusDiscountLineItemId: 'bonus-discount-choice-1',
+                    },
+                ],
+                bonusDiscountLineItems: [
+                    {
+                        id: 'bonus-discount-choice-1',
+                        promotionId: 'promo-choice-1',
+                        maxBonusItems: 3,
+                        bonusProducts: [{ productId: 'p1', productName: 'Choice Bonus Product 1' }],
+                    },
+                ],
+            };
+
+            renderCartContent({
+                basket: basket as any,
+                productsByItemId: { 'item-1': { id: 'p1', variants: [{} as any] } } as any,
+            });
+
+            // Edit button should be hidden for choice-based bonus products
+            expect(editBtn()).not.toBeInTheDocument();
+
+            // Remove button should still be shown
+            expect(screen.getByTestId('remove-item-item-1')).toBeInTheDocument();
+        });
+
+        test('auto bonus product does not show CartItemEditButton', () => {
+            const basket = {
+                basketId: 'b1',
+                productItems: [
+                    {
+                        itemId: 'item-1',
+                        quantity: 1,
+                        productId: 'p1',
+                        bonusProductLineItem: true,
+                        bonusDiscountLineItemId: 'bonus-discount-auto-1',
+                    },
+                ],
+                bonusDiscountLineItems: [
+                    {
+                        id: 'bonus-discount-auto-1',
+                        promotionId: 'promo-auto-1',
+                        maxBonusItems: 1,
+                        // No bonusProducts array = auto bonus
+                    },
+                ],
+            };
+
+            renderCartContent({
+                basket: basket as any,
+                productsByItemId: { 'item-1': { id: 'p1', variants: [{} as any] } } as any,
+            });
+
+            // Edit button should be hidden for auto bonus products
+            expect(editBtn()).not.toBeInTheDocument();
+        });
     });
 });

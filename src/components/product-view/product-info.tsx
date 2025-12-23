@@ -23,6 +23,7 @@ import DeliveryOptions from '@/extensions/bopis/components/delivery-options/deli
 
 type ProductInfoBaseProps = {
     product: ShopperProducts.schemas['Product'];
+    hideVariantSelection?: boolean;
 };
 type ProductInfoUncontrolledProps = ProductInfoBaseProps & {
     /** Mode for swatch interaction: 'uncontrolled' uses URL navigation */
@@ -58,6 +59,7 @@ export default function ProductInfo({
     swatchMode = 'uncontrolled',
     onAttributeChange,
     variationValues,
+    hideVariantSelection = false,
 }: ProductInfoProps): ReactElement {
     const isProductASet = isProductSet(product);
     const isProductABundle = isProductBundle(product);
@@ -70,6 +72,7 @@ export default function ProductInfo({
         quantity,
         isOutOfStock,
         stockLevel,
+        maxQuantity,
         setQuantity,
         mode,
         // @sfdc-extension-line SFDC_EXT_BOPIS
@@ -107,7 +110,12 @@ export default function ProductInfo({
 
             {/* Swatch Groups for Product Variations */}
             {variationAttributes.map(({ id, name, selectedValue, values }) => {
-                const swatches = values.map((value) => {
+                // When hideVariantSelection is true, only show the selected swatch (read-only)
+                const swatchesToShow = hideVariantSelection
+                    ? values.filter((v) => v.value === selectedValue?.value)
+                    : values;
+
+                const swatches = swatchesToShow.map((value) => {
                     const { href, name: valueName, image, value: swatchValue, orderable } = value;
                     const content = image ? (
                         <div
@@ -123,6 +131,7 @@ export default function ProductInfo({
                         <Swatch
                             key={swatchValue}
                             href={swatchMode === 'uncontrolled' ? href : undefined}
+                            // Disable when not orderable (out of stock)
                             disabled={!orderable}
                             value={swatchValue}
                             name={valueName}
@@ -138,7 +147,12 @@ export default function ProductInfo({
                         displayName={selectedValue?.name || ''}
                         label={name}
                         handleChange={
-                            swatchMode === 'controlled' ? (value) => onAttributeChange?.(id, value) : undefined
+                            // Disable handleChange when hideVariantSelection is true
+                            hideVariantSelection
+                                ? undefined
+                                : swatchMode === 'controlled'
+                                  ? (value) => onAttributeChange?.(id, value)
+                                  : undefined
                         }>
                         {swatches}
                     </SwatchGroup>
@@ -153,6 +167,7 @@ export default function ProductInfo({
                     stockLevel={stockLevel}
                     isOutOfStock={isOutOfStock}
                     productName={product.name}
+                    maxQuantity={maxQuantity}
                 />
             )}
 

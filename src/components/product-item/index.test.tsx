@@ -14,6 +14,9 @@ import ProductItem from './index';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
+// Utils
+import { formatCurrency } from '@/lib/currency';
+
 // Mock data
 import { bundleProd as mockedBundleProduct } from '../__mocks__/bundle-product';
 
@@ -666,7 +669,7 @@ describe('ProductItem', () => {
         });
     });
 
-    describe('Bonus Products', () => {
+    describe('Auto Bonus Products', () => {
         test('identifies bonus product correctly when bonusProductLineItem is true', () => {
             const bonusProduct = {
                 ...mockProduct,
@@ -692,7 +695,7 @@ describe('ProductItem', () => {
             expect(screen.queryByText('Bonus Product')).not.toBeInTheDocument();
         });
 
-        test('shows strikethrough original price for bonus product', () => {
+        test('shows strikethrough original total price for bonus product', () => {
             const bonusProduct = {
                 ...mockProduct,
                 bonusProductLineItem: true,
@@ -704,13 +707,36 @@ describe('ProductItem', () => {
 
             renderWithRouter(<ProductItem productItem={bonusProduct} />);
 
-            // Should show original price with strikethrough
-            const originalPriceElements = screen.getAllByText('$39.99');
+            // Should show original price (39.99) with strikethrough, not total
+            // Note: The component uses `price` directly, not `pricePerUnit * quantity`
+            const originalPriceElements = screen.getAllByText(formatCurrency(bonusProduct.price));
             expect(originalPriceElements.length).toBeGreaterThanOrEqual(1);
 
             // Check that at least one has line-through class
             const hasLineThrough = originalPriceElements.some((el) => el.className.includes('line-through'));
             expect(hasLineThrough).toBe(true);
+
+            // Should show $0.00 as the actual price
+            const zeroPriceElements = screen.getAllByText('$0.00');
+            expect(zeroPriceElements.length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('handles bonus product with zero original price', () => {
+            const bonusProduct = {
+                ...mockProduct,
+                bonusProductLineItem: true,
+                price: 0,
+                pricePerUnit: 0,
+                quantity: 1,
+            };
+
+            renderWithRouter(<ProductItem productItem={bonusProduct} />);
+
+            // Verify component renders without errors when price is 0
+            expect(screen.getByRole('img', { name: /product image/i })).toBeInTheDocument();
+            expect(screen.getByRole('link', { name: /test product/i })).toBeInTheDocument();
+            // Check that the bonus badge is shown
+            expect(screen.getByText('Bonus Product')).toBeInTheDocument();
         });
 
         test('disables quantity picker for bonus product', () => {
@@ -764,8 +790,9 @@ describe('ProductItem', () => {
             const zeroPriceElements = screen.getAllByText('$0.00');
             expect(zeroPriceElements.length).toBeGreaterThanOrEqual(1);
 
-            // Check for original price (appears in both mobile and desktop views)
-            const originalPriceElements = screen.getAllByText('$49.99');
+            // Check for original price (49.99) with strikethrough
+            // Note: Component uses `price` directly, not `pricePerUnit * quantity`
+            const originalPriceElements = screen.getAllByText(formatCurrency(completeBonusProduct.price));
             expect(originalPriceElements.length).toBeGreaterThanOrEqual(1);
         });
 
@@ -787,6 +814,171 @@ describe('ProductItem', () => {
             expect(screen.queryByTestId('mobile-primary-action')).not.toBeInTheDocument();
             expect(screen.queryByTestId('primary-action')).not.toBeInTheDocument();
             expect(screen.queryByTestId(`remove-item-${mockProduct.itemId}`)).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Choice-Based Bonus Products', () => {
+        const mockBonusDiscountLineItems: ShopperBasketsV2.schemas['BonusDiscountLineItem'][] = [
+            {
+                id: 'bonus-discount-choice-1',
+                promotionId: 'promo-choice-1',
+                maxBonusItems: 3,
+                bonusProducts: [
+                    {
+                        productId: 'bonus-product-1',
+                        productName: 'Choice Bonus Product 1',
+                    },
+                    {
+                        productId: 'bonus-product-2',
+                        productName: 'Choice Bonus Product 2',
+                    },
+                ],
+            },
+        ];
+
+        const choiceBonusProduct = {
+            ...mockProduct,
+            bonusProductLineItem: true,
+            bonusDiscountLineItemId: 'bonus-discount-choice-1',
+            productId: 'bonus-product-1',
+            productName: 'Choice Bonus Product 1',
+        };
+
+        test('identifies choice-based bonus product correctly', () => {
+            renderWithRouter(
+                <ProductItem productItem={choiceBonusProduct} bonusDiscountLineItems={mockBonusDiscountLineItems} />
+            );
+
+            // Should show bonus product badge
+            expect(screen.getByText('Bonus Product')).toBeInTheDocument();
+        });
+
+        test('shows Remove button but hides Edit button for choice-based bonus product', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    primaryAction={mockPrimaryAction}
+                    secondaryActions={mockSecondaryActions}
+                />
+            );
+
+            // Choice-based bonus products should show primary action and Remove button
+            expect(screen.getByTestId('primary-action')).toBeInTheDocument();
+            expect(screen.getByTestId(`remove-item-${choiceBonusProduct.itemId}`)).toBeInTheDocument();
+
+            // Edit button should be hidden for choice-based bonus products
+            expect(screen.queryByTestId(`edit-item-${choiceBonusProduct.itemId}`)).not.toBeInTheDocument();
+        });
+
+        test('enables quantity picker for choice-based bonus product', () => {
+            renderWithRouter(
+                <ProductItem productItem={choiceBonusProduct} bonusDiscountLineItems={mockBonusDiscountLineItems} />
+            );
+
+            // Quantity picker should be enabled (not disabled)
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).not.toBeDisabled();
+        });
+
+        test('applies max quantity limit to choice-based bonus product', () => {
+            const choiceBonusProductQuantity1 = {
+                ...choiceBonusProduct,
+                quantity: 1,
+            };
+
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProductQuantity1}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    maxBonusQuantity={2}
+                />
+            );
+
+            // Quantity picker should have max attribute set
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).toHaveAttribute('max', '2');
+        });
+
+        test('distinguishes between choice-based and auto bonus products', () => {
+            // Auto bonus product (no bonusProducts array in bonusDiscountLineItem)
+            const autoBonusDiscountLineItems: ShopperBasketsV2.schemas['BonusDiscountLineItem'][] = [
+                {
+                    id: 'bonus-discount-auto-1',
+                    promotionId: 'promo-auto-1',
+                    maxBonusItems: 1,
+                    // No bonusProducts array = auto bonus
+                },
+            ];
+
+            const autoBonusProduct = {
+                ...mockProduct,
+                bonusProductLineItem: true,
+                bonusDiscountLineItemId: 'bonus-discount-auto-1',
+                productId: 'auto-bonus-product',
+                productName: 'Auto Bonus Product',
+            };
+
+            renderWithRouter(
+                <ProductItem
+                    productItem={autoBonusProduct}
+                    bonusDiscountLineItems={autoBonusDiscountLineItems}
+                    primaryAction={mockPrimaryAction}
+                    secondaryActions={mockSecondaryActions}
+                />
+            );
+
+            // Auto bonus products should hide actions
+            expect(screen.queryByTestId('primary-action')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('secondary-action')).not.toBeInTheDocument();
+
+            // Auto bonus products should have disabled quantity picker
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).toBeDisabled();
+        });
+
+        test('handles choice-based bonus product without maxBonusQuantity prop', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    // maxBonusQuantity not provided
+                />
+            );
+
+            // Should still render correctly without max
+            expect(screen.getByText('Bonus Product')).toBeInTheDocument();
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).not.toBeDisabled();
+            // Max attribute should not be set if not provided
+            expect(quantityInput).not.toHaveAttribute('max');
+        });
+
+        test('handles choice-based bonus product with zero max quantity', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    maxBonusQuantity={0}
+                />
+            );
+
+            // Max should be set to 0
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).toHaveAttribute('max', '0');
+        });
+
+        test('shows Remove button for choice-based bonus product', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    secondaryActions={mockSecondaryActions}
+                />
+            );
+
+            // Remove button should be shown for choice-based bonus products
+            expect(screen.getByTestId(`remove-item-${choiceBonusProduct.itemId}`)).toBeInTheDocument();
         });
     });
 

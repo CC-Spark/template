@@ -21,7 +21,10 @@ interface ProductViewProviderProps {
     product: ShopperProducts.schemas['Product'];
     mode?: 'add' | 'edit';
     initialQuantity?: number;
+    maxQuantity?: number;
     itemId?: string;
+    /** Optional: Pass a currentVariant directly (e.g., from controlled modal state) instead of deriving from URL */
+    currentVariant?: ShopperProducts.schemas['Variant'];
 }
 
 /**
@@ -49,14 +52,20 @@ const ProductViewProvider = ({
     product,
     mode = 'add',
     initialQuantity,
+    maxQuantity,
     itemId,
+    currentVariant: providedCurrentVariant,
 }: PropsWithChildren<ProductViewProviderProps>) => {
-    const currentVariant = useCurrentVariant({ product });
+    // Use provided variant if available (e.g., from controlled modal state),
+    // otherwise derive from URL for PDP use case
+    const urlBasedCurrentVariant = useCurrentVariant({ product });
+    const currentVariant = providedCurrentVariant || urlBasedCurrentVariant;
 
     const productActionsData = useProductActions({
         product,
         currentVariant,
         initialQuantity,
+        maxQuantity,
         itemId,
     });
 

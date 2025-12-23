@@ -8,7 +8,8 @@ import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@sale
 import ProductItem from '@/components/product-item';
 import { Card } from '../ui/card';
 
-// Hooks
+// Utils
+import { calculateMaxQuantityForBonusProduct } from '@/lib/bonus-product-utils';
 
 /**
  * Spacing constants for different display variants
@@ -28,6 +29,7 @@ const SUMMARY_SPACING = 'space-y-5';
  * @property {ShopperBasketsV2.schemas['ProductItem'][] | undefined} productItems - Array of product items from the basket
  * @property {Record<string, ShopperProducts.schemas['Product']>} [productsByItemId] - Item ID to product mapping for enhanced product data
  * @property {Record<string, ShopperPromotions.schemas['Promotion']>} [promotions] - Promotions by ID for displaying promotion information
+ * @property {ShopperBasketsV2.schemas['BonusDiscountLineItem'][]} [bonusDiscountLineItems] - Bonus discount line items from basket to determine if bonus product is choice-based
  * @property {'default' | 'summary'} [variant='default'] - Display variant: 'default' for full product cards, 'summary' for compact list view
  * @property {function} [primaryAction] - Optional render prop function to generate primary action buttons for each product
  * @property {function} [secondaryActions] - Optional render prop function to generate secondary action buttons for each product
@@ -39,6 +41,8 @@ interface ProductItemsListProps {
     productsByItemId: Record<string, ShopperProducts.schemas['Product']>;
     /** Optional promotions by ID for displaying promotion information */
     promotions?: Record<string, ShopperPromotions.schemas['Promotion']>;
+    /** Optional bonus discount line items from basket to determine if bonus product is choice-based */
+    bonusDiscountLineItems?: ShopperBasketsV2.schemas['BonusDiscountLineItem'][];
     /** Display variant: 'default' for full product cards, 'summary' for compact list view */
     variant?: 'default' | 'summary';
     /**
@@ -121,11 +125,40 @@ export default function ProductItemsList({
     productItems,
     productsByItemId,
     promotions,
+    bonusDiscountLineItems,
     variant = 'default',
     primaryAction,
     secondaryActions,
     separateCards = false,
 }: ProductItemsListProps): ReactElement {
+    /**
+     * Calculate max quantities for choice-based bonus products at the basket level
+     * This avoids redundant calculations in each ProductItem component
+     *
+     * Uses the extracted utility function for cleaner, testable logic
+     * Map structure: itemId -> maxQuantity
+     */
+    const bonusProductMaxQuantities = useMemo(() => {
+        if (!productItems) {
+            return new Map<string, number>();
+        }
+
+        const maxQuantities = new Map<string, number>();
+
+        // Calculate max quantity for each bonus product using utility function
+        productItems.forEach((productItem) => {
+            if (!productItem.itemId) return;
+
+            const maxQuantity = calculateMaxQuantityForBonusProduct(productItem, productItems, bonusDiscountLineItems);
+
+            if (maxQuantity !== undefined) {
+                maxQuantities.set(productItem.itemId, maxQuantity);
+            }
+        });
+
+        return maxQuantities;
+    }, [bonusDiscountLineItems, productItems]);
+
     /**
      * Memoized list of ProductItem components with combined data
      *
@@ -144,12 +177,18 @@ export default function ProductItemsList({
              * @type {ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']> & { isProductUnavailable: boolean }}
              */
             const enrichedProductItem = {
-                ...productItem,
                 ...(productData || {}),
+                ...productItem,
                 isProductUnavailable: !productData,
                 price: productItem.price ?? 0,
                 quantity: productItem.quantity ?? 1,
+                // Explicitly preserve basket-specific properties that might be overwritten
+                bonusProductLineItem: productItem.bonusProductLineItem,
+                bonusDiscountLineItemId: productItem.bonusDiscountLineItemId,
             };
+
+            // Get max quantity for this bonus product if it exists
+            const maxQuantity = productItem.itemId ? bonusProductMaxQuantities.get(productItem.itemId) : undefined;
 
             const currentProductItem = (
                 <ProductItem
@@ -159,6 +198,8 @@ export default function ProductItemsList({
                     secondaryActions={secondaryActions}
                     displayVariant={variant}
                     promotions={promotions}
+                    bonusDiscountLineItems={bonusDiscountLineItems}
+                    maxBonusQuantity={maxQuantity}
                 />
             );
 
@@ -171,7 +212,7 @@ export default function ProductItemsList({
         // Intentionally exclude primaryAction and secondaryActions from dependencies
         // to prevent re-computation when parent components re-render with new function references
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [productItems, productsByItemId, promotions, variant]);
+    }, [productItems, productsByItemId, promotions, bonusDiscountLineItems, bonusProductMaxQuantities, variant]);
 
     return <div className={variant === 'summary' ? SUMMARY_SPACING : DEFAULT_SPACING}>{memoizedItems}</div>;
 }

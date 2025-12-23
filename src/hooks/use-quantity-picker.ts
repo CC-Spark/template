@@ -19,6 +19,8 @@ interface UseQuantityPickerProps {
     onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
     /** Minimum quantity allowed */
     min?: number;
+    /** Maximum quantity allowed (for bonus products, etc.) */
+    max?: number;
 }
 
 interface UseQuantityPickerReturn {
@@ -30,6 +32,8 @@ interface UseQuantityPickerReturn {
     inputRef: RefObject<HTMLInputElement | null>;
     /** Whether the decrement button should be disabled */
     isDecrementDisabled: boolean;
+    /** Whether the increment button should be disabled (when max reached) */
+    isIncrementDisabled: boolean;
     /** Handle increment button click */
     handleIncrement: () => void;
     /** Handle decrement button click */
@@ -83,6 +87,7 @@ export function useQuantityPicker({
     onChange,
     onBlur,
     min = 0,
+    max,
 }: UseQuantityPickerProps): UseQuantityPickerReturn {
     const [inputValue, setInputValue] = useState(value);
     const [isFocused, setIsFocused] = useState(false);
@@ -95,17 +100,22 @@ export function useQuantityPicker({
         }
     }, [value, isFocused]);
 
-    // Handle increment button
+    // Handle increment button - constrain to max
     const handleIncrement = useCallback(() => {
         const currentValue = parseInt(value, 10) || 0;
-        const newValue = currentValue + 1;
+        let newValue = currentValue + 1;
+
+        // Constrain to max if provided
+        if (max != null) {
+            newValue = Math.min(newValue, max);
+        }
 
         if (newValue !== currentValue) {
             // Force input value update immediately for button clicks
             setInputValue(newValue.toString());
             onChange(newValue.toString(), newValue);
         }
-    }, [value, onChange]);
+    }, [value, max, onChange]);
 
     // Handle decrement button
     const handleDecrement = useCallback(() => {
@@ -148,7 +158,7 @@ export function useQuantityPicker({
         event.target.select();
     }, []);
 
-    // Handle input blur
+    // Handle input blur - clamp to min and max
     const handleInputBlur = useCallback(
         (event: React.FocusEvent<HTMLInputElement>) => {
             setIsFocused(false);
@@ -156,19 +166,27 @@ export function useQuantityPicker({
             // Call custom onBlur handler first (if provided)
             onBlur?.(event);
 
-            // Auto-correct invalid values to minimum only if no custom onBlur handler
+            // Auto-correct invalid values to min/max only if no custom onBlur handler
             // This allows custom handlers to override the auto-correction behavior
             if (!onBlur) {
                 const numValue = parseInt(inputValue, 10);
-                if (isNaN(numValue) || numValue < min) {
-                    // Reset to minimum if invalid or below minimum
-                    const clampedValue = min;
+                // Check both min and max
+                if (isNaN(numValue) || numValue < min || (max !== undefined && numValue > max)) {
+                    // Clamp between min and max
+                    let clampedValue = min;
+                    if (!isNaN(numValue)) {
+                        // User typed a valid number, clamp it
+                        clampedValue = Math.max(min, numValue); // First, ensure >= min
+                        if (max !== undefined) {
+                            clampedValue = Math.min(clampedValue, max); // Then, ensure <= max
+                        }
+                    }
                     setInputValue(clampedValue.toString());
                     onChange(clampedValue.toString(), clampedValue);
                 }
             }
         },
-        [inputValue, min, onChange, onBlur]
+        [inputValue, min, max, onChange, onBlur]
     );
 
     // Handle keyboard navigation and input filtering
@@ -228,14 +246,31 @@ export function useQuantityPicker({
     // Memoize decrement button disabled state to prevent unnecessary re-renders
     const isDecrementDisabled = useMemo(() => {
         const currentValue = parseInt(value, 10) || 0;
-        return value !== '' && value !== '0' && currentValue === 1;
+        const disabled = value !== '' && value !== '0' && currentValue === 1;
+
+        return disabled;
     }, [value]);
+
+    // Memoize increment button disabled state to prevent unnecessary re-renders
+    const isIncrementDisabled = useMemo(() => {
+        // If no max, never disable increment
+        if (max == null) {
+            return false;
+        }
+
+        const currentValue = parseInt(value, 10) || 0;
+        // Disable if current value has reached or exceeded max
+        const disabled = currentValue >= max;
+
+        return disabled;
+    }, [value, max]);
 
     return {
         inputValue,
         isFocused,
         inputRef,
         isDecrementDisabled,
+        isIncrementDisabled,
         handleIncrement,
         handleDecrement,
         handleInputChange,

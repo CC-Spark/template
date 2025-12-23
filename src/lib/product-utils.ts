@@ -18,7 +18,7 @@
  * // returns { "Colour": "royal" }
  */
 
-import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperBasketsV2, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
 
 /**
@@ -309,4 +309,42 @@ export function isProductBundle(product: ShopperProducts.schemas['Product']): bo
  */
 export function isStandardProduct(product: ShopperProducts.schemas['Product']): boolean {
     return Boolean(product?.type?.item);
+}
+
+/**
+ * Determines if a product item is a bonus product.
+ * A bonus product is a product that was added to the cart as part of a promotion.
+ * @param productItem - The product item to check
+ * @returns true if the product item is a bonus product, false otherwise
+ */
+export function isBonusProduct(productItem: ShopperBasketsV2.schemas['ProductItem']): boolean {
+    return Boolean(productItem?.bonusProductLineItem);
+}
+
+/**
+ * Determines the type of bonus product.
+ * Returns 'choice' for choice-based bonus products (customers can select from options),
+ * 'auto' for auto bonus products (automatically added), or null for non-bonus products.
+ * @param productItem - The product item to check
+ * @param bonusDiscountLineItems - Array of bonus discount line items from the basket
+ * @returns 'choice' | 'auto' | null
+ */
+export function getBonusProductType(
+    productItem: ShopperBasketsV2.schemas['ProductItem'],
+    bonusDiscountLineItems?: ShopperBasketsV2.schemas['BonusDiscountLineItem'][]
+): 'choice' | 'auto' | null {
+    if (!isBonusProduct(productItem)) {
+        return null;
+    }
+
+    const bonusDiscountLineItem = bonusDiscountLineItems?.find(
+        (item) => item.id === productItem.bonusDiscountLineItemId
+    );
+
+    // If the bonusDiscountLineItem has bonusProducts array with items, it's choice-based
+    if (bonusDiscountLineItem?.bonusProducts && bonusDiscountLineItem.bonusProducts.length > 0) {
+        return 'choice';
+    }
+
+    return 'auto';
 }

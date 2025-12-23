@@ -418,4 +418,103 @@ describe('QuantityPicker', () => {
             // Note: We can't directly test ref assignment in jsdom, but we can verify the component renders
         });
     });
+
+    describe('Max Quantity Limit', () => {
+        test('should pass max prop to useQuantityPicker hook', () => {
+            render(<QuantityPicker {...defaultProps} max={5} />);
+
+            expect(mockUseQuantityPicker).toHaveBeenCalledWith({
+                value: '2',
+                onChange: defaultProps.onChange,
+                onBlur: undefined,
+                min: 0,
+                max: 5,
+            });
+        });
+
+        test('should set max attribute on input element', () => {
+            render(<QuantityPicker {...defaultProps} max={10} />);
+
+            const input = screen.getByDisplayValue('2');
+            expect(input).toHaveAttribute('max', '10');
+        });
+
+        test('should disable increment button when max is reached', () => {
+            mockUseQuantityPicker.mockReturnValue({
+                inputValue: '5',
+                inputRef: { current: null },
+                isDecrementDisabled: false,
+                isIncrementDisabled: true, // Max reached
+                isFocused: false,
+                handleIncrement: vi.fn(),
+                handleDecrement: vi.fn(),
+                handleInputChange: vi.fn(),
+                handleInputFocus: vi.fn(),
+                handleInputBlur: vi.fn(),
+                handleKeyDown: vi.fn(),
+            });
+
+            render(<QuantityPicker value="5" onChange={vi.fn()} max={5} />);
+
+            const incrementButton = screen.getByTestId('quantity-increment');
+            expect(incrementButton).toBeDisabled();
+        });
+
+        test('should enable increment button when below max', () => {
+            mockUseQuantityPicker.mockReturnValue({
+                inputValue: '3',
+                inputRef: { current: null },
+                isDecrementDisabled: false,
+                isIncrementDisabled: false, // Below max
+                isFocused: false,
+                handleIncrement: vi.fn(),
+                handleDecrement: vi.fn(),
+                handleInputChange: vi.fn(),
+                handleInputFocus: vi.fn(),
+                handleInputBlur: vi.fn(),
+                handleKeyDown: vi.fn(),
+            });
+
+            render(<QuantityPicker value="3" onChange={vi.fn()} max={5} />);
+
+            const incrementButton = screen.getByTestId('quantity-increment');
+            expect(incrementButton).not.toBeDisabled();
+        });
+
+        test('should handle max limit for choice-based bonus products', () => {
+            // Simulating a choice-based bonus product with max quantity of 2
+            mockUseQuantityPicker.mockReturnValue({
+                inputValue: '1',
+                inputRef: { current: null },
+                isDecrementDisabled: false,
+                isIncrementDisabled: false,
+                isFocused: false,
+                handleIncrement: vi.fn(),
+                handleDecrement: vi.fn(),
+                handleInputChange: vi.fn(),
+                handleInputFocus: vi.fn(),
+                handleInputBlur: vi.fn(),
+                handleKeyDown: vi.fn(),
+            });
+
+            render(<QuantityPicker value="1" onChange={vi.fn()} max={2} productName="Bonus Product" />);
+
+            const input = screen.getByDisplayValue('1');
+            expect(input).toHaveAttribute('max', '2');
+        });
+
+        test('should handle zero max value', () => {
+            render(<QuantityPicker {...defaultProps} max={0} />);
+
+            const input = screen.getByDisplayValue('2');
+            expect(input).toHaveAttribute('max', '0');
+        });
+
+        test('should not set max attribute when max prop is undefined', () => {
+            render(<QuantityPicker {...defaultProps} />);
+
+            const input = screen.getByDisplayValue('2');
+            expect(input).not.toHaveAttribute('max');
+        });
+    });
 });

@@ -1,5 +1,5 @@
 // React
-import { type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
@@ -12,6 +12,8 @@ import CartEmpty from './cart-empty';
 import CartTitle from './cart-title';
 import OrderSummary from '@/components/order-summary';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
+import { BonusProductModal } from '@/components/bonus-product-modal';
 import { useTranslation } from 'react-i18next';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import PickupStoreInfo from '@/extensions/bopis/components/pickup-store-info';
@@ -21,7 +23,7 @@ import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 // utils
-import { isStandardProduct } from '@/lib/product-utils';
+import { isStandardProduct, isBonusProduct } from '@/lib/product-utils';
 
 /**
  * Props for the CartContent component
@@ -54,6 +56,16 @@ interface CartContentProps {
 export default function CartContent({ basket, productsByItemId, promotions }: CartContentProps): ReactElement {
     const { t } = useTranslation('cart');
 
+    // TEMPORARY: State to facilitate bonus product modal development
+    const [bonusModalOpen, setBonusModalOpen] = useState(false);
+    const [selectedBonusProduct, setSelectedBonusProduct] = useState<{
+        productId: string;
+        productName: string;
+        promotionId: string;
+        bonusDiscountLineItemId: string;
+        maxBonusItems: number;
+    } | null>(null);
+
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
     const pickup = usePickup();
     const pickupBasketItems = pickup?.pickupBasketItems;
@@ -76,21 +88,47 @@ export default function CartContent({ basket, productsByItemId, promotions }: Ca
         : deliveryItems;
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
+    // TEMPORARY: Logic to facilitate bonus product modal - extract bonus product data
+    const bonusDiscountItems = basket?.bonusDiscountLineItems || [];
+    const hasBonusProducts = bonusDiscountItems.length > 0;
+
+    // TEMPORARY: Handler to facilitate bonus product modal - open modal with selected product
+    const handleBonusProductSelect = (
+        productId: string,
+        productName: string,
+        promotionId: string,
+        bonusDiscountLineItemId: string,
+        maxBonusItems: number
+    ) => {
+        setSelectedBonusProduct({ productId, productName, promotionId, bonusDiscountLineItemId, maxBonusItems });
+        setBonusModalOpen(true);
+    };
+
     // Render prop function for cart-specific secondary actions
     const cartSecondaryActions = (
         product: ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>
     ) => {
         // Return undefined if no itemId - this will hide the buttons in the UI
-        if (!product.itemId) return undefined;
+        if (!product.itemId) {
+            return undefined;
+        }
 
-        // Decide if Edit should be shown based on product type. Do not show edit buttons for standard products.
+        // Check if this is a bonus product
+        const isBonusProd = isBonusProduct(product);
+
+        // Check if this is a standard product (no variants)
         const productDetails = product;
         const isStandardProd = productDetails && isStandardProduct(productDetails);
+
+        // Show edit button if:
+        // - NOT a standard product (standard products have no variants to edit)
+        // - AND NOT a bonus product (bonus products should not have edit buttons)
+        const shouldShowEditButton = !isStandardProd && !isBonusProd;
 
         return (
             <div className="flex gap-2">
                 <RemoveItemButtonWithConfirmation itemId={product.itemId} className="pl-0" />
-                {!isStandardProd && <CartItemEditButton product={product} className="pl-0" />}
+                {shouldShowEditButton && <CartItemEditButton product={product} className="pl-0" />}
             </div>
         );
     };
@@ -131,6 +169,7 @@ export default function CartContent({ basket, productsByItemId, promotions }: Ca
                                         promotions={promotions}
                                         productItems={pickupItems}
                                         productsByItemId={productsByItemId}
+                                        bonusDiscountLineItems={bonusDiscountItems}
                                         secondaryActions={cartSecondaryActions}
                                     />
                                 </div>
@@ -144,6 +183,7 @@ export default function CartContent({ basket, productsByItemId, promotions }: Ca
                                     promotions={promotions}
                                     productItems={deliveryItems}
                                     productsByItemId={productsByItemId}
+                                    bonusDiscountLineItems={bonusDiscountItems}
                                     secondaryActions={cartSecondaryActions}
                                 />
                             </div>
@@ -160,6 +200,105 @@ export default function CartContent({ basket, productsByItemId, promotions }: Ca
                         />
                     </div>
                 </div>
+
+                {/* TEMPORARY: Bonus Products Section - to facilitate bonus product modal development */}
+                {hasBonusProducts &&
+                    bonusDiscountItems.map((bonusItem, index) => (
+                        <div key={bonusItem.id || index} className="mt-6 p-4 bg-card rounded border">
+                            <h3 className="text-lg font-semibold mb-2 text-foreground">
+                                promotionId: {bonusItem.promotionId}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mb-1">
+                                Max bonus items: {bonusItem.maxBonusItems}
+                            </p>
+                            <p className="text-sm text-muted-foreground mb-3">
+                                bonusDiscountLineItemId: {bonusItem.id}
+                            </p>
+                            <div className="flex flex-col gap-2 items-start">
+                                {bonusItem.bonusProducts?.map((product) => {
+                                    // Type guard: ensure required fields exist
+                                    if (
+                                        !product.productId ||
+                                        !product.productName ||
+                                        !bonusItem.promotionId ||
+                                        !bonusItem.maxBonusItems ||
+                                        !bonusItem.id
+                                    ) {
+                                        return null;
+                                    }
+                                    // Extract values to preserve type narrowing in closure
+                                    const productId = product.productId;
+                                    const productName = product.productName;
+                                    const promotionId = bonusItem.promotionId;
+                                    const bonusDiscountLineItemId = bonusItem.id;
+                                    const maxBonusItems = bonusItem.maxBonusItems;
+
+                                    return (
+                                        <Button
+                                            key={productId}
+                                            onClick={() =>
+                                                handleBonusProductSelect(
+                                                    productId,
+                                                    productName,
+                                                    promotionId,
+                                                    bonusDiscountLineItemId,
+                                                    maxBonusItems
+                                                )
+                                            }
+                                            variant="default">
+                                            Select {productName}
+                                        </Button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+
+                {selectedBonusProduct &&
+                    (() => {
+                        // Group all bonusDiscountLineItems for this promotion
+                        const bonusDiscountSlots = (basket?.bonusDiscountLineItems || [])
+                            .filter((item) => item.promotionId === selectedBonusProduct.promotionId)
+                            .map((item) => {
+                                // Count how many bonus products are already in this specific slot
+                                // by filtering productItems that link to this bonusDiscountLineItemId
+                                const matchingProductItems = (basket?.productItems || []).filter(
+                                    (productItem) =>
+                                        productItem.bonusProductLineItem &&
+                                        productItem.bonusDiscountLineItemId === item.id
+                                );
+
+                                const bonusProductsInSlot = matchingProductItems.reduce(
+                                    (sum, productItem) => sum + (productItem.quantity || 0),
+                                    0
+                                );
+
+                                return {
+                                    id: item.id || '',
+                                    maxBonusItems: item.maxBonusItems || 0,
+                                    bonusProductsSelected: bonusProductsInSlot,
+                                };
+                            });
+
+                        // Calculate total max quantity across all slots (remaining capacity)
+                        const totalMaxQuantity = bonusDiscountSlots.reduce(
+                            (total, slot) => total + (slot.maxBonusItems - slot.bonusProductsSelected),
+                            0
+                        );
+
+                        return (
+                            <BonusProductModal
+                                open={bonusModalOpen}
+                                onOpenChange={setBonusModalOpen}
+                                productId={selectedBonusProduct.productId}
+                                productName={selectedBonusProduct.productName}
+                                promotionId={selectedBonusProduct.promotionId}
+                                bonusDiscountLineItemId={selectedBonusProduct.bonusDiscountLineItemId}
+                                bonusDiscountSlots={bonusDiscountSlots}
+                                maxQuantity={totalMaxQuantity}
+                            />
+                        );
+                    })()}
             </div>
         </div>
     );

@@ -234,6 +234,8 @@ interface ProductItemProps {
     promotions?: Record<string, ShopperPromotions.schemas['Promotion']>;
     primaryAction?: (productItem: Item) => ReactElement | undefined;
     secondaryActions?: (productItem: Item) => ReactElement | undefined;
+    bonusDiscountLineItems?: ShopperBasketsV2.schemas['BonusDiscountLineItem'][];
+    maxBonusQuantity?: number;
 }
 
 /**
@@ -258,17 +260,31 @@ function ProductItem({
     promotions,
     primaryAction,
     secondaryActions,
+    bonusDiscountLineItems,
+    maxBonusQuantity,
 }: ProductItemProps): ReactElement {
     // Track loading state for all fetchers related to this item
     const isItemFetcherLoading = useItemFetcherLoading(productItem?.itemId);
 
-    // Guard against undefined or null product
+    // Check if this is a bonus product
+    const isBonusProduct = Boolean(productItem?.bonusProductLineItem);
+
+    // Determine if this is a choice-based bonus product by checking bonusDiscountLineItems
+    // Must be called before any early returns (React Hooks rules)
+    const isChoiceBasedBonusProduct = useMemo(() => {
+        if (!productItem || !isBonusProduct || !productItem.bonusDiscountLineItemId || !bonusDiscountLineItems) {
+            return false;
+        }
+        const matchingLineItem = bonusDiscountLineItems.find((item) => item.id === productItem.bonusDiscountLineItemId);
+        // Choice-based bonus products have a bonusProducts array in the discount line item
+        return Boolean(matchingLineItem?.bonusProducts && matchingLineItem.bonusProducts.length > 0);
+    }, [productItem, isBonusProduct, bonusDiscountLineItems]);
+
+    const isAutoBonusProduct = isBonusProduct && !isChoiceBasedBonusProduct;
+
     if (!productItem || typeof productItem !== 'object') {
         return <div data-testid="product-item-error">Product data not available</div>;
     }
-
-    // Check if this is a bonus product
-    const isBonusProduct = Boolean(productItem?.bonusProductLineItem);
 
     // Summary variant - compact display for product summary
     if (displayVariant === 'summary') {
@@ -335,16 +351,12 @@ function ProductItem({
                                         {productItem?.shortDescription}
                                     </Typography>
 
-                                    {!isBonusProduct && (
-                                        <div className="min-w-0">
-                                            {primaryAction && (
-                                                <div data-testid="mobile-primary-action">
-                                                    {primaryAction(productItem)}
-                                                </div>
-                                            )}
-                                            {secondaryActions && secondaryActions(productItem)}
-                                        </div>
-                                    )}
+                                    <div className="min-w-0">
+                                        {!isAutoBonusProduct && primaryAction && (
+                                            <div data-testid="mobile-primary-action">{primaryAction(productItem)}</div>
+                                        )}
+                                        {!isAutoBonusProduct && secondaryActions && secondaryActions(productItem)}
+                                    </div>
                                 </div>
                                 <div className="text-right md:hidden" data-testid="mobile-product-price">
                                     <div className="font-semibold text-base">
@@ -385,7 +397,8 @@ function ProductItem({
                                         value={String(productItem.quantity)}
                                         itemId={productItem.itemId || ''}
                                         stockLevel={productItem.inventory?.ats}
-                                        disabled={isBonusProduct}
+                                        max={isBonusProduct ? maxBonusQuantity : undefined}
+                                        disabled={isAutoBonusProduct}
                                     />
                                     <div className="self-end">
                                         <div className="text-right hidden md:block" data-testid="desktop-product-price">
@@ -434,9 +447,9 @@ function ProductItem({
                             </div>
 
                             {/* Inventory Message */}
-                            {productItem?.showInventoryMessage && (
+                            {Boolean(productItem?.showInventoryMessage) && (
                                 <div className="text-destructive font-semibold text-sm break-words">
-                                    {productItem?.inventoryMessage}
+                                    {productItem?.inventoryMessage as string}
                                 </div>
                             )}
                         </div>

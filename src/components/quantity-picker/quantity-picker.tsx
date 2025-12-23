@@ -32,6 +32,8 @@ interface QuantityPickerProps {
     onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
     /** Minimum quantity allowed */
     min?: number;
+    /** Maximum quantity allowed (for bonus products, etc.) */
+    max?: number;
     /** Product name for accessibility */
     productName?: string;
     /** Whether the picker is disabled */
@@ -54,6 +56,7 @@ export default function QuantityPicker({
     onChange,
     onBlur,
     min = 0,
+    max,
     productName,
     disabled = false,
 }: QuantityPickerProps): ReactElement {
@@ -64,6 +67,7 @@ export default function QuantityPicker({
         inputValue,
         inputRef,
         isDecrementDisabled,
+        isIncrementDisabled,
         handleIncrement,
         handleDecrement,
         handleInputChange,
@@ -75,6 +79,7 @@ export default function QuantityPicker({
         onChange,
         onBlur,
         min,
+        max,
     });
 
     return (
@@ -96,6 +101,7 @@ export default function QuantityPicker({
                 ref={inputRef}
                 type="number"
                 min={min}
+                max={max}
                 step={1}
                 value={inputValue}
                 onChange={handleInputChange}
@@ -115,7 +121,7 @@ export default function QuantityPicker({
                 variant="outline"
                 size="icon"
                 onClick={handleIncrement}
-                disabled={disabled}
+                disabled={disabled || isIncrementDisabled}
                 className="h-8 w-8 p-0"
                 aria-label={tQuantity('increaseQuantityForProduct', { productName: productName || tCommon('product') })}
                 data-testid="quantity-increment">

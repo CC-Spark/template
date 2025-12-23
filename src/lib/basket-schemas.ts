@@ -34,6 +34,48 @@ export const parseCartItemUpdateFromFormData = (formData: FormData) => {
 };
 
 /**
+ * Schema for bonus product add form data
+ * Used when adding bonus products to cart - supports multiple slots and items
+ */
+export const bonusProductAddSchema = z.object({
+    bonusItems: z
+        .string()
+        .min(1, 'bonusItems is required')
+        .transform((val) => {
+            try {
+                return JSON.parse(val);
+            } catch {
+                throw new Error('Invalid bonusItems JSON');
+            }
+        })
+        .pipe(
+            z
+                .array(
+                    z.object({
+                        productId: z.string().min(1, 'Each bonus item must have a productId'),
+                        quantity: z.number().min(1, 'Each bonus item must have a valid quantity'),
+                        bonusDiscountLineItemId: z
+                            .string()
+                            .min(1, 'Each bonus item must have a bonusDiscountLineItemId'),
+                        promotionId: z.string().min(1, 'Each bonus item must have a promotionId'),
+                    })
+                )
+                .min(1, 'bonusItems must be a non-empty array')
+        ),
+});
+
+/**
+ * Parses FormData into bonus product add data object
+ * @param formData - FormData from bonus product add form submission
+ * @returns Parsed bonus product add data
+ */
+export const parseBonusProductAddFromFormData = (formData: FormData) => {
+    return {
+        bonusItems: formData.get('bonusItems')?.toString() || '',
+    };
+};
+
+/**
  * Schema for pickup store update form data
  * Used when changing the pickup store for all pickup items in the basket
  */
@@ -58,4 +100,5 @@ export const parsePickupStoreUpdateFromFormData = (formData: FormData) => {
 
 // Type exports
 export type CartItemUpdateData = z.infer<typeof cartItemUpdateSchema>;
+export type BonusProductAddData = z.infer<typeof bonusProductAddSchema>;
 export type PickupStoreUpdateData = z.infer<typeof pickupStoreUpdateSchema>;

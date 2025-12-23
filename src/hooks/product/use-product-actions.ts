@@ -36,6 +36,7 @@ interface UseProductActionsProps {
     /** Current variant (null/undefined if no variant selected) - optional, defaults to undefined */
     currentVariant?: ShopperProducts.schemas['Variant'] | null | undefined;
     initialQuantity?: number;
+    maxQuantity?: number; // Max quantity allowed (for bonus products, etc.)
     itemId?: string; // Cart item ID for update operations
 }
 
@@ -79,6 +80,7 @@ export function useProductActions({
     isChildProduct: _isChildProduct = false,
     currentVariant,
     initialQuantity,
+    maxQuantity,
     itemId,
 }: UseProductActionsProps) {
     const { t } = useTranslation();
@@ -220,7 +222,11 @@ export function useProductActions({
     // Can add to cart validation - defaults to false, only true when explicitly allowed
     const canAddToCart = useMemo(() => {
         // Quantity must be valid
-        const hasValidQuantity = quantity > 0 && quantity <= actualStockLevel;
+        // For bonus products with maxQuantity, use that instead of actualStockLevel
+        const maxAllowed = maxQuantity !== undefined ? maxQuantity : actualStockLevel;
+        // actualStockLevel is always a number (defaults to 0 if no inventory)
+        const hasValidQuantity = quantity > 0 && maxAllowed >= 0 && quantity <= maxAllowed;
+
         if (!hasValidQuantity) return false;
 
         // item must be in stock for order
@@ -259,6 +265,7 @@ export function useProductActions({
         return false;
     }, [
         quantity,
+        maxQuantity,
         actualStockLevel,
         currentVariant,
         isInStock,
@@ -918,6 +925,8 @@ export function useProductActions({
         isAddingToWishlist,
         /** Current quantity selected for the product */
         quantity,
+        /** Maximum quantity allowed (for bonus products, etc.) */
+        maxQuantity,
 
         // Validation and inventory
         /** Determines if the product can be added to cart based on validation criteria */
