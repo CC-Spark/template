@@ -19,12 +19,12 @@ exports[`HeroCarousel stories snapshot > Default story renders and matches snaps
         data-slot="carousel-content"
       >
         <div
-          class="flex -ml-0 h-full"
+          class="flex -ml-4 h-full"
           style="transform: translate3d(0px,0px,0px);"
         >
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -74,7 +74,7 @@ exports[`HeroCarousel stories snapshot > Default story renders and matches snaps
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -124,7 +124,7 @@ exports[`HeroCarousel stories snapshot > Default story renders and matches snaps
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -285,12 +285,12 @@ exports[`HeroCarousel stories snapshot > Desktop story renders and matches snaps
         data-slot="carousel-content"
       >
         <div
-          class="flex -ml-0 h-full"
+          class="flex -ml-4 h-full"
           style="transform: translate3d(0px,0px,0px);"
         >
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -340,7 +340,7 @@ exports[`HeroCarousel stories snapshot > Desktop story renders and matches snaps
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -390,7 +390,7 @@ exports[`HeroCarousel stories snapshot > Desktop story renders and matches snaps
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -551,12 +551,12 @@ exports[`HeroCarousel stories snapshot > Mobile story renders and matches snapsh
         data-slot="carousel-content"
       >
         <div
-          class="flex -ml-0 h-full"
+          class="flex -ml-4 h-full"
           style="transform: translate3d(0px,0px,0px);"
         >
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -606,7 +606,7 @@ exports[`HeroCarousel stories snapshot > Mobile story renders and matches snapsh
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -656,7 +656,7 @@ exports[`HeroCarousel stories snapshot > Mobile story renders and matches snapsh
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -817,12 +817,12 @@ exports[`HeroCarousel stories snapshot > Tablet story renders and matches snapsh
         data-slot="carousel-content"
       >
         <div
-          class="flex -ml-0 h-full"
+          class="flex -ml-4 h-full"
           style="transform: translate3d(0px,0px,0px);"
         >
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -872,7 +872,7 @@ exports[`HeroCarousel stories snapshot > Tablet story renders and matches snapsh
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -922,7 +922,7 @@ exports[`HeroCarousel stories snapshot > Tablet story renders and matches snapsh
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1083,12 +1083,12 @@ exports[`HeroCarousel stories snapshot > WithoutAutoPlay story renders and match
         data-slot="carousel-content"
       >
         <div
-          class="flex -ml-0 h-full"
+          class="flex -ml-4 h-full"
           style="transform: translate3d(0px,0px,0px);"
         >
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1138,7 +1138,7 @@ exports[`HeroCarousel stories snapshot > WithoutAutoPlay story renders and match
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1188,7 +1188,7 @@ exports[`HeroCarousel stories snapshot > WithoutAutoPlay story renders and match
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1349,12 +1349,12 @@ exports[`HeroCarousel stories snapshot > WithoutDots story renders and matches s
         data-slot="carousel-content"
       >
         <div
-          class="flex -ml-0 h-full"
+          class="flex -ml-4 h-full"
           style="transform: translate3d(0px,0px,0px);"
         >
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1404,7 +1404,7 @@ exports[`HeroCarousel stories snapshot > WithoutDots story renders and matches s
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1454,7 +1454,7 @@ exports[`HeroCarousel stories snapshot > WithoutDots story renders and matches s
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1588,12 +1588,12 @@ exports[`HeroCarousel stories snapshot > WithoutNavigation story renders and mat
         data-slot="carousel-content"
       >
         <div
-          class="flex -ml-0 h-full"
+          class="flex -ml-4 h-full"
           style="transform: translate3d(0px,0px,0px);"
         >
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1643,7 +1643,7 @@ exports[`HeroCarousel stories snapshot > WithoutNavigation story renders and mat
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >
@@ -1693,7 +1693,7 @@ exports[`HeroCarousel stories snapshot > WithoutNavigation story renders and mat
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 basis-full pl-0 h-full"
+            class="min-w-0 shrink-0 grow-0 basis-full pl-4 h-full"
             data-slot="carousel-item"
             role="group"
           >

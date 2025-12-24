@@ -247,13 +247,14 @@ export function HeroCarouselPlain({
             <Carousel
                 setApi={setApi}
                 opts={{
-                    align: 'start',
+                    align: 'center',
                     loop: true,
+                    containScroll: 'trimSnaps',
                 }}
                 className="w-full h-full">
-                <CarouselContent className="-ml-0 h-full">
+                <CarouselContent className="h-full">
                     {slides.map((slide) => (
-                        <CarouselItem key={slide.id} className="pl-0 h-full">
+                        <CarouselItem key={slide.id} className="h-full">
                             <HeroSlideContent slide={image ? { ...slide, imageUrl: image.url } : slide} />
                         </CarouselItem>
                     ))}
