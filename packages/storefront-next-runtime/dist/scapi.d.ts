@@ -24832,7 +24832,7 @@ type ProxyClient<TClient extends Client<any, any>, TOperations extends Operation
 type OperationMethodsOnly<T> = T extends ProxyClient<any, any> ? Omit<T, 'use' | 'eject'> : never;
 //#endregion
 //#region src/scapi-client/generated/shopper-login-v1.operations.d.ts
-declare const operations$7: {
+declare const operations$13: {
   readonly authenticateCustomer: {
     readonly m: "POST";
     readonly b: "/organizations/{organizationId}/oauth2";
@@ -24940,7 +24940,7 @@ type AuthResponse = TokenResponse & {
 /**
  * The ShopperLogin client type used internally by auth helpers.
  */
-type ShopperLoginClient = ProxyClient<Client<ShopperLogin.endpoints>, typeof operations$7>;
+type ShopperLoginClient = ProxyClient<Client<ShopperLogin.endpoints>, typeof operations$13>;
 /**
  * Configuration required to create auth helpers.
  *
@@ -25329,7 +25329,7 @@ interface AuthNamespace {
 }
 //#endregion
 //#region src/scapi-client/generated/shopper-baskets-v1.operations.d.ts
-declare const operations: {
+declare const operations$12: {
   readonly createBasket: {
     readonly m: "POST";
     readonly b: "/organizations/{organizationId}/baskets";
@@ -25518,7 +25518,7 @@ declare const operations: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-baskets-v2.operations.d.ts
-declare const operations$1: {
+declare const operations$11: {
   readonly createBasket: {
     readonly m: "POST";
     readonly b: "/organizations/{organizationId}/baskets";
@@ -25707,7 +25707,7 @@ declare const operations$1: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-consents-v1.operations.d.ts
-declare const operations$2: {
+declare const operations$10: {
   readonly getSubscriptions: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}/subscriptions";
@@ -25721,7 +25721,7 @@ declare const operations$2: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-context-v1.operations.d.ts
-declare const operations$3: {
+declare const operations$9: {
   readonly getShopperContext: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}/shopper-context/{usid}";
@@ -25745,7 +25745,7 @@ declare const operations$3: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-customers-v1.operations.d.ts
-declare const operations$4: {
+declare const operations$8: {
   readonly registerCustomer: {
     readonly m: "POST";
     readonly b: "/organizations/{organizationId}";
@@ -25894,7 +25894,7 @@ declare const operations$4: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-experience-v1.operations.d.ts
-declare const operations$5: {
+declare const operations$7: {
   readonly getPages: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}/pages";
@@ -25917,7 +25917,7 @@ declare const operations$6: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-orders-v1.operations.d.ts
-declare const operations$8: {
+declare const operations$5: {
   readonly createOrder: {
     readonly m: "POST";
     readonly b: "/organizations/{organizationId}/orders";
@@ -25961,7 +25961,7 @@ declare const operations$8: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-products-v1.operations.d.ts
-declare const operations$9: {
+declare const operations$4: {
   readonly getProducts: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}";
@@ -25985,7 +25985,7 @@ declare const operations$9: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-promotions-v1.operations.d.ts
-declare const operations$10: {
+declare const operations$3: {
   readonly getPromotions: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}/promotions";
@@ -25999,7 +25999,7 @@ declare const operations$10: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-search-v1.operations.d.ts
-declare const operations$11: {
+declare const operations$2: {
   readonly productSearch: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}";
@@ -26013,7 +26013,7 @@ declare const operations$11: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-seo-v1.operations.d.ts
-declare const operations$12: {
+declare const operations$1: {
   readonly getUrlMapping: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}";
@@ -26022,7 +26022,7 @@ declare const operations$12: {
 };
 //#endregion
 //#region src/scapi-client/generated/shopper-stores-v1.operations.d.ts
-declare const operations$13: {
+declare const operations: {
   readonly getStores: {
     readonly m: "GET";
     readonly b: "/organizations/{organizationId}/store";
@@ -26059,20 +26059,20 @@ interface CommerceApiClientConfig extends ClientOptions {
   redirectUri: string;
 }
 type Clients = {
-  shopperBasketsV1: ProxyClient<Client<ShopperBasketsV1.endpoints>, typeof operations>;
-  shopperBasketsV2: ProxyClient<Client<ShopperBasketsV2.endpoints>, typeof operations$1>;
-  shopperConsents: ProxyClient<Client<ShopperConsents.endpoints>, typeof operations$2>;
-  shopperContext: ProxyClient<Client<ShopperContext.endpoints>, typeof operations$3>;
-  shopperCustomers: ProxyClient<Client<ShopperCustomers.endpoints>, typeof operations$4>;
-  shopperExperience: ProxyClient<Client<ShopperExperience.endpoints>, typeof operations$5>;
+  shopperBasketsV1: ProxyClient<Client<ShopperBasketsV1.endpoints>, typeof operations$12>;
+  shopperBasketsV2: ProxyClient<Client<ShopperBasketsV2.endpoints>, typeof operations$11>;
+  shopperConsents: ProxyClient<Client<ShopperConsents.endpoints>, typeof operations$10>;
+  shopperContext: ProxyClient<Client<ShopperContext.endpoints>, typeof operations$9>;
+  shopperCustomers: ProxyClient<Client<ShopperCustomers.endpoints>, typeof operations$8>;
+  shopperExperience: ProxyClient<Client<ShopperExperience.endpoints>, typeof operations$7>;
   shopperGiftCertificates: ProxyClient<Client<ShopperGiftCertificates.endpoints>, typeof operations$6>;
-  shopperLogin: ProxyClient<Client<ShopperLogin.endpoints>, typeof operations$7>;
-  shopperOrders: ProxyClient<Client<ShopperOrders.endpoints>, typeof operations$8>;
-  shopperProducts: ProxyClient<Client<ShopperProducts.endpoints>, typeof operations$9>;
-  shopperPromotions: ProxyClient<Client<ShopperPromotions.endpoints>, typeof operations$10>;
-  shopperSearch: ProxyClient<Client<ShopperSearch.endpoints>, typeof operations$11>;
-  shopperSeo: ProxyClient<Client<ShopperSeo.endpoints>, typeof operations$12>;
-  shopperStores: ProxyClient<Client<ShopperStores.endpoints>, typeof operations$13>;
+  shopperLogin: ProxyClient<Client<ShopperLogin.endpoints>, typeof operations$13>;
+  shopperOrders: ProxyClient<Client<ShopperOrders.endpoints>, typeof operations$5>;
+  shopperProducts: ProxyClient<Client<ShopperProducts.endpoints>, typeof operations$4>;
+  shopperPromotions: ProxyClient<Client<ShopperPromotions.endpoints>, typeof operations$3>;
+  shopperSearch: ProxyClient<Client<ShopperSearch.endpoints>, typeof operations$2>;
+  shopperSeo: ProxyClient<Client<ShopperSeo.endpoints>, typeof operations$1>;
+  shopperStores: ProxyClient<Client<ShopperStores.endpoints>, typeof operations>;
   /** Authentication helpers for SLAS operations */
   auth: AuthNamespace;
   use: (middleware: Middleware) => void;
@@ -26150,8 +26150,19 @@ declare function createClient<TClient extends Client<any, any>, TOperations exte
 //#endregion
 //#region src/scapi-client/ApiError.d.ts
 /**
- * Standard RFC 7807 Problem Details error structure
- * This is the default structure returned by most Salesforce Commerce APIs
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * @see https://datatracker.ietf.org/doc/html/rfc7807
  */
@@ -26267,6 +26278,21 @@ declare class ApiError extends Error {
 }
 //#endregion
 //#region src/scapi-client/constants.d.ts
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**
  * Path patterns for SLAS authentication endpoints.
  * These endpoints handle their own authentication (Basic auth, PKCE, etc.)

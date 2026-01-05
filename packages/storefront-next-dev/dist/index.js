@@ -154,6 +154,21 @@ const readableChunkFileNamesPlugin = () => {
 
 //#endregion
 //#region src/mrt/utils.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const MRT_BUNDLE_TYPE_SSR = "ssr";
 const MRT_STREAMING_ENTRY_FILE = "streamingHandler";
 const MRT_BUNDLE_TYPE_STREAMING = "streaming";
@@ -266,6 +281,21 @@ const patchReactRouterPlugin = () => {
 
 //#endregion
 //#region src/extensibility/plugin-utils.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const traverse = traverseModule.default || traverseModule;
 const PLUGIN_COMPONENT_TAG = "PluginComponent";
 const PLUGIN_PROVIDERS_TAG = "PluginProviders";
@@ -459,6 +489,21 @@ function buildPluginRegistry(rootDir) {
 
 //#endregion
 //#region src/plugins/transformPlugins.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 function transformPluginPlaceholderPlugin() {
 	let componentRegistry;
 	let contextProviders;
@@ -786,6 +831,21 @@ const staticRegistryPlugin = (config = {}) => {
 //#endregion
 //#region src/plugins/configLoader.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Load the engagement config from config.server.ts
 */
 async function loadEngagementConfig(projectRoot, configPath, verbose$1) {
@@ -1010,6 +1070,21 @@ const debug = (msg, data) => {
 
 //#endregion
 //#region src/utils.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const DEFAULT_CLOUD_ORIGIN = "https://cloud.mobify.com";
 const getDefaultBuildDir = (targetDir) => path$1.join(targetDir, "build");
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -1131,6 +1206,21 @@ const getDefaultMessage = (projectDir) => {
 //#endregion
 //#region src/bundle.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Create a bundle from the build directory
 */
 const createBundle = async (options) => {
@@ -1205,6 +1295,21 @@ const createBundle = async (options) => {
 
 //#endregion
 //#region src/cloud-api.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 var CloudAPIClient = class {
 	credentials;
 	origin;
@@ -1295,6 +1400,21 @@ var CloudAPIClient = class {
 
 //#endregion
 //#region src/config.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const SFNEXT_BASE_CARTRIDGE_NAME = "app_storefrontnext_base";
 const SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR = `${SFNEXT_BASE_CARTRIDGE_NAME}/cartridge/experience`;
 /**
@@ -1354,6 +1474,21 @@ const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
 
 //#endregion
 //#region src/commands/push.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
 * Main function to push bundle to Managed Runtime
 */
@@ -1421,6 +1556,21 @@ async function push(options) {
 //#endregion
 //#region src/server/ts-import.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Parse TypeScript paths from tsconfig.json and convert to jiti alias format.
 *
 * @param tsconfigPath - Path to tsconfig.json
@@ -1469,6 +1619,21 @@ async function importTypescript(filePath, options) {
 
 //#endregion
 //#region src/server/config.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
 * This is a temporary function before we move the config implementation from
 * template-retail-rsc-app to the SDK.
@@ -1528,6 +1693,21 @@ async function loadProjectConfig(projectDirectory) {
 //#endregion
 //#region src/utils/paths.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Get the Commerce Cloud API URL from a short code
 */
 function getCommerceCloudApiUrl(shortCode) {
@@ -1543,6 +1723,21 @@ function getBundlePath(bundleId) {
 //#endregion
 //#region src/server/middleware/proxy.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Create proxy middleware for Commerce Cloud API
 * Proxies requests from /mobify/proxy/api to the Commerce Cloud API
 */
@@ -1555,6 +1750,21 @@ function createCommerceProxyMiddleware(config) {
 
 //#endregion
 //#region src/server/middleware/static.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
 * Create static file serving middleware for client assets
 * Serves files from build/client at /mobify/bundle/{BUNDLE_ID}/client/
@@ -1571,6 +1781,21 @@ function createStaticMiddleware(bundleId, projectDirectory) {
 
 //#endregion
 //#region src/server/middleware/compression.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
 * Parse and validate COMPRESSION_LEVEL environment variable
 * @returns Valid compression level (0-9) or default compression level
@@ -1706,6 +1931,21 @@ const ServerModeFeatureMap = {
 //#endregion
 //#region src/server/index.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Create a unified Express server for development, preview, or production mode
 */
 async function createServer(options) {
@@ -1779,6 +2019,21 @@ function isSupportedFileExtension(fileName) {
 
 //#endregion
 //#region src/extensibility/trim-extensions.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
 * Utility to trim the directory to remove unused components and unused extensions.
 * This is used to reduce the size of the project by removing the code that is not part of the selected extensions.
@@ -1938,6 +2193,21 @@ function deleteExtensionFolders(projectRoot, extensions, extensionConfig) {
 
 //#endregion
 //#region src/cartridge-services/generate-cartridge.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const SKIP_DIRECTORIES = [
 	"build",
 	"dist",

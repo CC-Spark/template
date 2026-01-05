@@ -1,6 +1,7 @@
 import { a as ShopperSearch, i as ShopperProducts, n as ShopperBasketsV2, t as ShopperBasketsV1 } from "./types.js";
 
 //#region src/events/types.d.ts
+
 type BasketProductItem = ShopperBasketsV1.schemas['ProductItem'] | ShopperBasketsV2.schemas['ProductItem'];
 type Basket = ShopperBasketsV1.schemas['Basket'] | ShopperBasketsV2.schemas['Basket'];
 /**

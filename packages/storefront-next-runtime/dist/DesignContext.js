@@ -5,6 +5,21 @@ import { Fragment, jsx } from "react/jsx-runtime";
 
 //#region src/design/react/hooks/useInteraction.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Base hook that provides common interaction patterns for design-time functionality.
 * Reduces boilerplate by handling state management, event listeners, and cleanup.
 *
@@ -33,6 +48,21 @@ function useInteraction(config) {
 
 //#endregion
 //#region src/design/react/hooks/useSelectInteraction.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
 * Custom hook that manages component selection state and handles
 * client-host communication for selection events.
@@ -66,6 +96,21 @@ function useSelectInteraction() {
 //#endregion
 //#region src/design/react/hooks/useHoverInteraction.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Custom hook that manages component hover state and handles
 * client-host communication for hover events.
 *
@@ -92,6 +137,21 @@ function useHoverInteraction() {
 
 //#endregion
 //#region src/design/react/hooks/useDeleteInteraction.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 function useDeleteInteraction({ selectedComponentId, setSelectedComponent }) {
 	const { deleteComponent } = useInteraction({
 		initialState: null,
@@ -106,6 +166,21 @@ function useDeleteInteraction({ selectedComponentId, setSelectedComponent }) {
 
 //#endregion
 //#region src/design/react/hooks/useFocusInteraction.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 function useFocusInteraction({ setSelectedComponent }) {
 	const { state: focusedComponentId, focusComponent } = useInteraction({
 		initialState: null,
@@ -126,6 +201,21 @@ function useFocusInteraction({ setSelectedComponent }) {
 
 //#endregion
 //#region src/design/react/hooks/useScrollInteraction.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
 * Custom hook that manages component hover state and handles
 * client-host communication for hover events.
@@ -154,6 +244,21 @@ function useScrollInteraction() {
 //#endregion
 //#region src/design/react/hooks/useComponentDiscovery.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Returns a utility for discovering components and regions at a given
 * x, y coordinates.
 * @param nodeToTargetMap - The map of nodes to target entries.
@@ -177,6 +282,21 @@ function useComponentDiscovery({ nodeToTargetMap }) {
 //#endregion
 //#region src/design/react/utils/regionUtils.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Checks if a component type is allowed in a region based on inclusion and exclusion rules.
 *
 * @param componentType - The type of component being checked
@@ -193,6 +313,21 @@ function isComponentTypeAllowedInRegion(componentType, componentTypeInclusions, 
 
 //#endregion
 //#region src/design/react/hooks/useDragInteraction.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const SCROLL_BUFFER_HEIGHT_PERCENTAGE = 15;
 const SCROLL_BUFFER_MIN_HEIGHT_IN_PIXELS = 50;
 const SCROLL_INTERVAL_IN_MS = 1e3 / 60;
@@ -497,6 +632,21 @@ function useDragInteraction({ nodeToTargetMap }) {
 
 //#endregion
 //#region src/design/react/context/DesignStateContext.tsx
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const DesignStateContext = React.createContext(null);
 const DesignStateProvider = ({ children }) => {
 	const selectInteraction = useSelectInteraction();
@@ -535,6 +685,21 @@ const DesignStateProvider = ({ children }) => {
 //#endregion
 //#region src/design/react/hooks/useDesignState.ts
 /**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Custom hook that manages design-time component state by composing
 * individual interaction hooks for better maintainability and testability.
 *
@@ -548,6 +713,21 @@ const useDesignState = () => {
 
 //#endregion
 //#region src/design/react/hooks/useThrottledCallback.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 function useThrottledCallback(callback, interval, deps = []) {
 	const lastCallTime = useRef(0);
 	return useCallback((...args) => {
@@ -565,6 +745,21 @@ function useThrottledCallback(callback, interval, deps = []) {
 
 //#endregion
 //#region src/design/react/hooks/useDebouncedCallback.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 function useDebouncedCallback(callback, interval, deps = []) {
 	const timeoutRef = useRef(null);
 	return useCallback((...args) => {
@@ -585,6 +780,21 @@ function useDebouncedCallback(callback, interval, deps = []) {
 
 //#endregion
 //#region src/design/react/hooks/useGlobalListeners.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const FPS_60 = 1e3 / 60;
 function useGlobalListeners() {
 	const { dropComponent, updateComponentMove, cancelDrag, notifyWindowScrollChange } = useDesignState();
@@ -626,6 +836,21 @@ const DesignApp = ({ children }) => {
 
 //#endregion
 //#region src/design/react/context/DesignContext.tsx
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 const noop = () => {};
 const DesignContext = React.createContext({
 	isDesignMode: false,

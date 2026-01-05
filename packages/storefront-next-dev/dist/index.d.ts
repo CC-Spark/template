@@ -39,6 +39,7 @@ interface StaticRegistryPluginConfig {
 }
 //#endregion
 //#region src/plugins/eventInstrumentationValidator.d.ts
+
 /**
  * Configuration options for the event instrumentation validator plugin
  */
@@ -66,6 +67,7 @@ interface EventInstrumentationValidatorConfig {
 }
 //#endregion
 //#region src/plugin.d.ts
+
 /**
  * Configuration options for the Storefront Next Vite plugin.
  */
@@ -147,6 +149,7 @@ declare function transformPluginPlaceholderPlugin(): {
 };
 //#endregion
 //#region src/types.d.ts
+
 interface PushOptions {
   projectDirectory: string;
   buildDirectory?: string;
@@ -200,6 +203,21 @@ declare function loadConfigFromEnv(): ServerConfig;
 declare function loadProjectConfig(projectDirectory: string): Promise<ServerConfig>;
 //#endregion
 //#region src/server/modes.d.ts
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 type ServerMode = 'development' | 'preview' | 'production';
 /**
  * Feature flags for each server mode
@@ -240,6 +258,21 @@ interface ServerOptions extends Partial<ServerModeFeatures> {
 declare function createServer(options: ServerOptions): Promise<Express>;
 //#endregion
 //#region src/extensibility/extension-config.d.ts
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 type ExtensionMeta = {
   name: string;
   description: string;

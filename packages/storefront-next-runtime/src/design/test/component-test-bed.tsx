@@ -1,4 +1,18 @@
-/* eslint-disable react/prop-types */
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /* eslint-disable react-refresh/only-export-components */
 import { render as tlRender, act, waitFor, type RenderResult, cleanup as tlCleanup } from '@testing-library/react';
 import type { HostToClientConfiguration } from '../messaging-api/domain-types';
@@ -21,6 +35,7 @@ import type { RecursivePartial } from './types';
 // Preload the dynamic context
 import '../react/context/DesignContext';
 
+// eslint-disable-next-line react/prop-types
 const TestRegion: React.FC<React.PropsWithChildren> = ({ children }) => <div data-testid="test-region">{children}</div>;
 
 type Result = RenderResult & { element: HTMLElement; host: HostApi; root: HTMLElement; region: HTMLElement };

@@ -1,6 +1,7 @@
 import { r as ShopperExperience } from "./types.js";
 
 //#region src/design/messaging-api/domain-types.d.ts
+
 interface WithBaseEvent {
   eventType: string;
 }
