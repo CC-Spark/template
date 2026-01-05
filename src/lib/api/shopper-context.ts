@@ -64,6 +64,7 @@ export async function createShopperContext(
                 },
                 query: {
                     siteId: config.commerce.api.siteId,
+                    locale: undefined, // Shopper Context API doesn't accept locale parameter
                 },
             },
             body,

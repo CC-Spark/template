@@ -1,19 +1,7 @@
 import type { MiddlewareFunction, DataStrategyResult, RouterContextProvider } from 'react-router';
-import { getCookie, setNamespacedCookie } from '@/lib/cookies.client';
 import { getConfig } from '@/config';
 import { getAuth } from './auth.client';
-import { createShopperContext } from '@/lib/api/shopper-context';
-import {
-    getShopperContextCookieName,
-    getSourceCodeCookieName,
-    SOURCE_CODE_COOKIE_EXPIRY_SECONDS, // 30 days
-    SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS, // 6 hours
-    isPageDesignerMode,
-    extractQualifiersFromUrl,
-    computeEffectiveShopperContext,
-    buildShopperContextBody,
-    safeParseCookie,
-} from '@/lib/shopper-context-utils';
+import { isPageDesignerMode, extractQualifiersFromUrl, updateShopperContext } from '@/lib/shopper-context-utils';
 
 /**
  * Process shopper context update with comprehensive error handling
@@ -25,56 +13,13 @@ async function processShopperContext(
     const url = new URL(window.location.href);
     const { qualifiers: newShopperContext, sourceCodeQualifiers: newSourceCodeContext } = extractQualifiersFromUrl(url);
 
-    // Get cookie names with suffix
-    const contextCookieName = getShopperContextCookieName(session.usid);
-    const sourceCodeCookieName = getSourceCodeCookieName(context);
-
-    // Read existing cookies and parse JSON with error handling
-    const currentSourceCodeContextValue = getCookie(sourceCodeCookieName);
-    const currentShopperContextValue = getCookie(contextCookieName);
-
-    const currentShopperContext = safeParseCookie(currentShopperContextValue);
-    const currentSourceCodeContext = safeParseCookie(currentSourceCodeContextValue);
-
-    const { effectiveShopperContext, effectiveSourceCodeContext } = computeEffectiveShopperContext(
+    // Use shared function to update shopper context
+    await updateShopperContext({
+        context,
+        usid: session.usid,
         newShopperContext,
         newSourceCodeContext,
-        currentShopperContext,
-        currentSourceCodeContext
-    );
-
-    const hasNewContext = Object.keys(newShopperContext).length > 0;
-    const hasNewSourceCodeContext = Object.keys(newSourceCodeContext).length > 0;
-
-    // Only call API if there's new context to update
-    if (hasNewContext || hasNewSourceCodeContext) {
-        const shopperContextBody = buildShopperContextBody(effectiveShopperContext, effectiveSourceCodeContext);
-        await createShopperContext(context, session.usid, shopperContextBody);
-    }
-
-    // Update cookies even if API call failed (graceful degradation)
-    // This ensures context is preserved locally even if API is temporarily unavailable
-    try {
-        if (hasNewSourceCodeContext) {
-            setNamespacedCookie(sourceCodeCookieName, JSON.stringify(effectiveSourceCodeContext), {
-                expires: new Date(Date.now() + SOURCE_CODE_COOKIE_EXPIRY_SECONDS * 1000),
-            });
-        }
-
-        if (hasNewContext) {
-            // Store the entire effectiveShopperContext object as JSON string, including customQualifiers
-            setNamespacedCookie(contextCookieName, JSON.stringify(effectiveShopperContext), {
-                expires: new Date(Date.now() + SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS * 1000),
-            });
-        }
-    } catch (cookieError) {
-        // Cookie setting failed - log but don't throw
-        // eslint-disable-next-line no-console
-        console.error(
-            'Failed to set shopper context cookie at client side:',
-            cookieError instanceof Error ? cookieError.message : String(cookieError)
-        );
-    }
+    });
 }
 
 /**

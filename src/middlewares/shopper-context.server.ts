@@ -11,6 +11,7 @@ import {
     isPageDesignerMode,
     extractQualifiersFromUrl,
     computeEffectiveShopperContext,
+    computeEffectiveSourceCodeContext,
     buildShopperContextBody,
 } from '@/lib/shopper-context-utils';
 
@@ -62,17 +63,18 @@ const shopperContextMiddleware: MiddlewareFunction<Response> = async ({ request,
             extractQualifiersFromUrl(url);
         const contextCookieName = getShopperContextCookieName(session.usid);
         const sourceCodeCookieName = getSourceCodeCookieName(context);
+
         const cookieConfig = getCookieConfig({ httpOnly: false });
+
         const contextCookieHandler = createCookie(contextCookieName, cookieConfig);
         const sourceCodeCookieHandler = createCookie(sourceCodeCookieName, cookieConfig);
         const cookieHeader = request.headers.get('Cookie') || '';
         const currentShopperContext = cookieHeader ? (await contextCookieHandler.parse(cookieHeader)) || {} : {};
         const currentSourceCodeContext = cookieHeader ? (await sourceCodeCookieHandler.parse(cookieHeader)) || {} : {};
 
-        const { effectiveShopperContext, effectiveSourceCodeContext } = computeEffectiveShopperContext(
-            newShopperContext,
+        const effectiveShopperContext = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
+        const effectiveSourceCodeContext = computeEffectiveSourceCodeContext(
             newSourceCodeContext,
-            currentShopperContext,
             currentSourceCodeContext
         );
 

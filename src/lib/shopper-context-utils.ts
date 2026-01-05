@@ -2,7 +2,7 @@
  * Shopper Context utilities
  */
 import type { RouterContextProvider } from 'react-router';
-import type { ShopperContext } from '@/lib/api/shopper-context';
+import { createShopperContext, type ShopperContext } from '@/lib/api/shopper-context';
 import {
     SHOPPER_CONTEXT_SEARCH_PARAMS,
     QUALIFIER_MAPPING_PARAM_NAME,
@@ -11,6 +11,7 @@ import {
     SOURCE_CODE_API_FIELD_NAME,
 } from '@/lib/shopper-context-constants';
 import { getConfig } from '@/config';
+import { getCookie, setNamespacedCookie } from '@/lib/cookies.client';
 
 /**
  * Base cookie names (without USID suffix)
@@ -40,6 +41,8 @@ export function getSourceCodeCookieName(context: Readonly<RouterContextProvider>
     const suffix = _suffix ? `_${_suffix}` : '';
     return `${SOURCE_CODE_COOKIE_NAME_BASE}${suffix}`;
 }
+
+export const SHOPPER_CONTEXT_ACTION_NAME = 'update-shopper-context';
 
 /**
  * Shopper context cookie expiry in seconds (6 hours)
@@ -185,25 +188,92 @@ export function extractQualifiersFromUrl(url: URL): {
 }
 
 /**
- * Compute effective shopper context
- * Currently only handles sourceCode and customQualifiers
+ * Extract qualifiers from input record into a map
+ * Similar to extractQualifiersFromUrl but accepts a Record<string, string> directly
+ * Uses SHOPPER_CONTEXT_SEARCH_PARAMS to determine which qualifiers to extract
  *
- * @param newShopperContext - New context state from URL
- * @param newSourceCodeContext - New source code state from URL
- * @param currentShopperContext - Current context state from cookie
- * @param currentSourceCodeContext - Current source code state from cookie
- * @returns Object with effective new context states for generic and source code cookies
+ * @param input - Record with key-value pairs to extract qualifiers from
+ * @returns Object with qualifiers and sourceCodeQualifiers separated
+ *
+ * @example
+ * const input = { src: 'email', device: 'mobile', store: 'store123' };
+ * const { qualifiers, sourceCodeQualifiers } = extractQualifiersFromInput(input);
+ * // qualifiers: { deviceType: 'mobile', store: 'store123' }
+ * // sourceCodeQualifiers: { sourceCode: 'email' }
  */
-export function computeEffectiveShopperContext(
-    newShopperContext: Record<string, string>,
-    newSourceCodeContext: Record<string, string>,
-    currentShopperContext: Record<string, string>,
-    currentSourceCodeContext: Record<string, string>
-): {
-    effectiveShopperContext: Record<string, string>;
-    effectiveSourceCodeContext: Record<string, string>;
+export function extractQualifiersFromInput(input: Record<string, string>): {
+    qualifiers: Record<string, string>;
+    sourceCodeQualifiers: Record<string, string>;
 } {
-    const effectiveShopperContext: Record<string, string> = { ...currentShopperContext };
+    const qualifiers: Record<string, string> = {};
+    const sourceCodeQualifiers: Record<string, string> = {};
+
+    // For temporary storage of qualifiers with value as string array
+    // For example: couponCodes
+    const tempQualifiers: Record<string, string[]> = {};
+
+    // Iterate through all input entries
+    for (const [inputKey, inputValue] of Object.entries(input)) {
+        if (!inputKey) continue;
+
+        const mapping = SHOPPER_CONTEXT_SEARCH_PARAMS[inputKey];
+        let apiFieldName: string | undefined;
+        let qualifierMapping: QualifierMapping | undefined;
+
+        // Check if it's a root-level qualifier (e.g., src)
+        if (mapping && QUALIFIER_MAPPING_PARAM_NAME in mapping) {
+            qualifierMapping = mapping as QualifierMapping;
+        }
+        // Check if it's a customQualifier (e.g., customQualifiers.device)
+        else if (isCustomQualifier(inputKey)) {
+            qualifierMapping = customQualifiersMapping[inputKey];
+        }
+        // Check if it's an assignmentQualifier (e.g., assignmentQualifiers.store)
+        else if (isAssignmentQualifier(inputKey)) {
+            qualifierMapping = assignmentQualifiersMapping[inputKey];
+        }
+
+        if (qualifierMapping && qualifierMapping[QUALIFIER_MAPPING_PARAM_NAME] === inputKey) {
+            apiFieldName =
+                qualifierMapping[QUALIFIER_MAPPING_API_FIELD_NAME] ?? qualifierMapping[QUALIFIER_MAPPING_PARAM_NAME];
+
+            // Separate sourceCode from other qualifiers
+            if (apiFieldName === SOURCE_CODE_API_FIELD_NAME) {
+                sourceCodeQualifiers[apiFieldName] = inputValue;
+            } else {
+                if (!tempQualifiers[apiFieldName]) {
+                    tempQualifiers[apiFieldName] = [];
+                }
+                // Add to regular qualifiers (for other qualifiers than sourceCode)
+                tempQualifiers[apiFieldName].push(inputValue);
+            }
+        }
+    }
+
+    // Convert temporary qualifiers with value as string array to qualifiers with value as string
+    // As cookies only support string values
+    // Will use string.split(',') to get the values as string array in buildShopperContextBody
+    // As API call will need payload as string or string array
+    for (const key in tempQualifiers) {
+        const values = tempQualifiers[key];
+        qualifiers[key] = values.join(',');
+    }
+
+    return { qualifiers, sourceCodeQualifiers };
+}
+
+/**
+ * Compute effective source code context
+ * Merges new source code state with current source code state from cookie
+ *
+ * @param newSourceCodeContext - New source code state (e.g., from URL or UI)
+ * @param currentSourceCodeContext - Current source code state from cookie
+ * @returns Effective source code context (merged state)
+ */
+export function computeEffectiveSourceCodeContext(
+    newSourceCodeContext: Record<string, string>,
+    currentSourceCodeContext: Record<string, string>
+): Record<string, string> {
     const effectiveSourceCodeContext: Record<string, string> = { ...currentSourceCodeContext };
 
     // Update sourceCode if present in newSourceCodeContext (allow null, but not undefined)
@@ -211,18 +281,104 @@ export function computeEffectiveShopperContext(
         effectiveSourceCodeContext.sourceCode = newSourceCodeContext.sourceCode;
     }
 
-    // Update other qualifiers
+    return effectiveSourceCodeContext;
+}
+
+/**
+ * Compute effective shopper context (excluding source code)
+ * Merges new shopper context state with current shopper context state from cookie
+ * Handles customQualifiers, assignmentQualifiers, and other qualifiers
+ *
+ * @param newShopperContext - New shopper context state (e.g., from URL or UI)
+ * @param currentShopperContext - Current shopper context state from cookie
+ * @returns Effective shopper context (merged state)
+ */
+export function computeEffectiveShopperContext(
+    newShopperContext: Record<string, string>,
+    currentShopperContext: Record<string, string>
+): Record<string, string> {
+    const effectiveShopperContext: Record<string, string> = { ...currentShopperContext };
+
+    // Update qualifiers if present in newShopperContext (allow null, but not undefined)
     Object.keys(newShopperContext).forEach((key) => {
-        // Update qualifier if present in newShopperContext (allow null, but not undefined)
         if (newShopperContext[key] !== undefined) {
             effectiveShopperContext[key] = newShopperContext[key];
         }
     });
 
-    return {
-        effectiveShopperContext,
-        effectiveSourceCodeContext,
-    };
+    return effectiveShopperContext;
+}
+
+/**
+ * Shared function to update shopper context
+ * Used by both middleware and action to avoid code duplication
+ *
+ * @param params - Parameters for updating shopper context
+ * @param params.context - React Router context
+ * @param params.usid - Shopper's unique identifier
+ * @param params.newQualifiers - New qualifiers to merge (excluding sourceCode)
+ * @param params.newSourceCodeQualifiers - New source code qualifiers to merge
+ * @returns Promise resolving to void
+ */
+export async function updateShopperContext({
+    context,
+    usid,
+    newShopperContext,
+    newSourceCodeContext,
+}: {
+    context: Readonly<RouterContextProvider>;
+    usid: string;
+    newShopperContext: Record<string, string>;
+    newSourceCodeContext: Record<string, string>;
+}): Promise<void> {
+    // Get current context from cookies
+    const shopperContextCookieName = getShopperContextCookieName(usid);
+    const sourceCodeCookieName = getSourceCodeCookieName(context);
+    const shopperContextCookie = getCookie(shopperContextCookieName);
+    const sourceCodeCookie = getCookie(sourceCodeCookieName);
+    const currentShopperContext = safeParseCookie(shopperContextCookie);
+    const currentSourceCodeContext = safeParseCookie(sourceCodeCookie);
+
+    // Compute effective context by merging new with current
+    const effectiveShopperContext = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
+    const effectiveSourceCodeContext = computeEffectiveSourceCodeContext(
+        newSourceCodeContext,
+        currentSourceCodeContext
+    );
+
+    // Check if there are any updates
+    const hasNewContext = Object.keys(newShopperContext).length > 0;
+    const hasNewSourceCodeContext = Object.keys(newSourceCodeContext).length > 0;
+
+    // Only call API if there are updates
+    if (hasNewContext || hasNewSourceCodeContext) {
+        const shopperContextBody = buildShopperContextBody(effectiveShopperContext, effectiveSourceCodeContext);
+        await createShopperContext(context, usid, shopperContextBody);
+    }
+
+    // Update cookies even if API call failed (graceful degradation)
+    // This ensures context is preserved locally even if API is temporarily unavailable
+    try {
+        if (hasNewSourceCodeContext) {
+            setNamespacedCookie(sourceCodeCookieName, JSON.stringify(effectiveSourceCodeContext), {
+                expires: new Date(Date.now() + SOURCE_CODE_COOKIE_EXPIRY_SECONDS * 1000),
+            });
+        }
+
+        if (hasNewContext) {
+            // Store the entire effectiveShopperContext object as JSON string, including all qualifiers
+            setNamespacedCookie(shopperContextCookieName, JSON.stringify(effectiveShopperContext), {
+                expires: new Date(Date.now() + SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS * 1000),
+            });
+        }
+    } catch (cookieError) {
+        // Cookie setting failed - log but don't throw
+        // eslint-disable-next-line no-console
+        console.error(
+            'Failed to set shopper context cookie at client side:',
+            cookieError instanceof Error ? cookieError.message : String(cookieError)
+        );
+    }
 }
 
 /**
