@@ -47,8 +47,11 @@ export default function PromoCallout({ product, className }: { product: Product;
     return (
         <div className={cn('items-center gap-2', className)}>
             {/* BM content is trusted, safe to render HTML. Works for both plain text and HTML strings */}
-            {/* eslint-disable-next-line react/no-danger */}
-            <span dangerouslySetInnerHTML={{ __html: calloutMsg }} />
+            <span
+                className="line-clamp-2"
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: calloutMsg }}
+            />
         </div>
     );
 }

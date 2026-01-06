@@ -60,7 +60,9 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
         <div
           class="items-center gap-2 text-sm mt-2"
         >
-          <span>
+          <span
+            class="line-clamp-2"
+          >
             25% off.
           </span>
         </div>
@@ -150,10 +152,10 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
         data-slot="card-header"
       >
         <div
-          class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+          class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
         >
           <div
-            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
           >
             <a
               aria-label="View Charcoal Single Pleat Wool Suit"
@@ -267,7 +269,9 @@ exports[`ProductTile stories snapshot > Default story renders and matches snapsh
         <div
           class="items-center gap-2 text-sm mt-2"
         >
-          <span>
+          <span
+            class="line-clamp-2"
+          >
             25% off.
           </span>
         </div>
@@ -357,10 +361,10 @@ exports[`ProductTile stories snapshot > Default story renders and matches snapsh
         data-slot="card-header"
       >
         <div
-          class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+          class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
         >
           <div
-            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
           >
             <a
               aria-label="View Charcoal Single Pleat Wool Suit"
@@ -474,7 +478,9 @@ exports[`ProductTile stories snapshot > Desktop story renders and matches snapsh
         <div
           class="items-center gap-2 text-sm mt-2"
         >
-          <span>
+          <span
+            class="line-clamp-2"
+          >
             25% off.
           </span>
         </div>
@@ -564,10 +570,10 @@ exports[`ProductTile stories snapshot > Desktop story renders and matches snapsh
         data-slot="card-header"
       >
         <div
-          class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+          class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
         >
           <div
-            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
           >
             <a
               aria-label="View Charcoal Single Pleat Wool Suit"
@@ -681,7 +687,9 @@ exports[`ProductTile stories snapshot > MasterProductWithSwatches story renders 
         <div
           class="items-center gap-2 text-sm mt-2"
         >
-          <span>
+          <span
+            class="line-clamp-2"
+          >
             Buy one Long Center Seam Skirt and get 2 tops
           </span>
         </div>
@@ -771,10 +779,10 @@ exports[`ProductTile stories snapshot > MasterProductWithSwatches story renders 
         data-slot="card-header"
       >
         <div
-          class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+          class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
         >
           <div
-            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
           >
             <a
               aria-label="View Long Sleeve Embellished Boat Neck Top"
@@ -888,7 +896,9 @@ exports[`ProductTile stories snapshot > Mobile story renders and matches snapsho
         <div
           class="items-center gap-2 text-sm mt-2"
         >
-          <span>
+          <span
+            class="line-clamp-2"
+          >
             25% off.
           </span>
         </div>
@@ -978,10 +988,10 @@ exports[`ProductTile stories snapshot > Mobile story renders and matches snapsho
         data-slot="card-header"
       >
         <div
-          class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+          class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
         >
           <div
-            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
           >
             <a
               aria-label="View Charcoal Single Pleat Wool Suit"
@@ -1095,7 +1105,9 @@ exports[`ProductTile stories snapshot > Tablet story renders and matches snapsho
         <div
           class="items-center gap-2 text-sm mt-2"
         >
-          <span>
+          <span
+            class="line-clamp-2"
+          >
             25% off.
           </span>
         </div>
@@ -1185,10 +1197,10 @@ exports[`ProductTile stories snapshot > Tablet story renders and matches snapsho
         data-slot="card-header"
       >
         <div
-          class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+          class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
         >
           <div
-            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
           >
             <a
               aria-label="View Charcoal Single Pleat Wool Suit"
@@ -1302,7 +1314,9 @@ exports[`ProductTile stories snapshot > WithBadges story renders and matches sna
         <div
           class="items-center gap-2 text-sm mt-2"
         >
-          <span>
+          <span
+            class="line-clamp-2"
+          >
             25% off.
           </span>
         </div>
@@ -1409,10 +1423,10 @@ exports[`ProductTile stories snapshot > WithBadges story renders and matches sna
         data-slot="card-header"
       >
         <div
-          class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+          class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
         >
           <div
-            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+            class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
           >
             <a
               aria-label="View Charcoal Single Pleat Wool Suit"

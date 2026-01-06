@@ -219,7 +219,6 @@ describe('ProductCarousel', () => {
                     'md:basis-1/4',
                     'py-1',
                     'flex',
-                    'justify-center',
                     'pl-0',
                     'min-w-0'
                 );
@@ -255,7 +254,7 @@ describe('ProductCarousel', () => {
             renderComponent(<ProductCarousel products={mockProducts} />);
 
             const productTile = screen.getByTestId('product-tile-test-product-1');
-            expect(productTile).toHaveClass('h-auto');
+            expect(productTile).toHaveClass('h-full', 'w-full');
             expect(screen.getByText('Test Product 1')).toBeInTheDocument();
             expect(screen.getByText('$29.99')).toBeInTheDocument();
         });

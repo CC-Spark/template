@@ -110,10 +110,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -280,10 +280,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 1"
@@ -387,7 +387,9 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
           </div>
@@ -476,10 +478,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 1"
@@ -583,7 +585,9 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               25% off.
             </span>
           </div>
@@ -672,10 +676,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 2"
@@ -793,10 +797,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Product Set 1"
@@ -946,10 +950,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -1053,7 +1057,9 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
           </div>
@@ -1142,10 +1148,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 2"
@@ -1249,7 +1255,9 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               25% off.
             </span>
           </div>
@@ -1338,10 +1346,10 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 3"
@@ -1504,10 +1512,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -1674,10 +1682,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 1"
@@ -1781,7 +1789,9 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
           </div>
@@ -1870,10 +1880,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 1"
@@ -1977,7 +1987,9 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               25% off.
             </span>
           </div>
@@ -2066,10 +2078,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 2"
@@ -2187,10 +2199,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Product Set 1"
@@ -2340,10 +2352,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -2447,7 +2459,9 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
           </div>
@@ -2536,10 +2550,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 2"
@@ -2643,7 +2657,9 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               25% off.
             </span>
           </div>
@@ -2732,10 +2748,10 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 3"
@@ -2919,10 +2935,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -3072,10 +3088,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -3211,10 +3227,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 3"
@@ -3350,10 +3366,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 4"
@@ -3489,10 +3505,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 5"
@@ -3642,10 +3658,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 6"
@@ -3795,10 +3811,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 7"
@@ -3934,10 +3950,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 8"
@@ -4073,10 +4089,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 9"
@@ -4212,10 +4228,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 10"
@@ -4365,10 +4381,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 11"
@@ -4518,10 +4534,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 12"
@@ -4657,10 +4673,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 13"
@@ -4796,10 +4812,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 14"
@@ -4935,10 +4951,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 15"
@@ -5088,10 +5104,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 16"
@@ -5241,10 +5257,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 17"
@@ -5380,10 +5396,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 18"
@@ -5519,10 +5535,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 19"
@@ -5658,10 +5674,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 20"
@@ -5811,10 +5827,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 21"
@@ -5964,10 +5980,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 22"
@@ -6103,10 +6119,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 23"
@@ -6242,10 +6258,10 @@ exports[`ProductGrid stories snapshot > ManyProducts story renders and matches s
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 24"
@@ -6408,10 +6424,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 1"
@@ -6578,10 +6594,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 1"
@@ -6685,7 +6701,9 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
           </div>
@@ -6774,10 +6792,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 1"
@@ -6881,7 +6899,9 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               25% off.
             </span>
           </div>
@@ -6970,10 +6990,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 2"
@@ -7091,10 +7111,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Product Set 1"
@@ -7244,10 +7264,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Product 2"
@@ -7351,7 +7371,9 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
           </div>
@@ -7440,10 +7462,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Multi 2"
@@ -7547,7 +7569,9 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           <div
             class="items-center gap-2 text-sm mt-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               25% off.
             </span>
           </div>
@@ -7636,10 +7660,10 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Master Product 3"
@@ -7802,10 +7826,10 @@ exports[`ProductGrid stories snapshot > SingleProduct story renders and matches 
           data-slot="card-header"
         >
           <div
-            class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+            class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
           >
             <div
-              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+              class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
             >
               <a
                 aria-label="View Standard Only"

@@ -1020,7 +1020,9 @@ exports[`OrderSummary stories snapshot > ItemsExpanded story renders and matches
                           <div
                             class="items-center gap-2 text-sm"
                           >
-                            <span>
+                            <span
+                              class="line-clamp-2"
+                            >
                               Buy one Long Center Seam Skirt and get 2 tops
                             </span>
                           </div>

@@ -60,7 +60,9 @@ exports[`ChildProducts stories snapshot > Desktop story renders and matches snap
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -507,7 +509,9 @@ exports[`ChildProducts stories snapshot > Desktop story renders and matches snap
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -973,7 +977,9 @@ exports[`ChildProducts stories snapshot > Desktop story renders and matches snap
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -1776,7 +1782,9 @@ exports[`ChildProducts stories snapshot > Mobile story renders and matches snaps
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -2223,7 +2231,9 @@ exports[`ChildProducts stories snapshot > Mobile story renders and matches snaps
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -2689,7 +2699,9 @@ exports[`ChildProducts stories snapshot > Mobile story renders and matches snaps
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -4104,7 +4116,9 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -4551,7 +4565,9 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -5017,7 +5033,9 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -5820,7 +5838,9 @@ exports[`ChildProducts stories snapshot > Tablet story renders and matches snaps
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -6267,7 +6287,9 @@ exports[`ChildProducts stories snapshot > Tablet story renders and matches snaps
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>
@@ -6733,7 +6755,9 @@ exports[`ChildProducts stories snapshot > Tablet story renders and matches snaps
           <div
             class="items-center gap-2"
           >
-            <span>
+            <span
+              class="line-clamp-2"
+            >
               $10 off product set
             </span>
           </div>

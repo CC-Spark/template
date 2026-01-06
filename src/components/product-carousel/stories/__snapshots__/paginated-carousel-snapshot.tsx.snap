@@ -139,10 +139,10 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 1"
@@ -305,10 +305,10 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 2"
@@ -471,10 +471,10 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 3"
@@ -637,10 +637,10 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 4"
@@ -837,10 +837,10 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 1"
@@ -1003,10 +1003,10 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 2"
@@ -1169,10 +1169,10 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 3"
@@ -1335,10 +1335,10 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 4"
@@ -1549,10 +1549,10 @@ exports[`PaginatedProductCarousel stories snapshot > Desktop story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 1"
@@ -1715,10 +1715,10 @@ exports[`PaginatedProductCarousel stories snapshot > Desktop story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 2"
@@ -1881,10 +1881,10 @@ exports[`PaginatedProductCarousel stories snapshot > Desktop story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 3"
@@ -2047,10 +2047,10 @@ exports[`PaginatedProductCarousel stories snapshot > Desktop story renders and m
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 4"
@@ -2261,10 +2261,10 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 1"
@@ -2427,10 +2427,10 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 2"
@@ -2593,10 +2593,10 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 3"
@@ -2759,10 +2759,10 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 4"
@@ -2973,10 +2973,10 @@ exports[`PaginatedProductCarousel stories snapshot > Mobile story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 1"
@@ -3139,10 +3139,10 @@ exports[`PaginatedProductCarousel stories snapshot > Mobile story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 2"
@@ -3305,10 +3305,10 @@ exports[`PaginatedProductCarousel stories snapshot > Mobile story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 3"
@@ -3471,10 +3471,10 @@ exports[`PaginatedProductCarousel stories snapshot > Mobile story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 4"
@@ -3685,10 +3685,10 @@ exports[`PaginatedProductCarousel stories snapshot > Tablet story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 1"
@@ -3851,10 +3851,10 @@ exports[`PaginatedProductCarousel stories snapshot > Tablet story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 2"
@@ -4017,10 +4017,10 @@ exports[`PaginatedProductCarousel stories snapshot > Tablet story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 3"
@@ -4183,10 +4183,10 @@ exports[`PaginatedProductCarousel stories snapshot > Tablet story renders and ma
                   data-slot="card-header"
                 >
                   <div
-                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center"
+                    class="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full"
                   >
                     <div
-                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                      class="relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col aspect-square w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                     >
                       <a
                         aria-label="View Laptop Briefcase with wheels (37L) 4"

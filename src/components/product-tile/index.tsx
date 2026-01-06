@@ -282,14 +282,14 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                 </CardContent>
 
                 <CardHeader className="py-8 px-6 flex flex-col gap-4 items-center justify-center">
-                    <div className="bg-background rounded-xl overflow-hidden flex items-center justify-center">
+                    <div className="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full">
                         <ProductImageContainer
                             product={product}
                             selectedColorValue={
                                 PRODUCT_TILE_SELECTABLE_ATTRIBUTE_ID === 'color' ? selectedAttributeValue : null
                             }
                             imgAspectRatio={effectiveImgAspectRatio}
-                            className="w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                            className="w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
                             handleProductClick={handleProductClick}
                         />
                     </div>

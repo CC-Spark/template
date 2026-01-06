@@ -47,12 +47,10 @@ export function ProductImage({ src, alt, className, ...dynamicImageProps }: Prod
     if (hasError) {
         return (
             <div
-                className={cn('rounded-lg flex items-center justify-center w-full h-full min-h-0 flex-1', className)}
-                style={{
-                    display: 'flex !important',
-                    alignItems: 'center !important',
-                    justifyContent: 'center !important',
-                }}>
+                className={cn(
+                    'rounded-lg flex items-center justify-center w-full h-full aspect-square bg-secondary/20',
+                    className
+                )}>
                 <div className="text-center text-muted-foreground">
                     <div className="text-4xl mb-2">📷</div>
                     <p>{t('noImageAvailable')}</p>

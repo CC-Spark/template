@@ -1155,7 +1155,9 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                               <div
                                 class="items-center gap-2 text-right font-semibold relative text-sm text-muted-foreground"
                               >
-                                <span>
+                                <span
+                                  class="line-clamp-2"
+                                >
                                   Buy one Long Center Seam Skirt and get 2 tops
                                 </span>
                               </div>
@@ -1244,7 +1246,9 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                                   <div
                                     class="items-center gap-2 text-sm text-muted-foreground"
                                   >
-                                    <span>
+                                    <span
+                                      class="line-clamp-2"
+                                    >
                                       Buy one Long Center Seam Skirt and get 2 tops
                                     </span>
                                   </div>
@@ -2105,7 +2109,9 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                               <div
                                 class="items-center gap-2 text-right font-semibold relative text-sm text-muted-foreground"
                               >
-                                <span>
+                                <span
+                                  class="line-clamp-2"
+                                >
                                   Buy one Long Center Seam Skirt and get 2 tops
                                 </span>
                               </div>
@@ -2194,7 +2200,9 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                                   <div
                                     class="items-center gap-2 text-sm text-muted-foreground"
                                   >
-                                    <span>
+                                    <span
+                                      class="line-clamp-2"
+                                    >
                                       Buy one Long Center Seam Skirt and get 2 tops
                                     </span>
                                   </div>
@@ -3919,7 +3927,9 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                               <div
                                 class="items-center gap-2 text-right font-semibold relative text-sm text-muted-foreground"
                               >
-                                <span>
+                                <span
+                                  class="line-clamp-2"
+                                >
                                   Buy one Long Center Seam Skirt and get 2 tops
                                 </span>
                               </div>
@@ -4008,7 +4018,9 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                                   <div
                                     class="items-center gap-2 text-sm text-muted-foreground"
                                   >
-                                    <span>
+                                    <span
+                                      class="line-clamp-2"
+                                    >
                                       Buy one Long Center Seam Skirt and get 2 tops
                                     </span>
                                   </div>
