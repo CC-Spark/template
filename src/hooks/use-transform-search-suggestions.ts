@@ -29,6 +29,7 @@ interface TransformedSuggestions {
     productSuggestions: Array<{
         name: string;
         link: string;
+        type: string;
         image?: string;
         price?: number;
         currency?: string;
@@ -36,6 +37,7 @@ interface TransformedSuggestions {
     phraseSuggestions: Array<{
         name: string;
         link: string;
+        type: string;
         exactMatch?: boolean;
     }>;
     popularSearchSuggestions?: Array<{
@@ -58,33 +60,41 @@ interface TransformedSuggestions {
  * Uses only official SDK types as input, minimal transformation for UI needs
  */
 export function useTransformSearchSuggestions(
-    data: ShopperSearch.schemas['SuggestionResult'] | null
+    data: ShopperSearch.schemas['SuggestionResult'] | null | undefined
 ): TransformedSuggestions | null {
     return useMemo(() => {
         if (!data) return null;
 
         const categorySuggestions =
-            data.categorySuggestions?.categories?.map((cat) => ({
-                name: cat.name || '',
-                link: `/category/${cat.id}`,
-                type: 'category',
-                image: cat.image?.disBaseLink,
-                parentCategoryName: cat.parentCategoryName,
-            })) || [];
+            data.categorySuggestions?.categories?.map((cat) => {
+                const image = cat.image as ShopperSearch.schemas['Image'] | undefined;
+                return {
+                    name: cat.name || '',
+                    link: `/category/${cat.id}`,
+                    type: 'category',
+                    image: image?.disBaseLink || image?.link,
+                    parentCategoryName: cat.parentCategoryName,
+                };
+            }) || [];
 
         const productSuggestions =
-            data.productSuggestions?.products?.map((product) => ({
-                name: product.productName || '',
-                link: `/product/${product.productId}`,
-                image: product.image?.disBaseLink,
-                price: product.price,
-                currency: product.currency,
-            })) || [];
+            data.productSuggestions?.products?.map((product) => {
+                const image = product.image as ShopperSearch.schemas['Image'] | undefined;
+                return {
+                    name: product.productName || '',
+                    link: `/product/${product.productId}`,
+                    type: 'product',
+                    image: image?.disBaseLink || image?.link,
+                    price: product.price,
+                    currency: product.currency,
+                };
+            }) || [];
 
         const phraseSuggestions =
             data.productSuggestions?.suggestedPhrases?.map((phrase) => ({
                 name: phrase.phrase || '',
                 link: searchUrlBuilder(phrase.phrase || ''),
+                type: 'phrase',
                 exactMatch: phrase.exactMatch,
             })) || [];
 

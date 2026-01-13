@@ -20,8 +20,9 @@ import {
     type Middleware,
 } from '@salesforce/storefront-next-runtime/scapi';
 import { authContext } from '@/middlewares/auth.utils';
+import { correlationContext } from '@/lib/correlation';
 import { getConfig } from '@/config';
-import { getAppOrigin } from '@/lib/utils';
+import { getAppOrigin, isAbsoluteURL } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
 
 /**
@@ -59,7 +60,8 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
         : typeof window === 'undefined'
           ? `https://${shortCode}.api.commercecloud.salesforce.com`
           : `${appOrigin}${proxy}`;
-    const redirectUri = `${appOrigin}${callback}`;
+    // Use absolute URL if provided, otherwise construct from app origin
+    const redirectUri = callback && isAbsoluteURL(callback) ? callback : `${appOrigin}${callback || ''}`;
 
     // Get current locale from i18next context
     const { i18next } = getTranslation(context);
@@ -111,6 +113,17 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
         },
     };
 
+    const correlationMiddleware: Middleware = {
+        onRequest({ request }) {
+            const correlationId = context.get(correlationContext);
+            if (correlationId) {
+                request.headers.set('x-correlation-id', correlationId);
+            }
+            return request;
+        },
+    };
+
+    clients.use(correlationMiddleware);
     clients.use(authMiddleware);
     clients.use(identifyingHeadersMiddleware);
 

@@ -78,8 +78,7 @@
         "tailwind-merge": "3.3.1",
         "tailwindcss": "4.1.13",
         "vaul": "1.1.2",
-        "zod": "4.1.11",
-        "zustand": "5.0.8"
+        "zod": "4.1.11"
     },
     "devDependencies": {
         "@chromatic-com/storybook": "4.1.2",
@@ -130,7 +129,7 @@
     },
     "volta": {
         "node": "24.6.0",
-        "pnpm": "10.26.1"
+        "pnpm": "10.28.0"
     },
     "bundlesize": {
         "server": [

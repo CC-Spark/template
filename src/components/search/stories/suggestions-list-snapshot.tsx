@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { expect, test, describe, afterEach, vi } from 'vitest';
+
+vi.mock('@/hooks/use-analytics', () => ({
+    useAnalytics: () => ({
+        trackClickSearchSuggestion: vi.fn(),
+    }),
+}));
+
 import { composeStories } from '@storybook/react-vite';
 
 import * as SuggestionsListStories from './suggestions-list.stories';
-
-import { expect, test, describe, afterEach } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 const composed = composeStories(SuggestionsListStories);
 

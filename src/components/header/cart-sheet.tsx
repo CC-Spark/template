@@ -15,16 +15,19 @@
  */
 'use client';
 
-import { type PropsWithChildren, type ReactElement, useState, useEffect } from 'react';
-import { Link, useFetcher } from 'react-router';
+import { type PropsWithChildren, type ReactElement, useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { Link, useFetcher, useNavigate } from 'react-router';
 import { useBasket } from '@/providers/basket';
 import { useConfig } from '@/config';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import MiniCartItem from '@/components/cart/mini-cart-item';
+import SelectBonusProductsCard from '@/components/cart/select-bonus-products-card';
 import { formatCurrency } from '@/lib/currency';
 import { useBasketWithProducts, type BasketItemWithProduct } from '@/hooks/use-basket-with-products';
+import { useBasketWithPromotions } from '@/hooks/use-basket-with-promotions';
+import { buildBonusPromotionMap, getAttachedBonusPromotions } from '@/lib/bonus-product-utils';
 import { useToast } from '@/components/toast';
 import type { ActionResponse } from '@/routes/types/action-responses';
 import { useTranslation } from 'react-i18next';
@@ -34,19 +37,27 @@ import { useCurrency } from '@/providers/currency';
  * Container component for MiniCartItem that handles remove functionality
  * Uses useFetcher to submit remove requests to the cart API
  */
-function MiniCartItemContainer({ item, removeAction }: { item: BasketItemWithProduct; removeAction: string }) {
+const MiniCartItemContainer = memo(function MiniCartItemContainer({
+    item,
+    removeAction,
+    bonusProductSlot,
+}: {
+    item: BasketItemWithProduct;
+    removeAction: string;
+    bonusProductSlot?: ReactElement;
+}) {
     const fetcher = useFetcher<ActionResponse>();
     const { addToast } = useToast();
     const { t } = useTranslation('removeItem');
 
-    const handleRemove = () => {
+    const handleRemove = useCallback(() => {
         const formData = new FormData();
         formData.append('itemId', item.itemId || '');
         void fetcher.submit(formData, {
             method: 'POST',
             action: removeAction,
         });
-    };
+    }, [item.itemId, removeAction, fetcher]);
 
     // Show toast notification when item is removed
     useEffect(() => {
@@ -61,8 +72,8 @@ function MiniCartItemContainer({ item, removeAction }: { item: BasketItemWithPro
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetcher.state, fetcher.data, t]);
 
-    return <MiniCartItem product={item} onRemove={handleRemove} />;
-}
+    return <MiniCartItem product={item} onRemove={handleRemove} bonusProductSlot={bonusProductSlot} />;
+});
 
 /**
  * CartSheet (Mini Cart Flyout) - A slide-out panel displaying the shopping cart contents
@@ -78,6 +89,7 @@ function MiniCartItemContainer({ item, removeAction }: { item: BasketItemWithPro
  * - "Continue Shopping" button to close the flyout
  * - Lazy-loaded for performance (loaded on first cart icon click)
  * - Automatically opens when mounted (used with lazy loading)
+ * - Displays bonus product selection cards below qualifying products
  *
  * @param props - Component props
  * @param props.children - The trigger element (typically the cart badge/icon button)
@@ -99,10 +111,32 @@ export default function CartSheet({ children }: PropsWithChildren): ReactElement
     const { t: tMiniCart } = useTranslation('miniCart');
     const basket = useBasket();
     const config = useConfig();
+    const navigate = useNavigate();
     const currency = useCurrency();
 
     // Fetch full product details (images, variations, etc.) for basket items
     const { productItems: enrichedProductItems, isLoading } = useBasketWithProducts(basket);
+
+    // Fetch promotion data for basket products
+    const { productsWithPromotions } = useBasketWithPromotions(basket);
+
+    // Build bonus promotion map with remaining capacity
+    const promotionMap = useMemo(() => {
+        return buildBonusPromotionMap(basket);
+    }, [basket]);
+
+    // Get attached bonus promotions for cart items based on priceAdjustments
+    const attachedPromotions = useMemo(() => {
+        return getAttachedBonusPromotions(basket, productsWithPromotions, promotionMap);
+    }, [basket, productsWithPromotions, promotionMap]);
+
+    /**
+     * Handle bonus product selection button click
+     * Navigates to the full cart page
+     */
+    const handleSelectBonusProducts = useCallback(() => {
+        void navigate('/cart');
+    }, [navigate]);
 
     // Use the same count as the cart badge icon - number of unique products, not total quantity
     const totalItems = basket?.productItems?.length ?? 0;
@@ -133,14 +167,29 @@ export default function CartSheet({ children }: PropsWithChildren): ReactElement
                                 </div>
                             ) : (
                                 <div className="py-4 px-6">
-                                    {enrichedProductItems.map((item) => (
-                                        <div key={item.itemId} className="mb-4 last:mb-0">
-                                            <MiniCartItemContainer
-                                                item={item}
-                                                removeAction={config.pages.cart.removeAction}
+                                    {enrichedProductItems.map((item) => {
+                                        // Check if this item has an attached bonus card
+                                        const bonusPromo = item.itemId
+                                            ? attachedPromotions.get(item.itemId)
+                                            : undefined;
+
+                                        const bonusProductCard = bonusPromo ? (
+                                            <SelectBonusProductsCard
+                                                promotion={bonusPromo}
+                                                onSelectClick={handleSelectBonusProducts}
                                             />
-                                        </div>
-                                    ))}
+                                        ) : undefined;
+
+                                        return (
+                                            <div key={item.itemId} className="mb-4 last:mb-0">
+                                                <MiniCartItemContainer
+                                                    item={item}
+                                                    removeAction={config.pages.cart.removeAction}
+                                                    bonusProductSlot={bonusProductCard}
+                                                />
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             )}
 

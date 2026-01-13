@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
-import type { LoaderFunctionArgs, ClientLoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch, ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { getTranslation } from '@/lib/i18next';
 
 const { t } = getTranslation();
-import HomeView, { loader, clientLoader, type HomePageData } from './_index';
+import HomePage, { loader, type HomePageData } from './_index';
 import { createTestContext } from '@/lib/test-utils';
 import { fetchPageFromLoader, collectComponentDataPromises } from '@/lib/util/pageLoader';
 import { fetchSearchProducts } from '@/lib/api/search';
@@ -142,41 +141,9 @@ vi.mock('@/components/home/skeleton', () => ({
     default: () => <div data-testid="home-skeleton" />,
 }));
 
-vi.mock('react-router', async (importOriginal) => {
-    const actual = await importOriginal<object>();
-    return {
-        ...actual,
-        Await: ({ resolve, children }: any) => {
-            // For testing, synchronously resolve the promise and render
-            if (resolve && typeof resolve.then === 'function') {
-                // For synchronous testing, we need to access the resolved value
-                // This is a simplified approach for testing
-                if (resolve._resolvedValue) {
-                    return typeof children === 'function' ? children(resolve._resolvedValue) : children;
-                }
-            }
-            return typeof children === 'function' ? children(resolve) : children;
-        },
-        Suspense: ({ children }: any) => children,
-    };
-});
-
-// Mock the createPage function
-vi.mock('@/components/create-page', () => ({
-    createPage: (config: any) => (props: any) => {
-        const loaderData = {
-            page: props.loaderData?.page || Promise.resolve(createMockPage([])),
-            searchResult: props.loaderData?.searchResult || Promise.resolve(mockSearchResult),
-            categories: props.loaderData?.categories || Promise.resolve(mockCategories),
-            componentData: props.loaderData?.componentData || Promise.resolve({}),
-        };
-        return React.createElement(config.component, { loaderData });
-    },
-}));
-
 // Mock images
-vi.mock('/images/hero-new-arrivals.png', () => ({ default: '/mock-image.png' }));
-vi.mock('/images/hero-cube.png', () => ({ default: '/mock-hero-cube.png' }));
+vi.mock('/images/hero-new-arrivals.webp', () => ({ default: '/mock-image.png' }));
+vi.mock('/images/hero-cube.webp', () => ({ default: '/mock-hero-cube.webp' }));
 
 // Mock react-i18next with partial mock to preserve other exports
 vi.mock('react-i18next', async () => {
@@ -258,30 +225,26 @@ vi.mock('@/config', async (importOriginal) => {
     };
 });
 
-const renderComponent = (component: React.ReactElement) => {
-    return render(component);
+const renderComponent = (loaderData?: HomePageData) => {
+    const data = loaderData || {
+        page: Promise.resolve(createMockPage([])),
+        searchResult: Promise.resolve(mockSearchResult),
+        categories: Promise.resolve(mockCategories),
+        componentData: Promise.resolve({}),
+    };
+    return render(<HomePage loaderData={data} />);
 };
 
-describe('HomeView', () => {
-    let defaultLoaderData: HomePageData;
-
+describe('HomePage', () => {
     beforeEach(() => {
         vi.clearAllMocks();
 
-        // Reset mock implementations for component tests
+        // Reset mock implementations for loader tests
         vi.mocked(fetchPageFromLoader).mockResolvedValue(createMockPage([]));
         vi.mocked(collectComponentDataPromises).mockResolvedValue({});
         vi.mocked(fetchSearchProducts).mockResolvedValue(mockSearchResult);
         vi.mocked(fetchCategories).mockResolvedValue(mockCategories);
         vi.mocked(getConfig).mockReturnValue({ pages: { home: { featuredProductsCount: 8 } } } as AppConfig);
-
-        // Common loaderData setup
-        defaultLoaderData = {
-            page: Promise.resolve(createMockPage([])),
-            searchResult: Promise.resolve(mockSearchResult),
-            categories: Promise.resolve(mockCategories),
-            componentData: Promise.resolve({}),
-        };
     });
 
     describe('Basic Rendering', () => {
@@ -304,12 +267,12 @@ describe('HomeView', () => {
         ];
 
         test.each(renderingTests)('$description', ({ assertion }) => {
-            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            renderComponent();
             assertion();
         });
 
         test('renders without header banner region when no regions available', () => {
-            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            renderComponent();
 
             // Should not render region when no regions are available
             expect(screen.queryByTestId('region')).not.toBeInTheDocument();
@@ -330,16 +293,12 @@ describe('HomeView', () => {
             const pagePromise = Promise.resolve(createMockPage([headerBannerRegion]));
             (pagePromise as any)._resolvedValue = createMockPage([headerBannerRegion]);
 
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        page: pagePromise,
-                        searchResult: Promise.resolve(mockSearchResult),
-                        categories: Promise.resolve(mockCategories),
-                        componentData: Promise.resolve({}),
-                    }}
-                />
-            );
+            renderComponent({
+                page: pagePromise,
+                searchResult: Promise.resolve(mockSearchResult),
+                categories: Promise.resolve(mockCategories),
+                componentData: Promise.resolve({}),
+            });
 
             // Region mock always renders fallback, so check for fallback content
             expect(screen.getByTestId('hero-carousel')).toBeInTheDocument();
@@ -366,7 +325,7 @@ describe('HomeView', () => {
         ];
 
         test.each(newArrivalsTests)('$description', ({ translationKey }) => {
-            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            renderComponent();
             expect(screen.getByText(t(translationKey))).toBeInTheDocument();
         });
     });
@@ -387,7 +346,7 @@ describe('HomeView', () => {
         ];
 
         test.each(popularCategoriesTests)('$description', ({ assertion }) => {
-            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            renderComponent();
             assertion();
         });
     });
@@ -407,13 +366,13 @@ describe('HomeView', () => {
         ];
 
         test.each(contentCardTests)('$description', ({ titleKey, contentKey }) => {
-            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            renderComponent();
             expect(screen.getByText(t(titleKey))).toBeInTheDocument();
             expect(screen.getByText(t(contentKey))).toBeInTheDocument();
         });
 
         test('renders both content cards with correct count', () => {
-            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            renderComponent();
             const contentCards = screen.getAllByTestId('content-card');
             expect(contentCards).toHaveLength(2);
         });
@@ -421,7 +380,7 @@ describe('HomeView', () => {
 
     describe('Error Handling', () => {
         test('handles page promise rejection gracefully', () => {
-            renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            renderComponent();
             // Should still render other sections
             expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument();
         });
@@ -430,14 +389,12 @@ describe('HomeView', () => {
             const rejectedPromise = Promise.reject(new Error('Categories failed'));
             rejectedPromise.catch(() => {}); // Prevent unhandled promise rejection
 
-            renderComponent(
-                <HomeView
-                    loaderData={{
-                        ...defaultLoaderData,
-                        categories: rejectedPromise,
-                    }}
-                />
-            );
+            renderComponent({
+                page: Promise.resolve(createMockPage([])),
+                searchResult: Promise.resolve(mockSearchResult),
+                categories: rejectedPromise,
+                componentData: Promise.resolve({}),
+            });
 
             // Should still render other sections
             expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument();
@@ -474,7 +431,7 @@ describe('HomeView', () => {
         ];
 
         test.each(layoutTests)('$description', ({ assertion }) => {
-            const { container } = renderComponent(<HomeView loaderData={defaultLoaderData} />);
+            const { container } = renderComponent();
             assertion({ container });
         });
     });
@@ -563,45 +520,6 @@ describe('HomeView', () => {
             });
         });
 
-        describe('clientLoader (client-side)', () => {
-            test('returns home page data with global configuration', () => {
-                const expectedConfig = { pages: { home: { featuredProductsCount: 4 } } } as AppConfig;
-                const pagePromise = Promise.resolve(createMockPage([]));
-                const searchPromise = Promise.resolve(mockSearchResult);
-                const categoriesPromise = Promise.resolve(mockCategories);
-                const componentDataPromise = Promise.resolve({ some: Promise.resolve('data') });
-
-                vi.mocked(getConfig).mockReturnValue(expectedConfig);
-                vi.mocked(fetchPageFromLoader).mockReturnValue(pagePromise);
-                vi.mocked(collectComponentDataPromises).mockReturnValue(componentDataPromise);
-                vi.mocked(fetchSearchProducts).mockReturnValue(searchPromise);
-                vi.mocked(fetchCategories).mockReturnValue(categoriesPromise);
-
-                const result = clientLoader(baseLoaderArgs as ClientLoaderFunctionArgs);
-
-                expect(vi.mocked(getConfig)).toHaveBeenCalledTimes(1);
-                expect(vi.mocked(getConfig)).toHaveBeenCalledWith();
-
-                expect(vi.mocked(fetchPageFromLoader)).toHaveBeenCalledWith(baseLoaderArgs, {
-                    pageId: 'homepage',
-                });
-                expect(vi.mocked(collectComponentDataPromises)).toHaveBeenCalledWith(baseLoaderArgs, pagePromise);
-                expect(vi.mocked(fetchSearchProducts)).toHaveBeenCalledWith(mockContext, {
-                    categoryId: 'root',
-                    limit: 4,
-                    currency: 'USD',
-                });
-                expect(vi.mocked(fetchCategories)).toHaveBeenCalledWith(mockContext, 'root', 1);
-
-                expect(result).toEqual({
-                    page: pagePromise,
-                    searchResult: searchPromise,
-                    categories: categoriesPromise,
-                    componentData: componentDataPromise,
-                });
-            });
-        });
-
         describe('Error Handling', () => {
             test('loader handles API errors gracefully', () => {
                 const error = new Error('API Error');
@@ -618,15 +536,6 @@ describe('HomeView', () => {
                 expect(result).toHaveProperty('searchResult');
                 expect(result).toHaveProperty('categories');
                 expect(result).toHaveProperty('componentData');
-            });
-
-            test('clientLoader handles configuration errors gracefully', () => {
-                const error = new Error('Config Error');
-                vi.mocked(getConfig).mockImplementation(() => {
-                    throw error;
-                });
-
-                expect(() => clientLoader(baseLoaderArgs as ClientLoaderFunctionArgs)).toThrow('Config Error');
             });
         });
 
@@ -656,7 +565,7 @@ describe('HomeView', () => {
                 vi.mocked(fetchSearchProducts).mockReturnValue(searchPromise);
                 vi.mocked(fetchCategories).mockReturnValue(categoriesPromise);
 
-                const result = loader(baseLoaderArgs) as HomePageData;
+                const result = loader(baseLoaderArgs);
 
                 expect(result).toEqual({
                     page: pagePromise,

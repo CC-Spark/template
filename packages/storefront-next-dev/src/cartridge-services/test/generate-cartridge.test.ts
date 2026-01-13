@@ -2831,4 +2831,227 @@ describe('generateMetadata integration tests', () => {
         expect(enabledAttr.default_value).toBe(true);
         expect(enabledAttr.defaultValue).toBeUndefined();
     });
+
+    test('should perform dry run without writing files', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        const componentCode = `
+            @Component({ id: 'testComponent', name: 'Test Component' })
+            export class TestComponent {
+                @AttributeDefinition({ type: 'string' })
+                title: string;
+            }
+        `;
+
+        vi.mocked(readdir)
+            .mockResolvedValueOnce([{ name: 'components', isDirectory: () => true, isFile: () => false } as any])
+            .mockResolvedValueOnce([
+                { name: 'TestComponent.tsx', isDirectory: () => false, isFile: () => true } as any,
+            ]);
+
+        vi.mocked(readFile).mockResolvedValue(componentCode);
+        vi.mocked(access).mockResolvedValue(undefined);
+
+        const result = await generateMetadata(projectDir, metadataDir, { dryRun: true });
+
+        // Verify statistics are returned
+        expect(result.componentsGenerated).toBe(1);
+        expect(result.pageTypesGenerated).toBe(0);
+        expect(result.aspectsGenerated).toBe(0);
+        expect(result.totalFiles).toBe(1);
+
+        // Verify NO destructive operations were performed
+        expect(rm).not.toHaveBeenCalled();
+        expect(mkdir).not.toHaveBeenCalled();
+        expect(writeFile).not.toHaveBeenCalled();
+
+        // Verify files were still scanned
+        expect(readdir).toHaveBeenCalled();
+        expect(readFile).toHaveBeenCalled();
+    });
+
+    test('should perform dry run with multiple components', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        const component1Code = `
+            @Component({ id: 'testComponent1', name: 'Test Component 1' })
+            export class TestComponent1 {
+                @AttributeDefinition({ type: 'string' })
+                title: string;
+            }
+        `;
+
+        const component2Code = `
+            @Component({ id: 'testComponent2', name: 'Test Component 2' })
+            export class TestComponent2 {
+                @AttributeDefinition({ type: 'string' })
+                description: string;
+            }
+        `;
+
+        vi.mocked(readdir)
+            .mockResolvedValueOnce([{ name: 'components', isDirectory: () => true, isFile: () => false } as any])
+            .mockResolvedValueOnce([
+                { name: 'Component1.tsx', isDirectory: () => false, isFile: () => true } as any,
+                { name: 'Component2.tsx', isDirectory: () => false, isFile: () => true } as any,
+            ]);
+
+        vi.mocked(readFile).mockResolvedValueOnce(component1Code).mockResolvedValueOnce(component2Code);
+
+        const result = await generateMetadata(projectDir, metadataDir, { dryRun: true });
+
+        // Verify correct counts
+        expect(result.componentsGenerated).toBe(2);
+        expect(result.pageTypesGenerated).toBe(0);
+        expect(result.aspectsGenerated).toBe(0);
+        expect(result.totalFiles).toBe(2);
+
+        // Verify no files were written
+        expect(writeFile).not.toHaveBeenCalled();
+    });
+
+    test('should perform dry run with aspects', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        const aspectContent = JSON.stringify({
+            name: 'Test Aspect',
+            description: 'Test aspect description',
+            attribute_definitions: [
+                {
+                    id: 'testAttr',
+                    name: 'Test Attribute',
+                    type: 'string',
+                },
+            ],
+        });
+
+        vi.mocked(readdir)
+            .mockResolvedValueOnce([{ name: 'config', isDirectory: () => true, isFile: () => false } as any])
+            .mockResolvedValueOnce([{ name: 'aspects', isDirectory: () => true, isFile: () => false } as any])
+            .mockResolvedValueOnce([{ name: 'testAspect.json', isDirectory: () => false, isFile: () => true } as any]);
+
+        vi.mocked(readFile).mockResolvedValue(aspectContent);
+
+        const result = await generateMetadata(projectDir, metadataDir, { dryRun: true });
+
+        expect(result.componentsGenerated).toBe(0);
+        expect(result.pageTypesGenerated).toBe(0);
+        expect(result.aspectsGenerated).toBe(1);
+        expect(result.totalFiles).toBe(1);
+
+        // Verify no files were written
+        expect(writeFile).not.toHaveBeenCalled();
+    });
+
+    test('should perform dry run with incremental mode', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        const componentCode = `
+            @Component({ id: 'testComponent', name: 'Test Component' })
+            export class TestComponent {
+                @AttributeDefinition({ type: 'string' })
+                title: string;
+            }
+        `;
+
+        const filePaths = ['src/components/TestComponent.tsx'];
+
+        vi.mocked(readFile).mockResolvedValue(componentCode);
+
+        const result = await generateMetadata(projectDir, metadataDir, {
+            dryRun: true,
+            filePaths,
+        });
+
+        expect(result.componentsGenerated).toBe(1);
+        expect(result.totalFiles).toBe(1);
+
+        // Verify no destructive operations
+        expect(rm).not.toHaveBeenCalled();
+        expect(mkdir).not.toHaveBeenCalled();
+        expect(writeFile).not.toHaveBeenCalled();
+    });
+
+    test('should return zero counts in dry run when no components found', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        vi.mocked(readdir).mockResolvedValueOnce([]);
+
+        const result = await generateMetadata(projectDir, metadataDir, { dryRun: true });
+
+        expect(result.componentsGenerated).toBe(0);
+        expect(result.pageTypesGenerated).toBe(0);
+        expect(result.aspectsGenerated).toBe(0);
+        expect(result.totalFiles).toBe(0);
+
+        // Verify no files were written
+        expect(writeFile).not.toHaveBeenCalled();
+    });
+
+    test('should not run linting in dry run mode', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        const componentCode = `
+            @Component({ id: 'testComponent', name: 'Test Component' })
+            export class TestComponent {
+                @AttributeDefinition({ type: 'string' })
+                title: string;
+            }
+        `;
+
+        vi.mocked(readdir)
+            .mockResolvedValueOnce([{ name: 'components', isDirectory: () => true, isFile: () => false } as any])
+            .mockResolvedValueOnce([
+                { name: 'TestComponent.tsx', isDirectory: () => false, isFile: () => true } as any,
+            ]);
+
+        vi.mocked(readFile).mockResolvedValue(componentCode);
+
+        await generateMetadata(projectDir, metadataDir, { dryRun: true });
+
+        // Verify linting was not performed
+        expect(consoleLogSpy).not.toHaveBeenCalledWith(expect.stringContaining('Running ESLint'));
+    });
+
+    test('should return result object in regular mode', async () => {
+        const projectDir = '/test/project';
+        const metadataDir = '/test/metadata';
+
+        const componentCode = `
+            @Component({ id: 'testComponent', name: 'Test Component' })
+            export class TestComponent {
+                @AttributeDefinition({ type: 'string' })
+                title: string;
+            }
+        `;
+
+        vi.mocked(readdir)
+            .mockResolvedValueOnce([{ name: 'components', isDirectory: () => true, isFile: () => false } as any])
+            .mockResolvedValueOnce([
+                { name: 'TestComponent.tsx', isDirectory: () => false, isFile: () => true } as any,
+            ]);
+
+        vi.mocked(readFile).mockResolvedValue(componentCode);
+        vi.mocked(rm).mockResolvedValue(undefined);
+        vi.mocked(mkdir).mockResolvedValue(undefined);
+        vi.mocked(access).mockResolvedValue(undefined);
+        vi.mocked(writeFile).mockResolvedValue(undefined);
+
+        const result = await generateMetadata(projectDir, metadataDir, { dryRun: false });
+
+        // Verify statistics are returned in regular mode too
+        expect(result.componentsGenerated).toBe(1);
+        expect(result.pageTypesGenerated).toBe(0);
+        expect(result.aspectsGenerated).toBe(0);
+        expect(result.totalFiles).toBe(1);
+
+        // Verify files WERE written in regular mode
+        expect(writeFile).toHaveBeenCalled();
+    });
 });

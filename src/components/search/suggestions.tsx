@@ -17,15 +17,10 @@
 
 import RecentSearches from './recent-searches';
 import SuggestionSection from './suggestions-section';
-
-interface SuggestionsData {
-    categorySuggestions?: unknown[];
-    productSuggestions?: unknown[];
-    popularSearchSuggestions?: unknown[];
-}
+import type { SearchSuggestions } from './types';
 
 interface SuggestionsProps {
-    searchSuggestions: SuggestionsData | null;
+    searchSuggestions: SearchSuggestions | null;
     recentSearches: string[];
     closeAndNavigate: (link: string) => void;
     clearRecentSearches: () => void;
@@ -44,7 +39,7 @@ export default function Suggestions({
 
     return (
         <div>
-            {hasSuggestions ? (
+            {searchSuggestions && hasSuggestions ? (
                 <SuggestionSection searchSuggestions={searchSuggestions} closeAndNavigate={closeAndNavigate} />
             ) : (
                 <RecentSearches

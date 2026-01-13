@@ -18,6 +18,7 @@
 import type React from 'react';
 import { cn } from '@/lib/utils';
 import { DynamicImage } from '@/components/dynamic-image';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface Suggestion {
     name: string;
@@ -29,18 +30,24 @@ interface Suggestion {
 
 interface SuggestionsProps {
     suggestions?: Suggestion[];
+    searchPhrase?: string;
     closeAndNavigate?: (link: string) => void;
     className?: string;
 }
 
-const Suggestions: React.FC<SuggestionsProps> = ({ suggestions, closeAndNavigate, className }) => {
+const Suggestions: React.FC<SuggestionsProps> = ({ suggestions, searchPhrase, closeAndNavigate, className }) => {
+    const analytics = useAnalytics();
     if (!suggestions || suggestions.length === 0) {
         return null;
     }
 
-    const handleClick = (link: string) => {
+    const handleClick = (suggestion: Suggestion) => {
+        void analytics.trackClickSearchSuggestion({
+            searchInputText: searchPhrase || '',
+            suggestion: suggestion.name,
+        });
         if (closeAndNavigate) {
-            closeAndNavigate(link);
+            closeAndNavigate(suggestion.link);
         }
     };
 
@@ -50,7 +57,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({ suggestions, closeAndNavigate
                 {suggestions.map((suggestion) => (
                     <button
                         key={suggestion.link}
-                        onMouseDown={() => handleClick(suggestion.link)}
+                        onMouseDown={() => handleClick(suggestion)}
                         className="w-full flex justify-start items-center px-4 py-0 hover:bg-accent hover:text-accent-foreground transition-colors text-base mt-0">
                         <div className="flex items-center">
                             <div className="w-10 h-8 mr-4 rounded-full bg-transparent flex items-center justify-center overflow-hidden shrink-0">

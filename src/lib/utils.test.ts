@@ -232,7 +232,7 @@ describe('resolveAssetUrl', () => {
         });
 
         it('should handle local asset paths from Page Designer', () => {
-            expect(resolveAssetUrl('images/hero-cube.png')).toBe('/mobify/bundle/60/client/images/hero-cube.png');
+            expect(resolveAssetUrl('images/hero-cube.webp')).toBe('/mobify/bundle/60/client/images/hero-cube.webp');
         });
     });
 });

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import type { ReactElement } from 'react';
-import { NavLink } from 'react-router';
+import { NavLink, Form } from 'react-router';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -24,6 +24,8 @@ interface AccountNavItemProps {
         icon: LucideIcon;
         label: string;
         disabled?: boolean;
+        action?: string;
+        method?: 'post' | 'get';
     };
     isMobile?: boolean;
 }
@@ -32,13 +34,12 @@ export function AccountNavItem({ item, isMobile = false }: AccountNavItemProps):
     const Icon = item.icon;
     const baseClasses = 'w-full px-3 py-2 text-left font-medium rounded-md flex items-center gap-2';
     const mobileClasses = `${baseClasses} border`;
-    const desktopClasses = baseClasses;
     const disabledClasses = 'opacity-50 cursor-not-allowed pointer-events-none';
 
     if (item.disabled) {
         return (
             <Button
-                className={`${isMobile ? mobileClasses : desktopClasses} ${disabledClasses} text-muted-foreground`}
+                className={`${isMobile ? mobileClasses : baseClasses} ${disabledClasses} text-muted-foreground`}
                 disabled
                 variant="ghost"
                 size="sm">
@@ -48,12 +49,29 @@ export function AccountNavItem({ item, isMobile = false }: AccountNavItemProps):
         );
     }
 
+    // If item has an action, render as a form (e.g., for logout)
+    if (item.action) {
+        const containerClasses = isMobile ? mobileClasses : baseClasses;
+        const activeClasses = isMobile
+            ? 'bg-transparent text-muted-foreground hover:text-foreground'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/30';
+
+        return (
+            <Form method={item.method || 'post'} action={item.action} className="w-full">
+                <button type="submit" className={`${containerClasses} ${activeClasses} cursor-pointer`}>
+                    <Icon data-testid={`${item.label}-icon`} className="h-5 w-5" />
+                    {item.label}
+                </button>
+            </Form>
+        );
+    }
+
     return (
         <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) => {
-                const containerClasses = isMobile ? mobileClasses : desktopClasses;
+                const containerClasses = isMobile ? mobileClasses : baseClasses;
                 const activeClasses = isActive
                     ? isMobile
                         ? 'bg-background text-foreground'

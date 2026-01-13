@@ -108,17 +108,20 @@ export async function calculateBasket(
  * - Handles case where registered user has no active basket (creates one)
  * - Automatically finds the guest basket using the session's usid
  *
+ * Note: As of ShopperBasketsV2 API v2.3.0, mergeBasket may return 204 (No Content) if neither shopper had an active basket.
+ * In this case, we return undefined and defer basket creation until an item is added.
+ *
  * @param context - Router context for authentication
- * @returns The merged basket
+ * @returns The merged basket, or undefined if neither shopper had a basket
  */
 export async function mergeBasket(
     context: Readonly<RouterContextProvider>
-): Promise<ShopperBasketsV2.schemas['Basket']> {
+): Promise<ShopperBasketsV2.schemas['Basket'] | undefined> {
     const clients = createApiClients(context);
     const { data: basket } = await clients.shopperBasketsV2.transferBasket({
         params: {
             query: {
-                overrideExisting: true,
+                merge: true,
             },
         },
     });

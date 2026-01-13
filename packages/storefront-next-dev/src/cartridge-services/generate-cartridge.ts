@@ -601,100 +601,124 @@ async function processAspectFile(filePath: string, _projectRoot: string): Promis
     }
 }
 
-async function generateComponentCartridge(component: Record<string, unknown>, outputDir: string): Promise<void> {
+async function generateComponentCartridge(
+    component: Record<string, unknown>,
+    outputDir: string,
+    dryRun = false
+): Promise<void> {
     const fileName = toCamelCaseFileName(component.typeId as string);
     const groupDir = join(outputDir, component.group as string);
     const outputPath = join(groupDir, `${fileName}.json`);
 
-    // Ensure the group directory exists
-    try {
-        await mkdir(groupDir, { recursive: true });
-    } catch {
-        // Directory might already exist, which is fine
-    }
+    if (!dryRun) {
+        // Ensure the group directory exists
+        try {
+            await mkdir(groupDir, { recursive: true });
+        } catch {
+            // Directory might already exist, which is fine
+        }
 
-    const attributeDefinitionGroups = [
-        {
-            id: component.typeId,
+        const attributeDefinitionGroups = [
+            {
+                id: component.typeId,
+                name: component.name,
+                description: component.description,
+                attribute_definitions: component.attributes,
+            },
+        ];
+
+        const cartridgeData = {
             name: component.name,
             description: component.description,
-            attribute_definitions: component.attributes,
-        },
-    ];
+            group: component.group,
+            arch_type: ARCH_TYPE_HEADLESS,
+            region_definitions: component.regionDefinitions || [],
+            attribute_definition_groups: attributeDefinitionGroups,
+        };
 
-    const cartridgeData = {
-        name: component.name,
-        description: component.description,
-        group: component.group,
-        arch_type: ARCH_TYPE_HEADLESS,
-        region_definitions: component.regionDefinitions || [],
-        attribute_definition_groups: attributeDefinitionGroups,
-    };
+        await writeFile(outputPath, JSON.stringify(cartridgeData, null, 2));
+    }
 
-    await writeFile(outputPath, JSON.stringify(cartridgeData, null, 2));
+    const prefix = dryRun ? '   - [DRY RUN]' : '   -';
     console.log(
-        `   - ${String(component.typeId)}: ${String(component.name)} (${String((component.attributes as unknown[]).length)} attributes) → ${fileName}.json`
+        `${prefix} ${String(component.typeId)}: ${String(component.name)} (${String((component.attributes as unknown[]).length)} attributes) → ${fileName}.json`
     );
 }
 
-async function generatePageTypeCartridge(pageType: Record<string, unknown>, outputDir: string): Promise<void> {
+async function generatePageTypeCartridge(
+    pageType: Record<string, unknown>,
+    outputDir: string,
+    dryRun = false
+): Promise<void> {
     const fileName = toCamelCaseFileName(pageType.name as string);
     const outputPath = join(outputDir, `${fileName}.json`);
 
-    const cartridgeData: Record<string, unknown> = {
-        name: pageType.name,
-        description: pageType.description,
-        arch_type: ARCH_TYPE_HEADLESS,
-        region_definitions: pageType.regionDefinitions || [],
-    };
+    if (!dryRun) {
+        const cartridgeData: Record<string, unknown> = {
+            name: pageType.name,
+            description: pageType.description,
+            arch_type: ARCH_TYPE_HEADLESS,
+            region_definitions: pageType.regionDefinitions || [],
+        };
 
-    // Add attribute_definition_groups if there are attributes
-    if (pageType.attributes && (pageType.attributes as unknown[]).length > 0) {
-        const attributeDefinitionGroups = [
-            {
-                id: pageType.typeId || fileName,
-                name: pageType.name,
-                description: pageType.description,
-                attribute_definitions: pageType.attributes,
-            },
-        ];
-        cartridgeData.attribute_definition_groups = attributeDefinitionGroups;
+        // Add attribute_definition_groups if there are attributes
+        if (pageType.attributes && (pageType.attributes as unknown[]).length > 0) {
+            const attributeDefinitionGroups = [
+                {
+                    id: pageType.typeId || fileName,
+                    name: pageType.name,
+                    description: pageType.description,
+                    attribute_definitions: pageType.attributes,
+                },
+            ];
+            cartridgeData.attribute_definition_groups = attributeDefinitionGroups;
+        }
+
+        // Add supported_aspect_types if specified
+        if (pageType.supportedAspectTypes) {
+            cartridgeData.supported_aspect_types = pageType.supportedAspectTypes;
+        }
+
+        if (pageType.route) {
+            cartridgeData.route = pageType.route;
+        }
+
+        await writeFile(outputPath, JSON.stringify(cartridgeData, null, 2));
     }
 
-    // Add supported_aspect_types if specified
-    if (pageType.supportedAspectTypes) {
-        cartridgeData.supported_aspect_types = pageType.supportedAspectTypes;
-    }
-
-    if (pageType.route) {
-        cartridgeData.route = pageType.route;
-    }
-
-    await writeFile(outputPath, JSON.stringify(cartridgeData, null, 2));
+    const prefix = dryRun ? '   - [DRY RUN]' : '   -';
     console.log(
-        `   - ${String(pageType.name)}: ${String(pageType.description)} (${String((pageType.attributes as unknown[]).length)} attributes) → ${fileName}.json`
+        `${prefix} ${String(pageType.name)}: ${String(pageType.description)} (${String((pageType.attributes as unknown[]).length)} attributes) → ${fileName}.json`
     );
 }
 
-async function generateAspectCartridge(aspect: Record<string, unknown>, outputDir: string): Promise<void> {
+async function generateAspectCartridge(
+    aspect: Record<string, unknown>,
+    outputDir: string,
+    dryRun = false
+): Promise<void> {
     const fileName = toCamelCaseFileName(aspect.id as string);
     const outputPath = join(outputDir, `${fileName}.json`);
 
-    const cartridgeData: Record<string, unknown> = {
-        name: aspect.name,
-        description: aspect.description,
-        arch_type: ARCH_TYPE_HEADLESS,
-        attribute_definitions: aspect.attributeDefinitions || [],
-    };
+    if (!dryRun) {
+        const cartridgeData: Record<string, unknown> = {
+            name: aspect.name,
+            description: aspect.description,
+            arch_type: ARCH_TYPE_HEADLESS,
+            attribute_definitions: aspect.attributeDefinitions || [],
+        };
 
-    // Add supported_object_types if specified
-    if (aspect.supportedObjectTypes) {
-        cartridgeData.supported_object_types = aspect.supportedObjectTypes;
+        // Add supported_object_types if specified
+        if (aspect.supportedObjectTypes) {
+            cartridgeData.supported_object_types = aspect.supportedObjectTypes;
+        }
+
+        await writeFile(outputPath, JSON.stringify(cartridgeData, null, 2));
     }
 
-    await writeFile(outputPath, JSON.stringify(cartridgeData, null, 2));
+    const prefix = dryRun ? '   - [DRY RUN]' : '   -';
     console.log(
-        `   - ${String(aspect.name)}: ${String(aspect.description)} (${String((aspect.attributeDefinitions as unknown[]).length)} attributes) → ${fileName}.json`
+        `${prefix} ${String(aspect.name)}: ${String(aspect.description)} (${String((aspect.attributeDefinitions as unknown[]).length)} attributes) → ${fileName}.json`
     );
 }
 
@@ -714,6 +738,22 @@ export interface GenerateMetadataOptions {
      * Defaults to true.
      */
     lintFix?: boolean;
+
+    /**
+     * If true, scans files and reports what would be generated without actually writing any files or deleting directories.
+     * Defaults to false.
+     */
+    dryRun?: boolean;
+}
+
+/**
+ * Result returned by generateMetadata function
+ */
+export interface GenerateMetadataResult {
+    componentsGenerated: number;
+    pageTypesGenerated: number;
+    aspectsGenerated: number;
+    totalFiles: number;
 }
 
 /**
@@ -759,12 +799,15 @@ export async function generateMetadata(
     projectDirectory: string,
     metadataDirectory: string,
     options?: GenerateMetadataOptions
-): Promise<void> {
+): Promise<GenerateMetadataResult> {
     try {
         const filePaths = options?.filePaths;
         const isIncrementalMode = filePaths && filePaths.length > 0;
+        const dryRun = options?.dryRun || false;
 
-        if (isIncrementalMode) {
+        if (dryRun) {
+            console.log('🔍 [DRY RUN] Scanning for decorated components and page types...');
+        } else if (isIncrementalMode) {
             console.log(`🔍 Generating metadata for ${filePaths.length} specified file(s)...`);
         } else {
             console.log('🔍 Generating metadata for decorated components and page types...');
@@ -777,38 +820,45 @@ export async function generateMetadata(
         const pagesOutputDir = join(metadataDir, 'pages');
         const aspectsOutputDir = join(metadataDir, 'aspects');
 
-        // Only delete existing directories in full scan mode (not incremental)
-        if (!isIncrementalMode) {
-            console.log('🗑️  Cleaning existing output directories...');
+        // Skip directory operations in dry run mode
+        if (!dryRun) {
+            // Only delete existing directories in full scan mode (not incremental)
+            if (!isIncrementalMode) {
+                console.log('🗑️  Cleaning existing output directories...');
+                for (const outputDir of [componentsOutputDir, pagesOutputDir, aspectsOutputDir]) {
+                    try {
+                        await rm(outputDir, { recursive: true, force: true });
+                        console.log(`   - Deleted: ${outputDir}`);
+                    } catch {
+                        // Directory might not exist, which is fine
+                        console.log(`   - Directory not found (skipping): ${outputDir}`);
+                    }
+                }
+            } else {
+                console.log('📝 Incremental mode: existing cartridge files will be preserved/overwritten');
+            }
+
+            // Create output directories if they don't exist
+            console.log('📁 Creating output directories...');
             for (const outputDir of [componentsOutputDir, pagesOutputDir, aspectsOutputDir]) {
                 try {
-                    await rm(outputDir, { recursive: true, force: true });
-                    console.log(`   - Deleted: ${outputDir}`);
-                } catch {
-                    // Directory might not exist, which is fine
-                    console.log(`   - Directory not found (skipping): ${outputDir}`);
+                    await mkdir(outputDir, { recursive: true });
+                } catch (error) {
+                    try {
+                        await access(outputDir);
+                        // Directory exists, that's fine
+                    } catch {
+                        console.error(
+                            `❌ Error: Failed to create output directory ${outputDir}: ${(error as Error).message}`
+                        );
+                        process.exit(1);
+                    }
                 }
             }
+        } else if (isIncrementalMode) {
+            console.log(`📝 [DRY RUN] Would process ${filePaths.length} specific file(s)`);
         } else {
-            console.log('📝 Incremental mode: existing cartridge files will be preserved/overwritten');
-        }
-
-        // Create output directories if they don't exist
-        console.log('📁 Creating output directories...');
-        for (const outputDir of [componentsOutputDir, pagesOutputDir, aspectsOutputDir]) {
-            try {
-                await mkdir(outputDir, { recursive: true });
-            } catch (error) {
-                try {
-                    await access(outputDir);
-                    // Directory exists, that's fine
-                } catch {
-                    console.error(
-                        `❌ Error: Failed to create output directory ${outputDir}: ${(error as Error).message}`
-                    );
-                    process.exit(1);
-                }
-            }
+            console.log('📝 [DRY RUN] Would clean and regenerate all metadata files');
         }
 
         let files: string[] = [];
@@ -861,40 +911,77 @@ export async function generateMetadata(
 
         if (allComponents.length === 0 && allPageTypes.length === 0 && allAspects.length === 0) {
             console.log('⚠️  No decorated components, page types, or aspect files found.');
-            return;
+            return {
+                componentsGenerated: 0,
+                pageTypesGenerated: 0,
+                aspectsGenerated: 0,
+                totalFiles: 0,
+            };
         }
 
         // Generate component cartridge files
         if (allComponents.length > 0) {
             console.log(`✅ Found ${allComponents.length} decorated component(s):`);
             for (const component of allComponents) {
-                await generateComponentCartridge(component as Record<string, unknown>, componentsOutputDir);
+                await generateComponentCartridge(component as Record<string, unknown>, componentsOutputDir, dryRun);
             }
-            console.log(`📄 Generated ${allComponents.length} component metadata file(s) in: ${componentsOutputDir}`);
+            if (dryRun) {
+                console.log(
+                    `📄 [DRY RUN] Would generate ${allComponents.length} component metadata file(s) in: ${componentsOutputDir}`
+                );
+            } else {
+                console.log(
+                    `📄 Generated ${allComponents.length} component metadata file(s) in: ${componentsOutputDir}`
+                );
+            }
         }
 
         // Generate page type cartridge files
         if (allPageTypes.length > 0) {
             console.log(`✅ Found ${allPageTypes.length} decorated page type(s):`);
             for (const pageType of allPageTypes) {
-                await generatePageTypeCartridge(pageType as Record<string, unknown>, pagesOutputDir);
+                await generatePageTypeCartridge(pageType as Record<string, unknown>, pagesOutputDir, dryRun);
             }
-            console.log(`📄 Generated ${allPageTypes.length} page type metadata file(s) in: ${pagesOutputDir}`);
+            if (dryRun) {
+                console.log(
+                    `📄 [DRY RUN] Would generate ${allPageTypes.length} page type metadata file(s) in: ${pagesOutputDir}`
+                );
+            } else {
+                console.log(`📄 Generated ${allPageTypes.length} page type metadata file(s) in: ${pagesOutputDir}`);
+            }
         }
 
         if (allAspects.length > 0) {
             console.log(`✅ Found ${allAspects.length} decorated aspect(s):`);
             for (const aspect of allAspects) {
-                await generateAspectCartridge(aspect as Record<string, unknown>, aspectsOutputDir);
+                await generateAspectCartridge(aspect as Record<string, unknown>, aspectsOutputDir, dryRun);
             }
-            console.log(`📄 Generated ${allAspects.length} aspect metadata file(s) in: ${aspectsOutputDir}`);
+            if (dryRun) {
+                console.log(
+                    `📄 [DRY RUN] Would generate ${allAspects.length} aspect metadata file(s) in: ${aspectsOutputDir}`
+                );
+            } else {
+                console.log(`📄 Generated ${allAspects.length} aspect metadata file(s) in: ${aspectsOutputDir}`);
+            }
         }
 
         // Run ESLint --fix to format generated JSON files according to project settings
         const shouldLintFix = options?.lintFix !== false; // Default to true
-        if (shouldLintFix && (allComponents.length > 0 || allPageTypes.length > 0 || allAspects.length > 0)) {
+        if (
+            !dryRun &&
+            shouldLintFix &&
+            (allComponents.length > 0 || allPageTypes.length > 0 || allAspects.length > 0)
+        ) {
             lintGeneratedFiles(metadataDir, projectRoot);
         }
+
+        // Return statistics
+        return {
+            componentsGenerated: allComponents.length,
+            pageTypesGenerated: allPageTypes.length,
+            aspectsGenerated: allAspects.length,
+            totalFiles: allComponents.length + allPageTypes.length + allAspects.length,
+        };
     } catch (error) {
         console.error('❌ Error:', (error as Error).message);
         process.exit(1);

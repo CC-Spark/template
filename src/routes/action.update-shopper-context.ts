@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ClientActionFunctionArgs } from 'react-router';
+import type { ActionFunctionArgs } from 'react-router';
 import { extractQualifiersFromInput, safeParseCookie, updateShopperContext } from '@/lib/shopper-context-utils';
-import { getAuth } from '@/middlewares/auth.client';
+import { getAuth } from '@/middlewares/auth.server';
 import { getTranslation } from '@/lib/i18next';
 import { extractStatusCode } from '@/lib/utils';
 
@@ -26,11 +26,10 @@ type UpdateShopperContextResponse = {
 };
 
 /**
- * Client action to update all qualifiers in shopper context
- * Supports customQualifiers, assignmentQualifiers, couponCodes, sourceCode, and other root-level qualifiers
+ * Server action to update all qualifiers in shopper context.
+ * Supports customQualifiers, assignmentQualifiers, couponCodes, sourceCode, and other root-level qualifiers.
  */
-// eslint-disable-next-line custom/no-client-actions -- Client action required to support updating shopper context from client components
-export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<Response> {
+export async function action({ request, context }: ActionFunctionArgs): Promise<Response> {
     const { t } = getTranslation();
 
     const session = getAuth(context);

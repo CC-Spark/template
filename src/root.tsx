@@ -59,6 +59,7 @@ import { appConfigMiddlewareClient } from '@/middlewares/app-config.client';
 import { i18nextMiddleware } from '@/middlewares/i18next.server';
 import { currencyMiddleware } from '@/middlewares/currency.server';
 import { currencyClientMiddleware } from '@/middlewares/currency.client';
+import { correlationMiddleware } from '@/middlewares/correlation.server';
 
 // Providers
 import AuthProvider, { bootstrapAuth } from '@/providers/auth';
@@ -66,6 +67,8 @@ import BasketProvider from '@/providers/basket';
 import { ComposeProviders } from '@/providers/compose-providers';
 import { ConfigProvider, getConfig, type AppConfig } from '@/config';
 import { CurrencyProvider } from '@/providers/currency';
+import { CorrelationProvider } from '@/providers/correlation';
+import { correlationContext } from '@/lib/correlation';
 import RecommendersProvider from '@/providers/recommenders';
 
 // Components
@@ -109,6 +112,7 @@ const i18nextOnClient =
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const middleware: MiddlewareFunction<Response>[] = [
+    correlationMiddleware,
     appConfigMiddlewareServer,
     i18nextMiddleware,
     currencyMiddleware, // Read currency cookie early
@@ -141,6 +145,7 @@ export const loader = ({
     appConfig: AppConfig;
     locale: string;
     currency: string;
+    correlationId: string;
     pageDesignerMode: 'EDIT' | 'PREVIEW' | undefined;
     // Return as function to prevent i18next instance serialization
     getI18next: () => i18n;
@@ -163,6 +168,9 @@ export const loader = ({
 
     // Currency is already resolved by middleware
     const currency = context.get(currencyContext) as string;
+
+    // Get correlation ID from middleware for request tracing
+    const correlationId = context.get(correlationContext);
 
     // Load the root category and its sub categories information
     const rootCategoryPromise = fetchCategory(context, 'root', 1);
@@ -196,6 +204,7 @@ export const loader = ({
         appConfig,
         locale,
         currency,
+        correlationId,
         // Wrap these returned objects with a function, to avoid React Router serialization
         auth: () => session,
         getI18next: () => i18next,
@@ -295,7 +304,7 @@ export function ErrorBoundary({ error }: { error: unknown }) {
 }
 
 export default function App({
-    loaderData: { root, subs, auth, basket, getI18next, pageDesignerMode, currency },
+    loaderData: { root, subs, auth, basket, getI18next, pageDesignerMode, currency, correlationId },
 }: {
     loaderData: LoaderData;
 }) {
@@ -361,6 +370,7 @@ export default function App({
     const providers = useMemo(
         () =>
             [
+                [CorrelationProvider, { value: correlationId }],
                 [I18nextProvider, { i18n: i18next }],
                 [ConfigProvider, { config: appConfig }],
                 [CurrencyProvider, { value: currentCurrency }],
@@ -368,7 +378,7 @@ export default function App({
                 [BasketProvider, { value: basket }],
                 [RecommendersProvider, { adapterName: EINSTEIN_ADAPTER_NAME }],
             ] as const,
-        [i18next, appConfig, currentCurrency, sessionData, basket]
+        [correlationId, i18next, appConfig, currentCurrency, sessionData, basket]
     );
 
     let content = (

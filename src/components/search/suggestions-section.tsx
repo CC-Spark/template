@@ -20,42 +20,9 @@ import SuggestionsList from './suggestions-list';
 import SuggestionsGrid from './suggestions-grid';
 import { searchUrlBuilder } from '@/lib/url';
 import { useTranslation } from 'react-i18next';
-
-interface PhraseSuggestion {
-    name: string;
-    link: string;
-    exactMatch?: boolean;
-}
-
-interface CategorySuggestion {
-    name: string;
-    link: string;
-    type: string;
-}
-
-interface ProductSuggestion {
-    name: string;
-    link: string;
-    type: string;
-    image?: string;
-    price?: number;
-}
-
-interface EinsteinSuggestion {
-    name: string;
-    link: string;
-    type: string;
-    exactMatch?: boolean;
-}
-
-interface SearchSuggestions {
-    categorySuggestions?: CategorySuggestion[];
-    productSuggestions?: ProductSuggestion[];
-    phraseSuggestions?: PhraseSuggestion[];
-    popularSearchSuggestions?: EinsteinSuggestion[];
-    recentSearchSuggestions?: EinsteinSuggestion[];
-    searchPhrase?: string;
-}
+import { useAnalytics } from '@/hooks/use-analytics';
+import type { PhraseSuggestion, SearchSuggestions } from './types';
+import { useEffect, useRef } from 'react';
 
 interface SuggestionSectionProps {
     searchSuggestions: SearchSuggestions;
@@ -64,11 +31,22 @@ interface SuggestionSectionProps {
 
 interface DidYouMeanProps {
     suggestion: PhraseSuggestion;
-    onLinkClick: (link: string) => () => void;
+    searchPhrase: string;
+    onLinkClick: (link: string) => void;
 }
 
-const DidYouMean = ({ suggestion, onLinkClick }: DidYouMeanProps) => {
+const DidYouMean = ({ suggestion, searchPhrase, onLinkClick }: DidYouMeanProps) => {
     const { t } = useTranslation('search');
+    const analytics = useAnalytics();
+
+    const handleClickSearchSuggestion = () => {
+        void analytics.trackClickSearchSuggestion({
+            searchInputText: searchPhrase || '',
+            suggestion: suggestion.name,
+        });
+        onLinkClick(suggestion.link);
+    };
+
     return (
         <div className="mb-2">
             <p className="text-base text-foreground pl-12">
@@ -76,7 +54,7 @@ const DidYouMean = ({ suggestion, onLinkClick }: DidYouMeanProps) => {
                 <Link
                     to={suggestion.link}
                     className="text-foreground hover:text-foreground/80 font-medium"
-                    onMouseDown={onLinkClick(suggestion.link)}>
+                    onMouseDown={handleClickSearchSuggestion}>
                     {suggestion.name}?
                 </Link>
             </p>
@@ -86,6 +64,8 @@ const DidYouMean = ({ suggestion, onLinkClick }: DidYouMeanProps) => {
 
 export default function SuggestionSection({ searchSuggestions, closeAndNavigate }: SuggestionSectionProps) {
     const { t } = useTranslation('search');
+    const analytics = useAnalytics();
+
     const hasCategories = Boolean(searchSuggestions?.categorySuggestions?.length);
     const hasProducts = Boolean(searchSuggestions?.productSuggestions?.length);
     const hasPhraseSuggestions = Boolean(searchSuggestions?.phraseSuggestions?.length);
@@ -93,8 +73,31 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
 
     const firstPhraseSuggestion = searchSuggestions?.phraseSuggestions?.[0];
     const showDidYouMean = hasPhraseSuggestions && firstPhraseSuggestion?.exactMatch === false;
+    const searchPhrase = searchSuggestions?.searchPhrase || '';
 
-    const handleLinkClick = (link: string) => () => {
+    const lastTrackedSuggestionsRef = useRef<string | null>(null);
+
+    // Track on mount and whenever suggestions changes
+    useEffect(() => {
+        // Create a unique key based on search phrase and suggestion counts
+        const suggestionsKey = `${searchSuggestions?.searchPhrase || ''}-${searchSuggestions?.categorySuggestions?.length || 0}-${searchSuggestions?.productSuggestions?.length || 0}-${searchSuggestions?.phraseSuggestions?.length || 0}-${searchSuggestions?.popularSearchSuggestions?.length || 0}`;
+
+        // Only track if we haven't already tracked this specific suggestions combination
+        if (suggestionsKey !== lastTrackedSuggestionsRef.current) {
+            void analytics.trackViewSearchSuggestions({
+                searchInputText: searchSuggestions?.searchPhrase || '',
+                suggestions: [
+                    ...(searchSuggestions?.categorySuggestions || []).map((s) => s.name),
+                    ...(searchSuggestions?.productSuggestions || []).map((s) => s.name),
+                    ...(searchSuggestions?.phraseSuggestions || []).map((s) => s.name),
+                    ...(searchSuggestions?.popularSearchSuggestions || []).map((s) => s.name),
+                ],
+            });
+            lastTrackedSuggestionsRef.current = suggestionsKey;
+        }
+    }, [analytics, searchSuggestions]);
+
+    const handleLinkClick = (link: string) => {
         closeAndNavigate(link);
     };
 
@@ -103,7 +106,11 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
             {/* Mobile - Vertical alignment */}
             <div className="block md:hidden">
                 {showDidYouMean && firstPhraseSuggestion && (
-                    <DidYouMean suggestion={firstPhraseSuggestion} onLinkClick={handleLinkClick} />
+                    <DidYouMean
+                        suggestion={firstPhraseSuggestion}
+                        searchPhrase={searchPhrase}
+                        onLinkClick={handleLinkClick}
+                    />
                 )}
 
                 {hasCategories && (
@@ -114,6 +121,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                         <SuggestionsList
                             closeAndNavigate={closeAndNavigate}
                             suggestions={searchSuggestions.categorySuggestions}
+                            searchPhrase={searchSuggestions.searchPhrase}
                         />
                     </div>
                 )}
@@ -126,6 +134,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                         <SuggestionsList
                             closeAndNavigate={closeAndNavigate}
                             suggestions={searchSuggestions.productSuggestions}
+                            searchPhrase={searchSuggestions.searchPhrase}
                         />
                     </div>
                 )}
@@ -138,6 +147,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                         <SuggestionsList
                             closeAndNavigate={closeAndNavigate}
                             suggestions={searchSuggestions.popularSearchSuggestions}
+                            searchPhrase={searchSuggestions.searchPhrase}
                         />
                     </div>
                 )}
@@ -147,7 +157,11 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
             <div className="hidden md:flex gap-5">
                 <div className="flex-1">
                     {showDidYouMean && firstPhraseSuggestion && (
-                        <DidYouMean suggestion={firstPhraseSuggestion} onLinkClick={handleLinkClick} />
+                        <DidYouMean
+                            suggestion={firstPhraseSuggestion}
+                            searchPhrase={searchPhrase}
+                            onLinkClick={handleLinkClick}
+                        />
                     )}
 
                     {hasCategories && (
@@ -158,6 +172,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                             <SuggestionsList
                                 closeAndNavigate={closeAndNavigate}
                                 suggestions={searchSuggestions.categorySuggestions}
+                                searchPhrase={searchSuggestions.searchPhrase}
                             />
                         </div>
                     )}
@@ -170,6 +185,7 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                             <SuggestionsList
                                 closeAndNavigate={closeAndNavigate}
                                 suggestions={searchSuggestions.popularSearchSuggestions}
+                                searchPhrase={searchSuggestions.searchPhrase}
                             />
                         </div>
                     )}
@@ -180,17 +196,21 @@ export default function SuggestionSection({ searchSuggestions, closeAndNavigate 
                         <SuggestionsGrid
                             closeAndNavigate={closeAndNavigate}
                             suggestions={searchSuggestions?.productSuggestions}
+                            searchPhrase={searchPhrase}
                         />
                     )}
                 </div>
 
+                {/* Link to view all search results */}
                 <div className="flex-1 flex items-center">
                     {hasProducts && (
                         <div className="text-center w-full">
                             <Link
                                 to={searchUrlBuilder(searchSuggestions?.searchPhrase || '')}
                                 className="text-foreground hover:text-foreground/80 font-medium text-base"
-                                onMouseDown={handleLinkClick(searchUrlBuilder(searchSuggestions?.searchPhrase || ''))}>
+                                onMouseDown={() =>
+                                    handleLinkClick(searchUrlBuilder(searchSuggestions?.searchPhrase || ''))
+                                }>
                                 {t('suggestions.viewAll')}
                             </Link>
                         </div>

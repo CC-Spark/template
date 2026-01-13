@@ -145,6 +145,18 @@ export interface CheckoutStepEvent extends BaseEvent {
     basket: Basket;
 }
 
+export interface ViewSearchSuggestionEvent extends BaseEvent {
+    eventType: 'view_search_suggestion';
+    searchInputText: string;
+    suggestions: Array<string>;
+}
+
+export interface ClickSearchSuggestionEvent extends BaseEvent {
+    eventType: 'click_search_suggestion';
+    searchInputText: string;
+    suggestion: string;
+}
+
 /**
  * Interface for custom analytics events.
  * Extend this interface via module augmentation.
@@ -180,6 +192,8 @@ export type AnalyticsEvent =
     | CartItemAddEvent
     | CheckoutStartEvent
     | CheckoutStepEvent
+    | ViewSearchSuggestionEvent
+    | ClickSearchSuggestionEvent
     | AnalyticsEventExtensions[keyof AnalyticsEventExtensions];
 
 /**

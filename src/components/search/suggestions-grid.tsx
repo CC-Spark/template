@@ -18,6 +18,7 @@
 import type React from 'react';
 import { Link } from 'react-router';
 import { DynamicImage } from '@/components/dynamic-image';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface Suggestion {
     name: string;
@@ -28,17 +29,27 @@ interface Suggestion {
 
 interface SearchSuggestionsPopupProps {
     suggestions?: Suggestion[];
+    searchPhrase?: string;
     closeAndNavigate?: (link: string) => void;
 }
 
-const SearchSuggestionsPopup: React.FC<SearchSuggestionsPopupProps> = ({ suggestions, closeAndNavigate }) => {
+const SearchSuggestionsPopup: React.FC<SearchSuggestionsPopupProps> = ({
+    suggestions,
+    searchPhrase,
+    closeAndNavigate,
+}) => {
+    const analytics = useAnalytics();
     if (!suggestions || suggestions.length === 0) {
         return null;
     }
 
-    const handleClick = (link: string) => {
+    const handleClick = (suggestion: Suggestion) => {
+        void analytics.trackClickSearchSuggestion({
+            searchInputText: searchPhrase || '',
+            suggestion: suggestion.name,
+        });
         if (closeAndNavigate) {
-            closeAndNavigate(link);
+            closeAndNavigate(suggestion.link);
         }
     };
 
@@ -50,7 +61,7 @@ const SearchSuggestionsPopup: React.FC<SearchSuggestionsPopupProps> = ({ suggest
                         data-testid="product-tile"
                         to={suggestion.link}
                         key={suggestion.link}
-                        onMouseDown={() => handleClick(suggestion.link)}
+                        onMouseDown={() => handleClick(suggestion)}
                         className="block hover:underline flex-1 max-w-[20%]">
                         <div className="w-full">
                             {/* Product Image */}

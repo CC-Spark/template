@@ -54,6 +54,13 @@ vi.mock('@/lib/url', () => ({
     searchUrlBuilder: vi.fn((phrase: string) => `/search?q=${encodeURIComponent(phrase)}`),
 }));
 
+vi.mock('@/hooks/use-analytics', () => ({
+    useAnalytics: () => ({
+        trackViewSearchSuggestions: vi.fn(),
+        trackClickSearchSuggestion: vi.fn(),
+    }),
+}));
+
 const renderWithRouter = (ui: React.ReactElement) => {
     return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
@@ -73,22 +80,26 @@ describe('SearchSuggestionsSection Component', () => {
             {
                 name: 'Electronics',
                 link: '/category/electronics',
+                type: 'category',
             },
             {
                 name: 'Phones',
                 link: '/category/phones',
+                type: 'category',
             },
         ],
         productSuggestions: [
             {
                 name: 'iPhone 15',
                 link: '/product/iphone-15',
+                type: 'product',
                 image: 'https://example.com/iphone.jpg',
                 price: 999,
             },
             {
                 name: 'Samsung Galaxy',
                 link: '/product/samsung-galaxy',
+                type: 'product',
                 price: 799,
             },
         ],
@@ -96,6 +107,7 @@ describe('SearchSuggestionsSection Component', () => {
             {
                 name: 'test search corrected',
                 link: '/search?q=test%20search%20corrected',
+                type: 'phrase',
                 exactMatch: false,
             },
         ],
@@ -231,6 +243,7 @@ describe('SearchSuggestionsSection Component', () => {
                             {
                                 name: 'corrected search',
                                 link: '/search?q=corrected',
+                                type: 'phrase',
                                 exactMatch: false,
                             },
                         ],
@@ -288,7 +301,7 @@ describe('SearchSuggestionsSection Component', () => {
         it('should not render "0" when categories array is empty (Boolean conversion fix)', () => {
             const suggestionsWithEmptyArrays = {
                 categorySuggestions: [], // Empty array - length is 0
-                productSuggestions: [{ name: 'Test Product', link: '/product/test', price: 10 }],
+                productSuggestions: [{ name: 'Test Product', link: '/product/test', type: 'product', price: 10 }],
                 phraseSuggestions: [],
                 searchPhrase: 'test',
             };
@@ -331,6 +344,7 @@ describe('SearchSuggestionsSection Component', () => {
                     {
                         name: 'exact search',
                         link: '/search?q=exact%20search',
+                        type: 'phrase',
                         exactMatch: true,
                     },
                 ],
@@ -489,6 +503,7 @@ describe('SearchSuggestionsSection Component', () => {
                     {
                         name: '',
                         link: '',
+                        type: 'phrase',
                         exactMatch: false,
                     },
                 ],
@@ -651,7 +666,7 @@ describe('SearchSuggestionsSection Component', () => {
         it('should handle suggestions with mixed empty and populated arrays', () => {
             const mixedSuggestions = {
                 categorySuggestions: [], // Empty
-                productSuggestions: [{ name: 'Test Product', link: '/product/test', price: 10 }], // Has content
+                productSuggestions: [{ name: 'Test Product', link: '/product/test', type: 'product', price: 10 }], // Has content
                 phraseSuggestions: [], // Empty
                 searchPhrase: 'test',
             };
@@ -676,6 +691,7 @@ describe('SearchSuggestionsSection Component', () => {
                     {
                         name: 'exact match',
                         link: '/search?q=exact',
+                        type: 'phrase',
                         exactMatch: true, // This should prevent "Did you mean" from showing
                     },
                 ],
@@ -704,9 +720,9 @@ describe('SearchSuggestionsSection Component', () => {
                 },
                 // Arrays with content (length > 0, should be truthy)
                 {
-                    categorySuggestions: [{ name: 'Cat', link: '/cat' }],
-                    productSuggestions: [{ name: 'Prod', link: '/prod', price: 10 }],
-                    phraseSuggestions: [{ name: 'Phrase', link: '/phrase', exactMatch: false }],
+                    categorySuggestions: [{ name: 'Cat', link: '/cat', type: 'category' }],
+                    productSuggestions: [{ name: 'Prod', link: '/prod', type: 'product', price: 10 }],
+                    phraseSuggestions: [{ name: 'Phrase', link: '/phrase', type: 'phrase', exactMatch: false }],
                     searchPhrase: 'test',
                 },
             ];
@@ -731,6 +747,7 @@ describe('SearchSuggestionsSection Component', () => {
                     {
                         name: 'corrected spelling',
                         link: '/search?q=corrected%20spelling',
+                        type: 'phrase',
                         exactMatch: false, // This should show "Did you mean"
                     },
                 ],
@@ -772,7 +789,7 @@ describe('SearchSuggestionsSection Component', () => {
         it('should handle edge case with null searchPhrase in URL building', () => {
             const suggestionsWithNullPhrase = {
                 ...mockSearchSuggestions,
-                searchPhrase: null,
+                searchPhrase: undefined,
             };
 
             renderWithRouter(
@@ -796,7 +813,9 @@ describe('SearchSuggestionsSection Component', () => {
             productSuggestions: [
                 { name: 'Product 1', link: '/product/1', type: 'product', image: 'image1.jpg', price: 100 },
             ],
-            phraseSuggestions: [{ name: 'test search', link: '/search?q=test%20search', exactMatch: true }],
+            phraseSuggestions: [
+                { name: 'test search', link: '/search?q=test%20search', type: 'phrase', exactMatch: true },
+            ],
             popularSearchSuggestions: [
                 { name: 'Popular 1', link: '/search?q=popular%201', type: 'popular', exactMatch: false },
                 { name: 'Popular 2', link: '/search?q=popular%202', type: 'popular', exactMatch: false },
@@ -837,7 +856,9 @@ describe('SearchSuggestionsSection Component', () => {
         it('should show all popular search suggestions when "Did you mean" is present', () => {
             const suggestionsWithDidYouMean = {
                 ...mockEinsteinSuggestions,
-                phraseSuggestions: [{ name: 'corrected search', link: '/search?q=corrected', exactMatch: false }],
+                phraseSuggestions: [
+                    { name: 'corrected search', link: '/search?q=corrected', type: 'phrase', exactMatch: false },
+                ],
                 popularSearchSuggestions: [
                     { name: 'Popular 1', link: '/search?q=popular%201', type: 'popular', exactMatch: false },
                     { name: 'Popular 2', link: '/search?q=popular%202', type: 'popular', exactMatch: false },
@@ -864,7 +885,9 @@ describe('SearchSuggestionsSection Component', () => {
         it('should show all popular search suggestions when "Did you mean" is not present', () => {
             const suggestionsWithoutDidYouMean = {
                 ...mockEinsteinSuggestions,
-                phraseSuggestions: [{ name: 'exact search', link: '/search?q=exact', exactMatch: true }],
+                phraseSuggestions: [
+                    { name: 'exact search', link: '/search?q=exact', type: 'phrase', exactMatch: true },
+                ],
                 popularSearchSuggestions: [
                     { name: 'Popular 1', link: '/search?q=popular%201', type: 'popular', exactMatch: false },
                     { name: 'Popular 2', link: '/search?q=popular%202', type: 'popular', exactMatch: false },

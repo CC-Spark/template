@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Suspense, useEffect, useRef, useCallback } from 'react';
-import { Await, type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
+import { Await, type LoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { getConfig, useConfig } from '@/config';
@@ -66,39 +66,44 @@ export type SearchPageData = {
     componentData: Promise<Record<string, Promise<unknown>>>;
 };
 
-function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): SearchPageData {
-    const { searchParams } = new URL(loaderCtx.request.url);
+/**
+ * Server-side loader function that fetches search results data.
+ * This function runs on the server during SSR and prepares data for the search page.
+ * @returns Object containing search results, refinements, and page metadata
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function loader(args: LoaderFunctionArgs): SearchPageData {
+    const { searchParams } = new URL(args.request.url);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
     const q = searchParams.get('q') ?? '';
     const sort = searchParams.get('sort') ?? '';
     const refine = searchParams.getAll('refine');
-    const currency = loaderCtx.context.get(currencyContext) as string;
+    const currency = args.context.get(currencyContext) as string;
+    const limit = getConfig(args.context).global.productListing.productsPerPage;
 
-    const pagePromise = fetchPageFromLoader(loaderCtx, {
+    const pagePromise = fetchPageFromLoader(args, {
         pageId: 'search',
     });
 
-    const componentDataPromises = collectComponentDataPromises(loaderCtx, pagePromise);
+    const componentDataPromises = collectComponentDataPromises(args, pagePromise);
 
     return {
         searchTerm: q,
-        refinements: fetchSearchProducts(loaderCtx.context, {
+        refinements: fetchSearchProducts(args.context, {
             q,
             limit: 1,
             offset: 0,
             sort,
-
             // This is a known type limitation, the API intelligently serializes the refine parameter (array) automatically, but the OAS types refers to string.
             refine: refine as unknown as string,
             expand: ['none'],
             currency,
         }),
-        searchResult: fetchSearchProducts(loaderCtx.context, {
+        searchResult: fetchSearchProducts(args.context, {
             q,
             limit,
             offset,
             sort,
-
             // This is a known type limitation, the API intelligently serializes the refine parameter (array) automatically, but the OAS types refers to string.
             refine: refine as unknown as string,
             currency,
@@ -106,16 +111,6 @@ function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): SearchPageDa
         page: pagePromise,
         componentData: componentDataPromises,
     };
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function loader(args: LoaderFunctionArgs): SearchPageData {
-    return getPageData(args, getConfig(args.context).global.productListing.productsPerPage);
-}
-
-// eslint-disable-next-line react-refresh/only-export-components,custom/no-client-loaders
-export function clientLoader(args: ClientLoaderFunctionArgs): SearchPageData {
-    return getPageData(args, getConfig().global.productListing.productsPerPage);
 }
 
 export default function SearchPage({

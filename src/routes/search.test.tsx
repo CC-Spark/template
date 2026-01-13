@@ -18,9 +18,9 @@ import 'reflect-metadata';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
-import type { LoaderFunctionArgs, ClientLoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
-import SearchPage, { loader, clientLoader, SearchPageMetadata, type SearchPageData } from './search';
+import SearchPage, { loader, SearchPageMetadata, type SearchPageData } from './search';
 import { createTestContext } from '@/lib/test-utils';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { fetchPageFromLoader, collectComponentDataPromises } from '@/lib/util/pageLoader';
@@ -51,8 +51,6 @@ const mockSearchResult: ShopperSearch.schemas['ProductSearchResult'] = {
     refinements: [],
     searchPhraseSuggestions: { suggestedTerms: [] },
     sortingOptions: [],
-    start: 0,
-    count: 1,
     offset: 0,
     limit: 10,
 };
@@ -276,21 +274,6 @@ describe('SearchPage', () => {
                     refine: ['color:red', 'size:10'],
                 })
             );
-        });
-    });
-
-    describe('clientLoader', () => {
-        test('should fetch search data on client side', () => {
-            const args: Partial<ClientLoaderFunctionArgs> = {
-                request: new Request('https://example.com/search?q=sneakers'),
-                context: mockContext,
-                params: {},
-            };
-
-            const result = clientLoader(args as ClientLoaderFunctionArgs);
-
-            expect(fetchSearchProducts).toHaveBeenCalled();
-            expect(result.searchTerm).toBe('sneakers');
         });
     });
 

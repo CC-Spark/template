@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use client';
-
 import { type FormEvent, type ReactElement, useCallback, useRef, useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import debounce from 'lodash.debounce';
@@ -91,9 +89,9 @@ export default function SearchBar(): ReactElement {
         const recentSearches = getSessionJSONItem<string[]>(RECENT_SEARCH_KEY) || [];
         const searchSuggestionsAvailable =
             transformedSuggestions &&
-            (transformedSuggestions.categorySuggestions?.length > 0 ||
-                transformedSuggestions.productSuggestions?.length > 0 ||
-                transformedSuggestions.popularSearchSuggestions?.length > 0);
+            (transformedSuggestions.categorySuggestions.length > 0 ||
+                transformedSuggestions.productSuggestions.length > 0 ||
+                (transformedSuggestions.popularSearchSuggestions?.length ?? 0) > 0);
 
         if (
             (document.activeElement === inputRef.current && recentSearches.length > 0) ||

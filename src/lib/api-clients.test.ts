@@ -154,8 +154,8 @@ describe('createApiClients', () => {
         it('should add authentication middleware', () => {
             createApiClients(mockContextProvider);
 
-            // Two middlewares in use, both request middleware
-            expect(mockUse).toHaveBeenCalledTimes(2);
+            // Three middlewares in use: correlation, auth, and identifying headers
+            expect(mockUse).toHaveBeenCalledTimes(3);
             expect(mockUse).toHaveBeenCalledWith(
                 expect.objectContaining({
                     onRequest: expect.any(Function),
@@ -297,7 +297,8 @@ describe('createApiClients', () => {
 
         beforeEach(() => {
             createApiClients(mockContextProvider);
-            authMiddleware = mockUse.mock.calls[0][0];
+            // authMiddleware is at index 1 (correlationMiddleware is at index 0)
+            authMiddleware = mockUse.mock.calls[1][0];
         });
 
         it('should have onRequest method', () => {

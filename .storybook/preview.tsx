@@ -58,6 +58,25 @@ const RouterWrapper = ({ Story }: { Story: ComponentType }) => {
                         return productsById;
                     },
                 },
+                {
+                    // Resource route for basket product promotions
+                    // Used by useBasketWithPromotions hook to fetch product promotion data
+                    path: '/resource/basket-products-promotions',
+                    loader: () => {
+                        // Return products with empty productPromotions array
+                        // This prevents bonus product logic from being triggered in stories
+                        const productsWithPromotions: Record<string, unknown> = {};
+                        inBasketProductDetails.data.forEach((product: { id?: string }) => {
+                            if (product.id) {
+                                productsWithPromotions[product.id] = {
+                                    ...product,
+                                    productPromotions: [],
+                                };
+                            }
+                        });
+                        return productsWithPromotions;
+                    },
+                },
             ],
             {
                 initialEntries: ['/'],

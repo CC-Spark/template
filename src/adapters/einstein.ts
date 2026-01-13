@@ -72,6 +72,8 @@ const einteinEventToEndpointMap: Record<AnalyticsEvent['eventType'], string> = {
     cart_item_add: 'addToCart',
     checkout_start: 'beginCheckout',
     checkout_step: 'checkoutStep',
+    view_search_suggestion: 'viewSearchSuggestion',
+    click_search_suggestion: 'clickSearchSuggestion',
 };
 
 export type EinsteinActivity = {
@@ -294,6 +296,20 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
                 currentLocation: event.path,
             };
 
+        case 'view_search_suggestion':
+            return {
+                ...baseActivity,
+                searchText: event.searchInputText,
+                suggestions: event.suggestions,
+            };
+
+        case 'click_search_suggestion':
+            return {
+                ...baseActivity,
+                searchText: event.searchInputText,
+                suggestion: event.suggestion,
+            };
+
         default:
             // If this error is reached, the type of `event` is incorrect or a new event type needs to be handled.
             throw new Error('Unsupported event type in Einstein adapter', {
@@ -335,13 +351,15 @@ function getSiteIdentifier(config: EinsteinConfig): string {
  * This is the unified function for all product mapping to Einstein format.
  * Use this instead of inline mapping to ensure consistency.
  */
-function transformProductToEinsteinProduct(product: Product): EinsteinProduct {
+function transformProductToEinsteinProduct(
+    product: Product | ShopperSearch.schemas['ProductSearchHit']
+): EinsteinProduct {
     // Check if it's a ShopperSearch ProductSearchHit
     if ('hitType' in product || 'productId' in product) {
         // ProductSearchHit format - use productId for both id and sku
         return {
-            id: product.productId,
-            sku: product.productId,
+            id: product.productId as string,
+            sku: product.productId as string,
         };
     }
 

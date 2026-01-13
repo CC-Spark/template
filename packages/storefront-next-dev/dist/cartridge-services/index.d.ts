@@ -39,8 +39,22 @@ interface GenerateMetadataOptions {
    * Defaults to true.
    */
   lintFix?: boolean;
+  /**
+   * If true, scans files and reports what would be generated without actually writing any files or deleting directories.
+   * Defaults to false.
+   */
+  dryRun?: boolean;
 }
-declare function generateMetadata(projectDirectory: string, metadataDirectory: string, options?: GenerateMetadataOptions): Promise<void>;
+/**
+ * Result returned by generateMetadata function
+ */
+interface GenerateMetadataResult {
+  componentsGenerated: number;
+  pageTypesGenerated: number;
+  aspectsGenerated: number;
+  totalFiles: number;
+}
+declare function generateMetadata(projectDirectory: string, metadataDirectory: string, options?: GenerateMetadataOptions): Promise<GenerateMetadataResult>;
 //#endregion
-export { type DeployResult, type GenerateMetadataOptions, deployCode, generateMetadata };
+export { type DeployResult, type GenerateMetadataOptions, type GenerateMetadataResult, deployCode, generateMetadata };
 //# sourceMappingURL=index.d.ts.map

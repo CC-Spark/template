@@ -15,6 +15,7 @@
  */
 import { Command } from 'commander';
 import { push } from './commands/push';
+import { createBundleCommand } from './commands/create-bundle';
 import { dev } from './commands/dev';
 import { preview } from './commands/preview';
 import { generateInstructions } from './extensibility/create-instructions';
@@ -354,6 +355,32 @@ extensionsCommand
             await createExtension(options);
         } catch (err) {
             handleCommandError('extensions create', err);
+        }
+    });
+
+program
+    .command('create-bundle')
+    .description('Create a bundle from the build directory without pushing to Managed Runtime.')
+    .requiredOption('-d, --project-directory <dir>', 'Project directory')
+    .option('-b, --build-directory <dir>', 'Build directory to bundle (default: auto-detected)')
+    .option('-o, --output-directory <dir>', 'Output directory for bundle files (default: .bundle)')
+    .option('-m, --message <message>', 'Bundle message (default: git branch:commit)')
+    .option(
+        '-s, --project-slug <slug>',
+        'Project slug - the unique identifier for your project on Managed Runtime (default: from .env MRT_PROJECT or package.json name.)'
+    )
+    .action(async (options) => {
+        try {
+            await createBundleCommand({
+                projectDirectory: options.projectDirectory,
+                buildDirectory: options.buildDirectory,
+                outputDirectory: options.outputDirectory,
+                message: options.message,
+                projectSlug: options.projectSlug,
+            });
+            process.exit(0);
+        } catch (err) {
+            handleCommandError('create-bundle', err);
         }
     });
 

@@ -18,8 +18,9 @@ import { getConfig } from '@/config';
 import { handlePasswordlessCallback, handlePasswordlessLanding } from '@/lib/passwordless-login';
 import { handleSocialLoginLanding } from '@/lib/api/auth/social-login';
 import { handleResetPasswordCallback, handleResetPasswordLanding } from '@/lib/api/auth/reset-password';
+import { isAbsoluteURL } from '@/lib/utils';
 
-type LoaderHandler = (args: LoaderFunctionArgs) => Promise<Response>;
+type LoaderHandler = (args: LoaderFunctionArgs) => Promise<Response> | Response;
 type ActionHandler = (args: ActionFunctionArgs) => Promise<Record<string, unknown>>;
 
 /**
@@ -27,20 +28,45 @@ type ActionHandler = (args: ActionFunctionArgs) => Promise<Record<string, unknow
  */
 
 /**
+ * Extracts pathname from a URI that may be relative or absolute
+ * @param uri - A relative path (e.g., "/callback") or absolute URL (e.g., "https://example.com/callback")
+ * @returns The pathname component
+ */
+function extractPathname(uri: string): string {
+    // If it's an absolute URL, parse it to extract the pathname
+    if (isAbsoluteURL(uri)) {
+        try {
+            return new URL(uri).pathname;
+        } catch {
+            // If URL parsing fails, treat as relative path
+            return uri;
+        }
+    }
+    // Already a relative path
+    return uri;
+}
+
+/**
  * Get the loader handler for a given pathname
  */
 function getLoaderHandler(pathname: string, context: Readonly<RouterContextProvider>): LoaderHandler | null {
     const config = getConfig(context);
 
-    if (pathname === config.site.features.passwordlessLogin.landingUri) {
+    // Use extractPathname to support both relative paths and absolute URLs in config.
+    // When comparing against the incoming request's pathname, we need to extract just
+    // the pathname component from potentially absolute URLs (e.g., "https://example.com/callback" -> "/callback")
+    if (pathname === extractPathname(config.site.features.passwordlessLogin.landingUri)) {
         return handlePasswordlessLanding;
     }
 
-    if (pathname === config.site.features.resetPassword.landingUri) {
+    if (pathname === extractPathname(config.site.features.resetPassword.landingUri)) {
         return handleResetPasswordLanding;
     }
 
-    if (config.site.features.socialLogin.enabled && pathname === config.site.features.socialLogin.callbackUri) {
+    if (
+        config.site.features.socialLogin.enabled &&
+        pathname === extractPathname(config.site.features.socialLogin.callbackUri)
+    ) {
         return handleSocialLoginLanding;
     }
 
@@ -53,11 +79,14 @@ function getLoaderHandler(pathname: string, context: Readonly<RouterContextProvi
 function getActionHandler(pathname: string, context: Readonly<RouterContextProvider>): ActionHandler | null {
     const config = getConfig(context);
 
-    if (pathname === config.site.features.passwordlessLogin.callbackUri) {
+    // Use extractPathname to support both relative paths and absolute URLs in config.
+    // When comparing against the incoming request's pathname, we need to extract just
+    // the pathname component from potentially absolute URLs (e.g., "https://example.com/callback" -> "/callback")
+    if (pathname === extractPathname(config.site.features.passwordlessLogin.callbackUri)) {
         return handlePasswordlessCallback;
     }
 
-    if (pathname === config.site.features.resetPassword.callbackUri) {
+    if (pathname === extractPathname(config.site.features.resetPassword.callbackUri)) {
         return handleResetPasswordCallback;
     }
 

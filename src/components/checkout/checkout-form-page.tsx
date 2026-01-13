@@ -31,6 +31,7 @@ import { useAnalytics } from '@/hooks/use-analytics';
 import type { CheckoutStep } from './utils/checkout-context-types';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
+import { PluginComponent } from '@/plugins/plugin-component';
 
 // Lazy load heavy components
 const ContactInfo = lazy(() => import('./components/contact-info'));
@@ -276,6 +277,7 @@ export default function CheckoutFormPage({
 
     return (
         <div className="min-h-screen bg-background">
+            <PluginComponent pluginId="checkout.page.before" />
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Mobile Order Summary + My Cart */}
                 <div className="lg:hidden mb-6">
@@ -319,24 +321,35 @@ export default function CheckoutFormPage({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Checkout Content - Single Page Layout */}
                     <div className="lg:col-span-2 space-y-8">
+                        <PluginComponent pluginId="checkout.mainContent.before" />
                         {/* Express Payments - Apple Pay, Google Pay, Amazon Pay, PayPal & Venmo (mobile only) */}
+                        <PluginComponent pluginId="checkout.expressPayments.header.before" />
                         <Suspense fallback={<div className="h-20 bg-muted animate-pulse rounded" />}>
-                            <ExpressPayments
-                                onApplePayClick={handleApplePayClick}
-                                onGooglePayClick={handleGooglePayClick}
-                                onAmazonPayClick={handleAmazonPayClick}
-                                onVenmoClick={handleVenmoClick}
-                                onPayPalClick={handlePayPalClick}
-                            />
+                            <PluginComponent pluginId="checkout.expressPayments.before" />
+                            <PluginComponent pluginId="checkout.expressPayments">
+                                <ExpressPayments
+                                    onApplePayClick={handleApplePayClick}
+                                    onGooglePayClick={handleGooglePayClick}
+                                    onAmazonPayClick={handleAmazonPayClick}
+                                    onVenmoClick={handleVenmoClick}
+                                    onPayPalClick={handlePayPalClick}
+                                />
+                            </PluginComponent>
+                            <PluginComponent pluginId="checkout.expressPayments.after" />
                         </Suspense>
 
+                        <PluginComponent pluginId="checkout.contactInfo.header.before" />
                         <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                            <ContactInfo
-                                onSubmit={handleContactSubmit}
-                                isLoading={isSubmitting('contact')}
-                                actionData={contactFetcher.data}
-                                {...contactInfoState}
-                            />
+                            <PluginComponent pluginId="checkout.contactInfo.before" />
+                            <PluginComponent pluginId="checkout.contactInfo">
+                                <ContactInfo
+                                    onSubmit={handleContactSubmit}
+                                    isLoading={isSubmitting('contact')}
+                                    actionData={contactFetcher.data}
+                                    {...contactInfoState}
+                                />
+                            </PluginComponent>
+                            <PluginComponent pluginId="checkout.contactInfo.after" />
                         </Suspense>
 
                         {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
@@ -351,67 +364,92 @@ export default function CheckoutFormPage({
                         {/* Shipping Address & Options */}
                         {showAddressAndOptions && (
                             <>
+                                <PluginComponent pluginId="checkout.shippingAddress.header.before" />
                                 <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                                    <ShippingAddress
-                                        onSubmit={handleShippingAddressSubmit}
-                                        isLoading={isSubmitting('shipping-address')}
-                                        actionData={shippingAddressFetcher.data}
-                                        {...shippingAddressState}
-                                    />
+                                    <PluginComponent pluginId="checkout.shippingAddress.before" />
+                                    <PluginComponent pluginId="checkout.shippingAddress">
+                                        <ShippingAddress
+                                            onSubmit={handleShippingAddressSubmit}
+                                            isLoading={isSubmitting('shipping-address')}
+                                            actionData={shippingAddressFetcher.data}
+                                            {...shippingAddressState}
+                                        />
+                                    </PluginComponent>
+                                    <PluginComponent pluginId="checkout.shippingAddress.after" />
                                 </Suspense>
 
+                                <PluginComponent pluginId="checkout.shippingOptions.header.before" />
                                 <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                                    <ShippingOptions
-                                        onSubmit={handleShippingOptionsSubmit}
-                                        isLoading={isSubmitting('shipping-options')}
-                                        actionData={shippingOptionsFetcher.data}
-                                        shippingMethods={shippingMethods}
-                                        {...shippingOptionsState}
-                                    />
+                                    <PluginComponent pluginId="checkout.shippingOptions.before" />
+                                    <PluginComponent pluginId="checkout.shippingOptions">
+                                        <ShippingOptions
+                                            onSubmit={handleShippingOptionsSubmit}
+                                            isLoading={isSubmitting('shipping-options')}
+                                            actionData={shippingOptionsFetcher.data}
+                                            shippingMethods={shippingMethods}
+                                            {...shippingOptionsState}
+                                        />
+                                    </PluginComponent>
+                                    <PluginComponent pluginId="checkout.shippingOptions.after" />
                                 </Suspense>
                             </>
                         )}
 
+                        <PluginComponent pluginId="checkout.payment.header.before" />
                         <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                            <Payment
-                                onSubmit={handlePaymentSubmit}
-                                isLoading={isSubmitting('payment')}
-                                actionData={paymentFetcher.data}
-                                {...paymentState}
-                            />
+                            <PluginComponent pluginId="checkout.payment.before" />
+                            <PluginComponent pluginId="checkout.payment">
+                                <Payment
+                                    onSubmit={handlePaymentSubmit}
+                                    isLoading={isSubmitting('payment')}
+                                    actionData={paymentFetcher.data}
+                                    {...paymentState}
+                                />
+                            </PluginComponent>
+                            <PluginComponent pluginId="checkout.payment.after" />
                         </Suspense>
 
                         {/* Create Account Option - Show for guest users after payment */}
-                        <GuestAccountCreation
-                            cart={cart}
-                            customerProfile={customerProfile}
-                            onSaved={handleCreateAccountPreferenceChange}
-                        />
+                        <PluginComponent pluginId="checkout.createAccount.before" />
+                        <PluginComponent pluginId="checkout.createAccount">
+                            <GuestAccountCreation
+                                cart={cart}
+                                customerProfile={customerProfile}
+                                onSaved={handleCreateAccountPreferenceChange}
+                            />
+                        </PluginComponent>
+                        <PluginComponent pluginId="checkout.createAccount.after" />
 
                         {/* Place Order Section */}
                         {step === STEPS.REVIEW_ORDER && (
                             <div className="flex justify-end">
-                                <Form method="post" action="/action/place-order" className="w-full lg:w-auto">
-                                    {/* Hidden field to pass create account preference to server */}
-                                    <input
-                                        type="hidden"
-                                        name="shouldCreateAccount"
-                                        value={shouldCreateAccount ? 'true' : 'false'}
-                                    />
-                                    <Button
-                                        type="submit"
-                                        disabled={isPlacingOrder}
-                                        className="w-full lg:max-w-sm"
-                                        size="lg">
-                                        {isPlacingOrder ? t('placeOrder.processing') : t('placeOrder.button')}
-                                    </Button>
-                                </Form>
+                                <PluginComponent pluginId="checkout.placeOrder.before" />
+                                <PluginComponent pluginId="checkout.placeOrder">
+                                    <Form method="post" action="/action/place-order" className="w-full lg:w-auto">
+                                        {/* Hidden field to pass create account preference to server */}
+                                        <input
+                                            type="hidden"
+                                            name="shouldCreateAccount"
+                                            value={shouldCreateAccount ? 'true' : 'false'}
+                                        />
+                                        <Button
+                                            type="submit"
+                                            disabled={isPlacingOrder}
+                                            className="w-full lg:max-w-sm"
+                                            size="lg">
+                                            {isPlacingOrder ? t('placeOrder.processing') : t('placeOrder.button')}
+                                        </Button>
+                                    </Form>
+                                </PluginComponent>
+                                <PluginComponent pluginId="checkout.placeOrder.after" />
                             </div>
                         )}
+                        <PluginComponent pluginId="checkout.mainContent.after" />
                     </div>
 
                     {/* Order Summary Sidebar */}
                     <div className="hidden lg:block lg:col-span-1">
+                        <PluginComponent pluginId="checkout.sidebar.before" />
                         <div className="sticky top-8 space-y-6">
                             {/* Order Summary */}
                             <Card>
@@ -423,29 +461,39 @@ export default function CheckoutFormPage({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Suspense fallback={<div className="h-96 bg-muted animate-pulse rounded" />}>
-                                        <OrderSummary
-                                            basket={cart}
-                                            showCartItems={false}
-                                            showHeading={false}
-                                            showPromoCodeForm={true}
-                                            productsByItemId={{}}
-                                        />
-                                    </Suspense>
+                                    <PluginComponent pluginId="checkout.orderSummary.before" />
+                                    <PluginComponent pluginId="checkout.orderSummary">
+                                        <Suspense fallback={<div className="h-96 bg-muted animate-pulse rounded" />}>
+                                            <OrderSummary
+                                                basket={cart}
+                                                showCartItems={false}
+                                                showHeading={false}
+                                                showPromoCodeForm={true}
+                                                productsByItemId={{}}
+                                            />
+                                        </Suspense>
+                                    </PluginComponent>
+                                    <PluginComponent pluginId="checkout.orderSummary.after" />
                                 </CardContent>
                             </Card>
 
-                            <Suspense fallback={<div className="h-64 bg-muted animate-pulse rounded" />}>
-                                <MyCartWithData
-                                    basket={cart}
-                                    productMapPromise={productMapPromise}
-                                    promotionsPromise={promotionsPromise}
-                                />
-                            </Suspense>
+                            <PluginComponent pluginId="checkout.myCart.before" />
+                            <PluginComponent pluginId="checkout.myCart">
+                                <Suspense fallback={<div className="h-64 bg-muted animate-pulse rounded" />}>
+                                    <MyCartWithData
+                                        basket={cart}
+                                        productMapPromise={productMapPromise}
+                                        promotionsPromise={promotionsPromise}
+                                    />
+                                </Suspense>
+                            </PluginComponent>
+                            <PluginComponent pluginId="checkout.myCart.after" />
                         </div>
+                        <PluginComponent pluginId="checkout.sidebar.after" />
                     </div>
                 </div>
             </div>
+            <PluginComponent pluginId="checkout.page.after" />
         </div>
     );
 }

@@ -22,10 +22,16 @@ vi.mock('@/components/dynamic-image', () => ({
     DynamicImage: ({ src, alt, imageProps }: any) => <img src={src} alt={alt} {...imageProps} />,
 }));
 
+vi.mock('@/hooks/use-analytics', () => ({
+    useAnalytics: () => ({
+        trackClickSearchSuggestion: vi.fn(),
+    }),
+}));
+
 describe('Suggestions Component', () => {
     const mockSuggestions = [
-        { name: 'Electronics', link: '/category/electronics' },
-        { name: 'Clothing', link: '/category/clothing' },
+        { name: 'Electronics', link: '/category/electronics', type: 'category' },
+        { name: 'Clothing', link: '/category/clothing', type: 'category' },
     ];
 
     it('should render nothing when suggestions are empty, null, or undefined', () => {
@@ -50,8 +56,8 @@ describe('Suggestions Component', () => {
 
     it('should render images when provided and not render when missing', () => {
         const mixedSuggestions = [
-            { name: 'Product with image', link: '/product/1', image: 'https://example.com/img.jpg' },
-            { name: 'Category without image', link: '/category/1' },
+            { name: 'Product with image', link: '/product/1', type: 'product', image: 'https://example.com/img.jpg' },
+            { name: 'Category without image', link: '/category/1', type: 'category' },
         ];
 
         const { container } = render(<Suggestions suggestions={mixedSuggestions} />);

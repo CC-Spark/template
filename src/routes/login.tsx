@@ -272,7 +272,10 @@ export async function clientAction({ context, serverAction }: ClientActionFuncti
         if (prevAuth.userType === 'guest' && auth.userType === 'registered') {
             try {
                 const mergedBasket = await mergeBasket(context);
-                updateBasket(context, mergedBasket);
+                // Only update basket if one was returned.
+                if (mergedBasket) {
+                    updateBasket(context, mergedBasket);
+                }
             } catch (error) {
                 // Log but don't block redirect - user can still access their registered basket
                 // eslint-disable-next-line no-console

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Fragment, Suspense, useEffect, useMemo, useRef } from 'react';
-import { Await, type ClientLoaderFunctionArgs, type LoaderFunctionArgs } from 'react-router';
+import { Await, type LoaderFunctionArgs } from 'react-router';
 import type { ShopperProducts, ShopperSearch, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchCategory } from '@/lib/api/categories';
 import { fetchSearchProducts } from '@/lib/api/search';
@@ -76,13 +76,14 @@ type CategoryPageData = {
 };
 
 /**
- * Internal helper function that fetches category data and product search results.
- * This function handles the actual data fetching logic shared between server and client loaders.
- * @returns Promise that resolves to an object containing search results and category data
+ * Server-side loader function that fetches category data and product search results.
+ * This function runs on the server during SSR and prepares data for the category page.
+ * @returns Object containing search results, category data, and page metadata
  */
-function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): CategoryPageData {
-    const { searchParams } = new URL(loaderCtx.request.url);
-    const { categoryId = '' } = loaderCtx.params;
+// eslint-disable-next-line react-refresh/only-export-components
+export function loader(args: LoaderFunctionArgs): CategoryPageData {
+    const { searchParams } = new URL(args.request.url);
+    const { categoryId = '' } = args.params;
 
     // Ensure we have a valid category ID, fallback to 'root' if undefined or empty
     const safeCategoryId = categoryId && categoryId !== 'undefined' ? categoryId : 'root';
@@ -90,19 +91,22 @@ function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): CategoryPage
     const offset = parseInt(getQueryParam(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.OFFSET) || '0', 10);
     const sort = getQueryParam(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.SORT);
     const refine = getAllQueryParams(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.REFINE);
+
     // Get currency and locale for cache-busting the page key
-    const config = getConfig(loaderCtx.context);
-    const currency = loaderCtx.context.get(currencyContext) as string;
+    const config = getConfig(args.context);
+    const currency = args.context.get(currencyContext) as string;
     const locale = config.site.locale;
-    const pagePromise = fetchPageFromLoader(loaderCtx, {
+    const limit = config.global.productListing.productsPerPage;
+
+    const pagePromise = fetchPageFromLoader(args, {
         pageId: 'plp',
         categoryId: safeCategoryId,
     });
 
-    const componentDataPromises = collectComponentDataPromises(loaderCtx, pagePromise);
+    const componentDataPromises = collectComponentDataPromises(args, pagePromise);
 
     return {
-        refinements: fetchSearchProducts(loaderCtx.context, {
+        refinements: fetchSearchProducts(args.context, {
             categoryId: safeCategoryId,
             limit: 1,
             offset: 0,
@@ -112,7 +116,7 @@ function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): CategoryPage
             expand: ['none'],
             currency,
         }),
-        searchResult: fetchSearchProducts(loaderCtx.context, {
+        searchResult: fetchSearchProducts(args.context, {
             categoryId: safeCategoryId,
             limit,
             offset,
@@ -121,34 +125,13 @@ function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): CategoryPage
             refine: refine as unknown as string,
             currency,
         }),
-        category: fetchCategory(loaderCtx.context, safeCategoryId, 0),
+        category: fetchCategory(args.context, safeCategoryId, 0),
         page: pagePromise,
         componentData: componentDataPromises,
         categoryId: safeCategoryId,
         currency,
         locale,
     };
-}
-
-/**
- * Server-side loader function that fetches category data and product search results.
- * This function runs on the server during SSR and prepares data for the category page.
- * @returns Promise that resolves to an object containing the data promise
- */
-// eslint-disable-next-line react-refresh/only-export-components
-export function loader(args: LoaderFunctionArgs): CategoryPageData {
-    return getPageData(args, getConfig(args.context).global.productListing.productsPerPage);
-}
-
-/**
- * Client-side loader function that handles data loading for client-side navigation.
- * This function ensures React Router doesn't block navigation by returning a POJO
- * with the promise data instead of a direct promise.
- * @returns Object containing the data promise to prevent navigation blocking
- */
-// eslint-disable-next-line react-refresh/only-export-components,custom/no-client-loaders
-export function clientLoader(args: ClientLoaderFunctionArgs): CategoryPageData {
-    return getPageData(args, getConfig().global.productListing.productsPerPage);
 }
 
 /**

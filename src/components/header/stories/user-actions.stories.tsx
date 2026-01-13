@@ -84,8 +84,8 @@ const meta: Meta<typeof UserActions> = {
 User Actions component that displays authentication-related actions.
 
 ### Features:
-- Sign In link for guests
-- Welcome message and Logout button for authenticated users
+- Sign In icon button for guests
+- Account icon button for authenticated users
 - Conditional rendering based on auth state
                 `,
             },
@@ -118,7 +118,7 @@ export const Guest: Story = {
 User actions for guest users.
 
 ### Features:
-- Sign In link
+- Sign In icon button
 - No logout button
             `,
             },
@@ -128,7 +128,7 @@ User actions for guest users.
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Check for Sign In link
+        // Check for Sign In icon button/link
         const signInLink = await canvas.findByRole('link', { name: /sign in/i }, { timeout: 5000 });
         await expect(signInLink).toBeInTheDocument();
         await expect(signInLink).toHaveAttribute('href', '/login');
@@ -155,8 +155,8 @@ export const Authenticated: Story = {
 User actions for authenticated users.
 
 ### Features:
-- Welcome message
-- Logout button
+- Account icon button (links to /account)
+- No logout button (moved to account navigation)
             `,
             },
         },
@@ -165,20 +165,21 @@ User actions for authenticated users.
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Check for welcome message
-        const welcomeText = await canvas.findByText(/welcome back/i, {}, { timeout: 5000 });
-        await expect(welcomeText).toBeInTheDocument();
+        // Check for account icon button/link
+        const accountLink = await canvas.findByRole('link', { name: /my account/i }, { timeout: 5000 });
+        await expect(accountLink).toBeInTheDocument();
+        await expect(accountLink).toHaveAttribute('href', '/account');
 
-        // Check for logout button
-        const logoutButton = await canvas.findByRole('button', { name: /sign out/i }, { timeout: 5000 });
-        await expect(logoutButton).toBeInTheDocument();
+        // Check that logout button is not present (moved to account navigation)
+        const logoutButton = canvas.queryByRole('button', { name: /sign out/i });
+        await expect(logoutButton).toBeNull();
 
         // Check that Sign In link is not present
         const signInLink = canvas.queryByRole('link', { name: /sign in/i });
         await expect(signInLink).toBeNull();
 
-        // Click logout button
-        await userEvent.click(logoutButton);
+        // Click account link
+        await userEvent.click(accountLink);
     },
 };
 
@@ -191,7 +192,7 @@ export const Mobile: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Check for Sign In link
+        // Check for Sign In icon button/link
         const signInLink = await canvas.findByRole('link', { name: /sign in/i }, { timeout: 5000 });
         await expect(signInLink).toBeInTheDocument();
         await expect(signInLink).toHaveAttribute('href', '/login');
@@ -214,7 +215,7 @@ export const Tablet: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Check for Sign In link
+        // Check for Sign In icon button/link
         const signInLink = await canvas.findByRole('link', { name: /sign in/i }, { timeout: 5000 });
         await expect(signInLink).toBeInTheDocument();
         await expect(signInLink).toHaveAttribute('href', '/login');
@@ -237,7 +238,7 @@ export const Desktop: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Check for Sign In link
+        // Check for Sign In icon button/link
         const signInLink = await canvas.findByRole('link', { name: /sign in/i }, { timeout: 5000 });
         await expect(signInLink).toBeInTheDocument();
         await expect(signInLink).toHaveAttribute('href', '/login');

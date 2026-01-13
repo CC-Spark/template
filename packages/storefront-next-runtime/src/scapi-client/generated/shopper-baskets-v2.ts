@@ -50,12 +50,16 @@ export interface paths {
          * Transfer an existing basket.
          * @description Transfer the previous shopper's basket to the current shopper by updating the basket's owner. No other values change. You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token.
          *
-         *     A success response contains the transferred basket.
+         *     This endpoint provides different methods for handling the scenario in which both a previous guest shopper and the current registered shopper have an active basket attached, and utilizes the `merge` parameter as follows:
+         *     - `true` (recommended): Triggers a merge hook for graceful handling and prevents 409 status returns. For more information, refer to the `merge` parameter documentation.
+         *     - `false`: Either overrides the basket of the current registered shopper or returns a 409 response, and allows you to choose between the options explained below.
          *
-         *     If the current shopper has an active basket, and the `overrideExisting` request parameter is `false`, then the transfer request returns a BasketTransferException (HTTP status 409). You can proceed with one of these options:
+         *     If you call the endpoint with `merge=false` and the current shopper has an active basket, you have two options using the `overrideExisting` parameter. Setting it to `true` deletes the registered user's basket, while setting it to `false` returns a `BasketTransferException` (HTTP status 409), after which you can choose how to proceed:
          *     - Keep the current shopper's active basket.
-         *     - Merge the previous and current shoppers' baskets by calling the `baskets/merge` endpoint.
-         *     - Force the transfer by calling the `baskets/transfer` endpoint again, with the parameter `overrideExisting=true`. Forcing the transfer deletes the current shopper's active basket.
+         *     - Merge the previous and current shoppers' baskets by calling the `baskets/actions/merge` endpoint.
+         *     - Force the transfer by calling the `baskets/actions/transfer` endpoint again, with the parameter `overrideExisting=true`. Forcing the transfer deletes the current shopper's active basket.
+         *
+         *     A successful response provides the transferred (and merged) current basket. However, if neither the previous nor current shopper had an active basket, a 204 (No Content) response is returned.
          */
         post: operations["transferBasket"];
         delete?: never;
@@ -84,7 +88,9 @@ export interface paths {
         put?: never;
         /**
          * Merge baskets.
-         * @description Merge data from the previous shopper's basket into the current shopper's active basket and delete the previous shopper's basket. This endpoint doesn't merge Personally Identifiable Information (PII). You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token. After the merge, all basket amounts are recalculated and totaled, including lookups for prices, taxes, shipping, and promotions, unless hooks are enabled.
+         * @description ( DEPRECATED ) Instead of using this endpoint, we recommend using the `/baskets/actions/transfer` endpoint with the `merge=true` parameter, because the transfer endpoint offers greater customization by invoking a hook, allowing for adjustments if the default implementation does not process the merge as expected.
+         *
+         *     Merge data from the previous shopper's basket into the current shopper's active basket and delete the previous shopper's basket. This endpoint doesn't merge Personally Identifiable Information (PII). You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token. After the merge, all basket amounts are recalculated and totaled, including lookups for prices, taxes, shipping, and promotions, unless hooks are enabled.
          *
          *     The following information is merged:
          *     - custom attributes on the basket and on all copied records
@@ -1528,6 +1534,25 @@ export interface components {
              * @example CREDIT_CARD
              */
             paymentMethodId?: string;
+            /** @description Payment reference information for various payment service providers, only when Salesforce Payments is enabled. */
+            paymentReference?: {
+                /**
+                 * @description Payment reference identifier. Can be payment intent ID for Stripe, PSP reference for Adyen, PayPal order ID for PayPal, or similar identifier for other payment providers.
+                 * @example pi_3N4B2vF0wDjebNCp1234567
+                 */
+                paymentReferenceId?: string;
+                /**
+                 * @description Client secret for payment confirmation. Used primarily by Stripe for client-side payment confirmation.
+                 * @example pi_3N4B2vF0wDjebNCp1234567_secret_abc123
+                 */
+                clientSecret?: string;
+                /**
+                 * Format: uri
+                 * @description Redirect URL for payment methods that require user redirection to complete payment.
+                 * @example https://checkout.stripe.com/pay/cs_test_abc123
+                 */
+                redirectUrl?: string;
+            };
         };
         /** @description Document representing a product item. */
         ProductItem: {
@@ -2360,6 +2385,27 @@ export interface components {
              */
             validFromYear?: number;
         };
+        /** @description Properties for Payments Reference Request */
+        PaymentReferenceRequest: {
+            /**
+             * @description Payment Method Type
+             * @example card
+             */
+            paymentMethodType?: string;
+            /**
+             * @description The unique identifier for a Payments zone.
+             * @example {
+             *       "Amer-Zone": null
+             *     }
+             */
+            zoneId?: string;
+            /**
+             * @description Shipping preference for PayPal payment processing. Applicable only for basket payment instruments.
+             * @example GET_FROM_FILE
+             * @enum {string}
+             */
+            shippingPreference?: "GET_FROM_FILE" | "NO_SHIPPING" | "SET_PROVIDED_ADDRESS";
+        };
         /** @description Document representing a basket payment instrument request. */
         BasketPaymentInstrumentRequest: {
             /**
@@ -2385,6 +2431,8 @@ export interface components {
              * @example CREDIT_CARD
              */
             paymentMethodId?: string;
+            /** @description Payment reference information for various payment service providers, only when Salesforce Payments is enabled. */
+            paymentReferenceRequest?: components["schemas"]["PaymentReferenceRequest"];
         } & {
             [key: string]: unknown;
         };
@@ -2538,6 +2586,18 @@ export interface components {
         taxMode: "internal" | "external";
         /** @description If set to true, the basket created is a temporary basket. */
         temporary: boolean;
+        /**
+         * @description If set to true, the system invokes the `dw.order.populateCustomerDetails` hook.
+         *
+         *     By default, the hook retrieves the registered customer's default address or first saved address, and payment instrument.
+         *     The hook then uses this information to populate the basket:
+         *     - If no shipping address is specified, the shipping address is set to the customer's saved address.
+         *     - If no billing address is specified, the billing address is set to the customer's saved address.
+         *     - If no payment instrument is specified, the payment instrument is set to the customer's saved payment instrument.
+         *
+         *     This behavior can be customized by overriding the hook.
+         */
+        populateCustomerDetails: boolean;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         locale: components["schemas"]["LocaleCode"];
         /**
@@ -2546,6 +2606,34 @@ export interface components {
          *     - `true`: Force the transfer by deleting the current shopper's active basket and making the current shopper the owner of the previous shopper's basket. Returns the transferred basket (HTTP status 200).
          */
         overrideExisting: boolean;
+        /**
+         * @description This parameter controls the behavior:
+         *         - `false` (default): Transfers the basket or returns a 409 response with the appropriate message (taking `overrideExisting` in consideration).
+         *         - `true`: (recommended): Executes the dw.order.mergeBasket hook if at least one basket exists.
+         *
+         *     The hook dw.order.mergeBasket default implementation merges a source basket into the current basket. This behavior can be customized, as shown
+         *     in this [sample implementation](https://gist.github.com/sf-thomas-loesche/3446c7d71a97e559bf1caee96ae56d9f).
+         *
+         *     There are four possible use cases:
+         *
+         *     a) Guest basket and registered basket exist
+         *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+         *     dw.order.mergeBasket is called with the source basket (former registered shopper basket) and the transferred current basket (former guest basket).
+         *
+         *     b) Guest basket exists but no registered basket exists
+         *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+         *     dw.order.mergeBasket is called without the source basket (null passed to the hook) and the transferred current basket (former guest basket).
+         *
+         *     c) No guest basket exists but a registered basket exists
+         *     The registered basket is retained. The hook dw.order.mergeBasket is called with the retained current basket but without the source basket (null
+         *     passed to the hook).
+         *
+         *     d) Neither basket exists
+         *     The hook dw.order.mergeBasket is not called.
+         *
+         *     The API returns the current basket (after executing dw.order.mergeBasket).
+         */
+        merge: boolean;
         /**
          * @description If the current shopper has an active basket, this parameter is ignored. If the current shopper has no active basket, this parameter controls the behavior:
          *     - `false` (default): Return a BasketMergeException (HTTP status 409).
@@ -2601,6 +2689,18 @@ export interface operations {
                 taxMode?: components["parameters"]["taxMode"];
                 /** @description If set to true, the basket created is a temporary basket. */
                 temporary?: components["parameters"]["temporary"];
+                /**
+                 * @description If set to true, the system invokes the `dw.order.populateCustomerDetails` hook.
+                 *
+                 *     By default, the hook retrieves the registered customer's default address or first saved address, and payment instrument.
+                 *     The hook then uses this information to populate the basket:
+                 *     - If no shipping address is specified, the shipping address is set to the customer's saved address.
+                 *     - If no billing address is specified, the billing address is set to the customer's saved address.
+                 *     - If no payment instrument is specified, the payment instrument is set to the customer's saved payment instrument.
+                 *
+                 *     This behavior can be customized by overriding the hook.
+                 */
+                populateCustomerDetails?: components["parameters"]["populateCustomerDetails"];
                 /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
                 locale?: components["parameters"]["locale"];
             };
@@ -2675,6 +2775,46 @@ export interface operations {
                  *     - `true`: Force the transfer by deleting the current shopper's active basket and making the current shopper the owner of the previous shopper's basket. Returns the transferred basket (HTTP status 200).
                  */
                 overrideExisting?: components["parameters"]["overrideExisting"];
+                /**
+                 * @description This parameter controls the behavior:
+                 *         - `false` (default): Transfers the basket or returns a 409 response with the appropriate message (taking `overrideExisting` in consideration).
+                 *         - `true`: (recommended): Executes the dw.order.mergeBasket hook if at least one basket exists.
+                 *
+                 *     The hook dw.order.mergeBasket default implementation merges a source basket into the current basket. This behavior can be customized, as shown
+                 *     in this [sample implementation](https://gist.github.com/sf-thomas-loesche/3446c7d71a97e559bf1caee96ae56d9f).
+                 *
+                 *     There are four possible use cases:
+                 *
+                 *     a) Guest basket and registered basket exist
+                 *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+                 *     dw.order.mergeBasket is called with the source basket (former registered shopper basket) and the transferred current basket (former guest basket).
+                 *
+                 *     b) Guest basket exists but no registered basket exists
+                 *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+                 *     dw.order.mergeBasket is called without the source basket (null passed to the hook) and the transferred current basket (former guest basket).
+                 *
+                 *     c) No guest basket exists but a registered basket exists
+                 *     The registered basket is retained. The hook dw.order.mergeBasket is called with the retained current basket but without the source basket (null
+                 *     passed to the hook).
+                 *
+                 *     d) Neither basket exists
+                 *     The hook dw.order.mergeBasket is not called.
+                 *
+                 *     The API returns the current basket (after executing dw.order.mergeBasket).
+                 */
+                merge?: components["parameters"]["merge"];
+                /**
+                 * @description If set to true, the system invokes the `dw.order.populateCustomerDetails` hook.
+                 *
+                 *     By default, the hook retrieves the registered customer's default address or first saved address, and payment instrument.
+                 *     The hook then uses this information to populate the basket:
+                 *     - If no shipping address is specified, the shipping address is set to the customer's saved address.
+                 *     - If no billing address is specified, the billing address is set to the customer's saved address.
+                 *     - If no payment instrument is specified, the payment instrument is set to the customer's saved payment instrument.
+                 *
+                 *     This behavior can be customized by overriding the hook.
+                 */
+                populateCustomerDetails?: components["parameters"]["populateCustomerDetails"];
                 /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
                 locale?: components["parameters"]["locale"];
             };
@@ -2690,7 +2830,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The transferred basket. */
+            /** @description The current basket. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2698,6 +2838,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Basket"];
                 };
+            };
+            /** @description The operation was successful. No current basket was returned because neither the previous nor current shopper had an active basket attached that could be transferred. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description The call returns this error if no SLAS token for a registered shopper is available. */
             403: {
@@ -2709,9 +2856,9 @@ export interface operations {
                 };
             };
             /**
-             * @description The call returns this response in either of these cases:
+             * @description The call returns this response when the `merge` request parameter is set to `false` and one of the following cases applies:
              *     - The previous shopper has no active basket.
-             *     - The current shopper has an active basket and the `overrideExisting` query parameter was `false` (default value).
+             *     - The current shopper has an active basket and the `overrideExisting` query parameter is set to `false` (default value).
              */
             409: {
                 headers: {

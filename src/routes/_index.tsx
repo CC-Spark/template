@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ClientLoaderFunctionArgs, LoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperSearch, ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { fetchCategories } from '@/lib/api/categories';
 import { currencyContext } from '@/lib/currency';
-import { createPage, type RouteComponentProps } from '@/components/create-page';
-import HomeSkeleton from '@/components/home/skeleton';
 import { Region } from '@/components/region';
 import PopularCategories from '@/components/home/popular-categories';
 import ContentCard from '@/components/content-card';
@@ -30,9 +28,9 @@ import { RegionDefinition } from '@/lib/decorators/region-definition';
 
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
 
-import heroNewArrivals from '/images/hero-new-arrivals.png';
+import heroNewArrivals from '/images/hero-new-arrivals.webp';
 import HeroCarousel, { type HeroSlide } from '@/components/hero-carousel';
-import heroImage from '/images/hero-cube.png';
+import heroImage from '/images/hero-cube.webp';
 import { ProductCarouselWithSuspense } from '@/components/product-carousel';
 import { useTranslation } from 'react-i18next';
 
@@ -65,58 +63,37 @@ export type HomePageData = {
 };
 
 /**
- * Internal helper function that fetches home page data.
- * This function handles the actual data fetching logic shared between server and client loaders.
+ * Server-side loader function that fetches home page data.
+ * This function runs on the server during SSR and prepares data for the home page.
  * @returns Promise that resolves to an object containing search result promise
  */
-function getPageData(loaderCtx: LoaderFunctionArgs, limit: number): HomePageData | void {
-    const currency = loaderCtx.context.get(currencyContext) as string;
-    const pagePromise = fetchPageFromLoader(loaderCtx, {
+// eslint-disable-next-line react-refresh/only-export-components
+export function loader(args: LoaderFunctionArgs): HomePageData {
+    const currency = args.context.get(currencyContext) as string;
+    const pagePromise = fetchPageFromLoader(args, {
         pageId: 'homepage',
     });
 
-    const componentDataPromises = collectComponentDataPromises(loaderCtx, pagePromise);
+    const componentDataPromises = collectComponentDataPromises(args, pagePromise);
 
     return {
         page: pagePromise,
-        searchResult: fetchSearchProducts(loaderCtx.context, {
+        searchResult: fetchSearchProducts(args.context, {
             categoryId: 'root',
-            limit,
+            limit: getConfig(args.context).pages.home.featuredProductsCount,
             currency: currency ?? undefined,
         }),
-        categories: fetchCategories(loaderCtx.context, 'root', 1),
+        categories: fetchCategories(args.context, 'root', 1),
         componentData: componentDataPromises,
     };
 }
 
 /**
- * Server-side loader function that fetches home page data.
- * This function runs on the server during SSR and prepares data for the home page.
- * @returns Promise that resolves to an object containing search result promise
- */
-export function loader(args: LoaderFunctionArgs) {
-    return getPageData(args, getConfig(args.context).pages.home.featuredProductsCount);
-}
-
-/**
- * Client-side loader function that handles data loading for client-side navigation.
- * This function ensures React Router doesn't block navigation by returning promises
- * directly instead of wrapped in a data object.
- * @returns Promise that resolves to an object containing search result promise
- */
-// eslint-disable-next-line custom/no-client-loaders
-export function clientLoader(args: ClientLoaderFunctionArgs) {
-    return getPageData(args, getConfig().pages.home.featuredProductsCount);
-}
-
-/**
- * Home view component that displays the home page content.
- * This component receives loader data and renders the main home view including
- * hero section, featured products, features, and help sections.
+ * Home page component that displays the home page content with granular Suspense boundaries.
+ * Components within the page handle their own Suspense boundaries for progressive loading.
  * @returns JSX element representing the home page layout
  */
-// eslint-disable-next-line react-refresh/only-export-components
-function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
+export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
     const { t } = useTranslation('home');
 
     const heroSlides: HeroSlide[] = [
@@ -151,6 +128,7 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
 
     return (
         <div className="pb-16 -mt-8">
+            {/* Header Banner Region - Region component handles its own Suspense internally */}
             <div className="py-8">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <Region
@@ -167,7 +145,7 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
                                     showDots={true}
                                 />
 
-                                {/* Featured Products */}
+                                {/* Featured Products - ProductCarouselWithSuspense handles its own Suspense */}
                                 <div className="pt-16 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                                     <ProductCarouselWithSuspense
                                         resolve={loaderData.searchResult}
@@ -179,7 +157,8 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
                     />
                 </div>
             </div>
-            {/* New Arrivals */}
+
+            {/* New Arrivals - Static content, no Suspense needed */}
             <div className="pt-16">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center rounded-2xl overflow-hidden">
@@ -204,6 +183,7 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
                 </div>
             </div>
 
+            {/* Main Region - Region component handles its own Suspense internally */}
             <div className="pt-16">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <Region
@@ -212,14 +192,14 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
                         componentData={loaderData.componentData}
                         fallback={
                             <>
-                                {/* Popular Categories */}
+                                {/* Popular Categories - handles its own Suspense internally */}
                                 <PopularCategories
                                     categoriesPromise={loaderData.categories}
                                     page={loaderData.page}
                                     componentData={loaderData.componentData}
                                 />
 
-                                {/* Featured Content Cards */}
+                                {/* Featured Content Cards - Static content */}
                                 <div className="pt-16 grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <ContentCard
                                         title={t('featuredContent.women.title')}
@@ -252,16 +232,3 @@ function HomeView({ loaderData }: RouteComponentProps<HomePageData>) {
         </div>
     );
 }
-
-/**
- * Home page component that displays the main landing page with featured products.
- * This component uses the createPage factory to handle Suspense patterns and data loading.
- * The page factory automatically handles the Suspense boundary and passes loader data
- * directly to the HomeView component.
- * @returns A page component created by the createPage factory
- */
-// eslint-disable-next-line react-refresh/only-export-components
-export default createPage<HomePageData>({
-    component: HomeView,
-    fallback: <HomeSkeleton />,
-});

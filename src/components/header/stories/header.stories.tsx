@@ -218,7 +218,7 @@ export const Authenticated: Story = {
     parameters: {
         docs: {
             description: {
-                story: 'Authenticated user sees welcome and Logout button.',
+                story: 'Authenticated user sees account icon button.',
             },
         },
     },
@@ -229,17 +229,14 @@ export const Authenticated: Story = {
         if (logoLink) {
             await expect(logoLink).toBeInTheDocument();
         }
-        const logoutButton = canvas.queryByRole('button', { name: 'Sign Out' });
-        if (logoutButton) {
-            await expect(logoutButton).toBeInTheDocument();
+        const accountLink = canvas.queryByRole('link', { name: /my account/i });
+        if (accountLink) {
+            await expect(accountLink).toBeInTheDocument();
+            await expect(accountLink).toHaveAttribute('href', '/account');
         }
         const searchInput = canvas.queryByPlaceholderText('Search');
         if (searchInput) {
             await expect(searchInput).toBeInTheDocument();
-        }
-        const accountElement = canvas.queryByText(/welcome|account|profile/i);
-        if (accountElement) {
-            await expect(accountElement).toBeInTheDocument();
         }
     },
 };
@@ -375,13 +372,10 @@ export const WithNavigationAuthenticated: Story = {
         if (navigationLinks.length > 0) {
             await expect(navigationLinks.length).toBeGreaterThan(0);
         }
-        const welcomeText = canvas.queryByText('Welcome back!');
-        if (welcomeText) {
-            await expect(welcomeText).toBeInTheDocument();
-        }
-        const logoutButton = canvas.queryByRole('button', { name: 'Sign Out' });
-        if (logoutButton) {
-            await expect(logoutButton).toBeInTheDocument();
+        const accountLink = canvas.queryByRole('link', { name: /my account/i });
+        if (accountLink) {
+            await expect(accountLink).toBeInTheDocument();
+            await expect(accountLink).toHaveAttribute('href', '/account');
         }
         const searchInput = canvas.queryByPlaceholderText('Search');
         if (searchInput) {

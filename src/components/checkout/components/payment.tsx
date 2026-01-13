@@ -36,6 +36,7 @@ import type { CheckoutActionData } from '../types';
 import { useTranslation } from 'react-i18next';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
+import { PluginComponent } from '@/plugins/plugin-component';
 
 interface PaymentProps {
     onSubmit: (data: PaymentData) => void;
@@ -224,362 +225,333 @@ export default function Payment({
 
                         {/* Payment Method Section */}
                         <div className="space-y-4">
-                            <Typography variant="h4" as="h3">
-                                {t('confirmation.fields.paymentMethod')}
-                            </Typography>
+                            <PluginComponent pluginId="checkout.payment.paymentMethods.before" />
+                            <PluginComponent pluginId="checkout.payment.paymentMethods">
+                                <Typography variant="h4" as="h3">
+                                    {t('confirmation.fields.paymentMethod')}
+                                </Typography>
 
-                            {/* Saved Payment Methods */}
-                            {savedPaymentMethods.length > 0 && (
-                                <div className="space-y-4">
-                                    <Typography variant="p" className="text-muted-foreground">
-                                        {t('confirmation.fields.savedMethodDescription')}
-                                    </Typography>
-                                    <RadioGroup
-                                        value={selectedPaymentMethod}
-                                        onValueChange={setSelectedPaymentMethod}
-                                        className="space-y-3">
-                                        {savedPaymentMethods.map((method) => {
-                                            const CardIcon = getCardIcon(
-                                                method.cardType || t('payment.unknownCardType')
-                                            );
-                                            return (
-                                                <div
-                                                    key={method.id}
-                                                    className="flex items-center space-x-3 p-3 border rounded-md hover:bg-accent">
-                                                    <RadioGroupItem value={method.id} id={method.id} />
-                                                    <Label htmlFor={method.id} className="flex-1 cursor-pointer">
-                                                        <div className="flex items-center gap-3">
-                                                            <CardIcon className="w-8 h-5 flex-shrink-0" />
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="font-medium">
-                                                                        {method.cardType ||
-                                                                            t('payment.unknownCardType')}
-                                                                    </span>
-                                                                    <span className="text-muted-foreground">
-                                                                        •••• {getLastFourDigits(method.maskedNumber)}
-                                                                    </span>
-                                                                    {method.preferred && (
-                                                                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                                                            {t('payment.preferredBadge')}
+                                {/* Saved Payment Methods */}
+                                {savedPaymentMethods.length > 0 && (
+                                    <div className="space-y-4">
+                                        <Typography variant="p" className="text-muted-foreground">
+                                            {t('confirmation.fields.savedMethodDescription')}
+                                        </Typography>
+                                        <RadioGroup
+                                            value={selectedPaymentMethod}
+                                            onValueChange={setSelectedPaymentMethod}
+                                            className="space-y-3">
+                                            {savedPaymentMethods.map((method) => {
+                                                const CardIcon = getCardIcon(
+                                                    method.cardType || t('payment.unknownCardType')
+                                                );
+                                                return (
+                                                    <div
+                                                        key={method.id}
+                                                        className="flex items-center space-x-3 p-3 border rounded-md hover:bg-accent">
+                                                        <RadioGroupItem value={method.id} id={method.id} />
+                                                        <Label htmlFor={method.id} className="flex-1 cursor-pointer">
+                                                            <div className="flex items-center gap-3">
+                                                                <CardIcon className="w-8 h-5 flex-shrink-0" />
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-medium">
+                                                                            {method.cardType ||
+                                                                                t('payment.unknownCardType')}
                                                                         </span>
-                                                                    )}
-                                                                </div>
-                                                                <div className="text-sm text-muted-foreground">
-                                                                    {method.cardholderName}
-                                                                    {method.expirationMonth &&
-                                                                        method.expirationYear && (
-                                                                            <span className="ml-2">
-                                                                                {t('payment.expiresLabel', {
-                                                                                    expiry: `${String(
-                                                                                        method.expirationMonth
-                                                                                    ).padStart(2, '0')}/${String(
-                                                                                        method.expirationYear
-                                                                                    ).slice(-2)}`,
-                                                                                })}
+                                                                        <span className="text-muted-foreground">
+                                                                            ••••{' '}
+                                                                            {getLastFourDigits(method.maskedNumber)}
+                                                                        </span>
+                                                                        {method.preferred && (
+                                                                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                                                                                {t('payment.preferredBadge')}
                                                                             </span>
                                                                         )}
+                                                                    </div>
+                                                                    <div className="text-sm text-muted-foreground">
+                                                                        {method.cardholderName}
+                                                                        {method.expirationMonth &&
+                                                                            method.expirationYear && (
+                                                                                <span className="ml-2">
+                                                                                    {t('payment.expiresLabel', {
+                                                                                        expiry: `${String(
+                                                                                            method.expirationMonth
+                                                                                        ).padStart(2, '0')}/${String(
+                                                                                            method.expirationYear
+                                                                                        ).slice(-2)}`,
+                                                                                    })}
+                                                                                </span>
+                                                                            )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                        </Label>
+                                                    </div>
+                                                );
+                                            })}
+                                            <div className="flex items-center space-x-3 p-3 border rounded-md hover:bg-accent">
+                                                <RadioGroupItem value="new" id="new-payment" />
+                                                <Label htmlFor="new-payment" className="cursor-pointer">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-5 bg-muted rounded border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+                                                            <span className="text-xs font-bold text-muted-foreground">
+                                                                +
+                                                            </span>
                                                         </div>
-                                                    </Label>
-                                                </div>
-                                            );
-                                        })}
-                                        <div className="flex items-center space-x-3 p-3 border rounded-md hover:bg-accent">
-                                            <RadioGroupItem value="new" id="new-payment" />
-                                            <Label htmlFor="new-payment" className="cursor-pointer">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-5 bg-muted rounded border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
-                                                        <span className="text-xs font-bold text-muted-foreground">
-                                                            +
+                                                        <span className="font-medium">
+                                                            {t('payment.addNewPaymentMethod')}
                                                         </span>
                                                     </div>
-                                                    <span className="font-medium">
-                                                        {t('payment.addNewPaymentMethod')}
-                                                    </span>
-                                                </div>
-                                            </Label>
-                                        </div>
-                                    </RadioGroup>
-                                    <Separator />
-                                </div>
-                            )}
-
-                            {/* New Payment Method Form - Show when no saved methods or "new" is selected */}
-                            {(savedPaymentMethods.length === 0 || selectedPaymentMethod === 'new') && (
-                                <div className="space-y-4">
-                                    {savedPaymentMethods.length > 0 && (
-                                        <Typography variant="h5" as="h4">
-                                            {t('payment.newPaymentMethodTitle')}
-                                        </Typography>
-                                    )}
-
-                                    <FormField
-                                        control={form.control}
-                                        name="cardNumber"
-                                        render={({ field }) => {
-                                            const CardIcon = getCardIcon(
-                                                detectedCardType || t('payment.unknownCardType')
-                                            );
-                                            return (
-                                                <FormItem>
-                                                    <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('payment.cardNumberLabel')}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex-1">
-                                                                <Input
-                                                                    placeholder={t('payment.cardNumberPlaceholder')}
-                                                                    autoComplete="cc-number"
-                                                                    maxLength={23} // 19 digits + 4 spaces
-                                                                    autoFocus={
-                                                                        isEditing && selectedPaymentMethod === 'new'
-                                                                    }
-                                                                    {...field}
-                                                                    onChange={(e) => {
-                                                                        const formatted = formatCardNumber(
-                                                                            e.target.value
-                                                                        );
-                                                                        field.onChange(formatted);
-                                                                        // Detect card type in real-time
-                                                                        const cardType = detectCardType(e.target.value);
-                                                                        setDetectedCardType(cardType);
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                            {detectedCardType &&
-                                                                detectedCardType !== t('payment.unknownCardType') && (
-                                                                    <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
-                                                                        <CardIcon className="w-8 h-5 flex-shrink-0" />
-                                                                        <span className="font-medium">
-                                                                            {detectedCardType}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                        </div>
-                                                    </FormControl>
-                                                    <FormMessage className="text-xl font-bold" />
-                                                </FormItem>
-                                            );
-                                        }}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="cardholderName"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                    {t('payment.cardholderLabel')}
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder={t('payment.cardholderPlaceholder')}
-                                                        autoComplete="cc-name"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage className="text-xl font-bold" />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="expiryDate"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('payment.expiryLabel')}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder={t('payment.expiryPlaceholder')}
-                                                            autoComplete="cc-exp"
-                                                            maxLength={5} // MM/YY
-                                                            {...field}
-                                                            onChange={(e) => {
-                                                                const formatted = formatExpiryDate(e.target.value);
-                                                                field.onChange(formatted);
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className="text-xl font-bold" />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="cvv"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('payment.cvvLabel')}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder={t('payment.cvvPlaceholder')}
-                                                            autoComplete="cc-csc"
-                                                            maxLength={4} // Max 4 digits for CVV
-                                                            {...field}
-                                                            onChange={(e) => {
-                                                                // Only allow digits
-                                                                const digits = e.target.value.replace(/\D/g, '');
-                                                                field.onChange(digits);
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className="text-xl font-bold" />
-                                                </FormItem>
-                                            )}
-                                        />
+                                                </Label>
+                                            </div>
+                                        </RadioGroup>
+                                        <Separator />
                                     </div>
-                                </div>
-                            )}
+                                )}
+
+                                {/* New Payment Method Form - Show when no saved methods or "new" is selected */}
+                                {(savedPaymentMethods.length === 0 || selectedPaymentMethod === 'new') && (
+                                    <div className="space-y-4">
+                                        {savedPaymentMethods.length > 0 && (
+                                            <Typography variant="h5" as="h4">
+                                                {t('payment.newPaymentMethodTitle')}
+                                            </Typography>
+                                        )}
+
+                                        <FormField
+                                            control={form.control}
+                                            name="cardNumber"
+                                            render={({ field }) => {
+                                                const CardIcon = getCardIcon(
+                                                    detectedCardType || t('payment.unknownCardType')
+                                                );
+                                                return (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('payment.cardNumberLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex-1">
+                                                                    <Input
+                                                                        placeholder={t('payment.cardNumberPlaceholder')}
+                                                                        autoComplete="cc-number"
+                                                                        maxLength={23} // 19 digits + 4 spaces
+                                                                        autoFocus={
+                                                                            isEditing && selectedPaymentMethod === 'new'
+                                                                        }
+                                                                        {...field}
+                                                                        onChange={(e) => {
+                                                                            const formatted = formatCardNumber(
+                                                                                e.target.value
+                                                                            );
+                                                                            field.onChange(formatted);
+                                                                            // Detect card type in real-time
+                                                                            const cardType = detectCardType(
+                                                                                e.target.value
+                                                                            );
+                                                                            setDetectedCardType(cardType);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                {detectedCardType &&
+                                                                    detectedCardType !==
+                                                                        t('payment.unknownCardType') && (
+                                                                        <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
+                                                                            <CardIcon className="w-8 h-5 flex-shrink-0" />
+                                                                            <span className="font-medium">
+                                                                                {detectedCardType}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                );
+                                            }}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="cardholderName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                        {t('payment.cardholderLabel')}
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder={t('payment.cardholderPlaceholder')}
+                                                            autoComplete="cc-name"
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage className="text-xl font-bold" />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="expiryDate"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('payment.expiryLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder={t('payment.expiryPlaceholder')}
+                                                                autoComplete="cc-exp"
+                                                                maxLength={5} // MM/YY
+                                                                {...field}
+                                                                onChange={(e) => {
+                                                                    const formatted = formatExpiryDate(e.target.value);
+                                                                    field.onChange(formatted);
+                                                                }}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={form.control}
+                                                name="cvv"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('payment.cvvLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder={t('payment.cvvPlaceholder')}
+                                                                autoComplete="cc-csc"
+                                                                maxLength={4} // Max 4 digits for CVV
+                                                                {...field}
+                                                                onChange={(e) => {
+                                                                    // Only allow digits
+                                                                    const digits = e.target.value.replace(/\D/g, '');
+                                                                    field.onChange(digits);
+                                                                }}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </PluginComponent>
+                            <PluginComponent pluginId="checkout.payment.paymentMethods.after" />
                         </div>
 
                         <Separator />
 
                         {/* Billing Address Section */}
                         <div className="space-y-4">
-                            {showBillingSameAsShipping && (
-                                <FormField
-                                    control={form.control}
-                                    name="billingSameAsShipping"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <div className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/50">
-                                                <div className="flex items-start space-x-3">
-                                                    <FormControl>
-                                                        <Checkbox
-                                                            checked={field.value}
-                                                            onCheckedChange={(checked) => {
-                                                                field.onChange(checked === true);
-                                                            }}
-                                                            className="mt-0.5"
-                                                            aria-label={t('payment.billingSameAsShipping')}
-                                                        />
-                                                    </FormControl>
-                                                    <div className="space-y-1 leading-none">
-                                                        <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                            {t('payment.billingSameAsShipping')}
-                                                        </FormLabel>
-                                                        <Typography variant="small" className="text-muted-foreground">
-                                                            {t('payment.billingSameAsShippingDescription')}
-                                                        </Typography>
+                            <PluginComponent pluginId="checkout.payment.billingAddress.before" />
+                            <PluginComponent pluginId="checkout.payment.billingAddress">
+                                {showBillingSameAsShipping && (
+                                    <FormField
+                                        control={form.control}
+                                        name="billingSameAsShipping"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <div className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/50">
+                                                    <div className="flex items-start space-x-3">
+                                                        <FormControl>
+                                                            <Checkbox
+                                                                checked={field.value}
+                                                                onCheckedChange={(checked) => {
+                                                                    field.onChange(checked === true);
+                                                                }}
+                                                                className="mt-0.5"
+                                                                aria-label={t('payment.billingSameAsShipping')}
+                                                            />
+                                                        </FormControl>
+                                                        <div className="space-y-1 leading-none">
+                                                            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                                {t('payment.billingSameAsShipping')}
+                                                            </FormLabel>
+                                                            <Typography
+                                                                variant="small"
+                                                                className="text-muted-foreground">
+                                                                {t('payment.billingSameAsShippingDescription')}
+                                                            </Typography>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
-
-                            {!billingSameAsShipping && (
-                                <div className="space-y-4">
-                                    <Typography variant="h4" as="h3">
-                                        {t('confirmation.fields.billingAddress')}
-                                    </Typography>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="billingFirstName"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('shippingAddress.firstNameLabel')}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder={t('shippingAddress.firstNamePlaceholder')}
-                                                            autoComplete="billing given-name"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className="text-xl font-bold" />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="billingLastName"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('shippingAddress.lastNameLabel')}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder={t('shippingAddress.lastNamePlaceholder')}
-                                                            autoComplete="billing family-name"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className="text-xl font-bold" />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="billingAddress1"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                    {t('shippingAddress.addressLabel')}
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder={t('shippingAddress.addressPlaceholder')}
-                                                        autoComplete="billing address-line1"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage className="text-xl font-bold" />
                                             </FormItem>
                                         )}
                                     />
+                                )}
 
-                                    <FormField
-                                        control={form.control}
-                                        name="billingAddress2"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                    {t('shippingAddress.address2Label')}
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        placeholder={t('shippingAddress.address2Placeholder')}
-                                                        autoComplete="billing address-line2"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage className="text-xl font-bold" />
-                                            </FormItem>
-                                        )}
-                                    />
+                                {!billingSameAsShipping && (
+                                    <div className="space-y-4">
+                                        <Typography variant="h4" as="h3">
+                                            {t('confirmation.fields.billingAddress')}
+                                        </Typography>
 
-                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="billingFirstName"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('shippingAddress.firstNameLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder={t('shippingAddress.firstNamePlaceholder')}
+                                                                autoComplete="billing given-name"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={form.control}
+                                                name="billingLastName"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('shippingAddress.lastNameLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder={t('shippingAddress.lastNamePlaceholder')}
+                                                                autoComplete="billing family-name"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
                                         <FormField
                                             control={form.control}
-                                            name="billingCity"
+                                            name="billingAddress1"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('shippingAddress.cityLabel')}
+                                                        {t('shippingAddress.addressLabel')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={t('shippingAddress.cityPlaceholder')}
-                                                            autoComplete="billing address-level2"
+                                                            placeholder={t('shippingAddress.addressPlaceholder')}
+                                                            autoComplete="billing address-line1"
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -590,16 +562,16 @@ export default function Payment({
 
                                         <FormField
                                             control={form.control}
-                                            name="billingStateCode"
+                                            name="billingAddress2"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('shippingAddress.stateLabel')}
+                                                        {t('shippingAddress.address2Label')}
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder={t('shippingAddress.statePlaceholder')}
-                                                            autoComplete="billing address-level1"
+                                                            placeholder={t('shippingAddress.address2Placeholder')}
+                                                            autoComplete="billing address-line2"
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -608,28 +580,71 @@ export default function Payment({
                                             )}
                                         />
 
-                                        <FormField
-                                            control={form.control}
-                                            name="billingPostalCode"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
-                                                        {t('shippingAddress.zipLabel')}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            placeholder={t('shippingAddress.zipPlaceholder')}
-                                                            autoComplete="billing postal-code"
-                                                            {...field}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className="text-xl font-bold" />
-                                                </FormItem>
-                                            )}
-                                        />
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="billingCity"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('shippingAddress.cityLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder={t('shippingAddress.cityPlaceholder')}
+                                                                autoComplete="billing address-level2"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={form.control}
+                                                name="billingStateCode"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('shippingAddress.stateLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder={t('shippingAddress.statePlaceholder')}
+                                                                autoComplete="billing address-level1"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={form.control}
+                                                name="billingPostalCode"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel className="data-[error=true]:text-xl data-[error=true]:font-bold">
+                                                            {t('shippingAddress.zipLabel')}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder={t('shippingAddress.zipPlaceholder')}
+                                                                autoComplete="billing postal-code"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-xl font-bold" />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </PluginComponent>
+                            <PluginComponent pluginId="checkout.payment.billingAddress.after" />
                         </div>
 
                         <div className="flex justify-end pt-2">

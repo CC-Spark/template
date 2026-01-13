@@ -4,7 +4,7 @@ apis:
     x-openapi-ts:
       output: ../src/scapi-client/generated/shopper-baskets-v1.ts
   shopper-baskets-v2:
-    root: ./shopper-baskets-oas-2.1.0/shopper-baskets-oas-v2-public.yaml
+    root: ./shopper-baskets-oas-2.3.0/shopper-baskets-oas-v2-public.yaml
     x-openapi-ts:
       output: ../src/scapi-client/generated/shopper-baskets-v2.ts
   shopper-consents-v1:

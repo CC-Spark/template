@@ -22,6 +22,8 @@ export interface AccountNavItemData {
     icon: LucideIcon;
     label: string;
     disabled?: boolean;
+    action?: string;
+    method?: 'post' | 'get';
 }
 
 interface AccountNavListProps {
@@ -33,9 +35,8 @@ export function AccountNavList({ isMobile = false, items }: AccountNavListProps)
     return (
         <>
             {items.map((item) => (
-                <AccountNavItem key={item.path} item={item} isMobile={isMobile} />
+                <AccountNavItem key={item.path || item.action} item={item} isMobile={isMobile} />
             ))}
-            {/* TODO ADD LOGOUT BUTTON */}
         </>
     );
 }

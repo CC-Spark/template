@@ -24,7 +24,7 @@ import withSuspense from '@/components/with-suspense';
 import HeroCarouselSkeleton from './skeleton';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
-import heroImage from '/images/hero-cube.png';
+import heroImage from '/images/hero-cube.webp';
 
 @Component('heroCarousel', {
     name: 'Hero Carousel',

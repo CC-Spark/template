@@ -25,6 +25,12 @@ vi.mock('@/components/dynamic-image', () => ({
     ),
 }));
 
+vi.mock('@/hooks/use-analytics', () => ({
+    useAnalytics: () => ({
+        trackClickSearchSuggestion: vi.fn(),
+    }),
+}));
+
 const renderWithRouter = (ui: React.ReactElement) => {
     return render(<BrowserRouter>{ui}</BrowserRouter>);
 };

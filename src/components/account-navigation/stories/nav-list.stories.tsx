@@ -21,7 +21,7 @@ import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-ro
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { AccountNavList, type AccountNavItemData } from '../index';
-import { User, Heart, Receipt, MapPin, Settings } from 'lucide-react';
+import { User, Heart, Receipt, MapPin, Settings, LogOut } from 'lucide-react';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -33,6 +33,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
         const logNavigate = action('nav-list-navigate');
         const logHover = action('nav-list-hover');
         const logDisabledClick = action('nav-list-disabled-click');
+        const logFormSubmit = action('nav-list-form-submit');
 
         const handleClick = (event: Event) => {
             const target = event.target as HTMLElement | null;
@@ -40,6 +41,8 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
 
             const navLink = target.closest('a[href]');
             const navButton = target.closest('button[disabled]');
+            const formButton = target.closest('form button[type="submit"]');
+            const form = target.closest('form');
 
             if (navLink) {
                 const href = navLink.getAttribute('href') || '';
@@ -47,6 +50,16 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
                 event.preventDefault();
                 (event as unknown as { stopImmediatePropagation?: () => void }).stopImmediatePropagation?.();
                 logNavigate({ href, label: text });
+                return;
+            }
+
+            if (formButton && form) {
+                const formAction = form.getAttribute('action') || '';
+                const method = form.getAttribute('method') || 'get';
+                const label = formButton.textContent?.trim() || '';
+                event.preventDefault();
+                (event as unknown as { stopImmediatePropagation?: () => void }).stopImmediatePropagation?.();
+                logFormSubmit({ action: formAction, method, label });
                 return;
             }
 
@@ -105,6 +118,7 @@ Navigation list component that renders multiple account navigation items. Used i
 - Supports mobile and desktop variants
 - Handles disabled items
 - React Router integration for navigation
+- Supports form actions (e.g., logout)
                 `,
             },
         },
@@ -368,5 +382,53 @@ export const WithManyItems: Story = {
 
         const links = canvas.getAllByRole('link');
         await expect(links.length).toBeGreaterThanOrEqual(5);
+    },
+};
+
+export const WithLogout: Story = {
+    args: {
+        items: [
+            ...mockNavigationItems,
+            {
+                path: '',
+                icon: LogOut,
+                label: 'Log Out',
+                action: '/logout',
+                method: 'post',
+            },
+        ],
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Navigation list with logout item at the end.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
+        const canvas = within(canvasElement);
+
+        // Verify navigation links are present
+        await expect(canvas.getByRole('link', { name: 'Account Details' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Wishlist' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Orders' })).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Addresses' })).toBeInTheDocument();
+
+        // Verify logout button is present
+        const logoutButton = canvas.getByRole('button', { name: 'Log Out' });
+        await expect(logoutButton).toBeInTheDocument();
+        await expect(logoutButton).toHaveAttribute('type', 'submit');
+
+        // Verify logout form
+        const form = logoutButton.closest('form');
+        await expect(form).toBeInTheDocument();
+        await expect(form).toHaveAttribute('action', '/logout');
+        await expect(form).toHaveAttribute('method', 'post');
+
+        // Verify logout icon
+        const logoutIcon = canvas.getByTestId('Log Out-icon');
+        await expect(logoutIcon).toBeInTheDocument();
     },
 };

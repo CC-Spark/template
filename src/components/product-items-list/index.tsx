@@ -20,10 +20,15 @@ import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@sale
 
 // Components
 import ProductItem from '@/components/product-item';
+import SelectBonusProductsCard from '@/components/cart/select-bonus-products-card';
 import { Card } from '../ui/card';
 
 // Utils
-import { calculateMaxQuantityForBonusProduct } from '@/lib/bonus-product-utils';
+import {
+    buildBonusPromotionMap,
+    getAttachedBonusPromotions,
+    calculateMaxQuantityForBonusProduct,
+} from '@/lib/bonus-product-utils';
 
 /**
  * Spacing constants for different display variants
@@ -75,6 +80,10 @@ interface ProductItemsListProps {
     secondaryActions?: (
         product: ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>
     ) => ReactElement | undefined;
+    /** Optional basket for bonus product selection */
+    basket?: ShopperBasketsV2.schemas['Basket'];
+    /** Callback when user clicks select bonus products button */
+    onSelectBonusProducts?: () => void;
     /**
      * If true, each product item is wrapped in its own Card, creating
      * individual tiles instead of a single stacked list.
@@ -143,8 +152,20 @@ export default function ProductItemsList({
     variant = 'default',
     primaryAction,
     secondaryActions,
+    basket,
+    onSelectBonusProducts,
     separateCards = false,
 }: ProductItemsListProps): ReactElement {
+    /**
+     * Build bonus promotion map and get attached promotions
+     * This determines which cart items should show bonus product selection cards
+     */
+    const attachedPromotions = useMemo(() => {
+        if (!basket) return new Map();
+        const promotionMap = buildBonusPromotionMap(basket);
+        return getAttachedBonusPromotions(basket, productsByItemId, promotionMap);
+    }, [basket, productsByItemId]);
+
     /**
      * Calculate max quantities for choice-based bonus products at the basket level
      * This avoids redundant calculations in each ProductItem component
@@ -201,32 +222,51 @@ export default function ProductItemsList({
                 bonusDiscountLineItemId: productItem.bonusDiscountLineItemId,
             };
 
+            // Check if this item has an attached bonus promotion card
+            const bonusPromo = productItem.itemId ? attachedPromotions.get(productItem.itemId) : undefined;
+
             // Get max quantity for this bonus product if it exists
             const maxQuantity = productItem.itemId ? bonusProductMaxQuantities.get(productItem.itemId) : undefined;
 
             const currentProductItem = (
-                <ProductItem
-                    key={productItem.itemId || `item-${index}`}
-                    productItem={enrichedProductItem}
-                    primaryAction={primaryAction}
-                    secondaryActions={secondaryActions}
-                    displayVariant={variant}
-                    promotions={promotions}
-                    bonusDiscountLineItems={bonusDiscountLineItems}
-                    maxBonusQuantity={maxQuantity}
-                />
+                <>
+                    <ProductItem
+                        productItem={enrichedProductItem}
+                        primaryAction={primaryAction}
+                        secondaryActions={secondaryActions}
+                        displayVariant={variant}
+                        promotions={promotions}
+                        bonusDiscountLineItems={bonusDiscountLineItems}
+                        maxBonusQuantity={maxQuantity}
+                    />
+
+                    {/* Render bonus product selection card if eligible */}
+                    {bonusPromo && (
+                        <div className="mt-3">
+                            <SelectBonusProductsCard promotion={bonusPromo} onSelectClick={onSelectBonusProducts} />
+                        </div>
+                    )}
+                </>
             );
 
             if (separateCards) {
                 return <Card key={productItem.itemId || `item-${index}`}>{currentProductItem}</Card>;
             }
 
-            return currentProductItem;
+            return <div key={productItem.itemId || `item-${index}`}>{currentProductItem}</div>;
         });
         // Intentionally exclude primaryAction and secondaryActions from dependencies
         // to prevent re-computation when parent components re-render with new function references
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [productItems, productsByItemId, promotions, bonusDiscountLineItems, bonusProductMaxQuantities, variant]);
+    }, [
+        productItems,
+        productsByItemId,
+        promotions,
+        bonusDiscountLineItems,
+        variant,
+        attachedPromotions,
+        bonusProductMaxQuantities,
+    ]);
 
     return <div className={variant === 'summary' ? SUMMARY_SPACING : DEFAULT_SPACING}>{memoizedItems}</div>;
 }

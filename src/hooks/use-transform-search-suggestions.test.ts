@@ -120,6 +120,7 @@ describe('useTransformSearchSuggestions', () => {
             {
                 name: 'iPhone 15',
                 link: '/product/prod1',
+                type: 'product',
                 image: 'https://example.com/iphone.jpg',
                 price: 999,
                 currency: 'USD',
@@ -127,6 +128,7 @@ describe('useTransformSearchSuggestions', () => {
             {
                 name: 'Samsung Galaxy',
                 link: '/product/prod2',
+                type: 'product',
                 image: undefined,
                 price: undefined,
                 currency: undefined,
@@ -160,16 +162,19 @@ describe('useTransformSearchSuggestions', () => {
             {
                 name: 'iphone case',
                 link: '/search?q=iphone%20case',
+                type: 'phrase',
                 exactMatch: true,
             },
             {
                 name: 'phone accessories',
                 link: '/search?q=phone%20accessories',
+                type: 'phrase',
                 exactMatch: false,
             },
             {
                 name: 'bluetooth headphones',
                 link: '/search?q=bluetooth%20headphones',
+                type: 'phrase',
                 exactMatch: undefined,
             },
         ]);
@@ -238,6 +243,7 @@ describe('useTransformSearchSuggestions', () => {
                 {
                     name: 'iPhone 15 Pro',
                     link: '/product/iphone15',
+                    type: 'product',
                     image: 'https://example.com/iphone15.jpg',
                     price: 1099,
                     currency: 'USD',
@@ -247,6 +253,7 @@ describe('useTransformSearchSuggestions', () => {
                 {
                     name: 'phone case',
                     link: '/search?q=phone%20case',
+                    type: 'phrase',
                     exactMatch: false,
                 },
             ],
@@ -314,6 +321,7 @@ describe('useTransformSearchSuggestions', () => {
             {
                 name: '',
                 link: '/product/prod1',
+                type: 'product',
                 image: undefined,
                 price: undefined,
                 currency: undefined,
@@ -321,6 +329,7 @@ describe('useTransformSearchSuggestions', () => {
             {
                 name: '',
                 link: '/product/prod2',
+                type: 'product',
                 image: undefined,
                 price: undefined,
                 currency: undefined,
@@ -331,11 +340,13 @@ describe('useTransformSearchSuggestions', () => {
             {
                 name: '',
                 link: '/search?q=',
+                type: 'phrase',
                 exactMatch: true,
             },
             {
                 name: '',
                 link: '/search?q=',
+                type: 'phrase',
                 exactMatch: false,
             },
         ]);

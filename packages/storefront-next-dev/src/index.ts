@@ -32,4 +32,8 @@ import trimExtensions from './extensibility/trim-extensions';
 export { trimExtensions };
 
 // Named export: Generate cartridge metadata for programmatic usage
-export { generateMetadata, type GenerateMetadataOptions } from './cartridge-services/generate-cartridge';
+export {
+    generateMetadata,
+    type GenerateMetadataOptions,
+    type GenerateMetadataResult,
+} from './cartridge-services/generate-cartridge';

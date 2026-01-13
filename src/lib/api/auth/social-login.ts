@@ -16,7 +16,7 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from 'react-router';
 import { getAuth, updateAuth } from '@/middlewares/auth.server';
 import { isTrackingConsentEnabled } from '@/middlewares/auth.utils';
-import { getAppOrigin, getErrorMessage } from '@/lib/utils';
+import { getAppOrigin, getErrorMessage, isAbsoluteURL } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
 import { mergeBasket } from '@/lib/api/basket';
@@ -50,7 +50,11 @@ export const authorizeIDP = async (
         const clients = createApiClients(context);
 
         // SLAS will redirect to this URL after processing the social login
-        const redirectUri = parameters.redirectURI || `${getAppOrigin()}${config.commerce.api.callback}`;
+        // Use absolute URL if provided, otherwise construct from app origin
+        const callbackUri = config.commerce.api.callback;
+        const redirectUri =
+            parameters.redirectURI ||
+            (callbackUri && isAbsoluteURL(callbackUri) ? callbackUri : `${getAppOrigin()}${callbackUri || ''}`);
         const usid = parameters.usid || session.usid;
 
         const { url, codeVerifier } = await clients.auth.social.getAuthorizationUrl({
@@ -169,10 +173,14 @@ export async function handleSocialLoginLanding({ request, context }: LoaderFunct
 
         // Handle successful authorization with code
         if (code) {
+            // Construct redirect URI - use absolute URL if provided, otherwise build from app origin
+            const callbackUri = config.site.features.socialLogin.callbackUri;
+            const redirectURI = isAbsoluteURL(callbackUri) ? callbackUri : `${getAppOrigin()}${callbackUri}`;
+
             const result = await loginIDPUser(context, {
                 code,
                 usid: usid || undefined,
-                redirectURI: `${getAppOrigin()}${config.site.features.socialLogin.callbackUri}`,
+                redirectURI,
             });
 
             if (result.success) {

@@ -447,6 +447,9 @@
         },
         "bundle": {
             "selectedOptions": "Selected Options"
+        },
+        "bonusProducts": {
+            "selectBonusProducts": "Select bonus products in Cart"
         }
     },
     "checkout": {

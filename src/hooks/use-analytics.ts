@@ -137,6 +137,8 @@ export const useAnalytics = () => {
             trackViewCategory: () => {},
             trackClickProductInCategory: () => {},
             trackClickProductInSearch: () => {},
+            trackViewSearchSuggestions: () => {},
+            trackClickSearchSuggestion: () => {},
         };
         /* eslint-enable @typescript-eslint/no-empty-function */
     }
@@ -255,6 +257,26 @@ export const useAnalytics = () => {
         });
     };
 
+    /**
+     * Track view of search suggestions
+     */
+    const trackViewSearchSuggestions = async (data: { searchInputText: string; suggestions: Array<string> }) => {
+        return trackEvent(authPromiseRef.current, appConfig, trackingConsent, 'view_search_suggestion', {
+            searchInputText: data.searchInputText,
+            suggestions: data.suggestions,
+        });
+    };
+
+    /**
+     * Track click on a search suggestion
+     */
+    const trackClickSearchSuggestion = async (data: { searchInputText: string; suggestion: string }) => {
+        return trackEvent(authPromiseRef.current, appConfig, trackingConsent, 'click_search_suggestion', {
+            searchInputText: data.searchInputText,
+            suggestion: data.suggestion,
+        });
+    };
+
     return {
         trackViewPage,
         trackViewProduct,
@@ -265,5 +287,7 @@ export const useAnalytics = () => {
         trackViewCategory,
         trackClickProductInCategory,
         trackClickProductInSearch,
+        trackViewSearchSuggestions,
+        trackClickSearchSuggestion,
     };
 };

@@ -47,7 +47,7 @@ exports[`PopularCategory stories snapshot > Fallback story renders and matches s
       <div
         data-testid="content-card"
       >
-        {"title":"","description":"","imageUrl":"/images/hero-cube.png","imageAlt":"","buttonText":"Shop Now","buttonLink":"/category/root","showBackground":true,"showBorder":true,"loading":"eager"}
+        {"title":"","description":"","imageUrl":"/images/hero-cube.webp","imageAlt":"","buttonText":"Shop Now","buttonLink":"/category/root","showBackground":true,"showBorder":true,"loading":"eager"}
       </div>
     </div>
   </div>
@@ -101,7 +101,7 @@ exports[`PopularCategory stories snapshot > WithoutImage story renders and match
       <div
         data-testid="content-card"
       >
-        {"title":"Mens","description":"Men's range. Hard-wearing boots, jackets and clothing for unbeatable comfort day in, day out. Practical, easy-to-wear styles wherever you're headed.","imageUrl":"/images/hero-cube.png","imageAlt":"Mens","buttonText":"Shop Now","buttonLink":"/category/mens","showBackground":true,"showBorder":true,"loading":"eager"}
+        {"title":"Mens","description":"Men's range. Hard-wearing boots, jackets and clothing for unbeatable comfort day in, day out. Practical, easy-to-wear styles wherever you're headed.","imageUrl":"/images/hero-cube.webp","imageAlt":"Mens","buttonText":"Shop Now","buttonLink":"/category/mens","showBackground":true,"showBorder":true,"loading":"eager"}
       </div>
     </div>
   </div>

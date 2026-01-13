@@ -103,6 +103,16 @@ interface CheckoutStepEvent extends BaseEvent {
   stepNumber: number;
   basket: Basket;
 }
+interface ViewSearchSuggestionEvent extends BaseEvent {
+  eventType: 'view_search_suggestion';
+  searchInputText: string;
+  suggestions: Array<string>;
+}
+interface ClickSearchSuggestionEvent extends BaseEvent {
+  eventType: 'click_search_suggestion';
+  searchInputText: string;
+  suggestion: string;
+}
 /**
  * Interface for custom analytics events.
  * Extend this interface via module augmentation.
@@ -122,7 +132,7 @@ interface AnalyticsEventExtensions {}
  *
  * Custom types can be added by extending the AnalyticsEventExtensions interface.
  */
-type AnalyticsEvent = ViewPageEvent | ViewProductEvent | ViewSearchEvent | ViewCategoryEvent | ViewRecommenderEvent | ClickProductInCategoryEvent | ClickProductInSearchEvent | ClickProductInRecommenderEvent | CartItemAddEvent | CheckoutStartEvent | CheckoutStepEvent | AnalyticsEventExtensions[keyof AnalyticsEventExtensions];
+type AnalyticsEvent = ViewPageEvent | ViewProductEvent | ViewSearchEvent | ViewCategoryEvent | ViewRecommenderEvent | ClickProductInCategoryEvent | ClickProductInSearchEvent | ClickProductInRecommenderEvent | CartItemAddEvent | CheckoutStartEvent | CheckoutStepEvent | ViewSearchSuggestionEvent | ClickSearchSuggestionEvent | AnalyticsEventExtensions[keyof AnalyticsEventExtensions];
 /**
  * Helper type for mapping event_type to the corresponding event type.
  */
@@ -193,5 +203,5 @@ declare function getEventMediator(getAdapters: () => EventAdapter[]): EventMedia
  */
 declare function resetEventMediator(): void;
 //#endregion
-export { AnalyticsEvent, AnalyticsEventExtensions, AnalyticsPayload, AnalyticsUser, BaseEvent, CartItemAddEvent, CheckoutStartEvent, CheckoutStepEvent, ClickProductInCategoryEvent, ClickProductInRecommenderEvent, ClickProductInSearchEvent, EventAdapter, EventMediator, EventPayload, EventTypeMap, PayloadTbd, ViewCategoryEvent, ViewPageEvent, ViewProductEvent, ViewRecommenderEvent, ViewSearchEvent, createEvent, getEventMediator, resetEventMediator, sendViewPageEvent };
+export { AnalyticsEvent, AnalyticsEventExtensions, AnalyticsPayload, AnalyticsUser, BaseEvent, CartItemAddEvent, CheckoutStartEvent, CheckoutStepEvent, ClickProductInCategoryEvent, ClickProductInRecommenderEvent, ClickProductInSearchEvent, ClickSearchSuggestionEvent, EventAdapter, EventMediator, EventPayload, EventTypeMap, PayloadTbd, ViewCategoryEvent, ViewPageEvent, ViewProductEvent, ViewRecommenderEvent, ViewSearchEvent, ViewSearchSuggestionEvent, createEvent, getEventMediator, resetEventMediator, sendViewPageEvent };
 //# sourceMappingURL=events.d.ts.map

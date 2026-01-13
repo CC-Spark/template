@@ -16,11 +16,16 @@
 
 /**
  * PluginComponent is a placeholder component that is used to render a plugin.
+ * At build time, this component is transformed by the plugin system:
+ * - If a plugin is registered for the pluginId, it replaces this component with the plugin component(s)
+ * - If no plugin is registered and children are provided, it replaces this component with its children
+ * - If no plugin is registered and no children are provided, it removes this component
  * @param pluginId - The id of the plugin to render
+ * @param children - Default content to render if no plugin is registered (handled at build time)
  * @returns
  */
-export function PluginComponent({ pluginId }: { pluginId: string }) {
+export function PluginComponent({ pluginId, children }: { pluginId: string; children?: React.ReactNode }) {
     // eslint-disable-next-line no-console
     console.log('----- PluginComponent', pluginId);
-    return null;
+    return <>{children}</>;
 }

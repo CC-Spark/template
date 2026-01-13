@@ -80,6 +80,7 @@ vi.mock('react-router', () => ({
             </a>
         );
     },
+    Form: (props: React.PropsWithChildren<Record<string, unknown>>) => <form {...props}>{props.children}</form>,
 }));
 vi.mock('react-router-dom', async (importOriginal) => {
     const actual: Record<string, unknown> = await importOriginal();

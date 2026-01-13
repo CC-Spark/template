@@ -21,7 +21,7 @@ import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-ro
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { AccountNavItem } from '../index';
-import { User, Heart, Receipt } from 'lucide-react';
+import { User, Heart, Receipt, LogOut } from 'lucide-react';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -33,6 +33,7 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
         const logNavigate = action('nav-item-navigate');
         const logHover = action('nav-item-hover');
         const logDisabledClick = action('nav-item-disabled-click');
+        const logFormSubmit = action('nav-item-form-submit');
 
         const handleClick = (event: Event) => {
             const target = event.target as HTMLElement | null;
@@ -40,6 +41,8 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
 
             const navLink = target.closest('a[href]');
             const navButton = target.closest('button[disabled]');
+            const formButton = target.closest('form button[type="submit"]');
+            const form = target.closest('form');
 
             if (navLink) {
                 const href = navLink.getAttribute('href') || '';
@@ -47,6 +50,16 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
                 event.preventDefault();
                 (event as unknown as { stopImmediatePropagation?: () => void }).stopImmediatePropagation?.();
                 logNavigate({ href, label: text });
+                return;
+            }
+
+            if (formButton && form) {
+                const formAction = form.getAttribute('action') || '';
+                const method = form.getAttribute('method') || 'get';
+                const label = formButton.textContent?.trim() || '';
+                event.preventDefault();
+                (event as unknown as { stopImmediatePropagation?: () => void }).stopImmediatePropagation?.();
+                logFormSubmit({ action: formAction, method, label });
                 return;
             }
 
@@ -106,6 +119,7 @@ Navigation item component for the account navigation menu. Displays a single nav
 - Mobile and desktop variants
 - Icon support via Lucide icons
 - React Router integration for navigation
+- Form action support (e.g., logout)
                 `,
             },
         },
@@ -371,5 +385,45 @@ export const Interactive: Story = {
 
         await userEvent.hover(link);
         await userEvent.click(link);
+    },
+};
+
+export const Logout: Story = {
+    args: {
+        item: {
+            path: '',
+            icon: LogOut,
+            label: 'Log Out',
+            action: '/logout',
+            method: 'post',
+        },
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Logout navigation item rendered as a form button.',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+
+        const canvas = within(canvasElement);
+
+        const button = canvas.getByRole('button', { name: 'Log Out' });
+        await expect(button).toBeInTheDocument();
+        await expect(button).toHaveAttribute('type', 'submit');
+
+        const form = button.closest('form');
+        await expect(form).toBeInTheDocument();
+        await expect(form).toHaveAttribute('action', '/logout');
+        await expect(form).toHaveAttribute('method', 'post');
+
+        const icon = canvas.getByTestId('Log Out-icon');
+        await expect(icon).toBeInTheDocument();
+
+        // Should not be a link
+        const link = canvas.queryByRole('link');
+        await expect(link).not.toBeInTheDocument();
     },
 };

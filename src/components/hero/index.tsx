@@ -20,7 +20,7 @@ import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { RegionDefinition } from '@/lib/decorators';
 import { type Image } from '@/types';
-import heroImage from '/images/hero-cube.png';
+import heroImage from '/images/hero-cube.webp';
 
 /* v8 ignore start - do not test decorators in unit tests, decorator functionality is tested separately*/
 @Component('hero', {

@@ -20,7 +20,7 @@ import ContentCard from '@/components/content-card';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { useTranslation } from 'react-i18next';
-import heroImage from '/images/hero-cube.png';
+import heroImage from '/images/hero-cube.webp';
 import { loader as loaders } from './loaders';
 
 interface PopularCategoryProps extends ComponentProps<'div'> {

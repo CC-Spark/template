@@ -70,6 +70,7 @@
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "clean": "shx rm -rf dist",
     "push": "node dist/cli.js push",
+    "create-bundle": "node dist/cli.js create-bundle",
     "generate-cartridge": "node dist/cli.js generate-cartridge",
     "deploy-cartridge": "node dist/cli.js deploy-cartridge"
   },

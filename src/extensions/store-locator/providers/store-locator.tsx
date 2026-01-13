@@ -15,23 +15,23 @@
  */
 'use client';
 
-import { createContext, type PropsWithChildren, useContext, useRef } from 'react';
-import { useStore } from 'zustand';
+import { createContext, type PropsWithChildren, useContext, useRef, useSyncExternalStore, useCallback } from 'react';
 import {
     type StoreLocatorStore,
+    type StoreApi,
     createStoreLocatorStore,
     type SelectedStoreInfo,
 } from '@/extensions/store-locator/stores/store-locator-store';
 import { getCookieFromDocumentAs, getSelectedStoreInfoCookieName } from '@/extensions/store-locator/utils';
 
-export type StoreLocatorStoreApi = ReturnType<typeof createStoreLocatorStore>;
+export type StoreLocatorStoreApi = StoreApi<StoreLocatorStore>;
 
 const StoreLocatorContext = createContext<StoreLocatorStoreApi | undefined>(undefined);
 
 /**
  * StoreLocatorProvider
  *
- * Provides a scoped Zustand store instance for the store locator feature. Hydrates the
+ * Provides a scoped store instance for the store locator feature. Hydrates the
  * initially selected store id from a cookie scoped by site id.
  *
  * @param children - React subtree that needs access to store locator state
@@ -53,9 +53,8 @@ const StoreLocatorProvider = ({ children }: PropsWithChildren) => {
 };
 
 /**
- * useStoreLocator
- *
  * Selector-based hook to read from the store locator state within the provider.
+ * Uses {@link useSyncExternalStore} for optimal re-render behavior.
  * Throws if used outside the provider.
  *
  * @param selector - Function selecting a slice of `StoreLocatorStore`
@@ -66,12 +65,14 @@ const StoreLocatorProvider = ({ children }: PropsWithChildren) => {
  * const selectedStoreId = selectedStoreInfo?.id;
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export const useStoreLocator = <T,>(selector: (store: StoreLocatorStore) => T) => {
-    const context = useContext(StoreLocatorContext);
-    if (!context) {
+export const useStoreLocator = <T,>(selector: (store: StoreLocatorStore) => T): T => {
+    const store = useContext(StoreLocatorContext);
+    if (!store) {
         throw new Error('useStoreLocator must be used within StoreLocatorProvider');
     }
-    return useStore(context, selector);
+
+    const getSnapshot = useCallback(() => selector(store.getState()), [store, selector]);
+    return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 };
 
 export default StoreLocatorProvider;

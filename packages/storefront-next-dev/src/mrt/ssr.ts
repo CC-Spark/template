@@ -17,6 +17,7 @@ import type { APIGatewayProxyHandler } from 'aws-lambda';
 import serverlessExpress from '@codegenie/serverless-express';
 import type { ServerBuild } from 'react-router';
 import { createServer } from '../server/index';
+import { mergeHeadersIntoMultiValueHeaders } from './utils';
 
 // cache the server instance to avoid creating a new one for each request
 let handler: APIGatewayProxyHandler | null = null;
@@ -45,13 +46,17 @@ export const get: APIGatewayProxyHandler = (event, context, callback) => {
     // being delayed until the event loop is empty
     context.callbackWaitsForEmptyEventLoop = false;
 
+    // Merge headers to ensure all headers from event.headers are available
+    // This fixes an issue where @codegenie/serverless-express only reads multiValueHeaders
+    const mergedEvent = mergeHeadersIntoMultiValueHeaders(event);
+
     void getHandler()
         .then((handlerInstance) => {
             if (!handlerInstance) {
                 callback(new Error('Serverless Express handler is not available'));
                 return;
             }
-            void handlerInstance(event, context, callback);
+            void handlerInstance(mergedEvent, context, callback);
         })
         .catch((error) => {
             callback(error);

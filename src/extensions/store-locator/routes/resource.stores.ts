@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 /** @sfdc-extension-file SFDC_EXT_STORE_LOCATOR */
-import { type ClientLoaderFunctionArgs, data, type LoaderFunctionArgs } from 'react-router';
+import { data, type LoaderFunctionArgs } from 'react-router';
 import type { ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 
 /**
- * Client resource to search for stores
- * @returns Result of searchStores API
+ * Server-side loader to search for stores.
+ * Handles store search requests with support for both location-based (device GPS)
+ * and address-based (postal code) search modes.
+ *
+ * @param args - Loader function arguments containing request and context
+ * @returns JSON response with store search results or error
+ *
+ * @example
+ * // Location-based search (device mode)
+ * GET /resource/stores?mode=device&latitude=37.7749&longitude=-122.4194&maxDistance=50&distanceUnit=km
+ *
+ * // Address-based search (input mode)
+ * GET /resource/stores?mode=input&countryCode=US&postalCode=94102&maxDistance=50&distanceUnit=mi
  */
-export async function searchStores(context: LoaderFunctionArgs['context'], request: Request) {
+// eslint-disable-next-line custom/no-async-page-loader -- Resource route for store search API
+export async function loader({ request, context }: LoaderFunctionArgs) {
     try {
         const url = new URL(request.url);
         const mode = url.searchParams.get('mode') ?? 'input';
@@ -74,13 +86,4 @@ export async function searchStores(context: LoaderFunctionArgs['context'], reque
             { status: Number(status_code) }
         );
     }
-}
-
-export function loader({ request, context }: LoaderFunctionArgs) {
-    return searchStores(context, request);
-}
-
-// eslint-disable-next-line custom/no-client-loaders
-export function clientLoader({ request, context }: ClientLoaderFunctionArgs) {
-    return searchStores(context, request);
 }

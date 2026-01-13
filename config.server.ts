@@ -97,7 +97,7 @@ export default defineConfig({
                 enableSearchSuggestions: true,
                 maxSuggestions: 8,
                 enableRecentSearches: true,
-                suggestionsDebounce: 100,
+                suggestionsDebounce: 400,
             },
         },
         // Commerce Cloud API integration
@@ -339,6 +339,8 @@ export default defineConfig({
                         cart_item_add: true,
                         checkout_start: true,
                         checkout_step: true,
+                        view_search_suggestion: true,
+                        click_search_suggestion: true,
                     },
                 },
                 dataCloud: {
@@ -358,6 +360,8 @@ export default defineConfig({
                         cart_item_add: true,
                         checkout_start: true,
                         checkout_step: true,
+                        view_search_suggestion: true,
+                        click_search_suggestion: true,
                     },
                 },
                 activeData: {
@@ -378,6 +382,8 @@ export default defineConfig({
                         cart_item_add: false,
                         checkout_start: false,
                         checkout_step: false,
+                        view_search_suggestion: false,
+                        click_search_suggestion: false,
                     },
                 },
             },

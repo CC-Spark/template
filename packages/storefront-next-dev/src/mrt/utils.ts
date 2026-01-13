@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { APIGatewayProxyEvent } from 'aws-lambda';
+
 const MRT_BUNDLE_TYPE_SSR = 'ssr' as const;
 const MRT_STREAMING_ENTRY_FILE = 'streamingHandler' as const;
 const MRT_BUNDLE_TYPE_STREAMING = 'streaming' as const;
@@ -27,3 +29,34 @@ export const getMrtEntryFile = (mode: string): MrtBundleType => {
     const enableStreaming = process.env.MRT_BUNDLE_TYPE === MRT_BUNDLE_TYPE_STREAMING && mode === 'production';
     return enableStreaming ? MRT_STREAMING_ENTRY_FILE : MRT_BUNDLE_TYPE_SSR;
 };
+
+/**
+ * Merges headers from event.headers into event.multiValueHeaders.
+ *
+ * @codegenie/serverless-express prefers multiValueHeaders over headers when both exist.
+ * However, some headers (like x-correlation-id added by CloudFront/MRT) may only exist
+ * in event.headers and not in event.multiValueHeaders, causing them to be lost.
+ *
+ * This function ensures all headers from event.headers are present in multiValueHeaders.
+ */
+export function mergeHeadersIntoMultiValueHeaders(event: APIGatewayProxyEvent): APIGatewayProxyEvent {
+    if (!event.headers || !event.multiValueHeaders) {
+        return event;
+    }
+
+    const mergedMultiValueHeaders = { ...event.multiValueHeaders };
+
+    for (const [key, value] of Object.entries(event.headers)) {
+        // Only add if not already in multiValueHeaders (case-insensitive check)
+        const existingKey = Object.keys(mergedMultiValueHeaders).find((k) => k.toLowerCase() === key.toLowerCase());
+
+        if (!existingKey && value !== undefined) {
+            mergedMultiValueHeaders[key] = [value];
+        }
+    }
+
+    return {
+        ...event,
+        multiValueHeaders: mergedMultiValueHeaders,
+    };
+}

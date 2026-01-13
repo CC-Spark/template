@@ -24,6 +24,7 @@ import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@sale
 // Components
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import ProductItemsList from '@/components/product-items-list';
+import { PluginComponent } from '@/plugins/plugin-component';
 import { useTranslation } from 'react-i18next';
 
 // Utils
@@ -67,28 +68,31 @@ export default function MyCart({
     const totalItems = basket?.productItems?.reduce((acc, item) => acc + (item.quantity ?? 0), 0) || 0;
 
     return (
-        <Accordion
-            type="single"
-            collapsible
-            className="w-full"
-            defaultValue={itemsExpanded ? 'my-cart-items' : undefined}>
-            <AccordionItem value="my-cart-items" className="border-none">
-                <AccordionTrigger className="text-left hover:no-underline py-6">
-                    <span className="flex-1 text-left text-lg font-bold text-primary">
-                        <ShoppingCart className="inline mr-2 w-5 h-5" />
-                        {t('myCart.title')} ({totalItems})
-                    </span>
-                </AccordionTrigger>
-                <AccordionContent className="px-0 pb-6">
-                    <ProductItemsList
-                        productItems={basket.productItems}
-                        productsByItemId={productMap}
-                        promotions={promotions}
-                        variant="summary"
-                        separateCards={true}
-                    />
-                </AccordionContent>
-            </AccordionItem>
-        </Accordion>
+        <>
+            <Accordion
+                type="single"
+                collapsible
+                className="w-full"
+                defaultValue={itemsExpanded ? 'my-cart-items' : undefined}>
+                <AccordionItem value="my-cart-items" className="border-none">
+                    <PluginComponent pluginId="myCart.header.before" />
+                    <AccordionTrigger className="text-left hover:no-underline py-6">
+                        <span className="flex-1 text-left text-lg font-bold text-primary">
+                            <ShoppingCart className="inline mr-2 w-5 h-5" />
+                            {t('myCart.title')} ({totalItems})
+                        </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-0 pb-6">
+                        <ProductItemsList
+                            productItems={basket.productItems}
+                            productsByItemId={productMap}
+                            promotions={promotions}
+                            variant="summary"
+                            separateCards={true}
+                        />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </>
     );
 }

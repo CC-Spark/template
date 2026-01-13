@@ -51,12 +51,15 @@ type MiniCartItemProduct = ShopperBasketsV2.schemas['ProductItem'] &
  * @interface MiniCartItemProps
  * @property {MiniCartItemProduct} product - Combined basket item and product data
  * @property {function} [onRemove] - Optional callback when item is removed
+ * @property {ReactElement} [bonusProductSlot] - Optional bonus product selection card to display
  */
 interface MiniCartItemProps {
     /** Combined basket item and product data */
     product: MiniCartItemProduct;
     /** Optional callback when item is removed */
     onRemove?: () => void;
+    /** Optional bonus product selection card to display in right section */
+    bonusProductSlot?: ReactElement;
 }
 
 /**
@@ -88,7 +91,7 @@ interface MiniCartItemProps {
  * />
  * ```
  */
-export default function MiniCartItem({ product, onRemove }: MiniCartItemProps): ReactElement {
+export default function MiniCartItem({ product, onRemove, bonusProductSlot }: MiniCartItemProps): ReactElement {
     const config = useConfig();
     const { t: tMiniCart } = useTranslation('miniCart');
     const { t: tActionCard } = useTranslation('actionCard');
@@ -332,9 +335,12 @@ export default function MiniCartItem({ product, onRemove }: MiniCartItemProps): 
                     )}
                 </div>
 
+                {/* Bonus Product Selection Card */}
+                {bonusProductSlot && <div className="mt-3">{bonusProductSlot}</div>}
+
                 <button
                     onClick={onRemove}
-                    className="text-sm text-primary hover:underline text-left"
+                    className="text-sm text-primary hover:underline text-left mt-2"
                     type="button"
                     aria-label={tMiniCart('removeItemAriaLabel')}>
                     {tRemoveItem('button')}

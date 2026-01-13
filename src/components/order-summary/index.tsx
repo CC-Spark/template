@@ -37,6 +37,7 @@ import { formatCurrency } from '@/lib/currency';
 import { useTranslation } from 'react-i18next';
 import PromoPopover from '@/components/promo-popover';
 import { useCurrency } from '@/providers/currency';
+import { PluginComponent } from '@/plugins/plugin-component';
 
 /**
  * Props for the OrderSummary component
@@ -65,6 +66,7 @@ interface OrderSummaryProps {
     productsByItemId?: Record<string, ShopperProducts.schemas['Product']>;
     onEditCart?: () => void;
     showCheckoutAction?: boolean;
+    onSelectBonusProducts?: () => void;
 }
 
 /**
@@ -87,11 +89,13 @@ function CartItemsSummary({
     productsByItemId = {},
     itemsExpanded = false,
     onEditCart,
+    onSelectBonusProducts,
 }: {
     basket: ShopperBasketsV2.schemas['Basket'];
     productsByItemId?: Record<string, ShopperProducts.schemas['Product']>;
     itemsExpanded?: boolean;
     onEditCart?: () => void;
+    onSelectBonusProducts?: () => void;
 }): ReactElement {
     const { t } = useTranslation('cart');
     const totalItems = basket?.productItems?.reduce((acc, item) => acc + (item.quantity ?? 0), 0) || 0;
@@ -118,6 +122,8 @@ function CartItemsSummary({
                             productItems={basket.productItems}
                             productsByItemId={productsByItemId}
                             variant="summary"
+                            basket={basket}
+                            onSelectBonusProducts={onSelectBonusProducts}
                         />
                         {/* Edit Cart link: navigates to cart page with optional callback */}
                         <Link
@@ -163,6 +169,7 @@ export default function OrderSummary({
     productsByItemId = {},
     onEditCart,
     showCheckoutAction,
+    onSelectBonusProducts,
 }: OrderSummaryProps): ReactElement {
     const { t, i18n } = useTranslation('cart');
     const currency = useCurrency();
@@ -189,9 +196,12 @@ export default function OrderSummary({
             <CardContent className="p-6">
                 <div className="space-y-5" data-testid="sf-order-summary">
                     {showHeading && (
-                        <Typography variant="h4" as="h3" id="order-summary-heading">
-                            {t('summary.orderSummary')}
-                        </Typography>
+                        <>
+                            <PluginComponent pluginId="checkout.myCart.header.before" />
+                            <Typography variant="h4" as="h3" id="order-summary-heading">
+                                {t('summary.orderSummary')}
+                            </Typography>
+                        </>
                     )}
 
                     <div className="space-y-4" role="region" aria-labelledby="order-summary-heading">
@@ -202,80 +212,107 @@ export default function OrderSummary({
                                 productsByItemId={productsByItemId}
                                 itemsExpanded={itemsExpanded}
                                 onEditCart={onEditCart}
+                                onSelectBonusProducts={onSelectBonusProducts}
                             />
                         )}
 
                         {/* Order Summary Details */}
                         <div className="space-y-4 text-sm">
                             {/* Subtotal */}
-                            <div className="flex justify-between items-center">
-                                <span>{t('summary.subtotal')}</span>
-                                <span>{formatCurrency(basket?.productSubTotal ?? 0, i18n.language, currency)}</span>
-                            </div>
+                            <PluginComponent pluginId="orderSummary.subtotal.before" />
+                            <PluginComponent pluginId="orderSummary.subtotal">
+                                <div className="flex justify-between items-center">
+                                    <span>{t('summary.subtotal')}</span>
+                                    <span>{formatCurrency(basket?.productSubTotal ?? 0, i18n.language, currency)}</span>
+                                </div>
+                            </PluginComponent>
+                            <PluginComponent pluginId="orderSummary.subtotal.after" />
 
                             {/* Order Price Adjustments */}
-                            {basket.orderPriceAdjustments?.map((adjustment) => (
-                                <div key={adjustment.priceAdjustmentId} className="flex justify-between items-center">
-                                    <span>{adjustment.itemText}</span>
-                                    <span className="text-success text-sm font-semibold">
-                                        {formatCurrency(adjustment.price ?? 0, i18n.language, currency)}
-                                    </span>
-                                </div>
-                            ))}
+                            <PluginComponent pluginId="orderSummary.adjustments.before" />
+                            <PluginComponent pluginId="orderSummary.adjustments">
+                                {basket.orderPriceAdjustments?.map((adjustment) => (
+                                    <div
+                                        key={adjustment.priceAdjustmentId}
+                                        className="flex justify-between items-center">
+                                        <span>{adjustment.itemText}</span>
+                                        <span className="text-success text-sm font-semibold">
+                                            {formatCurrency(adjustment.price ?? 0, i18n.language, currency)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </PluginComponent>
+                            <PluginComponent pluginId="orderSummary.adjustments.after" />
 
                             {/* Shipping */}
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center">
-                                    <span>
-                                        {t('summary.shipping')}
+                            <PluginComponent pluginId="orderSummary.shipping.before" />
+                            <PluginComponent pluginId="orderSummary.shipping">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center">
+                                        <span>
+                                            {t('summary.shipping')}
+                                            {hasShippingPromos && (
+                                                <span className="ml-1 text-sm text-muted-foreground">
+                                                    {t('summary.shippingPromotionApplied')}
+                                                </span>
+                                            )}
+                                        </span>
                                         {hasShippingPromos && (
-                                            <span className="ml-1 text-sm text-muted-foreground">
-                                                {t('summary.shippingPromotionApplied')}
-                                            </span>
+                                            <PromoPopover className="ml-1">
+                                                {shippingItem?.priceAdjustments?.map((adjustment) => (
+                                                    <div key={adjustment.priceAdjustmentId} className="text-sm">
+                                                        {adjustment.itemText}
+                                                    </div>
+                                                ))}
+                                            </PromoPopover>
                                         )}
-                                    </span>
-                                    {hasShippingPromos && (
-                                        <PromoPopover className="ml-1">
-                                            {shippingItem?.priceAdjustments?.map((adjustment) => (
-                                                <div key={adjustment.priceAdjustmentId} className="text-sm">
-                                                    {adjustment.itemText}
-                                                </div>
-                                            ))}
-                                        </PromoPopover>
-                                    )}
+                                    </div>
+                                    {renderShippingInfo()}
                                 </div>
-                                {renderShippingInfo()}
-                            </div>
+                            </PluginComponent>
+                            <PluginComponent pluginId="orderSummary.shipping.after" />
 
                             {/* Tax */}
-                            <div className="flex justify-between items-center">
-                                <span>{t('summary.tax')}</span>
-                                {typeof basket.taxTotal === 'number' && basket.taxTotal >= 0 ? (
-                                    <span>{formatCurrency(basket.taxTotal, i18n.language, currency)}</span>
-                                ) : (
-                                    <span className="text-muted-foreground">{t('summary.taxTbd')}</span>
-                                )}
-                            </div>
+                            <PluginComponent pluginId="orderSummary.tax.before" />
+                            <PluginComponent pluginId="orderSummary.tax">
+                                <div className="flex justify-between items-center">
+                                    <span>{t('summary.tax')}</span>
+                                    {typeof basket.taxTotal === 'number' && basket.taxTotal >= 0 ? (
+                                        <span>{formatCurrency(basket.taxTotal, i18n.language, currency)}</span>
+                                    ) : (
+                                        <span className="text-muted-foreground">{t('summary.taxTbd')}</span>
+                                    )}
+                                </div>
+                            </PluginComponent>
+                            <PluginComponent pluginId="orderSummary.tax.after" />
                         </div>
 
                         {/* Total */}
-                        <div className="space-y-4 w-full text-sm">
-                            <div className="flex w-full justify-between items-center">
-                                <span className="font-bold">
-                                    {isEstimate ? t('summary.estimatedTotal') : t('summary.orderTotal')}
-                                </span>
-                                <span className="font-bold">
-                                    {formatCurrency(
-                                        basket?.orderTotal || basket?.productTotal || 0,
-                                        i18n.language,
-                                        currency
-                                    )}
-                                </span>
+                        <PluginComponent pluginId="orderSummary.total.before" />
+                        <PluginComponent pluginId="orderSummary.total">
+                            <div className="space-y-4 w-full text-sm">
+                                <div className="flex w-full justify-between items-center">
+                                    <span className="font-bold">
+                                        {isEstimate ? t('summary.estimatedTotal') : t('summary.orderTotal')}
+                                    </span>
+                                    <span className="font-bold">
+                                        {formatCurrency(
+                                            basket?.orderTotal || basket?.productTotal || 0,
+                                            i18n.language,
+                                            currency
+                                        )}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        </PluginComponent>
+                        <PluginComponent pluginId="orderSummary.total.after" />
 
                         {/* Promo Code Form */}
-                        {showPromoCodeForm ? <PromoCodeForm basket={basket} /> : <Separator className="w-full" />}
+                        <PluginComponent pluginId="orderSummary.promoCode.before" />
+                        <PluginComponent pluginId="orderSummary.promoCode">
+                            {showPromoCodeForm ? <PromoCodeForm basket={basket} /> : <Separator className="w-full" />}
+                        </PluginComponent>
+                        <PluginComponent pluginId="orderSummary.promoCode.after" />
 
                         {/* Checkout Action */}
                         {showCheckoutAction && (

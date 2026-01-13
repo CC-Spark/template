@@ -16,6 +16,13 @@
 import { vi, expect, test, describe, afterEach } from 'vitest';
 import type React from 'react';
 
+vi.mock('@/hooks/use-analytics', () => ({
+    useAnalytics: () => ({
+        trackViewSearchSuggestions: vi.fn(),
+        trackClickSearchSuggestion: vi.fn(),
+    }),
+}));
+
 vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
     useFetcher: () => ({

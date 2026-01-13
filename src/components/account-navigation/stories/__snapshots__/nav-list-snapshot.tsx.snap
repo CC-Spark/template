@@ -12,4 +12,6 @@ exports[`AccountNavList stories snapshot > SingleItem story renders and matches 
 
 exports[`AccountNavList stories snapshot > WithDisabledItem story renders and matches snapshot 1`] = `null`;
 
+exports[`AccountNavList stories snapshot > WithLogout story renders and matches snapshot 1`] = `null`;
+
 exports[`AccountNavList stories snapshot > WithManyItems story renders and matches snapshot 1`] = `null`;
