@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type PropsWithChildren, Suspense, useMemo, useRef } from 'react';
+import { type PropsWithChildren, useMemo, useRef } from 'react';
 
 // Assets
 import favicon from '/favicon.ico';
@@ -30,7 +30,7 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    type UIMatch,
+    /** @sfdc-extension-line SFDC_EXT_HYBRID_PROXY */
     useLocation,
     useMatches,
     useRouteLoaderData,
@@ -65,7 +65,7 @@ import { correlationMiddleware } from '@/middlewares/correlation.server';
 import AuthProvider, { bootstrapAuth } from '@/providers/auth';
 import BasketProvider from '@/providers/basket';
 import { ComposeProviders } from '@/providers/compose-providers';
-import { ConfigProvider, getConfig, type AppConfig } from '@/config';
+import { type AppConfig, ConfigProvider, getConfig } from '@/config';
 import { CurrencyProvider } from '@/providers/currency';
 import { CorrelationProvider } from '@/providers/correlation';
 import { correlationContext } from '@/lib/correlation';
@@ -308,7 +308,11 @@ export default function App({
 }: {
     loaderData: LoaderData;
 }) {
-    const i18next = (typeof window === 'undefined' ? getI18next?.() : i18nextOnClient) as i18n;
+    // Currency is always provided by loader (which reads from middleware)
+    if (!currency) {
+        throw new Error('Currency is required but not provided by loader');
+    }
+
     // We're only loading the root and sub categories from the server on the very first navigation. These refs ensure
     // that the initial data/promises don't get overwritten/removed on subsequent client-side navigations.
     const refRoot = useRef<Promise<ShopperProducts.schemas['Category']> | undefined>(undefined);
@@ -318,27 +322,10 @@ export default function App({
         refSubs.current = subs;
     }
 
-    // We're using the location information to force our outlet-level `<Suspense/>` boundary to re-mount on every
-    // navigation, so every time it's a new boundary without a resolved state. Because otherwise, once resolved,
-    // React's default behavior would prevent the boundary from going back to pending state. To be compatible with
-    // the `createPage` higher order utility component, we use the `pageKey` from the loader data if available,
-    // otherwise we simply fall back to information from the current location.
-    const location = useLocation();
-    const match = useMatches().at(-1) as UIMatch<{ pageKey?: string }>;
-    const pageKey = match?.loaderData?.pageKey ?? `${location.pathname}${location.search}${location.hash}`;
-
     // Get app configuration from server loader data (initial load) or window.__APP_CONFIG__ (client nav)
     // This ensures config is read from MRT environment variables (via middleware), not baked at build time
     const serverData = useRouteLoaderData('root');
     const appConfig = serverData?.appConfig || (typeof window !== 'undefined' ? window.__APP_CONFIG__ : undefined);
-
-    let isProxy = false;
-    // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
-    if (typeof window !== 'undefined' && isProxyPath(location.pathname)) {
-        isProxy = true;
-    }
-    // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
-
     if (!appConfig) {
         throw new Error('App configuration not available - check server loader and window.__APP_CONFIG__');
     }
@@ -360,11 +347,7 @@ export default function App({
     // Initialize Page Designer components
     initializeRegistry();
 
-    // Currency is always provided by loader (which reads from middleware)
-    if (!currency) {
-        throw new Error('Currency is required but not provided by loader');
-    }
-    const currentCurrency = currency;
+    const i18next = (typeof window === 'undefined' ? getI18next?.() : i18nextOnClient) as i18n;
 
     // Memoize the providers array to prevent unnecessary remounting of providers on render
     const providers = useMemo(
@@ -373,12 +356,12 @@ export default function App({
                 [CorrelationProvider, { value: correlationId }],
                 [I18nextProvider, { i18n: i18next }],
                 [ConfigProvider, { config: appConfig }],
-                [CurrencyProvider, { value: currentCurrency }],
+                [CurrencyProvider, { value: currency }],
                 [AuthProvider, { value: sessionData }],
                 [BasketProvider, { value: basket }],
                 [RecommendersProvider, { adapterName: EINSTEIN_ADAPTER_NAME }],
             ] as const,
-        [correlationId, i18next, appConfig, currentCurrency, sessionData, basket]
+        [correlationId, i18next, appConfig, currency, sessionData, basket]
     );
 
     let content = (
@@ -390,11 +373,7 @@ export default function App({
             <PageDesignerProvider clientId="odyssey" targetOrigin="*" usid={sessionData?.usid} mode={pageDesignerMode}>
                 <PageDesignerStyles />
                 <main className="flex-grow pt-8">
-                    {/* Outlet-level `<Suspense/>` boundary to contain pending promises. */}
-                    {/* This at least prevents suspended components without a suggested local `<Suspense/>` boundary from further affecting global layout sections. */}
-                    <Suspense key={pageKey} fallback={null}>
-                        <Outlet />
-                    </Suspense>
+                    <Outlet />
                 </main>
             </PageDesignerProvider>
             <Footer />
@@ -405,7 +384,8 @@ export default function App({
     );
 
     // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
-    if (isProxy) {
+    const location = useLocation();
+    if (typeof window !== 'undefined' && isProxyPath(location.pathname)) {
         content = <HybridProxyNavigationInterceptor />;
     }
     // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY

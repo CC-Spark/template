@@ -18,15 +18,13 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 export function CategoryBreadcrumbsSkeleton() {
     return (
-        <div className="mb-4">
-            <nav aria-label="Breadcrumb" className="mb-6">
-                <div className="flex flex-wrap items-center text-sm">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="mx-1 h-3 w-3" />
-                    <Skeleton className="h-4 w-24" />
-                </div>
-            </nav>
-        </div>
+        <nav aria-label="Breadcrumb" className="mb-6">
+            <div className="flex flex-wrap items-center text-sm">
+                <Skeleton className="h-5 w-20" />
+                <Skeleton className="h-3 mx-1 w-3" />
+                <Skeleton className="h-5 w-24" />
+            </div>
+        </nav>
     );
 }
 
@@ -36,8 +34,8 @@ export function CategoryHeaderSkeleton() {
             <Skeleton className="h-9 w-64" />
             <div className="flex-shrink-0">
                 <div className="flex items-center space-x-2">
-                    <Skeleton className="h-4 w-12" />
-                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-5 w-12" />
+                    <Skeleton className="h-9 w-32" />
                 </div>
             </div>
         </>

@@ -3,28 +3,24 @@
 exports[`CategorySkeleton stories snapshot > BreadcrumbsSkeleton story renders and matches snapshot 1`] = `
 <div>
   <div>
-    <div
-      class="mb-4"
+    <nav
+      aria-label="Breadcrumb"
+      class="mb-6"
     >
-      <nav
-        aria-label="Breadcrumb"
-        class="mb-6"
+      <div
+        class="flex flex-wrap items-center text-sm"
       >
         <div
-          class="flex flex-wrap items-center text-sm"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-4 w-20"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-4 w-24"
-          />
-        </div>
-      </nav>
-    </div>
+          class="animate-pulse rounded-md bg-muted h-5 w-20"
+        />
+        <div
+          class="animate-pulse rounded-md bg-muted h-3 mx-1 w-3"
+        />
+        <div
+          class="animate-pulse rounded-md bg-muted h-5 w-24"
+        />
+      </div>
+    </nav>
   </div>
 </div>
 `;
@@ -1330,10 +1326,10 @@ exports[`CategorySkeleton stories snapshot > HeaderSkeleton story renders and ma
         class="flex items-center space-x-2"
       >
         <div
-          class="animate-pulse rounded-md bg-muted h-4 w-12"
+          class="animate-pulse rounded-md bg-muted h-5 w-12"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-32"
+          class="animate-pulse rounded-md bg-muted h-9 w-32"
         />
       </div>
     </div>
