@@ -168,7 +168,7 @@ User actions for authenticated users.
         // Check for account icon button/link
         const accountLink = await canvas.findByRole('link', { name: /my account/i }, { timeout: 5000 });
         await expect(accountLink).toBeInTheDocument();
-        await expect(accountLink).toHaveAttribute('href', '/account');
+        await expect(accountLink).toHaveAttribute('href', '/account/overview');
 
         // Check that logout button is not present (moved to account navigation)
         const logoutButton = canvas.queryByRole('button', { name: /sign out/i });

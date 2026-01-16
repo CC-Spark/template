@@ -181,7 +181,7 @@ Authenticated user menu that appears on hover.
 
 ### Features:
 - Your Lists section (Wishlist)
-- Your Account section (Orders, Account Details, Address Book)
+- Your Account section (Overview, Orders, Account Details, Address Book)
 - Logout button
                 `,
             },
@@ -211,6 +211,10 @@ Authenticated user menu that appears on hover.
 
         const yourAccountHeading = await documentBody.findByText(/your account/i);
         await expect(yourAccountHeading).toBeInTheDocument();
+
+        const overviewLink = await documentBody.findByRole('link', { name: /overview/i });
+        await expect(overviewLink).toBeInTheDocument();
+        await expect(overviewLink).toHaveAttribute('href', '/account/overview');
 
         const ordersLink = await documentBody.findByRole('link', { name: /order history/i });
         await expect(ordersLink).toBeInTheDocument();

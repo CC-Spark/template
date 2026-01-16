@@ -30,7 +30,7 @@ export default function UserActions(): ReactElement {
         return Boolean(session?.userType === 'registered' && session?.customer_id);
     }, [session]);
 
-    const accountLink = isAuthenticated ? '/account' : '/login';
+    const accountLink = isAuthenticated ? '/account/overview' : '/login';
     const ariaLabel = isAuthenticated ? tAccount('myAccount') : t('signIn');
     const icon = isAuthenticated ? <User className="size-6" /> : <LogIn className="size-6" />;
 

@@ -687,11 +687,27 @@
         "title": "Account Details",
         "myAccount": "My Account",
         "navigation": {
+            "overview": "Overview",
             "accountDetails": "Account Details",
             "wishlist": "Wishlist",
             "orderHistory": "Order History",
             "addresses": "Addresses",
             "logOut": "Log Out"
+        },
+        "overview": {
+            "welcomeBack": "Welcome back, {{name}}!",
+            "welcomeSubtitle": "Manage your account, view orders, and discover personalized recommendations.",
+            "defaultName": "there",
+            "quickLinks": {
+                "title": "Quick Links",
+                "accountDetailsDesc": "View and edit your profile",
+                "orderHistoryDesc": "Track your orders",
+                "wishlistDesc": "Items you've saved",
+                "addressesDesc": "Manage your addresses"
+            },
+            "curatedForYou": {
+                "title": "Curated for You"
+            }
         },
         "wishlist": {
             "empty": "Your wishlist is empty. Start adding items you love!",

@@ -97,7 +97,7 @@ describe('UserActions', () => {
 
             const link = screen.getByRole('link', { name: t('account:myAccount') });
             expect(link).toBeInTheDocument();
-            expect(link).toHaveAttribute('href', '/account');
+            expect(link).toHaveAttribute('href', '/account/overview');
             expect(screen.queryByRole('link', { name: t('header:signIn') })).not.toBeInTheDocument();
 
             await user.hover(link);
@@ -110,6 +110,10 @@ describe('UserActions', () => {
             expect(screen.getByRole('link', { name: t('account:navigation.wishlist') })).toHaveAttribute(
                 'href',
                 '/account/wishlist'
+            );
+            expect(screen.getByRole('link', { name: t('account:navigation.overview') })).toHaveAttribute(
+                'href',
+                '/account/overview'
             );
             expect(screen.getByRole('link', { name: t('account:navigation.orderHistory') })).toHaveAttribute(
                 'href',

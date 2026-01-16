@@ -15,7 +15,7 @@
  */
 import { type ReactElement, useState, useRef, useEffect } from 'react';
 import { Link, Form } from 'react-router';
-import { Heart, Receipt, Settings, MapPin, LogOut } from 'lucide-react';
+import { House, Heart, ShoppingBag, User, MapPin, LogOut } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
@@ -141,18 +141,25 @@ export function UserMenu({ isAuthenticated, trigger }: UserMenuProps): ReactElem
                             </h3>
                             <div className="space-y-1">
                                 <Link
-                                    to="/account/orders"
+                                    to="/account/overview"
                                     className={menuItemClassName}
                                     onMouseEnter={handleMenuItemMouseEnter}>
-                                    <Receipt className="h-5 w-5" />
-                                    {tAccount('navigation.orderHistory')}
+                                    <House className="h-5 w-5" />
+                                    {tAccount('navigation.overview')}
                                 </Link>
                                 <Link
                                     to="/account"
                                     className={menuItemClassName}
                                     onMouseEnter={handleMenuItemMouseEnter}>
-                                    <Settings className="h-5 w-5" />
+                                    <User className="h-5 w-5" />
                                     {tAccount('navigation.accountDetails')}
+                                </Link>
+                                <Link
+                                    to="/account/orders"
+                                    className={menuItemClassName}
+                                    onMouseEnter={handleMenuItemMouseEnter}>
+                                    <ShoppingBag className="h-5 w-5" />
+                                    {tAccount('navigation.orderHistory')}
                                 </Link>
                                 <Link
                                     to="/account/addresses"

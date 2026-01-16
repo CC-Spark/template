@@ -232,7 +232,7 @@ export const Authenticated: Story = {
         const accountLink = canvas.queryByRole('link', { name: /my account/i });
         if (accountLink) {
             await expect(accountLink).toBeInTheDocument();
-            await expect(accountLink).toHaveAttribute('href', '/account');
+            await expect(accountLink).toHaveAttribute('href', '/account/overview');
         }
         const searchInput = canvas.queryByPlaceholderText('Search');
         if (searchInput) {
@@ -375,7 +375,7 @@ export const WithNavigationAuthenticated: Story = {
         const accountLink = canvas.queryByRole('link', { name: /my account/i });
         if (accountLink) {
             await expect(accountLink).toBeInTheDocument();
-            await expect(accountLink).toHaveAttribute('href', '/account');
+            await expect(accountLink).toHaveAttribute('href', '/account/overview');
         }
         const searchInput = canvas.queryByPlaceholderText('Search');
         if (searchInput) {
