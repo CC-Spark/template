@@ -117,7 +117,8 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
         onRequest({ request }) {
             const correlationId = context.get(correlationContext);
             if (correlationId) {
-                request.headers.set('x-correlation-id', correlationId);
+                // see https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-logs-request-tracking.html
+                request.headers.set('correlation-id', correlationId);
             }
             return request;
         },
