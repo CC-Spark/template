@@ -76,6 +76,7 @@ export const useWishlist = () => {
 
             try {
                 await fetcher.submit(
+                    // In this case, we have access to only the product id (not item id)
                     { productId },
                     {
                         method: 'POST',

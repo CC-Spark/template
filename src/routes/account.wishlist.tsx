@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 import { use, type ReactElement, useEffect, useRef, useMemo, useState, useCallback } from 'react';
-import {
-    useLoaderData,
-    useFetcher,
-    type LoaderFunctionArgs,
-    type ClientLoaderFunctionArgs,
-    type ShouldRevalidateFunctionArgs,
-} from 'react-router';
+import { useLoaderData, useFetcher, type LoaderFunctionArgs, type ShouldRevalidateFunctionArgs } from 'react-router';
 import {
     type ShopperCustomers,
     type ShopperProducts,
@@ -28,97 +22,20 @@ import {
     ApiError,
 } from '@salesforce/storefront-next-runtime/scapi';
 import { Button } from '@/components/ui/button';
-import { getAuth } from '@/middlewares/auth.client';
-import { getAuth as getAuthServer } from '@/middlewares/auth.server';
+import { getAuth } from '@/middlewares/auth.server';
 import { createApiClients } from '@/lib/api-clients';
-import { isRegisteredCustomer } from '@/lib/api/customer';
 import { getConfig, useConfig } from '@/config';
-import { currencyContext } from '@/lib/currency';
 import { convertProductToProductSearchHit } from '@/lib/product-conversion';
 import { ProductTile } from '@/components/product-tile';
 import { useToast } from '@/components/toast';
 import PaginatedProductCarousel from '@/components/product-carousel/paginated-carousel';
 import { useTranslation } from 'react-i18next';
+import { fetchProductsForWishlist } from '@/lib/api/wishlist';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
 type Product = ShopperProducts.schemas['Product'];
 type ProductSearchHit = ShopperSearch.schemas['ProductSearchHit'];
-
-/**
- * Fetch product details for wishlist items
- * The API has a limit based on productsPerPage config, so we batch requests if needed
- */
-// eslint-disable-next-line react-refresh/only-export-components
-export async function fetchProductsForWishlist(
-    context: LoaderFunctionArgs['context'],
-    items: CustomerProductListItem[],
-    allItems?: CustomerProductListItem[]
-): Promise<Record<string, Product>> {
-    const productIds = items
-        .map((item) => item.productId)
-        .filter((id): id is string => Boolean(id) && typeof id === 'string' && id.trim().length > 0);
-
-    if (!productIds.length) {
-        return {};
-    }
-
-    const clients = createApiClients(context);
-    const config = getConfig(context);
-    const maxIdsPerRequest = config.global.productListing.productsPerPage;
-    const productsByProductId: Record<string, Product> = {};
-
-    const currency = context.get(currencyContext) as string;
-
-    // Initialize map with empty placeholder objects for ALL wishlist items if provided
-    // This ensures the map has entries for all products, even unfetched ones
-    // Empty objects have just the id field to track which products need fetching
-    if (allItems) {
-        allItems.forEach((item) => {
-            if (item.productId) {
-                productsByProductId[item.productId] = { id: item.productId } as Product;
-            }
-        });
-    }
-
-    // Batch requests if we have more than maxIdsPerRequest product IDs
-    for (let i = 0; i < productIds.length; i += maxIdsPerRequest) {
-        const batchIds = productIds.slice(i, i + maxIdsPerRequest);
-
-        // Skip empty batches
-        if (batchIds.length === 0) {
-            continue;
-        }
-
-        try {
-            const { data: productsResponse } = await clients.shopperProducts.getProducts({
-                params: {
-                    query: {
-                        ids: batchIds,
-                        allImages: true,
-                        perPricebook: true,
-                        ...(currency ? { currency } : {}),
-                    },
-                },
-            });
-
-            if (productsResponse.data) {
-                productsResponse.data.forEach((product) => {
-                    if (product.id) {
-                        productsByProductId[product.id] = product;
-                    }
-                });
-            }
-        } catch (error) {
-            // Log error but continue with other batches
-            // eslint-disable-next-line no-console
-            console.error(`Error fetching products batch (IDs: ${batchIds.join(', ')}):`, error);
-            // Continue processing other batches even if one fails
-        }
-    }
-
-    return productsByProductId;
-}
 
 /**
  * Server-side loader to fetch the customer's wishlist items and product details
@@ -129,7 +46,7 @@ export async function loader({ context }: LoaderFunctionArgs): Promise<{
     items: CustomerProductListItem[];
     productsByProductId: Promise<Record<string, Product>>;
 }> {
-    const session = getAuthServer(context);
+    const session = getAuth(context);
 
     // Check if user is authenticated as registered customer
     const isRegistered =
@@ -140,120 +57,6 @@ export async function loader({ context }: LoaderFunctionArgs): Promise<{
         session.access_token_expiry > Date.now();
 
     if (!isRegistered || !session.customer_id) {
-        return {
-            wishlist: null,
-            items: [],
-            productsByProductId: Promise.resolve({}),
-        };
-    }
-
-    try {
-        const customerId = session.customer_id;
-        const clients = createApiClients(context);
-        const config = getConfig(context);
-        const initialLimit = config.global.paginatedProductCarousel.defaultLimit;
-
-        // Get the customer's product lists
-        const { data: productLists } = await clients.shopperCustomers.getCustomerProductLists({
-            params: {
-                path: { customerId },
-            },
-        });
-
-        // Find the wishlist
-        const wishlist = productLists?.data?.find((list) => list.type === 'wish_list');
-
-        if (!wishlist) {
-            return {
-                wishlist: null,
-                items: [],
-                productsByProductId: Promise.resolve({}),
-            };
-        }
-
-        // Commerce SDK might return 'id' instead of 'listId' - use 'id' if 'listId' is not available
-        // @ts-expect-error - listId and id may exist at runtime but are not in type definitions
-        const listId = wishlist?.listId || wishlist?.id;
-        if (!listId) {
-            return {
-                wishlist: null,
-                items: [],
-                productsByProductId: Promise.resolve({}),
-            };
-        }
-
-        // Always fetch the full wishlist to ensure we get ALL items
-        // (getCustomerProductLists might only return a partial list)
-        const { data: fullWishlistRaw } = await clients.shopperCustomers.getCustomerProductList({
-            params: {
-                path: {
-                    customerId,
-                    listId,
-                },
-            },
-        });
-
-        // Commerce SDK may return items in 'items' or 'customerProductListItems' field
-        // Check both fields to ensure we get the items
-        // @ts-expect-error - items and customerProductListItems may exist at runtime but are not in type definitions
-        const items = fullWishlistRaw?.items || fullWishlistRaw?.customerProductListItems || [];
-
-        // Only fetch product details for the initial batch to optimize initial load
-        const initialItems = items.slice(0, initialLimit);
-
-        return {
-            wishlist: fullWishlistRaw,
-            items,
-            // Pass allItems to create placeholder entries for ALL products in the map
-            productsByProductId: fetchProductsForWishlist(context, initialItems, items),
-        };
-    } catch (error) {
-        // Handle authentication errors gracefully - wishlist requires authenticated registered customers
-        // If auth fails, return empty wishlist (user will need to log in)
-        let status_code: string | undefined;
-
-        if (error instanceof ApiError) {
-            status_code = String(error.status);
-        }
-
-        if (status_code === '401' || status_code === '403') {
-            // Authentication required - return empty wishlist
-            return {
-                wishlist: null,
-                items: [],
-                productsByProductId: Promise.resolve({}),
-            };
-        }
-
-        // For other errors, also return empty wishlist
-        return {
-            wishlist: null,
-            items: [],
-            productsByProductId: Promise.resolve({}),
-        };
-    }
-}
-
-/**
- * Client-side loader to fetch the customer's wishlist items and product details
- */
-// eslint-disable-next-line custom/no-async-page-loader,react-refresh/only-export-components,custom/no-client-loaders
-export async function clientLoader({ context }: ClientLoaderFunctionArgs): Promise<{
-    wishlist: CustomerProductList | null; // Type works at runtime despite linter schema warning
-    items: CustomerProductListItem[];
-    productsByProductId: Promise<Record<string, Product>>;
-}> {
-    // Check if user is authenticated as registered customer first
-    if (!isRegisteredCustomer(context)) {
-        return {
-            wishlist: null,
-            items: [],
-            productsByProductId: Promise.resolve({}),
-        };
-    }
-
-    const session = getAuth(context);
-    if (!session.customer_id) {
         return {
             wishlist: null,
             items: [],
@@ -366,13 +169,13 @@ export function shouldRevalidate({ formAction, defaultShouldRevalidate }: Should
  * Component for rendering a remove button in the ProductTile footer
  */
 function WishlistRemoveButton({
-    productId,
+    itemId,
     isDisabled,
     onRemove,
 }: {
-    productId: string;
+    itemId: string;
     isDisabled?: boolean;
-    onRemove?: (productId: string) => void;
+    onRemove?: (itemId: string) => void;
 }) {
     const { t } = useTranslation('product');
     const removeFetcher = useFetcher();
@@ -380,10 +183,10 @@ function WishlistRemoveButton({
     const hasHandledResponse = useRef(false);
 
     const handleRemove = () => {
-        if (removeFetcher.state !== 'idle' || !productId || isDisabled) return;
+        if (removeFetcher.state !== 'idle' || !itemId || isDisabled) return;
 
         void removeFetcher.submit(
-            { productId },
+            { itemId },
             {
                 method: 'POST',
                 action: '/action/wishlist-remove',
@@ -398,9 +201,9 @@ function WishlistRemoveButton({
             if (result?.success) {
                 hasHandledResponse.current = true;
                 addToast(t('removedFromWishlist'), 'success');
-                // Notify parent to mark product as disabled
+                // Notify parent to mark item as disabled
                 if (onRemove) {
-                    onRemove(productId);
+                    onRemove(itemId);
                 }
             } else if (result?.success === false || result?.error) {
                 hasHandledResponse.current = true;
@@ -412,7 +215,7 @@ function WishlistRemoveButton({
         if (removeFetcher.state === 'submitting') {
             hasHandledResponse.current = false;
         }
-    }, [removeFetcher.state, removeFetcher.data, addToast, onRemove, productId, t]);
+    }, [removeFetcher.state, removeFetcher.data, addToast, onRemove, itemId, t]);
 
     return (
         <Button
@@ -431,7 +234,7 @@ export default function AccountWishlist(): ReactElement {
     const { t } = useTranslation('account');
     const { t: tProduct } = useTranslation('product');
 
-    const loaderData = useLoaderData<Awaited<ReturnType<typeof clientLoader>>>();
+    const loaderData = useLoaderData<Awaited<ReturnType<typeof loader>>>();
     const { items, productsByProductId: productsPromise } = loaderData || {
         items: [] as CustomerProductListItem[],
         productsByProductId: Promise.resolve({} as Record<string, Product>),
@@ -448,8 +251,8 @@ export default function AccountWishlist(): ReactElement {
         total: number;
     }>();
 
-    // Track disabled (removed) products - persisted across revalidations using sessionStorage
-    const [disabledProductIds, setDisabledProductIds] = useState<Set<string>>(() => {
+    // Track disabled (removed) items - persisted across revalidations using sessionStorage
+    const [disabledItemIds, setDisabledItemIds] = useState<Set<string>>(() => {
         // Restore from sessionStorage if available
         if (typeof window !== 'undefined') {
             const stored = sessionStorage.getItem('wishlist-disabled');
@@ -469,10 +272,10 @@ export default function AccountWishlist(): ReactElement {
     // Persist disabled IDs to sessionStorage whenever they change
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const ids = Array.from(disabledProductIds);
+            const ids = Array.from(disabledItemIds);
             sessionStorage.setItem('wishlist-disabled', JSON.stringify(ids));
         }
-    }, [disabledProductIds]);
+    }, [disabledItemIds]);
 
     // Clear sessionStorage when component unmounts (user navigates away)
     useEffect(() => {
@@ -518,9 +321,9 @@ export default function AccountWishlist(): ReactElement {
         return products;
     }, [initialProductsWithMeta]);
 
-    // Handle successful product removal - add to disabled set
-    const handleProductRemove = useCallback((productId: string) => {
-        setDisabledProductIds((prev) => new Set(prev).add(productId));
+    // Handle successful item removal - add to disabled set
+    const handleItemRemove = useCallback((itemId: string) => {
+        setDisabledItemIds((prev) => new Set(prev).add(itemId));
     }, []);
 
     // Track pending load requests
@@ -616,8 +419,13 @@ export default function AccountWishlist(): ReactElement {
                 return <ProductTile key={product.productId || index} product={product} className="h-auto" />;
             }
 
-            // Check if this product is disabled (removed)
-            const isDisabled = item.productId ? disabledProductIds.has(item.productId) : false;
+            // Guard: item.id is required for remove functionality
+            if (!item.id) {
+                return <ProductTile key={product.productId || index} product={product} className="h-auto" />;
+            }
+
+            // Check if this item is disabled (removed)
+            const isDisabled = disabledItemIds.has(item.id);
 
             // Determine if this is a variant product and get its color value
             const isVariant = productData.variants?.some((variant) => variant.productId === item.productId);
@@ -636,9 +444,9 @@ export default function AccountWishlist(): ReactElement {
                         product={product}
                         footerAction={
                             <WishlistRemoveButton
-                                productId={item.productId || ''}
+                                itemId={item.id}
                                 isDisabled={isDisabled}
-                                onRemove={handleProductRemove}
+                                onRemove={handleItemRemove}
                             />
                         }
                         disableSwatchInteraction={true}
@@ -657,7 +465,7 @@ export default function AccountWishlist(): ReactElement {
         };
         renderTileFunction.displayName = 'RenderTile';
         return renderTileFunction;
-    }, [allItems, allProductsByProductId, disabledProductIds, handleProductRemove, tProduct]);
+    }, [allItems, allProductsByProductId, disabledItemIds, handleItemRemove, tProduct]);
 
     return (
         <div className="pb-16">

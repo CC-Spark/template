@@ -16,9 +16,9 @@
 
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { ShopperCustomers, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { clientLoader } from './loader.wishlist-products';
+import { loader } from './loader.wishlist-products';
 import { createTestContext } from '@/lib/test-utils';
-import type { ClientLoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from 'react-router';
 
 // Mock dependencies
 const mockGetAuth = vi.fn();
@@ -29,11 +29,11 @@ const mockGetProducts = vi.fn();
 const mockConvertProductToProductSearchHit = vi.fn();
 const mockGetConfig = vi.fn();
 
-vi.mock('@/middlewares/auth.client', () => ({
+vi.mock('@/middlewares/auth.server', () => ({
     getAuth: () => mockGetAuth(),
 }));
 
-vi.mock('@/lib/api/customer', () => ({
+vi.mock('@/lib/api/customer.server', () => ({
     isRegisteredCustomer: () => mockIsRegisteredCustomer(),
 }));
 
@@ -64,8 +64,8 @@ vi.mock('@/lib/product-conversion', () => ({
 }));
 
 // Mock fetchProductsForWishlist
-vi.mock('@/routes/account.wishlist', async () => {
-    const actual = await vi.importActual('@/routes/account.wishlist');
+vi.mock('@/lib/api/wishlist', async () => {
+    const actual = await vi.importActual('@/lib/api/wishlist');
     return {
         ...actual,
         fetchProductsForWishlist: vi.fn(),
@@ -80,8 +80,8 @@ describe('loader.wishlist-products', () => {
         vi.clearAllMocks();
 
         // Get the mocked function
-        const accountWishlistModule = await import('@/routes/account.wishlist');
-        mockFetchProductsForWishlist = accountWishlistModule.fetchProductsForWishlist as ReturnType<typeof vi.fn>;
+        const wishlistModule = await import('@/lib/api/wishlist');
+        mockFetchProductsForWishlist = wishlistModule.fetchProductsForWishlist as ReturnType<typeof vi.fn>;
 
         // Default mocks
         mockIsRegisteredCustomer.mockReturnValue(true);
@@ -111,10 +111,10 @@ describe('loader.wishlist-products', () => {
         test('should return empty result when user is not registered', async () => {
             mockIsRegisteredCustomer.mockReturnValue(false);
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.products).toEqual([]);
             expect(result.offset).toBe(0);
@@ -128,10 +128,10 @@ describe('loader.wishlist-products', () => {
                 customer_id: null,
             });
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.products).toEqual([]);
             expect(result.offset).toBe(0);
@@ -168,10 +168,10 @@ describe('loader.wishlist-products', () => {
                 productName: product.name,
             }));
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.offset).toBe(0);
             expect(result.limit).toBe(8);
@@ -197,10 +197,10 @@ describe('loader.wishlist-products', () => {
 
             mockFetchProductsForWishlist.mockResolvedValue({});
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products?offset=10&limit=5'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.offset).toBe(10);
             expect(result.limit).toBe(5);
@@ -211,55 +211,55 @@ describe('loader.wishlist-products', () => {
     describe('parameter validation', () => {
         test('should throw error for invalid offset (NaN)', async () => {
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products?offset=invalid'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('Invalid offset parameter: must be a non-negative integer');
         });
 
         test('should throw error for negative offset', async () => {
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products?offset=-5'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('Invalid offset parameter: must be a non-negative integer');
         });
 
         test('should throw error for invalid limit (NaN)', async () => {
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products?limit=abc'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('Invalid limit parameter: must be a positive integer not exceeding 24');
         });
 
         test('should throw error for zero limit', async () => {
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products?limit=0'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('Invalid limit parameter: must be a positive integer not exceeding 24');
         });
 
         test('should throw error for negative limit', async () => {
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products?limit=-10'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('Invalid limit parameter: must be a positive integer not exceeding 24');
         });
 
         test('should throw error for limit exceeding maximum (24)', async () => {
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products?limit=25'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('Invalid limit parameter: must be a positive integer not exceeding 24');
         });
 
@@ -282,10 +282,10 @@ describe('loader.wishlist-products', () => {
 
             mockFetchProductsForWishlist.mockResolvedValue({});
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products?offset=0&limit=24'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.offset).toBe(0);
             expect(result.limit).toBe(24);
@@ -299,10 +299,10 @@ describe('loader.wishlist-products', () => {
                 data: { data: [] },
             });
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.products).toEqual([]);
             expect(result.total).toBe(0);
@@ -319,10 +319,10 @@ describe('loader.wishlist-products', () => {
                 data: { data: [mockWishlist] },
             });
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.products).toEqual([]);
             expect(result.total).toBe(0);
@@ -353,10 +353,10 @@ describe('loader.wishlist-products', () => {
                 productName: product.name,
             }));
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(mockGetCustomerProductList).toHaveBeenCalledWith({
                 params: {
@@ -409,10 +409,10 @@ describe('loader.wishlist-products', () => {
                 productName: product.name,
             }));
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products?offset=5&limit=5'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.offset).toBe(5);
             expect(result.limit).toBe(5);
@@ -449,10 +449,10 @@ describe('loader.wishlist-products', () => {
 
             mockGetCustomerProductList.mockResolvedValue({ data: mockWishlist });
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products?offset=10&limit=5'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.products).toEqual([]);
             expect(result.offset).toBe(10);
@@ -488,10 +488,10 @@ describe('loader.wishlist-products', () => {
                 productName: product.name,
             }));
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.total).toBe(2);
             expect(result.products).toHaveLength(2);
@@ -545,10 +545,10 @@ describe('loader.wishlist-products', () => {
                 .mockReturnValueOnce(mockSearchHit1)
                 .mockReturnValueOnce(mockSearchHit2);
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             expect(result.products).toHaveLength(2);
             expect(result.products[0]).toEqual(mockSearchHit1);
@@ -592,10 +592,10 @@ describe('loader.wishlist-products', () => {
                 return null;
             });
 
-            const result = await clientLoader({
+            const result = await loader({
                 request: new Request('http://localhost/loader/wishlist-products'),
                 context: mockContext,
-            } as ClientLoaderFunctionArgs);
+            } as LoaderFunctionArgs);
 
             // Should have 3 entries: 2 real products and 1 null placeholder
             expect(result.products).toHaveLength(3);
@@ -611,10 +611,10 @@ describe('loader.wishlist-products', () => {
             mockGetCustomerProductLists.mockRejectedValue(apiError);
 
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('API Error');
         });
 
@@ -633,10 +633,10 @@ describe('loader.wishlist-products', () => {
             mockGetCustomerProductList.mockRejectedValue(apiError);
 
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('API Error');
         });
 
@@ -660,10 +660,10 @@ describe('loader.wishlist-products', () => {
             mockFetchProductsForWishlist.mockRejectedValue(apiError);
 
             await expect(
-                clientLoader({
+                loader({
                     request: new Request('http://localhost/loader/wishlist-products'),
                     context: mockContext,
-                } as ClientLoaderFunctionArgs)
+                } as LoaderFunctionArgs)
             ).rejects.toThrow('Product fetch error');
         });
     });

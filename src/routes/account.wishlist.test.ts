@@ -16,9 +16,10 @@
 
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { ShopperCustomers, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import { fetchProductsForWishlist, loader, clientLoader } from './account.wishlist';
+import { loader } from './account.wishlist';
+import { fetchProductsForWishlist } from '@/lib/api/wishlist';
 import { createTestContext } from '@/lib/test-utils';
-import type { LoaderFunctionArgs, ClientLoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from 'react-router';
 
 // Mock the SCAPI client
 const mockGetProducts = vi.fn();
@@ -46,14 +47,6 @@ const mockGetConfig = vi.fn();
 
 vi.mock('@/middlewares/auth.server', () => ({
     getAuth: () => mockGetAuthServer(),
-}));
-
-vi.mock('@/middlewares/auth.client', () => ({
-    getAuth: () => mockGetAuth(),
-}));
-
-vi.mock('@/lib/api/customer', () => ({
-    isRegisteredCustomer: () => mockIsRegisteredCustomer(),
 }));
 
 vi.mock('@/config', async (importOriginal) => {
@@ -841,181 +834,6 @@ describe('account.wishlist loaders', () => {
 
             expect(result.wishlist).toEqual(mockWishlist);
             expect(result.items).toHaveLength(1);
-        });
-    });
-
-    describe('clientLoader (client-side)', () => {
-        test('should return empty result when user is not registered', async () => {
-            mockIsRegisteredCustomer.mockReturnValue(false);
-
-            const result = await clientLoader({
-                request: new Request('http://localhost/account/wishlist'),
-                context: mockContext,
-                params: {},
-                serverLoader: vi.fn(),
-            } as ClientLoaderFunctionArgs);
-
-            expect(result.wishlist).toBeNull();
-            expect(result.items).toEqual([]);
-            expect(mockGetCustomerProductLists).not.toHaveBeenCalled();
-            // getConfig should not be called when user is not registered
-            expect(mockGetConfig).not.toHaveBeenCalled();
-        });
-
-        test('should return empty result when customer_id is missing', async () => {
-            mockGetAuth.mockReturnValue({
-                customer_id: null,
-            });
-
-            const result = await clientLoader({
-                request: new Request('http://localhost/account/wishlist'),
-                context: mockContext,
-                params: {},
-                serverLoader: vi.fn(),
-            } as ClientLoaderFunctionArgs);
-
-            expect(result.wishlist).toBeNull();
-            expect(result.items).toEqual([]);
-            // getConfig should not be called when customer_id is missing
-            expect(mockGetConfig).not.toHaveBeenCalled();
-        });
-
-        test('should return wishlist with items when items are in initial response', async () => {
-            const mockWishlist: ShopperCustomers.schemas['CustomerProductList'] = {
-                id: 'wishlist-1',
-                listId: 'wishlist-1',
-                type: 'wish_list',
-                items: [
-                    { id: 'item-1', productId: 'product-1' },
-                    { id: 'item-2', productId: 'product-2' },
-                ] as ShopperCustomers.schemas['CustomerProductListItem'][],
-            };
-
-            mockGetCustomerProductLists.mockResolvedValue({
-                data: { data: [mockWishlist] },
-            });
-
-            // Loader always calls getCustomerProductList to get full wishlist
-            mockGetCustomerProductList.mockResolvedValue({ data: mockWishlist });
-
-            mockGetProducts.mockResolvedValue({
-                data: [
-                    { id: 'product-1', name: 'Product 1' },
-                    { id: 'product-2', name: 'Product 2' },
-                ],
-            });
-
-            const result = await clientLoader({
-                request: new Request('http://localhost/account/wishlist'),
-                context: mockContext,
-                params: {},
-                serverLoader: vi.fn(),
-            } as ClientLoaderFunctionArgs);
-
-            expect(result.wishlist).toEqual(mockWishlist);
-            expect(result.items).toHaveLength(2);
-            expect(mockGetCustomerProductList).toHaveBeenCalled();
-        });
-
-        test('should return empty wishlist when API call fails', async () => {
-            const apiError = new Error('API Error');
-            mockGetCustomerProductLists.mockRejectedValue(apiError);
-
-            const result = await clientLoader({
-                request: new Request('http://localhost/account/wishlist'),
-                context: mockContext,
-                params: {},
-                serverLoader: vi.fn(),
-            } as ClientLoaderFunctionArgs);
-
-            expect(result.wishlist).toBeNull();
-            expect(result.items).toEqual([]);
-        });
-
-        test('should handle customerProductListItems field', async () => {
-            const mockWishlist = {
-                id: 'wishlist-1',
-                listId: 'wishlist-1',
-                type: 'wish_list',
-                customerProductListItems: [
-                    { id: 'item-1', productId: 'product-1' },
-                ] as ShopperCustomers.schemas['CustomerProductListItem'][],
-            };
-
-            mockGetCustomerProductLists.mockResolvedValue({
-                data: { data: [mockWishlist] },
-            });
-
-            // Loader always calls getCustomerProductList to get full wishlist
-            mockGetCustomerProductList.mockResolvedValue({ data: mockWishlist });
-
-            mockGetProducts.mockResolvedValue({
-                data: [{ id: 'product-1', name: 'Product 1' }],
-            });
-
-            const result = await clientLoader({
-                request: new Request('http://localhost/account/wishlist'),
-                context: mockContext,
-                params: {},
-                serverLoader: vi.fn(),
-            } as ClientLoaderFunctionArgs);
-
-            expect(result.items).toHaveLength(1);
-        });
-
-        test('should only fetch initial batch of products (initialLimit) in clientLoader', async () => {
-            const mockWishlist: ShopperCustomers.schemas['CustomerProductList'] = {
-                id: 'wishlist-1',
-                listId: 'wishlist-1',
-                type: 'wish_list',
-                items: Array.from({ length: 15 }, (_, i) => ({
-                    id: `item-${i}`,
-                    productId: `product-${i}`,
-                    priority: 0,
-                    public: false,
-                    quantity: 1,
-                })) as ShopperCustomers.schemas['CustomerProductListItem'][],
-            };
-
-            mockGetCustomerProductLists.mockResolvedValue({
-                data: { data: [mockWishlist] },
-            });
-
-            // Loader always calls getCustomerProductList to get full wishlist
-            mockGetCustomerProductList.mockResolvedValue({ data: mockWishlist });
-
-            mockGetProducts.mockResolvedValue({
-                data: Array.from({ length: 8 }, (_, i) => ({
-                    id: `product-${i}`,
-                    name: `Product ${i}`,
-                })),
-            });
-
-            const result = await clientLoader({
-                request: new Request('http://localhost/account/wishlist'),
-                context: mockContext,
-                params: {},
-                serverLoader: vi.fn(),
-            } as ClientLoaderFunctionArgs);
-
-            expect(result.wishlist).toEqual(mockWishlist);
-            expect(result.items).toHaveLength(15); // All items are returned
-            // Await the promise to trigger the fetch
-            await result.productsByProductId;
-            // Only 8 products should be fetched (initialLimit)
-            expect(mockGetProducts).toHaveBeenCalledTimes(1);
-            expect(mockGetProducts).toHaveBeenCalledWith({
-                params: {
-                    query: {
-                        ids: Array.from({ length: 8 }, (_, i) => `product-${i}`),
-                        allImages: true,
-                        perPricebook: true,
-                        currency: 'USD',
-                    },
-                },
-            });
-            // getConfig should be called after auth check
-            expect(mockGetConfig).toHaveBeenCalled();
         });
     });
 });

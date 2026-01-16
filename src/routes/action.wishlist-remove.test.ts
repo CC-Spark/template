@@ -16,7 +16,7 @@
 
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { ActionFunctionArgs } from 'react-router';
-import { clientAction } from './action.wishlist-remove';
+import { action } from './action.wishlist-remove';
 import { createTestContext } from '@/lib/test-utils';
 
 // Mock dependencies
@@ -25,11 +25,11 @@ const mockGetAuth = vi.fn();
 const mockCreateApiClients = vi.fn();
 const mockExtractResponseError = vi.fn();
 
-vi.mock('@/middlewares/auth.client', () => ({
+vi.mock('@/middlewares/auth.server', () => ({
     getAuth: () => mockGetAuth(),
 }));
 
-vi.mock('@/lib/api/customer', () => ({
+vi.mock('@/lib/api/customer.server', () => ({
     isRegisteredCustomer: () => mockIsRegisteredCustomer(),
 }));
 
@@ -149,11 +149,14 @@ describe('action.wishlist-remove', () => {
         vi.clearAllMocks();
     });
 
-    describe('clientAction', () => {
-        const createRequest = (productId?: string): Request => {
+    describe('action', () => {
+        const createRequest = (productId?: string, itemId?: string): Request => {
             const formData = new FormData();
             if (productId) {
                 formData.append('productId', productId);
+            }
+            if (itemId) {
+                formData.append('itemId', itemId);
             }
             return new Request('http://localhost/action/wishlist-remove', {
                 method: 'POST',
@@ -171,10 +174,10 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            await expect(clientAction(args)).rejects.toThrow();
+            await expect(action(args)).rejects.toThrow();
         });
 
-        test('should return error when productId is missing', async () => {
+        test('should return error when both itemId and productId are missing', async () => {
             const request = createRequest();
             const args: ActionFunctionArgs = {
                 request,
@@ -182,11 +185,11 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            // When productId is missing, Error is thrown and caught
+            // When both itemId and productId are missing, Error is thrown and caught
             // extractResponseError might fail, so the catch block falls back to error.message
             mockExtractResponseError.mockRejectedValueOnce(new Error('Response body already read'));
 
-            const response = await clientAction(args);
+            const response = await action(args);
             expect(response).toBeDefined();
 
             // data() returns DataWithResponseInit which has structure: { type: 'DataWithResponseInit', data: {...}, init: {...} }
@@ -216,7 +219,7 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // data() returns DataWithResponseInit with data property
             let json: any;
             if (response instanceof Response) {
@@ -230,7 +233,7 @@ describe('action.wishlist-remove', () => {
             expect(json.error).toBeDefined();
         });
 
-        test('should successfully remove product from wishlist', async () => {
+        test('should successfully remove product from wishlist using productId', async () => {
             const wishlist = {
                 id: 'wishlist-123',
                 listId: 'wishlist-123',
@@ -250,8 +253,8 @@ describe('action.wishlist-remove', () => {
                 data: { data: [{ id: 'wishlist-123', listId: 'wishlist-123', type: 'wish_list' }] },
             });
 
-            // First call: get full wishlist to find the item to remove (line 81)
-            // Second call: get updated wishlist after removal (line 125)
+            // First call: get full wishlist to find the item to remove (lookup by productId)
+            // Second call: get updated wishlist after removal
             mockShopperCustomers.getCustomerProductList
                 .mockResolvedValueOnce({ data: wishlist } as any)
                 .mockResolvedValueOnce({ data: wishlistAfterRemoval } as any);
@@ -267,7 +270,7 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // Response.json() returns a Response, so we extract JSON from it
             let json: any;
             if (response instanceof Response) {
@@ -287,6 +290,110 @@ describe('action.wishlist-remove', () => {
             });
         });
 
+        test('should successfully remove product from wishlist using itemId (optimized path)', async () => {
+            const wishlistAfterRemoval = {
+                id: 'wishlist-123',
+                listId: 'wishlist-123',
+                type: 'wish_list',
+                name: 'Wishlist',
+                items: [],
+                customerProductListItems: [],
+            };
+
+            mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
+                data: { data: [{ id: 'wishlist-123', listId: 'wishlist-123', type: 'wish_list' }] },
+            });
+
+            // Only one call to getCustomerProductList (after removal) - no lookup needed!
+            mockShopperCustomers.getCustomerProductList.mockResolvedValue({ data: wishlistAfterRemoval } as any);
+
+            mockShopperCustomers.deleteCustomerProductListItem.mockResolvedValue({
+                data: {},
+            });
+
+            // Pass both itemId and productId (itemId is preferred)
+            const request = createRequest('product-123', 'item-123');
+            const args: ActionFunctionArgs = {
+                request,
+                context: mockContext,
+                params: {},
+            };
+
+            const response = await action(args);
+            let json: any;
+            if (response instanceof Response) {
+                json = await response.json();
+            } else {
+                json = await extractResponseData(response);
+            }
+            expect(json.success).toBe(true);
+
+            // Verify deleteCustomerProductListItem was called with the itemId
+            expect(mockShopperCustomers.deleteCustomerProductListItem).toHaveBeenCalledWith({
+                params: {
+                    path: expect.objectContaining({
+                        customerId: 'customer-123',
+                        listId: 'wishlist-123',
+                        itemId: 'item-123',
+                    }),
+                },
+            });
+
+            // Verify getCustomerProductList was called only ONCE (for fetching updated list after removal)
+            // NOT twice (which would happen if we needed to look up the itemId from productId)
+            expect(mockShopperCustomers.getCustomerProductList).toHaveBeenCalledTimes(1);
+        });
+
+        test('should use itemId when both itemId and productId are provided', async () => {
+            const wishlistAfterRemoval = {
+                id: 'wishlist-123',
+                listId: 'wishlist-123',
+                type: 'wish_list',
+                name: 'Wishlist',
+                items: [],
+                customerProductListItems: [],
+            };
+
+            mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
+                data: { data: [{ id: 'wishlist-123', listId: 'wishlist-123', type: 'wish_list' }] },
+            });
+
+            mockShopperCustomers.getCustomerProductList.mockResolvedValue({ data: wishlistAfterRemoval } as any);
+
+            mockShopperCustomers.deleteCustomerProductListItem.mockResolvedValue({
+                data: {},
+            });
+
+            // Pass both itemId and productId - itemId should be preferred
+            const request = createRequest('product-456', 'item-123');
+            const args: ActionFunctionArgs = {
+                request,
+                context: mockContext,
+                params: {},
+            };
+
+            const response = await action(args);
+            let json: any;
+            if (response instanceof Response) {
+                json = await response.json();
+            } else {
+                json = await extractResponseData(response);
+            }
+            expect(json.success).toBe(true);
+
+            // Verify the correct itemId was used (not looked up from productId)
+            expect(mockShopperCustomers.deleteCustomerProductListItem).toHaveBeenCalledWith({
+                params: {
+                    path: expect.objectContaining({
+                        itemId: 'item-123',
+                    }),
+                },
+            });
+
+            // Verify no lookup was performed
+            expect(mockShopperCustomers.getCustomerProductList).toHaveBeenCalledTimes(1);
+        });
+
         test('should return error when wishlist is not found', async () => {
             mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
                 data: { data: [] },
@@ -299,7 +406,7 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // Handle both Response.json() and data() return types
             const result = response instanceof Response ? await response.json() : response;
             expect(result.success).toBe(false);
@@ -329,7 +436,7 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // Handle both Response.json() and data() return types
             const result = response instanceof Response ? await response.json() : response;
             expect(result.success).toBe(false);
@@ -351,7 +458,7 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // data() returns DataWithResponseInit with data property
             let json: any;
             if (response instanceof Response) {
@@ -381,7 +488,7 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             let json: any;
             if (response instanceof Response) {
                 json = await response.json();
@@ -437,7 +544,7 @@ describe('action.wishlist-remove', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // Success path returns Response.json(), so we need to parse it
             let json: any;
             if (response instanceof Response) {

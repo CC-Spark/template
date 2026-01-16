@@ -129,7 +129,7 @@ export async function lookupCustomerByEmail(
 }
 
 /**
- * Check if the current session belongs to a registered customer
+ * Check if the current session belongs to a registered customer (client-side)
  *
  * @param context - React Router context
  * @returns boolean indicating if user is registered and logged in

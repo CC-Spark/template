@@ -333,6 +333,7 @@
         "itemAlreadyInWishlist": "Item is already in your wishlist.",
         "addedToWishlistGeneric": "Added to wishlist.",
         "productIdRequired": "Product ID is required.",
+        "productOrItemIdRequired": "Product ID or Item ID is required.",
         "methodNotAllowed": "Method not allowed",
         "productItemRequired": "Product item data is required.",
         "productItemsRequired": "Product items data is required.",

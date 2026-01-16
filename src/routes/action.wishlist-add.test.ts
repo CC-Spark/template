@@ -16,9 +16,8 @@
 
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { ActionFunctionArgs } from 'react-router';
-import { clientAction } from './action.wishlist-add';
+import { action } from './action.wishlist-add';
 import { createTestContext } from '@/lib/test-utils';
-import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 
 // Mock dependencies
 const mockIsRegisteredCustomer = vi.fn();
@@ -26,11 +25,11 @@ const mockGetAuth = vi.fn();
 const mockCreateApiClients = vi.fn();
 const mockExtractResponseError = vi.fn();
 
-vi.mock('@/middlewares/auth.client', () => ({
+vi.mock('@/middlewares/auth.server', () => ({
     getAuth: () => mockGetAuth(),
 }));
 
-vi.mock('@/lib/api/customer', () => ({
+vi.mock('@/lib/api/customer.server', () => ({
     isRegisteredCustomer: () => mockIsRegisteredCustomer(),
 }));
 
@@ -156,7 +155,7 @@ describe('action.wishlist-add', () => {
         vi.useRealTimers();
     });
 
-    describe('clientAction', () => {
+    describe('action', () => {
         const createRequest = (productId?: string): Request => {
             const formData = new FormData();
             if (productId) {
@@ -178,7 +177,7 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            await expect(clientAction(args)).rejects.toThrow();
+            await expect(action(args)).rejects.toThrow();
         });
 
         test('should return error when productId is missing', async () => {
@@ -193,7 +192,7 @@ describe('action.wishlist-add', () => {
             // extractResponseError might throw, so catch block uses error.message
             mockExtractResponseError.mockRejectedValueOnce(new Error('Response body already read'));
 
-            const response = await clientAction(args);
+            const response = await action(args);
             expect(response).toBeDefined();
 
             // data() returns a DataWithResponseInit which has structure: { type: 'DataWithResponseInit', data: {...}, init: {...} }
@@ -224,7 +223,7 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // data() returns DataWithResponseInit with data property
             let json: any;
             if (response instanceof Response) {
@@ -278,7 +277,7 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // data() returns DataWithResponseInit with data property
             let json: any;
             if (response instanceof Response) {
@@ -341,7 +340,7 @@ describe('action.wishlist-add', () => {
             };
 
             // Start the async operation
-            const responsePromise = clientAction(args);
+            const responsePromise = action(args);
 
             // Fast-forward the 1.5 second delay
             await vi.advanceTimersByTimeAsync(1500);
@@ -408,7 +407,7 @@ describe('action.wishlist-add', () => {
             };
 
             // Start the async operation
-            const responsePromise = clientAction(args);
+            const responsePromise = action(args);
 
             // Fast-forward the 1.5 second delay
             await vi.advanceTimersByTimeAsync(1500);
@@ -421,9 +420,9 @@ describe('action.wishlist-add', () => {
             expect(mockShopperCustomers.createCustomerProductListItem).toHaveBeenCalled();
         });
 
-        test('should detect duplicate items and return alreadyInWishlist flag', async () => {
-            // This test verifies that after adding an item, if we find 2+ items with same productId,
-            // we return alreadyInWishlist: true
+        test('should successfully add product when item does not already exist', async () => {
+            // This test verifies that when adding a new item that doesn't exist yet,
+            // we return alreadyInWishlist: false
             const wishlist = {
                 id: 'wishlist-123',
                 listId: 'wishlist-123',
@@ -432,28 +431,24 @@ describe('action.wishlist-add', () => {
                 customerProductListItems: [], // Initially empty
             };
 
-            // After adding, we have 2 items with same productId (duplicate)
-            const wishlistWithDuplicate = {
+            // After adding, we have 1 item
+            const wishlistWithItem = {
                 ...wishlist,
-                customerProductListItems: [
-                    { id: 'item-1', productId: 'product-123' },
-                    { id: 'item-2', productId: 'product-123' }, // Duplicate detected
-                ],
+                customerProductListItems: [{ id: 'item-1', productId: 'product-123' }],
             };
 
             mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
                 data: { data: [{ id: 'wishlist-123', listId: 'wishlist-123', type: 'wish_list' }] },
             });
 
-            // First call: get wishlist before adding (empty list, so item doesn't exist - line 270)
-            // createCustomerProductListItem is called
-            // Second call: get wishlist after adding item to check for duplicates (line 316) - finds 2 items
+            // First call: get wishlist before adding (empty list, so item doesn't exist)
+            // Second call: get wishlist after adding item
             mockShopperCustomers.getCustomerProductList
                 .mockResolvedValueOnce(
-                    { data: wishlist } as any // Empty, so item doesn't exist yet - line 270
+                    { data: wishlist } as any // Empty, so item doesn't exist yet
                 )
                 .mockResolvedValueOnce(
-                    { data: wishlistWithDuplicate } as any // After adding, we have 2 items (duplicate) - line 316
+                    { data: wishlistWithItem } as any // After adding, we have 1 item
                 );
 
             mockShopperCustomers.createCustomerProductListItem.mockResolvedValue({
@@ -467,7 +462,50 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
+            // data() returns DataWithResponseInit with data property
+            let json: any;
+            if (response instanceof Response) {
+                json = await response.json();
+            } else if (response && typeof response === 'object' && 'data' in response) {
+                json = (response as any).data;
+            } else {
+                json = await extractResponseData(response);
+            }
+            expect(json.success).toBe(true);
+            expect(json.alreadyInWishlist).toBe(false);
+        });
+
+        test('should detect duplicate items and return alreadyInWishlist flag', async () => {
+            // This test verifies that if an item already exists in the wishlist,
+            // it detects this BEFORE attempting to add it and returns alreadyInWishlist: true
+            const wishlistWithExistingItem = {
+                id: 'wishlist-123',
+                listId: 'wishlist-123',
+                type: 'wish_list',
+                name: 'Wishlist',
+                customerProductListItems: [
+                    { id: 'item-1', productId: 'product-123' }, // Item already exists
+                ],
+            };
+
+            mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
+                data: { data: [{ id: 'wishlist-123', listId: 'wishlist-123', type: 'wish_list' }] },
+            });
+
+            // When we check the wishlist, item already exists
+            mockShopperCustomers.getCustomerProductList.mockResolvedValue({
+                data: wishlistWithExistingItem,
+            } as any);
+
+            const request = createRequest('product-123');
+            const args: ActionFunctionArgs = {
+                request,
+                context: mockContext,
+                params: {},
+            };
+
+            const response = await action(args);
             // data() returns DataWithResponseInit with data property
             let json: any;
             if (response instanceof Response) {
@@ -479,6 +517,8 @@ describe('action.wishlist-add', () => {
             }
             expect(json.success).toBe(true);
             expect(json.alreadyInWishlist).toBe(true);
+            // createCustomerProductListItem should NOT be called since item already exists
+            expect(mockShopperCustomers.createCustomerProductListItem).not.toHaveBeenCalled();
         });
 
         test('should handle API errors gracefully', async () => {
@@ -496,7 +536,7 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             // data() returns DataWithResponseInit with data property
             let json: any;
             if (response instanceof Response) {
@@ -508,50 +548,6 @@ describe('action.wishlist-add', () => {
             }
             expect(json.success).toBe(false);
             expect(json.error).toBeDefined();
-        });
-
-        test('should handle duplicate error from API with "duplicate" keyword', async () => {
-            const existingWishlist = {
-                id: 'wishlist-123',
-                listId: 'wishlist-123',
-                type: 'wish_list',
-                name: 'Wishlist',
-                items: [],
-            };
-
-            mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
-                data: { data: [existingWishlist] },
-            });
-
-            mockShopperCustomers.getCustomerProductList.mockResolvedValue({
-                data: existingWishlist,
-            });
-
-            // Mock createCustomerProductListItem to throw a duplicate error
-            const duplicateError = Object.create(ApiError.prototype);
-            duplicateError.status = 400;
-            duplicateError.body = { message: 'Product is duplicate' };
-            duplicateError.message = 'Product is duplicate';
-            mockShopperCustomers.createCustomerProductListItem.mockRejectedValue(duplicateError);
-
-            const request = createRequest('product-123');
-            const args: ActionFunctionArgs = {
-                request,
-                context: mockContext,
-                params: {},
-            };
-
-            const response = await clientAction(args);
-            let json: any;
-            if (response instanceof Response) {
-                json = await response.json();
-            } else if (response && typeof response === 'object' && 'data' in response) {
-                json = (response as any).data;
-            } else {
-                json = await extractResponseData(response);
-            }
-            expect(json.success).toBe(true);
-            expect(json.alreadyInWishlist).toBe(true);
         });
 
         test('should handle case where updatedList needs to be fetched after successful creation', async () => {
@@ -590,7 +586,7 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             let json: any;
             if (response instanceof Response) {
                 json = await response.json();
@@ -601,94 +597,6 @@ describe('action.wishlist-add', () => {
             }
             expect(json.success).toBe(true);
             expect(json.alreadyInWishlist).toBe(false);
-        });
-
-        test('should handle duplicate error with "exists" keyword', async () => {
-            const existingWishlist = {
-                id: 'wishlist-123',
-                listId: 'wishlist-123',
-                type: 'wish_list',
-                name: 'Wishlist',
-                items: [{ id: 'item-123', productId: 'product-123' }],
-            };
-
-            mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
-                data: { data: [existingWishlist] },
-            });
-
-            mockShopperCustomers.getCustomerProductList.mockResolvedValue({
-                data: existingWishlist,
-            });
-
-            const duplicateError = Object.create(ApiError.prototype);
-            duplicateError.status = 400;
-            duplicateError.body = { message: 'Product already exists in wishlist' };
-            duplicateError.message = 'Product already exists in wishlist';
-            mockShopperCustomers.createCustomerProductListItem.mockRejectedValue(duplicateError);
-
-            const request = createRequest('product-123');
-            const args: ActionFunctionArgs = {
-                request,
-                context: mockContext,
-                params: {},
-            };
-
-            const response = await clientAction(args);
-            let json: any;
-            if (response instanceof Response) {
-                json = await response.json();
-            } else if (response && typeof response === 'object' && 'data' in response) {
-                json = (response as any).data;
-            } else {
-                json = await extractResponseData(response);
-            }
-            expect(json.success).toBe(true);
-            expect(json.alreadyInWishlist).toBe(true);
-        });
-
-        test('should handle duplicate error with "already exists" keyword', async () => {
-            const existingWishlist = {
-                id: 'wishlist-123',
-                listId: 'wishlist-123',
-                type: 'wish_list',
-                name: 'Wishlist',
-                items: [],
-            };
-
-            mockShopperCustomers.getCustomerProductLists.mockResolvedValue({
-                data: { data: [existingWishlist] },
-            });
-
-            // First call: check if item exists (line 270)
-            // Second call: get wishlist for duplicate check (line 362)
-            mockShopperCustomers.getCustomerProductList
-                .mockResolvedValueOnce({ data: existingWishlist } as any)
-                .mockResolvedValueOnce({ data: existingWishlist } as any);
-
-            const duplicateError = Object.create(ApiError.prototype);
-            duplicateError.status = 400;
-            duplicateError.body = { message: 'Product already exists in wishlist' };
-            duplicateError.message = 'Product already exists in wishlist';
-            mockShopperCustomers.createCustomerProductListItem.mockRejectedValue(duplicateError);
-
-            const request = createRequest('product-123');
-            const args: ActionFunctionArgs = {
-                request,
-                context: mockContext,
-                params: {},
-            };
-
-            const response = await clientAction(args);
-            let json: any;
-            if (response instanceof Response) {
-                json = await response.json();
-            } else if (response && typeof response === 'object' && 'data' in response) {
-                json = (response as any).data;
-            } else {
-                json = await extractResponseData(response);
-            }
-            expect(json.success).toBe(true);
-            expect(json.alreadyInWishlist).toBe(true);
         });
 
         test('should handle 401/403 authentication errors in catch block', async () => {
@@ -706,7 +614,7 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             let json: any;
             if (response instanceof Response) {
                 json = await response.json();
@@ -734,7 +642,7 @@ describe('action.wishlist-add', () => {
                 params: {},
             };
 
-            const response = await clientAction(args);
+            const response = await action(args);
             let json: any;
             if (response instanceof Response) {
                 json = await response.json();
@@ -802,7 +710,7 @@ describe('action.wishlist-add', () => {
             };
 
             // Start the async operation
-            const responsePromise = clientAction(args);
+            const responsePromise = action(args);
 
             // Fast-forward the 2 second delay in retry path
             await vi.advanceTimersByTimeAsync(2000);
@@ -854,7 +762,7 @@ describe('action.wishlist-add', () => {
             };
 
             // Start the async operation
-            const responsePromise = clientAction(args);
+            const responsePromise = action(args);
 
             // Fast-forward the 2 second delay in retry path
             await vi.advanceTimersByTimeAsync(2000);

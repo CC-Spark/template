@@ -322,6 +322,7 @@
         "itemAlreadyInWishlist": "L'articolo è già nella Sua lista desideri",
         "addedToWishlistGeneric": "Aggiunto alla lista desideri",
         "productIdRequired": "L'ID prodotto è obbligatorio",
+        "productOrItemIdRequired": "L'ID prodotto o l'ID articolo è obbligatorio",
         "methodNotAllowed": "Metodo non consentito",
         "productItemRequired": "I dati dell'articolo del prodotto sono obbligatori",
         "productItemsRequired": "I dati degli articoli del prodotto sono obbligatori",

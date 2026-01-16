@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type ClientLoaderFunctionArgs } from 'react-router';
+import { type LoaderFunctionArgs } from 'react-router';
 import type { ShopperCustomers, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { getAuth } from '@/middlewares/auth.client';
+import { getAuth } from '@/middlewares/auth.server';
 import { createApiClients } from '@/lib/api-clients';
-import { isRegisteredCustomer } from '@/lib/api/customer';
+import { isRegisteredCustomer } from '@/lib/api/customer.server';
 import { convertProductToProductSearchHit } from '@/lib/product-conversion';
-import { fetchProductsForWishlist } from '@/routes/account.wishlist';
+import { fetchProductsForWishlist } from '@/lib/api/wishlist';
 import { getConfig } from '@/config';
 
 /**
- * Client loader to fetch product details for a slice of wishlist items
+ * Server loader to fetch product details for a slice of wishlist items
  * This is used by PaginatedProductCarousel to load more products on demand
  */
-// eslint-disable-next-line custom/no-async-page-loader,custom/no-client-loaders
-export async function clientLoader({ request, context }: ClientLoaderFunctionArgs): Promise<{
+// eslint-disable-next-line custom/no-async-page-loader
+export async function loader({ request, context }: LoaderFunctionArgs): Promise<{
     products: (ShopperSearch.schemas['ProductSearchHit'] | null)[];
     productsByProductId: Record<string, ShopperProducts.schemas['Product']>;
     offset: number;
