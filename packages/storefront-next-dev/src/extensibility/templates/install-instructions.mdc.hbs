@@ -1,9 +1,20 @@
 These are the steps to update an existing store front application (currently opened project) with the "{{extensionName}}" extension by installing the necessary code to the destination application.
-- Follow these instructions carefully and precisely, do NOT deviate from them. 
+- Follow these instructions carefully and precisely, do NOT deviate from them.
 - Mark the time it takes for each step and report them in the end.
 
  # Step 1. Prerequisites: First make sure the current project has all the necessary files. If any requirement in the prerequisite is not met, abort the rest of this instruction.
  <Prerequisites>
+{{#if dependencies.length}}
+ ## Dependencies Check
+ The following extensions must be installed before {{extensionName}}:
+ {{#each dependencies}}
+ - {{this.name}} ({{this.key}})
+ {{/each}}
+
+ Check if each dependency is present in `src/extensions/config.json`. If any dependency is missing, inform the user: "The extension '{{dependencies.[0].name}}' is required but not installed. Please install {{dependencies.[0].name}} first before installing {{extensionName}}." and abort this instruction.
+{{/if}}
+
+ ## Required Files
  {{#each mergeFiles as |mergeFile|}}
  - The file `{{mergeFile}}` exists
  {{/each}}
@@ -28,8 +39,8 @@ These are the steps to update an existing store front application (currently ope
 
  # Step 4. Merge. Apply the following code changes to the files specified. Skip a step if the code change has already been applied.
  <Merge>
- - Go through the following source files in /tmp/pwa-kit-tmp one by one, then perform the following instructions with the marker value "{{markerValue}}": 
- {{#each mergeFiles as |mergeFile|}} 
+ - Go through the following source files in /tmp/pwa-kit-tmp one by one, then perform the following instructions with the marker value "{{markerValue}}":
+ {{#each mergeFiles as |mergeFile|}}
     - `{{mergeFile}}`
  {{/each}}
 

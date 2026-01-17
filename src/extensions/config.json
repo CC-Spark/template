@@ -5,14 +5,16 @@
             "description": "Store Locator allows a shopper to find the closest store to them.",
             "installationInstructions": "instructions/install-store-locator.mdc",
             "uninstallationInstructions": "instructions/uninstall-store-locator.mdc",
-            "folder": "store-locator"
+            "folder": "store-locator",
+            "dependencies": []
         },
         "SFDC_EXT_BOPIS": {
             "name": "Buy Online Pickup In Store",
-            "description": "Buy Online Pickup In Store allows a shopper to pick up their order at a store. Requires the Store Locator extension to be installed.",
+            "description": "Buy Online Pickup In Store allows a shopper to pick up their order at a store.",
             "installationInstructions": "instructions/install-buy-online-pickup-in-store.mdc",
             "uninstallationInstructions": "instructions/uninstall-buy-online-pickup-in-store.mdc",
-            "folder": "bopis"
+            "folder": "bopis",
+            "dependencies": ["SFDC_EXT_STORE_LOCATOR"]
         },
         "SFDC_EXT_INTERNAL_THEME_SWITCHER": {
             "name": "Theme Switcher",
@@ -20,7 +22,8 @@
             "installationInstructions": "instructions/install-theme-switcher.mdc",
             "uninstallationInstructions": "instructions/uninstall-theme-switcher.mdc",
             "folder": "theme-switcher",
-            "defaultOn": false
+            "defaultOn": false,
+            "dependencies": []
         },
         "SFDC_EXT_HYBRID_PROXY": {
             "name": "Hybrid Proxy",
@@ -28,7 +31,8 @@
             "installationInstructions": "instructions/install-hybrid-proxy.mdc",
             "uninstallationInstructions": "instructions/uninstall-hybrid-proxy.mdc",
             "folder": "hybrid-proxy",
-            "defaultOn": false
+            "defaultOn": false,
+            "dependencies": []
         }
     }
 }

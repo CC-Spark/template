@@ -167,8 +167,111 @@ describe('manageExtensions', () => {
         expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Extensions uninstalled.'));
     });
 
+    it('should prompt and uninstall dependents when uninstalling a dependency', async () => {
+        // Mock config where BOPIS depends on Store Locator
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            folder: 'store-locator',
+                            dependencies: [],
+                        },
+                        SFDC_EXT_BOPIS: {
+                            name: 'BOPIS',
+                            description: 'Buy Online Pickup In Store',
+                            folder: 'bopis',
+                            dependencies: ['SFDC_EXT_STORE_LOCATOR'],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
+        // Completely reset and override prompts mock for this test
+        (prompts as any).mockReset();
+        (prompts as any).mockReturnValue({ confirmUninstall: true });
+        await manageExtensions({
+            projectDirectory: '/test-project',
+            uninstall: true,
+            extensions: ['SFDC_EXT_STORE_LOCATOR'],
+        });
+        // Should show dependent warning
+        expect(console.log).toHaveBeenCalledWith(
+            expect.stringContaining('will also uninstall the following dependent extensions')
+        );
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('BOPIS'));
+        // Should proceed with uninstall
+        expect(trimExtensions).toHaveBeenCalled();
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Extensions uninstalled.'));
+    });
+
+    it('should abort uninstall when user declines dependent uninstall', async () => {
+        // Mock config where BOPIS depends on Store Locator
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            folder: 'store-locator',
+                            dependencies: [],
+                        },
+                        SFDC_EXT_BOPIS: {
+                            name: 'BOPIS',
+                            description: 'Buy Online Pickup In Store',
+                            folder: 'bopis',
+                            dependencies: ['SFDC_EXT_STORE_LOCATOR'],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
+        // Completely reset and override prompts mock for this test
+        (prompts as any).mockReset();
+        (prompts as any).mockReturnValue({ confirmUninstall: false });
+
+        await manageExtensions({
+            projectDirectory: '/test-project',
+            uninstall: true,
+            extensions: ['SFDC_EXT_STORE_LOCATOR'],
+        });
+        // Should show dependent warning
+        expect(console.log).toHaveBeenCalledWith(
+            expect.stringContaining('will also uninstall the following dependent extensions')
+        );
+        // Should abort
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Uninstallation aborted.'));
+        expect(trimExtensions).not.toHaveBeenCalled();
+    });
+
     /** Install test cases starts here */
     it('should abort if cursor-agent is not installed and extension contains LLM instructions', async () => {
+        // Mock project config as empty (no extensions installed yet)
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({ extensions: {} });
+            }
+            if (filePath === getExtensionConfigPath(`/tmp/sfnext-extensions-${MOCK_NOW}`)) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            installationInstructions: 'instructions/install-store-locator.mdc',
+                            uninstallationInstructions: 'instructions/uninstall-store-locator.mdc',
+                            folder: 'store-locator',
+                            dependencies: [],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
         (execSync as any).mockImplementation((command: string) => {
             if (command.indexOf('cursor-agent -v') !== -1) {
                 throw new Error('not installed');
@@ -217,11 +320,32 @@ describe('manageExtensions', () => {
             sourceGitUrl: SOURCE_GIT_URL,
         });
         expect(console.error).toHaveBeenCalledWith(
-            expect.stringContaining('Please select extactly one extension to install.')
+            expect.stringContaining('Please select exactly one extension to install.')
         );
     });
 
     it('should run install based on -i flag', async () => {
+        // Mock project config as empty (no extensions installed yet)
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({ extensions: {} });
+            }
+            if (filePath === getExtensionConfigPath(`/tmp/sfnext-extensions-${MOCK_NOW}`)) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            installationInstructions: 'instructions/install-store-locator.mdc',
+                            uninstallationInstructions: 'instructions/uninstall-store-locator.mdc',
+                            folder: 'store-locator',
+                            dependencies: [],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
         (prompts as unknown as { mockResolvedValueOnce: (value: any) => void }).mockResolvedValueOnce({
             operation: 'install',
         });
@@ -270,6 +394,27 @@ describe('manageExtensions', () => {
     });
 
     it('should error and exit if error occurs during installation', async () => {
+        // Mock project config as empty (no extensions installed yet)
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({ extensions: {} });
+            }
+            if (filePath === getExtensionConfigPath(`/tmp/sfnext-extensions-${MOCK_NOW}`)) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            installationInstructions: 'instructions/install-store-locator.mdc',
+                            uninstallationInstructions: 'instructions/uninstall-store-locator.mdc',
+                            folder: 'store-locator',
+                            dependencies: [],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
         (execSync as any).mockImplementation((command: string) => {
             if (command.includes('cursor-agent -p --force')) {
                 throw new Error('error');
@@ -286,9 +431,24 @@ describe('manageExtensions', () => {
     });
 
     it('should skip LLM instructions if no installation instructions are found', async () => {
-        vi.spyOn(fs, 'readFileSync').mockReturnValue(
-            '{"extensions": { "SFDC_EXT_STORE_LOCATOR": { "name": "Store Locator", "description": "Store Locator allows a shopper to find the closest store to them." } }}'
-        );
+        // Mock project config as empty, source config has extension without installation instructions
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({ extensions: {} });
+            }
+            if (filePath === getExtensionConfigPath(`/tmp/sfnext-extensions-${MOCK_NOW}`)) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            dependencies: [],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
         await manageExtensions({
             projectDirectory: '/test-project',
             install: true,
@@ -296,6 +456,108 @@ describe('manageExtensions', () => {
             extensions: ['SFDC_EXT_STORE_LOCATOR'],
         });
         expect(execSync).not.toHaveBeenCalledWith(expect.stringContaining('cursor-agent -p --force'));
+    });
+
+    it('should prompt and install dependencies when installing extension with missing dependencies', async () => {
+        // Mock project config as empty, source has BOPIS depending on Store Locator
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({ extensions: {} });
+            }
+            if (filePath === getExtensionConfigPath(`/tmp/sfnext-extensions-${MOCK_NOW}`)) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            folder: 'store-locator',
+                            dependencies: [],
+                        },
+                        SFDC_EXT_BOPIS: {
+                            name: 'BOPIS',
+                            description: 'Buy Online Pickup In Store',
+                            folder: 'bopis',
+                            installationInstructions: 'instructions/install-bopis.mdc',
+                            dependencies: ['SFDC_EXT_STORE_LOCATOR'],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
+        // Reset and mock prompts: first call for sourceGitUrl, second for confirmInstall
+        (prompts as any).mockReset();
+        let promptCallCount = 0;
+        (prompts as any).mockImplementation(() => {
+            promptCallCount++;
+            if (promptCallCount === 1) return { sourceGitUrl: SOURCE_GIT_URL };
+            return { confirmInstall: true };
+        });
+        (execSync as any).mockImplementation(() => {});
+        await manageExtensions({
+            projectDirectory: '/test-project',
+            install: true,
+            extensions: ['SFDC_EXT_BOPIS'],
+        });
+        // Should show dependency prompt
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('requires the following dependencies'));
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Store Locator'));
+        // Should install both extensions (Store Locator first, then BOPIS)
+        expect(fs.copySync).toHaveBeenCalledWith(
+            path.join(`/tmp`, `sfnext-extensions-${MOCK_NOW}`, 'src', 'extensions', 'store-locator'),
+            path.join(`/test-project`, 'src', 'extensions', 'store-locator')
+        );
+        expect(fs.copySync).toHaveBeenCalledWith(
+            path.join(`/tmp`, `sfnext-extensions-${MOCK_NOW}`, 'src', 'extensions', 'bopis'),
+            path.join(`/test-project`, 'src', 'extensions', 'bopis')
+        );
+    });
+
+    it('should abort install when user declines dependency install', async () => {
+        // Mock project config as empty, source has BOPIS depending on Store Locator
+        vi.spyOn(fs, 'readFileSync').mockImplementation((filePath) => {
+            if (filePath === getExtensionConfigPath('/test-project')) {
+                return JSON.stringify({ extensions: {} });
+            }
+            if (filePath === getExtensionConfigPath(`/tmp/sfnext-extensions-${MOCK_NOW}`)) {
+                return JSON.stringify({
+                    extensions: {
+                        SFDC_EXT_STORE_LOCATOR: {
+                            name: 'Store Locator',
+                            description: 'Store Locator allows a shopper to find the closest store to them.',
+                            folder: 'store-locator',
+                            dependencies: [],
+                        },
+                        SFDC_EXT_BOPIS: {
+                            name: 'BOPIS',
+                            description: 'Buy Online Pickup In Store',
+                            folder: 'bopis',
+                            dependencies: ['SFDC_EXT_STORE_LOCATOR'],
+                        },
+                    },
+                });
+            }
+            return '{}';
+        });
+        // Reset and mock prompts: first call for sourceGitUrl, second for confirmInstall (declined)
+        (prompts as any).mockReset();
+        let promptCallCount = 0;
+        (prompts as any).mockImplementation(() => {
+            promptCallCount++;
+            if (promptCallCount === 1) return { sourceGitUrl: SOURCE_GIT_URL };
+            return { confirmInstall: false };
+        });
+        await manageExtensions({
+            projectDirectory: '/test-project',
+            install: true,
+            extensions: ['SFDC_EXT_BOPIS'],
+        });
+        // Should show dependency prompt
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('requires the following dependencies'));
+        // Should abort
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Installation aborted.'));
+        // Should not copy any files
+        expect(fs.copySync).not.toHaveBeenCalled();
     });
 
     it('should error and exit if no config is found', async () => {

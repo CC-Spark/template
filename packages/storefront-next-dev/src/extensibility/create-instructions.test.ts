@@ -31,10 +31,12 @@ const mockedExtensionConfig: any = {
         SFDC_EXT_featureA: {
             name: 'Feature A',
             description: 'Feature A description',
+            dependencies: [],
         },
         SFDC_EXT_featureB: {
             name: 'Feature B',
             description: 'Feature B description',
+            dependencies: ['SFDC_EXT_featureA'],
         },
     },
 };
@@ -176,6 +178,7 @@ describe('create-instructions', () => {
             mergeFiles: [],
             newFiles: [],
             copy: [],
+            dependencies: [],
         };
         genertaeAndWriteInstructions(templatePath, context, outputPath);
         const rendered = vol.readFileSync(outputPath, 'utf8') as string;
@@ -255,5 +258,109 @@ describe('create-instructions', () => {
                 configPath
             )
         ).toThrow(/File or directory (.*)doesnotexist(.*) not found/);
+    });
+
+    it('getContext returns empty dependencies array for extension with no dependencies', async () => {
+        const { getContext } = await reloadModule();
+        const context = getContext(TEMPLATE_RETAIL_RSC_APP_DIR, 'SFDC_EXT_featureA', repo, branch, [], configPath);
+        expect(context.dependencies).toEqual([]);
+    });
+
+    it('getContext returns populated dependencies array with key and name', async () => {
+        const { getContext } = await reloadModule();
+        // Feature B depends on Feature A
+        const context = getContext(TEMPLATE_RETAIL_RSC_APP_DIR, 'SFDC_EXT_featureB', repo, branch, [], configPath);
+        expect(context.dependencies).toEqual([{ key: 'SFDC_EXT_featureA', name: 'Feature A' }]);
+    });
+
+    it('getContext uses extension key as fallback name when dependency name is missing', async () => {
+        // Create config where dependency exists but has no name
+        const configWithMissingName = {
+            extensions: {
+                SFDC_EXT_featureA: {
+                    description: 'Feature A without name field',
+                    dependencies: [],
+                },
+                SFDC_EXT_featureB: {
+                    name: 'Feature B',
+                    description: 'Feature B description',
+                    dependencies: ['SFDC_EXT_featureA'],
+                },
+            },
+        };
+        createTestFileSystem({
+            extensionConfig: JSON.stringify(configWithMissingName),
+        });
+        const { getContext } = await reloadModule();
+        const context = getContext(TEMPLATE_RETAIL_RSC_APP_DIR, 'SFDC_EXT_featureB', repo, branch, [], configPath);
+        // Should use the key as fallback since name is missing
+        expect(context.dependencies).toEqual([{ key: 'SFDC_EXT_featureA', name: 'SFDC_EXT_featureA' }]);
+    });
+
+    it('genertaeAndWriteInstructions renders dependency check section when dependencies exist', async () => {
+        const { genertaeAndWriteInstructions } = await reloadModule();
+        const templatePath = path.join(TEMPLATE_RETAIL_RSC_APP_DIR, './src/templates/dep-template.mdc.hbs');
+        const outputPath = path.join(TEMPLATE_RETAIL_RSC_APP_DIR, 'dep-out.mdc');
+        vol.mkdirSync(path.join(TEMPLATE_RETAIL_RSC_APP_DIR, 'src/templates'), { recursive: true });
+        // Template with dependency check similar to real install-instructions.mdc.hbs
+        vol.writeFileSync(
+            templatePath,
+            `# Installing {{extensionName}}
+{{#if dependencies.length}}
+## Dependencies Check
+The following extensions must be installed before {{extensionName}}:
+{{#each dependencies}}
+- {{this.name}} ({{this.key}})
+{{/each}}
+{{/if}}`
+        );
+        const contextWithDeps = {
+            extensionName: 'Feature B',
+            pwaRepo: repo,
+            branch,
+            markerValue: 'SFDC_EXT_featureB',
+            mergeFiles: [],
+            newFiles: [],
+            copy: [],
+            dependencies: [{ key: 'SFDC_EXT_featureA', name: 'Feature A' }],
+        };
+        genertaeAndWriteInstructions(templatePath, contextWithDeps, outputPath);
+        const rendered = vol.readFileSync(outputPath, 'utf8') as string;
+        expect(rendered).toContain('## Dependencies Check');
+        expect(rendered).toContain('Feature A (SFDC_EXT_featureA)');
+        expect(rendered).toContain('The following extensions must be installed before Feature B');
+    });
+
+    it('genertaeAndWriteInstructions omits dependency check section when no dependencies', async () => {
+        const { genertaeAndWriteInstructions } = await reloadModule();
+        const templatePath = path.join(TEMPLATE_RETAIL_RSC_APP_DIR, './src/templates/nodep-template.mdc.hbs');
+        const outputPath = path.join(TEMPLATE_RETAIL_RSC_APP_DIR, 'nodep-out.mdc');
+        vol.mkdirSync(path.join(TEMPLATE_RETAIL_RSC_APP_DIR, 'src/templates'), { recursive: true });
+        // Template with dependency check similar to real install-instructions.mdc.hbs
+        vol.writeFileSync(
+            templatePath,
+            `# Installing {{extensionName}}
+{{#if dependencies.length}}
+## Dependencies Check
+The following extensions must be installed before {{extensionName}}:
+{{#each dependencies}}
+- {{this.name}} ({{this.key}})
+{{/each}}
+{{/if}}`
+        );
+        const contextNoDeps = {
+            extensionName: 'Feature A',
+            pwaRepo: repo,
+            branch,
+            markerValue: 'SFDC_EXT_featureA',
+            mergeFiles: [],
+            newFiles: [],
+            copy: [],
+            dependencies: [],
+        };
+        genertaeAndWriteInstructions(templatePath, contextNoDeps, outputPath);
+        const rendered = vol.readFileSync(outputPath, 'utf8') as string;
+        expect(rendered).not.toContain('## Dependencies Check');
+        expect(rendered).not.toContain('The following extensions must be installed');
     });
 });

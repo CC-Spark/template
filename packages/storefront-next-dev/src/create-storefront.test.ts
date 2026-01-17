@@ -19,10 +19,16 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import prompts from 'prompts';
 import trimExtensions from './extensibility/trim-extensions';
+import { prepareForLocalDev } from './utils/local-dev-setup';
 
 // Mock external modules before importing the SUT
 vi.spyOn(console, 'error').mockImplementation(() => {});
 vi.spyOn(console, 'log').mockImplementation(() => {});
+
+// Mock local-dev-setup module
+vi.mock('./utils/local-dev-setup', () => ({
+    prepareForLocalDev: vi.fn().mockResolvedValue(undefined),
+}));
 vi.mock('fs-extra', () => ({
     __esModule: true,
     default: {
@@ -36,20 +42,46 @@ vi.mock('./extensibility/trim-extensions', () => ({
     __esModule: true,
     default: vi.fn(),
 }));
+
+// Create a flexible prompts mock that supports both direct mocking and inject-style behavior
+let promptsInjectedValues: any[] = [];
+let promptsCallCount = 0;
+
 vi.mock('prompts', () => {
     return {
-        default: vi.fn(() => {
-            return {
-                storefront: 'sfcc-storefront',
-                template: 'custom',
-                githubUrl: 'http://github.com/sfcc-odyssey/template-retail-rsc-app',
-                selectedExtensions: ['SFDC_EXT_STORE_LOCATOR'],
-                PUBLIC__app__commerce__api__clientId: '1234567890',
-                PUBLIC__app__commerce__api__organizationId: '0987654321',
-            };
-        }),
-    } as const;
+        default: Object.assign(
+            vi.fn((options: any) => {
+                // If we have injected values, use them in sequence
+                if (promptsInjectedValues.length > 0 && promptsCallCount < promptsInjectedValues.length) {
+                    const value = promptsInjectedValues[promptsCallCount];
+                    promptsCallCount++;
+                    // Return the value with the expected property name
+                    if (options.name) {
+                        return { [options.name]: value };
+                    }
+                    return value;
+                }
+                // Default fallback values
+                return {
+                    storefront: 'sfcc-storefront',
+                    template: 'custom',
+                    githubUrl: 'https://github.com/SalesforceCommerceCloud/storefront-next',
+                    selectedExtensions: ['SFDC_EXT_STORE_LOCATOR'],
+                    PUBLIC__app__commerce__api__clientId: '1234567890',
+                    PUBLIC__app__commerce__api__organizationId: '0987654321',
+                };
+            }),
+            {
+                // Add inject method to simulate prompts.inject() behavior
+                inject: (values: any[]) => {
+                    promptsInjectedValues = values;
+                    promptsCallCount = 0;
+                },
+            }
+        ),
+    };
 });
+
 vi.mock('child_process', () => ({
     execSync: vi.fn(),
 }));
@@ -66,6 +98,9 @@ describe('create-storefront', () => {
         originalEnv = { ...process.env };
         vi.clearAllMocks();
         vi.resetAllMocks();
+        // Reset injected values
+        promptsInjectedValues = [];
+        promptsCallCount = 0;
         // Dynamically import after mocks are in place
         ({ createStorefront } = await import('./create-storefront'));
     });
@@ -139,8 +174,11 @@ describe('create-storefront', () => {
         } catch (e: any) {
             expect(e).toBeDefined();
         }
+        // First call checks git is installed
+        expect(execSync).toHaveBeenCalledWith('git --version', { stdio: 'ignore' });
+        // Second call clones with --depth 1 for faster shallow clone
         expect(execSync).toHaveBeenCalledWith(
-            'git clone http://github.com/sfcc-odyssey/template-retail-rsc-app sfcc-storefront'
+            'git clone --depth 1 https://github.com/SalesforceCommerceCloud/storefront-next sfcc-storefront'
         );
         expect(fs.rmSync).toHaveBeenCalledWith(join('sfcc-storefront', '.git'), { recursive: true, force: true });
     });
@@ -208,5 +246,341 @@ describe('create-storefront', () => {
             join('sfcc-storefront', '.env'),
             'PUBLIC__app__commerce__api__clientId=1234567890'
         );
+    });
+
+    describe('extension dependencies (using prompts.inject simulation)', () => {
+        const extensionConfigWithDependencies = {
+            extensions: {
+                SFDC_EXT_STORE_LOCATOR: {
+                    name: 'Store Locator',
+                    description: 'Store Locator allows a shopper to find the closest store to them.',
+                    dependencies: [],
+                },
+                SFDC_EXT_BOPIS: {
+                    name: 'Buy Online Pickup In Store',
+                    description: 'BOPIS allows a shopper to pick up their order at a store.',
+                    dependencies: ['SFDC_EXT_STORE_LOCATOR'],
+                },
+            },
+        };
+
+        it('should auto-add missing dependencies when extension with dependencies is selected', async () => {
+            // Simulate user interaction: inject answers in sequence
+            // 1. storefront name, 2. template selection, 3. github URL, 4. extension selection
+            (prompts as any).inject([
+                'my-storefront', // storefront name
+                'custom', // template selection
+                'https://github.com/SalesforceCommerceCloud/storefront-next', // github URL
+                ['SFDC_EXT_BOPIS'], // Only BOPIS selected (not Store Locator)
+            ]);
+
+            vi.mocked(fs.existsSync).mockReturnValue(true as any);
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(extensionConfigWithDependencies));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch (e: any) {
+                expect(e).toBeDefined();
+            }
+
+            // trimExtensions should be called with BOTH Store Locator and BOPIS enabled
+            // because Store Locator was auto-added as a dependency
+            expect(trimExtensions).toHaveBeenCalledWith(
+                'my-storefront',
+                { SFDC_EXT_STORE_LOCATOR: true, SFDC_EXT_BOPIS: true },
+                { extensions: extensionConfigWithDependencies.extensions },
+                false
+            );
+        });
+
+        it('should log warning when dependencies are auto-added', async () => {
+            // Simulate user selecting only BOPIS
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'https://github.com/SalesforceCommerceCloud/storefront-next',
+                ['SFDC_EXT_BOPIS'], // Only BOPIS selected
+            ]);
+
+            vi.mocked(fs.existsSync).mockReturnValue(true as any);
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(extensionConfigWithDependencies));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch {
+                // Expected
+            }
+
+            // Should log a warning about the auto-added dependency
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Store Locator'));
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('automatically added'));
+        });
+
+        it('should include all dependencies when extension is selected along with its dependencies', async () => {
+            // Simulate user selecting BOTH BOPIS and Store Locator
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'https://github.com/SalesforceCommerceCloud/storefront-next',
+                ['SFDC_EXT_STORE_LOCATOR', 'SFDC_EXT_BOPIS'], // Both selected
+            ]);
+
+            vi.mocked(fs.existsSync).mockReturnValue(true as any);
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(extensionConfigWithDependencies));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch {
+                // Expected
+            }
+
+            // trimExtensions should be called with both enabled (no auto-add needed)
+            expect(trimExtensions).toHaveBeenCalledWith(
+                'my-storefront',
+                { SFDC_EXT_STORE_LOCATOR: true, SFDC_EXT_BOPIS: true },
+                { extensions: extensionConfigWithDependencies.extensions },
+                false
+            );
+        });
+
+        it('should abort if circular dependency is detected', async () => {
+            const circularConfig = {
+                extensions: {
+                    SFDC_EXT_A: {
+                        name: 'Extension A',
+                        description: 'Extension A',
+                        dependencies: ['SFDC_EXT_B'],
+                    },
+                    SFDC_EXT_B: {
+                        name: 'Extension B',
+                        description: 'Extension B',
+                        dependencies: ['SFDC_EXT_A'],
+                    },
+                },
+            };
+
+            // Simulate user interaction
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'https://github.com/SalesforceCommerceCloud/storefront-next',
+                ['SFDC_EXT_A'],
+            ]);
+
+            vi.mocked(fs.existsSync).mockReturnValue(true as any);
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(circularConfig));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch {
+                // Expected
+            }
+
+            expect(exitMock).toHaveBeenCalledWith(1);
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Circular dependency detected'));
+        });
+
+        it('should handle 3-layer transitive dependency chain', async () => {
+            // Test with a 3-layer chain: BOPIS -> Store Locator -> Base Maps
+            const threeLayerConfig = {
+                extensions: {
+                    SFDC_EXT_BASE_MAPS: {
+                        name: 'Base Maps',
+                        description: 'Core mapping functionality',
+                        dependencies: [],
+                    },
+                    SFDC_EXT_STORE_LOCATOR: {
+                        name: 'Store Locator',
+                        description: 'Store Locator allows a shopper to find the closest store to them.',
+                        dependencies: ['SFDC_EXT_BASE_MAPS'],
+                    },
+                    SFDC_EXT_BOPIS: {
+                        name: 'Buy Online Pickup In Store',
+                        description: 'BOPIS allows a shopper to pick up their order at a store.',
+                        dependencies: ['SFDC_EXT_STORE_LOCATOR'],
+                    },
+                },
+            };
+
+            // User only selects BOPIS
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'https://github.com/SalesforceCommerceCloud/storefront-next',
+                ['SFDC_EXT_BOPIS'], // Only BOPIS selected
+            ]);
+
+            vi.mocked(fs.existsSync).mockReturnValue(true as any);
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(threeLayerConfig));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch {
+                // Expected
+            }
+
+            // All three extensions should be enabled (transitive resolution)
+            expect(trimExtensions).toHaveBeenCalledWith(
+                'my-storefront',
+                {
+                    SFDC_EXT_BASE_MAPS: true,
+                    SFDC_EXT_STORE_LOCATOR: true,
+                    SFDC_EXT_BOPIS: true,
+                },
+                { extensions: threeLayerConfig.extensions },
+                false
+            );
+        });
+    });
+
+    describe('local development setup (file:// templates)', () => {
+        beforeEach(() => {
+            // Clear the localDevSetup mock before each test in this block
+            vi.mocked(prepareForLocalDev).mockClear();
+        });
+
+        it('should call prepareForLocalDev when template starts with file://', async () => {
+            // Simulate user selecting a file:// template
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'file:///Users/dev/monorepo/packages/template', // file:// URL
+                [], // no extensions
+            ]);
+
+            vi.mocked(fs.existsSync).mockImplementation((path: any) => {
+                if (path.endsWith('config.json')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ configs: [] }));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch {
+                // Expected due to mock limitations
+            }
+
+            // prepareForLocalDev should have been called
+            // sourcePackagesDir is derived as path.dirname of the template path
+            expect(prepareForLocalDev).toHaveBeenCalledWith({
+                projectDirectory: 'my-storefront',
+                sourcePackagesDir: '/Users/dev/monorepo/packages',
+            });
+        });
+
+        it('should call prepareForLocalDev when localPackagesDir option is provided', async () => {
+            // Simulate user selecting a regular GitHub template
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'https://github.com/SalesforceCommerceCloud/storefront-next',
+                [], // no extensions
+            ]);
+
+            vi.mocked(fs.existsSync).mockImplementation((path: any) => {
+                if (path.endsWith('config.json')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ configs: [] }));
+
+            try {
+                await createStorefront({
+                    verbose: false,
+                    localPackagesDir: '/custom/packages/path',
+                });
+            } catch {
+                // Expected due to mock limitations
+            }
+
+            // prepareForLocalDev should have been called with the provided path
+            expect(prepareForLocalDev).toHaveBeenCalledWith({
+                projectDirectory: 'my-storefront',
+                sourcePackagesDir: '/custom/packages/path',
+            });
+        });
+
+        it('should NOT call prepareForLocalDev for regular GitHub templates without localPackagesDir', async () => {
+            // Simulate user selecting a regular GitHub template
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'https://github.com/SalesforceCommerceCloud/storefront-next',
+                [], // no extensions
+            ]);
+
+            vi.mocked(fs.existsSync).mockImplementation((path: any) => {
+                if (path.endsWith('config.json')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ configs: [] }));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch {
+                // Expected due to mock limitations
+            }
+
+            // prepareForLocalDev should NOT have been called
+            expect(prepareForLocalDev).not.toHaveBeenCalled();
+        });
+
+        it('should derive sourcePackagesDir from file:// template path', async () => {
+            // Simulate user selecting a file:// template from a deep path
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'file:///home/user/workspace/sfcc-odyssey/packages/template-retail-rsc-app',
+                [], // no extensions
+            ]);
+
+            vi.mocked(fs.existsSync).mockImplementation((path: any) => {
+                if (path.endsWith('config.json')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ configs: [] }));
+
+            try {
+                await createStorefront({ verbose: false });
+            } catch {
+                // Expected due to mock limitations
+            }
+
+            // sourcePackagesDir should be the parent directory of the template
+            expect(prepareForLocalDev).toHaveBeenCalledWith({
+                projectDirectory: 'my-storefront',
+                sourcePackagesDir: '/home/user/workspace/sfcc-odyssey/packages',
+            });
+        });
+
+        it('should prefer localPackagesDir over derived path from file:// URL', async () => {
+            // Simulate user selecting a file:// template but also providing localPackagesDir
+            (prompts as any).inject([
+                'my-storefront',
+                'custom',
+                'file:///Users/dev/template-solo-repo',
+                [], // no extensions
+            ]);
+
+            vi.mocked(fs.existsSync).mockImplementation((path: any) => {
+                if (path.endsWith('config.json')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ configs: [] }));
+
+            try {
+                await createStorefront({
+                    verbose: false,
+                    localPackagesDir: '/override/packages/path',
+                });
+            } catch {
+                // Expected due to mock limitations
+            }
+
+            // Should use the provided localPackagesDir, not the derived one
+            expect(prepareForLocalDev).toHaveBeenCalledWith({
+                projectDirectory: 'my-storefront',
+                sourcePackagesDir: '/override/packages/path',
+            });
+        });
     });
 });

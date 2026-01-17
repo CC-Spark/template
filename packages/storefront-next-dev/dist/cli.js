@@ -1174,7 +1174,7 @@ async function createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatch
 			try {
 				const ssrEnvironment = vite.environments.ssr;
 				if (!isRunnableDevEnvironment(ssrEnvironment)) {
-					next(/* @__PURE__ */ new Error("SSR environment is not runnable. Please ensure:\n  1. \"@salesforce/storefront-next-dev\" plugin is added to vite.config.ts\n  2. \"future.v8_viteEnvironmentApi: true\" is set in react-router.config.ts"));
+					next(/* @__PURE__ */ new Error("SSR environment is not runnable. Please ensure:\n  1. \"@salesforce/storefront-next-dev\" plugin is added to vite.config.ts\n  2. React Router config uses the Odyssey preset"));
 					return;
 				}
 				await createRequestHandler({
@@ -1383,14 +1383,20 @@ function getContext(projectRoot, markerValue, pwaRepo = "https://github.com/Sale
 	});
 	const { mergeFiles, newFiles } = findMarkedFiles(projectRoot, markerValue);
 	filesToCopy.push(...newFiles);
+	const extensionMeta = extensionConfig.extensions[markerValue];
+	const dependencies = (extensionMeta.dependencies || []).map((depKey) => ({
+		key: depKey,
+		name: extensionConfig.extensions[depKey]?.name || depKey
+	}));
 	return {
-		extensionName: extensionConfig.extensions[markerValue].name,
+		extensionName: extensionMeta.name,
 		pwaRepo,
 		branch,
 		markerValue,
 		mergeFiles,
 		newFiles,
-		copy: getFilesToCopyContext(projectRoot, filesToCopy)
+		copy: getFilesToCopyContext(projectRoot, filesToCopy),
+		dependencies
 	};
 }
 /**
@@ -2572,6 +2578,349 @@ function deleteExtensionFolders(projectRoot, extensions, extensionConfig) {
 }
 
 //#endregion
+//#region src/extensibility/dependency-utils.ts
+/**
+* Resolve full transitive dependency chain in topological order (dependencies first).
+* Example: resolveDependencies('BOPIS', config) → ['Store Locator', 'BOPIS']
+*
+* @param extensionKey - The extension key to resolve dependencies for
+* @param config - The extension configuration
+* @returns Array of extension keys in topological order (dependencies first, then the extension itself)
+*/
+function resolveDependencies(extensionKey, config) {
+	const visited = /* @__PURE__ */ new Set();
+	const result = [];
+	function visit(key) {
+		if (visited.has(key)) return;
+		visited.add(key);
+		const extension = config.extensions[key];
+		if (!extension) return;
+		const dependencies = extension.dependencies || [];
+		for (const dep of dependencies) visit(dep);
+		result.push(key);
+	}
+	visit(extensionKey);
+	return result;
+}
+/**
+* Reverse lookup: find immediate extensions that depend on this one.
+* Example: getDependents('Store Locator', config) → ['BOPIS']
+*
+* @param extensionKey - The extension key to find dependents for
+* @param config - The extension configuration
+* @returns Array of extension keys that directly depend on this extension
+*/
+function getDependents(extensionKey, config) {
+	const dependents = [];
+	for (const [key, extension] of Object.entries(config.extensions)) if ((extension.dependencies || []).includes(extensionKey)) dependents.push(key);
+	return dependents;
+}
+/**
+* Resolve full transitive dependent chain in reverse topological order (dependents first).
+* Example: resolveDependents('Store Locator', config) → ['BOPIS', 'Store Locator']
+*
+* @param extensionKey - The extension key to resolve dependents for
+* @param config - The extension configuration
+* @returns Array of extension keys in reverse topological order (dependents first, then the extension itself)
+*/
+function resolveDependents(extensionKey, config) {
+	const visited = /* @__PURE__ */ new Set();
+	const result = [];
+	function visit(key) {
+		if (visited.has(key)) return;
+		visited.add(key);
+		const dependents = getDependents(key, config);
+		for (const dep of dependents) visit(dep);
+		result.push(key);
+	}
+	visit(extensionKey);
+	return result;
+}
+/**
+* Validate that no circular dependencies exist in the configuration.
+* Throws a descriptive error if a cycle is found.
+*
+* @param config - The extension configuration to validate
+* @throws Error if a circular dependency is detected
+*/
+function validateNoCycles(config) {
+	const visiting = /* @__PURE__ */ new Set();
+	const visited = /* @__PURE__ */ new Set();
+	function visit(key, path$1) {
+		if (visited.has(key)) return;
+		if (visiting.has(key)) {
+			const cycleStart = path$1.indexOf(key);
+			const cyclePath = [...path$1.slice(cycleStart), key];
+			throw new Error(`Circular dependency detected: ${cyclePath.join(" -> ")}`);
+		}
+		visiting.add(key);
+		path$1.push(key);
+		const extension = config.extensions[key];
+		if (extension) {
+			const dependencies = extension.dependencies || [];
+			for (const dep of dependencies) visit(dep, path$1);
+		}
+		path$1.pop();
+		visiting.delete(key);
+		visited.add(key);
+	}
+	for (const key of Object.keys(config.extensions)) visit(key, []);
+}
+/**
+* Filter resolved dependencies to only those not yet installed.
+* Returns dependencies in topological order (install order).
+*
+* @param extensionKey - The extension key to check dependencies for
+* @param installedExtensions - Array of already installed extension keys
+* @param config - The extension configuration
+* @returns Array of missing extension keys in topological order (install order)
+*/
+function getMissingDependencies(extensionKey, installedExtensions, config) {
+	const allDependencies = resolveDependencies(extensionKey, config);
+	const installedSet = new Set(installedExtensions);
+	return allDependencies.filter((key) => !installedSet.has(key));
+}
+/**
+* Resolve dependencies for multiple extensions, merging and deduplicating the results.
+* Returns all dependencies in topological order.
+*
+* @param extensionKeys - Array of extension keys to resolve dependencies for
+* @param config - The extension configuration
+* @returns Array of all extension keys in topological order (dependencies first)
+*/
+function resolveDependenciesForMultiple(extensionKeys, config) {
+	const allDeps = /* @__PURE__ */ new Set();
+	const result = [];
+	for (const key of extensionKeys) {
+		const deps = resolveDependencies(key, config);
+		for (const dep of deps) if (!allDeps.has(dep)) {
+			allDeps.add(dep);
+			result.push(dep);
+		}
+	}
+	return result;
+}
+/**
+* Resolve dependents for multiple extensions, merging and deduplicating the results.
+* Returns all dependents in reverse topological order (uninstall order).
+*
+* @param extensionKeys - Array of extension keys to resolve dependents for
+* @param config - The extension configuration
+* @returns Array of all extension keys in reverse topological order (dependents first)
+*/
+function resolveDependentsForMultiple(extensionKeys, config) {
+	const allDeps = /* @__PURE__ */ new Set();
+	const result = [];
+	for (const key of extensionKeys) {
+		const deps = resolveDependents(key, config);
+		for (const dep of deps) if (!allDeps.has(dep)) {
+			allDeps.add(dep);
+			result.push(dep);
+		}
+	}
+	return result;
+}
+
+//#endregion
+//#region src/utils/local-dev-setup.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
+* Local Development Setup Utilities
+*
+* This module handles the special case of setting up a storefront project
+* when cloned from a local monorepo (file:// URL) instead of GitHub.
+*
+* It addresses:
+* 1. workspace:* dependencies that need to be converted to file: references
+* 2. Vite config patches needed to prevent "duplicate React instances" errors
+*    with file-linked packages
+*
+* Usage:
+*   npx storefront-next-dev prepare-local -d ./my-storefront -s /path/to/monorepo/packages
+*/
+/**
+* Prepares a cloned template for standalone use outside the monorepo.
+* Prompts user for local package paths and replaces workspace:* dependencies with file: references.
+*/
+async function prepareForLocalDev(options) {
+	const { projectDirectory, sourcePackagesDir } = options;
+	const packageJsonPath = path.join(projectDirectory, "package.json");
+	if (!fs.existsSync(packageJsonPath)) throw new Error(`package.json not found in ${projectDirectory}`);
+	const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+	const workspaceDeps = [];
+	for (const depType of [
+		"dependencies",
+		"devDependencies",
+		"peerDependencies"
+	]) {
+		const deps = packageJson[depType];
+		if (!deps) continue;
+		for (const [pkg, version$1] of Object.entries(deps)) if (typeof version$1 === "string" && version$1.startsWith("workspace:")) workspaceDeps.push({
+			pkg,
+			depType
+		});
+	}
+	if (workspaceDeps.length === 0) {
+		info("No workspace:* dependencies found. Project is ready for standalone use.");
+		return;
+	}
+	console.log("\n🔗 Found workspace dependencies that need to be linked to local packages:\n");
+	for (const { pkg } of workspaceDeps) console.log(`   • ${pkg}`);
+	console.log("");
+	const defaultPaths = {};
+	if (sourcePackagesDir) {
+		defaultPaths["@salesforce/storefront-next-dev"] = path.join(sourcePackagesDir, "storefront-next-dev");
+		defaultPaths["@salesforce/storefront-next-runtime"] = path.join(sourcePackagesDir, "storefront-next-runtime");
+	}
+	const resolvedPaths = {};
+	for (const { pkg } of workspaceDeps) {
+		if (resolvedPaths[pkg]) continue;
+		const defaultPath = defaultPaths[pkg] || "";
+		const defaultExists = defaultPath && fs.existsSync(defaultPath);
+		const { localPath } = await prompts({
+			type: "text",
+			name: "localPath",
+			message: `📦 Path to ${pkg}:`,
+			initial: defaultExists ? defaultPath : "",
+			validate: (value) => {
+				if (!value) return "Path is required";
+				if (!fs.existsSync(value)) return `Directory not found: ${value}`;
+				if (!fs.existsSync(path.join(value, "package.json"))) return `No package.json found in: ${value}`;
+				return true;
+			}
+		});
+		if (!localPath) {
+			warn(`Skipping ${pkg} - no path provided`);
+			continue;
+		}
+		resolvedPaths[pkg] = localPath;
+	}
+	let modified = false;
+	for (const depType of [
+		"dependencies",
+		"devDependencies",
+		"peerDependencies"
+	]) {
+		const deps = packageJson[depType];
+		if (!deps) continue;
+		for (const [pkg, version$1] of Object.entries(deps)) if (typeof version$1 === "string" && version$1.startsWith("workspace:")) {
+			const localPath = resolvedPaths[pkg];
+			if (localPath) {
+				const fileRef = `file:${localPath}`;
+				info(`Linked ${pkg} → ${fileRef}`);
+				deps[pkg] = fileRef;
+				modified = true;
+			} else {
+				warn(`Removing unresolved workspace dependency: ${pkg}`);
+				delete deps[pkg];
+				modified = true;
+			}
+		}
+	}
+	if (packageJson.volta?.extends) {
+		delete packageJson.volta.extends;
+		if (Object.keys(packageJson.volta).length === 0) delete packageJson.volta;
+		modified = true;
+	}
+	if (modified) {
+		fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 4) + "\n");
+		success("package.json updated with local package links");
+		patchViteConfigForLinkedPackages(projectDirectory, Object.keys(resolvedPaths));
+	}
+}
+/**
+* Patches vite.config.ts to fix "You must render this element inside a <HydratedRouter>" errors
+* that occur when using file: linked packages.
+*
+* The fix adds:
+* 1. resolve.dedupe for react, react-dom, react-router (helps with non-linked duplicates)
+* 2. ssr.noExternal for file-linked packages (key fix - bundles them so they use host's dependencies)
+*
+* When packages are in ssr.noExternal, Vite bundles them during SSR instead of externalizing.
+* During bundling, their imports resolve through the host project's node_modules,
+* ensuring all code uses the same react-router instance with the same context.
+*/
+function patchViteConfigForLinkedPackages(projectDirectory, linkedPackages) {
+	const viteConfigPath = path.join(projectDirectory, "vite.config.ts");
+	if (!fs.existsSync(viteConfigPath)) {
+		warn("vite.config.ts not found, skipping patch for file-linked packages");
+		return;
+	}
+	if (linkedPackages.length === 0) return;
+	let viteConfig = fs.readFileSync(viteConfigPath, "utf8");
+	let modified = false;
+	if (!viteConfig.includes("dedupe:")) {
+		const resolveMatch = viteConfig.match(/resolve:\s*\{/);
+		if (resolveMatch && resolveMatch.index !== void 0) {
+			const insertPos = resolveMatch.index + resolveMatch[0].length;
+			viteConfig = viteConfig.slice(0, insertPos) + `
+            // Deduplicates packages to prevent context issues with file-linked packages
+            dedupe: ['react', 'react-dom', 'react-router'],` + viteConfig.slice(insertPos);
+			modified = true;
+		}
+	}
+	const packageList = linkedPackages.map((p) => `'${p}'`).join(", ");
+	if (/ssr:\s*\{[^}]*noExternal:/.test(viteConfig)) {
+		const noExternalArrayRegex = /noExternal:\s*\[([^\]]*)\]/;
+		const noExternalMatch = viteConfig.match(noExternalArrayRegex);
+		if (noExternalMatch) {
+			const existingPackages = noExternalMatch[1];
+			const packagesToAdd = linkedPackages.filter((p) => !existingPackages.includes(p));
+			if (packagesToAdd.length > 0) {
+				const newPackageList = packagesToAdd.map((p) => `'${p}'`).join(", ");
+				const newArray = existingPackages.trim() ? `[${existingPackages.trim()}, ${newPackageList}]` : `[${newPackageList}]`;
+				viteConfig = viteConfig.replace(noExternalArrayRegex, `noExternal: ${newArray}`);
+				modified = true;
+			}
+		}
+	} else {
+		const ssrMatch = viteConfig.match(/ssr:\s*\{/);
+		if (ssrMatch && ssrMatch.index !== void 0) {
+			const insertPos = ssrMatch.index + ssrMatch[0].length;
+			const noExternalBlock = `
+            // Bundle file-linked packages so they use host project's dependencies
+            // This prevents "You must render this element inside a <HydratedRouter>" errors
+            noExternal: [${packageList}],`;
+			viteConfig = viteConfig.slice(0, insertPos) + noExternalBlock + viteConfig.slice(insertPos);
+			modified = true;
+		} else {
+			const returnMatch = viteConfig.match(/return\s*\{/);
+			if (returnMatch && returnMatch.index !== void 0) {
+				const insertPos = returnMatch.index + returnMatch[0].length;
+				const ssrBlock = `
+        // SSR config for file-linked packages
+        ssr: {
+            // Bundle file-linked packages so they use host project's dependencies
+            // This prevents "You must render this element inside a <HydratedRouter>" errors
+            noExternal: [${packageList}],
+            target: 'node',
+        },`;
+				viteConfig = viteConfig.slice(0, insertPos) + ssrBlock + viteConfig.slice(insertPos);
+				modified = true;
+			}
+		}
+	}
+	if (modified) {
+		fs.writeFileSync(viteConfigPath, viteConfig);
+		success("vite.config.ts patched for file-linked packages (ssr.noExternal + resolve.dedupe)");
+	} else info("vite.config.ts already configured for file-linked packages");
+}
+
+//#endregion
 //#region src/create-storefront.ts
 /**
 * Copyright 2026 Salesforce, Inc.
@@ -2590,7 +2939,7 @@ function deleteExtensionFolders(projectRoot, extensions, extensionConfig) {
 */
 const DEFAULT_STOREFRONT = "sfcc-storefront";
 const STOREFRONT_NEXT_GITHUB_URL = "https://github.com/SalesforceCommerceCloud/storefront-next-template";
-const createStorefront = async (options) => {
+const createStorefront = async (options = {}) => {
 	try {
 		execSync("git --version", { stdio: "ignore" });
 	} catch (e) {
@@ -2633,17 +2982,30 @@ const createStorefront = async (options) => {
 		}
 		template = githubUrl;
 	}
-	execSync(`git clone ${template} ${storefront}`);
+	execSync(`git clone --depth 1 ${template} ${storefront}`);
 	const gitDir = path.join(storefront, ".git");
 	if (fs.existsSync(gitDir)) fs.rmSync(gitDir, {
 		recursive: true,
 		force: true
 	});
+	if (template.startsWith("file://") || options.localPackagesDir) {
+		const templatePath = template.replace("file://", "");
+		await prepareForLocalDev({
+			projectDirectory: storefront,
+			sourcePackagesDir: options.localPackagesDir || path.dirname(templatePath)
+		});
+	}
 	console.log("\n");
 	if (fs.existsSync(path.join(storefront, "src", "extensions", "config.json"))) {
 		const extensionConfigText = fs.readFileSync(path.join(storefront, "src", "extensions", "config.json"), "utf8");
 		const extensionConfig = JSON.parse(extensionConfigText);
 		if (extensionConfig.extensions) {
+			try {
+				validateNoCycles(extensionConfig);
+			} catch (e) {
+				error(`Extension configuration error: ${e.message}`);
+				process.exit(1);
+			}
 			const { selectedExtensions } = await prompts({
 				type: "multiselect",
 				name: "selectedExtensions",
@@ -2655,7 +3017,19 @@ const createStorefront = async (options) => {
 				})),
 				instructions: false
 			});
-			trimExtensions(storefront, Object.fromEntries(selectedExtensions.map((ext) => [ext, true])), { extensions: extensionConfig.extensions }, options?.verbose || false);
+			const resolvedExtensions = resolveDependenciesForMultiple(selectedExtensions, extensionConfig);
+			const selectedSet = new Set(selectedExtensions);
+			const autoAdded = resolvedExtensions.filter((ext) => !selectedSet.has(ext));
+			if (autoAdded.length > 0) for (const addedExt of autoAdded) {
+				const dependentExts = selectedExtensions.filter((selected) => {
+					return (extensionConfig.extensions[selected]?.dependencies || []).includes(addedExt) || resolvedExtensions.indexOf(addedExt) < resolvedExtensions.indexOf(selected);
+				});
+				if (dependentExts.length > 0) {
+					const addedName = extensionConfig.extensions[addedExt]?.name || addedExt;
+					warn(`${dependentExts.map((ext) => extensionConfig.extensions[ext]?.name || ext).join(", ")} requires ${addedName}. ${addedName} has been automatically added.`);
+				}
+			}
+			trimExtensions(storefront, Object.fromEntries(resolvedExtensions.map((ext) => [ext, true])), { extensions: extensionConfig.extensions }, options?.verbose || false);
 		}
 	}
 	const configMeta = JSON.parse(fs.readFileSync(path.join(storefront, "src", "config", "config-meta.json"), "utf8"));
@@ -2706,11 +3080,8 @@ const createStorefront = async (options) => {
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-const CONFIG_PATH = [
-	"src",
-	"extensions",
-	"config.json"
-];
+const EXTENSIONS_DIR = ["src", "extensions"];
+const CONFIG_PATH = [...EXTENSIONS_DIR, "config.json"];
 const EXTENSION_FOLDERS = [
 	"components",
 	"locales",
@@ -2796,26 +3167,80 @@ const handleUninstall = async (extensionConfig, options) => {
 		consoleLog("\n Please select at least one extension to uninstall.", "error");
 		return;
 	}
-	selectedExtensions.forEach((ext) => {
-		if (extensionConfig[ext].folder) fs.rmSync(path.join(options.projectDirectory, "src", "extensions", extensionConfig[ext].folder), {
+	const allToUninstall = resolveDependentsForMultiple(selectedExtensions, { extensions: extensionConfig });
+	const installedSet = new Set(installedExtensions);
+	const extensionsToUninstall = allToUninstall.filter((key) => installedSet.has(key));
+	const selectedSet = new Set(selectedExtensions);
+	const additionalDependents = extensionsToUninstall.filter((key) => !selectedSet.has(key));
+	if (additionalDependents.length > 0) {
+		consoleLog("\n", "info");
+		consoleLog(`Uninstalling the selected extension(s) will also uninstall the following dependent extensions:`, "info");
+		additionalDependents.forEach((depKey) => {
+			const depExtension = extensionConfig[depKey];
+			const dependsOn = selectedExtensions.find((selKey) => {
+				return extensionConfig[selKey] && extensionConfig[depKey]?.dependencies?.includes(selKey);
+			});
+			const dependsOnName = dependsOn ? extensionConfig[dependsOn]?.name : "selected extension";
+			consoleLog(` • ${depExtension?.name || depKey} (depends on ${dependsOnName})`, "info");
+		});
+		consoleLog("\n", "info");
+		const { confirmUninstall } = await prompts({
+			type: "confirm",
+			name: "confirmUninstall",
+			message: `Uninstall all ${extensionsToUninstall.length} extensions?`,
+			initial: true
+		});
+		if (!confirmUninstall) {
+			consoleLog("Uninstallation aborted.", "info");
+			return;
+		}
+	}
+	extensionsToUninstall.forEach((ext) => {
+		if (extensionConfig[ext]?.folder) fs.rmSync(path.join(options.projectDirectory, ...EXTENSIONS_DIR, extensionConfig[ext].folder), {
 			recursive: true,
 			force: true
 		});
 	});
-	installedExtensions = installedExtensions.filter((ext) => !selectedExtensions.includes(ext));
+	const extensionsToUninstallSet = new Set(extensionsToUninstall);
+	installedExtensions = installedExtensions.filter((ext) => !extensionsToUninstallSet.has(ext));
 	trimExtensions(options.projectDirectory, Object.fromEntries(installedExtensions.map((ext) => [ext, true])), { extensions: extensionConfig }, options.verbose ?? false);
 	consoleLog(" Extensions uninstalled.", "success");
 };
 /**
+* Install a single extension (internal helper)
+* @returns true if installation succeeded, false otherwise
+*/
+const installSingleExtension = (extensionKey, srcExtensionConfig, extensionConfig, tmpDir, projectDirectory) => {
+	const extension = srcExtensionConfig[extensionKey];
+	const startTime = Date.now();
+	if (extension.folder) fs.copySync(path.join(tmpDir, ...EXTENSIONS_DIR, extension.folder), path.join(projectDirectory, ...EXTENSIONS_DIR, extension.folder));
+	if (extension.installationInstructions) {
+		console.log(`\n⏳ Installing ${extension.name}, this will take a few minutes...`);
+		try {
+			execSync(`cursor-agent -p --force 'Execute the steps specified in the installation instructions file: ${extension.installationInstructions}' --output-format text`, {
+				cwd: projectDirectory,
+				stdio: "inherit"
+			});
+		} catch (e) {
+			consoleLog(`Error installing ${extension.name}. ${e.message}`, "error");
+			return false;
+		}
+	}
+	extensionConfig[extensionKey] = extension;
+	fs.writeFileSync(getExtensionConfigPath(projectDirectory), JSON.stringify({ extensions: extensionConfig }, null, 4));
+	consoleLog(`${extension.name} was installed successfully. (${Date.now() - startTime}ms)`, "success");
+	return true;
+};
+/**
 * Handle the installation of extensions
-* @param extensionConfig 
+* @param extensionConfig
 * @param options {
 sourceGithubUrl?: string;
 projectDirectory: string;
 extensions?: string[];
 verbose?: boolean;
 }
-* @returns 
+* @returns
 */
 const handleInstall = async (extensionConfig, options) => {
 	const { sourceGitUrl } = await prompts({
@@ -2833,36 +3258,43 @@ const handleInstall = async (extensionConfig, options) => {
 	}
 	const selectedExtensions = options.extensions ? options.extensions : await getExtensionSelection("select", srcExtensionConfig, "🔌 Which extension would you like to install?", Object.keys(srcExtensionConfig), Object.keys(extensionConfig));
 	if (selectedExtensions == null || selectedExtensions.length !== 1 || selectedExtensions[0] == null) {
-		consoleLog("Please select extactly one extension to install.", "error");
+		consoleLog("Please select exactly one extension to install.", "error");
 		return;
 	}
+	const extensionKey = selectedExtensions[0];
+	const extension = srcExtensionConfig[extensionKey];
+	if (Object.values(srcExtensionConfig).some((ext) => ext.installationInstructions)) try {
+		execSync("cursor-agent -v", { stdio: "ignore" });
+	} catch (e) {
+		consoleLog("This extension contains LLM instructions, please install cursor cli and try again. (https://cursor.com/docs/cli/overview)", "error");
+		return;
+	}
+	const srcConfig = { extensions: srcExtensionConfig };
+	const missingDeps = getMissingDependencies(extensionKey, Object.keys(extensionConfig), srcConfig);
+	const dependenciesToInstall = missingDeps.slice(0, -1);
 	let hasError = false;
 	try {
-		const extensionKey = selectedExtensions[0];
-		const extension = srcExtensionConfig[extensionKey];
-		if (extension.installationInstructions) try {
-			execSync("cursor-agent -v", { stdio: "ignore" });
-		} catch (e) {
-			consoleLog("This extension contains LLM instructions, please install cursor cli and try again. (https://cursor.com/docs/cli/overview)", "error");
-			return;
-		}
-		const startTime = Date.now();
-		if (extension.folder) fs.copySync(path.join(tmpDir, "src", "extensions", extension.folder), path.join(options.projectDirectory, "src", "extensions", extension.folder));
-		if (extension.installationInstructions) {
-			console.log(`\n⏳ Installing ${extension.name}, this will take a few minutes...`);
-			try {
-				execSync(`cursor-agent -p --force 'Execute the steps specified in the installation instructions file: ${extension.installationInstructions}' --output-format text`, {
-					cwd: options.projectDirectory,
-					stdio: "inherit"
-				});
-			} catch (e) {
-				consoleLog(`Error installing ${extension.name}. ${e.message}`, "error");
-				hasError = true;
+		if (dependenciesToInstall.length > 0) {
+			consoleLog("\n", "info");
+			consoleLog(`Installing ${extension.name} requires the following dependencies:`, "info");
+			dependenciesToInstall.forEach((depKey) => {
+				const depExtension = srcExtensionConfig[depKey];
+				consoleLog(` • ${depExtension?.name || depKey} (not installed)`, "info");
+			});
+			consoleLog("\n", "info");
+			const estimatedMinutes = missingDeps.length * 5;
+			const { confirmInstall } = await prompts({
+				type: "confirm",
+				name: "confirmInstall",
+				message: `Install all ${missingDeps.length} extensions? (~${estimatedMinutes} minutes total)`,
+				initial: true
+			});
+			if (!confirmInstall) {
+				consoleLog("Installation aborted.", "info");
+				return;
 			}
 		}
-		extensionConfig[extensionKey] = extension;
-		fs.writeFileSync(getExtensionConfigPath(options.projectDirectory), JSON.stringify({ extensions: extensionConfig }, null, 4));
-		consoleLog(`${extension.name} was installed successfully. (${Date.now() - startTime}ms)`, "success");
+		for (const depKey of missingDeps) if (!installSingleExtension(depKey, srcExtensionConfig, extensionConfig, tmpDir, options.projectDirectory)) hasError = true;
 	} finally {
 		fs.rmSync(tmpDir, {
 			recursive: true,
@@ -2912,7 +3344,7 @@ const getExtensionNameSchema = (projectDirectory, extensionConfig) => {
 			code: z.ZodIssueCode.custom,
 			message: `Extension "${data.name}" already exists`
 		});
-		if (fs.existsSync(path.join(projectDirectory, "src", "extensions", getExtensionFolderName(data.name)))) ctx.addIssue({
+		if (fs.existsSync(path.join(projectDirectory, ...EXTENSIONS_DIR, getExtensionFolderName(data.name)))) ctx.addIssue({
 			code: z.ZodIssueCode.custom,
 			message: `Extension directory ${getExtensionFolderName(data.name)} already exists`
 		});
@@ -2947,7 +3379,7 @@ const createExtension = async (options) => {
 		message: "How would you describe the extension?"
 	})).extensionDescription;
 	const folderName = getExtensionFolderName(extensionName);
-	const extensionFolderPath = path.join(projectDirectory, "src", "extensions", folderName);
+	const extensionFolderPath = path.join(projectDirectory, ...EXTENSIONS_DIR, folderName);
 	fs.mkdirSync(extensionFolderPath, { recursive: true });
 	EXTENSION_FOLDERS.forEach((folder) => {
 		fs.mkdirSync(path.join(extensionFolderPath, folder), { recursive: true });
@@ -2962,7 +3394,7 @@ const createExtension = async (options) => {
 		folder: folderName,
 		dependencies: []
 	};
-	fs.writeFileSync(path.join(projectDirectory, "src", "extensions", "config.json"), JSON.stringify({ extensions: extensionConfig }, null, 4));
+	fs.writeFileSync(path.join(projectDirectory, ...CONFIG_PATH), JSON.stringify({ extensions: extensionConfig }, null, 4));
 	consoleLog(`Extension "${extensionName}" scaffolding was created successfully.`, "success");
 };
 
@@ -3044,11 +3476,25 @@ const handleCommandError = (label, err) => {
 	process.exit(1);
 };
 program.name("sfnext").description("Dev and build tools for Storefront Next.").version(version);
-program.command("create-storefront").description("Create a storefront project.").option("-v --verbose", "Verbose mode").action(async (options) => {
+program.command("create-storefront").description("Create a storefront project.").option("-v --verbose", "Verbose mode").option("-l, --local-packages-dir <dir>", "Local monorepo packages directory for file:// templates (pre-fills dependency paths)").action(async (options) => {
 	try {
-		await createStorefront({ verbose: options.verbose });
+		await createStorefront({
+			verbose: options.verbose,
+			localPackagesDir: options.localPackagesDir
+		});
 	} catch (err) {
 		handleCommandError("create-storefront", err);
+	}
+});
+program.command("prepare-local").description("Prepare a storefront project for local development with file-linked packages. Converts workspace:* dependencies to file: references and patches vite.config.ts.").option("-d, --project-directory <dir>", "Project directory to prepare", process.cwd()).option("-s, --source-packages-dir <dir>", "Source monorepo packages directory (for default path suggestions)").action(async (options) => {
+	try {
+		await prepareForLocalDev({
+			projectDirectory: options.projectDirectory,
+			sourcePackagesDir: options.sourcePackagesDir
+		});
+		process.exit(0);
+	} catch (err) {
+		handleCommandError("prepare-local", err);
 	}
 });
 program.command("push").description("Create and push bundle to Managed Runtime.").requiredOption("-d, --project-directory <dir>", "Project directory").option("-b, --build-directory <dir>", "Build directory to push (default: auto-detected)").option("-m, --message <message>", "Bundle message (default: git branch:commit)").option("-s, --project-slug <slug>", "Project slug - the unique identifier for your project on Managed Runtime (default: from .env MRT_PROJECT or package.json name.)").option("-t, --target <target>", "Deploy target environment (default: from .env MRT_TARGET).").option("-w, --wait", "Wait for deployment to complete.", false).option("--cloud-origin <origin>", "API origin", DEFAULT_CLOUD_ORIGIN).option("-c, --credentials-file <file>", "Credentials file location.").option("-u, --user <email>", "User email for Managed Runtime.").option("-k, --key <api-key>", "API key for Managed Runtime.").action(async (options) => {

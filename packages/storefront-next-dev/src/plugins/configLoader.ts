@@ -49,6 +49,7 @@ export async function loadEngagementConfig(
         const config = configModule.default;
 
         if (verbose) {
+            // eslint-disable-next-line no-console
             console.log(`  📄 Loaded config from ${configPath}`);
         }
 
@@ -57,6 +58,7 @@ export async function loadEngagementConfig(
 
         if (!engagement) {
             if (verbose) {
+                // eslint-disable-next-line no-console
                 console.log(`  ⚠️  No engagement config found in ${configPath}`);
             }
             return null;
@@ -66,6 +68,7 @@ export async function loadEngagementConfig(
     } catch (error) {
         // Config might not exist or have import errors - this is non-fatal
         if (verbose) {
+            // eslint-disable-next-line no-console
             console.warn(`  ⚠️  Could not load config from ${configPath}: ${(error as Error).message}`);
         }
         return null;

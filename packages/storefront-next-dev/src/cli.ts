@@ -34,6 +34,7 @@ import path, { dirname } from 'path';
 import fs from 'fs-extra';
 import { createStorefront } from './create-storefront';
 import { manageExtensions, createExtension, listExtensions } from './extensibility/manage-extensions';
+import { prepareForLocalDev } from './utils/local-dev-setup';
 
 // Get the directory of this CLI file for resolving dw.json path
 const __filename = fileURLToPath(import.meta.url);
@@ -154,11 +155,38 @@ program
     .command('create-storefront')
     .description('Create a storefront project.')
     .option('-v --verbose', 'Verbose mode')
+    .option(
+        '-l, --local-packages-dir <dir>',
+        'Local monorepo packages directory for file:// templates (pre-fills dependency paths)'
+    )
     .action(async (options) => {
         try {
-            await createStorefront({ verbose: options.verbose });
+            await createStorefront({
+                verbose: options.verbose,
+                localPackagesDir: options.localPackagesDir,
+            });
         } catch (err) {
             handleCommandError('create-storefront', err);
+        }
+    });
+
+program
+    .command('prepare-local')
+    .description(
+        'Prepare a storefront project for local development with file-linked packages. ' +
+            'Converts workspace:* dependencies to file: references and patches vite.config.ts.'
+    )
+    .option('-d, --project-directory <dir>', 'Project directory to prepare', process.cwd())
+    .option('-s, --source-packages-dir <dir>', 'Source monorepo packages directory (for default path suggestions)')
+    .action(async (options) => {
+        try {
+            await prepareForLocalDev({
+                projectDirectory: options.projectDirectory,
+                sourcePackagesDir: options.sourcePackagesDir,
+            });
+            process.exit(0);
+        } catch (err) {
+            handleCommandError('prepare-local', err);
         }
     });
 

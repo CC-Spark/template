@@ -43,6 +43,10 @@ interface ExtensionContext {
         dest: string;
         isDirectory: boolean;
     }>;
+    dependencies: Array<{
+        key: string;
+        name: string;
+    }>;
 }
 
 /**
@@ -70,14 +74,24 @@ export function getContext(
     const { mergeFiles, newFiles } = findMarkedFiles(projectRoot, markerValue);
     // add new files (marked with @sfdc-extension-file) to filesToCopy
     filesToCopy.push(...newFiles);
+
+    // Build dependencies array with key and name
+    const extensionMeta = extensionConfig.extensions[markerValue];
+    const dependencyKeys: string[] = extensionMeta.dependencies || [];
+    const dependencies = dependencyKeys.map((depKey: string) => ({
+        key: depKey,
+        name: extensionConfig.extensions[depKey]?.name || depKey,
+    }));
+
     const context = {
-        extensionName: extensionConfig.extensions[markerValue].name,
+        extensionName: extensionMeta.name,
         pwaRepo,
         branch,
         markerValue,
         mergeFiles,
         newFiles,
         copy: getFilesToCopyContext(projectRoot, filesToCopy),
+        dependencies,
     };
     return context;
 }

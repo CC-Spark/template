@@ -15,17 +15,23 @@
  */
 import { execSync } from 'child_process';
 import { generateEnvFile } from './utils';
-import { error } from './utils/logger';
+import { error, warn } from './utils/logger';
 import prompts from 'prompts';
 import path from 'path';
 import fs from 'fs-extra';
 import dotenv from 'dotenv';
 import trimExtensions from './extensibility/trim-extensions';
+import {
+    resolveDependenciesForMultiple,
+    validateNoCycles,
+    type ExtensionConfig,
+} from './extensibility/dependency-utils';
+import { prepareForLocalDev } from './utils/local-dev-setup';
 
 const DEFAULT_STOREFRONT = 'sfcc-storefront';
 const STOREFRONT_NEXT_GITHUB_URL = 'https://github.com/SalesforceCommerceCloud/storefront-next-template';
 
-export const createStorefront = async (options: { verbose?: boolean }) => {
+export const createStorefront = async (options: { verbose?: boolean; localPackagesDir?: string } = {}) => {
     // Check if git is available before proceeding
     try {
         execSync('git --version', { stdio: 'ignore' });
@@ -69,19 +75,41 @@ export const createStorefront = async (options: { verbose?: boolean }) => {
         template = githubUrl;
     }
     // Clone the template based on the template URL and storefront name
-    execSync(`git clone ${template} ${storefront}`);
+    // Use --depth 1 for shallow clone since we delete .git anyway - much faster!
+    execSync(`git clone --depth 1 ${template} ${storefront}`);
     // remove the .git directory so it starts out as a local project
     const gitDir = path.join(storefront, '.git');
     if (fs.existsSync(gitDir)) {
         fs.rmSync(gitDir, { recursive: true, force: true });
     }
+
+    // Hook: Prepare for local development if cloned from a local monorepo (file:// URL)
+    // or if --local-packages-dir was provided
+    if (template.startsWith('file://') || options.localPackagesDir) {
+        const templatePath = template.replace('file://', '');
+        // Use provided localPackagesDir, or derive from template path
+        const sourcePackagesDir = options.localPackagesDir || path.dirname(templatePath);
+        await prepareForLocalDev({
+            projectDirectory: storefront,
+            sourcePackagesDir,
+        });
+    }
+
     // eslint-disable-next-line no-console
     console.log('\n');
     // configure extensions
     if (fs.existsSync(path.join(storefront, 'src', 'extensions', 'config.json'))) {
         const extensionConfigText = fs.readFileSync(path.join(storefront, 'src', 'extensions', 'config.json'), 'utf8');
-        const extensionConfig = JSON.parse(extensionConfigText);
+        const extensionConfig: ExtensionConfig = JSON.parse(extensionConfigText);
         if (extensionConfig.extensions) {
+            // Validate no circular dependencies before proceeding
+            try {
+                validateNoCycles(extensionConfig);
+            } catch (e) {
+                error(`Extension configuration error: ${(e as Error).message}`);
+                process.exit(1);
+            }
+
             const { selectedExtensions } = await prompts({
                 type: 'multiselect',
                 name: 'selectedExtensions',
@@ -96,7 +124,35 @@ export const createStorefront = async (options: { verbose?: boolean }) => {
                 })),
                 instructions: false,
             });
-            const enabledExtensions = Object.fromEntries(selectedExtensions.map((ext: string) => [ext, true]));
+
+            // Resolve all dependencies for selected extensions
+            const resolvedExtensions = resolveDependenciesForMultiple(selectedExtensions, extensionConfig);
+
+            // Check if any dependencies were auto-added
+            const selectedSet = new Set(selectedExtensions);
+            const autoAdded = resolvedExtensions.filter((ext: string) => !selectedSet.has(ext));
+
+            if (autoAdded.length > 0) {
+                // Find which extensions required the auto-added dependencies
+                for (const addedExt of autoAdded) {
+                    const dependentExts = selectedExtensions.filter((selected: string) => {
+                        const deps = extensionConfig.extensions[selected]?.dependencies || [];
+                        return (
+                            deps.includes(addedExt) ||
+                            resolvedExtensions.indexOf(addedExt) < resolvedExtensions.indexOf(selected)
+                        );
+                    });
+                    if (dependentExts.length > 0) {
+                        const addedName = extensionConfig.extensions[addedExt]?.name || addedExt;
+                        const dependentNames = dependentExts
+                            .map((ext: string) => extensionConfig.extensions[ext]?.name || ext)
+                            .join(', ');
+                        warn(`${dependentNames} requires ${addedName}. ${addedName} has been automatically added.`);
+                    }
+                }
+            }
+
+            const enabledExtensions = Object.fromEntries(resolvedExtensions.map((ext: string) => [ext, true]));
             trimExtensions(
                 storefront,
                 enabledExtensions,

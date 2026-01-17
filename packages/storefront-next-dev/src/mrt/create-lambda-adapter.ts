@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint-disable no-console */
 import { ServerResponse } from 'http';
 import { pipeline } from 'node:stream/promises';
 import zlib, {

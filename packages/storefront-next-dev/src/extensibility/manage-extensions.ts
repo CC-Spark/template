@@ -21,8 +21,10 @@ import trimExtensions from './trim-extensions';
 import os from 'os';
 import { execSync } from 'child_process';
 import { z } from 'zod';
+import { getMissingDependencies, resolveDependentsForMultiple, type ExtensionConfig } from './dependency-utils';
 
-const CONFIG_PATH = ['src', 'extensions', 'config.json'];
+const EXTENSIONS_DIR = ['src', 'extensions'];
+const CONFIG_PATH = [...EXTENSIONS_DIR, 'config.json'];
 const EXTENSION_FOLDERS = ['components', 'locales', 'hooks', 'routes'];
 
 /**
@@ -136,17 +138,64 @@ const handleUninstall = async (
         consoleLog('\n Please select at least one extension to uninstall.', 'error');
         return;
     }
+
+    // Resolve the full dependent chain (in reverse topological order - dependents first)
+    const config: ExtensionConfig = { extensions: extensionConfig };
+    const allToUninstall = resolveDependentsForMultiple(selectedExtensions, config);
+
+    // Filter to only installed extensions (in case of stale config)
+    const installedSet = new Set(installedExtensions);
+    const extensionsToUninstall = allToUninstall.filter((key) => installedSet.has(key));
+
+    // Find additional dependents that weren't originally selected
+    const selectedSet = new Set(selectedExtensions);
+    const additionalDependents = extensionsToUninstall.filter((key) => !selectedSet.has(key));
+
+    // If there are additional dependents, prompt the user
+    if (additionalDependents.length > 0) {
+        consoleLog('\n', 'info');
+        consoleLog(
+            `Uninstalling the selected extension(s) will also uninstall the following dependent extensions:`,
+            'info'
+        );
+        additionalDependents.forEach((depKey) => {
+            const depExtension = extensionConfig[depKey];
+            // Find which selected extension this depends on
+            const dependsOn = selectedExtensions.find((selKey: string) => {
+                const selExt = extensionConfig[selKey];
+                return selExt && extensionConfig[depKey]?.dependencies?.includes(selKey);
+            });
+            const dependsOnName = dependsOn ? extensionConfig[dependsOn]?.name : 'selected extension';
+            consoleLog(` • ${depExtension?.name || depKey} (depends on ${dependsOnName})`, 'info');
+        });
+        consoleLog('\n', 'info');
+
+        const { confirmUninstall } = await prompts({
+            type: 'confirm',
+            name: 'confirmUninstall',
+            message: `Uninstall all ${extensionsToUninstall.length} extensions?`,
+            initial: true,
+        });
+
+        if (!confirmUninstall) {
+            consoleLog('Uninstallation aborted.', 'info');
+            return;
+        }
+    }
+
+    // Uninstall in reverse topological order (dependents first, then dependencies)
     // delete the extension folders
-    selectedExtensions.forEach((ext: string) => {
-        if (extensionConfig[ext].folder) {
-            fs.rmSync(path.join(options.projectDirectory, 'src', 'extensions', extensionConfig[ext].folder), {
+    extensionsToUninstall.forEach((ext: string) => {
+        if (extensionConfig[ext]?.folder) {
+            fs.rmSync(path.join(options.projectDirectory, ...EXTENSIONS_DIR, extensionConfig[ext].folder), {
                 recursive: true,
                 force: true,
             });
         }
     });
     // trim the extensions in source project
-    installedExtensions = installedExtensions.filter((ext) => !selectedExtensions.includes(ext));
+    const extensionsToUninstallSet = new Set(extensionsToUninstall);
+    installedExtensions = installedExtensions.filter((ext) => !extensionsToUninstallSet.has(ext));
     trimExtensions(
         options.projectDirectory,
         Object.fromEntries(installedExtensions.map((ext) => [ext, true])),
@@ -157,15 +206,59 @@ const handleUninstall = async (
 };
 
 /**
+ * Install a single extension (internal helper)
+ * @returns true if installation succeeded, false otherwise
+ */
+const installSingleExtension = (
+    extensionKey: string,
+    srcExtensionConfig: Record<string, ExtensionMeta>,
+    extensionConfig: Record<string, ExtensionMeta>,
+    tmpDir: string,
+    projectDirectory: string
+): boolean => {
+    const extension = srcExtensionConfig[extensionKey];
+
+    const startTime = Date.now();
+    // copy the extension folder to the project directory
+    if (extension.folder) {
+        fs.copySync(
+            path.join(tmpDir, ...EXTENSIONS_DIR, extension.folder),
+            path.join(projectDirectory, ...EXTENSIONS_DIR, extension.folder)
+        );
+    }
+    if (extension.installationInstructions) {
+        // eslint-disable-next-line no-console
+        console.log(`\n⏳ Installing ${extension.name}, this will take a few minutes...`);
+        try {
+            execSync(
+                `cursor-agent -p --force 'Execute the steps specified in the installation instructions file: ${extension.installationInstructions}' --output-format text`,
+                { cwd: projectDirectory, stdio: 'inherit' }
+            );
+        } catch (e) {
+            consoleLog(`Error installing ${extension.name}. ${(e as Error).message}`, 'error');
+            return false;
+        }
+    }
+    // update config.json to include the installed extension
+    extensionConfig[extensionKey] = extension;
+    fs.writeFileSync(
+        getExtensionConfigPath(projectDirectory),
+        JSON.stringify({ extensions: extensionConfig }, null, 4)
+    );
+    consoleLog(`${extension.name} was installed successfully. (${Date.now() - startTime}ms)`, 'success');
+    return true;
+};
+
+/**
  * Handle the installation of extensions
- * @param extensionConfig 
+ * @param extensionConfig
  * @param options {
     sourceGithubUrl?: string;
     projectDirectory: string;
     extensions?: string[];
     verbose?: boolean;
 }
- * @returns 
+ * @returns
  */
 const handleInstall = async (
     extensionConfig: Record<string, ExtensionMeta>,
@@ -202,57 +295,82 @@ const handleInstall = async (
               Object.keys(extensionConfig)
           );
     if (selectedExtensions == null || selectedExtensions.length !== 1 || selectedExtensions[0] == null) {
-        consoleLog('Please select extactly one extension to install.', 'error');
+        consoleLog('Please select exactly one extension to install.', 'error');
         return;
     }
+
+    const extensionKey = selectedExtensions[0];
+    const extension = srcExtensionConfig[extensionKey];
+
+    // Check if cursor cli is installed (needed for any extension with installation instructions)
+    const hasInstructionsInChain = Object.values(srcExtensionConfig).some((ext) => ext.installationInstructions);
+    if (hasInstructionsInChain) {
+        try {
+            execSync('cursor-agent -v', { stdio: 'ignore' });
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+            consoleLog(
+                'This extension contains LLM instructions, please install cursor cli and try again. (https://cursor.com/docs/cli/overview)',
+                'error'
+            );
+            return;
+        }
+    }
+
+    // Resolve dependencies using the source config (which has full dependency information)
+    const srcConfig: ExtensionConfig = { extensions: srcExtensionConfig };
+    const installedExtensions = Object.keys(extensionConfig);
+    const missingDeps = getMissingDependencies(extensionKey, installedExtensions, srcConfig);
+
+    // The missingDeps includes the requested extension itself at the end (topological order)
+    // We need to present the dependencies (all except the last item) to the user
+    const dependenciesToInstall = missingDeps.slice(0, -1);
+
     let hasError = false;
     try {
-        const extensionKey = selectedExtensions[0];
-        const extension = srcExtensionConfig[extensionKey];
-        if (extension.installationInstructions) {
-            // check if cursor cli is installed
-            try {
-                execSync('cursor-agent -v', { stdio: 'ignore' });
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (e) {
-                consoleLog(
-                    'This extension contains LLM instructions, please install cursor cli and try again. (https://cursor.com/docs/cli/overview)',
-                    'error'
-                );
+        // If there are missing dependencies, prompt the user
+        if (dependenciesToInstall.length > 0) {
+            consoleLog('\n', 'info');
+            consoleLog(`Installing ${extension.name} requires the following dependencies:`, 'info');
+            dependenciesToInstall.forEach((depKey) => {
+                const depExtension = srcExtensionConfig[depKey];
+                consoleLog(` • ${depExtension?.name || depKey} (not installed)`, 'info');
+            });
+            consoleLog('\n', 'info');
+
+            const estimatedMinutes = missingDeps.length * 5; // ~5 minutes per extension
+            const { confirmInstall } = await prompts({
+                type: 'confirm',
+                name: 'confirmInstall',
+                message: `Install all ${missingDeps.length} extensions? (~${estimatedMinutes} minutes total)`,
+                initial: true,
+            });
+
+            if (!confirmInstall) {
+                consoleLog('Installation aborted.', 'info');
                 return;
             }
         }
-        const startTime = Date.now();
-        // copy the extension folder to the project directory
-        if (extension.folder) {
-            fs.copySync(
-                path.join(tmpDir, 'src', 'extensions', extension.folder),
-                path.join(options.projectDirectory, 'src', 'extensions', extension.folder)
+
+        // Install extensions in topological order (dependencies first)
+        for (const depKey of missingDeps) {
+            const success = installSingleExtension(
+                depKey,
+                srcExtensionConfig,
+                extensionConfig,
+                tmpDir,
+                options.projectDirectory
             );
-        }
-        if (extension.installationInstructions) {
-            // eslint-disable-next-line no-console
-            console.log(`\n⏳ Installing ${extension.name}, this will take a few minutes...`);
-            try {
-                execSync(
-                    `cursor-agent -p --force 'Execute the steps specified in the installation instructions file: ${extension.installationInstructions}' --output-format text`,
-                    { cwd: options.projectDirectory, stdio: 'inherit' }
-                );
-            } catch (e) {
-                consoleLog(`Error installing ${extension.name}. ${(e as Error).message}`, 'error');
+            if (!success) {
                 hasError = true;
+                // Continue with remaining extensions - partial installs are allowed
+                // Already-installed dependencies remain in config.json
             }
         }
-        // update config.json to include the installed extension
-        extensionConfig[extensionKey] = extension;
-        fs.writeFileSync(
-            getExtensionConfigPath(options.projectDirectory),
-            JSON.stringify({ extensions: extensionConfig }, null, 4)
-        );
-        consoleLog(`${extension.name} was installed successfully. (${Date.now() - startTime}ms)`, 'success');
     } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
     }
+
     // find all the .original files recursively and report them
     const originalFiles = fs
         .readdirSync(path.join(options.projectDirectory, 'src'), { recursive: true })
@@ -328,7 +446,7 @@ const getExtensionNameSchema = (projectDirectory: string, extensionConfig: Recor
                     message: `Extension "${data.name}" already exists`,
                 });
             }
-            if (fs.existsSync(path.join(projectDirectory, 'src', 'extensions', getExtensionFolderName(data.name)))) {
+            if (fs.existsSync(path.join(projectDirectory, ...EXTENSIONS_DIR, getExtensionFolderName(data.name)))) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     message: `Extension directory ${getExtensionFolderName(data.name)} already exists`,
@@ -375,7 +493,7 @@ export const createExtension = async (options: { projectDirectory: string; name:
     }
     const folderName = getExtensionFolderName(extensionName);
     // create the extension directory and a read me file
-    const extensionFolderPath = path.join(projectDirectory, 'src', 'extensions', folderName);
+    const extensionFolderPath = path.join(projectDirectory, ...EXTENSIONS_DIR, folderName);
     fs.mkdirSync(extensionFolderPath, { recursive: true });
     EXTENSION_FOLDERS.forEach((folder) => {
         fs.mkdirSync(path.join(extensionFolderPath, folder), { recursive: true });
@@ -392,7 +510,7 @@ export const createExtension = async (options: { projectDirectory: string; name:
         dependencies: [],
     };
     fs.writeFileSync(
-        path.join(projectDirectory, 'src', 'extensions', 'config.json'),
+        path.join(projectDirectory, ...CONFIG_PATH),
         JSON.stringify({ extensions: extensionConfig }, null, 4)
     );
     consoleLog(`Extension "${extensionName}" scaffolding was created successfully.`, 'success');
