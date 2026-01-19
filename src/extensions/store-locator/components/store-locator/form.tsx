@@ -22,7 +22,7 @@ import { useStoreLocatorForm } from '@/extensions/store-locator/hooks/use-store-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 import { TextSeparator } from './text-separator';
 
 /**
@@ -77,7 +77,7 @@ export default function StoreLocatorForm(): ReactElement {
                                 <FormItem className="flex flex-col gap-1">
                                     <FormLabel className="sr-only">{t('storeLocator.form.countryLabel')}</FormLabel>
                                     <FormControl>
-                                        <SelectNative
+                                        <NativeSelect
                                             aria-label={t('storeLocator.form.countryLabel')}
                                             value={field.value}
                                             onChange={(e) => field.onChange(e.target.value)}>
@@ -89,7 +89,7 @@ export default function StoreLocatorForm(): ReactElement {
                                                     {c.countryName}
                                                 </option>
                                             ))}
-                                        </SelectNative>
+                                        </NativeSelect>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

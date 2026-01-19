@@ -7,9 +7,11 @@ exports[`PromoPopover stories snapshot > Default story renders and matches snaps
   >
     <button
       aria-label="Info"
-      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      data-size="icon"
       data-slot="tooltip-trigger"
       data-state="closed"
+      data-variant="ghost"
     >
       <svg
         aria-hidden="true"
@@ -48,9 +50,11 @@ exports[`PromoPopover stories snapshot > Desktop story renders and matches snaps
   >
     <button
       aria-label="Info"
-      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      data-size="icon"
       data-slot="tooltip-trigger"
       data-state="closed"
+      data-variant="ghost"
     >
       <svg
         aria-hidden="true"
@@ -89,9 +93,11 @@ exports[`PromoPopover stories snapshot > Mobile story renders and matches snapsh
   >
     <button
       aria-label="Info"
-      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      data-size="icon"
       data-slot="tooltip-trigger"
       data-state="closed"
+      data-variant="ghost"
     >
       <svg
         aria-hidden="true"
@@ -130,9 +136,11 @@ exports[`PromoPopover stories snapshot > Tablet story renders and matches snapsh
   >
     <button
       aria-label="Info"
-      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      data-size="icon"
       data-slot="tooltip-trigger"
       data-state="closed"
+      data-variant="ghost"
     >
       <svg
         aria-hidden="true"
@@ -171,9 +179,11 @@ exports[`PromoPopover stories snapshot > WithCustomContent story renders and mat
   >
     <button
       aria-label="Info"
-      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      data-size="icon"
       data-slot="tooltip-trigger"
       data-state="closed"
+      data-variant="ghost"
     >
       <svg
         aria-hidden="true"
@@ -212,9 +222,11 @@ exports[`PromoPopover stories snapshot > WithHeader story renders and matches sn
   >
     <button
       aria-label="Info"
-      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      class="gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 w-3.5 h-3.5 min-w-0 p-0 flex items-center justify-center"
+      data-size="icon"
       data-slot="tooltip-trigger"
       data-state="closed"
+      data-variant="ghost"
     >
       <svg
         aria-hidden="true"

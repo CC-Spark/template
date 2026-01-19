@@ -11,7 +11,7 @@ exports[`ChildProductCard stories snapshot > Controlled story renders and matche
       data-testid="child-product"
     >
       <div
-        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
         data-slot="card-header"
       >
         <div
@@ -150,7 +150,7 @@ exports[`ChildProductCard stories snapshot > Default story renders and matches s
       data-testid="child-product"
     >
       <div
-        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
         data-slot="card-header"
       >
         <div
@@ -289,7 +289,7 @@ exports[`ChildProductCard stories snapshot > Desktop story renders and matches s
       data-testid="child-product"
     >
       <div
-        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
         data-slot="card-header"
       >
         <div
@@ -428,7 +428,7 @@ exports[`ChildProductCard stories snapshot > Mobile story renders and matches sn
       data-testid="child-product"
     >
       <div
-        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
         data-slot="card-header"
       >
         <div
@@ -567,7 +567,7 @@ exports[`ChildProductCard stories snapshot > Tablet story renders and matches sn
       data-testid="child-product"
     >
       <div
-        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 pb-4"
         data-slot="card-header"
       >
         <div

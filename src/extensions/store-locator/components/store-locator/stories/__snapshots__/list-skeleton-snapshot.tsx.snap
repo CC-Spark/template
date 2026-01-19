@@ -14,7 +14,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -23,7 +24,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -33,10 +35,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -44,7 +48,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -54,17 +59,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -74,7 +84,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -83,7 +94,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -93,10 +105,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -104,7 +118,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -114,17 +129,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -134,7 +154,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -143,7 +164,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -153,10 +175,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -164,7 +188,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -174,17 +199,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -194,7 +224,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -203,7 +234,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -213,10 +245,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -224,7 +258,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -234,17 +269,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -254,7 +294,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -263,7 +304,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -273,10 +315,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -284,7 +328,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -294,17 +339,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -314,7 +364,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -323,7 +374,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -333,10 +385,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -344,7 +398,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -354,17 +409,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -374,7 +434,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -383,7 +444,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -393,10 +455,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -404,7 +468,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -414,17 +479,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -434,7 +504,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -443,7 +514,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -453,10 +525,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -464,7 +538,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -474,17 +549,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -494,7 +574,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -503,7 +584,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -513,10 +595,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -524,7 +608,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -534,17 +619,22 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -554,7 +644,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -563,7 +654,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -573,10 +665,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -584,7 +678,8 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -594,10 +689,12 @@ exports[`ListSkeleton stories snapshot > Default story renders and matches snaps
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -621,7 +718,10 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
       Searching for stores...
     </div>
     <div
-      class="shrink-0 bg-border h-[1px] w-full mt-4"
+      class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px mt-4"
+      data-orientation="horizontal"
+      data-slot="separator"
+      role="none"
     />
   </div>
   <ul
@@ -634,7 +734,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -643,7 +744,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -653,10 +755,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -664,7 +768,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -674,17 +779,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -694,7 +804,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -703,7 +814,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -713,10 +825,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -724,7 +838,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -734,17 +849,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -754,7 +874,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -763,7 +884,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -773,10 +895,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -784,7 +908,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -794,17 +919,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -814,7 +944,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -823,7 +954,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -833,10 +965,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -844,7 +978,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -854,17 +989,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -874,7 +1014,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -883,7 +1024,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -893,10 +1035,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -904,7 +1048,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -914,17 +1059,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -934,7 +1084,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -943,7 +1094,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -953,10 +1105,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -964,7 +1118,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -974,17 +1129,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -994,7 +1154,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1003,7 +1164,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1013,10 +1175,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1024,7 +1188,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1034,17 +1199,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1054,7 +1224,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1063,7 +1234,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1073,10 +1245,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1084,7 +1258,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1094,17 +1269,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1114,7 +1294,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1123,7 +1304,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1133,10 +1315,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1144,7 +1328,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1154,17 +1339,22 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1174,7 +1364,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1183,7 +1374,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1193,10 +1385,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1204,7 +1398,8 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1214,10 +1409,12 @@ exports[`ListSkeleton stories snapshot > DesktopLayout story renders and matches
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1241,7 +1438,10 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
       Searching for stores...
     </div>
     <div
-      class="shrink-0 bg-border h-[1px] w-full mt-4"
+      class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px mt-4"
+      data-orientation="horizontal"
+      data-slot="separator"
+      role="none"
     />
   </div>
   <ul
@@ -1254,7 +1454,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1263,7 +1464,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1273,10 +1475,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1284,7 +1488,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1294,17 +1499,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1314,7 +1524,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1323,7 +1534,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1333,10 +1545,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1344,7 +1558,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1354,17 +1569,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1374,7 +1594,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1383,7 +1604,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1393,10 +1615,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1404,7 +1628,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1414,17 +1639,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1434,7 +1664,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1443,7 +1674,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1453,10 +1685,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1464,7 +1698,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1474,17 +1709,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1494,7 +1734,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1503,7 +1744,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1513,10 +1755,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1524,7 +1768,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1534,17 +1779,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1554,7 +1804,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1563,7 +1814,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1573,10 +1825,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1584,7 +1838,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1594,17 +1849,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1614,7 +1874,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1623,7 +1884,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1633,10 +1895,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1644,7 +1908,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1654,17 +1919,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1674,7 +1944,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1683,7 +1954,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1693,10 +1965,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1704,7 +1978,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1714,17 +1989,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1734,7 +2014,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1743,7 +2024,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1753,10 +2035,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1764,7 +2048,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1774,17 +2059,22 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1794,7 +2084,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1803,7 +2094,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1813,10 +2105,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1824,7 +2118,8 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1834,10 +2129,12 @@ exports[`ListSkeleton stories snapshot > MobileLayout story renders and matches 
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1861,7 +2158,10 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
       Searching for stores within 100 km of 94102...
     </div>
     <div
-      class="shrink-0 bg-border h-[1px] w-full mt-4"
+      class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px mt-4"
+      data-orientation="horizontal"
+      data-slot="separator"
+      role="none"
     />
   </div>
   <ul
@@ -1874,7 +2174,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1883,7 +2184,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1893,10 +2195,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1904,7 +2208,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1914,17 +2219,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1934,7 +2244,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -1943,7 +2254,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1953,10 +2265,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -1964,7 +2278,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -1974,17 +2289,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -1994,7 +2314,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2003,7 +2324,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2013,10 +2335,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2024,7 +2348,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2034,17 +2359,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -2054,7 +2384,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2063,7 +2394,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2073,10 +2405,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2084,7 +2418,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2094,17 +2429,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -2114,7 +2454,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2123,7 +2464,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2133,10 +2475,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2144,7 +2488,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2154,17 +2499,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -2174,7 +2524,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2183,7 +2534,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2193,10 +2545,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2204,7 +2558,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2214,17 +2569,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -2234,7 +2594,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2243,7 +2604,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2253,10 +2615,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2264,7 +2628,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2274,17 +2639,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -2294,7 +2664,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2303,7 +2674,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2313,10 +2685,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2324,7 +2698,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2334,17 +2709,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -2354,7 +2734,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2363,7 +2744,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2373,10 +2755,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2384,7 +2768,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2394,17 +2779,22 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="shrink-0 bg-border h-[1px] w-full my-3"
+        class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px my-3"
+        data-orientation="horizontal"
+        data-slot="separator"
+        role="none"
       />
     </li>
     <li
@@ -2414,7 +2804,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
         class="flex items-start gap-3"
       >
         <div
-          class="animate-pulse bg-muted mt-1 h-4 w-4 rounded-full"
+          class="bg-accent animate-pulse mt-1 h-4 w-4 rounded-full"
+          data-slot="skeleton"
         />
         <div
           class="w-full grid grid-cols-2 md:grid-cols-[260px_1fr_auto] gap-2"
@@ -2423,7 +2814,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-1"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-6 w-56 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-6 w-56 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2433,10 +2825,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="space-y-2"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-40 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-40 max-w-full"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-64 max-w-full"
+                class="bg-accent animate-pulse rounded-md h-4 w-64 max-w-full"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -2444,7 +2838,8 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
             class="col-span-2 md:col-span-1 md:col-start-1 md:mt-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-28 max-w-full"
+              class="bg-accent animate-pulse rounded-md h-4 w-28 max-w-full"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -2454,10 +2849,12 @@ exports[`ListSkeleton stories snapshot > WithStatusMessage story renders and mat
               class="flex items-center justify-between"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-5 w-28"
+                class="bg-accent animate-pulse rounded-md h-5 w-28"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-5 w-5 rounded-full"
+                class="bg-accent animate-pulse h-5 w-5 rounded-full"
+                data-slot="skeleton"
               />
             </div>
           </div>

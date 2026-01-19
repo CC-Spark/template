@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 
 import { COUNTRY_CODES } from './constants';
 import { getStatesForCountry, getCountryName } from './utils';
@@ -164,7 +164,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             {t('addressForm.countryLabel')}
                         </FormLabel>
                         <FormControl>
-                            <SelectNative
+                            <NativeSelect
                                 name={field.name}
                                 value={field.value}
                                 onChange={(e) => {
@@ -179,7 +179,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                                         {country.name}
                                     </option>
                                 ))}
-                            </SelectNative>
+                            </NativeSelect>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -253,7 +253,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-foreground">{stateLabel}</FormLabel>
                             <FormControl>
-                                <SelectNative
+                                <NativeSelect
                                     name={field.name}
                                     value={field.value || ''}
                                     onChange={(e) => field.onChange(e.target.value)}
@@ -264,7 +264,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                                             {state.name}
                                         </option>
                                     ))}
-                                </SelectNative>
+                                </NativeSelect>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

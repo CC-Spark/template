@@ -21,7 +21,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -29,7 +29,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -37,7 +38,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -49,16 +51,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -67,10 +73,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -79,7 +87,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -87,7 +95,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -95,7 +104,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -107,16 +117,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -125,10 +139,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -137,7 +153,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -145,7 +161,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -153,7 +170,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -165,16 +183,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -183,10 +205,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -216,7 +240,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -224,7 +248,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -232,7 +257,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -244,16 +270,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -262,10 +292,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -274,7 +306,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -282,7 +314,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -290,7 +323,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -302,16 +336,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -320,10 +358,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -332,7 +372,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -340,7 +380,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -348,7 +389,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -360,16 +402,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -378,10 +424,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and m
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -411,7 +459,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -419,7 +467,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -427,7 +476,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -439,16 +489,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -457,10 +511,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -469,7 +525,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -477,7 +533,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -485,7 +542,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -497,16 +555,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -515,10 +577,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -527,7 +591,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -535,7 +599,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -543,7 +608,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -555,16 +621,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -573,10 +643,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and ma
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -606,7 +678,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -614,7 +686,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -622,7 +695,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -634,16 +708,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -652,10 +730,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -664,7 +744,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -672,7 +752,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -680,7 +761,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -692,16 +774,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -710,10 +796,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -722,7 +810,7 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
           data-slot="card-header"
         >
           <div
@@ -730,7 +818,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             data-slot="card-title"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              data-slot="skeleton"
             />
           </div>
           <div
@@ -738,7 +827,8 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             data-slot="card-action"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -750,16 +840,20 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
             class="space-y-2"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-40"
+              class="bg-accent animate-pulse rounded-md h-4 w-40"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-36"
+              class="bg-accent animate-pulse rounded-md h-4 w-36"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse rounded-md bg-muted h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -768,10 +862,12 @@ exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and ma
           data-slot="card-footer"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            data-slot="skeleton"
           />
         </div>
       </div>

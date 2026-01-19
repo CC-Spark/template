@@ -19,7 +19,7 @@ import { type ReactElement, useCallback, useMemo, useId } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 import { PRODUCT_SEARCH_QUERY_PARAMS } from '@/lib/query-params';
 
 /**
@@ -82,7 +82,7 @@ export default function CategorySorting({
             <label htmlFor={selectId} className="text-sm text-muted-foreground">
                 Sort by:
             </label>
-            <SelectNative
+            <NativeSelect
                 id={selectId}
                 value={result.selectedSortingOption || ''}
                 onChange={(e) => void navigatePage(e.target.value)}>
@@ -91,7 +91,7 @@ export default function CategorySorting({
                         {option.label}
                     </option>
                 ))}
-            </SelectNative>
+            </NativeSelect>
         </div>
     );
 }

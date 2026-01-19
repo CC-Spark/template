@@ -18,7 +18,7 @@
 import { type ReactElement, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFetcher } from 'react-router';
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 import { useConfig } from '@/config';
 import { useCurrency } from '@/providers/currency';
 import { useToast } from '@/components/toast';
@@ -59,13 +59,13 @@ export default function CurrencySwitcher(): ReactElement {
 
     return (
         <div>
-            <SelectNative id={id} onChange={handleCurrencyChange} aria-label={t('ariaLabel')} value={currentCurrency}>
+            <NativeSelect id={id} onChange={handleCurrencyChange} aria-label={t('ariaLabel')} value={currentCurrency}>
                 {config.site.supportedCurrencies.map((currency) => (
                     <option key={currency} value={currency}>
                         {t(`currencies.${currency}`, { defaultValue: currency })}
                     </option>
                 ))}
-            </SelectNative>
+            </NativeSelect>
         </div>
     );
 }

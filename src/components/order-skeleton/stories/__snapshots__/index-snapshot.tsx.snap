@@ -15,17 +15,21 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
           class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6"
         >
           <div
-            class="animate-pulse bg-muted w-8 h-8 rounded-full"
+            class="bg-accent animate-pulse w-8 h-8 rounded-full"
+            data-slot="skeleton"
           />
         </div>
         <div
-          class="animate-pulse rounded-md bg-muted h-12 w-96 mb-4"
+          class="bg-accent animate-pulse rounded-md h-12 w-96 mb-4"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-48 mb-2"
+          class="bg-accent animate-pulse rounded-md h-6 w-48 mb-2"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-80"
+          class="bg-accent animate-pulse rounded-md h-6 w-80"
+          data-slot="skeleton"
         />
       </div>
       <div
@@ -35,7 +39,8 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -48,30 +53,36 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
-              />
-            </div>
-            <div
-              class="flex justify-between text-sm"
-            >
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
-              />
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
             <div
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-12"
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
+              />
+            </div>
+            <div
+              class="flex justify-between text-sm"
+            >
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-12"
+                data-slot="skeleton"
+              />
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -84,7 +95,8 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-36 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-36 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -95,34 +107,42 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -135,7 +155,8 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -146,38 +167,47 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div>
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16 mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16 mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -188,10 +218,12 @@ exports[`OrderSkeleton stories snapshot > Default story renders and matches snap
         class="flex flex-col sm:flex-row gap-4 justify-center"
       >
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-40 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-40 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-32 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-32 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
       </div>
     </div>
@@ -214,17 +246,21 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
           class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6"
         >
           <div
-            class="animate-pulse bg-muted w-8 h-8 rounded-full"
+            class="bg-accent animate-pulse w-8 h-8 rounded-full"
+            data-slot="skeleton"
           />
         </div>
         <div
-          class="animate-pulse rounded-md bg-muted h-12 w-96 mb-4"
+          class="bg-accent animate-pulse rounded-md h-12 w-96 mb-4"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-48 mb-2"
+          class="bg-accent animate-pulse rounded-md h-6 w-48 mb-2"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-80"
+          class="bg-accent animate-pulse rounded-md h-6 w-80"
+          data-slot="skeleton"
         />
       </div>
       <div
@@ -234,7 +270,8 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -247,30 +284,36 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
-              />
-            </div>
-            <div
-              class="flex justify-between text-sm"
-            >
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
-              />
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
             <div
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-12"
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
+              />
+            </div>
+            <div
+              class="flex justify-between text-sm"
+            >
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-12"
+                data-slot="skeleton"
+              />
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -283,7 +326,8 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-36 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-36 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -294,34 +338,42 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -334,7 +386,8 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -345,38 +398,47 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div>
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16 mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16 mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -387,10 +449,12 @@ exports[`OrderSkeleton stories snapshot > Desktop story renders and matches snap
         class="flex flex-col sm:flex-row gap-4 justify-center"
       >
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-40 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-40 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-32 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-32 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
       </div>
     </div>
@@ -413,17 +477,21 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
           class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6"
         >
           <div
-            class="animate-pulse bg-muted w-8 h-8 rounded-full"
+            class="bg-accent animate-pulse w-8 h-8 rounded-full"
+            data-slot="skeleton"
           />
         </div>
         <div
-          class="animate-pulse rounded-md bg-muted h-12 w-96 mb-4"
+          class="bg-accent animate-pulse rounded-md h-12 w-96 mb-4"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-48 mb-2"
+          class="bg-accent animate-pulse rounded-md h-6 w-48 mb-2"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-80"
+          class="bg-accent animate-pulse rounded-md h-6 w-80"
+          data-slot="skeleton"
         />
       </div>
       <div
@@ -433,7 +501,8 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -446,30 +515,36 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
-              />
-            </div>
-            <div
-              class="flex justify-between text-sm"
-            >
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
-              />
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
             <div
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-12"
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
+              />
+            </div>
+            <div
+              class="flex justify-between text-sm"
+            >
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-12"
+                data-slot="skeleton"
+              />
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -482,7 +557,8 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-36 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-36 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -493,34 +569,42 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -533,7 +617,8 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -544,38 +629,47 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div>
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16 mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16 mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -586,10 +680,12 @@ exports[`OrderSkeleton stories snapshot > Mobile story renders and matches snaps
         class="flex flex-col sm:flex-row gap-4 justify-center"
       >
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-40 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-40 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-32 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-32 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
       </div>
     </div>
@@ -612,17 +708,21 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
           class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6"
         >
           <div
-            class="animate-pulse bg-muted w-8 h-8 rounded-full"
+            class="bg-accent animate-pulse w-8 h-8 rounded-full"
+            data-slot="skeleton"
           />
         </div>
         <div
-          class="animate-pulse rounded-md bg-muted h-12 w-96 mb-4"
+          class="bg-accent animate-pulse rounded-md h-12 w-96 mb-4"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-48 mb-2"
+          class="bg-accent animate-pulse rounded-md h-6 w-48 mb-2"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-6 w-80"
+          class="bg-accent animate-pulse rounded-md h-6 w-80"
+          data-slot="skeleton"
         />
       </div>
       <div
@@ -632,7 +732,8 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -645,30 +746,36 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
-              />
-            </div>
-            <div
-              class="flex justify-between text-sm"
-            >
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
-              />
-              <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
             <div
               class="flex justify-between text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-12"
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-16"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
+              />
+            </div>
+            <div
+              class="flex justify-between text-sm"
+            >
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-12"
+                data-slot="skeleton"
+              />
+              <div
+                class="bg-accent animate-pulse rounded-md h-4 w-16"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -681,7 +788,8 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-36 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-36 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -692,34 +800,42 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
             </div>
           </div>
@@ -732,7 +848,8 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
           class="px-6"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-32 mb-6"
+            class="bg-accent animate-pulse rounded-md h-6 w-32 mb-6"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -743,38 +860,47 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
           >
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div
                 class="space-y-1"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-32"
+                  class="bg-accent animate-pulse rounded-md h-4 w-32"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-40"
+                  class="bg-accent animate-pulse rounded-md h-4 w-40"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-8"
+                  class="bg-accent animate-pulse rounded-md h-4 w-8"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-28"
+                  class="bg-accent animate-pulse rounded-md h-4 w-28"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
             <div>
               <div
-                class="animate-pulse rounded-md bg-muted h-6 w-32 mb-2"
+                class="bg-accent animate-pulse rounded-md h-6 w-32 mb-2"
+                data-slot="skeleton"
               />
               <div>
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16 mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16 mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-24"
+                  class="bg-accent animate-pulse rounded-md h-4 w-24"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -785,10 +911,12 @@ exports[`OrderSkeleton stories snapshot > Tablet story renders and matches snaps
         class="flex flex-col sm:flex-row gap-4 justify-center"
       >
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-40 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-40 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-32 mx-auto sm:mx-0"
+          class="bg-accent animate-pulse rounded-md h-10 w-32 mx-auto sm:mx-0"
+          data-slot="skeleton"
         />
       </div>
     </div>

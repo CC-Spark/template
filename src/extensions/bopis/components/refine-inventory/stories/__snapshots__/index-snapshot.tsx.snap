@@ -21,7 +21,7 @@ exports[`RefineInventory stories snapshot > Default story renders and matches sn
         <button
           aria-controls="radix-_r_1_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -120,7 +120,7 @@ exports[`RefineInventory stories snapshot > DesktopLayout story renders and matc
         <button
           aria-controls="radix-_r_9_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -177,7 +177,7 @@ exports[`RefineInventory stories snapshot > DesktopLayout story renders and matc
               value="on"
             >
               <span
-                class="flex items-center justify-center text-current transition-none"
+                class="grid place-content-center text-current transition-none"
                 data-slot="checkbox-indicator"
                 data-state="checked"
                 style="pointer-events: none;"
@@ -245,7 +245,7 @@ exports[`RefineInventory stories snapshot > FilterChecked story renders and matc
           <button
             aria-controls="radix-_r_5_"
             aria-expanded="true"
-            class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+            class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
             data-orientation="vertical"
             data-radix-collection-item=""
             data-slot="accordion-trigger"
@@ -302,7 +302,7 @@ exports[`RefineInventory stories snapshot > FilterChecked story renders and matc
                 value="on"
               >
                 <span
-                  class="flex items-center justify-center text-current transition-none"
+                  class="grid place-content-center text-current transition-none"
                   data-slot="checkbox-indicator"
                   data-state="checked"
                   style="pointer-events: none;"
@@ -370,7 +370,7 @@ exports[`RefineInventory stories snapshot > MobileLayout story renders and match
         <button
           aria-controls="radix-_r_7_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -469,7 +469,7 @@ exports[`RefineInventory stories snapshot > WithStoreSelected story renders and 
         <button
           aria-controls="radix-_r_3_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"

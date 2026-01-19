@@ -19,7 +19,7 @@ import { waitForStorybookReady } from '@storybook/test-utils';
 import i18next from 'i18next';
 import { type ReactElement, useId } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 
 // Create a mock version of LocaleSwitcher for Storybook
 // This avoids needing to mock react-router at the module level
@@ -46,14 +46,14 @@ function LocaleSwitcherMock(): ReactElement {
 
     return (
         <div className="*:not-first:mt-2">
-            <SelectNative
+            <NativeSelect
                 id={id}
                 onChange={(e) => void handleLocaleChange(e)}
                 aria-label={t('ariaLabel')}
                 value={i18n.language}>
                 <option value="en-US">{t('locales.en-US')}</option>
                 <option value="it-IT">{t('locales.it-IT')}</option>
-            </SelectNative>
+            </NativeSelect>
         </div>
     );
 }

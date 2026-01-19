@@ -21,7 +21,7 @@ exports[`CategoryRefinements stories snapshot > Default story renders and matche
         <button
           aria-controls="radix-_r_1_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -114,7 +114,7 @@ exports[`CategoryRefinements stories snapshot > Default story renders and matche
         <button
           aria-controls="radix-_r_3_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -168,7 +168,7 @@ exports[`CategoryRefinements stories snapshot > Default story renders and matche
         <button
           aria-controls="radix-_r_5_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -222,7 +222,7 @@ exports[`CategoryRefinements stories snapshot > Default story renders and matche
         <button
           aria-controls="radix-_r_7_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -276,7 +276,7 @@ exports[`CategoryRefinements stories snapshot > Default story renders and matche
         <button
           aria-controls="radix-_r_9_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -341,7 +341,7 @@ exports[`CategoryRefinements stories snapshot > Desktop story renders and matche
         <button
           aria-controls="radix-_r_13_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -434,7 +434,7 @@ exports[`CategoryRefinements stories snapshot > Desktop story renders and matche
         <button
           aria-controls="radix-_r_15_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -488,7 +488,7 @@ exports[`CategoryRefinements stories snapshot > Desktop story renders and matche
         <button
           aria-controls="radix-_r_17_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -542,7 +542,7 @@ exports[`CategoryRefinements stories snapshot > Desktop story renders and matche
         <button
           aria-controls="radix-_r_19_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -596,7 +596,7 @@ exports[`CategoryRefinements stories snapshot > Desktop story renders and matche
         <button
           aria-controls="radix-_r_1b_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -675,7 +675,7 @@ exports[`CategoryRefinements stories snapshot > Minimal story renders and matche
         <button
           aria-controls="radix-_r_b_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -768,7 +768,7 @@ exports[`CategoryRefinements stories snapshot > Minimal story renders and matche
         <button
           aria-controls="radix-_r_d_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -833,7 +833,7 @@ exports[`CategoryRefinements stories snapshot > Mobile story renders and matches
         <button
           aria-controls="radix-_r_f_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -926,7 +926,7 @@ exports[`CategoryRefinements stories snapshot > Mobile story renders and matches
         <button
           aria-controls="radix-_r_h_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -980,7 +980,7 @@ exports[`CategoryRefinements stories snapshot > Mobile story renders and matches
         <button
           aria-controls="radix-_r_j_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -1034,7 +1034,7 @@ exports[`CategoryRefinements stories snapshot > Mobile story renders and matches
         <button
           aria-controls="radix-_r_l_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -1088,7 +1088,7 @@ exports[`CategoryRefinements stories snapshot > Mobile story renders and matches
         <button
           aria-controls="radix-_r_n_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -1153,7 +1153,7 @@ exports[`CategoryRefinements stories snapshot > Tablet story renders and matches
         <button
           aria-controls="radix-_r_p_"
           aria-expanded="true"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -1246,7 +1246,7 @@ exports[`CategoryRefinements stories snapshot > Tablet story renders and matches
         <button
           aria-controls="radix-_r_r_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -1300,7 +1300,7 @@ exports[`CategoryRefinements stories snapshot > Tablet story renders and matches
         <button
           aria-controls="radix-_r_t_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -1354,7 +1354,7 @@ exports[`CategoryRefinements stories snapshot > Tablet story renders and matches
         <button
           aria-controls="radix-_r_v_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"
@@ -1408,7 +1408,7 @@ exports[`CategoryRefinements stories snapshot > Tablet story renders and matches
         <button
           aria-controls="radix-_r_11_"
           aria-expanded="false"
-          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
+          class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180"
           data-orientation="vertical"
           data-radix-collection-item=""
           data-slot="accordion-trigger"

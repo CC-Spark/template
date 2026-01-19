@@ -19,7 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 import { Typography } from '@/components/typography';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useBasket } from '@/providers/basket';
@@ -127,7 +127,7 @@ export default function ContactInfo({
                                     render={({ field }) => (
                                         <FormItem className="w-24">
                                             <FormControl>
-                                                <SelectNative
+                                                <NativeSelect
                                                     aria-label={t('contactInfo.countryCodeLabel')}
                                                     value={field.value}
                                                     onChange={(e) => field.onChange(e.target.value)}
@@ -142,7 +142,7 @@ export default function ContactInfo({
                                                             {phoneCountry.dialingCode}
                                                         </option>
                                                     ))}
-                                                </SelectNative>
+                                                </NativeSelect>
                                             </FormControl>
                                             <FormMessage className="text-xl font-bold" />
                                         </FormItem>

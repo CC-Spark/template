@@ -19,7 +19,7 @@ import { type ReactElement, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFetcher } from 'react-router';
 
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 import { useConfig } from '@/config';
 
 export default function LocaleSwitcher(): ReactElement {
@@ -45,7 +45,7 @@ export default function LocaleSwitcher(): ReactElement {
 
     return (
         <div className="*:not-first:mt-2">
-            <SelectNative
+            <NativeSelect
                 id={id}
                 onChange={(e) => void handleLocaleChange(e)}
                 aria-label={t('ariaLabel')}
@@ -57,7 +57,7 @@ export default function LocaleSwitcher(): ReactElement {
                         </option>
                     );
                 })}
-            </SelectNative>
+            </NativeSelect>
         </div>
     );
 }

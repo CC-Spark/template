@@ -24,19 +24,24 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
               class="flex flex-wrap items-center text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-32"
+                class="bg-accent animate-pulse rounded-md h-4 w-32"
+                data-slot="skeleton"
               />
             </div>
           </nav>
@@ -46,13 +51,16 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
           data-testid="mobile-title-skeleton"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+            class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+            class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -66,7 +74,8 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
               data-testid="image-gallery-skeleton"
             >
               <div
-                class="animate-pulse bg-muted aspect-square w-full rounded-lg"
+                class="bg-accent animate-pulse aspect-square w-full rounded-lg"
+                data-slot="skeleton"
                 data-testid="main-image-skeleton"
               />
               <div
@@ -74,19 +83,24 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="thumbnails-skeleton"
               >
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -103,13 +117,16 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="desktop-title-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+                  class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -117,10 +134,12 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="price-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-24"
+                  class="bg-accent animate-pulse rounded-md h-8 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -129,37 +148,45 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
               >
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
@@ -168,18 +195,22 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="quantity-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-10 w-24 rounded-md"
+                  class="bg-accent animate-pulse h-10 w-24 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
               <div
-                class="animate-pulse bg-muted h-12 w-full rounded-md"
+                class="bg-accent animate-pulse h-12 w-full rounded-md"
+                data-slot="skeleton"
                 data-testid="add-to-cart-skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-10 w-32 rounded-md"
+                class="bg-accent animate-pulse h-10 w-32 rounded-md"
+                data-slot="skeleton"
                 data-testid="wishlist-skeleton"
               />
               <div
@@ -187,13 +218,16 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="features-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                  class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                  class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -214,7 +248,8 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -224,13 +259,16 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -243,7 +281,8 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -253,13 +292,16 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -272,7 +314,8 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -282,13 +325,16 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -301,7 +347,8 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -311,13 +358,16 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -332,7 +382,8 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
             data-testid="recommended-products-skeleton"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-8 w-48"
+              class="bg-accent animate-pulse rounded-md h-8 w-48"
+              data-slot="skeleton"
               data-testid="recommended-title-skeleton"
             />
             <div
@@ -344,19 +395,23 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -365,19 +420,23 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -386,19 +445,23 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -407,19 +470,23 @@ exports[`ProductSkeleton stories snapshot > Default story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -456,19 +523,24 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
               class="flex flex-wrap items-center text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-32"
+                class="bg-accent animate-pulse rounded-md h-4 w-32"
+                data-slot="skeleton"
               />
             </div>
           </nav>
@@ -478,13 +550,16 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
           data-testid="mobile-title-skeleton"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+            class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+            class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -498,7 +573,8 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
               data-testid="image-gallery-skeleton"
             >
               <div
-                class="animate-pulse bg-muted aspect-square w-full rounded-lg"
+                class="bg-accent animate-pulse aspect-square w-full rounded-lg"
+                data-slot="skeleton"
                 data-testid="main-image-skeleton"
               />
               <div
@@ -506,19 +582,24 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="thumbnails-skeleton"
               >
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -535,13 +616,16 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="desktop-title-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+                  class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -549,10 +633,12 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="price-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-24"
+                  class="bg-accent animate-pulse rounded-md h-8 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -561,37 +647,45 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
               >
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
@@ -600,18 +694,22 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="quantity-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-10 w-24 rounded-md"
+                  class="bg-accent animate-pulse h-10 w-24 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
               <div
-                class="animate-pulse bg-muted h-12 w-full rounded-md"
+                class="bg-accent animate-pulse h-12 w-full rounded-md"
+                data-slot="skeleton"
                 data-testid="add-to-cart-skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-10 w-32 rounded-md"
+                class="bg-accent animate-pulse h-10 w-32 rounded-md"
+                data-slot="skeleton"
                 data-testid="wishlist-skeleton"
               />
               <div
@@ -619,13 +717,16 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="features-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                  class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                  class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -646,7 +747,8 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -656,13 +758,16 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -675,7 +780,8 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -685,13 +791,16 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -704,7 +813,8 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -714,13 +824,16 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -733,7 +846,8 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -743,13 +857,16 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -764,7 +881,8 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
             data-testid="recommended-products-skeleton"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-8 w-48"
+              class="bg-accent animate-pulse rounded-md h-8 w-48"
+              data-slot="skeleton"
               data-testid="recommended-title-skeleton"
             />
             <div
@@ -776,19 +894,23 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -797,19 +919,23 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -818,19 +944,23 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -839,19 +969,23 @@ exports[`ProductSkeleton stories snapshot > Desktop story renders and matches sn
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -888,19 +1022,24 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
               class="flex flex-wrap items-center text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-32"
+                class="bg-accent animate-pulse rounded-md h-4 w-32"
+                data-slot="skeleton"
               />
             </div>
           </nav>
@@ -910,13 +1049,16 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
           data-testid="mobile-title-skeleton"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+            class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+            class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -930,7 +1072,8 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
               data-testid="image-gallery-skeleton"
             >
               <div
-                class="animate-pulse bg-muted aspect-square w-full rounded-lg"
+                class="bg-accent animate-pulse aspect-square w-full rounded-lg"
+                data-slot="skeleton"
                 data-testid="main-image-skeleton"
               />
               <div
@@ -938,19 +1081,24 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="thumbnails-skeleton"
               >
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -967,13 +1115,16 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="desktop-title-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+                  class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -981,10 +1132,12 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="price-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-24"
+                  class="bg-accent animate-pulse rounded-md h-8 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -993,37 +1146,45 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
               >
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
@@ -1032,18 +1193,22 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="quantity-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-10 w-24 rounded-md"
+                  class="bg-accent animate-pulse h-10 w-24 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
               <div
-                class="animate-pulse bg-muted h-12 w-full rounded-md"
+                class="bg-accent animate-pulse h-12 w-full rounded-md"
+                data-slot="skeleton"
                 data-testid="add-to-cart-skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-10 w-32 rounded-md"
+                class="bg-accent animate-pulse h-10 w-32 rounded-md"
+                data-slot="skeleton"
                 data-testid="wishlist-skeleton"
               />
               <div
@@ -1051,13 +1216,16 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="features-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                  class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                  class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -1078,7 +1246,8 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1088,13 +1257,16 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1107,7 +1279,8 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1117,13 +1290,16 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1136,7 +1312,8 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1146,13 +1323,16 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1165,7 +1345,8 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1175,13 +1356,16 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1196,7 +1380,8 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
             data-testid="recommended-products-skeleton"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-8 w-48"
+              class="bg-accent animate-pulse rounded-md h-8 w-48"
+              data-slot="skeleton"
               data-testid="recommended-title-skeleton"
             />
             <div
@@ -1208,19 +1393,23 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1229,19 +1418,23 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1250,19 +1443,23 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1271,19 +1468,23 @@ exports[`ProductSkeleton stories snapshot > Mobile story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1320,19 +1521,24 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
               class="flex flex-wrap items-center text-sm"
             >
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-20"
+                class="bg-accent animate-pulse rounded-md h-4 w-20"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-24"
+                class="bg-accent animate-pulse rounded-md h-4 w-24"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
+                class="bg-accent animate-pulse rounded-md mx-1 h-3 w-3"
+                data-slot="skeleton"
               />
               <div
-                class="animate-pulse rounded-md bg-muted h-4 w-32"
+                class="bg-accent animate-pulse rounded-md h-4 w-32"
+                data-slot="skeleton"
               />
             </div>
           </nav>
@@ -1342,13 +1548,16 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
           data-testid="mobile-title-skeleton"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+            class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+            class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+            data-slot="skeleton"
           />
         </div>
         <div
@@ -1362,7 +1571,8 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
               data-testid="image-gallery-skeleton"
             >
               <div
-                class="animate-pulse bg-muted aspect-square w-full rounded-lg"
+                class="bg-accent animate-pulse aspect-square w-full rounded-lg"
+                data-slot="skeleton"
                 data-testid="main-image-skeleton"
               />
               <div
@@ -1370,19 +1580,24 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="thumbnails-skeleton"
               >
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-16 w-16 flex-shrink-0 rounded-md"
+                  class="bg-accent animate-pulse h-16 w-16 flex-shrink-0 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -1399,13 +1614,16 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="desktop-title-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-3/4 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-8 w-3/4 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full mb-1"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full mb-1"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+                  class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1413,10 +1631,12 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="price-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-8 w-24"
+                  class="bg-accent animate-pulse rounded-md h-8 w-24"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-16"
+                  class="bg-accent animate-pulse rounded-md h-4 w-16"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1425,37 +1645,45 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
               >
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-16 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-16 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
                 <div>
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16 mb-2"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16 mb-2"
+                    data-slot="skeleton"
                   />
                   <div
                     class="flex space-x-2"
                   >
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                     <div
-                      class="animate-pulse bg-muted h-10 w-20 rounded-md"
+                      class="bg-accent animate-pulse h-10 w-20 rounded-md"
+                      data-slot="skeleton"
                     />
                   </div>
                 </div>
@@ -1464,18 +1692,22 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="quantity-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-5 w-20 mb-2"
+                  class="bg-accent animate-pulse rounded-md h-5 w-20 mb-2"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse bg-muted h-10 w-24 rounded-md"
+                  class="bg-accent animate-pulse h-10 w-24 rounded-md"
+                  data-slot="skeleton"
                 />
               </div>
               <div
-                class="animate-pulse bg-muted h-12 w-full rounded-md"
+                class="bg-accent animate-pulse h-12 w-full rounded-md"
+                data-slot="skeleton"
                 data-testid="add-to-cart-skeleton"
               />
               <div
-                class="animate-pulse bg-muted h-10 w-32 rounded-md"
+                class="bg-accent animate-pulse h-10 w-32 rounded-md"
+                data-slot="skeleton"
                 data-testid="wishlist-skeleton"
               />
               <div
@@ -1483,13 +1715,16 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="features-skeleton"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-full"
+                  class="bg-accent animate-pulse rounded-md h-4 w-full"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                  class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                  data-slot="skeleton"
                 />
                 <div
-                  class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                  class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                  data-slot="skeleton"
                 />
               </div>
             </div>
@@ -1510,7 +1745,8 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1520,13 +1756,16 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1539,7 +1778,8 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1549,13 +1789,16 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1568,7 +1811,8 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1578,13 +1822,16 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1597,7 +1844,8 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 class="p-4 border-b"
               >
                 <div
-                  class="animate-pulse rounded-md bg-muted h-6 w-32"
+                  class="bg-accent animate-pulse rounded-md h-6 w-32"
+                  data-slot="skeleton"
                 />
               </div>
               <div
@@ -1607,13 +1855,16 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+                    class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-4/5"
+                    class="bg-accent animate-pulse rounded-md h-4 w-4/5"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1628,7 +1879,8 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
             data-testid="recommended-products-skeleton"
           >
             <div
-              class="animate-pulse rounded-md bg-muted h-8 w-48"
+              class="bg-accent animate-pulse rounded-md h-8 w-48"
+              data-slot="skeleton"
               data-testid="recommended-title-skeleton"
             />
             <div
@@ -1640,19 +1892,23 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1661,19 +1917,23 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1682,19 +1942,23 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>
@@ -1703,19 +1967,23 @@ exports[`ProductSkeleton stories snapshot > Tablet story renders and matches sna
                 data-testid="recommended-product-item"
               >
                 <div
-                  class="animate-pulse bg-muted aspect-square w-full rounded-md"
+                  class="bg-accent animate-pulse aspect-square w-full rounded-md"
+                  data-slot="skeleton"
                 />
                 <div
                   class="space-y-2"
                 >
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-full"
+                    class="bg-accent animate-pulse rounded-md h-4 w-full"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-4 w-3/4"
+                    class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+                    data-slot="skeleton"
                   />
                   <div
-                    class="animate-pulse rounded-md bg-muted h-5 w-16"
+                    class="bg-accent animate-pulse rounded-md h-5 w-16"
+                    data-slot="skeleton"
                   />
                 </div>
               </div>

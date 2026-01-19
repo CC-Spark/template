@@ -10,7 +10,7 @@ exports[`RegisterCustomerSelection stories snapshot > Checked story renders and 
     data-slot="card"
   >
     <div
-      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      class="@container/card-header grid auto-rows-min gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
       data-slot="card-header"
     >
       <div
@@ -73,7 +73,7 @@ exports[`RegisterCustomerSelection stories snapshot > Default story renders and 
     data-slot="card"
   >
     <div
-      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      class="@container/card-header grid auto-rows-min gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
       data-slot="card-header"
     >
       <div
@@ -136,7 +136,7 @@ exports[`RegisterCustomerSelection stories snapshot > Desktop story renders and 
     data-slot="card"
   >
     <div
-      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      class="@container/card-header grid auto-rows-min gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
       data-slot="card-header"
     >
       <div
@@ -199,7 +199,7 @@ exports[`RegisterCustomerSelection stories snapshot > Mobile story renders and m
     data-slot="card"
   >
     <div
-      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      class="@container/card-header grid auto-rows-min gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
       data-slot="card-header"
     >
       <div
@@ -262,7 +262,7 @@ exports[`RegisterCustomerSelection stories snapshot > Tablet story renders and m
     data-slot="card"
   >
     <div
-      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      class="@container/card-header grid auto-rows-min gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
       data-slot="card-header"
     >
       <div
@@ -325,7 +325,7 @@ exports[`RegisterCustomerSelection stories snapshot > WithCallback story renders
     data-slot="card"
   >
     <div
-      class="@container/card-header grid auto-rows-min gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
+      class="@container/card-header grid auto-rows-min gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid-rows-1 items-center"
       data-slot="card-header"
     >
       <div

@@ -5,7 +5,10 @@ exports[`TextSeparator stories snapshot > CustomText story renders and matches s
   class="relative my-2 flex items-center"
 >
   <div
-    class="shrink-0 bg-border h-[1px] w-full absolute left-0 right-0"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px absolute left-0 right-0"
+    data-orientation="horizontal"
+    data-slot="separator"
+    role="none"
   />
   <span
     class="bg-background text-muted-foreground mx-auto px-2 text-xs relative z-10"
@@ -20,7 +23,10 @@ exports[`TextSeparator stories snapshot > Default story renders and matches snap
   class="relative my-2 flex items-center"
 >
   <div
-    class="shrink-0 bg-border h-[1px] w-full absolute left-0 right-0"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px absolute left-0 right-0"
+    data-orientation="horizontal"
+    data-slot="separator"
+    role="none"
   />
   <span
     class="bg-background text-muted-foreground mx-auto px-2 text-xs relative z-10"
@@ -35,7 +41,10 @@ exports[`TextSeparator stories snapshot > DesktopLayout story renders and matche
   class="relative my-2 flex items-center"
 >
   <div
-    class="shrink-0 bg-border h-[1px] w-full absolute left-0 right-0"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px absolute left-0 right-0"
+    data-orientation="horizontal"
+    data-slot="separator"
+    role="none"
   />
   <span
     class="bg-background text-muted-foreground mx-auto px-2 text-xs relative z-10"
@@ -50,7 +59,10 @@ exports[`TextSeparator stories snapshot > MobileLayout story renders and matches
   class="relative my-2 flex items-center"
 >
   <div
-    class="shrink-0 bg-border h-[1px] w-full absolute left-0 right-0"
+    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px absolute left-0 right-0"
+    data-orientation="horizontal"
+    data-slot="separator"
+    role="none"
   />
   <span
     class="bg-background text-muted-foreground mx-auto px-2 text-xs relative z-10"

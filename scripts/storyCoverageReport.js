@@ -221,6 +221,12 @@ function generateCoverage() {
     const missing = [];
     const excluded = [];
     for (const [componentName, filePath] of components.entries()) {
+        // Skip ejected `shadcn/ui` components
+        if (filePath.includes('/components/ui/')) {
+            excluded.push({ name: componentName, path: filePath });
+            continue;
+        }
+
         // Skip excluded components
         if (EXCLUDED_COMPONENTS.has(componentName)) {
             excluded.push({ name: componentName, path: filePath });

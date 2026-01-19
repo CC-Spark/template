@@ -22,7 +22,7 @@ import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-ro
 import { ConfigProvider } from '@/config/context';
 import { CurrencyProvider } from '@/providers/currency';
 import { mockConfig } from '@/test-utils/config';
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '@/config';
 
@@ -102,13 +102,13 @@ function CurrencySwitcherMock({ initialCurrency = 'USD' }: { initialCurrency?: s
 
     return (
         <div>
-            <SelectNative id={id} onChange={handleCurrencyChange} aria-label={t('ariaLabel')} value={currentCurrency}>
+            <NativeSelect id={id} onChange={handleCurrencyChange} aria-label={t('ariaLabel')} value={currentCurrency}>
                 {config.site.supportedCurrencies.map((currency) => (
                     <option key={currency} value={currency}>
                         {t(`currencies.${currency}`, { defaultValue: currency })}
                     </option>
                 ))}
-            </SelectNative>
+            </NativeSelect>
         </div>
     );
 }
