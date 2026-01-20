@@ -78,7 +78,7 @@ exports[`CustomerProfileForm stories snapshot > Default story renders and matche
               data-slot="form-label"
               for="_r_2_-form-item"
             >
-              Email
+              Email Address
             </label>
             <input
               aria-describedby="_r_2_-form-item-description"
@@ -217,7 +217,7 @@ exports[`CustomerProfileForm stories snapshot > Desktop story renders and matche
               data-slot="form-label"
               for="_r_m_-form-item"
             >
-              Email
+              Email Address
             </label>
             <input
               aria-describedby="_r_m_-form-item-description"
@@ -356,7 +356,7 @@ exports[`CustomerProfileForm stories snapshot > Interactive story renders and ma
               data-slot="form-label"
               for="_r_a_-form-item"
             >
-              Email
+              Email Address
             </label>
             <input
               aria-describedby="_r_a_-form-item-description"
@@ -495,7 +495,7 @@ exports[`CustomerProfileForm stories snapshot > Mobile story renders and matches
               data-slot="form-label"
               for="_r_e_-form-item"
             >
-              Email
+              Email Address
             </label>
             <input
               aria-describedby="_r_e_-form-item-description"
@@ -634,7 +634,7 @@ exports[`CustomerProfileForm stories snapshot > Tablet story renders and matches
               data-slot="form-label"
               for="_r_i_-form-item"
             >
-              Email
+              Email Address
             </label>
             <input
               aria-describedby="_r_i_-form-item-description"
@@ -773,7 +773,7 @@ exports[`CustomerProfileForm stories snapshot > WithInitialData story renders an
               data-slot="form-label"
               for="_r_6_-form-item"
             >
-              Email
+              Email Address
             </label>
             <input
               aria-describedby="_r_6_-form-item-description"

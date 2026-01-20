@@ -685,6 +685,7 @@
     },
     "account": {
         "title": "Account Details",
+        "subtitle": "Manage your personal information",
         "myAccount": "My Account",
         "navigation": {
             "overview": "Overview",
@@ -778,10 +779,11 @@
             }
         },
         "profile": {
-            "title": "My Profile",
+            "title": "Personal Information",
+            "description": "Manage your personal information",
             "edit": "Edit",
             "fullName": "Full Name",
-            "email": "Email",
+            "email": "Email Address",
             "phoneNumber": "Phone Number",
             "notProvided": "Not provided",
             "firstName": "First Name",
@@ -804,11 +806,12 @@
             }
         },
         "password": {
-            "title": "Password",
+            "title": "Password & Security",
+            "description": "Manage your password and security settings",
             "edit": "Edit",
             "password": "Password",
             "hiddenPassword": "••••••••",
-            "changePassword": "Change Password",
+            "changePassword": "Change password",
             "currentPassword": "Current Password",
             "currentPasswordPlaceholder": "Enter your current password",
             "newPassword": "New Password",

@@ -16,6 +16,8 @@
 import { useMemo, type ReactElement, Suspense, useState } from 'react';
 import { useOutletContext, Await, useFetcher, useRevalidator } from 'react-router';
 import { ToggleCard, ToggleCardSummary, ToggleCardEdit } from '@/components/toggle-card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { AccountDetailSkeleton } from '@/components/account-detail-skeleton';
 import { PasswordUpdateForm } from '@/components/password-update-form';
 import { CustomerProfileForm } from '@/components/customer-profile-form';
@@ -241,42 +243,50 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
 
     return (
         <div className="space-y-6">
-            {/* Page Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                    {t('title')}
-                </h1>
-            </div>
+            {/* Page Header Card */}
+            <Card>
+                <CardContent className="py-6">
+                    <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
+                        {t('title')}
+                    </h1>
+                    <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
+                </CardContent>
+            </Card>
 
-            {/* My Profile Toggle Card */}
-            <ToggleCard id="profile" title={t('profile.title')} editing={isEditingProfile} onEdit={handleProfileEdit}>
+            {/* Personal Information Toggle Card */}
+            <ToggleCard
+                id="profile"
+                title={t('profile.title')}
+                description={t('profile.description')}
+                editing={isEditingProfile}
+                onEdit={handleProfileEdit}
+                editVariant="outline"
+                showHeaderSeparator>
                 <ToggleCardSummary>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div>
-                            <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">{t('profile.fullName')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-foreground">{userInfo.fullName}</p>
-                            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">{t('profile.firstName')}</p>
+                            <p className="text-sm font-medium text-foreground">
+                                {customer?.firstName || t('profile.notProvided')}
+                            </p>
                         </div>
-                        <div>
-                            <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">{t('profile.email')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-foreground">{userInfo.email}</p>
-                            </div>
+                        <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">{t('profile.lastName')}</p>
+                            <p className="text-sm font-medium text-foreground">
+                                {customer?.lastName || t('profile.notProvided')}
+                            </p>
                         </div>
-                        <div>
-                            <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">{t('profile.phoneNumber')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-foreground">
-                                    {userInfo.phoneNumber === 'N/A' ? t('profile.notProvided') : userInfo.phoneNumber}
-                                </p>
-                            </div>
+                        <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">{t('profile.email')}</p>
+                            <p className="text-sm font-medium text-foreground">
+                                {userInfo.email || t('profile.notProvided')}
+                            </p>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">{t('profile.phoneNumber')}</p>
+                            <p className="text-sm font-medium text-foreground">
+                                {userInfo.phoneNumber || t('profile.notProvided')}
+                            </p>
                         </div>
                     </div>
                 </ToggleCardSummary>
@@ -297,22 +307,22 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
                 </ToggleCardEdit>
             </ToggleCard>
 
-            {/* Password Toggle Card */}
+            {/* Password & Security Toggle Card */}
             <ToggleCard
                 id="password"
                 title={t('password.title')}
+                description={t('password.description')}
                 editing={isEditingPassword}
-                onEdit={handlePasswordEdit}>
+                showHeaderSeparator>
                 <ToggleCardSummary>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div>
-                            <div className="mb-2">
-                                <p className="text-sm font-bold text-foreground">{t('password.password')}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-foreground">••••••••</p>
-                            </div>
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">{t('password.password')}</p>
+                            <p className="text-sm font-medium text-foreground">{t('password.hiddenPassword')}</p>
                         </div>
+                        <Button variant="outline" size="sm" onClick={handlePasswordEdit}>
+                            {t('password.changePassword')}
+                        </Button>
                     </div>
                 </ToggleCardSummary>
 

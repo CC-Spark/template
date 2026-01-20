@@ -75,7 +75,7 @@ exports[`CustomerProfileFields stories snapshot > Default story renders and matc
             data-slot="form-label"
             for="_r_2_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_2_-form-item-description"
@@ -210,7 +210,7 @@ exports[`CustomerProfileFields stories snapshot > Desktop story renders and matc
             data-slot="form-label"
             for="_r_u_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_u_-form-item-description"
@@ -345,7 +345,7 @@ exports[`CustomerProfileFields stories snapshot > Interactive story renders and 
             data-slot="form-label"
             for="_r_i_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_i_-form-item-description"
@@ -480,7 +480,7 @@ exports[`CustomerProfileFields stories snapshot > Mobile story renders and match
             data-slot="form-label"
             for="_r_m_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_m_-form-item-description"
@@ -615,7 +615,7 @@ exports[`CustomerProfileFields stories snapshot > Submitting story renders and m
             data-slot="form-label"
             for="_r_e_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_e_-form-item-description"
@@ -751,7 +751,7 @@ exports[`CustomerProfileFields stories snapshot > Tablet story renders and match
             data-slot="form-label"
             for="_r_q_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_q_-form-item-description"
@@ -886,7 +886,7 @@ exports[`CustomerProfileFields stories snapshot > WithCancelButton story renders
             data-slot="form-label"
             for="_r_a_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_a_-form-item-description"
@@ -1030,7 +1030,7 @@ exports[`CustomerProfileFields stories snapshot > WithInitialValues story render
             data-slot="form-label"
             for="_r_6_-form-item"
           >
-            Email
+            Email Address
           </label>
           <input
             aria-describedby="_r_6_-form-item-description"

@@ -5,11 +5,23 @@ exports[`AccountDetailSkeleton stories snapshot > Default story renders and matc
   <div
     class="space-y-6"
   >
-    <div>
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
+      data-slot="card"
+    >
       <div
-        class="bg-accent animate-pulse rounded-md h-8 w-40"
-        data-slot="skeleton"
-      />
+        class="px-6 py-6"
+        data-slot="card-content"
+      >
+        <div
+          class="bg-accent animate-pulse rounded-md h-8 w-40"
+          data-slot="skeleton"
+        />
+        <div
+          class="bg-accent animate-pulse rounded-md h-4 w-64 mt-1"
+          data-slot="skeleton"
+        />
+      </div>
     </div>
     <div
       class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
@@ -20,63 +32,67 @@ exports[`AccountDetailSkeleton stories snapshot > Default story renders and matc
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-24"
+            class="bg-accent animate-pulse rounded-md h-6 w-40"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-56"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
+          </div>
+          <div
+            class="space-y-1"
+          >
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
         </div>
       </div>
@@ -90,32 +106,36 @@ exports[`AccountDetailSkeleton stories snapshot > Default story renders and matc
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-36"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-64"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="flex items-center justify-between"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-16"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-24"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-16"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
           </div>
+          <div
+            class="bg-accent animate-pulse rounded-md h-8 w-32"
+            data-slot="skeleton"
+          />
         </div>
       </div>
     </div>
@@ -128,11 +148,23 @@ exports[`AccountDetailSkeleton stories snapshot > Desktop story renders and matc
   <div
     class="space-y-6"
   >
-    <div>
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
+      data-slot="card"
+    >
       <div
-        class="bg-accent animate-pulse rounded-md h-8 w-40"
-        data-slot="skeleton"
-      />
+        class="px-6 py-6"
+        data-slot="card-content"
+      >
+        <div
+          class="bg-accent animate-pulse rounded-md h-8 w-40"
+          data-slot="skeleton"
+        />
+        <div
+          class="bg-accent animate-pulse rounded-md h-4 w-64 mt-1"
+          data-slot="skeleton"
+        />
+      </div>
     </div>
     <div
       class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
@@ -143,63 +175,67 @@ exports[`AccountDetailSkeleton stories snapshot > Desktop story renders and matc
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-24"
+            class="bg-accent animate-pulse rounded-md h-6 w-40"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-56"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
+          </div>
+          <div
+            class="space-y-1"
+          >
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
         </div>
       </div>
@@ -213,32 +249,36 @@ exports[`AccountDetailSkeleton stories snapshot > Desktop story renders and matc
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-36"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-64"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="flex items-center justify-between"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-16"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-24"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-16"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
           </div>
+          <div
+            class="bg-accent animate-pulse rounded-md h-8 w-32"
+            data-slot="skeleton"
+          />
         </div>
       </div>
     </div>
@@ -251,11 +291,23 @@ exports[`AccountDetailSkeleton stories snapshot > LoadingState story renders and
   <div
     class="space-y-6"
   >
-    <div>
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
+      data-slot="card"
+    >
       <div
-        class="bg-accent animate-pulse rounded-md h-8 w-40"
-        data-slot="skeleton"
-      />
+        class="px-6 py-6"
+        data-slot="card-content"
+      >
+        <div
+          class="bg-accent animate-pulse rounded-md h-8 w-40"
+          data-slot="skeleton"
+        />
+        <div
+          class="bg-accent animate-pulse rounded-md h-4 w-64 mt-1"
+          data-slot="skeleton"
+        />
+      </div>
     </div>
     <div
       class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
@@ -266,63 +318,67 @@ exports[`AccountDetailSkeleton stories snapshot > LoadingState story renders and
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-24"
+            class="bg-accent animate-pulse rounded-md h-6 w-40"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-56"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
+          </div>
+          <div
+            class="space-y-1"
+          >
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
         </div>
       </div>
@@ -336,32 +392,36 @@ exports[`AccountDetailSkeleton stories snapshot > LoadingState story renders and
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-36"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-64"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="flex items-center justify-between"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-16"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-24"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-16"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
           </div>
+          <div
+            class="bg-accent animate-pulse rounded-md h-8 w-32"
+            data-slot="skeleton"
+          />
         </div>
       </div>
     </div>
@@ -374,11 +434,23 @@ exports[`AccountDetailSkeleton stories snapshot > Mobile story renders and match
   <div
     class="space-y-6"
   >
-    <div>
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
+      data-slot="card"
+    >
       <div
-        class="bg-accent animate-pulse rounded-md h-8 w-40"
-        data-slot="skeleton"
-      />
+        class="px-6 py-6"
+        data-slot="card-content"
+      >
+        <div
+          class="bg-accent animate-pulse rounded-md h-8 w-40"
+          data-slot="skeleton"
+        />
+        <div
+          class="bg-accent animate-pulse rounded-md h-4 w-64 mt-1"
+          data-slot="skeleton"
+        />
+      </div>
     </div>
     <div
       class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
@@ -389,63 +461,67 @@ exports[`AccountDetailSkeleton stories snapshot > Mobile story renders and match
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-24"
+            class="bg-accent animate-pulse rounded-md h-6 w-40"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-56"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
+          </div>
+          <div
+            class="space-y-1"
+          >
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
         </div>
       </div>
@@ -459,32 +535,36 @@ exports[`AccountDetailSkeleton stories snapshot > Mobile story renders and match
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-36"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-64"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="flex items-center justify-between"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-16"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-24"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-16"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
           </div>
+          <div
+            class="bg-accent animate-pulse rounded-md h-8 w-32"
+            data-slot="skeleton"
+          />
         </div>
       </div>
     </div>
@@ -497,11 +577,23 @@ exports[`AccountDetailSkeleton stories snapshot > Tablet story renders and match
   <div
     class="space-y-6"
   >
-    <div>
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
+      data-slot="card"
+    >
       <div
-        class="bg-accent animate-pulse rounded-md h-8 w-40"
-        data-slot="skeleton"
-      />
+        class="px-6 py-6"
+        data-slot="card-content"
+      >
+        <div
+          class="bg-accent animate-pulse rounded-md h-8 w-40"
+          data-slot="skeleton"
+        />
+        <div
+          class="bg-accent animate-pulse rounded-md h-4 w-64 mt-1"
+          data-slot="skeleton"
+        />
+      </div>
     </div>
     <div
       class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border"
@@ -512,63 +604,67 @@ exports[`AccountDetailSkeleton stories snapshot > Tablet story renders and match
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-24"
+            class="bg-accent animate-pulse rounded-md h-6 w-40"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-56"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-20"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-32"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
+          </div>
+          <div
+            class="space-y-1"
+          >
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-28"
+              data-slot="skeleton"
+            />
           </div>
         </div>
       </div>
@@ -582,32 +678,36 @@ exports[`AccountDetailSkeleton stories snapshot > Tablet story renders and match
         data-slot="card-content"
       >
         <div
-          class="mb-6"
+          class="mb-6 pb-4 border-b border-muted-foreground/20 space-y-1"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-36"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-64"
             data-slot="skeleton"
           />
         </div>
         <div
-          class="grid grid-cols-1 lg:grid-cols-3 gap-4"
+          class="flex items-center justify-between"
         >
-          <div>
+          <div
+            class="space-y-1"
+          >
             <div
-              class="mb-2"
-            >
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-16"
-                data-slot="skeleton"
-              />
-            </div>
-            <div>
-              <div
-                class="bg-accent animate-pulse rounded-md h-4 w-24"
-                data-slot="skeleton"
-              />
-            </div>
+              class="bg-accent animate-pulse rounded-md h-4 w-16"
+              data-slot="skeleton"
+            />
+            <div
+              class="bg-accent animate-pulse rounded-md h-4 w-20"
+              data-slot="skeleton"
+            />
           </div>
+          <div
+            class="bg-accent animate-pulse rounded-md h-8 w-32"
+            data-slot="skeleton"
+          />
         </div>
       </div>
     </div>
