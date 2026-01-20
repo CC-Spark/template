@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { type ReactElement, useState, useEffect, useMemo, useCallback, use } from 'react';
+import React, { type ReactElement, useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
@@ -113,8 +113,8 @@ interface HeroCarouselProps {
     autoPlayInterval?: number;
     showDots?: boolean;
     showNavigation?: boolean;
-    /** Page data containing regions from Page Designer */
-    page?: Promise<ShopperExperience.schemas['Page']>;
+    /** Component data containing regions from Page Designer */
+    component?: ShopperExperience.schemas['Component'];
 }
 
 export function HeroCarouselPlain({
@@ -124,17 +124,18 @@ export function HeroCarouselPlain({
     autoPlayInterval = 5000,
     showDots = true,
     showNavigation = true,
-    page: pagePromise,
+    component,
 }: HeroCarouselProps): ReactElement {
-    // Unwrap page promise if provided
-    const page = pagePromise ? use(pagePromise) : undefined;
-
     // Convert page designer heroes to slides format
-    const slidesFromPage = useMemo(() => {
-        if (!page?.regions) return [];
+    const slidesFromComponent = useMemo(() => {
+        if (!Array.isArray(component?.regions)) {
+            return [];
+        }
 
-        const slidesRegion = page.regions.find((r) => r.id === 'slides');
-        if (!slidesRegion?.components) return [];
+        const slidesRegion = component.regions.find((r) => r.id === 'slides');
+        if (!Array.isArray(slidesRegion?.components)) {
+            return [];
+        }
 
         return slidesRegion.components
             .filter((comp) => comp.id && comp.typeId)
@@ -151,10 +152,10 @@ export function HeroCarouselPlain({
                     ctaLink: data?.ctaLink as string | undefined,
                 };
             });
-    }, [page]);
+    }, [component]);
 
-    // Use page data slides if available, otherwise use prop slides
-    const slides = slidesFromPage.length > 0 ? slidesFromPage : propSlides;
+    // Use component data slides if available, otherwise use prop slides
+    const slides = slidesFromComponent.length ? slidesFromComponent : propSlides;
     const [currentSlide, setCurrentSlide] = useState(0);
     const [api, setApi] = useState<CarouselApi | null>(null);
     const [isPaused, setIsPaused] = useState(false);
@@ -458,4 +459,6 @@ const HeroCarousel = withSuspense(HeroCarouselPlain, {
 });
 
 export default HeroCarousel;
-export { HeroCarouselSkeleton };
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { HeroCarouselSkeleton, HeroCarouselSkeleton as fallback };

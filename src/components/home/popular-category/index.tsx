@@ -27,10 +27,11 @@ interface PopularCategoryProps extends ComponentProps<'div'> {
     // Category data from Page Designer (via loader) or programmatic use
     category?: ShopperProducts.schemas['Category'];
     // Page Designer props (passed by Component wrapper, must be extracted to avoid passing to DOM)
-    designMetadata?: ComponentDesignMetadata;
     regionId?: string;
-    componentData?: Promise<Record<string, Promise<unknown>>>;
-    page?: Promise<ShopperExperience.schemas['Page']>;
+    page?: ShopperExperience.schemas['Page'];
+    component?: ShopperExperience.schemas['Component'];
+    componentData?: Record<string, Promise<unknown>>;
+    designMetadata?: ComponentDesignMetadata;
     // Loader data - full category object fetched by loader
     data?: ShopperProducts.schemas['Category'];
 }
@@ -69,10 +70,11 @@ export const clientLoader = loaders.client;
 export default function PopularCategory({
     category,
     // Page Designer props - extracted to avoid passing to DOM
-    designMetadata: _designMetadata,
     regionId: _regionId,
-    componentData: _componentData,
     page: _page,
+    component: _component,
+    componentData: _componentData,
+    designMetadata: _designMetadata,
     // Loader data - full category object fetched by loader
     data,
     ...props

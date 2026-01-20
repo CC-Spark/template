@@ -103,9 +103,9 @@ export default function ProductCarouselSkeleton({ title, itemCount }: { title?: 
 function ProductTileSkeleton() {
     return (
         <Card className="border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse justify-end h-full shadow-sm gap-0 py-0">
-            {/* CardFooter - "More Options" button area (height 84px + padding 48px = 132px) */}
+            {/* CardFooter - "More Options" button area (height 36px + padding 48px = 84px) */}
             <CardFooter className="px-6 pb-6 pt-6 flex-1 flex flex-col justify-end">
-                <Skeleton className="h-21 w-full rounded-md" />
+                <Skeleton className="h-9 w-full rounded-md" />
             </CardFooter>
 
             {/* CardContent - Price area (height 28px) */}

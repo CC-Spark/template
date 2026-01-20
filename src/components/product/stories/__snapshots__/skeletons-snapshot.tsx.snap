@@ -622,7 +622,7 @@ exports[`Product Skeletons stories snapshot > RecommendationSkeleton story rende
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -715,7 +715,7 @@ exports[`Product Skeletons stories snapshot > RecommendationSkeleton story rende
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -808,7 +808,7 @@ exports[`Product Skeletons stories snapshot > RecommendationSkeleton story rende
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -901,7 +901,7 @@ exports[`Product Skeletons stories snapshot > RecommendationSkeleton story rende
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1039,7 +1039,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1132,7 +1132,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1225,7 +1225,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1318,7 +1318,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1447,7 +1447,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1540,7 +1540,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1633,7 +1633,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>
@@ -1726,7 +1726,7 @@ exports[`Product Skeletons stories snapshot > RecommendationsSkeleton story rend
                       data-slot="card-footer"
                     >
                       <div
-                        class="bg-accent animate-pulse h-21 w-full rounded-md"
+                        class="bg-accent animate-pulse h-9 w-full rounded-md"
                         data-slot="skeleton"
                       />
                     </div>

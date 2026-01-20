@@ -33,8 +33,8 @@ interface PopularCategoriesProps {
     // Data prop provided by the Page Designer component loader
     data?: ShopperProducts.schemas['Category'][];
     // Page Designer props
-    page?: Promise<ShopperExperience.schemas['Page']>;
-    componentData?: Promise<Record<string, Promise<unknown>>>;
+    component?: ShopperExperience.schemas['Component'];
+    componentData?: Record<string, Promise<unknown>>;
 }
 
 /* v8 ignore start - do not test decorators in unit tests, decorator functionality is tested separately*/
@@ -178,18 +178,18 @@ function renderFallbackCategories(
 function CategoryGridContent({
     data,
     categoriesPromise,
-    page,
+    component,
     componentData,
     paddingX,
 }: {
     data?: ShopperProducts.schemas['Category'][];
     categoriesPromise?: Promise<ShopperProducts.schemas['Category'][]>;
-    page?: Promise<ShopperExperience.schemas['Page']>;
-    componentData?: Promise<Record<string, Promise<unknown>>>;
+    component?: ShopperExperience.schemas['Component'];
+    componentData?: Record<string, Promise<unknown>>;
     paddingX?: string;
 }) {
-    // If page or componentData are not provided, show fallback categories
-    if (!page || !componentData) {
+    // If component or componentData are not provided, show fallback categories
+    if (!component || !componentData) {
         return (
             <>
                 <CategoryGridTitle />
@@ -198,49 +198,37 @@ function CategoryGridContent({
         );
     }
 
+    const hasRegions = component.regions && component.regions.length > 0;
+
+    // Show fallback categories if no regions (page exists but is empty)
+    if (!hasRegions) {
+        return renderFallbackCategories(data, categoriesPromise, paddingX);
+    }
+
+    // Regions exist - check if categories region has components
+    const categoriesRegion = component.regions?.find((r) => r.id === 'categories');
+    const hasComponents = (categoriesRegion?.components?.length ?? 0) > 0;
+
+    // Show fallback categories if no components in categories region
+    if (!hasComponents) {
+        return renderFallbackCategories(data, categoriesPromise, paddingX);
+    }
+
+    // Region has components - render them
+    const componentCount = Math.min(Math.max(categoriesRegion?.components?.length || 4, 1), 4);
+    const gridConfig = calculateGridConfig(componentCount);
+
     return (
         <>
             <CategoryGridTitle />
-            <Suspense fallback={null}>
-                <Await
-                    resolve={page}
-                    errorElement={
-                        // If page fetch fails (e.g., page doesn't exist), show fallback categories
-                        renderFallbackCategories(data, categoriesPromise, paddingX)
-                    }>
-                    {(resolvedPage) => {
-                        const hasRegions = resolvedPage?.regions && resolvedPage.regions.length > 0;
-
-                        // Show fallback categories if no regions (page exists but is empty)
-                        if (!hasRegions) {
-                            return renderFallbackCategories(data, categoriesPromise, paddingX);
-                        }
-
-                        // Regions exist - check if categories region has components
-                        const categoriesRegion = resolvedPage.regions?.find((r) => r.id === 'categories');
-                        const hasComponents = (categoriesRegion?.components?.length ?? 0) > 0;
-
-                        // Show fallback categories if no components in categories region
-                        if (!hasComponents) {
-                            return renderFallbackCategories(data, categoriesPromise, paddingX);
-                        }
-
-                        // Region has components - render them
-                        const componentCount = Math.min(Math.max(categoriesRegion?.components?.length || 4, 1), 4);
-                        const gridConfig = calculateGridConfig(componentCount);
-
-                        return (
-                            <div className={gridConfig.className} style={gridConfig.style}>
-                                <Region
-                                    page={Promise.resolve(resolvedPage)}
-                                    regionId="categories"
-                                    componentData={componentData}
-                                />
-                            </div>
-                        );
-                    }}
-                </Await>
-            </Suspense>
+            <div className={gridConfig.className} style={gridConfig.style}>
+                {/* TODO: Refactor <Region/> properties `page` and `componentData` to not expect promises anymore */}
+                <Region
+                    regionId="categories"
+                    page={Promise.resolve(component)}
+                    componentData={Promise.resolve(componentData)}
+                />
+            </div>
         </>
     );
 }
@@ -263,14 +251,14 @@ export default function PopularCategories({
     categoriesPromise,
     data,
     paddingX = 'px-4 sm:px-6 lg:px-8',
-    page,
+    component,
     componentData,
 }: PopularCategoriesProps) {
     const content = (
         <CategoryGridContent
             data={data}
             categoriesPromise={categoriesPromise}
-            page={page}
+            component={component}
             componentData={componentData}
             paddingX={paddingX}
         />

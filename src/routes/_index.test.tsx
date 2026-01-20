@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import { render, screen } from '@testing-library/react';
-import { vi, describe, test, expect, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { LoaderFunctionArgs } from 'react-router';
-import type { ShopperSearch, ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperExperience, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { getTranslation } from '@/lib/i18next';
-
-const { t } = getTranslation();
-import HomePage, { loader, type HomePageData } from './_index';
+import HomePage, { type HomePageData, loader } from './_index';
 import { createTestContext } from '@/lib/test-utils';
-import { fetchPageFromLoader, collectComponentDataPromises } from '@/lib/util/pageLoader';
+import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { fetchCategories } from '@/lib/api/categories';
 import { type AppConfig, getConfig } from '@/config';
+
+const { t } = getTranslation();
 
 // Mock data
 const mockSearchResult: ShopperSearch.schemas['ProductSearchResult'] = {
@@ -256,10 +256,6 @@ describe('HomePage', () => {
                 assertion: () => expect(screen.getByText(t('home:newArrivals.title'))).toBeInTheDocument(),
             },
             {
-                description: 'renders popular categories section',
-                assertion: () => expect(screen.getByTestId('popular-categories')).toBeInTheDocument(),
-            },
-            {
                 description: 'renders featured content cards',
                 assertion: () => {
                     expect(screen.getByText(t('home:featuredContent.women.title'))).toBeInTheDocument();
@@ -271,6 +267,13 @@ describe('HomePage', () => {
         test.each(renderingTests)('$description', ({ assertion }) => {
             renderComponent();
             assertion();
+        });
+
+        test('renders popular categories section', async () => {
+            renderComponent();
+            await waitFor(() => {
+                expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
+            });
         });
 
         test('renders without header banner region when no regions available', () => {
@@ -333,23 +336,19 @@ describe('HomePage', () => {
     });
 
     describe('Popular Categories Section', () => {
-        const popularCategoriesTests = [
-            {
-                description: 'renders popular categories component',
-                assertion: () => expect(screen.getByTestId('popular-categories')).toBeInTheDocument(),
-            },
-            {
-                description: 'passes categories promise to PopularCategories component',
-                assertion: () => {
-                    expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
-                    expect(screen.getByText('Step into Elegance')).toBeInTheDocument();
-                },
-            },
-        ];
-
-        test.each(popularCategoriesTests)('$description', ({ assertion }) => {
+        test('renders popular categories component', async () => {
             renderComponent();
-            assertion();
+            await waitFor(() => {
+                expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
+            });
+        });
+
+        test('passes categories promise to PopularCategories component', async () => {
+            renderComponent();
+            await waitFor(() => {
+                expect(screen.getByTestId('popular-categories')).toBeInTheDocument();
+                expect(screen.getByText('Step into Elegance')).toBeInTheDocument();
+            });
         });
     });
 

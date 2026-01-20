@@ -9,7 +9,6 @@ exports[`Region stories snapshot > Default story renders and matches snapshot 1`
 exports[`Region stories snapshot > Desktop story renders and matches snapshot 1`] = `
 <div>
   <div />
-  <div />
 </div>
 `;
 
@@ -22,7 +21,6 @@ exports[`Region stories snapshot > Empty story renders and matches snapshot 1`] 
 exports[`Region stories snapshot > Mobile story renders and matches snapshot 1`] = `
 <div>
   <div />
-  <div />
 </div>
 `;
 
@@ -34,7 +32,6 @@ exports[`Region stories snapshot > SingleComponent story renders and matches sna
 
 exports[`Region stories snapshot > Tablet story renders and matches snapshot 1`] = `
 <div>
-  <div />
   <div />
 </div>
 `;

@@ -1017,7 +1017,7 @@ exports[`AccountOverview stories snapshot > LoadingSkeleton story renders and ma
                         data-slot="card-footer"
                       >
                         <div
-                          class="bg-accent animate-pulse h-21 w-full rounded-md"
+                          class="bg-accent animate-pulse h-9 w-full rounded-md"
                           data-slot="skeleton"
                         />
                       </div>
@@ -1110,7 +1110,7 @@ exports[`AccountOverview stories snapshot > LoadingSkeleton story renders and ma
                         data-slot="card-footer"
                       >
                         <div
-                          class="bg-accent animate-pulse h-21 w-full rounded-md"
+                          class="bg-accent animate-pulse h-9 w-full rounded-md"
                           data-slot="skeleton"
                         />
                       </div>
@@ -1203,7 +1203,7 @@ exports[`AccountOverview stories snapshot > LoadingSkeleton story renders and ma
                         data-slot="card-footer"
                       >
                         <div
-                          class="bg-accent animate-pulse h-21 w-full rounded-md"
+                          class="bg-accent animate-pulse h-9 w-full rounded-md"
                           data-slot="skeleton"
                         />
                       </div>
@@ -1296,7 +1296,7 @@ exports[`AccountOverview stories snapshot > LoadingSkeleton story renders and ma
                         data-slot="card-footer"
                       >
                         <div
-                          class="bg-accent animate-pulse h-21 w-full rounded-md"
+                          class="bg-accent animate-pulse h-9 w-full rounded-md"
                           data-slot="skeleton"
                         />
                       </div>

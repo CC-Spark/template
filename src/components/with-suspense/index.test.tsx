@@ -174,6 +174,14 @@ describe('withSuspense', () => {
             const { container } = render(<WrappedComponent name="Test" />);
             expect(container).toBeTruthy();
         });
+
+        test('should use custom resolve function', () => {
+            const testPromise = Promise.resolve({ data: 'test' });
+            const WrappedComponent = withSuspense(TestComponent, { resolve: () => testPromise });
+
+            const { container } = render(<WrappedComponent name="Test" />);
+            expect(container).toBeTruthy();
+        });
     });
 
     describe('Rendering with Promise Resolution from Props', () => {

@@ -20,11 +20,11 @@ import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scap
 import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
 
 export interface ComponentProps {
+    page: ShopperExperience.schemas['Page'];
     component: ShopperExperience.schemas['Component'];
     className?: string;
-    componentData?: Promise<Record<string, Promise<unknown>>>;
+    componentData?: Record<string, Promise<unknown>>;
     regionId: string;
-    page: Promise<ShopperExperience.schemas['Page']>;
 }
 
 export const Component = memo(function Component({
@@ -42,9 +42,7 @@ export const Component = memo(function Component({
     }
 
     // Create a single promise that chains through both levels
-    const dataPromise = componentData
-        ? componentData.then((dataMap) => dataMap[component.id])
-        : Promise.resolve(undefined);
+    const dataPromise = componentData?.[component.id];
 
     const designMetadata: ComponentDesignMetadata = {
         name: component.designMetadata?.name,
@@ -55,16 +53,16 @@ export const Component = memo(function Component({
     };
 
     return (
-        <Suspense fallback={FallbackComponent ? <FallbackComponent /> : <div />}>
+        <Suspense fallback={FallbackComponent ? <FallbackComponent {...(component.data ?? {})} /> : <div />}>
             <Await resolve={dataPromise}>
                 {(data) => (
                     <DynamicComponent
-                        {...component.data}
+                        {...(component.data ?? {})}
                         designMetadata={designMetadata}
-                        data={data}
-                        className={className}
                         page={page}
                         componentData={componentData}
+                        data={data}
+                        className={className}
                         regionId={regionId}
                     />
                 )}

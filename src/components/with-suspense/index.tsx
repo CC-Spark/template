@@ -65,7 +65,7 @@ export default function withSuspense<TProps extends Record<string, unknown> = Re
         /** Fallback component to show while loading. Can be a ReactNode or a function that receives props */
         fallback?: ReactNode | ((props: Omit<TProps, 'resolve'>) => ReactNode);
         /** Promise to resolve and pass as 'data' prop to the wrapped component */
-        resolve?: Promise<unknown>;
+        resolve?: Promise<unknown> | ((props: TProps) => Promise<unknown>);
     } = {}
 ) {
     const { fallback = <div>Loading...</div>, resolve: configResolve } = config;
@@ -79,11 +79,14 @@ export default function withSuspense<TProps extends Record<string, unknown> = Re
         // Resolve fallback - if it's a function, call it with props
         const resolvedFallback = typeof fallback === 'function' ? fallback(otherProps as TProps) : fallback;
 
+        // Resolve `resolve` promise - if it's a function, call it with props
+        const resolvedResolve = typeof resolve === 'function' ? resolve(props as TProps) : resolve;
+
         return (
             <Suspense fallback={resolvedFallback}>
                 <ComponentWithData
                     Component={Component}
-                    resolve={resolve}
+                    resolve={resolvedResolve}
                     props={otherProps as Omit<TProps, 'resolve'>}
                 />
             </Suspense>

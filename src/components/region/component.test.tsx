@@ -71,9 +71,9 @@ describe('Component', () => {
 
         render(
             <Component
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                page={{} as ShopperExperience.schemas['Page']}
                 component={component}
-                componentData={Promise.resolve(map)}
+                componentData={map}
                 className="cls"
                 regionId="main-region"
             />
@@ -118,11 +118,7 @@ describe('Component', () => {
         };
 
         render(
-            <Component
-                component={component}
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
-                regionId="main-region"
-            />
+            <Component component={component} page={{} as ShopperExperience.schemas['Page']} regionId="main-region" />
         );
 
         expect(await screen.findByTestId('dyn-no-data')).toBeInTheDocument();
@@ -149,8 +145,8 @@ describe('Component', () => {
         const { container } = render(
             <Component
                 component={component}
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
-                componentData={Promise.resolve(map)}
+                page={{} as ShopperExperience.schemas['Page']}
+                componentData={map}
                 regionId="main-region"
             />
         );
@@ -176,7 +172,7 @@ describe('Component', () => {
             <Suspense fallback={<div data-testid="outer-fallback" />}>
                 <Component
                     component={component}
-                    page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                    page={{} as ShopperExperience.schemas['Page']}
                     regionId="main-region"
                 />
             </Suspense>
@@ -211,8 +207,8 @@ describe('Component', () => {
         render(
             <Component
                 component={compB}
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
-                componentData={Promise.resolve(map)}
+                page={{} as ShopperExperience.schemas['Page']}
+                componentData={map}
                 regionId="main-region"
             />
         );

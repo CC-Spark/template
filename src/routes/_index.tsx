@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { LoaderFunctionArgs } from 'react-router';
-import type { ShopperSearch, ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import { type LoaderFunctionArgs } from 'react-router';
+import type { ShopperExperience, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { fetchCategories } from '@/lib/api/categories';
 import { currencyContext } from '@/lib/currency';
@@ -199,11 +199,7 @@ export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
                         errorElement={
                             <>
                                 {/* Popular Categories - handles its own Suspense internally */}
-                                <PopularCategories
-                                    categoriesPromise={loaderData.categories}
-                                    page={loaderData.page}
-                                    componentData={loaderData.componentData}
-                                />
+                                <PopularCategories categoriesPromise={loaderData.categories} />
 
                                 {/* Featured Content Cards - Static content */}
                                 <div className="pt-16 grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -15,6 +15,8 @@
  */
 import { forwardRef, type ComponentProps } from 'react';
 import { Link } from 'react-router';
+import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
 import { cn, resolveAssetUrl } from '@/lib/utils';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,10 +36,12 @@ interface ContentCardProps extends ComponentProps<'div'> {
     loading?: 'lazy' | 'eager';
 
     // Page Designer props (need to be extracted to avoid passing to DOM)
-    designMetadata?: unknown;
     regionId?: string;
-    componentData?: unknown;
-    page?: unknown;
+    page?: ShopperExperience.schemas['Page'];
+    component?: ShopperExperience.schemas['Component'];
+    componentData?: Record<string, Promise<unknown>>;
+    designMetadata?: ComponentDesignMetadata;
+    data?: unknown;
 }
 
 /* v8 ignore start - do not test decorators in unit tests, decorator functionality is tested separately*/
@@ -85,10 +89,12 @@ export const ContentCard = forwardRef<HTMLDivElement, ContentCardProps>(
             showBackground = true,
             showBorder = true,
             loading = 'lazy',
-            designMetadata: _designMetadata,
             regionId: _regionId,
-            componentData: _componentData,
             page: _page,
+            component: _component,
+            componentData: _componentData,
+            designMetadata: _designMetadata,
+            data: _data,
             ...props
         },
         ref

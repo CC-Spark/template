@@ -55,11 +55,12 @@ interface RegionProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Region(props: RegionProps) {
     const { page, regionId, className = '', componentData, errorElement, fallbackElement = <div />, ...rest } = props;
     const regionContext = useRegionContext();
+    const promises = Promise.all([page, componentData ?? Promise.resolve(undefined)]);
 
     return (
         <Suspense fallback={fallbackElement}>
-            <Await resolve={page} errorElement={errorElement}>
-                {(resolvedPage) => {
+            <Await resolve={promises} errorElement={errorElement}>
+                {([resolvedPage, resolvedComponentData]) => {
                     // Find the region within the page
                     const region = resolvedPage.regions?.find((r) => r.id === regionId);
                     const metadata = resolvedPage.designMetadata?.regionDefinitions?.find((r) => r.id === regionId);
@@ -90,10 +91,10 @@ export function Region(props: RegionProps) {
                                         component.id && (
                                             <Component
                                                 key={component.id}
+                                                page={resolvedPage}
                                                 component={component}
-                                                componentData={componentData}
+                                                componentData={resolvedComponentData}
                                                 regionId={region.id}
-                                                page={Promise.resolve(component)}
                                             />
                                         )
                                 )}
