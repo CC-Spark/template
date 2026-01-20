@@ -231,6 +231,38 @@ describe('root.tsx', () => {
             expect(favicon).toBeInTheDocument();
             expect(favicon).toHaveAttribute('type', 'image/x-icon');
         });
+
+        it('should render preconnect links from config', async () => {
+            // Mock useMatches to return appConfig in the root route data
+            const reactRouter = await import('react-router');
+            const useMatchesSpy = vi.spyOn(reactRouter, 'useMatches').mockReturnValue([
+                {
+                    id: 'root',
+                    pathname: '/',
+                    params: {},
+                    data: { appConfig: mockConfig },
+                    handle: undefined,
+                },
+            ] as any);
+
+            const Stub = createRoutesStub([
+                {
+                    id: 'root',
+                    path: '/',
+                    Component: LayoutComponent,
+                },
+            ]);
+
+            render(<Stub initialEntries={['/']} />);
+
+            await waitFor(() => {
+                const preconnectLinks = document.querySelectorAll('link[rel="preconnect"]');
+                expect(preconnectLinks.length).toBeGreaterThan(0);
+                expect(preconnectLinks[0]).toHaveAttribute('href', 'https://edge.disstg.commercecloud.salesforce.com');
+            });
+
+            useMatchesSpy.mockRestore();
+        });
     });
 
     describe('ErrorBoundary Component', () => {

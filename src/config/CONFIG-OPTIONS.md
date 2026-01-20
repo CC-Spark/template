@@ -848,6 +848,25 @@ PUBLIC__app__global__recommendations__types='{"you-may-also-like":{"enabled":tru
 
 Performance optimization configuration.
 
+### performance.preconnectOrigins
+
+Type: `string[]` Optional | Default: `['https://edge.disstg.commercecloud.salesforce.com']`
+
+An array of origin URLs to preconnect to. The browser establishes early connections (DNS lookup, TCP handshake, TLS negotiation) to these origins before they're needed, reducing latency when fetching resources.
+
+Example:
+```bash
+PUBLIC__app__performance__preconnectOrigins='["https://edge.commercecloud.salesforce.com"]'
+```
+
+**Important:** The default value uses the staging DIS (Dynamic Image Service) origin. For production deployments, update this to your production DIS origin (e.g., `https://edge.commercecloud.salesforce.com`).
+
+**Note:** Only provide origin URLs (scheme + host + port), not full paths. Any path in the URL will be ignored by the browser.
+
+**Best Practice:** Limit to 4 or fewer preconnect origins. Too many preconnect hints can compete for bandwidth and CPU during page load, potentially hurting performance instead of helping it.
+
+---
+
 ### performance.images.quality
 
 Type: `number` | Default: `80`

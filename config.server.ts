@@ -312,7 +312,12 @@ export default defineConfig({
         // Performance optimization settings
         // See CONFIG-OPTIONS.md#performance for detailed documentation
         performance: {
-            images: { quality: 80, formats: ['webp', 'jpeg'], lazyLoading: true },
+            preconnectOrigins: ['https://edge.disstg.commercecloud.salesforce.com'],
+            images: {
+                quality: 80,
+                formats: ['webp', 'jpeg'],
+                lazyLoading: true,
+            },
             caching: { apiCacheTtl: 300, staticAssetCacheTtl: 31536000 },
             metrics: {
                 serverPerformanceMetricsEnabled: false,

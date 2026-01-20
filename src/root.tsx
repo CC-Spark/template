@@ -252,6 +252,9 @@ export function Layout({ children }: PropsWithChildren) {
         <html lang={i18next.language} dir={i18next.dir(i18next.language)}>
             <head>
                 <meta charSet="utf-8" />
+                {appConfig?.performance?.preconnectOrigins?.map((origin: string) => (
+                    <link key={origin} rel="preconnect" href={origin} />
+                ))}
                 <script
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{

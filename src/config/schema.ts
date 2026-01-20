@@ -182,6 +182,7 @@ export type Config = {
             };
         };
         performance: {
+            preconnectOrigins?: string[];
             images: {
                 quality: number;
                 formats: Array<'webp' | 'avif' | 'jpeg' | 'png'>;
