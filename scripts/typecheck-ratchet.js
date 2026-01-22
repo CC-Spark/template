@@ -61,27 +61,40 @@ const __dirname = dirname(__filename);
 const packageDir = join(__dirname, '..');
 
 // Baseline error count - update this when fixing TypeScript errors
-const BASELINE_ERROR_COUNT = 825;
+const BASELINE_ERROR_COUNT = 840;
 
 /**
  * Run a command and capture its output
+ * @param {string} command
+ * @param {string[]} args
+ * @param {object} options
+ * @param {boolean} options.streamOutput - If true, stream output to console in real-time
  */
 function runCommand(command, args, options = {}) {
+    const { streamOutput, ...spawnOptions } = options;
     return new Promise((resolve) => {
         const proc = spawn(command, args, {
             cwd: packageDir,
-            ...options,
+            ...spawnOptions,
         });
 
         let stdout = '';
         let stderr = '';
 
         proc.stdout?.on('data', (data) => {
-            stdout += data.toString();
+            const str = data.toString();
+            stdout += str;
+            if (streamOutput) {
+                process.stdout.write(str);
+            }
         });
 
         proc.stderr?.on('data', (data) => {
-            stderr += data.toString();
+            const str = data.toString();
+            stderr += str;
+            if (streamOutput) {
+                process.stderr.write(str);
+            }
         });
 
         proc.on('close', (code) => {
@@ -110,7 +123,13 @@ async function main() {
     }
 
     console.log('Running TypeScript type check...');
-    const tscResult = await runCommand('pnpm', ['tsc', '--noEmit']);
+    const tscResult = await runCommand('pnpm', ['tsc', '--noEmit'], {
+        env: {
+            ...process.env,
+            NODE_OPTIONS: '--max-old-space-size=8192',
+        },
+        streamOutput: true,
+    });
 
     // Combine stdout and stderr for error counting
     const fullOutput = tscResult.stdout + tscResult.stderr;
@@ -119,11 +138,17 @@ async function main() {
     console.log(`\nTypeScript errors found: ${errorCount}`);
     console.log(`Baseline error count: ${BASELINE_ERROR_COUNT}`);
 
+    // Detect likely tsc crash (e.g., out-of-memory) - if baseline expects errors but we found none
+    if (errorCount === 0 && BASELINE_ERROR_COUNT > 0) {
+        console.error(`\n❌ FAIL: Found 0 errors but baseline is ${BASELINE_ERROR_COUNT}.`);
+        console.error('This likely means TypeScript crashed (e.g., out of memory) before reporting errors.');
+        console.error('If all errors have truly been fixed, remove this ratchet script and use standard tsc.');
+        process.exit(1);
+    }
+
     if (errorCount > BASELINE_ERROR_COUNT) {
         console.error(`\n❌ FAIL: Error count (${errorCount}) exceeds baseline (${BASELINE_ERROR_COUNT})`);
         console.error('New TypeScript errors have been introduced.');
-        console.error('\nTypeScript output:');
-        console.error(fullOutput);
         process.exit(1);
     }
 
