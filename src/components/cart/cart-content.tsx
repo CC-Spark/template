@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+'use client';
+
 import { useState, type ReactElement } from 'react';
 
 // Commerce SDK
@@ -37,7 +39,7 @@ import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 // utils
-import { isStandardProduct, isBonusProduct } from '@/lib/product-utils';
+import { isStandardProduct, isBonusProduct, isRuleBasedPromotion } from '@/lib/product-utils';
 
 /**
  * Props for the CartContent component
@@ -224,7 +226,8 @@ export default function CartContent({
                 {bonusDiscountItems.length > 0 &&
                     bonusDiscountItems.map((bonusItem, index) => {
                         // Skip if no bonus products available for selection
-                        if (!bonusItem.bonusProducts || bonusItem.bonusProducts.length === 0) {
+                        const isRuleBased = isRuleBasedPromotion(bonusItem);
+                        if (!isRuleBased && (!bonusItem.bonusProducts || bonusItem.bonusProducts.length === 0)) {
                             return null;
                         }
 

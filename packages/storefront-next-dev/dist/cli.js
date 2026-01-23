@@ -2871,7 +2871,7 @@ async function prepareForLocalDev(options) {
 		modified = true;
 	}
 	if (modified) {
-		fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 4) + "\n");
+		fs.writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 4)}\n`);
 		success("package.json updated with local package links");
 		patchViteConfigForLinkedPackages(projectDirectory, Object.keys(resolvedPaths));
 	}

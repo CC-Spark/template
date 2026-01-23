@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+'use client';
+
 import { type ReactElement, useMemo, useEffect, useRef } from 'react';
 import { useFetcher } from 'react-router';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
@@ -23,7 +25,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useToast } from '@/components/toast';
 import { getBonusProductCountsForPromotion } from '@/lib/bonus-product-utils';
-import { requiresVariantSelection, getPrimaryProductImageUrl } from '@/lib/product-utils';
+import { requiresVariantSelection, getPrimaryProductImageUrl, isRuleBasedPromotion } from '@/lib/product-utils';
+import { useRuleBasedBonusProducts } from '@/hooks/use-rule-based-bonus-products';
+import { useConfig } from '@/config/get-config';
 
 interface BonusProductSelectionProps {
     bonusDiscountLineItem: ShopperBasketsV2.schemas['BonusDiscountLineItem'];
@@ -45,9 +49,22 @@ export default function BonusProductSelection({
     const addToCartFetcher = useFetcher();
     const { addToast } = useToast();
     const { t } = useTranslation();
+    const config = useConfig();
 
     // Track processed fetcher data to prevent duplicate toasts
     const processedDataRef = useRef<typeof addToCartFetcher.data>(null);
+
+    // Check if this is a rule-based promotion
+    const isRuleBased = isRuleBasedPromotion(bonusDiscountLineItem);
+
+    // Fetch rule-based products if needed
+    const { products: ruleBasedProducts } = useRuleBasedBonusProducts(
+        isRuleBased && bonusDiscountLineItem.promotionId ? [bonusDiscountLineItem.promotionId] : [],
+        {
+            enabled: isRuleBased,
+            limit: config.pages.cart.ruleBasedProductLimit,
+        }
+    );
 
     // Calculate selection counts
     const { selectedBonusItems, maxBonusItems } = getBonusProductCountsForPromotion(
@@ -64,8 +81,9 @@ export default function BonusProductSelection({
     const shouldExpandByDefault = selectedBonusItems < maxBonusItems;
 
     // Get bonus products with full data
-    const bonusProducts = useMemo(
-        () =>
+    const bonusProducts = useMemo(() => {
+        //list-based products
+        const listBasedProducts =
             bonusDiscountLineItem.bonusProducts
                 ?.map((productLink) => {
                     const product = bonusProductsById[productLink.productId];
@@ -78,9 +96,32 @@ export default function BonusProductSelection({
                         product,
                     };
                 })
-                .filter((item): item is NonNullable<typeof item> => item !== null) || [],
-        [bonusDiscountLineItem.bonusProducts, bonusProductsById]
-    );
+                .filter((item): item is NonNullable<typeof item> => item !== null) || [];
+
+        //rule-based products
+        const ruleBasedProductsList =
+            isRuleBased && ruleBasedProducts
+                ? ruleBasedProducts
+                      .filter((product) => product.productId || product.id)
+                      .map((product) => {
+                          const productId = (product.productId || product.id || '') as string;
+                          return {
+                              productId,
+                              productName: product.productName || 'Product',
+                              imageUrl: product.image?.disBaseLink ?? product.image?.link ?? '',
+                              product: product as unknown as ShopperProducts.schemas['Product'],
+                          };
+                      })
+                : [];
+
+        // Merge list-based and rule-based products
+        const allProducts = [...listBasedProducts, ...ruleBasedProductsList];
+
+        // Deduplicate by productId
+        return allProducts.filter(
+            (product, index, self) => index === self.findIndex((p) => p.productId === product.productId)
+        );
+    }, [isRuleBased, ruleBasedProducts, bonusDiscountLineItem.bonusProducts, bonusProductsById]);
 
     // Handle direct add-to-cart result
     // Only process new responses to prevent duplicate toasts on re-renders

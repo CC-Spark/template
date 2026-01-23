@@ -70,9 +70,33 @@ vi.mock('@/lib/bonus-product-utils', () => ({
 // Mock product-utils
 const mockRequiresVariantSelection = vi.fn();
 const mockGetPrimaryProductImageUrl = vi.fn();
+const mockIsRuleBasedPromotion = vi.fn();
 vi.mock('@/lib/product-utils', () => ({
     requiresVariantSelection: (product: any) => mockRequiresVariantSelection(product),
     getPrimaryProductImageUrl: (product: any) => mockGetPrimaryProductImageUrl(product),
+    isRuleBasedPromotion: (bonusItem: any) => mockIsRuleBasedPromotion(bonusItem),
+}));
+
+// Mock useConfig
+vi.mock('@/config/get-config', () => ({
+    useConfig: vi.fn(() => ({
+        pages: {
+            cart: {
+                ruleBasedProductLimit: 50,
+            },
+        },
+    })),
+}));
+
+// Mock useRuleBasedBonusProducts
+const mockUseRuleBasedBonusProducts = vi.fn(() => ({
+    products: [],
+    isLoading: false,
+    error: undefined,
+    total: 0,
+}));
+vi.mock('@/hooks/use-rule-based-bonus-products', () => ({
+    useRuleBasedBonusProducts: (...args: any[]) => mockUseRuleBasedBonusProducts(...args),
 }));
 
 // Mock carousel components
@@ -168,6 +192,13 @@ describe('BonusProductSelection', () => {
         mockFetcher.data = null;
         mockRequiresVariantSelection.mockReturnValue(false);
         mockGetPrimaryProductImageUrl.mockReturnValue('https://example.com/image.jpg');
+        mockIsRuleBasedPromotion.mockReturnValue(false); // Default to list-based
+        mockUseRuleBasedBonusProducts.mockReturnValue({
+            products: [],
+            isLoading: false,
+            error: undefined,
+            total: 0,
+        });
     });
 
     // ========================================================================
@@ -676,6 +707,339 @@ describe('BonusProductSelection', () => {
 
             await waitFor(() => {
                 expect(screen.getByText('Product')).toBeInTheDocument();
+            });
+        });
+    });
+
+    // ========================================================================
+    // 4. Rule-Based and Combined Products Tests
+    // ========================================================================
+
+    describe('Rule-Based and Combined Products', () => {
+        test('renders rule-based products when promotion is rule-based', async () => {
+            // Override mock to have slots available
+            const { getBonusProductCountsForPromotion } = await import('@/lib/bonus-product-utils');
+            vi.mocked(getBonusProductCountsForPromotion).mockReturnValue({
+                selectedBonusItems: 0,
+                maxBonusItems: 3,
+            });
+
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [
+                    {
+                        productId: 'rule-product-1',
+                        id: 'rule-product-1',
+                        productName: 'Rule Based Product 1',
+                        image: { disBaseLink: 'https://example.com/rule1.jpg' },
+                    },
+                    {
+                        productId: 'rule-product-2',
+                        id: 'rule-product-2',
+                        productName: 'Rule Based Product 2',
+                        image: { link: 'https://example.com/rule2.jpg' },
+                    },
+                ],
+                isLoading: false,
+                error: undefined,
+                total: 2,
+            });
+
+            const props = getDefaultProps();
+            props.bonusDiscountLineItem = createMockBonusDiscountLineItem({
+                bonusProducts: [], // Empty list-based products
+            });
+
+            render(<BonusProductSelection {...props} />);
+
+            // Should be expanded by default since slots are available
+            await waitFor(() => {
+                expect(screen.getByText('Rule Based Product 1')).toBeInTheDocument();
+                expect(screen.getByText('Rule Based Product 2')).toBeInTheDocument();
+
+                const carouselItems = screen.getAllByTestId('carousel-item');
+                expect(carouselItems).toHaveLength(2);
+            });
+        });
+
+        test('combines list-based and rule-based products when both exist', async () => {
+            // Override mock to have slots available
+            const { getBonusProductCountsForPromotion } = await import('@/lib/bonus-product-utils');
+            vi.mocked(getBonusProductCountsForPromotion).mockReturnValue({
+                selectedBonusItems: 0,
+                maxBonusItems: 5,
+            });
+
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [
+                    {
+                        productId: 'rule-product-1',
+                        id: 'rule-product-1',
+                        productName: 'Rule Product 1',
+                        image: { disBaseLink: 'https://example.com/rule1.jpg' },
+                    },
+                    {
+                        productId: 'rule-product-2',
+                        id: 'rule-product-2',
+                        productName: 'Rule Product 2',
+                        image: { link: 'https://example.com/rule2.jpg' },
+                    },
+                ],
+                isLoading: false,
+                error: undefined,
+                total: 2,
+            });
+
+            const props = getDefaultProps();
+            // Keep the list-based products from default props (product-1, product-2)
+
+            render(<BonusProductSelection {...props} />);
+
+            // Should show all 4 products (2 list-based + 2 rule-based)
+            await waitFor(() => {
+                // List-based products
+                expect(screen.getByText('Test Product 1')).toBeInTheDocument();
+                expect(screen.getByText('Test Product 2')).toBeInTheDocument();
+
+                // Rule-based products
+                expect(screen.getByText('Rule Product 1')).toBeInTheDocument();
+                expect(screen.getByText('Rule Product 2')).toBeInTheDocument();
+
+                const carouselItems = screen.getAllByTestId('carousel-item');
+                expect(carouselItems).toHaveLength(4);
+            });
+        });
+
+        test('deduplicates products appearing in both list-based and rule-based', async () => {
+            // Override mock to have slots available
+            const { getBonusProductCountsForPromotion } = await import('@/lib/bonus-product-utils');
+            vi.mocked(getBonusProductCountsForPromotion).mockReturnValue({
+                selectedBonusItems: 0,
+                maxBonusItems: 5,
+            });
+
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+
+            // Rule-based products include product-1 which is also in list-based
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [
+                    {
+                        productId: 'product-1', // DUPLICATE with list-based
+                        id: 'product-1',
+                        productName: 'Rule Version of Product 1',
+                        image: { disBaseLink: 'https://example.com/rule1.jpg' },
+                    },
+                    {
+                        productId: 'rule-product-unique',
+                        id: 'rule-product-unique',
+                        productName: 'Unique Rule Product',
+                        image: { link: 'https://example.com/unique.jpg' },
+                    },
+                ],
+                isLoading: false,
+                error: undefined,
+                total: 2,
+            });
+
+            const props = getDefaultProps();
+            // Default props have product-1 and product-2
+
+            render(<BonusProductSelection {...props} />);
+
+            // Should show only 3 unique products (product-1 deduplicated)
+            await waitFor(() => {
+                const carouselItems = screen.getAllByTestId('carousel-item');
+                expect(carouselItems).toHaveLength(3);
+
+                // product-1 should appear only once (list-based version takes precedence)
+                expect(screen.getByText('Test Product 1')).toBeInTheDocument();
+                expect(screen.queryByText('Rule Version of Product 1')).not.toBeInTheDocument();
+
+                // Other products should be present
+                expect(screen.getByText('Test Product 2')).toBeInTheDocument();
+                expect(screen.getByText('Unique Rule Product')).toBeInTheDocument();
+            });
+        });
+
+        test('handles empty rule-based products gracefully', () => {
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [],
+                isLoading: false,
+                error: undefined,
+                total: 0,
+            });
+
+            const props = getDefaultProps();
+            props.bonusDiscountLineItem = createMockBonusDiscountLineItem({
+                bonusProducts: [], // Also empty list-based
+            });
+
+            render(<BonusProductSelection {...props} />);
+
+            // Expand accordion
+            fireEvent.click(screen.getByRole('button', { name: /buy one get one free/i }));
+
+            // Should render without crashing, but no products
+            const carouselItems = screen.queryAllByTestId('carousel-item');
+            expect(carouselItems).toHaveLength(0);
+        });
+
+        test('uses disBaseLink for rule-based product images when available', async () => {
+            // Override mock to have slots available
+            const { getBonusProductCountsForPromotion } = await import('@/lib/bonus-product-utils');
+            vi.mocked(getBonusProductCountsForPromotion).mockReturnValue({
+                selectedBonusItems: 0,
+                maxBonusItems: 3,
+            });
+
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [
+                    {
+                        productId: 'rule-product-1',
+                        id: 'rule-product-1',
+                        productName: 'Rule Product with disBaseLink',
+                        image: {
+                            disBaseLink: 'https://example.com/disbased.jpg',
+                            link: 'https://example.com/regular.jpg',
+                        },
+                    },
+                ],
+                isLoading: false,
+                error: undefined,
+                total: 1,
+            });
+
+            const props = getDefaultProps();
+            props.bonusDiscountLineItem = createMockBonusDiscountLineItem({
+                bonusProducts: [],
+            });
+
+            render(<BonusProductSelection {...props} />);
+
+            await waitFor(() => {
+                const image = screen.getByRole('presentation');
+                expect(image.src).toContain('disbased.jpg');
+            });
+        });
+
+        test('falls back to link for rule-based product images when disBaseLink is not available', async () => {
+            // Override mock to have slots available
+            const { getBonusProductCountsForPromotion } = await import('@/lib/bonus-product-utils');
+            vi.mocked(getBonusProductCountsForPromotion).mockReturnValue({
+                selectedBonusItems: 0,
+                maxBonusItems: 3,
+            });
+
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [
+                    {
+                        productId: 'rule-product-1',
+                        id: 'rule-product-1',
+                        productName: 'Rule Product with link only',
+                        image: {
+                            link: 'https://example.com/fallback.jpg',
+                        },
+                    },
+                ],
+                isLoading: false,
+                error: undefined,
+                total: 1,
+            });
+
+            const props = getDefaultProps();
+            props.bonusDiscountLineItem = createMockBonusDiscountLineItem({
+                bonusProducts: [],
+            });
+
+            render(<BonusProductSelection {...props} />);
+
+            await waitFor(() => {
+                const image = screen.getByRole('presentation');
+                expect(image.src).toContain('fallback.jpg');
+            });
+        });
+
+        test('handles rule-based products with missing image gracefully', async () => {
+            // Override mock to have slots available
+            const { getBonusProductCountsForPromotion } = await import('@/lib/bonus-product-utils');
+            vi.mocked(getBonusProductCountsForPromotion).mockReturnValue({
+                selectedBonusItems: 0,
+                maxBonusItems: 3,
+            });
+
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [
+                    {
+                        productId: 'rule-product-1',
+                        id: 'rule-product-1',
+                        productName: 'Rule Product without image',
+                        // No image property
+                    },
+                ],
+                isLoading: false,
+                error: undefined,
+                total: 1,
+            });
+
+            const props = getDefaultProps();
+            props.bonusDiscountLineItem = createMockBonusDiscountLineItem({
+                bonusProducts: [],
+            });
+
+            render(<BonusProductSelection {...props} />);
+
+            await waitFor(() => {
+                expect(screen.getByText('Rule Product without image')).toBeInTheDocument();
+                expect(screen.getByText('No image')).toBeInTheDocument();
+            });
+        });
+
+        test('filters out rule-based products with missing productId and id', async () => {
+            // Override mock to have slots available
+            const { getBonusProductCountsForPromotion } = await import('@/lib/bonus-product-utils');
+            vi.mocked(getBonusProductCountsForPromotion).mockReturnValue({
+                selectedBonusItems: 0,
+                maxBonusItems: 3,
+            });
+
+            mockIsRuleBasedPromotion.mockReturnValue(true);
+            mockUseRuleBasedBonusProducts.mockReturnValue({
+                products: [
+                    {
+                        productName: 'Invalid Product - No ID',
+                        image: { link: 'https://example.com/image.jpg' },
+                        // Missing both productId and id
+                    },
+                    {
+                        productId: 'valid-product',
+                        id: 'valid-product',
+                        productName: 'Valid Product',
+                        image: { link: 'https://example.com/valid.jpg' },
+                    },
+                ],
+                isLoading: false,
+                error: undefined,
+                total: 2,
+            });
+
+            const props = getDefaultProps();
+            props.bonusDiscountLineItem = createMockBonusDiscountLineItem({
+                bonusProducts: [],
+            });
+
+            render(<BonusProductSelection {...props} />);
+
+            await waitFor(() => {
+                // Should only show the valid product
+                const carouselItems = screen.getAllByTestId('carousel-item');
+                expect(carouselItems).toHaveLength(1);
+                expect(screen.getByText('Valid Product')).toBeInTheDocument();
+                expect(screen.queryByText('Invalid Product - No ID')).not.toBeInTheDocument();
             });
         });
     });

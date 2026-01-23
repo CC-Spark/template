@@ -39,6 +39,36 @@ vi.mock('@/components/toast', () => ({
     }),
 }));
 
+// Mock useConfig
+vi.mock('@/config/get-config', () => ({
+    useConfig: () => ({
+        pages: {
+            cart: {
+                ruleBasedProductLimit: 50,
+            },
+        },
+    }),
+}));
+
+// Mock useRuleBasedBonusProducts
+vi.mock('@/hooks/use-rule-based-bonus-products', () => ({
+    useRuleBasedBonusProducts: () => ({
+        products: [],
+        isLoading: false,
+        error: undefined,
+        total: 0,
+    }),
+}));
+
+// Mock product-utils
+vi.mock('@/lib/product-utils', async () => {
+    const actual = await vi.importActual('@/lib/product-utils');
+    return {
+        ...actual,
+        isRuleBasedPromotion: () => false, // Default to list-based for storybook
+    };
+});
+
 import { composeStories } from '@storybook/react-vite';
 
 import * as BonusProductSelectionStories from './bonus-product-selection.stories';

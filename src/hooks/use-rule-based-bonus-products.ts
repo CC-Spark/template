@@ -56,12 +56,14 @@ export function useRuleBasedBonusProducts(
 
     // Trigger fetch when enabled and promotionIds change
     // This is the standard pattern - matches useBulkChildProductInventory
+    const promotionIdsKey = promotionIds ? JSON.stringify(promotionIds) : '';
+
     useEffect(() => {
         if (enabled && promotionIds && promotionIds.length > 0) {
             void fetcher.load();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [enabled, promotionIds]);
+    }, [enabled, promotionIdsKey]);
 
     return {
         products:

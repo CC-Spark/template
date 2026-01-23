@@ -273,25 +273,6 @@ The default BonusProductSelection shows all available bonus products:
             },
         },
     },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test accordion is present - find by text content to avoid ambiguity
-        const accordion = await canvas.findByRole('button', { name: /Buy one Classic Fit Shirt/i });
-        await expect(accordion).toBeInTheDocument();
-
-        // Check if accordion is collapsed, if so expand it
-        const isExpanded = accordion.getAttribute('aria-expanded') === 'true';
-        if (!isExpanded) {
-            await userEvent.click(accordion);
-        }
-
-        // Wait for accordion content to be visible
-        const selectButtons = await canvas.findAllByRole('button', { name: /select/i });
-        await expect(selectButtons.length).toBeGreaterThan(0);
-    },
 };
 
 export const Expanded: Story = {
@@ -334,6 +315,14 @@ BonusProductSelection with accordion expanded:
         // Test product cards are present
         const productCards = canvasElement.querySelectorAll('article[aria-label*="Bonus bundle product card"]');
         await expect(productCards.length).toBeGreaterThan(0);
+
+        // Click on a select button to trigger action
+        await userEvent.click(selectButtons[0]);
+
+        // Test toggle accordion
+        await userEvent.click(accordion);
+        // Toggle back
+        await userEvent.click(accordion);
     },
 };
 
@@ -405,5 +394,155 @@ BonusProductSelection demonstrating carousel navigation:
         if (nextButton) {
             await expect(nextButton).toBeInTheDocument();
         }
+
+        // Test clicking through products
+        const selectButtons = await canvas.findAllByRole('button', { name: /select/i });
+        if (selectButtons.length > 0) {
+            await userEvent.click(selectButtons[0]);
+        }
+        if (selectButtons.length > 1) {
+            await userEvent.click(selectButtons[1]);
+        }
+    },
+};
+
+export const Mobile: Story = {
+    ...Default,
+    globals: {
+        viewport: 'mobile2',
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        // Test accordion is present - find by text content to avoid ambiguity
+        const accordion = await canvas.findByRole('button', { name: /Buy one Classic Fit Shirt/i });
+        await expect(accordion).toBeInTheDocument();
+
+        // Check if accordion is collapsed, if so expand it
+        const isExpanded = accordion.getAttribute('aria-expanded') === 'true';
+        if (!isExpanded) {
+            await userEvent.click(accordion);
+        }
+
+        // Wait for accordion content to be visible
+        const selectButtons = await canvas.findAllByRole('button', { name: /select/i });
+        await expect(selectButtons.length).toBeGreaterThan(0);
+    },
+};
+
+export const Tablet: Story = {
+    ...Default,
+    globals: {
+        viewport: 'tablet',
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        // Test accordion is present - find by text content to avoid ambiguity
+        const accordion = await canvas.findByRole('button', { name: /Buy one Classic Fit Shirt/i });
+        await expect(accordion).toBeInTheDocument();
+
+        // Check if accordion is collapsed, if so expand it
+        const isExpanded = accordion.getAttribute('aria-expanded') === 'true';
+        if (!isExpanded) {
+            await userEvent.click(accordion);
+        }
+
+        // Wait for accordion content to be visible
+        const selectButtons = await canvas.findAllByRole('button', { name: /select/i });
+        await expect(selectButtons.length).toBeGreaterThan(0);
+    },
+};
+
+export const Desktop: Story = {
+    ...Default,
+    globals: {
+        viewport: 'desktop',
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        // Test accordion is present - find by text content to avoid ambiguity
+        const accordion = await canvas.findByRole('button', { name: /Buy one Classic Fit Shirt/i });
+        await expect(accordion).toBeInTheDocument();
+
+        // Check if accordion is collapsed, if so expand it
+        const isExpanded = accordion.getAttribute('aria-expanded') === 'true';
+        if (!isExpanded) {
+            await userEvent.click(accordion);
+        }
+
+        // Wait for accordion content to be visible
+        const selectButtons = await canvas.findAllByRole('button', { name: /select/i });
+        await expect(selectButtons.length).toBeGreaterThan(0);
+    },
+};
+
+export const CombinedProducts: Story = {
+    args: (() => {
+        const bonusDiscountLineItem = createMockBonusDiscountLineItem({
+            bonusProducts: [
+                { productId: 'product-1', productName: 'List-Based Product 1' },
+                { productId: 'product-4', productName: 'List-Based Product 4' },
+            ],
+        });
+        return {
+            bonusDiscountLineItem,
+            bonusProductsById: {
+                'product-1': createMockProduct({ id: 'product-1', name: 'List-Based Product 1' }),
+                'product-2': createMockProduct({ id: 'product-2', name: 'Duplicate Product' }),
+                'product-4': createMockProduct({ id: 'product-4', name: 'List-Based Product 4' }),
+            },
+            basket: createMockBasket({
+                bonusDiscountLineItems: [bonusDiscountLineItem],
+            }),
+            promotionName: 'Combined List and Rule-Based Products',
+            onProductSelect: action('product-selected'),
+        };
+    })(),
+    parameters: {
+        docs: {
+            description: {
+                story: `
+BonusProductSelection demonstrating combined list-based and rule-based products:
+
+### Combined Features:
+- **List-based products**: Products from the bonusProducts array
+- **Rule-based products**: Would be fetched based on promotion rules (simulated here)
+- **Deduplication**: Duplicate products are automatically filtered out
+- **Single carousel**: Both types shown in one unified list
+
+### Use Cases:
+- Promotions with both static and dynamic product selection
+- Mixed offer types
+- Complex product rules with fallbacks
+                `,
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        // Test accordion is present
+        const accordion = await canvas.findByRole('button', { name: /Combined List and Rule-Based/i });
+        await expect(accordion).toBeInTheDocument();
+
+        // Check if accordion is collapsed, if so expand it
+        const isExpanded = accordion.getAttribute('aria-expanded') === 'true';
+        if (!isExpanded) {
+            await userEvent.click(accordion);
+        }
+
+        // Verify products are shown (list-based in this case, rule-based would be added in real usage)
+        const selectButtons = await canvas.findAllByRole('button', { name: /select/i });
+        await expect(selectButtons.length).toBeGreaterThan(0);
     },
 };

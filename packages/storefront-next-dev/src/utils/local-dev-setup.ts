@@ -152,7 +152,7 @@ export async function prepareForLocalDev(options: PrepareLocalOptions): Promise<
     }
 
     if (modified) {
-        fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 4) + '\n');
+        fs.writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 4)}\n`);
         success('package.json updated with local package links');
 
         // Patch vite.config.ts to fix "HydratedRouter" errors with file-linked packages
