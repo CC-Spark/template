@@ -65,21 +65,6 @@ vi.mock('@/lib/api/categories', () => ({
     fetchCategory: vi.fn(),
 }));
 
-vi.mock('@/components/header', async () => ({
-    ...(await vi.importActual('@/components/header')),
-    default: ({ children }: PropsWithChildren) => <header data-testid="header">{children}</header>,
-}));
-
-vi.mock('@/components/footer', async () => ({
-    ...(await vi.importActual('@/components/footer')),
-    default: () => <footer data-testid="footer">Footer</footer>,
-}));
-
-vi.mock('@/components/navigation-menu-mega', async () => ({
-    ...(await vi.importActual('@/components/navigation-menu-mega')),
-    default: () => <nav data-testid="navigation-menu-mega">Navigation Menu</nav>,
-}));
-
 vi.mock('@/components/toast', async () => ({
     ...(await vi.importActual('@/components/toast')),
     ToasterTheme: () => <div data-testid="toaster">Toaster</div>,
@@ -124,6 +109,16 @@ vi.mock('@/providers/basket', async () => ({
     ...(await vi.importActual('@/providers/basket')),
     default: ({ children }: PropsWithChildren) => <div data-testid="basket-provider">{children}</div>,
 }));
+
+vi.mock('@salesforce/storefront-next-runtime/design/react/core', async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...(actual as object),
+        PageDesignerProvider: ({ children }: PropsWithChildren) => (
+            <div data-testid="page-designer-provider">{children}</div>
+        ),
+    };
+});
 
 vi.mock('@/middlewares/auth.server', async () => ({
     ...(await vi.importActual('@/middlewares/auth.server')),
@@ -442,12 +437,10 @@ describe('root.tsx', () => {
             const { getByTestId } = render(<Stub initialEntries={['/']} />);
 
             await waitFor(() => {
-                expect(getByTestId('header')).toBeInTheDocument();
-                expect(getByTestId('footer')).toBeInTheDocument();
-                expect(getByTestId('navigation-menu-mega')).toBeInTheDocument();
-                expect(getByTestId('config-provider')).toBeInTheDocument();
-                expect(getByTestId('auth-provider')).toBeInTheDocument();
-                expect(getByTestId('basket-provider')).toBeInTheDocument();
+                expect(getByTestId('page-designer-provider')).toBeInTheDocument(); // <-- part of the conditional App content
+                expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
+                expect(getByTestId('auth-provider')).toBeInTheDocument(); // <-- always there
+                expect(getByTestId('basket-provider')).toBeInTheDocument(); // <-- always there
             });
         });
 
@@ -602,7 +595,8 @@ describe('root.tsx', () => {
                 const { getByTestId, queryByTestId } = render(<Stub initialEntries={['/']} />);
 
                 await waitFor(() => {
-                    expect(getByTestId('header')).toBeInTheDocument();
+                    expect(getByTestId('page-designer-provider')).toBeInTheDocument(); // <-- part of the conditional App content
+                    expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
                     expect(queryByTestId('hybrid-proxy-interceptor')).not.toBeInTheDocument();
                 });
             });
@@ -654,8 +648,8 @@ describe('root.tsx', () => {
 
                 await waitFor(() => {
                     expect(getByTestId('hybrid-proxy-interceptor')).toBeInTheDocument();
-                    expect(queryByTestId('header')).not.toBeInTheDocument();
-                    expect(queryByTestId('footer')).not.toBeInTheDocument();
+                    expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
+                    expect(queryByTestId('page-designer-provider')).not.toBeInTheDocument(); // <-- part of the conditional App content
                 });
             });
         });

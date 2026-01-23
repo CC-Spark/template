@@ -13,6 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Outlet } from 'react-router';
+
+/**
+ * Empty Layout Route
+ *
+ * This pathless layout route provides a minimal wrapper without header/footer.
+ * Use this for routes that need a clean slate (e.g., login, callbacks).
+ *
+ * Routes that need this layout should be prefixed with `_empty.` in their filename.
+ * For routes with the standard header/footer, use the `_app.` prefix instead.
+ */
 export default function EmptyLayout() {
-    return null;
+    return (
+        <main>
+            <Outlet />
+        </main>
+    );
 }

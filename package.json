@@ -163,8 +163,8 @@
                 "limit": "55 kB"
             },
             {
-                "name": "assets/-root.*.js",
-                "limit": "113 kB"
+                "name": "assets/\\(routes\\)-_app.*.js",
+                "limit": "58 kB"
             },
             {
                 "name": "assets/\\(package\\)-\\(@radix-ui-react-visually-hidden\\)-\\(dist\\)-index.*.js",

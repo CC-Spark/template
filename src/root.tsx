@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type PropsWithChildren, useMemo, useRef } from 'react';
-
-// Assets
-import favicon from '/favicon.ico';
+import { type PropsWithChildren, useMemo } from 'react';
 
 // React Router
 import {
@@ -72,12 +69,8 @@ import { correlationContext } from '@/lib/correlation';
 import RecommendersProvider from '@/providers/recommenders';
 
 // Components
-import Header from '@/components/header';
-import CategoryNavigationMenuMega from '@/components/navigation-menu-mega';
-import Footer from '@/components/footer';
 import { ToasterTheme } from '@/components/toast';
 import { TrackingConsentBanner } from '@/components/tracking-consent-banner';
-import { PageDesignerStyles } from './page-designer-styles';
 
 // Hooks
 import { useExecutePendingAction } from '@/hooks/use-execute-pending-action';
@@ -94,7 +87,11 @@ import { currencyContext } from '@/lib/currency';
 // Adapters
 import { EINSTEIN_ADAPTER_NAME } from '@/adapters/einstein';
 
+// Assets
+import favicon from '/favicon.ico';
+
 // Styles
+import { PageDesignerStyles } from '@/page-designer-styles';
 import './app.css';
 
 // Extensions
@@ -234,7 +231,7 @@ clientLoader.hydrate = true as const;
 // Properties present in both loaders remain required
 type ServerLoaderData = ReturnType<typeof loader>;
 type ClientLoaderData = Awaited<ReturnType<typeof clientLoader>>;
-type LoaderData = Partial<ServerLoaderData> &
+export type RootLoaderData = Partial<ServerLoaderData> &
     Partial<ClientLoaderData> &
     // Properties present in both should remain required
     Pick<ServerLoaderData & ClientLoaderData, keyof ServerLoaderData & keyof ClientLoaderData>;
@@ -245,7 +242,7 @@ export function Layout({ children }: PropsWithChildren) {
     const appConfig = (rootMatch?.data as { appConfig?: AppConfig })?.appConfig;
     const appConfigScript = appConfig ? `window.__APP_CONFIG__ = ${JSON.stringify(appConfig)};` : '';
 
-    const data = useRouteLoaderData<LoaderData>('root');
+    const data = useRouteLoaderData<RootLoaderData>('root');
     const i18next = (typeof window === 'undefined' ? data?.getI18next?.() : i18nextOnClient) as i18n;
 
     return (
@@ -307,22 +304,13 @@ export function ErrorBoundary({ error }: { error: unknown }) {
 }
 
 export default function App({
-    loaderData: { root, subs, auth, basket, getI18next, pageDesignerMode, currency, correlationId },
+    loaderData: { auth, basket, getI18next, currency, correlationId, pageDesignerMode },
 }: {
-    loaderData: LoaderData;
+    loaderData: RootLoaderData;
 }) {
     // Currency is always provided by loader (which reads from middleware)
     if (!currency) {
         throw new Error('Currency is required but not provided by loader');
-    }
-
-    // We're only loading the root and sub categories from the server on the very first navigation. These refs ensure
-    // that the initial data/promises don't get overwritten/removed on subsequent client-side navigations.
-    const refRoot = useRef<Promise<ShopperProducts.schemas['Category']> | undefined>(undefined);
-    const refSubs = useRef<Promise<ShopperProducts.schemas['Category'][]> | undefined>(undefined);
-    if (root && subs) {
-        refRoot.current = root;
-        refSubs.current = subs;
     }
 
     // Get app configuration from server loader data (initial load) or window.__APP_CONFIG__ (client nav)
@@ -356,13 +344,13 @@ export default function App({
     const providers = useMemo(
         () =>
             [
-                [CorrelationProvider, { value: correlationId }],
                 [I18nextProvider, { i18n: i18next }],
                 [ConfigProvider, { config: appConfig }],
                 [CurrencyProvider, { value: currency }],
                 [AuthProvider, { value: sessionData }],
                 [BasketProvider, { value: basket }],
                 [RecommendersProvider, { adapterName: EINSTEIN_ADAPTER_NAME }],
+                [CorrelationProvider, { value: correlationId }],
             ] as const,
         [correlationId, i18next, appConfig, currency, sessionData, basket]
     );
@@ -370,16 +358,10 @@ export default function App({
     let content = (
         <>
             <AuthActionExecutor />
-            <Header>
-                <CategoryNavigationMenuMega resolve={refRoot.current} defer={refSubs.current} />
-            </Header>
             <PageDesignerProvider clientId="odyssey" targetOrigin="*" usid={sessionData?.usid} mode={pageDesignerMode}>
                 <PageDesignerStyles />
-                <main className="flex-grow pt-8">
-                    <Outlet />
-                </main>
+                <Outlet />
             </PageDesignerProvider>
-            <Footer />
             <TrackingConsentBanner />
             {/* Track page views asynchronously */}
             {typeof window !== 'undefined' && <PageViewTracker />}

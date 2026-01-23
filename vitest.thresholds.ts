@@ -19,8 +19,8 @@
  * that must not be undershot going forward. They should be raised regularly to reflect the current status.
  */
 export default {
-    lines: 70,
-    statements: 70,
-    functions: 75,
-    branches: 85,
+    lines: 73,
+    statements: 73,
+    functions: 86,
+    branches: 87,
 };

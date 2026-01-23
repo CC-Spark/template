@@ -34,27 +34,61 @@ describe('routes.ts', () => {
 
     it('should export the routes object', async () => {
         const { default: routes } = await import('./routes');
-        return expect(routes).resolves.toEqual(
+        const resolvedRoutes = await routes;
+
+        // Find the `_app` layout route (pathless layout)
+        const defaultLayout = resolvedRoutes.find((r: any) => r.id === 'routes/_app');
+        expect(defaultLayout).toBeDefined();
+        expect(defaultLayout?.file).toBe('routes/_app.tsx');
+        expect(defaultLayout?.children).toBeDefined();
+
+        // Check some child routes that should be nested under the `_app` layout
+        expect(defaultLayout?.children).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
-                    id: 'routes/_index',
+                    id: 'routes/_app._index',
+                    index: true,
                     path: undefined,
                 }),
                 expect.objectContaining({
-                    id: 'routes/category.$categoryId',
+                    id: 'routes/_app.category.$categoryId',
                     path: 'category/:categoryId',
                 }),
                 expect.objectContaining({
-                    id: 'routes/product.$productId',
+                    id: 'routes/_app.product.$productId',
                     path: 'product/:productId',
                 }),
                 expect.objectContaining({
-                    id: 'routes/cart',
+                    id: 'routes/_app.cart',
                     path: 'cart',
                 }),
                 expect.objectContaining({
-                    id: 'routes/checkout',
+                    id: 'routes/_app.checkout',
                     path: 'checkout',
+                }),
+            ])
+        );
+
+        // Find the _empty layout route (pathless layout without header/footer)
+        const emptyLayout = resolvedRoutes.find((r: any) => r.id === 'routes/_empty');
+        expect(emptyLayout).toBeDefined();
+        expect(emptyLayout?.file).toBe('routes/_empty.tsx');
+        expect(emptyLayout?.children).toBeDefined();
+
+        // Check some child routes that should be nested under the `_empty` layout
+        expect(emptyLayout?.children).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    id: 'routes/_empty.signup',
+                    path: 'signup',
+                }),
+                expect.objectContaining({
+                    id: 'routes/_empty.login',
+                    path: 'login',
+                }),
+                expect.objectContaining({
+                    id: 'routes/_empty.logout',
+                    path: 'logout',
                 }),
             ])
         );
