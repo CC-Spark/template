@@ -1074,6 +1074,39 @@ function createLoggingMiddleware() {
 }
 
 //#endregion
+//#region src/server/middleware/host-header.ts
+/**
+* Normalizes the X-Forwarded-Host header to support React Router's CSRF validation features.
+*
+* NOTE: This middleware performs header manipulation as a temporary, internal
+* solution for MRT/Lambda environments. It may be updated or removed if React Router
+* introduces a first-class configuration for validating against forwarded headers.
+*
+* React Router v7.12+ uses the X-Forwarded-Host header (preferring it over Host)
+* to validate request origins for security. In Managed Runtime (MRT) with a vanity
+* domain, the eCDN automatically sets the X-Forwarded-Host to the vanity domain.
+* React Router handles cases where this header contains multiple comma-separated
+* values by prioritizing the first entry.
+*
+* This middleware ensures that X-Forwarded-Host is always present by falling back
+* to a configured public domain if the header is missing (e.g., local development).
+* By only modifying X-Forwarded-Host, we provide a consistent environment for
+* React Router's security checks without modifying the internal 'Host' header,
+* which is required for environment-specific routing logic (e.g., Hybrid Proxy).
+*
+* Priority order:
+* 1. X-Forwarded-Host: Automatically set by eCDN for vanity domains.
+* 2. EXTERNAL_DOMAIN_NAME: Fallback environment variable for the public domain
+*    used when no forwarded headers are present (e.g., local development).
+*/
+function createHostHeaderMiddleware() {
+	return (req, _res, next) => {
+		if (!req.get("x-forwarded-host") && process.env.EXTERNAL_DOMAIN_NAME) req.headers["x-forwarded-host"] = process.env.EXTERNAL_DOMAIN_NAME;
+		next();
+	};
+}
+
+//#endregion
 //#region src/server/utils.ts
 /**
 * Patch React Router build to rewrite asset URLs with the correct bundle path
@@ -1161,6 +1194,7 @@ async function createServer$1(options) {
 	}
 	if (mode === "development" && vite) app.use(vite.middlewares);
 	if (enableProxy) app.use(config.commerce.api.proxy, createCommerceProxyMiddleware(config));
+	app.use(createHostHeaderMiddleware());
 	app.all("*", await createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatching));
 	return app;
 }

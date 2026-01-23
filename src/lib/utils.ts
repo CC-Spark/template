@@ -163,7 +163,8 @@ export function getErrorMessage(error: unknown): string {
  *
  * This function is isomorphic, it can be used on the client and server.
  *
- * On the server, it will return the origin derived from the EXTERNAL_DOMAIN_NAME (from process.env)
+ * On the server, it will return the origin derived from the EXTERNAL_DOMAIN_NAME (from process.env).
+ *
  * On the client, it will return the window.location.origin
  */
 export const getAppOrigin = () => {

@@ -59,6 +59,10 @@ vi.mock('./middleware/logging', () => ({
     createLoggingMiddleware: vi.fn(),
 }));
 
+vi.mock('./middleware/host-header', () => ({
+    createHostHeaderMiddleware: vi.fn(),
+}));
+
 vi.mock('./utils', () => ({
     patchReactRouterBuild: vi.fn(),
 }));
@@ -86,6 +90,7 @@ const { createCommerceProxyMiddleware } = await import('./middleware/proxy');
 const { createStaticMiddleware } = await import('./middleware/static');
 const { createCompressionMiddleware } = await import('./middleware/compression');
 const { createLoggingMiddleware } = await import('./middleware/logging');
+const { createHostHeaderMiddleware } = await import('./middleware/host-header');
 const { patchReactRouterBuild } = await import('./utils');
 const { isRunnableDevEnvironment } = await import('vite');
 const { existsSync } = await import('node:fs');
@@ -133,6 +138,7 @@ describe('server/index', () => {
         vi.mocked(createCompressionMiddleware).mockReturnValue(vi.fn() as any);
         vi.mocked(createLoggingMiddleware).mockReturnValue(vi.fn() as any);
         vi.mocked(patchReactRouterBuild).mockReturnValue(mockBuild);
+        vi.mocked(createHostHeaderMiddleware).mockReturnValue(vi.fn() as any);
         vi.mocked(createRequestHandler).mockReturnValue(vi.fn() as any);
         vi.mocked(existsSync).mockReturnValue(false);
         vi.mocked(importTypescript).mockResolvedValue({});
@@ -227,6 +233,27 @@ describe('server/index', () => {
 
                 expect(vi.mocked(loadConfigFromEnv)).not.toHaveBeenCalled();
                 expect(vi.mocked(createCommerceProxyMiddleware)).toHaveBeenCalledWith(customConfig);
+            });
+
+            it('should apply host header middleware', async () => {
+                const mockVite = {
+                    middlewares: vi.fn(),
+                    environments: {},
+                } as unknown as ViteDevServer;
+
+                const mockHostMiddleware = vi.fn() as any;
+                vi.mocked(createHostHeaderMiddleware).mockReturnValue(mockHostMiddleware);
+
+                const options: ServerOptions = {
+                    mode: 'development',
+                    projectDirectory: '/test/project',
+                    vite: mockVite,
+                };
+
+                await createServer(options);
+
+                expect(vi.mocked(createHostHeaderMiddleware)).toHaveBeenCalled();
+                expect(mockExpressApp.use).toHaveBeenCalledWith(mockHostMiddleware);
             });
 
             it('should apply logging middleware when enableLogging is true', async () => {

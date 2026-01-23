@@ -25,6 +25,7 @@ import { createCommerceProxyMiddleware } from './middleware/proxy';
 import { createStaticMiddleware } from './middleware/static';
 import { createCompressionMiddleware } from './middleware/compression';
 import { createLoggingMiddleware } from './middleware/logging';
+import { createHostHeaderMiddleware } from './middleware/host-header';
 import { patchReactRouterBuild } from './utils';
 import { ServerModeFeatureMap, type ServerMode, type ServerModeFeatures } from './modes';
 import { getBundlePath } from '../utils/paths';
@@ -133,6 +134,9 @@ export async function createServer(options: ServerOptions): Promise<Express> {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         app.use(config.commerce.api.proxy, createCommerceProxyMiddleware(config));
     }
+
+    // Normalize the Host header for React Router's CSRF validation features
+    app.use(createHostHeaderMiddleware());
 
     // SSR request handler
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
