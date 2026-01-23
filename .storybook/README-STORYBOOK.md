@@ -57,6 +57,9 @@ This Storybook setup includes the following addons:
 - **@storybook/addon-a11y** - Accessibility testing and validation
 - **@storybook/addon-vitest** - Integration with Vitest for component testing
 - **@chromatic-com/storybook** - Visual testing and review (optional)
+- **Viewport Toolbar** - Built-in toolbar for testing different screen sizes (Mobile, Tablet, Desktop)
+
+> **Note**: We use Storybook's built-in viewport toolbar instead of creating separate viewport stories. Use the viewport selector in the Storybook toolbar to test components at different screen sizes.
 
 ## Project Structure
 
@@ -179,6 +182,7 @@ export const Basic: Story = {
 4. **Controls**: Use `argTypes` to make components interactive
 5. **Variants**: Create stories for different states (loading, error, success)
 6. **Accessibility**: Test with the a11y addon
+7. **Viewport Testing**: Use Storybook's built-in viewport toolbar instead of creating separate Mobile/Tablet/Desktop stories
 
 ### Mock Components for Storybook
 

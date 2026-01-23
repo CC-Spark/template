@@ -135,75 +135,12 @@ export const GuestUser: Story = {
 /**
  * Mobile viewport
  */
-export const Mobile: Story = {
-    args: {
-        customer: mockCustomer,
-    },
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify welcome message is displayed
-        await expect(canvas.getByText(/Welcome back, John!/i)).toBeInTheDocument();
-
-        // Verify Quick Links section is present
-        await expect(canvas.getByText(/Quick Links/i)).toBeInTheDocument();
-    },
-};
-
 /**
  * Tablet viewport
  */
-export const Tablet: Story = {
-    args: {
-        customer: mockCustomer,
-    },
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify welcome message is displayed
-        await expect(canvas.getByText(/Welcome back, John!/i)).toBeInTheDocument();
-
-        // Verify Quick Links section is present
-        await expect(canvas.getByText(/Quick Links/i)).toBeInTheDocument();
-    },
-};
-
 /**
  * Desktop viewport
  */
-export const Desktop: Story = {
-    args: {
-        customer: mockCustomer,
-    },
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify welcome message is displayed
-        await expect(canvas.getByText(/Welcome back, John!/i)).toBeInTheDocument();
-
-        // Verify Quick Links section is present
-        await expect(canvas.getByText(/Quick Links/i)).toBeInTheDocument();
-
-        // Verify all quick link items are present by their headings
-        await expect(canvas.getByRole('heading', { name: /Account Details/i })).toBeInTheDocument();
-        await expect(canvas.getByRole('heading', { name: /Order History/i })).toBeInTheDocument();
-        await expect(canvas.getByRole('heading', { name: /Wishlist/i })).toBeInTheDocument();
-        await expect(canvas.getByRole('heading', { name: /Addresses/i })).toBeInTheDocument();
-    },
-};
-
 // Welcome Section Stories
 export const WelcomeSectionDefault: StoryObj<typeof WelcomeSection> = {
     render: (args) => <WelcomeSection {...args} />,

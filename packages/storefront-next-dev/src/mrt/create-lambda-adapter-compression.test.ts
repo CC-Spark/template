@@ -287,6 +287,8 @@ describe('Compression Streaming', () => {
             const testData = 'This is a test string for brotli compression. '.repeat(100);
             response.end(testData);
 
+            // Wait for stream to finish
+            await stream.waitForEnd();
             await new Promise((resolve) => setTimeout(resolve, 50));
 
             const compressedData = stream.getData();

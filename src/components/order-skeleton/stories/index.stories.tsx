@@ -60,42 +60,7 @@ export default meta;
 type Story = StoryObj<typeof OrderSkeleton>;
 
 export const Default: Story = {
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const container = canvasElement.firstChild;
-        await expect(container).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const container = canvasElement.firstChild;
-        await expect(container).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const container = canvasElement.firstChild;
-        await expect(container).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
+    args: {},
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const container = canvasElement.firstChild;

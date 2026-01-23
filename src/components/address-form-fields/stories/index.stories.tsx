@@ -462,66 +462,9 @@ export const WithCustomClassName: Story = {
 /**
  * Mobile viewport
  */
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify form renders on mobile
-        const form = canvasElement.querySelector('[data-testid="address-form-fields-form"]');
-        await expect(form).toBeInTheDocument();
-
-        // Verify all labels are visible
-        await expect(canvas.getByText(/first name/i)).toBeInTheDocument();
-        await expect(canvas.getByText(/last name/i)).toBeInTheDocument();
-        await expect(canvas.getByText(/^address$/i)).toBeInTheDocument();
-    },
-};
-
 /**
  * Tablet viewport
  */
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify form renders on tablet
-        const form = canvasElement.querySelector('[data-testid="address-form-fields-form"]');
-        await expect(form).toBeInTheDocument();
-
-        // Verify all labels are visible
-        await expect(canvas.getByText(/first name/i)).toBeInTheDocument();
-        await expect(canvas.getByText(/last name/i)).toBeInTheDocument();
-    },
-};
-
 /**
  * Desktop viewport
  */
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify form renders on desktop
-        const form = canvasElement.querySelector('[data-testid="address-form-fields-form"]');
-        await expect(form).toBeInTheDocument();
-
-        // Verify all labels are visible
-        await expect(canvas.getByText(/first name/i)).toBeInTheDocument();
-        await expect(canvas.getByText(/last name/i)).toBeInTheDocument();
-    },
-};

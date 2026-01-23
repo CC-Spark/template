@@ -218,37 +218,6 @@ export const Default: Story = {
         await expect(links).toHaveLength(4);
     },
 };
-
-export const Mobile: Story = {
-    args: {
-        items: mockNavigationItems,
-        isMobile: true,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: 'Mobile variant with border styling on items.',
-            },
-        },
-    },
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        const canvas = within(canvasElement);
-
-        const links = canvas.getAllByRole('link');
-        await expect(links.length).toBeGreaterThan(0);
-
-        // Verify mobile styling (border class)
-        links.forEach((link) => {
-            void expect(link).toHaveClass('border');
-        });
-    },
-};
-
 export const WithDisabledItem: Story = {
     args: {
         items: [

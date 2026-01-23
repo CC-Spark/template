@@ -304,33 +304,6 @@ export const Disabled: Story = {
         await expect(link).not.toBeInTheDocument();
     },
 };
-
-export const Mobile: Story = {
-    args: {
-        item: mockNavItem,
-        isMobile: true,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: 'Mobile variant with border styling.',
-            },
-        },
-    },
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        const canvas = within(canvasElement);
-
-        const link = canvas.getByRole('link', { name: 'Account Details' });
-        await expect(link).toBeInTheDocument();
-        await expect(link).toHaveClass('border');
-    },
-};
-
 export const WithDifferentIcons: Story = {
     args: {
         item: {

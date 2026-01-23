@@ -409,39 +409,3 @@ export const ComplexNestedData: Story = {
         </div>
     ),
 };
-
-export const Mobile: Story = {
-    ...ProductSchema,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const script = canvasElement.querySelector('script[type="application/ld+json"]');
-        await expect(script).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...ProductSchema,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const script = canvasElement.querySelector('script[type="application/ld+json"]');
-        await expect(script).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...ProductSchema,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const script = canvasElement.querySelector('script[type="application/ld+json"]');
-        await expect(script).toBeInTheDocument();
-    },
-};
