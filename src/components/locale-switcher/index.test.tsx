@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 import i18next from 'i18next';
 import { ConfigProvider } from '@/config';
+import LocaleSwitcher from './index';
 
 const { t } = getTranslation();
 
@@ -45,18 +48,6 @@ const mockFetcher = {
     Form: vi.fn(),
     load: vi.fn(),
 };
-
-// Mock useFetcher at the module level
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetcher: () => mockFetcher,
-    };
-});
-
-// Import the component after the mock is set up
-const { default: LocaleSwitcher } = await import('./index');
 
 // Helper function to render component with router context
 const renderWithRouter = ({ initialLanguage = 'en-US' }: { initialLanguage?: string } = {}) => {
@@ -85,6 +76,12 @@ describe('LocaleSwitcher', () => {
         vi.clearAllMocks();
         // Reset to English before each test
         void i18next.changeLanguage('en-US');
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockReturnValue(mockFetcher as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     test('renders a language selector with proper accessibility label', () => {

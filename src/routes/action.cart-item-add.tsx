@@ -20,12 +20,12 @@ import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getTranslation } from '@/lib/i18next';
 // @sfdc-extension-line SFDC_EXT_BOPIS
-import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
+import { findOrCreatePickupShipment } from '@/extensions/bopis/lib/api/shipment';
 
 async function addToCart(
     context: ActionFunctionArgs['context'],
     productItem: Pick<ShopperBasketsV2.schemas['ProductItem'], 'productId' | 'quantity' | 'inventoryId'> & {
-        storeId?: string | null;
+        storeId?: string;
     }
 ): Promise<{
     success: boolean;
@@ -45,35 +45,30 @@ async function addToCart(
     }
 
     try {
-        // Add item to basket
         const clients = createApiClients(context);
-        const { data: updatedBasket } = await clients.shopperBasketsV2.addItemToBasket({
-            params: {
-                path: { basketId },
-            },
-            body: [
-                {
-                    productId: productItem.productId,
-                    quantity: productItem.quantity,
-                    inventoryId: productItem.inventoryId,
-                },
-            ],
-        });
-
-        let finalBasket = updatedBasket;
+        let shipmentId = 'me';
 
         // @sfdc-extension-block-start SFDC_EXT_BOPIS
-        // Update shipment with store information based on selected delivery option
-        finalBasket = await syncShipmentWithDeliveryOptionChange(context, finalBasket, productItem);
+        if (productItem.storeId && productItem.inventoryId) {
+            const pickupShipment = await findOrCreatePickupShipment(basket, context, productItem.storeId);
+            shipmentId = pickupShipment.shipmentId;
+        }
         // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
-        // Update the basket storage
-        updateBasket(context, finalBasket);
-
-        return {
-            success: true,
-            basket: finalBasket,
+        const payload = {
+            productId: productItem.productId,
+            quantity: productItem.quantity,
+            ...(productItem.inventoryId ? { inventoryId: productItem.inventoryId } : {}),
+            shipmentId,
         };
+        const { data: updatedBasket } = await clients.shopperBasketsV2.addItemToBasket({
+            params: { path: { basketId } },
+            body: [payload],
+        });
+
+        // Update the basket storage
+        updateBasket(context, updatedBasket);
+        return { success: true, basket: updatedBasket };
     } catch (error) {
         if (error instanceof ApiError) {
             return {

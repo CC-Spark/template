@@ -13,15 +13,42 @@ export interface paths {
         };
         /**
          * Get shopper consent preferences
-         * @description Retrieve all subcription preferences for the shopper (authenticated or guest)
+         * @description Retrieve all subscription preferences for the shopper (authenticated or guest).
+         *
+         *     Use the 'expand' parameter to include additional fields in the response:
+         *     - expand=["consentStatus"]: Include subscription status information
+         *     - expand=[]: Default behavior, excludes status for privacy and performance
+         *
+         *     The expand parameter provides privacy benefits by not exposing sensitive status
+         *     information unless explicitly requested.
          */
         get: operations["getSubscriptions"];
         put?: never;
         /**
-         * Update shopper subscription preferences
-         * @description Update the consent status for a given subscription.
+         * Update shopper subscription preference
+         * @description Update the consent status for a single subscription.
          */
         post: operations["updateSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/subscriptions/actions/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Update shopper subscription preferences
+         * @description Update the consent status for multiple subscriptions in a single bulk request. Supports 1-50 subscription updates per request with partial success handling.
+         */
+        post: operations["updateSubscriptions"];
         delete?: never;
         options?: never;
         head?: never;
@@ -56,9 +83,8 @@ export interface components {
          * @description A specialized value indicating the system default values for locales.
          * @default default
          * @example default
-         * @enum {string}
          */
-        DefaultFallback: "default";
+        DefaultFallback: string;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
         /**
@@ -72,63 +98,108 @@ export interface components {
          */
         SubscriptionId: string;
         /**
-         * @description Identifier for the shopper communication subscription consent -- formatted as `<contactPointValue>#<communicationSubscriptionChannelId>`
+         * @example email
+         * @enum {string}
+         */
+        ChannelType: "email" | "sms" | "whatsapp";
+        /**
          * @example [
-         *       "jack.sparrow@salesforce.com#0eBWs0000001HmnMAE",
-         *       "+1 424 535 3546#0eBWs0000001HmnMAE"
+         *       "email",
+         *       "sms"
          *     ]
          */
-        ConsentId: string;
+        SubscriptionChannel: components["schemas"]["ChannelType"][];
         /**
          * @description The customer's contact point value, polymorphic based on the channel type as below:
          *     - `sms` - Subject's phone number in E.164 format, ex: `+1 424 535 3546`
          *     - `email` - Subject's email address in RFC 5321 & RFC 5322 format, ex: `jack.sparrow@salesforce.com`
-         * @example [
-         *       "jack.sparrow@salesforce.com",
-         *       "+1 424 535 3546"
-         *     ]
+         * @example jack.sparrow@salesforce.com
          */
         ContactPointValue: string;
         /**
-         * @example [
-         *       "email",
-         *       "sms",
-         *       "push_notification",
-         *       "in_app",
-         *       "postal_mail",
-         *       "whatsapp"
-         *     ]
-         * @enum {string}
-         */
-        SubscriptionChannel: "email" | "sms" | "push_notification" | "in_app" | "postal_mail" | "whatsapp";
-        /**
          * @description The consent status of the subscription as supplied or recorded by this system
-         * @example [
-         *       "opt_in",
-         *       "opt_out"
-         *     ]
+         * @example opt_in
          * @enum {string}
          */
         ConsentStatus: "opt_in" | "opt_out";
-        /** @example Weekly Newsletter */
+        /**
+         * @description Individual subscription status entry for a specific channel
+         * @example {
+         *       "channel": "email",
+         *       "contactPointValue": "john.doe@example.com",
+         *       "status": "opt_in"
+         *     }
+         */
+        SubscriptionStatusEntry: {
+            channel: components["schemas"]["ChannelType"];
+            contactPointValue: components["schemas"]["ContactPointValue"];
+            status: components["schemas"]["ConsentStatus"];
+        };
+        /**
+         * @description Array of subscription status entries for different channels
+         * @example [
+         *       {
+         *         "channel": "email",
+         *         "contactPointValue": "john.doe@example.com",
+         *         "status": "opt_in"
+         *       },
+         *       {
+         *         "channel": "sms",
+         *         "contactPointValue": "+1 555 123 4567",
+         *         "status": "opt_out"
+         *       }
+         *     ]
+         */
+        SubscriptionStatusArray: components["schemas"]["SubscriptionStatusEntry"][];
+        /**
+         * @description The localized title of the subscription for shopper displays
+         * @example Weekly Newsletter
+         */
         SubscriptionTitle: string;
-        /** @example Get our weekly newsletter with the latest updates */
+        /**
+         * @description The localized subtitle of the subscription for shopper displays, may contain HTML markup
+         * @example Stay informed about new features. <a href="https://example.com/features">Learn more</a>
+         */
         SubscriptionSubtitle: string;
         ConsentSubscription: {
             subscriptionId: components["schemas"]["SubscriptionId"];
-            consentId?: components["schemas"]["ConsentId"];
-            contactPointValue?: components["schemas"]["ContactPointValue"];
-            channel: components["schemas"]["SubscriptionChannel"];
-            status?: components["schemas"]["ConsentStatus"];
+            channels: components["schemas"]["SubscriptionChannel"];
+            /**
+             * @description Subscription status information across different channels. This field is only included in the response
+             *     when the 'expand' parameter contains "consentStatus". For privacy and performance
+             *     reasons, status is not returned by default.
+             */
+            consentStatus?: components["schemas"]["SubscriptionStatusArray"];
             title?: components["schemas"]["SubscriptionTitle"];
             subtitle?: components["schemas"]["SubscriptionSubtitle"];
             /**
+             * @default []
              * @example [
              *       "homepage_banner",
              *       "user_profile"
              *     ]
              */
-            tags?: components["schemas"]["Tag"][];
+            tags: components["schemas"]["Tag"][];
+            /**
+             * @description Type of consent subscription
+             * @default marketing
+             * @example marketing
+             * @enum {string}
+             */
+            consentType: "marketing" | "legal";
+            /**
+             * @description Whether this subscription is mandatory for the user
+             * @default false
+             * @example false
+             */
+            consentRequired: boolean;
+            /**
+             * @description Default consent status for this subscription
+             * @default opt_out
+             * @example opt_out
+             * @enum {string}
+             */
+            defaultStatus: "opt_in" | "opt_out";
         };
         /** @description Collection wrapper of consent subscriptions */
         ConsentSubscriptionResponse: {
@@ -175,8 +246,76 @@ export interface components {
         ConsentSubscriptionRequest: {
             subscriptionId: components["schemas"]["SubscriptionId"];
             contactPointValue: components["schemas"]["ContactPointValue"];
-            channel: components["schemas"]["SubscriptionChannel"];
+            channel: components["schemas"]["ChannelType"];
             status: components["schemas"]["ConsentStatus"];
+        };
+        /** @description Single subscription update response */
+        ConsentSubscriptionUpdateResponse: {
+            subscriptionId: components["schemas"]["SubscriptionId"];
+            channel: components["schemas"]["ChannelType"];
+            contactPointValue: components["schemas"]["ContactPointValue"];
+            status: components["schemas"]["ConsentStatus"];
+        };
+        /** @description Bulk request for updating multiple consent subscriptions */
+        ConsentSubscriptionBulkRequest: {
+            /**
+             * @description Array of subscription consent updates to process
+             * @example [
+             *       {
+             *         "subscriptionId": "weekly-newsletter",
+             *         "channel": "email",
+             *         "contactPointValue": "john.doe@example.com",
+             *         "status": "opt_in"
+             *       },
+             *       {
+             *         "subscriptionId": "sms-alerts",
+             *         "channel": "sms",
+             *         "contactPointValue": "+1 555 123 4567",
+             *         "status": "opt_out"
+             *       }
+             *     ]
+             */
+            subscriptions: components["schemas"]["ConsentSubscriptionRequest"][];
+        };
+        /** @description Error details for failed subscription updates */
+        ConsentSubscriptionError: {
+            /**
+             * @description Error code indicating the type of failure
+             * @example INVALID_CONTACT_POINT
+             */
+            code: string;
+            /**
+             * @description Human-readable error message
+             * @example Invalid email address format
+             */
+            message: string;
+            /**
+             * @description Additional error details
+             * @example {
+             *       "field": "contactPointValue",
+             *       "provided": "invalid-email"
+             *     }
+             */
+            details?: Record<string, never>;
+        };
+        /** @description Individual subscription update result with input parameters */
+        ConsentSubscriptionResult: {
+            subscriptionId: components["schemas"]["SubscriptionId"];
+            channel: components["schemas"]["ChannelType"];
+            contactPointValue: components["schemas"]["ContactPointValue"];
+            status: components["schemas"]["ConsentStatus"];
+            /**
+             * @description Whether the subscription update was successful
+             * @example true
+             */
+            success: boolean;
+            /** @description Error details (present when success is false) */
+            error?: components["schemas"]["ConsentSubscriptionError"];
+        };
+        /** @description Bulk response with results for each subscription update request */
+        ConsentSubscriptionBulkResponse: {
+            /** @description Results for each subscription update request */
+            results: components["schemas"]["ConsentSubscriptionResult"][];
         };
     };
     responses: never;
@@ -192,6 +331,15 @@ export interface components {
         locale: components["schemas"]["LocaleCode"];
         /** @description Optional parameter of 0 or more query string values which act as a filtering criteria. Multiple values are treated with `OR` logic, and absence of a value indicates no filtering by tag is desired. */
         tags: components["schemas"]["Tag"][];
+        /**
+         * @description Optional parameter to expand response with additional fields.
+         *     Accepts an array of field names to include in the response.
+         *     Currently supports:
+         *     - "consentStatus": Include consent status information in the response
+         *
+         *     Future expansions may include additional fields.
+         */
+        expand: "consentStatus"[];
     };
     requestBodies: never;
     headers: never;
@@ -208,6 +356,15 @@ export interface operations {
                 locale?: components["parameters"]["locale"];
                 /** @description Optional parameter of 0 or more query string values which act as a filtering criteria. Multiple values are treated with `OR` logic, and absence of a value indicates no filtering by tag is desired. */
                 tags?: components["parameters"]["tags"];
+                /**
+                 * @description Optional parameter to expand response with additional fields.
+                 *     Accepts an array of field names to include in the response.
+                 *     Currently supports:
+                 *     - "consentStatus": Include consent status information in the response
+                 *
+                 *     Future expansions may include additional fields.
+                 */
+                expand?: components["parameters"]["expand"];
             };
             header?: never;
             path: {
@@ -265,16 +422,69 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successfully created or updated consent status. */
+            /** @description Subscription update completed successfully. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ConsentSubscription"];
+                    "application/json": components["schemas"]["ConsentSubscriptionUpdateResponse"];
                 };
             };
-            /** @description Error updating consent status */
+            /** @description Error with request format or validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateSubscriptions: {
+        parameters: {
+            query: {
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+                /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+                locale?: components["parameters"]["locale"];
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentSubscriptionBulkRequest"];
+            };
+        };
+        responses: {
+            /** @description All subscription updates completed successfully. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentSubscriptionBulkResponse"];
+                };
+            };
+            /** @description Partial success - some subscription updates succeeded, others failed. */
+            207: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentSubscriptionBulkResponse"];
+                };
+            };
+            /** @description Error with bulk request format or validation */
             400: {
                 headers: {
                     [name: string]: unknown;

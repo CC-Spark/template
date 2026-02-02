@@ -30,7 +30,7 @@ describe('AddressDisplay', () => {
         test('user does not see any address details', () => {
             render(<AddressDisplay address={null as never} />);
 
-            // No name, address line, city, etc. should be visible
+            // No address line, city, etc. should be visible
             expect(screen.queryByText(/123|Main St|New York/i)).not.toBeInTheDocument();
         });
     });
@@ -49,15 +49,22 @@ describe('AddressDisplay', () => {
             phone: '555-123-4567',
         };
 
-        test('renders all the data properly', () => {
+        test('renders address1 and location line', () => {
             render(<AddressDisplay address={completeAddress} />);
 
-            expect(screen.getByText('John Doe')).toBeInTheDocument();
+            // AddressDisplay now only shows address1 and location line
             expect(screen.getByText('123 Main Street')).toBeInTheDocument();
-            expect(screen.getByText('Apt 4B')).toBeInTheDocument();
-            expect(screen.getByText('New York, NY 10001')).toBeInTheDocument();
-            expect(screen.getByText('US')).toBeInTheDocument();
-            expect(screen.getByText('555-123-4567')).toBeInTheDocument();
+            // Location line format: postalCode, city, state, country
+            expect(screen.getByText('10001, New York, New York, United States')).toBeInTheDocument();
+        });
+
+        test('does not display name, address2, or phone', () => {
+            const { container } = render(<AddressDisplay address={completeAddress} />);
+
+            // These fields are not displayed in the new format
+            expect(container.textContent).not.toContain('John Doe');
+            expect(container.textContent).not.toContain('Apt 4B');
+            expect(container.textContent).not.toContain('555-123-4567');
         });
     });
 
@@ -71,37 +78,11 @@ describe('AddressDisplay', () => {
             city: 'Seattle',
         };
 
-        test('user sees name and primary address', () => {
+        test('user sees address1 and city with country', () => {
             render(<AddressDisplay address={minimalAddress} />);
 
-            expect(screen.getByText('Jane Smith')).toBeInTheDocument();
             expect(screen.getByText('456 Oak Avenue')).toBeInTheDocument();
-        });
-
-        test('user sees city without state or postal code', () => {
-            render(<AddressDisplay address={minimalAddress} />);
-
-            expect(screen.getByText('Seattle')).toBeInTheDocument();
-        });
-
-        test('user does not see address2 when not provided', () => {
-            const { container } = render(<AddressDisplay address={minimalAddress} />);
-
-            // Verify address2 text doesn't exist
-            expect(container.textContent).not.toContain('Apt');
-            expect(container.textContent).not.toContain('Suite');
-        });
-
-        test('user sees country code since it is a required field', () => {
-            render(<AddressDisplay address={minimalAddress} />);
-
-            expect(screen.getByText('US')).toBeInTheDocument();
-        });
-
-        test('user does not see phone when not provided', () => {
-            render(<AddressDisplay address={minimalAddress} />);
-
-            expect(screen.queryByText(/555|phone/i)).not.toBeInTheDocument();
+            expect(screen.getByText('Seattle, United States')).toBeInTheDocument();
         });
     });
 
@@ -116,18 +97,11 @@ describe('AddressDisplay', () => {
             stateCode: 'TX',
         };
 
-        test('user sees city and state formatted together', () => {
+        test('user sees city, state name, and country', () => {
             render(<AddressDisplay address={addressWithState} />);
 
-            expect(screen.getByText('Austin, TX')).toBeInTheDocument();
-        });
-
-        test('user does not see extra space for missing postal code', () => {
-            render(<AddressDisplay address={addressWithState} />);
-
-            // Should be "Austin, TX" not "Austin, TX "
-            const cityElement = screen.getByText('Austin, TX');
-            expect(cityElement.textContent).toBe('Austin, TX');
+            expect(screen.getByText('789 Pine Road')).toBeInTheDocument();
+            expect(screen.getByText('Austin, Texas, United States')).toBeInTheDocument();
         });
     });
 
@@ -142,14 +116,15 @@ describe('AddressDisplay', () => {
             postalCode: '02101',
         };
 
-        test('user sees city and postal code formatted together', () => {
+        test('user sees postal code, city, and country', () => {
             render(<AddressDisplay address={addressWithPostal} />);
 
-            expect(screen.getByText('Boston 02101')).toBeInTheDocument();
+            expect(screen.getByText('321 Elm Boulevard')).toBeInTheDocument();
+            expect(screen.getByText('02101, Boston, United States')).toBeInTheDocument();
         });
     });
 
-    describe('when address has all city fields', () => {
+    describe('when address has all location fields', () => {
         const fullCityAddress: ShopperCustomers.schemas['CustomerAddress'] = {
             addressId: 'address-5',
             countryCode: 'US',
@@ -161,10 +136,11 @@ describe('AddressDisplay', () => {
             postalCode: '60601',
         };
 
-        test('user sees city, state, and postal code in correct format', () => {
+        test('user sees postal code, city, state name, and country name', () => {
             render(<AddressDisplay address={fullCityAddress} />);
 
-            expect(screen.getByText('Chicago, IL 60601')).toBeInTheDocument();
+            expect(screen.getByText('555 Maple Lane')).toBeInTheDocument();
+            expect(screen.getByText('60601, Chicago, Illinois, United States')).toBeInTheDocument();
         });
     });
 
@@ -182,41 +158,15 @@ describe('AddressDisplay', () => {
             phone: '',
         };
 
-        test('user does not see empty optional fields', () => {
-            const { container } = render(<AddressDisplay address={addressWithEmptyStrings} />);
+        test('user sees address1 and city only', () => {
+            render(<AddressDisplay address={addressWithEmptyStrings} />);
 
-            // Should show minimal version - name, address1, city only
-            expect(screen.getByText('Test User')).toBeInTheDocument();
             expect(screen.getByText('999 Test Street')).toBeInTheDocument();
             expect(screen.getByText('Portland')).toBeInTheDocument();
-
-            // Should not have extra empty lines or commas
-            const text = container.textContent || '';
-            expect(text).not.toMatch(/,\s*$/); // No trailing commas
-            expect(text).not.toMatch(/\s{3,}/); // No excessive whitespace
         });
     });
 
-    describe('international addresses', () => {
-        const ukAddress: ShopperCustomers.schemas['CustomerAddress'] = {
-            addressId: 'address-7',
-            firstName: 'David',
-            lastName: 'Taylor',
-            address1: '10 Downing Street',
-            city: 'London',
-            postalCode: 'SW1A 2AA',
-            countryCode: 'GB',
-        };
-
-        test('user sees UK address formatted correctly', () => {
-            render(<AddressDisplay address={ukAddress} />);
-
-            expect(screen.getByText('David Taylor')).toBeInTheDocument();
-            expect(screen.getByText('10 Downing Street')).toBeInTheDocument();
-            expect(screen.getByText('London SW1A 2AA')).toBeInTheDocument();
-            expect(screen.getByText('GB')).toBeInTheDocument();
-        });
-
+    describe('Canadian addresses', () => {
         const canadianAddress: ShopperCustomers.schemas['CustomerAddress'] = {
             addressId: 'address-8',
             firstName: 'Sarah',
@@ -229,13 +179,11 @@ describe('AddressDisplay', () => {
             phone: '+1-613-555-0199',
         };
 
-        test('user sees Canadian address with province and international phone', () => {
+        test('user sees Canadian address with province name and country name', () => {
             render(<AddressDisplay address={canadianAddress} />);
 
-            expect(screen.getByText('Sarah Martin')).toBeInTheDocument();
-            expect(screen.getByText('Ottawa, ON K1M 1M4')).toBeInTheDocument();
-            expect(screen.getByText('CA')).toBeInTheDocument();
-            expect(screen.getByText('+1-613-555-0199')).toBeInTheDocument();
+            expect(screen.getByText('24 Sussex Drive')).toBeInTheDocument();
+            expect(screen.getByText('K1M 1M4, Ottawa, Ontario, Canada')).toBeInTheDocument();
         });
     });
 });

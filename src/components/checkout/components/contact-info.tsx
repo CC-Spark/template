@@ -29,7 +29,10 @@ import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import { getContactInfoFromCustomer } from '@/lib/customer-profile-utils';
 import { getCommonPhoneCountryCodes } from '@/lib/country-codes';
 import type { CheckoutActionData } from '../types';
+import CheckoutErrorBanner from './checkout-error-banner';
+import { getCheckoutDisplayError } from './checkout-display-error';
 import { useTranslation } from 'react-i18next';
+import { useCheckoutContext } from '@/hooks/use-checkout';
 
 interface ContactInfoProps {
     onSubmit: (data: ContactInfoData) => void;
@@ -54,12 +57,14 @@ export default function ContactInfo({
     const cart = useBasket();
     const loginSuggestion = useLoginSuggestion();
     const customerProfile = useCustomerProfile();
+    const { shipmentDistribution } = useCheckoutContext();
     const { t } = useTranslation('checkout');
 
     // Get auto-populated contact info from customer profile
     const customerContactInfo = getContactInfoFromCustomer(customerProfile);
 
     const schema = useMemo(() => createContactInfoSchema(t), [t]);
+    const contactFormError = getCheckoutDisplayError(actionData, 'contactInfo');
 
     const form = useForm<ContactInfoData>({
         resolver: zodResolver(schema),
@@ -73,6 +78,18 @@ export default function ContactInfo({
     const handleFormSubmit = (data: ContactInfoData) => {
         onSubmit(data);
     };
+
+    let nextStepButtonLabel = isLoading ? t('contactInfo.saving') : t('contactInfo.continue');
+
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    // Check if there are pickup items to determine button label
+    const hasPickupItems = shipmentDistribution.hasPickupItems;
+
+    const { t: tBopis } = useTranslation('extBopis');
+    if (!isLoading && hasPickupItems) {
+        nextStepButtonLabel = tBopis('checkout.contactInfo.continueToPickup');
+    }
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     const stepTitle: ReactNode = (
         <span className="text-lg font-semibold text-foreground">{t('contactInfo.title')}</span>
@@ -89,11 +106,7 @@ export default function ContactInfo({
             <ToggleCardEdit>
                 <Form {...form}>
                     <form onSubmit={(e) => void form.handleSubmit(handleFormSubmit)(e)} className="space-y-6">
-                        {actionData?.formError && actionData.step === 'contactInfo' && (
-                            <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold">
-                                {actionData.formError}
-                            </div>
-                        )}
+                        {contactFormError && <CheckoutErrorBanner message={contactFormError} />}
 
                         <FormField
                             control={form.control}
@@ -176,7 +189,7 @@ export default function ContactInfo({
                                 disabled={isLoading || !form.formState.isValid}
                                 size="lg"
                                 className="min-w-56 h-12 text-base font-semibold">
-                                {isLoading ? t('contactInfo.saving') : t('contactInfo.continue')}
+                                {nextStepButtonLabel}
                             </Button>
                         </div>
                     </form>

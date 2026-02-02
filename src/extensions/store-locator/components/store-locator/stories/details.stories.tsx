@@ -64,19 +64,23 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     return <div ref={containerRef}>{children}</div>;
 }
 
-const mockStore: ShopperStores.schemas['Store'] = createMockStore('store-1', 'inventory-1', {
-    name: 'Downtown Store',
-    address1: '123 Main Street',
-    address2: 'Suite 100',
-    city: 'San Francisco',
-    stateCode: 'CA',
-    postalCode: '94102',
-    countryCode: 'US',
-    phone: '415-555-1234',
-    c_customerServiceEmail: 'downtown@example.com',
-    distance: 2.5,
-    storeHours: '<p>Mon-Fri: 9am-9pm<br/>Sat-Sun: 10am-8pm</p>',
-});
+const mockStore: ShopperStores.schemas['Store'] & { c_customerServiceEmail?: string } = createMockStore(
+    'store-1',
+    'inventory-1',
+    {
+        name: 'Downtown Store',
+        address1: '123 Main Street',
+        address2: 'Suite 100',
+        city: 'San Francisco',
+        stateCode: 'CA',
+        postalCode: '94102',
+        countryCode: 'US',
+        phone: '415-555-1234',
+        c_customerServiceEmail: 'downtown@example.com',
+        distance: 2.5,
+        storeHours: '<p>Mon-Fri: 9am-9pm<br/>Sat-Sun: 10am-8pm</p>',
+    } as Partial<ShopperStores.schemas['Store']> & { c_customerServiceEmail?: string }
+);
 
 const mockStoreNoDistance: ShopperStores.schemas['Store'] = createMockStore('store-2', 'inventory-2', {
     name: 'Uptown Store',

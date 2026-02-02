@@ -50,7 +50,7 @@ import { isAddressEmpty } from '@/components/checkout/utils/checkout-addresses';
  * Checkout page data type
  */
 export type CheckoutPageData = {
-    shippingMethods?: Promise<ShopperBasketsV2.schemas['ShippingMethodResult'] | null>;
+    shippingMethodsMap?: Promise<Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>>;
     customerProfile?: Promise<CustomerProfile | null>;
     productMap: Promise<Record<string, ShopperProducts.schemas['Product']>>;
     promotions?: Promise<Record<string, ShopperPromotions.schemas['Promotion']>>;
@@ -84,17 +84,66 @@ export function getServerCustomerProfileData(
 }
 
 /**
- * Server-side shipping methods fetcher. Exported for use in route loaders.
+ * Server-side shipping methods map fetcher. Exported for use in route loaders.
  */
-export function getServerShippingMethodsData(
+export function getServerShippingMethodsMapData(
     _context: LoaderFunctionArgs['context'],
     authSession: SessionData | null
-): Promise<ShopperBasketsV2.schemas['ShippingMethodResult'] | null> {
-    // Always return null, client loader will handle shipping methods
+): Promise<Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>> {
+    // Always return empty map, client loader will handle shipping methods
     if (!authSession) {
-        return Promise.resolve(null);
+        return Promise.resolve({});
     }
-    return Promise.resolve(null);
+    return Promise.resolve({});
+}
+
+/**
+ * Shared utility to fetch shipping methods for all shipments in a basket
+ * This is used by both client and server loaders to maintain consistency
+ *
+ * @param context - Router context (client or server)
+ * @param basket - Shopping basket
+ * @returns Promise that resolves to a map of shipment ID to shipping methods
+ */
+export async function fetchShippingMethodsMapForBasket(
+    context: LoaderFunctionArgs['context'],
+    basket: ShopperBasketsV2.schemas['Basket'] | null
+): Promise<Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>> {
+    if (!basket?.basketId || !basket.shipments || basket.shipments.length === 0) {
+        return {};
+    }
+
+    const basketId = basket.basketId;
+    const shippingMethodsMap: Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']> = {};
+
+    // Fetch shipping methods for each shipment that has a shipping address
+    const fetchPromises = basket.shipments
+        .filter((shipment) => shipment.shipmentId && !isAddressEmpty(shipment.shippingAddress))
+        .map(async (shipment) => {
+            try {
+                const methods = await getShippingMethodsForShipment(context, basketId, shipment.shipmentId);
+                shippingMethodsMap[shipment.shipmentId] = methods;
+            } catch {
+                // Skip this shipment if fetching fails
+            }
+        });
+
+    await Promise.all(fetchPromises);
+
+    return shippingMethodsMap;
+}
+
+/**
+ * Fetches shipping methods for all shipments in the basket (client-side wrapper)
+ * @param context - Client loader context
+ * @param basket - Shopping basket
+ * @returns Promise that resolves to a map of shipment ID to shipping methods
+ */
+async function fetchShippingMethodsForAllShipments(
+    context: ClientLoaderFunctionArgs['context'],
+    basket: ShopperBasketsV2.schemas['Basket'] | null
+): Promise<Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>> {
+    return fetchShippingMethodsMapForBasket(context, basket);
 }
 
 /**
@@ -333,16 +382,12 @@ export async function clientLoader(args: ClientLoaderFunctionArgs): Promise<Chec
                 // If we don't wait, basket.shipments[0].shippingAddress is still undefined
                 const updatedBasket = await handleBasketPrefill(context, customerProfile);
 
-                // Step 3: check for shipping address
-                const shippingAddress = updatedBasket?.shipments?.[0]?.shippingAddress;
-                const shippingMethodsPromise =
-                    updatedBasket?.basketId && !isAddressEmpty(shippingAddress)
-                        ? getShippingMethodsForShipment(context, updatedBasket.basketId)
-                        : undefined;
+                // Step 3: Fetch shipping methods for all shipments
+                const shippingMethodsMapPromise = fetchShippingMethodsForAllShipments(context, updatedBasket);
 
                 // Return with promises for streaming
                 return {
-                    ...(shippingMethodsPromise && { shippingMethods: shippingMethodsPromise }),
+                    shippingMethodsMap: shippingMethodsMapPromise,
                     customerProfile: Promise.resolve(customerProfile),
                     productMap: productMapPromise,
                     promotions: promotionsPromise,
@@ -355,14 +400,10 @@ export async function clientLoader(args: ClientLoaderFunctionArgs): Promise<Chec
         }
 
         // For guest users, basket might already have shipping address from previous steps
-        const shippingAddress = basket?.shipments?.[0]?.shippingAddress;
-        const shippingMethodsPromise =
-            basket?.basketId && !isAddressEmpty(shippingAddress)
-                ? getShippingMethodsForShipment(context, basket.basketId)
-                : undefined;
+        const shippingMethodsMapPromise = fetchShippingMethodsForAllShipments(context, basket);
 
         return {
-            ...(shippingMethodsPromise && { shippingMethods: shippingMethodsPromise }),
+            shippingMethodsMap: shippingMethodsMapPromise,
             productMap: productMapPromise,
             promotions: promotionsPromise,
             isRegisteredCustomer: false,
@@ -373,6 +414,7 @@ export async function clientLoader(args: ClientLoaderFunctionArgs): Promise<Chec
     } catch {
         // Fallback to empty data on any error
         return {
+            shippingMethodsMap: Promise.resolve({}),
             productMap: Promise.resolve({}),
             promotions: Promise.resolve({}),
             isRegisteredCustomer: false,

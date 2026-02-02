@@ -18,5 +18,8 @@ export type CheckoutActionData = {
     step?: string;
     data?: Record<string, unknown>;
     fieldErrors?: Record<string, string>;
+    /** Form-level or API error message shown to the shopper (alias: error) */
     formError?: string;
+    /** API or validation error message; components display error ?? formError for consistency */
+    error?: string;
 };

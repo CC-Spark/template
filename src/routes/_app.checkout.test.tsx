@@ -21,14 +21,14 @@ import type React from 'react';
 const mockUniversalServerLoader = vi.fn();
 const mockUniversalClientLoader = vi.fn();
 const mockGetServerCustomerProfileData = vi.fn();
-const mockGetServerShippingMethodsData = vi.fn();
+const mockGetServerShippingMethodsMapData = vi.fn();
 const mockGetClientLoaderData = vi.fn();
 const mockGetAuthServer = vi.fn();
 
 vi.mock('@/lib/checkout-loaders', () => ({
     serverLoader: mockUniversalServerLoader,
     getServerCustomerProfileData: mockGetServerCustomerProfileData,
-    getServerShippingMethodsData: mockGetServerShippingMethodsData,
+    getServerShippingMethodsMapData: mockGetServerShippingMethodsMapData,
     clientLoader: mockGetClientLoaderData,
 }));
 
@@ -106,7 +106,7 @@ describe('Checkout Route SSR', () => {
             const mockResult = {
                 isRegisteredCustomer: true,
                 customerProfile: { customer: { customerId: 'test-123' } },
-                shippingMethods: { shippingMethods: [] },
+                shippingMethodsMap: {},
             };
 
             mockUniversalServerLoader.mockResolvedValue(mockResult);
@@ -140,7 +140,7 @@ describe('Checkout Route SSR', () => {
                 await mockLoader(args);
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
-                expect(error.message).toBe('Server error');
+                expect((error as Error).message).toBe('Server error');
             }
         });
     });
@@ -150,7 +150,7 @@ describe('Checkout Route SSR', () => {
             const mockResult = {
                 isRegisteredCustomer: false,
                 customerProfile: null,
-                shippingMethods: null,
+                shippingMethodsMap: {},
             };
 
             mockUniversalClientLoader.mockResolvedValue(mockResult);
@@ -182,7 +182,7 @@ describe('Checkout Route SSR', () => {
                 await mockClientLoader(args);
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
-                expect(error.message).toBe('Client error');
+                expect((error as Error).message).toBe('Client error');
             }
         });
     });
@@ -257,7 +257,7 @@ describe('Checkout Route SSR', () => {
                 await mockLoader(args);
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
-                expect(error.message).toBe('Network failure');
+                expect((error as Error).message).toBe('Network failure');
             }
         });
 
@@ -343,7 +343,7 @@ describe('Checkout Route Components', () => {
             mockGetServerCustomerProfileData.mockResolvedValue({
                 customer: { customerId: 'test-123' },
             });
-            mockGetServerShippingMethodsData.mockResolvedValue(null);
+            mockGetServerShippingMethodsMapData.mockResolvedValue({});
 
             const checkoutRoute = await import('./_app.checkout');
             const mockArgs = {
@@ -359,7 +359,7 @@ describe('Checkout Route Components', () => {
             expect(result.productMap).toBeDefined();
             expect(result.isRegisteredCustomer).toBe(true);
             expect(result.customerProfile).toBeDefined();
-            expect(result.shippingMethods).toBeDefined();
+            expect(result.shippingMethodsMap).toBeDefined();
         });
 
         it('should call server loader functions for guest user', async () => {
@@ -424,7 +424,7 @@ describe('Checkout Route Components', () => {
 
             const mockLoaderData = {
                 customerProfile: Promise.resolve(null),
-                shippingMethods: Promise.resolve(null),
+                shippingMethodsMap: Promise.resolve({}),
                 productMap: Promise.resolve({}),
                 basket: mockBasket,
             };
@@ -445,7 +445,7 @@ describe('Checkout Route Components', () => {
 
             const mockLoaderData = {
                 customerProfile: Promise.resolve(null),
-                shippingMethods: Promise.resolve(null),
+                shippingMethodsMap: Promise.resolve({}),
                 productMap: Promise.resolve({}),
                 basket: undefined,
             };
@@ -474,7 +474,7 @@ describe('Checkout Route Components', () => {
 
             const mockLoaderData = {
                 customerProfile: Promise.resolve(mockCustomerProfile),
-                shippingMethods: Promise.resolve(null),
+                shippingMethodsMap: Promise.resolve({}),
                 productMap: Promise.resolve({}),
                 basket: undefined,
             };
@@ -492,14 +492,16 @@ describe('Checkout Route Components', () => {
             const checkoutRoute = await import('./_app.checkout');
             const CheckoutPage = checkoutRoute.default;
 
-            const mockShippingMethods = {
-                applicableShippingMethods: [{ id: 'standard', name: 'Standard Shipping', price: 5.99 }],
-                defaultShippingMethodId: 'standard',
+            const mockShippingMethodsMap = {
+                me: {
+                    applicableShippingMethods: [{ id: 'standard', name: 'Standard Shipping', price: 5.99 }],
+                    defaultShippingMethodId: 'standard',
+                },
             };
 
             const mockLoaderData = {
                 customerProfile: Promise.resolve(null),
-                shippingMethods: Promise.resolve(mockShippingMethods),
+                shippingMethodsMap: Promise.resolve(mockShippingMethodsMap),
                 productMap: Promise.resolve({}),
                 basket: undefined,
             };
@@ -531,14 +533,16 @@ describe('Checkout Route Components', () => {
                 paymentInstruments: [],
             };
 
-            const mockShippingMethods = {
-                applicableShippingMethods: [{ id: 'standard', name: 'Standard Shipping', price: 5.99 }],
-                defaultShippingMethodId: 'standard',
+            const mockShippingMethodsMap = {
+                me: {
+                    applicableShippingMethods: [{ id: 'standard', name: 'Standard Shipping', price: 5.99 }],
+                    defaultShippingMethodId: 'standard',
+                },
             };
 
             const mockLoaderData = {
                 customerProfile: Promise.resolve(mockCustomerProfile),
-                shippingMethods: Promise.resolve(mockShippingMethods),
+                shippingMethodsMap: Promise.resolve(mockShippingMethodsMap),
                 productMap: Promise.resolve({ 'prod-1': { id: 'prod-1', name: 'Product 1' } }),
                 basket: mockBasket,
             };
@@ -558,7 +562,7 @@ describe('Checkout Route Components', () => {
 
             const mockLoaderData = {
                 customerProfile: undefined,
-                shippingMethods: Promise.resolve(null),
+                shippingMethodsMap: Promise.resolve({}),
                 productMap: Promise.resolve({}),
                 basket: undefined,
             };
@@ -578,7 +582,7 @@ describe('Checkout Route Components', () => {
 
             const mockLoaderData = {
                 customerProfile: Promise.resolve(null),
-                shippingMethods: undefined,
+                shippingMethodsMap: undefined,
                 productMap: Promise.resolve({}),
                 basket: undefined,
             };
@@ -598,7 +602,7 @@ describe('Checkout Route Components', () => {
 
             const mockLoaderData = {
                 customerProfile: undefined,
-                shippingMethods: undefined,
+                shippingMethodsMap: undefined,
                 productMap: Promise.resolve({}),
                 basket: undefined,
             };

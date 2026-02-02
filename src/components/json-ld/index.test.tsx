@@ -43,7 +43,7 @@ describe('JsonLd', () => {
         const script = container.querySelector('script[type="application/ld+json"]');
 
         expect(script).toBeInTheDocument();
-        expect(script?.innerHTML).toBe(JSON.stringify(data, null, 0));
+        expect(script?.innerHTML).toBe(JSON.stringify(data));
     });
 
     it('should include the id attribute when provided', () => {

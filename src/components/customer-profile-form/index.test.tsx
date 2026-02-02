@@ -431,10 +431,13 @@ describe('customerProfileFormSchema', () => {
         });
 
         it('should reject future dates', () => {
-            // Create a date one year in the future
+            // Create a date one year in the future using local date components
             const futureDate = new Date();
             futureDate.setFullYear(futureDate.getFullYear() + 1);
-            const futureDateString = futureDate.toISOString().split('T')[0];
+            const year = futureDate.getFullYear();
+            const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+            const day = String(futureDate.getDate()).padStart(2, '0');
+            const futureDateString = `${year}-${month}-${day}`;
 
             const invalidData = {
                 firstName: 'John',
@@ -451,7 +454,12 @@ describe('customerProfileFormSchema', () => {
         });
 
         it('should accept today as valid birthday', () => {
-            const today = new Date().toISOString().split('T')[0];
+            // Use local date components to avoid UTC timezone issues
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const today = `${year}-${month}-${day}`;
 
             const validData = {
                 firstName: 'John',
@@ -462,6 +470,28 @@ describe('customerProfileFormSchema', () => {
 
             const result = customerProfileFormSchema.safeParse(validData);
             expect(result.success).toBe(true);
+        });
+
+        describe('birthday validation', () => {
+            // Test the specific fix: parsing date components locally instead of as UTC
+            // This ensures dates like "2026-01-01" are parsed as local Jan 1, not UTC Dec 31
+            const year = new Date().getFullYear() - 1;
+            it.each([
+                `${year}-01-01`, // Past New Year - commonly affected by UTC offset
+                `${year}-12-31`, // Past New Year's Eve - commonly affected by UTC offset
+                `${year}-06-15`, // Past mid-year date
+                '2000-02-29', // Leap year date (historical)
+            ])('should handle timezone-aware date parsing correctly for %s', (dateString) => {
+                const validData = {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    email: 'john.doe@example.com',
+                    birthday: dateString,
+                };
+
+                const result = customerProfileFormSchema.safeParse(validData);
+                expect(result.success).toBe(true);
+            });
         });
     });
 

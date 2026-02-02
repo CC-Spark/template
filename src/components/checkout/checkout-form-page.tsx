@@ -15,8 +15,7 @@
  */
 'use client';
 
-import { useEffect, lazy, Suspense, use, useRef } from 'react';
-import { Form, useNavigation } from 'react-router';
+import { useEffect, lazy, Suspense, use, useRef, useState } from 'react';
 import { useCheckoutContext } from '@/hooks/use-checkout';
 import { useBasket } from '@/providers/basket';
 import { useCheckoutActions } from '@/hooks/use-checkout-actions';
@@ -28,15 +27,24 @@ import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
 import { useTranslation } from 'react-i18next';
 import { useAnalytics } from '@/hooks/use-analytics';
-import type { CheckoutStep } from './utils/checkout-context-types';
-// @sfdc-extension-line SFDC_EXT_BOPIS
-import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
 import { PluginComponent } from '@/plugins/plugin-component';
+import CheckoutErrorBanner from './components/checkout-error-banner';
+import { CHECKOUT_STEPS, type CheckoutStep } from './utils/checkout-context-types';
+// @sfdc-extension-block-start SFDC_EXT_BOPIS
+import { handlePickupContinueAction } from './utils/checkout-utils';
+import { filterDeliveryShippingMethods } from '@/extensions/bopis/lib/basket-utils';
+// @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 // Lazy load heavy components
 const ContactInfo = lazy(() => import('./components/contact-info'));
 // @sfdc-extension-line SFDC_EXT_BOPIS
-const StorePickup = lazy(() => import('@/extensions/bopis/components/checkout/store-pickup'));
+const CheckoutPickupWithData = lazy(() => import('@/extensions/bopis/components/checkout/checkout-pickup-with-data'));
+// @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+const ShippingMultiAddressWithData = lazy(
+    () => import('@/extensions/multiship/components/checkout/shipping-multi-address-with-data')
+);
+const ShippingMultiOptions = lazy(() => import('@/extensions/multiship/components/checkout/shipping-multi-options'));
+// @sfdc-extension-block-end SFDC_EXT_MULTISHIP
 const ShippingAddress = lazy(() => import('./components/shipping-address'));
 const ShippingOptions = lazy(() => import('./components/shipping-options'));
 const Payment = lazy(() => import('./components/payment'));
@@ -79,7 +87,7 @@ function GuestAccountCreation({ cart, customerProfile, onSaved }: GuestAccountCr
 }
 
 interface CheckoutFormPageProps {
-    shippingMethods?: ShopperBasketsV2.schemas['ShippingMethodResult'];
+    shippingMethodsMap: Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
     productMapPromise: Promise<Record<string, ShopperProducts.schemas['Product']>>;
     promotionsPromise?: Promise<Record<string, ShopperPromotions.schemas['Promotion']>>;
 }
@@ -103,7 +111,7 @@ function MyCartWithData({
 }
 
 export default function CheckoutFormPage({
-    shippingMethods,
+    shippingMethodsMap,
     productMapPromise,
     promotionsPromise,
 }: CheckoutFormPageProps) {
@@ -111,15 +119,42 @@ export default function CheckoutFormPage({
 
     // Use basket from provider (managed by middleware)
     const cart = useBasket();
-    const { step, STEPS, goToStep, editingStep } = useCheckoutContext();
+    const { step, STEPS, goToStep, editingStep, shipmentDistribution } = useCheckoutContext();
     const customerProfile = useCustomerProfile();
 
-    // Get navigation state
-    const navigation = useNavigation();
     let showAddressAndOptions = true;
+
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    let isDeliveryProductItem = (_item: ShopperBasketsV2.schemas['ProductItem']) => true;
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
+
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
-    const isPickup = isStorePickup(cart);
-    showAddressAndOptions = !isPickup;
+    const hasPickupItems = shipmentDistribution.hasPickupItems;
+    showAddressAndOptions = shipmentDistribution.hasDeliveryItems;
+    isDeliveryProductItem = shipmentDistribution.isDeliveryProductItem;
+    shippingMethodsMap = filterDeliveryShippingMethods(shippingMethodsMap);
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    const enableMultiAddress = shipmentDistribution.enableMultiAddress;
+    const hasMultipleDeliveryAddresses = shipmentDistribution.hasMultipleDeliveryAddresses;
+    const deliveryShipments = shipmentDistribution.deliveryShipments;
+    // this tracks if the user pressed the multi address mode toggle button
+    const [selectedMultiAddressMode, setSelectedMultiAddressMode] = useState(hasMultipleDeliveryAddresses);
+    const handleToggleShippingAddressMode = () => {
+        setSelectedMultiAddressMode((prev) => !prev);
+    };
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
+
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    const { t: tBopis } = useTranslation('extBopis');
+    const { label: pickupProceedButtonLabel, onClick: onPickupContinueClick } = handlePickupContinueAction(
+        hasPickupItems,
+        showAddressAndOptions,
+        goToStep,
+        STEPS,
+        tBopis as (key: string) => string
+    );
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     const analytics = useAnalytics();
@@ -154,16 +189,18 @@ export default function CheckoutFormPage({
         submitShippingAddress,
         submitShippingOptions,
         submitPayment,
+        submitPlaceOrder,
         contactFetcher,
         shippingAddressFetcher,
         shippingOptionsFetcher,
         paymentFetcher,
+        placeOrderFetcher,
         isSubmitting,
         handleCreateAccountPreferenceChange,
-        shouldCreateAccount,
     } = useCheckoutActions();
 
-    const isPlacingOrder = navigation.state === 'submitting' && navigation.formAction === '/action/place-order';
+    const isPlacingOrder = placeOrderFetcher.state === 'submitting';
+    const placeOrderErrorRef = useRef<HTMLDivElement>(null);
 
     // Form submission handlers - delegated to checkout actions hook
     const handleContactSubmit = submitContactInfo;
@@ -260,6 +297,18 @@ export default function CheckoutFormPage({
         }
     }, [step, STEPS.REVIEW_ORDER]);
 
+    useEffect(() => {
+        if (
+            placeOrderFetcher.state === 'idle' &&
+            placeOrderFetcher.data &&
+            !placeOrderFetcher.data.success &&
+            placeOrderFetcher.data.error &&
+            placeOrderErrorRef.current
+        ) {
+            placeOrderErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [placeOrderFetcher.state, placeOrderFetcher.data]);
+
     // Check if cart is empty (no items) - also handle basketId to ensure we have a valid basket
     if (!cart || !cart.basketId || !cart.productItems || cart.productItems.length === 0) {
         return (
@@ -274,6 +323,59 @@ export default function CheckoutFormPage({
             </div>
         );
     }
+
+    let shippingAddressComponent = (
+        <ShippingAddress
+            onSubmit={handleShippingAddressSubmit}
+            isLoading={isSubmitting('shipping-address')}
+            actionData={shippingAddressFetcher.data}
+            // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+            enableMultiAddress={enableMultiAddress}
+            handleToggleShippingAddressMode={handleToggleShippingAddressMode}
+            // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
+            {...shippingAddressState}
+        />
+    );
+    const defaultShipmentId = 'me';
+    let shippingOptionsComponent = (
+        <ShippingOptions
+            onSubmit={handleShippingOptionsSubmit}
+            isLoading={isSubmitting('shipping-options')}
+            actionData={shippingOptionsFetcher.data}
+            shippingMethods={shippingMethodsMap[defaultShipmentId]}
+            {...shippingOptionsState}
+        />
+    );
+
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    // this is true if has multiple delivery addresses or user selected multi address mode and isediting addresses
+    const isMultiAddressMode = shippingAddressState.isEditing ? selectedMultiAddressMode : hasMultipleDeliveryAddresses;
+    if (isMultiAddressMode) {
+        shippingAddressComponent = (
+            <ShippingMultiAddressWithData
+                isLoading={isSubmitting('shipping-address')}
+                actionData={shippingAddressFetcher.data}
+                productMapPromise={productMapPromise}
+                isDeliveryProductItem={isDeliveryProductItem}
+                deliveryShipments={deliveryShipments}
+                handleToggleShippingAddressMode={handleToggleShippingAddressMode}
+                onSubmit={handleShippingAddressSubmit}
+                hasMultipleDeliveryAddresses={hasMultipleDeliveryAddresses}
+                {...shippingAddressState}
+            />
+        );
+        shippingOptionsComponent = (
+            <ShippingMultiOptions
+                onSubmit={handleShippingOptionsSubmit}
+                isLoading={isSubmitting('shipping-options')}
+                actionData={shippingOptionsFetcher.data}
+                shipments={deliveryShipments}
+                shippingMethodsMap={shippingMethodsMap}
+                {...shippingOptionsState}
+            />
+        );
+    }
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
 
     return (
         <div className="min-h-screen bg-background">
@@ -353,12 +455,20 @@ export default function CheckoutFormPage({
                         </Suspense>
 
                         {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
-                        {/* Store Pickup Information - Only show if this is a BOPIS order */}
-                        {isPickup && (
+                        {/* Store Pickup Information */}
+                        {hasPickupItems && (
                             <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                                <StorePickup />
+                                <CheckoutPickupWithData
+                                    cart={cart}
+                                    productMapPromise={productMapPromise}
+                                    isEditing={editingStep === CHECKOUT_STEPS.PICKUP}
+                                    onEdit={() => goToStep(CHECKOUT_STEPS.PICKUP)}
+                                    onContinue={onPickupContinueClick}
+                                    continueButtonLabel={pickupProceedButtonLabel}
+                                />
                             </Suspense>
                         )}
+
                         {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
 
                         {/* Shipping Address & Options */}
@@ -368,12 +478,7 @@ export default function CheckoutFormPage({
                                 <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
                                     <PluginComponent pluginId="checkout.shippingAddress.before" />
                                     <PluginComponent pluginId="checkout.shippingAddress">
-                                        <ShippingAddress
-                                            onSubmit={handleShippingAddressSubmit}
-                                            isLoading={isSubmitting('shipping-address')}
-                                            actionData={shippingAddressFetcher.data}
-                                            {...shippingAddressState}
-                                        />
+                                        {shippingAddressComponent}
                                     </PluginComponent>
                                     <PluginComponent pluginId="checkout.shippingAddress.after" />
                                 </Suspense>
@@ -382,13 +487,7 @@ export default function CheckoutFormPage({
                                 <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
                                     <PluginComponent pluginId="checkout.shippingOptions.before" />
                                     <PluginComponent pluginId="checkout.shippingOptions">
-                                        <ShippingOptions
-                                            onSubmit={handleShippingOptionsSubmit}
-                                            isLoading={isSubmitting('shipping-options')}
-                                            actionData={shippingOptionsFetcher.data}
-                                            shippingMethods={shippingMethods}
-                                            {...shippingOptionsState}
-                                        />
+                                        {shippingOptionsComponent}
                                     </PluginComponent>
                                     <PluginComponent pluginId="checkout.shippingOptions.after" />
                                 </Suspense>
@@ -422,16 +521,24 @@ export default function CheckoutFormPage({
 
                         {/* Place Order Section */}
                         {step === STEPS.REVIEW_ORDER && (
-                            <div className="flex justify-end">
+                            <div className="flex flex-col items-end gap-4 w-full lg:w-auto">
+                                {placeOrderFetcher.data &&
+                                    !placeOrderFetcher.data.success &&
+                                    placeOrderFetcher.data.error && (
+                                        <CheckoutErrorBanner
+                                            ref={placeOrderErrorRef}
+                                            message={placeOrderFetcher.data.error}
+                                            className="w-full"
+                                        />
+                                    )}
                                 <PluginComponent pluginId="checkout.placeOrder.before" />
                                 <PluginComponent pluginId="checkout.placeOrder">
-                                    <Form method="post" action="/action/place-order" className="w-full lg:w-auto">
-                                        {/* Hidden field to pass create account preference to server */}
-                                        <input
-                                            type="hidden"
-                                            name="shouldCreateAccount"
-                                            value={shouldCreateAccount ? 'true' : 'false'}
-                                        />
+                                    <form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            submitPlaceOrder();
+                                        }}
+                                        className="w-full lg:w-auto">
                                         <Button
                                             type="submit"
                                             disabled={isPlacingOrder}
@@ -439,7 +546,7 @@ export default function CheckoutFormPage({
                                             size="lg">
                                             {isPlacingOrder ? t('placeOrder.processing') : t('placeOrder.button')}
                                         </Button>
-                                    </Form>
+                                    </form>
                                 </PluginComponent>
                                 <PluginComponent pluginId="checkout.placeOrder.after" />
                             </div>

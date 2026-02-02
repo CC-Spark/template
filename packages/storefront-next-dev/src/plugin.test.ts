@@ -76,4 +76,38 @@ describe('storefrontNextPlugins', () => {
         const pluginNames = plugins.map((p) => p.name);
         expect(pluginNames).not.toContain('storefrontnext:event-instrumentation-validator');
     });
+
+    it('should include staticRegistryPlugin when staticRegistry config is provided', () => {
+        const plugins = storefrontNextPlugins({
+            staticRegistry: {
+                componentPath: '/path/to/components',
+                registryPath: '/path/to/registry',
+            },
+        });
+        expect(plugins.length).toBe(7); // 6 base + staticRegistry
+        const pluginNames = plugins.map((p) => p.name);
+        expect(pluginNames).toContain('storefrontnext:static-registry');
+    });
+
+    it('should not include staticRegistryPlugin when only componentPath is provided', () => {
+        const plugins = storefrontNextPlugins({
+            staticRegistry: {
+                componentPath: '/path/to/components',
+            } as any,
+        });
+        expect(plugins.length).toBe(6); // Only base plugins
+        const pluginNames = plugins.map((p) => p.name);
+        expect(pluginNames).not.toContain('storefrontnext:static-registry');
+    });
+
+    it('should not include staticRegistryPlugin when only registryPath is provided', () => {
+        const plugins = storefrontNextPlugins({
+            staticRegistry: {
+                registryPath: '/path/to/registry',
+            } as any,
+        });
+        expect(plugins.length).toBe(6); // Only base plugins
+        const pluginNames = plugins.map((p) => p.name);
+        expect(pluginNames).not.toContain('storefrontnext:static-registry');
+    });
 });

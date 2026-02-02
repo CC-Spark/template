@@ -18,6 +18,7 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { ActionFunctionArgs } from 'react-router';
 import { action } from './action.wishlist-remove';
 import { createTestContext } from '@/lib/test-utils';
+import { createFormDataRequest } from '@/test-utils/request-helpers';
 
 // Mock dependencies
 const mockIsRegisteredCustomer = vi.fn();
@@ -150,18 +151,16 @@ describe('action.wishlist-remove', () => {
     });
 
     describe('action', () => {
+        /** Helper to create a POST request for testing. Uses the shared helper for Node 24 compatibility. */
         const createRequest = (productId?: string, itemId?: string): Request => {
-            const formData = new FormData();
+            const data: Record<string, string> = {};
             if (productId) {
-                formData.append('productId', productId);
+                data.productId = productId;
             }
             if (itemId) {
-                formData.append('itemId', itemId);
+                data.itemId = itemId;
             }
-            return new Request('http://localhost/action/wishlist-remove', {
-                method: 'POST',
-                body: formData,
-            });
+            return createFormDataRequest('http://localhost/action/wishlist-remove', 'POST', data);
         };
 
         test('should return error for non-POST requests', async () => {

@@ -74,19 +74,23 @@ describe('ShareButton', () => {
     // Create a wrapper with default config
     const defaultConfigWrapper = createConfigWrapper({
         app: {
-            site: {
-                locale: 'en-US',
-                currency: 'USD',
-                features: {
-                    passwordlessLogin: {
-                        enabled: false,
-                        callbackUri: '/passwordless-login-callback',
-                        landingUri: '/passwordless-login-landing',
-                    },
-                    socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                    socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                    guestCheckout: true,
+            features: {
+                passwordlessLogin: {
+                    enabled: false,
+                    callbackUri: '/passwordless-login-callback',
+                    landingUri: '/passwordless-login-landing',
                 },
+                socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
+                guestCheckout: true,
+            },
+            commerce: {
+                sites: [
+                    {
+                        defaultLocale: 'en-US',
+                        defaultCurrency: 'USD',
+                    },
+                ],
             },
         },
     } as any);
@@ -282,19 +286,23 @@ describe('ShareButton', () => {
         test('renders only enabled providers from config', async () => {
             const customWrapper = createConfigWrapper({
                 app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: true, providers: ['Twitter', 'Email'] },
-                            guestCheckout: true,
+                    features: {
+                        passwordlessLogin: {
+                            enabled: false,
+                            callbackUri: '/passwordless-login-callback',
+                            landingUri: '/passwordless-login-landing',
                         },
+                        socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                        socialShare: { enabled: true, providers: ['Twitter', 'Email'] },
+                        guestCheckout: true,
+                    },
+                    commerce: {
+                        sites: [
+                            {
+                                defaultLocale: 'en-US',
+                                defaultCurrency: 'USD',
+                            },
+                        ],
                     },
                 },
             } as any);
@@ -314,19 +322,23 @@ describe('ShareButton', () => {
         test('does not render social providers when socialShare is disabled', async () => {
             const customWrapper = createConfigWrapper({
                 app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                            guestCheckout: true,
+                    features: {
+                        passwordlessLogin: {
+                            enabled: false,
+                            callbackUri: '/passwordless-login-callback',
+                            landingUri: '/passwordless-login-landing',
                         },
+                        socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                        socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
+                        guestCheckout: true,
+                    },
+                    commerce: {
+                        sites: [
+                            {
+                                defaultLocale: 'en-US',
+                                defaultCurrency: 'USD',
+                            },
+                        ],
                     },
                 },
             } as any);
@@ -422,22 +434,26 @@ describe('ShareButton', () => {
         test('filters out invalid providers', async () => {
             const customWrapper = createConfigWrapper({
                 app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: {
-                                enabled: true,
-                                providers: ['Twitter', 'Email', 'InvalidProvider' as 'Twitter'], // Cast to test filtering
-                            },
-                            guestCheckout: true,
+                    features: {
+                        passwordlessLogin: {
+                            enabled: false,
+                            callbackUri: '/passwordless-login-callback',
+                            landingUri: '/passwordless-login-landing',
                         },
+                        socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                        socialShare: {
+                            enabled: true,
+                            providers: ['Twitter', 'Email', 'InvalidProvider' as 'Twitter'], // Cast to test filtering
+                        },
+                        guestCheckout: true,
+                    },
+                    commerce: {
+                        sites: [
+                            {
+                                defaultLocale: 'en-US',
+                                defaultCurrency: 'USD',
+                            },
+                        ],
                     },
                 },
             } as any);

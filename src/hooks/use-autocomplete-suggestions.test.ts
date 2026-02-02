@@ -66,8 +66,12 @@ describe('useAutocompleteSuggestions', () => {
             suggestions: mockGoogleSuggestions,
         });
 
+        // Use vi.fn() with a regular function for Vitest 4 compatibility
+        // Arrow functions in mockImplementation don't work for constructors in Vitest 4
         mockPlacesLibrary = {
-            AutocompleteSessionToken: vi.fn().mockImplementation(() => mockSessionToken),
+            AutocompleteSessionToken: vi.fn(function () {
+                return mockSessionToken;
+            }),
             AutocompleteSuggestion: {
                 fetchAutocompleteSuggestions: mockFetchAutocompleteSuggestions,
             },

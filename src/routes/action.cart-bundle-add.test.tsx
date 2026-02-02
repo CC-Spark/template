@@ -21,16 +21,33 @@ import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
+// Hoist dependencies for use in vi.mock (avoids async imports which fail on Windows)
+const { createContext: reactCreateContext, actualReactRouter } = vi.hoisted(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const React = require('react');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const reactRouter = require('react-router');
+    return { createContext: React.createContext, actualReactRouter: reactRouter };
+});
+
 vi.mock('@/middlewares/basket.client');
 vi.mock('@/lib/api-clients');
 vi.mock('@/config');
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
+vi.mock('@/lib/i18next', () => ({
+    getTranslation: () => ({ t: (key: string) => key }),
+}));
+vi.mock('@/extensions/bopis/lib/basket-utils', () => ({
+    syncShipmentWithDeliveryOptionChange: vi.fn((context, basket) => Promise.resolve(basket)),
+}));
+vi.mock('react-router', () => {
     return {
-        ...actual,
+        ...actualReactRouter,
+        createContext: reactCreateContext,
         data: (body: any, init?: ResponseInit) => Response.json(body, init),
     };
 });
+
+import { createFormDataRequest } from '@/test-utils/request-helpers';
 
 describe('action.cart-bundle-add', () => {
     const mockBasket = {
@@ -94,13 +111,9 @@ describe('action.cart-bundle-add', () => {
             mockClients.shopperBasketsV2.updateItemsInBasket.mockResolvedValue({ data: mockUpdatedBasket });
             mockClients.shopperBasketsV2.getBasket.mockResolvedValue({ data: mockUpdatedBasket });
 
-            const formData = new FormData();
-            formData.append('bundleItem', JSON.stringify(bundleItem));
-            formData.append('childSelections', JSON.stringify(childSelections));
-
-            const request = new Request('http://localhost/action/cart-bundle-add', {
-                method: 'POST',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-bundle-add', 'POST', {
+                bundleItem: JSON.stringify(bundleItem),
+                childSelections: JSON.stringify(childSelections),
             });
 
             const response = await clientAction({
@@ -133,13 +146,9 @@ describe('action.cart-bundle-add', () => {
             mockClients.shopperBasketsV2.updateItemsInBasket.mockResolvedValue({ data: mockUpdatedBasket });
             mockClients.shopperBasketsV2.getBasket.mockResolvedValue({ data: mockUpdatedBasket });
 
-            const formData = new FormData();
-            formData.append('bundleItem', JSON.stringify(bundleItem));
-            formData.append('childSelections', JSON.stringify(childSelections));
-
-            const request = new Request('http://localhost/action/cart-bundle-add', {
-                method: 'POST',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-bundle-add', 'POST', {
+                bundleItem: JSON.stringify(bundleItem),
+                childSelections: JSON.stringify(childSelections),
             });
 
             const response = await clientAction({
@@ -170,13 +179,9 @@ describe('action.cart-bundle-add', () => {
             mockClients.shopperBasketsV2.updateItemsInBasket.mockResolvedValue({ data: mockUpdatedBasket });
             mockClients.shopperBasketsV2.getBasket.mockResolvedValue({ data: mockUpdatedBasket });
 
-            const formData = new FormData();
-            formData.append('bundleItem', JSON.stringify(bundleItem));
-            formData.append('childSelections', JSON.stringify(childSelections));
-
-            const request = new Request('http://localhost/action/cart-bundle-add', {
-                method: 'POST',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-bundle-add', 'POST', {
+                bundleItem: JSON.stringify(bundleItem),
+                childSelections: JSON.stringify(childSelections),
             });
 
             const response = await clientAction({
@@ -196,7 +201,7 @@ describe('action.cart-bundle-add', () => {
                     {
                         productId: 'bundle-123',
                         quantity: 2,
-                        inventoryId: undefined,
+                        shipmentId: 'me',
                         bundledProductItems: [
                             { productId: 'standard-product-1', quantity: 1 },
                             { productId: 'variant-123', quantity: 2 },
@@ -207,12 +212,7 @@ describe('action.cart-bundle-add', () => {
         });
 
         test('returns error when bundle data is missing', async () => {
-            const formData = new FormData();
-
-            const request = new Request('http://localhost/action/cart-bundle-add', {
-                method: 'POST',
-                body: formData,
-            });
+            const request = createFormDataRequest('http://localhost/action/cart-bundle-add', 'POST', {});
 
             const response = await clientAction({
                 request,

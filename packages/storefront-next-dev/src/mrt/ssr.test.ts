@@ -67,7 +67,30 @@ describe('mrt/ssr', () => {
     });
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        // Reset modules to clear the cached handler in ssr.ts
+        vi.resetModules();
+
+        // Re-register mocks after resetModules (they get cleared too)
+        vi.doMock('@codegenie/serverless-express', () => ({
+            default: vi.fn().mockReturnValue(mockServerlessHandler),
+        }));
+        vi.doMock('../server/index', () => ({
+            createServer: vi.fn().mockResolvedValue(mockExpressApp),
+        }));
+        vi.doMock('./server/index.js', () => ({
+            default: {
+                assets: { version: '1', entry: { module: 'entry.js', imports: [] }, routes: {} },
+                assetsBuildDirectory: '/build/client',
+                basename: '/',
+                entry: { module: {} },
+                future: {},
+                publicPath: '/',
+                routes: {},
+            },
+        }));
+
+        // Clear the shared mock handler
+        mockServerlessHandler.mockClear();
 
         // Mock AWS Lambda context
         mockContext = {
@@ -144,46 +167,6 @@ describe('mrt/ssr', () => {
             expect(mockContext.callbackWaitsForEmptyEventLoop).toBe(false);
         });
 
-        it('should initialize handler with correct server and serverless express configuration', async () => {
-            const { get } = await import('./ssr');
-
-            void get(mockEvent, mockContext, mockCallback);
-
-            // Wait for handler initialization
-            await vi.waitFor(() => {
-                expect(vi.mocked(createServer)).toHaveBeenCalled();
-                expect(vi.mocked(serverlessExpress)).toHaveBeenCalled();
-            });
-
-            // Verify createServer was called with correct parameters
-            const createServerCall = vi.mocked(createServer).mock.calls[0];
-            expect(createServerCall).toBeDefined();
-            expect(createServerCall[0]).toMatchObject({
-                mode: 'production',
-            });
-            expect(createServerCall[0].build).toBeDefined();
-            expect(createServerCall[0].build).toHaveProperty('assets');
-            expect(createServerCall[0].build).toHaveProperty('routes');
-
-            // Verify serverless express was called with correct configuration
-            expect(vi.mocked(serverlessExpress)).toHaveBeenCalledWith({
-                app: mockExpressApp,
-                resolutionMode: 'CALLBACK',
-            });
-        });
-
-        it('should invoke the serverless handler with event, context, and callback', async () => {
-            const { get } = await import('./ssr');
-
-            void get(mockEvent, mockContext, mockCallback);
-
-            await vi.waitFor(() => {
-                expect(mockServerlessHandler).toHaveBeenCalled();
-            });
-
-            expect(mockServerlessHandler).toHaveBeenCalledWith(mockEvent, mockContext, mockCallback);
-        });
-
         it('should maintain AWS Lambda callback signature (not async)', async () => {
             const { get } = await import('./ssr');
 
@@ -193,32 +176,105 @@ describe('mrt/ssr', () => {
 
             expect(result).toBeUndefined();
         });
+    });
 
-        it('should handle multiple concurrent requests correctly', async () => {
-            const { get } = await import('./ssr');
+    describe('invokeHandler', () => {
+        it('should invoke the handler when it resolves successfully', async () => {
+            const { invokeHandler } = await import('./ssr');
+            const mockHandler = vi.fn();
+            const handlerPromise = Promise.resolve(mockHandler);
+            const testCallback = vi.fn() as Callback;
 
-            const context1 = { ...mockContext, awsRequestId: 'request-1' };
-            const context2 = { ...mockContext, awsRequestId: 'request-2' };
-            const context3 = { ...mockContext, awsRequestId: 'request-3' };
+            invokeHandler(handlerPromise, mockEvent, mockContext, testCallback);
+
+            await vi.waitFor(() => {
+                expect(mockHandler).toHaveBeenCalledWith(mockEvent, mockContext, testCallback);
+            });
+        });
+
+        it('should call callback with error when handler is null', async () => {
+            const { invokeHandler } = await import('./ssr');
+            const handlerPromise = Promise.resolve(null);
+            const testCallback = vi.fn() as Callback;
+
+            invokeHandler(handlerPromise, mockEvent, mockContext, testCallback);
+
+            await vi.waitFor(() => {
+                expect(testCallback).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: 'Serverless Express handler is not available',
+                    })
+                );
+            });
+        });
+
+        it('should call callback with error when handler promise rejects', async () => {
+            const { invokeHandler } = await import('./ssr');
+            const initError = new Error('Failed to initialize handler');
+            const handlerPromise = Promise.reject(initError);
+            const testCallback = vi.fn() as Callback;
+
+            invokeHandler(handlerPromise, mockEvent, mockContext, testCallback);
+
+            await vi.waitFor(() => {
+                expect(testCallback).toHaveBeenCalledWith(initError);
+            });
+        });
+
+        it('should handle multiple concurrent invocations', async () => {
+            const { invokeHandler } = await import('./ssr');
+            const mockHandler = vi.fn();
+            const handlerPromise = Promise.resolve(mockHandler);
 
             const callback1 = vi.fn() as Callback;
             const callback2 = vi.fn() as Callback;
             const callback3 = vi.fn() as Callback;
 
-            // Simulate concurrent requests
-            void get(mockEvent, context1, callback1);
-            void get(mockEvent, context2, callback2);
-            void get(mockEvent, context3, callback3);
+            const context1 = { ...mockContext, awsRequestId: 'req-1' };
+            const context2 = { ...mockContext, awsRequestId: 'req-2' };
+            const context3 = { ...mockContext, awsRequestId: 'req-3' };
+
+            invokeHandler(handlerPromise, mockEvent, context1, callback1);
+            invokeHandler(handlerPromise, mockEvent, context2, callback2);
+            invokeHandler(handlerPromise, mockEvent, context3, callback3);
 
             await vi.waitFor(() => {
-                // All three should have been invoked
-                expect(mockServerlessHandler).toHaveBeenCalledTimes(3);
+                expect(mockHandler).toHaveBeenCalledTimes(3);
             });
 
-            // Each should have been called with their respective context
-            expect(mockServerlessHandler).toHaveBeenCalledWith(mockEvent, context1, callback1);
-            expect(mockServerlessHandler).toHaveBeenCalledWith(mockEvent, context2, callback2);
-            expect(mockServerlessHandler).toHaveBeenCalledWith(mockEvent, context3, callback3);
+            expect(mockHandler).toHaveBeenCalledWith(mockEvent, context1, callback1);
+            expect(mockHandler).toHaveBeenCalledWith(mockEvent, context2, callback2);
+            expect(mockHandler).toHaveBeenCalledWith(mockEvent, context3, callback3);
+        });
+    });
+
+    describe('createHandler', () => {
+        it('should create a handler using the provided build loader', async () => {
+            const { createHandler } = await import('./ssr');
+            const mockBuild = {
+                assets: { version: '1', entry: { module: 'entry.js', imports: [] }, routes: {} },
+                assetsBuildDirectory: '/build/client',
+                basename: '/',
+                entry: { module: {} },
+                future: {},
+                publicPath: '/',
+                routes: {},
+            };
+            const mockBuildLoader = vi.fn().mockResolvedValue(mockBuild);
+
+            const handler = await createHandler(mockBuildLoader);
+
+            expect(mockBuildLoader).toHaveBeenCalled();
+            expect(handler).toBeDefined();
+            expect(typeof handler).toBe('function');
+        });
+
+        it('should propagate errors from build loader', async () => {
+            const { createHandler } = await import('./ssr');
+            const buildError = new Error('Failed to load build');
+            const mockBuildLoader = vi.fn().mockRejectedValue(buildError);
+
+            await expect(createHandler(mockBuildLoader)).rejects.toThrow('Failed to load build');
         });
     });
 
@@ -250,53 +306,6 @@ describe('mrt/ssr', () => {
 
             // Should be set to false synchronously, before any async operations
             expect(mockContext.callbackWaitsForEmptyEventLoop).toBe(false);
-        });
-    });
-
-    describe('error handling', () => {
-        it('should handle errors during handler initialization', async () => {
-            // Reset the module to test error handling
-            vi.resetModules();
-
-            const initError = new Error('Failed to initialize handler');
-            vi.mocked(createServer).mockRejectedValueOnce(initError);
-
-            // Force fresh import with unique query parameter
-            const timestamp = Date.now().toString();
-            const { get } = await import(`./ssr?t=${timestamp}`);
-
-            void get(mockEvent, mockContext, mockCallback);
-
-            await vi.waitFor(
-                () => {
-                    expect(mockCallback).toHaveBeenCalledWith(initError);
-                },
-                { timeout: 2000 }
-            );
-        });
-
-        it('should handle null handler gracefully', async () => {
-            // Reset the module to test null handler
-            vi.resetModules();
-
-            vi.mocked(serverlessExpress).mockReturnValueOnce(null as any);
-
-            // Force fresh import with unique query parameter
-            const timestamp = Date.now().toString();
-            const { get } = await import(`./ssr?t=${timestamp}`);
-
-            void get(mockEvent, mockContext, mockCallback);
-
-            await vi.waitFor(
-                () => {
-                    expect(mockCallback).toHaveBeenCalledWith(
-                        expect.objectContaining({
-                            message: 'Serverless Express handler is not available',
-                        })
-                    );
-                },
-                { timeout: 2000 }
-            );
         });
     });
 });

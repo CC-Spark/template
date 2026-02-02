@@ -78,6 +78,8 @@ const mockConfig: EinsteinConfig = {
         cart_item_add: true,
         checkout_start: true,
         checkout_step: true,
+        view_search_suggestion: true,
+        click_search_suggestion: true,
     },
 };
 

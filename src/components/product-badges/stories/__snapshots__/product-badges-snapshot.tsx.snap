@@ -2,8 +2,6 @@
 
 exports[`ProductBadges stories snapshot > Default story renders and matches snapshot 1`] = `<div />`;
 
-exports[`ProductBadges stories snapshot > Desktop story renders and matches snapshot 1`] = `<div />`;
-
 exports[`ProductBadges stories snapshot > LimitedBadges story renders and matches snapshot 1`] = `
 <div>
   <div
@@ -31,11 +29,7 @@ exports[`ProductBadges stories snapshot > LimitedBadges story renders and matche
 </div>
 `;
 
-exports[`ProductBadges stories snapshot > Mobile story renders and matches snapshot 1`] = `<div />`;
-
 exports[`ProductBadges stories snapshot > NoBadges story renders and matches snapshot 1`] = `<div />`;
-
-exports[`ProductBadges stories snapshot > Tablet story renders and matches snapshot 1`] = `<div />`;
 
 exports[`ProductBadges stories snapshot > WithCustomBadges story renders and matches snapshot 1`] = `
 <div>

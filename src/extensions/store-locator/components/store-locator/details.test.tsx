@@ -22,7 +22,7 @@ import StoreDetails from './details';
 
 const { t } = getTranslation();
 
-const store: ShopperStores.schemas['Store'] = {
+const store: ShopperStores.schemas['Store'] & { c_customerServiceEmail?: string } = {
     id: 's1',
     name: 'Downtown Store',
     address1: '1 Market St',

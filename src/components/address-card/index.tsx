@@ -16,7 +16,7 @@
 
 import { type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/spinner';
@@ -30,10 +30,14 @@ interface AddressCardProps {
     onEdit?: () => void;
     /** Callback function called when the remove button is clicked */
     onRemove?: () => void;
+    /** Callback function called when the set default button is clicked */
+    onSetDefault?: () => void;
     /** Whether this address is the preferred address */
     isPreferred?: boolean;
     /** Whether the remove action is in progress */
     isRemoving?: boolean;
+    /** Whether the set default action is in progress */
+    isSettingDefault?: boolean;
 }
 
 /**
@@ -60,35 +64,57 @@ export default function AddressCard({
     address,
     onEdit,
     onRemove,
+    onSetDefault,
     isPreferred = false,
     isRemoving = false,
+    isSettingDefault = false,
 }: AddressCardProps): ReactElement {
     const { t } = useTranslation(['account', 'actionCard']);
+
+    // Format the name for display
+    const displayName = `${address.firstName || ''} ${address.lastName || ''}`.trim();
+
+    const isLoading = isRemoving || isSettingDefault;
+
     return (
-        <Card className="border-border gap-0 py-4 relative">
-            <CardHeader>
-                <CardTitle className="text-left">{address.addressId}</CardTitle>
-                <CardAction>
+        <Card className={`gap-0 py-4 relative ${isPreferred ? 'border-primary border-2' : 'border-border'}`}>
+            <CardHeader className="pb-1">
+                <CardTitle className="text-left flex items-center gap-2">
+                    {address.addressId}
                     {isPreferred && (
-                        <Badge variant="default" className="text-xs">
-                            {t('account:addresses.preferred')}
+                        <Badge
+                            variant="secondary"
+                            className="text-xs font-normal bg-primary/10 text-primary rounded-md">
+                            {t('account:addresses.default')}
                         </Badge>
                     )}
-                </CardAction>
+                </CardTitle>
+                {displayName && <p className="text-sm text-muted-foreground">{displayName}</p>}
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="px-6 py-2">
                 <AddressDisplay address={address} />
             </CardContent>
-            {(onEdit || onRemove) && (
-                <CardFooter className="gap-2 px-4">
+            {(onEdit || onRemove || onSetDefault) && (
+                <CardFooter className="gap-4 px-6 pt-2">
                     {onEdit && (
                         <Button
                             onClick={onEdit}
                             variant="link"
                             size="sm"
-                            className="font-bold"
-                            aria-label={t('actionCard:edit')}>
-                            {t('actionCard:edit')}
+                            className="font-bold px-0"
+                            aria-label={t('account:addresses.editAddress')}>
+                            {t('account:addresses.editAddress')}
+                        </Button>
+                    )}
+                    {onSetDefault && (
+                        <Button
+                            onClick={onSetDefault}
+                            variant="link"
+                            size="sm"
+                            className={`font-bold px-0 ${isPreferred ? 'text-muted-foreground cursor-not-allowed' : ''}`}
+                            aria-label={t('account:addresses.setDefault')}
+                            disabled={isPreferred || isSettingDefault}>
+                            {t('account:addresses.setDefault')}
                         </Button>
                     )}
                     {onRemove && (
@@ -96,7 +122,7 @@ export default function AddressCard({
                             onClick={onRemove}
                             variant="link"
                             size="sm"
-                            className="text-destructive hover:text-destructive font-bold"
+                            className="font-bold px-0"
                             aria-label={t('actionCard:remove')}
                             disabled={isRemoving}>
                             {t('actionCard:remove')}
@@ -105,7 +131,7 @@ export default function AddressCard({
                 </CardFooter>
             )}
             {/* Loading Spinner Overlay */}
-            {isRemoving && (
+            {isLoading && (
                 <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 pointer-events-none flex items-center justify-center rounded-lg">
                     <Spinner size="lg" />
                 </div>

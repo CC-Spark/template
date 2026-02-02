@@ -29,28 +29,28 @@ import { AllProvidersWrapper } from '@/test-utils/context-provider';
 import { masterProduct } from '@/components/__mocks__/master-variant-product';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 import { bundleProd } from '@/components/__mocks__/bundle-product';
-import { createConfigWrapper } from '@/test-utils/config';
+import { mockBuildConfig } from '@/test-utils/config';
+import { createAppConfig } from '@/config/context';
 import { getTranslation } from '@/lib/i18next';
 
-// Create a wrapper with default config
-const defaultConfigWrapper = createConfigWrapper({
+// Create a default config object for tests
+const defaultTestConfig = createAppConfig({
+    ...mockBuildConfig,
     app: {
-        site: {
-            locale: 'en-US',
-            currency: 'USD',
-            features: {
-                passwordlessLogin: {
-                    enabled: false,
-                    callbackUri: '/passwordless-login-callback',
-                    landingUri: '/passwordless-login-landing',
-                },
-                socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                guestCheckout: true,
+        ...mockBuildConfig.app,
+        features: {
+            ...mockBuildConfig.app.features,
+            passwordlessLogin: {
+                enabled: false,
+                callbackUri: '/passwordless-login-callback',
+                landingUri: '/passwordless-login-landing',
             },
+            socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+            socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
+            guestCheckout: true,
         },
     },
-} as any);
+});
 
 // Mock useToast
 const mockAddToast = vi.fn();
@@ -134,7 +134,7 @@ const renderProductCartActions = (props: ComponentProps<typeof ProductCartAction
             {
                 path: '/product/:productId',
                 element: (
-                    <AllProvidersWrapper>
+                    <AllProvidersWrapper config={defaultTestConfig}>
                         <ProductViewProvider product={props.product} mode={mode}>
                             <ProductCartActions {...props} />
                         </ProductViewProvider>
@@ -147,7 +147,7 @@ const renderProductCartActions = (props: ComponentProps<typeof ProductCartAction
         }
     );
     return {
-        ...render(<RouterProvider router={router} />, { wrapper: defaultConfigWrapper }),
+        ...render(<RouterProvider router={router} />),
         router,
     };
 };
@@ -299,24 +299,23 @@ describe('ProductCartActions', () => {
         });
 
         test('share button respects disabled socialShare config', async () => {
-            const customWrapper = createConfigWrapper({
+            const customConfig = createAppConfig({
+                ...mockBuildConfig,
                 app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                            guestCheckout: true,
+                    ...mockBuildConfig.app,
+                    features: {
+                        ...mockBuildConfig.app.features,
+                        passwordlessLogin: {
+                            enabled: false,
+                            callbackUri: '/passwordless-login-callback',
+                            landingUri: '/passwordless-login-landing',
                         },
+                        socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                        socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
+                        guestCheckout: true,
                     },
                 },
-            } as any);
+            });
 
             const user = userEvent.setup();
             const productId = standardProd.id;
@@ -326,9 +325,11 @@ describe('ProductCartActions', () => {
                     {
                         path: '/product/:productId',
                         element: (
-                            <ProductViewProvider product={standardProd} mode="add">
-                                <ProductCartActions product={standardProd} />
-                            </ProductViewProvider>
+                            <AllProvidersWrapper config={customConfig}>
+                                <ProductViewProvider product={standardProd} mode="add">
+                                    <ProductCartActions product={standardProd} />
+                                </ProductViewProvider>
+                            </AllProvidersWrapper>
                         ),
                     },
                 ],
@@ -336,7 +337,7 @@ describe('ProductCartActions', () => {
                     initialEntries: [initialUrl],
                 }
             );
-            render(<RouterProvider router={router} />, { wrapper: customWrapper });
+            render(<RouterProvider router={router} />);
 
             const shareButton = screen.getByRole('button', { name: /share/i });
             await user.click(shareButton);
@@ -384,13 +385,15 @@ describe('ProductCartActions', () => {
                     {
                         path: '/product/:productId',
                         element: (
-                            <ProductViewProvider product={standardProd}>
-                                <ProductCartActions
-                                    product={standardProd}
-                                    onBeforeAddToWishlist={mockOnBeforeAddToWishlist}
-                                    onAddToWishlistSuccess={mockOnAddToWishlistSuccess}
-                                />
-                            </ProductViewProvider>
+                            <AllProvidersWrapper config={defaultTestConfig}>
+                                <ProductViewProvider product={standardProd}>
+                                    <ProductCartActions
+                                        product={standardProd}
+                                        onBeforeAddToWishlist={mockOnBeforeAddToWishlist}
+                                        onAddToWishlistSuccess={mockOnAddToWishlistSuccess}
+                                    />
+                                </ProductViewProvider>
+                            </AllProvidersWrapper>
                         ),
                     },
                 ],
@@ -401,7 +404,7 @@ describe('ProductCartActions', () => {
                 }
             );
 
-            render(<RouterProvider router={router} />, { wrapper: defaultConfigWrapper });
+            render(<RouterProvider router={router} />);
 
             await waitFor(
                 () => {
@@ -422,12 +425,14 @@ describe('ProductCartActions', () => {
                     {
                         path: '/product/:productId',
                         element: (
-                            <ProductViewProvider product={standardProd}>
-                                <ProductCartActions
-                                    product={standardProd}
-                                    onBeforeAddToWishlist={mockOnBeforeAddToWishlist}
-                                />
-                            </ProductViewProvider>
+                            <AllProvidersWrapper config={defaultTestConfig}>
+                                <ProductViewProvider product={standardProd}>
+                                    <ProductCartActions
+                                        product={standardProd}
+                                        onBeforeAddToWishlist={mockOnBeforeAddToWishlist}
+                                    />
+                                </ProductViewProvider>
+                            </AllProvidersWrapper>
                         ),
                     },
                 ],
@@ -438,7 +443,7 @@ describe('ProductCartActions', () => {
                 }
             );
 
-            render(<RouterProvider router={router} />, { wrapper: defaultConfigWrapper });
+            render(<RouterProvider router={router} />);
 
             // Wait a bit to ensure action doesn't execute
             await new Promise((resolve) => setTimeout(resolve, 500));
@@ -458,9 +463,11 @@ describe('ProductCartActions', () => {
                     {
                         path: '/product/:productId',
                         element: (
-                            <ProductViewProvider product={standardProd}>
-                                <ProductCartActions product={standardProd} />
-                            </ProductViewProvider>
+                            <AllProvidersWrapper config={defaultTestConfig}>
+                                <ProductViewProvider product={standardProd}>
+                                    <ProductCartActions product={standardProd} />
+                                </ProductViewProvider>
+                            </AllProvidersWrapper>
                         ),
                     },
                 ],
@@ -471,7 +478,7 @@ describe('ProductCartActions', () => {
                 }
             );
 
-            render(<RouterProvider router={router} />, { wrapper: defaultConfigWrapper });
+            render(<RouterProvider router={router} />);
 
             // Check if loading state is shown (button should show "Adding To Wishlist..." text or be disabled)
             await waitFor(

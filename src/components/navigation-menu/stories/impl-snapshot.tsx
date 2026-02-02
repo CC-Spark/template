@@ -59,7 +59,6 @@ vi.mock('react-router', () => ({
         };
         const hrefValue = to ?? toProp ?? href ?? '#';
 
-        // @ts-expect-error - TypeScript has trouble inferring union types in this context
         const resolvedClassName =
             typeof className === 'function' ? className({ isActive: hrefValue === '/' }) : className;
         return (

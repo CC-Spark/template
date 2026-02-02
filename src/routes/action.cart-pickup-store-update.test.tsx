@@ -41,6 +41,8 @@ vi.mock('@/lib/utils', () => ({
     })),
 }));
 
+import { createFormDataRequest } from '@/test-utils/request-helpers';
+
 describe('action.cart-pickup-store-update', () => {
     const mockBasketId = 'test-basket-123';
     const mockStoreId = 'store-123';
@@ -178,13 +180,9 @@ describe('action.cart-pickup-store-update', () => {
         test('returns error when basket is not found', async () => {
             vi.mocked(getBasket).mockReturnValue({});
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -199,12 +197,8 @@ describe('action.cart-pickup-store-update', () => {
         });
 
         test('returns error when storeId is missing', async () => {
-            const formData = new FormData();
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -219,12 +213,8 @@ describe('action.cart-pickup-store-update', () => {
         });
 
         test('returns error when inventoryId is missing', async () => {
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
             });
 
             const response = await clientAction({
@@ -241,13 +231,9 @@ describe('action.cart-pickup-store-update', () => {
         test('returns error when no pickup store is currently set', async () => {
             vi.mocked(getFirstPickupStoreId).mockReturnValue(undefined);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -296,13 +282,9 @@ describe('action.cart-pickup-store-update', () => {
                 ],
             } as ShopperBasketsV2.schemas['Basket']);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -318,14 +300,10 @@ describe('action.cart-pickup-store-update', () => {
         });
 
         test('successfully updates pickup store when all items are in stock', async () => {
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-            formData.append('storeName', mockStoreName);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
+                storeName: mockStoreName,
             });
 
             const response = await clientAction({
@@ -393,14 +371,10 @@ describe('action.cart-pickup-store-update', () => {
         test('returns error when items are out of stock at new store', async () => {
             vi.mocked(isStoreOutOfStock).mockReturnValue(true);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-            formData.append('storeName', mockStoreName);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
+                storeName: mockStoreName,
             });
 
             const response = await clientAction({
@@ -422,14 +396,10 @@ describe('action.cart-pickup-store-update', () => {
         test('uses storeId as fallback when storeName is not provided in out of stock error', async () => {
             vi.mocked(isStoreOutOfStock).mockReturnValue(true);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-            // No storeName
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            // No storeName included
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -449,13 +419,9 @@ describe('action.cart-pickup-store-update', () => {
                 data: [mockProduct1], // Missing product-2
             });
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -499,13 +465,9 @@ describe('action.cart-pickup-store-update', () => {
                 ...basketWithMissingProductId,
             } as ShopperBasketsV2.schemas['Basket']);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             await clientAction({
@@ -559,13 +521,9 @@ describe('action.cart-pickup-store-update', () => {
                 ...basketWithDuplicates,
             } as ShopperBasketsV2.schemas['Basket']);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             await clientAction({
@@ -592,13 +550,9 @@ describe('action.cart-pickup-store-update', () => {
         test('handles empty products response gracefully', async () => {
             mockShopperProducts.getProducts.mockResolvedValue({ data: undefined });
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -617,13 +571,9 @@ describe('action.cart-pickup-store-update', () => {
             const mockError = new Error('API Error');
             mockShopperBasketsV2.updateItemsInBasket.mockRejectedValue(mockError);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -642,13 +592,9 @@ describe('action.cart-pickup-store-update', () => {
             const mockError = new Error('Shipment update failed');
             vi.mocked(updateShipmentForPickup).mockRejectedValue(mockError);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -673,13 +619,9 @@ describe('action.cart-pickup-store-update', () => {
 
             mockShopperBasketsV2.updateItemsInBasket.mockRejectedValue(mockError);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -712,13 +654,9 @@ describe('action.cart-pickup-store-update', () => {
 
             mockShopperBasketsV2.updateItemsInBasket.mockRejectedValue(mockError);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -739,13 +677,9 @@ describe('action.cart-pickup-store-update', () => {
         test('does not rollback when shipment was not updated', async () => {
             vi.mocked(isStoreOutOfStock).mockReturnValue(true);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -789,13 +723,9 @@ describe('action.cart-pickup-store-update', () => {
             // But if it somehow gets past that, test the rollback behavior
             vi.mocked(getFirstPickupStoreId).mockReturnValue(undefined);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -824,13 +754,9 @@ describe('action.cart-pickup-store-update', () => {
             mockShopperBasketsV2.updateItemsInBasket.mockResolvedValue({} as any);
             mockShopperBasketsV2.getBasket.mockRejectedValue(mockError);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -872,13 +798,9 @@ describe('action.cart-pickup-store-update', () => {
             vi.mocked(getPickupProductItemsForStore).mockReturnValueOnce(mockBasketWithPickupItems.productItems || []); // First call for validation
             vi.mocked(getPickupProductItemsForStore).mockReturnValueOnce([]); // Second call after update returns empty
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({
@@ -917,13 +839,9 @@ describe('action.cart-pickup-store-update', () => {
             const mockError = new Error('API Error: itemId is required');
             mockShopperBasketsV2.updateItemsInBasket.mockRejectedValue(mockError);
 
-            const formData = new FormData();
-            formData.append('storeId', mockStoreId);
-            formData.append('inventoryId', mockInventoryId);
-
-            const request = new Request('http://localhost/action/cart-pickup-store-update', {
-                method: 'PATCH',
-                body: formData,
+            const request = createFormDataRequest('http://localhost/action/cart-pickup-store-update', 'PATCH', {
+                storeId: mockStoreId,
+                inventoryId: mockInventoryId,
             });
 
             const response = await clientAction({

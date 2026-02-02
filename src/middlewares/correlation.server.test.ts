@@ -74,6 +74,7 @@ describe('middlewares/correlation.server.ts', () => {
         it('should set correlation ID before calling next()', async () => {
             let correlationIdDuringNext: string | undefined;
 
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             mockNext.mockImplementation(() => {
                 correlationIdDuringNext = mockContext.get(correlationContext);
                 return Promise.resolve(new Response('test'));

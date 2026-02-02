@@ -17,7 +17,7 @@ pnpm add @salesforce/storefront-next-runtime
 
 ## Requirements
 
-- Node.js >= 22.0.0
+- Node.js >= 24.0.0
 - React >= 19.0.0
 - React DOM >= 19.0.0
 

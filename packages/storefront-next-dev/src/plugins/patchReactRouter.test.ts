@@ -37,9 +37,38 @@ describe('patchReactRouterPlugin', () => {
         expect(plugin.enforce).toBe('pre');
     });
 
+    describe('config', () => {
+        it('should detect test mode', () => {
+            const plugin = patchReactRouterPlugin();
+            // Simulate calling config hook with test mode
+            callHook(plugin.config, {}, { mode: 'test' });
+
+            // After test mode is set, resolveId should return null
+            const result = callHook(plugin.resolveId, 'react-router', '/some/importer.ts');
+            expect(result).toBeNull();
+        });
+
+        it('should not affect patching in development mode', () => {
+            const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
+
+            const result = callHook(plugin.resolveId, 'react-router', '/some/importer.ts');
+            expect(result).toBe('\0patched-react-router');
+        });
+
+        it('should not affect patching in production mode', () => {
+            const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'production' });
+
+            const result = callHook(plugin.resolveId, 'react-router', '/some/importer.ts');
+            expect(result).toBe('\0patched-react-router');
+        });
+    });
+
     describe('configEnvironment', () => {
         it('should mark react-router as noExternal for ssr environment', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.configEnvironment, 'ssr');
 
             expect(result).toEqual({
@@ -51,6 +80,7 @@ describe('patchReactRouterPlugin', () => {
 
         it('should return undefined for non-ssr environments', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.configEnvironment, 'client');
 
             expect(result).toBeUndefined();
@@ -58,15 +88,25 @@ describe('patchReactRouterPlugin', () => {
 
         it('should return undefined for other environments', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.configEnvironment, 'custom');
 
             expect(result).toBeUndefined();
+        });
+
+        it('should return undefined in test mode for all environments', () => {
+            const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'test' });
+
+            expect(callHook(plugin.configEnvironment, 'ssr')).toBeUndefined();
+            expect(callHook(plugin.configEnvironment, 'client')).toBeUndefined();
         });
     });
 
     describe('resolveId', () => {
         it('should resolve react-router to virtual module', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.resolveId, 'react-router', '/some/importer.ts');
 
             expect(result).toBe('\0patched-react-router');
@@ -74,6 +114,7 @@ describe('patchReactRouterPlugin', () => {
 
         it('should not resolve when importer is the virtual module itself', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.resolveId, 'react-router', '\0patched-react-router');
 
             expect(result).toBeNull();
@@ -81,6 +122,7 @@ describe('patchReactRouterPlugin', () => {
 
         it('should not resolve when importer includes storefront-next-dev', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.resolveId, 'react-router', '/path/to/storefront-next-dev/file.ts');
 
             expect(result).toBeNull();
@@ -88,6 +130,7 @@ describe('patchReactRouterPlugin', () => {
 
         it('should return null for non-react-router modules', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.resolveId, 'some-other-module', '/some/importer.ts');
 
             expect(result).toBeNull();
@@ -95,15 +138,25 @@ describe('patchReactRouterPlugin', () => {
 
         it('should handle undefined importer', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.resolveId, 'react-router', undefined);
 
             expect(result).toBe('\0patched-react-router');
+        });
+
+        it('should return null in test mode to avoid Windows path resolution errors', () => {
+            const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'test' });
+            const result = callHook(plugin.resolveId, 'react-router', '/some/importer.ts');
+
+            expect(result).toBeNull();
         });
     });
 
     describe('load', () => {
         it('should load virtual module with patched Scripts component', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.load, '\0patched-react-router');
 
             expect(result).toContain("export * from 'react-router'");
@@ -112,6 +165,7 @@ describe('patchReactRouterPlugin', () => {
 
         it('should return null for non-virtual modules', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.load, '/some/real/file.ts');
 
             expect(result).toBeNull();
@@ -119,12 +173,21 @@ describe('patchReactRouterPlugin', () => {
 
         it('should export all from react-router except Scripts', () => {
             const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'development' });
             const result = callHook(plugin.load, '\0patched-react-router');
 
             // Verify that the code re-exports everything from react-router
             // and then overrides Scripts with our custom implementation
             expect(typeof result).toBe('string');
             expect(result).toContain("export * from 'react-router'");
+        });
+
+        it('should return null in test mode', () => {
+            const plugin = patchReactRouterPlugin();
+            callHook(plugin.config, {}, { mode: 'test' });
+            const result = callHook(plugin.load, '\0patched-react-router');
+
+            expect(result).toBeNull();
         });
     });
 });

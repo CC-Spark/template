@@ -42,6 +42,9 @@ interface ContentCardProps extends ComponentProps<'div'> {
     componentData?: Record<string, Promise<unknown>>;
     designMetadata?: ComponentDesignMetadata;
     data?: unknown;
+    cardFooterClassName?: string;
+    cardDescriptionClassName?: string;
+    buttonClassName?: string;
 }
 
 /* v8 ignore start - do not test decorators in unit tests, decorator functionality is tested separately*/
@@ -80,6 +83,9 @@ export const ContentCard = forwardRef<HTMLDivElement, ContentCardProps>(
     (
         {
             className,
+            cardFooterClassName,
+            cardDescriptionClassName,
+            buttonClassName,
             title,
             description,
             imageUrl,
@@ -133,9 +139,9 @@ export const ContentCard = forwardRef<HTMLDivElement, ContentCardProps>(
                 )}
 
                 {(title || description || (buttonText && buttonLink)) && (
-                    <CardFooter className="flex-col items-start gap-4 p-6 flex-1">
+                    <CardFooter className={cn('flex-col items-start gap-4 p-6 flex-1', cardFooterClassName)}>
                         {(title || description) && (
-                            <div className="flex-1">
+                            <div className={cn('flex-1', cardDescriptionClassName)}>
                                 {title && <h3 className="text-2xl font-bold text-foreground mb-3">{title}</h3>}
                                 {description && (
                                     <p className="text-sm text-muted-foreground whitespace-pre-line">{description}</p>
@@ -143,7 +149,7 @@ export const ContentCard = forwardRef<HTMLDivElement, ContentCardProps>(
                             </div>
                         )}
                         {buttonText && buttonLink && (
-                            <Button asChild className="w-full">
+                            <Button asChild className={cn('w-full', buttonClassName)}>
                                 <Link to={buttonLink}>{buttonText}</Link>
                             </Button>
                         )}

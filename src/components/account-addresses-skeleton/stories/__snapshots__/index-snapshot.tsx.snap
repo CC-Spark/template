@@ -5,79 +5,87 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
   <div
     class="space-y-6"
   >
-    <div>
-      <h1
-        class="text-2xl font-bold text-foreground"
-        tabindex="0"
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm p-6"
+      data-slot="card"
+    >
+      <div
+        class="flex items-start justify-between"
       >
-        Addresses
-      </h1>
+        <div>
+          <h1
+            class="text-2xl font-bold text-foreground"
+            tabindex="0"
+          >
+            Addresses
+          </h1>
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-48 mt-2"
+            data-slot="skeleton"
+          />
+        </div>
+        <div
+          class="bg-accent animate-pulse rounded-md h-9 w-36"
+          data-slot="skeleton"
+        />
+      </div>
     </div>
     <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      class="flex flex-col gap-4"
     >
       <div
         class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 px-6 pb-2"
           data-slot="card-header"
         >
           <div
-            class="leading-none font-semibold"
+            class="leading-none font-semibold flex items-center gap-2"
             data-slot="card-title"
           >
             <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
+              class="bg-accent animate-pulse rounded-md h-5 w-32"
               data-slot="skeleton"
             />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
             <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              class="bg-accent animate-pulse h-5 w-14 rounded-md"
               data-slot="skeleton"
             />
           </div>
         </div>
         <div
-          class="p-4"
+          class="px-6 py-2"
           data-slot="card-content"
         >
           <div
-            class="space-y-2"
+            class="space-y-1"
           >
             <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-48"
               data-slot="skeleton"
             />
             <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-56"
               data-slot="skeleton"
             />
           </div>
         </div>
         <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
+          class="flex items-center [.border-t]:pt-6 gap-4 px-6 pt-2"
           data-slot="card-footer"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-4 w-20"
             data-slot="skeleton"
           />
           <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-4 w-20"
+            data-slot="skeleton"
+          />
+          <div
+            class="bg-accent animate-pulse rounded-md h-4 w-16"
             data-slot="skeleton"
           />
         </div>
@@ -87,786 +95,50 @@ exports[`AccountAddressesSkeleton stories snapshot > Default story renders and m
         data-slot="card"
       >
         <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 px-6 pb-2"
           data-slot="card-header"
         >
           <div
-            class="leading-none font-semibold"
+            class="leading-none font-semibold flex items-center gap-2"
             data-slot="card-title"
           >
             <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
+              class="bg-accent animate-pulse rounded-md h-5 w-32"
               data-slot="skeleton"
             />
           </div>
         </div>
         <div
-          class="p-4"
+          class="px-6 py-2"
           data-slot="card-content"
         >
           <div
-            class="space-y-2"
+            class="space-y-1"
           >
             <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
+              class="bg-accent animate-pulse rounded-md h-4 w-48"
               data-slot="skeleton"
             />
             <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
+              class="bg-accent animate-pulse rounded-md h-4 w-56"
               data-slot="skeleton"
             />
           </div>
         </div>
         <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
+          class="flex items-center [.border-t]:pt-6 gap-4 px-6 pt-2"
           data-slot="card-footer"
         >
           <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-4 w-20"
             data-slot="skeleton"
           />
           <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
+            class="bg-accent animate-pulse rounded-md h-4 w-20"
             data-slot="skeleton"
           />
           <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`AccountAddressesSkeleton stories snapshot > Desktop story renders and matches snapshot 1`] = `
-<div>
-  <div
-    class="space-y-6"
-  >
-    <div>
-      <h1
-        class="text-2xl font-bold text-foreground"
-        tabindex="0"
-      >
-        Addresses
-      </h1>
-    </div>
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-    >
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`AccountAddressesSkeleton stories snapshot > Mobile story renders and matches snapshot 1`] = `
-<div>
-  <div
-    class="space-y-6"
-  >
-    <div>
-      <h1
-        class="text-2xl font-bold text-foreground"
-        tabindex="0"
-      >
-        Addresses
-      </h1>
-    </div>
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-    >
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`AccountAddressesSkeleton stories snapshot > Tablet story renders and matches snapshot 1`] = `
-<div>
-  <div
-    class="space-y-6"
-  >
-    <div>
-      <h1
-        class="text-2xl font-bold text-foreground"
-        tabindex="0"
-      >
-        Addresses
-      </h1>
-    </div>
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-    >
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
-            data-slot="skeleton"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm border-border gap-0 py-4"
-        data-slot="card"
-      >
-        <div
-          class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-          data-slot="card-header"
-        >
-          <div
-            class="leading-none font-semibold"
-            data-slot="card-title"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-16"
-              data-slot="skeleton"
-            />
-          </div>
-          <div
-            class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
-            data-slot="card-action"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-5 w-20"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="p-4"
-          data-slot="card-content"
-        >
-          <div
-            class="space-y-2"
-          >
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-32"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-40"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-36"
-              data-slot="skeleton"
-            />
-            <div
-              class="bg-accent animate-pulse rounded-md h-4 w-24"
-              data-slot="skeleton"
-            />
-          </div>
-        </div>
-        <div
-          class="flex items-center px-6 [.border-t]:pt-6 gap-2"
-          data-slot="card-footer"
-        >
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-12"
-            data-slot="skeleton"
-          />
-          <div
-            class="bg-accent animate-pulse rounded-md h-8 w-16"
+            class="bg-accent animate-pulse rounded-md h-4 w-16"
             data-slot="skeleton"
           />
         </div>

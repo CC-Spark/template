@@ -63,7 +63,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({ suggestions, searchPhrase, cl
                             <div className="w-10 h-8 mr-4 rounded-full bg-transparent flex items-center justify-center overflow-hidden shrink-0">
                                 {suggestion.image ? (
                                     <DynamicImage
-                                        src={`${suggestion.image}[?sw={width}&q=60]`}
+                                        src={`${suggestion.image}[?sw={width}]`}
                                         alt=""
                                         className="w-full h-full"
                                         imageProps={{

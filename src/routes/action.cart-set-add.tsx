@@ -18,9 +18,11 @@ import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-run
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-// @sfdc-extension-line SFDC_EXT_BOPIS
-import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
 import { getTranslation } from '@/lib/i18next';
+// @sfdc-extension-block-start SFDC_EXT_BOPIS
+import { findOrCreatePickupShipment } from '@/extensions/bopis/lib/api/shipment';
+import { assertAllProductItemsPickup } from '@/extensions/bopis/lib/product-utils';
+// @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 async function addMultipleItemsToCart(
     context: ActionFunctionArgs['context'],
@@ -47,8 +49,19 @@ async function addMultipleItemsToCart(
     }
 
     try {
-        // Add all items to basket in a single API call
         const clients = createApiClients(context);
+        let shipmentId = 'me';
+
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        const firstItem = productItems[0];
+        if (firstItem.storeId && firstItem.inventoryId) {
+            assertAllProductItemsPickup(productItems);
+            const pickupShipment = await findOrCreatePickupShipment(basket, context, firstItem.storeId);
+            shipmentId = pickupShipment.shipmentId;
+        }
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
+        // Add all items to basket in a single API call
         const { data: updatedBasket } = await clients.shopperBasketsV2.addItemToBasket({
             params: {
                 path: { basketId },
@@ -56,26 +69,17 @@ async function addMultipleItemsToCart(
             body: productItems.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
-                inventoryId: item.inventoryId,
+                ...(item.inventoryId ? { inventoryId: item.inventoryId } : {}),
+                shipmentId,
             })),
         });
 
-        let finalBasket = updatedBasket;
-
-        // @sfdc-extension-block-start SFDC_EXT_BOPIS
-        // Find the first item with both storeId and inventoryId (pickup item)
-        const pickupItem = productItems.find((item) => item.storeId && item.inventoryId);
-
-        // Update shipment with store information based on selected delivery option
-        finalBasket = await syncShipmentWithDeliveryOptionChange(context, finalBasket, pickupItem);
-        // @sfdc-extension-block-end SFDC_EXT_BOPIS
-
         // Update the basket storage
-        updateBasket(context, finalBasket);
+        updateBasket(context, updatedBasket);
 
         return {
             success: true,
-            basket: finalBasket,
+            basket: updatedBasket,
         };
     } catch (error) {
         if (error instanceof ApiError) {

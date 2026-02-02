@@ -31,5 +31,5 @@ export function useCompletedSteps() {
         throw new Error('useCompletedSteps must be used within a CheckoutProvider');
     }
 
-    return getCompletedSteps(basket, context.step);
+    return getCompletedSteps(basket, context.shipmentDistribution, context.step);
 }

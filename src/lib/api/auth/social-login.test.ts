@@ -348,11 +348,11 @@ describe('handleSocialLoginCallback', () => {
                     callback: '/callback',
                 },
             },
-            site: {
-                features: {
-                    socialLogin: {
-                        callbackUri: '/social-callback',
-                    },
+            features: {
+                socialLogin: {
+                    enabled: true,
+                    callbackUri: '/social-callback',
+                    providers: [],
                 },
             },
         } as any);
@@ -448,11 +448,11 @@ describe('handleSocialLoginCallback', () => {
                         privateKeyEnabled: false,
                     },
                 },
-                site: {
-                    features: {
-                        socialLogin: {
-                            callbackUri: '/custom-callback',
-                        },
+                features: {
+                    socialLogin: {
+                        enabled: true,
+                        callbackUri: '/custom-callback',
+                        providers: [],
                     },
                 },
             } as any);

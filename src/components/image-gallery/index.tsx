@@ -66,11 +66,12 @@ export default function ImageGallery({ images, eager = false }: ImageGalleryProp
             {/* Main Image */}
             <div className="aspect-square overflow-hidden rounded-lg bg-muted">
                 <DynamicImage
-                    src={`${selectedImage.src}[?sw={width}&q=60]`}
+                    src={`${selectedImage.src}[?sw={width}]`}
                     alt={selectedImage.alt}
                     widths={['100vw', '680px']}
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
                     loading={eager ? 'eager' : 'lazy'}
+                    priority={eager ? 'high' : undefined}
                 />
             </div>
 

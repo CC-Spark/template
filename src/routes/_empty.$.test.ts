@@ -40,20 +40,18 @@ vi.mock('@/lib/api/auth/reset-password', () => ({
 // Mock config
 vi.mock('@/config', () => ({
     getConfig: vi.fn(() => ({
-        site: {
-            features: {
-                passwordlessLogin: {
-                    landingUri: '/passwordless-login-landing',
-                    callbackUri: '/passwordless-login-callback',
-                },
-                socialLogin: {
-                    enabled: true,
-                    callbackUri: '/social-callback',
-                },
-                resetPassword: {
-                    landingUri: '/reset-password-landing',
-                    callbackUri: '/reset-password-callback',
-                },
+        features: {
+            passwordlessLogin: {
+                landingUri: '/passwordless-login-landing',
+                callbackUri: '/passwordless-login-callback',
+            },
+            socialLogin: {
+                enabled: true,
+                callbackUri: '/social-callback',
+            },
+            resetPassword: {
+                landingUri: '/reset-password-landing',
+                callbackUri: '/reset-password-callback',
             },
         },
     })),
@@ -244,20 +242,18 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
             // Mock getConfig to return absolute URL for callbackUri
             const { getConfig } = await import('@/config');
             vi.mocked(getConfig).mockReturnValueOnce({
-                site: {
-                    features: {
-                        passwordlessLogin: {
-                            landingUri: '/passwordless-login-landing',
-                            callbackUri: '/passwordless-login-callback',
-                        },
-                        socialLogin: {
-                            enabled: true,
-                            callbackUri: 'https://dev2.phased-launch-testing.com/social-callback',
-                        },
-                        resetPassword: {
-                            landingUri: '/reset-password-landing',
-                            callbackUri: '/reset-password-callback',
-                        },
+                features: {
+                    passwordlessLogin: {
+                        landingUri: '/passwordless-login-landing',
+                        callbackUri: '/passwordless-login-callback',
+                    },
+                    socialLogin: {
+                        enabled: true,
+                        callbackUri: 'https://dev2.phased-launch-testing.com/social-callback',
+                    },
+                    resetPassword: {
+                        landingUri: '/reset-password-landing',
+                        callbackUri: '/reset-password-callback',
                     },
                 },
             } as any);
@@ -284,20 +280,18 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
             // Mock getConfig to return absolute URL for landingUri
             const { getConfig } = await import('@/config');
             vi.mocked(getConfig).mockReturnValueOnce({
-                site: {
-                    features: {
-                        passwordlessLogin: {
-                            landingUri: 'https://production.example.com/passwordless-login-landing',
-                            callbackUri: '/passwordless-login-callback',
-                        },
-                        socialLogin: {
-                            enabled: true,
-                            callbackUri: '/social-callback',
-                        },
-                        resetPassword: {
-                            landingUri: '/reset-password-landing',
-                            callbackUri: '/reset-password-callback',
-                        },
+                features: {
+                    passwordlessLogin: {
+                        landingUri: 'https://production.example.com/passwordless-login-landing',
+                        callbackUri: '/passwordless-login-callback',
+                    },
+                    socialLogin: {
+                        enabled: true,
+                        callbackUri: '/social-callback',
+                    },
+                    resetPassword: {
+                        landingUri: '/reset-password-landing',
+                        callbackUri: '/reset-password-callback',
                     },
                 },
             } as any);
@@ -324,20 +318,18 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
             // Mock getConfig to return absolute URL for callbackUri
             const { getConfig } = await import('@/config');
             vi.mocked(getConfig).mockReturnValueOnce({
-                site: {
-                    features: {
-                        passwordlessLogin: {
-                            landingUri: '/passwordless-login-landing',
-                            callbackUri: '/passwordless-login-callback',
-                        },
-                        socialLogin: {
-                            enabled: true,
-                            callbackUri: '/social-callback',
-                        },
-                        resetPassword: {
-                            landingUri: '/reset-password-landing',
-                            callbackUri: 'https://vanity-domain.com/reset-password-callback',
-                        },
+                features: {
+                    passwordlessLogin: {
+                        landingUri: '/passwordless-login-landing',
+                        callbackUri: '/passwordless-login-callback',
+                    },
+                    socialLogin: {
+                        enabled: true,
+                        callbackUri: '/social-callback',
+                    },
+                    resetPassword: {
+                        landingUri: '/reset-password-landing',
+                        callbackUri: 'https://vanity-domain.com/reset-password-callback',
                     },
                 },
             } as any);

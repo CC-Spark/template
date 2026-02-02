@@ -118,12 +118,15 @@ describe('Footer', () => {
         expect(screen.getByRole('button', { name: 'Subscribe' })).toBeInTheDocument();
     });
 
-    test('renders all selectors, Theme, Locale and Currency Switcher', () => {
+    test('renders all selectors, Theme (if installed), Locale and Currency Switcher', () => {
         renderWithRouter(<Footer />);
 
         // Check for ThemeSwitcher select and options
         const selectors = screen.getAllByRole('combobox');
-        expect(selectors).toHaveLength(3); // Theme and Locale selects
+        let expectedLength = 2;
+        // @sfdc-extension-line SFDC_EXT_INTERNAL_THEME_SWITCHER
+        expectedLength += 1;
+        expect(selectors).toHaveLength(expectedLength);
     });
 
     // @sfdc-extension-block-start SFDC_EXT_INTERNAL_THEME_SWITCHER

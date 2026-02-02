@@ -64,7 +64,7 @@ export function RemoveItemButtonWithConfirmation({
 }: RemoveItemButtonWithConfirmationProps): ReactElement {
     const appConfig = useConfig();
     const removeAction = config?.action || appConfig.pages.cart.removeAction;
-    const confirmDescription = config?.confirmDescription || appConfig.pages.cart.confirmDescription;
+    const confirmDescription = config?.confirmDescription || appConfig.pages.cart.confirmDescription || '';
     const { t } = useTranslation('removeItem');
 
     // Create a unique fetcher for this component instance

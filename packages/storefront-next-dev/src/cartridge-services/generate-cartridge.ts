@@ -15,10 +15,14 @@
  * limitations under the License.
  */
 /* eslint-disable no-console */
-import { readdir, readFile, writeFile, mkdir, access, rm } from 'fs/promises';
-import { join, extname, resolve, basename, posix as pathPosix } from 'path';
+import { readdir, readFile, writeFile, mkdir, access, rm } from 'node:fs/promises';
+import { join, extname, resolve, basename } from 'node:path';
+import { execSync } from 'node:child_process';
 import { Project, Node, type SourceFile, type PropertyDeclaration, type Decorator } from 'ts-morph';
-import { execSync } from 'child_process';
+import { filePathToRoute } from './react-router-config.js';
+
+// Re-export `filePathToRoute`
+export { filePathToRoute };
 
 const SKIP_DIRECTORIES = ['build', 'dist', 'node_modules', '.git', '.next', 'coverage'];
 
@@ -180,41 +184,6 @@ function parseNestedObject(objectLiteral: any): Record<string, unknown> {
     }
 
     return result;
-}
-
-export function filePathToRoute(filePath: string, projectRoot: string): string {
-    // Normalize to POSIX-style to handle inputs from any OS consistently
-    const filePathPosix = filePath.replace(/\\/g, '/');
-    const projectRootPosix = projectRoot.replace(/\\/g, '/');
-
-    // Compute relative path using POSIX semantics regardless of host OS
-    const routesRoot = pathPosix.join(projectRootPosix, 'src/routes');
-    // Prefer simple substring slice to avoid drive-letter quirks
-    const marker = '/src/routes/';
-    const relativePath = filePathPosix.includes(marker)
-        ? filePathPosix.slice(filePathPosix.indexOf(marker) + marker.length)
-        : pathPosix.relative(routesRoot, filePathPosix);
-
-    // Remove file extension
-    let routePath = relativePath.replace(/\.(tsx|ts|jsx|js)$/i, '');
-
-    // Convert single dots to slashes (React Router flat routes convention)
-    // Use negative lookbehind/lookahead to avoid converting ".." (parent directory)
-    routePath = routePath.replace(/(?<!\.)\.(?!\.)/g, '/');
-
-    // Handle special files and dynamic params
-    routePath = routePath
-        // Root-level index files
-        .replace(/^_index$/i, '')
-        .replace(/^index$/i, '')
-        // Nested index files
-        .replace(/\/_index$/i, '')
-        .replace(/\/index$/i, '')
-        // $param -> :param
-        .replace(/\$([^/]+)/g, ':$1');
-
-    // Ensure leading slash
-    return routePath.startsWith('/') ? routePath : `/${routePath}`;
 }
 
 // Helper function to parse array literals

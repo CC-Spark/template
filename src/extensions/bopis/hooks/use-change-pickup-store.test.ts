@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { FetcherWithComponents } from 'react-router';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
 import { useChangePickupStore } from './use-change-pickup-store';
 import { getTranslation } from '@/lib/i18next';
@@ -39,14 +41,6 @@ const mockFetcher = {
     reset: vi.fn(),
 } as unknown as FetcherWithComponents<{ success: boolean; basket?: unknown; error?: string }>;
 
-vi.mock('react-router', async (importOriginal) => {
-    const actual = (await importOriginal()) as any;
-    return {
-        ...actual,
-        useFetcher: vi.fn(() => mockFetcher),
-    };
-});
-
 // Mock useToast
 const mockAddToast = vi.fn();
 vi.mock('@/components/toast', () => ({
@@ -59,6 +53,12 @@ describe('useChangePickupStore', () => {
         mockFetcher.state = 'idle';
         mockFetcher.data = undefined;
         mockSubmit.mockResolvedValue(undefined);
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockReturnValue(mockFetcher as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('Hook initialization', () => {

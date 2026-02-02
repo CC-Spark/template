@@ -475,19 +475,13 @@ export async function registerGuestUser(
  * @param context - React Router context
  * @param customerId - The customer ID to save the address for
  * @param address - The shipping address to save
- * @param addressName - Name for the address (e.g., "Home", "Work")
  * @returns Promise<boolean> indicating success
  */
 export async function saveShippingAddressToCustomer(
     context: ActionFunctionArgs['context'],
     customerId: string,
-    address: ShopperBasketsV2.schemas['OrderAddress'],
-    _addressName?: string
+    address: ShopperBasketsV2.schemas['OrderAddress']
 ): Promise<boolean> {
-    const { t } = getTranslation();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const addressName = _addressName ?? t('customer:defaults.defaultAddressName');
-
     try {
         const clients = createApiClients(context);
 
@@ -531,19 +525,13 @@ export async function saveShippingAddressToCustomer(
  * @param context - React Router context
  * @param customerId - The customer ID to save the address for
  * @param address - The billing address to save
- * @param addressName - Name for the address (e.g., "Home", "Work")
  * @returns Promise<boolean> indicating success
  */
 export async function saveBillingAddressToCustomer(
     context: ActionFunctionArgs['context'],
     customerId: string,
-    address: ShopperBasketsV2.schemas['OrderAddress'],
-    _addressName?: string
+    address: ShopperBasketsV2.schemas['OrderAddress']
 ): Promise<boolean> {
-    const { t } = getTranslation();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const addressName = _addressName ?? t('customer:defaults.defaultBillingAddressName');
-
     try {
         const clients = createApiClients(context);
 

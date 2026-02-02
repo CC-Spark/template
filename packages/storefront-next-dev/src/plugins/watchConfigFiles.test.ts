@@ -29,6 +29,40 @@ const resolvedConfig = {
 } as unknown as ResolvedConfig;
 
 describe('watchConfigFilesPlugin', () => {
+    it('should use default src root when no @ alias is found', () => {
+        // Arrange - config with no @ alias
+        const configWithoutAlias = {
+            resolve: {
+                alias: [
+                    {
+                        find: 'other',
+                        replacement: 'other-path',
+                    },
+                ],
+            },
+        } as unknown as ResolvedConfig;
+
+        const add = vi.fn();
+        const watcherOn = vi.fn();
+        const restart = vi.fn();
+
+        const fakeServer = {
+            watcher: {
+                add,
+                on: watcherOn,
+            },
+            restart,
+        } as unknown as ViteDevServer;
+
+        // Act
+        const plugin = watchConfigFilesPlugin();
+        plugin.configResolved(configWithoutAlias);
+        plugin.configureServer(fakeServer);
+
+        // Assert - should use 'src' as default root
+        expect(add).toHaveBeenCalledWith('src/extensions/**/plugin-config.json');
+    });
+
     it('should add glob pattern and register event listeners', () => {
         // Arrange
         const add = vi.fn();

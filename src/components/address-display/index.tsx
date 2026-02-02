@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { Typography } from '@/components/typography';
+import { getCountryName, getStateName } from '@/components/customer-address-form';
 import type { ShopperBasketsV2, ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 
 interface AddressDisplayProps {
@@ -29,34 +30,29 @@ export default function AddressDisplay({ address }: AddressDisplayProps) {
         );
     }
 
+    // Build the location line: postalCode, city, state, country
+    const locationParts: string[] = [];
+    if (address.postalCode) locationParts.push(address.postalCode);
+    if (address.city) locationParts.push(address.city);
+    if (address.stateCode && address.countryCode) {
+        const stateName = getStateName(address.countryCode as 'US' | 'CA', address.stateCode);
+        locationParts.push(stateName || address.stateCode);
+    } else if (address.stateCode) {
+        locationParts.push(address.stateCode);
+    }
+    if (address.countryCode) {
+        const countryName = getCountryName(address.countryCode as 'US' | 'CA');
+        locationParts.push(countryName || address.countryCode);
+    }
+
     return (
         <div className="space-y-1">
-            <Typography variant="p">
-                {address.firstName} {address.lastName}
-            </Typography>
             <Typography variant="small" className="text-muted-foreground">
                 {address.address1}
             </Typography>
-            {address.address2 && (
-                <Typography variant="small" className="text-muted-foreground">
-                    {address.address2}
-                </Typography>
-            )}
             <Typography variant="small" className="text-muted-foreground">
-                {address.city}
-                {address.stateCode && `, ${address.stateCode}`}
-                {address.postalCode && ` ${address.postalCode}`}
+                {locationParts.join(', ')}
             </Typography>
-            {address.countryCode && (
-                <Typography variant="small" className="text-muted-foreground">
-                    {address.countryCode}
-                </Typography>
-            )}
-            {address.phone && (
-                <Typography variant="small" className="text-muted-foreground">
-                    {address.phone}
-                </Typography>
-            )}
         </div>
     );
 }

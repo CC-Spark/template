@@ -61,7 +61,10 @@ export const createCustomerProfileFormSchema = (t: TFunction) => {
             .refine(
                 (value) => {
                     if (!value || value.trim() === '') return true; // Allow empty birthday
-                    const birthDate = new Date(value);
+                    // Parse as local date: new Date("YYYY-MM-DD") is interpreted as UTC midnight,
+                    // which in positive UTC offsets (e.g. UTC+1) becomes tomorrow locally.
+                    const [year, month, day] = value.split('-').map(Number);
+                    const birthDate = new Date(year, month - 1, day);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0); // Reset to start of day for comparison
                     return birthDate <= today;

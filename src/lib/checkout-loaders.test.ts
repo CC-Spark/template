@@ -66,7 +66,12 @@ vi.mock('@/lib/currency', () => ({
     currencyContext: { key: 'currency' },
 }));
 
-import { clientLoader } from './checkout-loaders';
+import {
+    clientLoader,
+    getServerCustomerProfileData,
+    getServerShippingMethodsMapData,
+    fetchShippingMethodsMapForBasket,
+} from './checkout-loaders';
 
 describe('Checkout Loaders', () => {
     function createPromotionIds(count: number): string[] {
@@ -289,7 +294,7 @@ describe('Checkout Loaders', () => {
             const result = await clientLoader(args);
 
             // Should not have shipping methods promise
-            expect(result.shippingMethods).toBeUndefined();
+            expect(result.shippingMethodsMap).toBeInstanceOf(Promise);
             expect(result.productMap).toBeInstanceOf(Promise);
         });
 
@@ -391,7 +396,7 @@ describe('Checkout Loaders', () => {
             const result = await clientLoader(args);
 
             // Should not fetch shipping methods without basketId
-            expect(result.shippingMethods).toBeUndefined();
+            expect(result.shippingMethodsMap).toBeInstanceOf(Promise);
         });
 
         it('should extract promotions from product items, shipping items, and order-level adjustments', async () => {
@@ -743,10 +748,13 @@ describe('Checkout Loaders', () => {
             });
 
             const promotions = await result.promotions;
-            expect(Object.keys(promotions)).toHaveLength(75);
-            expect(promotions).toHaveProperty('promo-1');
-            expect(promotions).toHaveProperty('promo-50');
-            expect(promotions).toHaveProperty('promo-75');
+            expect(promotions).toBeDefined();
+            if (promotions) {
+                expect(Object.keys(promotions)).toHaveLength(75);
+                expect(promotions).toHaveProperty('promo-1');
+                expect(promotions).toHaveProperty('promo-50');
+                expect(promotions).toHaveProperty('promo-75');
+            }
         });
 
         it('should continue processing other batches when one batch fails', async () => {
@@ -790,10 +798,270 @@ describe('Checkout Loaders', () => {
             expect(mockGetPromotions).toHaveBeenCalledTimes(2);
 
             const promotions = await result.promotions;
-            expect(Object.keys(promotions)).toHaveLength(25);
-            expect(promotions).toHaveProperty('promo-51');
-            expect(promotions).toHaveProperty('promo-75');
-            expect(promotions).not.toHaveProperty('promo-1');
+            expect(promotions).toBeDefined();
+            if (promotions) {
+                expect(Object.keys(promotions)).toHaveLength(25);
+                expect(promotions).toHaveProperty('promo-51');
+                expect(promotions).toHaveProperty('promo-75');
+                expect(promotions).not.toHaveProperty('promo-1');
+            }
+        });
+
+        it('should handle basket with no product items', async () => {
+            const { getBasket } = await import('@/middlewares/basket.client');
+            const { getAuth: getAuthClient } = await import('@/middlewares/auth.client');
+            const { isRegisteredCustomer } = await import('@/lib/api/customer');
+            const { createApiClients } = await import('@/lib/api-clients');
+
+            vi.mocked(createApiClients).mockReturnValue({
+                shopperPromotions: {
+                    getPromotions: vi.fn(),
+                },
+                shopperProducts: {
+                    getProducts: vi.fn().mockResolvedValue({ data: { data: [] } }),
+                },
+            } as any);
+
+            vi.mocked(getBasket).mockReturnValue({
+                basketId: 'test-basket',
+                productItems: [],
+                shipments: [{ shippingAddress: { address1: '123 Main St' } }],
+            } as any);
+
+            vi.mocked(getAuthClient).mockReturnValue({
+                customer_id: undefined,
+                userType: 'guest',
+            } as any);
+
+            vi.mocked(isRegisteredCustomer).mockReturnValue(false);
+
+            const result = await clientLoader(createTestArgs());
+
+            const productMap = await result.productMap;
+            expect(productMap).toEqual({});
+        });
+    });
+
+    describe('getServerCustomerProfileData', () => {
+        it('should return null when authSession is null', async () => {
+            const mockContext = {} as any;
+            const result = await getServerCustomerProfileData(mockContext, null);
+            expect(result).toBeNull();
+        });
+
+        it('should return null when authSession has no customer_id', async () => {
+            const mockContext = {} as any;
+            const authSession = {
+                userType: 'registered',
+                customer_id: undefined,
+            } as any;
+
+            const result = await getServerCustomerProfileData(mockContext, authSession);
+            expect(result).toBeNull();
+        });
+
+        it('should return null when userType is not registered', async () => {
+            const mockContext = {} as any;
+            const authSession = {
+                customer_id: 'test-123',
+                userType: 'guest',
+            } as any;
+
+            const result = await getServerCustomerProfileData(mockContext, authSession);
+            expect(result).toBeNull();
+        });
+
+        it('should handle errors gracefully', async () => {
+            const mockContext = {
+                get: () => {
+                    throw new Error('Context error');
+                },
+            } as any;
+            const authSession = {
+                customer_id: 'test-123',
+                userType: 'registered',
+            } as any;
+
+            const result = await getServerCustomerProfileData(mockContext, authSession);
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('getServerShippingMethodsMapData', () => {
+        it('should return empty object when authSession is null', async () => {
+            const mockContext = {} as any;
+            const result = await getServerShippingMethodsMapData(mockContext, null);
+            expect(result).toEqual({});
+        });
+
+        it('should return empty object when authSession exists', async () => {
+            const mockContext = {} as any;
+            const authSession = {
+                customer_id: 'test-123',
+                userType: 'registered',
+            } as any;
+
+            const result = await getServerShippingMethodsMapData(mockContext, authSession);
+            expect(result).toEqual({});
+        });
+    });
+
+    describe('fetchShippingMethodsMapForBasket', () => {
+        beforeEach(() => {
+            vi.clearAllMocks();
+        });
+
+        it('should return empty object when basket is null', async () => {
+            const mockContext = {} as any;
+            const result = await fetchShippingMethodsMapForBasket(mockContext, null);
+            expect(result).toEqual({});
+        });
+
+        it('should return empty object when basket has no basketId', async () => {
+            const mockContext = {} as any;
+            const basket = {
+                shipments: [{ shippingAddress: { address1: '123 Main St' } }],
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+            expect(result).toEqual({});
+        });
+
+        it('should return empty object when basket has no shipments', async () => {
+            const mockContext = {} as any;
+            const basket = {
+                basketId: 'test-basket',
+                shipments: undefined,
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+            expect(result).toEqual({});
+        });
+
+        it('should return empty object when basket has empty shipments array', async () => {
+            const mockContext = {} as any;
+            const basket = {
+                basketId: 'test-basket',
+                shipments: [],
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+            expect(result).toEqual({});
+        });
+
+        it('should fetch shipping methods for shipments with addresses', async () => {
+            const { getShippingMethodsForShipment } = await import('@/lib/api/shipping-methods');
+
+            vi.mocked(getShippingMethodsForShipment).mockResolvedValue({
+                applicableShippingMethods: [{ id: 'standard', name: 'Standard' }],
+            } as any);
+
+            const mockContext = {} as any;
+            const basket = {
+                basketId: 'test-basket',
+                shipments: [
+                    {
+                        shipmentId: 'shipment-1',
+                        shippingAddress: { address1: '123 Main St' },
+                    },
+                ],
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+
+            expect(result).toHaveProperty('shipment-1');
+            expect(result['shipment-1'].applicableShippingMethods).toHaveLength(1);
+        });
+
+        it('should skip shipments without shipmentId', async () => {
+            const { getShippingMethodsForShipment } = await import('@/lib/api/shipping-methods');
+
+            const mockContext = {} as any;
+            const basket = {
+                basketId: 'test-basket',
+                shipments: [
+                    {
+                        shipmentId: undefined,
+                        shippingAddress: { address1: '123 Main St' },
+                    },
+                ],
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+
+            expect(result).toEqual({});
+            expect(getShippingMethodsForShipment).not.toHaveBeenCalled();
+        });
+
+        it('should skip shipments with empty shipping address', async () => {
+            const { getShippingMethodsForShipment } = await import('@/lib/api/shipping-methods');
+
+            const mockContext = {} as any;
+            const basket = {
+                basketId: 'test-basket',
+                shipments: [
+                    {
+                        shipmentId: 'shipment-1',
+                        shippingAddress: {},
+                    },
+                ],
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+
+            expect(result).toEqual({});
+            expect(getShippingMethodsForShipment).not.toHaveBeenCalled();
+        });
+
+        it('should handle fetch failures gracefully', async () => {
+            const { getShippingMethodsForShipment } = await import('@/lib/api/shipping-methods');
+
+            vi.mocked(getShippingMethodsForShipment).mockRejectedValue(new Error('API Error'));
+
+            const mockContext = {} as any;
+            const basket = {
+                basketId: 'test-basket',
+                shipments: [
+                    {
+                        shipmentId: 'shipment-1',
+                        shippingAddress: { address1: '123 Main St' },
+                    },
+                ],
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+
+            expect(result).toEqual({});
+        });
+
+        it('should handle multiple shipments with mixed success/failure', async () => {
+            const { getShippingMethodsForShipment } = await import('@/lib/api/shipping-methods');
+
+            vi.mocked(getShippingMethodsForShipment)
+                .mockResolvedValueOnce({
+                    applicableShippingMethods: [{ id: 'standard', name: 'Standard' }],
+                } as any)
+                .mockRejectedValueOnce(new Error('API Error'));
+
+            const mockContext = {} as any;
+            const basket = {
+                basketId: 'test-basket',
+                shipments: [
+                    {
+                        shipmentId: 'shipment-1',
+                        shippingAddress: { address1: '123 Main St' },
+                    },
+                    {
+                        shipmentId: 'shipment-2',
+                        shippingAddress: { address1: '456 Oak Ave' },
+                    },
+                ],
+            } as any;
+
+            const result = await fetchShippingMethodsMapForBasket(mockContext, basket);
+
+            expect(result).toHaveProperty('shipment-1');
+            expect(result).not.toHaveProperty('shipment-2');
         });
     });
 });

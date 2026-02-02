@@ -10,6 +10,4 @@ exports[`AccountNavItem stories snapshot > Interactive story renders and matches
 
 exports[`AccountNavItem stories snapshot > Logout story renders and matches snapshot 1`] = `null`;
 
-exports[`AccountNavItem stories snapshot > Mobile story renders and matches snapshot 1`] = `null`;
-
 exports[`AccountNavItem stories snapshot > WithDifferentIcons story renders and matches snapshot 1`] = `null`;

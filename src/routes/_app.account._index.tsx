@@ -21,11 +21,14 @@ import { Button } from '@/components/ui/button';
 import { AccountDetailSkeleton } from '@/components/account-detail-skeleton';
 import { PasswordUpdateForm } from '@/components/password-update-form';
 import { CustomerProfileForm } from '@/components/customer-profile-form';
+import { InterestsPreferencesSection } from '@/components/account/interests-preferences-section';
+import { MarketingConsent } from '@/components/account/marketing-consent';
 import { useToast } from '@/components/toast';
 import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 import { useFetcherEffect } from '@/hooks/use-fetcher-effect';
 import { useScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { useAuth } from '@/providers/auth';
+import CustomerPreferencesProvider from '@/providers/customer-preferences';
 import { useTranslation } from 'react-i18next';
 import { formatDateForLocale } from '@/lib/date-utils';
 
@@ -244,6 +247,20 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
         setIsEditingPassword(false);
     };
 
+    /**
+     * Handles successful interests & preferences update.
+     */
+    const handleInterestsPreferencesSuccess = () => {
+        addToast(t('interestsPreferences.successMessage'), 'success');
+    };
+
+    /**
+     * Handles interests & preferences update errors.
+     */
+    const handleInterestsPreferencesError = (error: string) => {
+        addToast(error, 'error');
+    };
+
     return (
         <div className="space-y-6">
             {/* Page Header Card */}
@@ -328,6 +345,17 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
                 </ToggleCardEdit>
             </ToggleCard>
 
+            {/* Interests & Preferences Section */}
+            {customerId && (
+                <CustomerPreferencesProvider>
+                    <InterestsPreferencesSection
+                        customerId={customerId}
+                        onSuccess={handleInterestsPreferencesSuccess}
+                        onError={handleInterestsPreferencesError}
+                    />
+                </CustomerPreferencesProvider>
+            )}
+
             {/* Password & Security Toggle Card */}
             <ToggleCard
                 id="password"
@@ -356,6 +384,9 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
                     />
                 </ToggleCardEdit>
             </ToggleCard>
+
+            {/* Email Preferences – MarketingConsent (part of My Account) */}
+            <MarketingConsent />
         </div>
     );
 }

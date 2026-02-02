@@ -121,7 +121,7 @@ const ProductImageContainer = ({
                 className="block w-full h-full flex-1"
                 aria-label={`View ${product.productName}`}>
                 <ProductImage
-                    src={`${currentImageUrl || ''}[?sw={width}&q=60]`}
+                    src={`${currentImageUrl || ''}`}
                     alt={product.productName || 'Product'}
                     className="w-full h-full object-cover transition-all duration-200 group-hover:scale-105"
                     loading="lazy"

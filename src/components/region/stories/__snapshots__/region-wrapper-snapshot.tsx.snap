@@ -8,30 +8,6 @@ exports[`RegionWrapper stories snapshot > Default story renders and matches snap
 </div>
 `;
 
-exports[`RegionWrapper stories snapshot > Desktop story renders and matches snapshot 1`] = `
-<div>
-  <div>
-    Child Content
-  </div>
-</div>
-`;
-
-exports[`RegionWrapper stories snapshot > Mobile story renders and matches snapshot 1`] = `
-<div>
-  <div>
-    Child Content
-  </div>
-</div>
-`;
-
-exports[`RegionWrapper stories snapshot > Tablet story renders and matches snapshot 1`] = `
-<div>
-  <div>
-    Child Content
-  </div>
-</div>
-`;
-
 exports[`RegionWrapper stories snapshot > WithMultipleChildren story renders and matches snapshot 1`] = `
 <div>
   <div>

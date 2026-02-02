@@ -50,7 +50,7 @@ export default function StoreLocatorSheet({ children, open, onOpenChange }: Stor
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetTrigger asChild>{children}</SheetTrigger>
-            <SheetContent className="md:w-1/3 md:max-w-1/3 p-0" closeAriaLabel={t('storeLocator.sheet.closeAriaLabel')}>
+            <SheetContent className="md:w-1/3 md:max-w-1/3 p-0">
                 <SheetHeader>
                     <SheetTitle>{t('storeLocator.title')}</SheetTitle>
                     <SheetDescription>{t('storeLocator.description')}</SheetDescription>

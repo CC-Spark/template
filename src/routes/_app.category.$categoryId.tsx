@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Suspense, useEffect, useMemo, useRef } from 'react';
+import { Fragment, Suspense, useEffect, useMemo, useRef, use } from 'react';
 import { Await, type LoaderFunctionArgs } from 'react-router';
 import type { ShopperProducts, ShopperSearch, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchCategory } from '@/lib/api/categories';
@@ -36,6 +36,8 @@ import { PageType } from '@/lib/decorators/page-type';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 import { Region } from '@/components/region';
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
+import { JsonLd } from '@/components/json-ld';
+import { generateCategorySchema } from '@/utils/category-schema';
 
 @PageType({
     name: 'Product Listing Page',
@@ -73,6 +75,7 @@ type CategoryPageData = {
     categoryId: string;
     currency: string;
     locale: string;
+    categorySchema: Promise<ReturnType<typeof generateCategorySchema> | null>;
 };
 
 /**
@@ -95,7 +98,9 @@ export function loader(args: LoaderFunctionArgs): CategoryPageData {
     // Get currency and locale for cache-busting the page key
     const config = getConfig(args.context);
     const currency = args.context.get(currencyContext) as string;
-    const locale = config.site.locale;
+    // TODO: replace this with locale detection when multi site implementation starts
+    const currentSite = config.commerce.sites[0];
+    const locale = currentSite.defaultLocale;
     const limit = config.global.productListing.productsPerPage;
 
     const pagePromise = fetchPageFromLoader(args, {
@@ -103,7 +108,39 @@ export function loader(args: LoaderFunctionArgs): CategoryPageData {
         categoryId: safeCategoryId,
     });
 
-    const componentDataPromises = collectComponentDataPromises(args, pagePromise);
+    const categoryPromise = fetchCategory(args.context, safeCategoryId, 0);
+    const searchResultPromise = fetchSearchProducts(args.context, {
+        categoryId: safeCategoryId,
+        limit,
+        offset,
+        sort,
+        // This is a known type limitation, the API intelligently serializes the refine parameter (array) automatically, but the OAS types refers to string.
+        refine: refine as unknown as string,
+        currency,
+    });
+
+    // Generate category schema in loader (server-side) for SEO
+    const categorySchemaPromise = Promise.all([categoryPromise, searchResultPromise])
+        .then(([category, searchResult]) => {
+            try {
+                const url = new URL(args.request.url);
+                const categoryUrl = `${url.origin}${url.pathname}${url.search}`;
+                // Validate inputs before generating schema
+                if (!category || !searchResult) {
+                    return null;
+                }
+                return generateCategorySchema(category, searchResult, categoryUrl, currency);
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error('Error generating category schema in loader:', error);
+                return null;
+            }
+        })
+        .catch((error) => {
+            // eslint-disable-next-line no-console
+            console.error('Error in category schema promise chain:', error);
+            return null;
+        });
 
     return {
         refinements: fetchSearchProducts(args.context, {
@@ -116,21 +153,14 @@ export function loader(args: LoaderFunctionArgs): CategoryPageData {
             expand: ['none'],
             currency,
         }),
-        searchResult: fetchSearchProducts(args.context, {
-            categoryId: safeCategoryId,
-            limit,
-            offset,
-            sort,
-            // This is a known type limitation, the API intelligently serializes the refine parameter (array) automatically, but the OAS types refers to string.
-            refine: refine as unknown as string,
-            currency,
-        }),
-        category: fetchCategory(args.context, safeCategoryId, 0),
+        searchResult: searchResultPromise,
+        category: categoryPromise,
         page: pagePromise,
-        componentData: componentDataPromises,
+        componentData: collectComponentDataPromises(args, pagePromise),
         categoryId: safeCategoryId,
         currency,
         locale,
+        categorySchema: categorySchemaPromise,
     };
 }
 
@@ -139,8 +169,31 @@ export function loader(args: LoaderFunctionArgs): CategoryPageData {
  * This component uses the createPage factory to handle Suspense patterns.
  * @returns JSX element representing the category page
  */
+/**
+ * Component that renders JSON-LD schema when categorySchema promise resolves.
+ * Must be inside Suspense boundary to ensure it streams correctly in SSR.
+ */
+function CategoryJsonLdWrapper({
+    categorySchemaPromise,
+}: {
+    categorySchemaPromise: Promise<ReturnType<typeof generateCategorySchema> | null>;
+}) {
+    const categorySchema = use(categorySchemaPromise);
+    return categorySchema ? <JsonLd data={categorySchema} id="category-schema" /> : null;
+}
+
 export default function CategoryPage({
-    loaderData: { category, refinements, searchResult, page, componentData, categoryId, locale, currency },
+    loaderData: {
+        category,
+        refinements,
+        searchResult,
+        page,
+        componentData,
+        categoryId,
+        locale,
+        currency,
+        categorySchema,
+    },
 }: {
     loaderData: CategoryPageData;
 }) {
@@ -184,12 +237,18 @@ export default function CategoryPage({
 
     return (
         <Fragment key={pageKey}>
+            {/* Category JSON-LD Schema for SEO - separate Suspense to ensure it appears at the very top of body */}
+            <Suspense fallback={null}>
+                <CategoryJsonLdWrapper categorySchemaPromise={categorySchema} />
+            </Suspense>
             <div className="pb-16">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
                         <Suspense fallback={<CategoryBreadcrumbsSkeleton />}>
                             <Await resolve={category}>
-                                {(categoryData) => <CategoryBreadcrumbs category={categoryData} />}
+                                {(categoryData: ShopperProducts.schemas['Category']) => (
+                                    <CategoryBreadcrumbs category={categoryData} />
+                                )}
                             </Await>
                         </Suspense>
                     </div>
@@ -198,14 +257,18 @@ export default function CategoryPage({
                         <Suspense fallback={<CategoryHeaderSkeleton />}>
                             <h1 className="text-3xl font-bold text-foreground">
                                 <Await resolve={category}>
-                                    {(categoryData) => <>{categoryData?.name || categoryData.id}</>}
+                                    {(categoryData: ShopperProducts.schemas['Category']) => (
+                                        <>{categoryData?.name || categoryData.id}</>
+                                    )}
                                 </Await>{' '}
                                 <Await resolve={refinements}>
-                                    {(refinementsData) => <>({refinementsData.total})</>}
+                                    {(refinementsData: ShopperSearch.schemas['ProductSearchResult']) => (
+                                        <>({refinementsData.total})</>
+                                    )}
                                 </Await>
                             </h1>
                             <Await resolve={refinements}>
-                                {(refinementsData) => (
+                                {(refinementsData: ShopperSearch.schemas['ProductSearchResult']) => (
                                     <div className="flex-shrink-0">
                                         {refinementsData?.sortingOptions &&
                                             refinementsData.sortingOptions.length > 0 && (
@@ -231,7 +294,9 @@ export default function CategoryPage({
                         <div className="hidden lg:block w-64 flex-shrink-0">
                             <Suspense fallback={<CategoryRefinementsSkeleton />}>
                                 <Await resolve={refinements}>
-                                    {(refinementsData) => <CategoryRefinements result={refinementsData} />}
+                                    {(refinementsData: ShopperSearch.schemas['ProductSearchResult']) => (
+                                        <CategoryRefinements result={refinementsData} />
+                                    )}
                                 </Await>
                             </Suspense>
                         </div>
@@ -249,7 +314,10 @@ export default function CategoryPage({
                         <div className="flex-grow">
                             <Suspense fallback={<CategorySkeleton />}>
                                 <Await resolve={combinedPromise}>
-                                    {([categoryData, searchResultData]) => {
+                                    {([categoryData, searchResultData]: [
+                                        ShopperProducts.schemas['Category'],
+                                        ShopperSearch.schemas['ProductSearchResult'],
+                                    ]) => {
                                         const handleProductClick = (
                                             product: ShopperSearch.schemas['ProductSearchHit']
                                         ) => {

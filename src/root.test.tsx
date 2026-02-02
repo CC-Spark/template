@@ -18,7 +18,7 @@ import { render, waitFor } from '@testing-library/react';
 import { createTestContext } from '@/lib/test-utils';
 import { type PropsWithChildren } from 'react';
 import { createRoutesStub } from 'react-router';
-import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import type { SessionData } from '@/lib/api/types';
 import { clientLoader, default as App, ErrorBoundary, Layout, loader } from './root';
 import { mockConfig } from '@/test-utils/config';
@@ -60,10 +60,6 @@ vi.mock('@/lib/i18next.client', async () => {
         initI18next: vi.fn(() => testInstance),
     };
 });
-
-vi.mock('@/lib/api/categories', () => ({
-    fetchCategory: vi.fn(),
-}));
 
 vi.mock('@/components/toast', async () => ({
     ...(await vi.importActual('@/components/toast')),
@@ -173,6 +169,15 @@ vi.mock('@/middlewares/i18next', async () => {
 
 function ContentComponent() {
     return <div data-testid="content">Content</div>;
+}
+
+/**
+ * HydrateFallback is required when using createRoutesStub with components that have loaders.
+ * Without it, React Router throws "Cannot destructure property 'basename' of 'undefined'"
+ * during the hydration phase. This is a React Router v7 testing requirement.
+ */
+function HydrateFallback() {
+    return <div data-testid="hydrate-fallback">Loading...</div>;
 }
 
 function LayoutComponent() {
@@ -388,21 +393,12 @@ describe('root.tsx', () => {
     });
 
     describe('App Component', () => {
+        // Note: Each test creates its own i18next instance because it must be passed to
+        // the loader's getI18next function. A shared beforeEach setup wouldn't work here
+        // since each test's route stub needs its own instance reference.
+
         it('should render html structure with provider components', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root Category',
-                categories: [
-                    { id: 'cat-1', name: 'Category 1' },
-                    { id: 'cat-2', name: 'Category 2' },
-                ],
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
-
-            // Create a mock i18next instance for testing
+            // Create i18next instance for this test's loader
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const testI18nInstance = i18next.default.createInstance();
@@ -417,9 +413,8 @@ describe('root.tsx', () => {
                     id: 'root',
                     path: '/',
                     Component: App,
+                    HydrateFallback,
                     loader: () => ({
-                        root: Promise.resolve(mockCategory),
-                        subs: Promise.resolve([mockCategory]),
                         auth: () => ({
                             access_token: 'test-token',
                             customer_id: 'test-customer',
@@ -445,21 +440,13 @@ describe('root.tsx', () => {
         });
 
         it.skip('should fall back to AuthContext default value when auth is undefined', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
             const { AuthContext } = await import('@/providers/auth');
-
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root Category',
-            };
 
             const mockInitialAuth: SessionData = {
                 access_token: 'initial-hydration-token',
                 customer_id: 'initial-customer',
                 userType: 'guest',
             };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
 
             // Simulate the context having a default value (in production, this comes from getAuthDataFromCookies())
             // In tests, we can wrap with a provider to override the default
@@ -475,8 +462,6 @@ describe('root.tsx', () => {
                     path: '/',
                     Component: TestApp,
                     loader: () => ({
-                        root: Promise.resolve(mockCategory),
-                        subs: Promise.resolve([mockCategory]),
                         auth: undefined, // No auth from loader, should fall back to context default
                         basket: { basketId: 'test-basket', productItems: [] },
                         appConfig: mockConfig,
@@ -492,19 +477,10 @@ describe('root.tsx', () => {
         });
 
         it('should use window.__APP_CONFIG__ when serverData.appConfig is not available', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root Category',
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
-
             // Set window.__APP_CONFIG__ as fallback
             (window as any).__APP_CONFIG__ = mockConfig;
 
-            // Create a mock i18next instance for testing
+            // Create i18next instance for this test's loader
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const testI18nInstance = i18next.default.createInstance();
@@ -519,9 +495,8 @@ describe('root.tsx', () => {
                     id: 'root',
                     path: '/',
                     Component: App,
+                    HydrateFallback,
                     loader: () => ({
-                        root: Promise.resolve(mockCategory),
-                        subs: Promise.resolve([mockCategory]),
                         auth: () =>
                             ({
                                 access_token: 'test-token',
@@ -550,23 +525,16 @@ describe('root.tsx', () => {
         // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
         describe('Hybrid Proxy Integration', () => {
             it('should render normal app structure when not on proxy path', async () => {
-                const { fetchCategory } = await import('@/lib/api/categories');
                 vi.mocked(isProxyPath).mockReturnValue(false);
-
-                const mockCategory: ShopperProducts.schemas['Category'] = {
-                    id: 'root',
-                    name: 'Root Category',
-                };
-                vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
 
                 // Create a mock i18next instance for testing
                 const i18next = await import('i18next');
                 const { initReactI18next } = await import('react-i18next');
                 const testI18nInstance = i18next.default.createInstance();
                 await testI18nInstance.use(initReactI18next).init({
-                    lng: 'en',
-                    fallbackLng: 'en',
-                    resources: { en: { translation: {} } },
+                    lng: 'en-US',
+                    fallbackLng: 'en-US',
+                    resources: { 'en-US': { translation: {} } },
                 });
 
                 const Stub = createRoutesStub([
@@ -574,9 +542,8 @@ describe('root.tsx', () => {
                         id: 'root',
                         path: '/',
                         Component: App,
+                        HydrateFallback,
                         loader: () => ({
-                            root: Promise.resolve(mockCategory),
-                            subs: Promise.resolve([mockCategory]),
                             auth: () =>
                                 ({
                                     access_token: 'test-token',
@@ -585,7 +552,7 @@ describe('root.tsx', () => {
                                 }) as any,
                             basket: { basketId: 'test-basket', productItems: [] },
                             appConfig: mockConfig,
-                            locale: 'en',
+                            locale: 'en-US',
                             currency: 'USD',
                             getI18next: () => testI18nInstance,
                         }),
@@ -602,33 +569,26 @@ describe('root.tsx', () => {
             });
 
             it('should render interceptor and hide app structure when on proxy path', async () => {
-                const { fetchCategory } = await import('@/lib/api/categories');
                 vi.mocked(isProxyPath).mockReturnValue(true);
-
-                const mockCategory: ShopperProducts.schemas['Category'] = {
-                    id: 'root',
-                    name: 'Root Category',
-                };
-                vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
 
                 // Create a mock i18next instance for testing
                 const i18next = await import('i18next');
                 const { initReactI18next } = await import('react-i18next');
                 const testI18nInstance = i18next.default.createInstance();
                 await testI18nInstance.use(initReactI18next).init({
-                    lng: 'en',
-                    fallbackLng: 'en',
-                    resources: { en: { translation: {} } },
+                    lng: 'en-US',
+                    fallbackLng: 'en-US',
+                    resources: { 'en-US': { translation: {} } },
                 });
 
                 const Stub = createRoutesStub([
                     {
                         id: 'root',
-                        path: '/cart', // Use a proxy path
+                        // The actual path doesn't matter here since we mock isProxyPath() to return true
+                        path: '/cart',
                         Component: App,
+                        HydrateFallback,
                         loader: () => ({
-                            root: Promise.resolve(mockCategory),
-                            subs: Promise.resolve([mockCategory]),
                             auth: () =>
                                 ({
                                     access_token: 'test-token',
@@ -637,7 +597,7 @@ describe('root.tsx', () => {
                                 }) as any,
                             basket: { basketId: 'test-basket', productItems: [] },
                             appConfig: mockConfig,
-                            locale: 'en',
+                            locale: 'en-US',
                             currency: 'USD',
                             getI18next: () => testI18nInstance,
                         }),
@@ -657,24 +617,11 @@ describe('root.tsx', () => {
     });
 
     describe('loader function', () => {
-        it('should return category promises and auth function', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
+        it('should promises and auth function', async () => {
             const { i18nextContext } = await import('@/lib/i18next');
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const resources = await import('@/locales');
-
-            const mockRootCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root',
-                categories: [
-                    { id: 'cat-1', name: 'Category 1', onlineSubCategoriesCount: 2 },
-                    { id: 'cat-2', name: 'Category 2', onlineSubCategoriesCount: 0 },
-                ],
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValueOnce(mockRootCategory);
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'sub', name: 'Sub' });
 
             // Set up i18next context
             const testInstance = i18next.default.createInstance();
@@ -694,10 +641,13 @@ describe('root.tsx', () => {
                 getI18nextInstance: () => testInstance,
             });
 
-            const result = loader({ context, request: new Request('http://localhost'), params: {} }) as any;
+            const result = loader({
+                context,
+                request: new Request('http://localhost'),
+                params: {},
+                unstable_pattern: '/',
+            }) as any;
 
-            expect(result).toHaveProperty('root');
-            expect(result).toHaveProperty('subs');
             expect(result).toHaveProperty('auth');
             expect(result).toHaveProperty('appConfig');
             expect(result).toHaveProperty('locale');
@@ -705,67 +655,9 @@ describe('root.tsx', () => {
             expect(typeof result.auth).toBe('function');
             expect(typeof result.getI18next).toBe('function');
             expect(result.locale).toBe('en-US');
-
-            // Verify fetchCategory was called correctly
-            expect(fetchCategory).toHaveBeenCalledWith(context, 'root', 1);
-
-            // Wait for root promise to resolve
-            const rootCategory = await result.root;
-            expect(rootCategory).toEqual(mockRootCategory);
-
-            // Verify sub categories are fetched
-            await result.subs;
-            expect(fetchCategory).toHaveBeenCalledWith(context, 'cat-1', 2);
-            expect(fetchCategory).not.toHaveBeenCalledWith(context, 'cat-2', 2);
-        });
-
-        it('should not fetch sub categories when onlineSubCategoriesCount is 0', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-            const { i18nextContext } = await import('@/lib/i18next');
-            const i18next = await import('i18next');
-            const { initReactI18next } = await import('react-i18next');
-            const resources = await import('@/locales');
-
-            const mockRootCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root',
-                categories: [
-                    { id: 'cat-1', name: 'Category 1', onlineSubCategoriesCount: 0 },
-                    { id: 'cat-2', name: 'Category 2', onlineSubCategoriesCount: 0 },
-                ],
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockRootCategory);
-
-            // Set up i18next context
-            const testInstance = i18next.default.createInstance();
-            void testInstance.use(initReactI18next).init({
-                lng: 'en-US',
-                fallbackLng: 'en-US',
-                resources: resources.default,
-                interpolation: {
-                    escapeValue: false,
-                },
-            });
-
-            const context = createTestContext();
-            // Set up i18next context with bound functions
-            context.set(i18nextContext, {
-                getLocale: () => 'en-US',
-                getI18nextInstance: () => testInstance,
-            });
-
-            const result = loader({ context, request: new Request('http://localhost'), params: {} }) as any;
-
-            await result.root;
-            const subs = await result.subs;
-
-            expect(subs).toEqual([]);
-            expect(fetchCategory).toHaveBeenCalledTimes(1);
         });
 
         it('should call getAuth to retrieve session data', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
             const { getAuth } = await import('@/middlewares/auth.server');
             const { i18nextContext } = await import('@/lib/i18next');
             const i18next = await import('i18next');
@@ -778,7 +670,6 @@ describe('root.tsx', () => {
                 userType: 'registered',
             };
 
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'root', name: 'Root' });
             vi.mocked(getAuth).mockReturnValue(mockSession);
 
             // Set up i18next context
@@ -799,7 +690,12 @@ describe('root.tsx', () => {
                 getI18nextInstance: () => testInstance,
             });
 
-            const result = loader({ context, request: new Request('http://localhost'), params: {} }) as any;
+            const result = loader({
+                context,
+                request: new Request('http://localhost'),
+                params: {},
+                unstable_pattern: '/',
+            }) as any;
 
             expect(getAuth).toHaveBeenCalledWith(context);
             expect(result.auth()).toEqual(mockSession);
@@ -808,27 +704,20 @@ describe('root.tsx', () => {
             expect(typeof result.getI18next).toBe('function');
         });
 
-        it('should throw error when i18next data is not found in context', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'root', name: 'Root' });
-
+        it('should throw error when i18next data is not found in context', () => {
             const context = createTestContext({ skipI18next: true });
             // Do not set i18next context to simulate missing middleware
 
             expect(() => {
-                loader({ context, request: new Request('http://localhost'), params: {} });
+                loader({ context, request: new Request('http://localhost'), params: {}, unstable_pattern: '/' });
             }).toThrow('i18next data not found in context. Ensure i18next middleware runs before loaders.');
         });
 
         it('should return pageDesignerMode as EDIT when mode=EDIT is in URL', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
             const { i18nextContext } = await import('@/lib/i18next');
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const resources = await import('@/locales');
-
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'root', name: 'Root' });
 
             const testInstance = i18next.default.createInstance();
             void testInstance.use(initReactI18next).init({
@@ -850,19 +739,17 @@ describe('root.tsx', () => {
                 context,
                 request: new Request('http://localhost?mode=EDIT'),
                 params: {},
+                unstable_pattern: '/',
             }) as any;
 
             expect(result.pageDesignerMode).toBe('EDIT');
         });
 
         it('should return pageDesignerMode as PREVIEW when mode=PREVIEW is in URL', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
             const { i18nextContext } = await import('@/lib/i18next');
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const resources = await import('@/locales');
-
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'root', name: 'Root' });
 
             const testInstance = i18next.default.createInstance();
             void testInstance.use(initReactI18next).init({
@@ -884,19 +771,17 @@ describe('root.tsx', () => {
                 context,
                 request: new Request('http://localhost?mode=PREVIEW'),
                 params: {},
+                unstable_pattern: '/',
             }) as any;
 
             expect(result.pageDesignerMode).toBe('PREVIEW');
         });
 
         it('should return pageDesignerMode as undefined when no mode parameter is in URL', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
             const { i18nextContext } = await import('@/lib/i18next');
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const resources = await import('@/locales');
-
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'root', name: 'Root' });
 
             const testInstance = i18next.default.createInstance();
             void testInstance.use(initReactI18next).init({
@@ -918,6 +803,7 @@ describe('root.tsx', () => {
                 context,
                 request: new Request('http://localhost'),
                 params: {},
+                unstable_pattern: '/',
             }) as any;
 
             expect(result.pageDesignerMode).toBeUndefined();
@@ -949,6 +835,7 @@ describe('root.tsx', () => {
                 request: new Request('http://localhost'),
                 params: {},
                 serverLoader: vi.fn(),
+                unstable_pattern: '/',
             }) as any;
 
             expect(result).toHaveProperty('auth');

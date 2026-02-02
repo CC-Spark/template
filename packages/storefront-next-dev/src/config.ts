@@ -97,7 +97,7 @@ export const buildMrtConfig = (_buildDirectory: string, _projectDirectory?: stri
 
     // SSR function parameters
     const ssrParameters = {
-        ssrFunctionNodeVersion: '22.x',
+        ssrFunctionNodeVersion: '24.x',
     };
 
     return {

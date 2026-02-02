@@ -33,6 +33,11 @@ export const cartItemUpdateSchema = z.object({
             return parsed;
         })
         .pipe(z.number().min(1, 'Quantity must be at least 1')),
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    deliveryOption: z.enum(['delivery', 'pickup']).optional(),
+    storeId: z.string().optional(),
+    inventoryId: z.string().optional(),
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
 });
 
 /**
@@ -45,6 +50,11 @@ export const parseCartItemUpdateFromFormData = (formData: FormData) => {
         itemId: formData.get('itemId')?.toString() || '',
         productId: formData.get('productId')?.toString() || undefined,
         quantity: formData.get('quantity')?.toString() || '',
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        deliveryOption: formData.get('deliveryOption')?.toString() || undefined,
+        storeId: formData.get('storeId')?.toString() || undefined,
+        inventoryId: formData.get('inventoryId')?.toString() || undefined,
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
     };
 };
 

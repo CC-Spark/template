@@ -27,6 +27,8 @@ import { getShippingAddressFromCustomer } from '@/lib/customer-profile-utils';
 import { isAddressEmpty } from '@/components/checkout/utils/checkout-addresses';
 import { AddressFormFields } from '@/components/address-form-fields';
 import type { CheckoutActionData } from '../types';
+import CheckoutErrorBanner from './checkout-error-banner';
+import { getCheckoutDisplayError } from './checkout-display-error';
 import { useTranslation } from 'react-i18next';
 
 interface ShippingAddressProps {
@@ -37,6 +39,10 @@ interface ShippingAddressProps {
     isCompleted: boolean;
     isEditing: boolean;
     onEdit: () => void;
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    enableMultiAddress: boolean;
+    handleToggleShippingAddressMode: () => void;
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
 }
 
 export default function ShippingAddress({
@@ -46,10 +52,16 @@ export default function ShippingAddress({
     isCompleted: _isCompleted,
     isEditing,
     onEdit,
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    enableMultiAddress,
+    handleToggleShippingAddressMode,
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
 }: ShippingAddressProps) {
     const cart = useBasket();
     const customerProfile = useCustomerProfile();
     const { t } = useTranslation('checkout');
+    // @sfdc-extension-line SFDC_EXT_MULTISHIP
+    const { t: tMultiship } = useTranslation('extMultiship');
 
     const shippingAddress = cart?.shipments?.[0]?.shippingAddress;
 
@@ -65,6 +77,7 @@ export default function ShippingAddress({
         customerShippingAddress.phone ||
         '') as string;
     const schema = useMemo(() => createShippingAddressSchema(t), [t]);
+    const shippingFormError = getCheckoutDisplayError(actionData, 'shippingAddress');
 
     const form = useForm<ShippingAddressData>({
         resolver: zodResolver(schema),
@@ -105,18 +118,19 @@ export default function ShippingAddress({
             editing={isEditing}
             onEdit={onEdit}
             editLabel={t('common.edit')}
+            // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+            editAction={enableMultiAddress ? tMultiship('checkout.deliverToMultipleAddresses') : undefined}
+            onEditActionClick={enableMultiAddress ? handleToggleShippingAddressMode : undefined}
+            // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
             isLoading={isLoading}>
             <ToggleCardEdit>
                 <Form {...form}>
                     <form onSubmit={(e) => void form.handleSubmit(handleFormSubmit)(e)} className="space-y-6">
+                        {shippingFormError && <CheckoutErrorBanner message={shippingFormError} />}
                         {actionData?.fieldErrors && (
                             <div className="space-y-2">
                                 {Object.entries(actionData.fieldErrors).map(([field, error]) => (
-                                    <div
-                                        key={field}
-                                        className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold">
-                                        {error}
-                                    </div>
+                                    <CheckoutErrorBanner key={field} message={error} />
                                 ))}
                             </div>
                         )}

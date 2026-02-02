@@ -82,7 +82,10 @@ describe('Core Functions', () => {
     const testSourceDir = '/tmp/test-source';
 
     beforeEach(() => {
-        vi.restoreAllMocks();
+        // Reset all mocks to clear any state from previous tests
+        vi.resetAllMocks();
+        // Restore default mock implementations for fs
+        vi.mocked(fs.existsSync).mockReturnValue(true);
     });
 
     describe('deployCode', () => {

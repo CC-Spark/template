@@ -29,7 +29,7 @@ import { useConfig } from '@/config';
  */
 function useGoogleCloudAPIKey(): string {
     const config = useConfig();
-    const apiKey = config.site.features.googleCloudAPI.apiKey;
+    const apiKey = config.features.googleCloudAPI.apiKey;
 
     return apiKey;
 }

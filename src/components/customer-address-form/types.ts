@@ -40,6 +40,8 @@ export interface CustomerAddressFormProps {
     onSuccess?: (formData: CustomerAddressFormData) => void;
     onError?: (error: string) => void;
     onCancel?: () => void;
+    // If true and initialData is undefined (new address), automatically set preferred to true
+    isFirstAddress?: boolean;
 }
 
 // Props interface for CustomerAddressFields component

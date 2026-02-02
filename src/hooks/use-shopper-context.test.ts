@@ -18,6 +18,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useShopperContext } from './use-shopper-context';
 import { SHOPPER_CONTEXT_ACTION_NAME } from '@/lib/shopper-context-utils';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 
 type UpdateShopperContextResponse = {
     success: boolean;
@@ -46,26 +48,17 @@ const createMockFetcher = () => ({
 
 let mockFetcher = createMockFetcher();
 
-vi.mock('react-router', async (importOriginal) => {
-    const actual = (await importOriginal()) as any;
-    return {
-        ...actual,
-        useFetcher: vi.fn(() => {
-            // Return the current mockFetcher instance so state changes are reflected
-            return mockFetcher;
-        }),
-    };
-});
-
 describe('useShopperContext', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockFetcher = createMockFetcher();
         mockSubmit.mockResolvedValue(undefined);
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockImplementation(() => mockFetcher as any);
     });
 
     afterEach(() => {
-        vi.clearAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe('initial state', () => {

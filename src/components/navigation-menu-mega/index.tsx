@@ -24,11 +24,14 @@ const disHostName = 'edge.disstg.commercecloud.salesforce.com';
 const imageCache = new WeakMap<ShopperProducts.schemas['Category'], string | undefined>();
 
 function hasBanner(category?: ShopperProducts.schemas['Category']): category is ShopperProducts.schemas['Category'] {
-    return category?.c_headerMenuBanner?.length > 0;
+    return typeof category?.c_headerMenuBanner === 'string' && category?.c_headerMenuBanner?.length > 0;
 }
 
 function isVertical(category?: ShopperProducts.schemas['Category']): category is ShopperProducts.schemas['Category'] {
-    return category?.c_headerMenuOrientation?.toLowerCase() === 'vertical';
+    return (
+        typeof category?.c_headerMenuOrientation === 'string' &&
+        category?.c_headerMenuOrientation?.toLowerCase() === 'vertical'
+    );
 }
 
 function getImageHref(category: ShopperProducts.schemas['Category'], config: AppConfig): string | undefined {
@@ -37,7 +40,7 @@ function getImageHref(category: ShopperProducts.schemas['Category'], config: App
         const organizationId = config.commerce.api.organizationId;
         const realmId = organizationId.split('_').slice(-2).join('_');
         const disHost = `https://${disHostName}/dw/image/v2/${realmId}`;
-        const asset = category.c_headerMenuBanner?.trim?.() || '';
+        const asset = (typeof category.c_headerMenuBanner === 'string' && category.c_headerMenuBanner?.trim?.()) || '';
         const parser = new DOMParser();
         const doc = parser.parseFromString(asset, 'text/html');
         const img = doc.querySelector('img');
@@ -102,7 +105,7 @@ export default function CategoryNavigationMenuMega({
     };
 
     return (
-        <div className="hidden lg:block">
+        <div className="hidden lg:block h-10">
             <WithCategoryNavigationMenu resolve={resolve} defer={defer}>
                 {({ categories }) => (
                     <CategoryNavigationMenu

@@ -121,11 +121,8 @@ export const Default: Story = {
 Standard address display with all common fields.
 
 ### Features:
-- Full name displayed
 - Address line 1
-- City, state, and postal code
-- Country code
-- Phone number
+- Location line (postal code, city, state, country)
             `,
         },
     },
@@ -134,17 +131,13 @@ Standard address display with all common fields.
 
         await waitForStorybookReady(canvasElement);
 
-        // Check for name
-        const name = await canvas.findByText(/gurpreet saini/i, {}, { timeout: 5000 });
-        await expect(name).toBeInTheDocument();
-
         // Check for address
         const address = await canvas.findByText(/123 main st/i, {}, { timeout: 5000 });
         await expect(address).toBeInTheDocument();
 
-        // Check for city/state/postal
-        const cityState = await canvas.findByText(/south jordan/i, {}, { timeout: 5000 });
-        await expect(cityState).toBeInTheDocument();
+        // Check for location line (postal, city, state, country)
+        const locationLine = await canvas.findByText(/south jordan/i, {}, { timeout: 5000 });
+        await expect(locationLine).toBeInTheDocument();
     },
 };
 
@@ -155,18 +148,18 @@ export const WithAddress2: Story = {
             story: `
 Address display with a second address line (apartment, suite, etc.).
 
-### Features:
-- Includes address2 field
-- All other standard fields
+Note: The simplified AddressDisplay only shows address1 and location line.
             `,
         },
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
-        // Check for address2
-        const address2 = await canvas.findByText(/apt 4b/i, {}, { timeout: 5000 });
-        await expect(address2).toBeInTheDocument();
+        await waitForStorybookReady(canvasElement);
+
+        // Check for address1 (address2 is not displayed in simplified view)
+        const address = await canvas.findByText(/123 main st/i, {}, { timeout: 5000 });
+        await expect(address).toBeInTheDocument();
     },
 };
 
@@ -178,18 +171,19 @@ export const Minimal: Story = {
 Address display with minimal required fields only.
 
 ### Features:
-- No phone number
-- No address2
-- Basic address information
+- Address line 1
+- Location line (postal code, city, state, country)
             `,
         },
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
-        // Check for name
-        const name = await canvas.findByText(/john doe/i, {}, { timeout: 5000 });
-        await expect(name).toBeInTheDocument();
+        await waitForStorybookReady(canvasElement);
+
+        // Check for address
+        const address = await canvas.findByText(/456 oak avenue/i, {}, { timeout: 5000 });
+        await expect(address).toBeInTheDocument();
     },
 };
 

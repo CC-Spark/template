@@ -55,18 +55,15 @@ function getLoaderHandler(pathname: string, context: Readonly<RouterContextProvi
     // Use extractPathname to support both relative paths and absolute URLs in config.
     // When comparing against the incoming request's pathname, we need to extract just
     // the pathname component from potentially absolute URLs (e.g., "https://example.com/callback" -> "/callback")
-    if (pathname === extractPathname(config.site.features.passwordlessLogin.landingUri)) {
+    if (pathname === extractPathname(config.features.passwordlessLogin.landingUri)) {
         return handlePasswordlessLanding;
     }
 
-    if (pathname === extractPathname(config.site.features.resetPassword.landingUri)) {
+    if (pathname === extractPathname(config.features.resetPassword.landingUri)) {
         return handleResetPasswordLanding;
     }
 
-    if (
-        config.site.features.socialLogin.enabled &&
-        pathname === extractPathname(config.site.features.socialLogin.callbackUri)
-    ) {
+    if (config.features.socialLogin.enabled && pathname === extractPathname(config.features.socialLogin.callbackUri)) {
         return handleSocialLoginLanding;
     }
 
@@ -78,15 +75,14 @@ function getLoaderHandler(pathname: string, context: Readonly<RouterContextProvi
  */
 function getActionHandler(pathname: string, context: Readonly<RouterContextProvider>): ActionHandler | null {
     const config = getConfig(context);
-
     // Use extractPathname to support both relative paths and absolute URLs in config.
     // When comparing against the incoming request's pathname, we need to extract just
     // the pathname component from potentially absolute URLs (e.g., "https://example.com/callback" -> "/callback")
-    if (pathname === extractPathname(config.site.features.passwordlessLogin.callbackUri)) {
+    if (pathname === extractPathname(config.features.passwordlessLogin.callbackUri)) {
         return handlePasswordlessCallback;
     }
 
-    if (pathname === extractPathname(config.site.features.resetPassword.callbackUri)) {
+    if (pathname === extractPathname(config.features.resetPassword.callbackUri)) {
         return handleResetPasswordCallback;
     }
 

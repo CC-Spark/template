@@ -17,6 +17,11 @@ import type { AppConfig } from '@/config';
 import { createEinsteinAdapter } from './einstein';
 import { addAdapter } from '@/lib/adapters';
 import { createActiveDataAdapter } from './active-data';
+import {
+    createCustomerPreferencesMockAdapter,
+    CUSTOMER_PREFERENCES_MOCK_ADAPTER_NAME,
+} from './customer-preferences-mock';
+import { addCustomerPreferencesAdapter } from '@/lib/adapters/customer-preferences-store';
 
 /**
  * Initialize engagement adapterss.
@@ -74,4 +79,19 @@ export function initializeEngagementAdapters(appConfig: AppConfig) {
         sendEvent: async (event: AnalyticsEvent) => Promise.resolve({}),
     });
     */
+
+    // Initialize customer preferences adapter (mock implementation)
+    // This adapter is always enabled for now since it's a mock
+    try {
+        addCustomerPreferencesAdapter(
+            CUSTOMER_PREFERENCES_MOCK_ADAPTER_NAME,
+            createCustomerPreferencesMockAdapter({
+                enabled: true,
+                mockDelay: 300,
+            })
+        );
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to initialize Customer Preferences adapter:', (error as Error).message);
+    }
 }

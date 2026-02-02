@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createRoutesStub, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
 import Signup, { loader, action } from './_empty.signup';
 import { registerCustomer } from '@/lib/api/auth/register';
 import { isPasswordValid } from '@/lib/utils';
@@ -43,33 +44,20 @@ vi.mock('@/middlewares/auth.server', () => ({
     getAuth: vi.fn(),
 }));
 
-// Mock SignupForm component
-vi.mock('@/components/signup-form', () => ({
-    SignupForm: ({ error }: { error?: string }) => (
-        <div data-testid="signup-form">{error && <div data-testid="form-error">{error}</div>}</div>
-    ),
+// Mock PasswordRequirement component to avoid needing to deal with its complexity
+vi.mock('@/components/password-requirements', () => ({
+    PasswordRequirement: () => null,
 }));
 
-// Mock React Router components
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        Form: ({ children, ...props }: { children: React.ReactNode; method?: string }) => (
-            <form {...props}>{children}</form>
-        ),
-        Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; className?: string }) => (
-            <a href={to} {...props}>
-                {children}
-            </a>
-        ),
-        useActionData: vi.fn(),
-    };
-});
-
-// Helper to render with router
-const renderWithRouter = (component: React.ReactElement) => {
-    return render(<MemoryRouter>{component}</MemoryRouter>);
+// Helper to render with createRoutesStub (provides full data router context for Form/Link components)
+const renderWithRoutesStub = () => {
+    const Stub = createRoutesStub([
+        {
+            path: '/',
+            Component: Signup,
+        },
+    ]);
+    return render(<Stub initialEntries={['/']} />);
 };
 
 const mockRegisterCustomer = vi.mocked(registerCustomer);
@@ -637,24 +625,30 @@ describe('signup route', () => {
     });
 
     describe('Component', () => {
-        let mockUseActionData: ReturnType<typeof vi.fn>;
-
-        beforeEach(async () => {
-            const reactRouter = await import('react-router');
-            mockUseActionData = vi.mocked(reactRouter.useActionData);
+        beforeEach(() => {
+            // For component tests, ensure user is not already registered
+            mockGetAuth.mockReturnValue({
+                userType: 'guest',
+                customerId: 'test-customer-123',
+            } as any);
         });
 
         it('should render form with all required elements', () => {
-            mockUseActionData.mockReturnValue(undefined);
-
-            renderWithRouter(<Signup />);
+            renderWithRoutesStub();
 
             // Title and subtitle
             expect(screen.getByText(t('signup:title'))).toBeInTheDocument();
             expect(screen.getByText(t('signup:subtitle'))).toBeInTheDocument();
 
-            // Form
-            expect(screen.getByTestId('signup-form')).toBeInTheDocument();
+            // Form fields
+            expect(screen.getByLabelText(t('signup:form.firstNameLabel'))).toBeInTheDocument();
+            expect(screen.getByLabelText(t('signup:form.lastNameLabel'))).toBeInTheDocument();
+            expect(screen.getByLabelText(t('signup:form.emailLabel'))).toBeInTheDocument();
+            expect(screen.getByLabelText(t('signup:form.passwordLabel'))).toBeInTheDocument();
+            expect(screen.getByLabelText(t('signup:form.confirmPasswordLabel'))).toBeInTheDocument();
+
+            // Submit button
+            expect(screen.getByRole('button', { name: t('signup:form.createAccountButton') })).toBeInTheDocument();
 
             // Sign in link
             expect(screen.getByText(/Have an account?/i)).toBeInTheDocument();
@@ -663,41 +657,73 @@ describe('signup route', () => {
             expect(signInLink).toHaveAttribute('href', '/login');
         });
 
-        it('should pass error from actionData to SignupForm', () => {
-            const errorMessage = 'Registration failed';
-            mockUseActionData.mockReturnValue({
-                error: errorMessage,
+        it('should display error when form submission fails', async () => {
+            const user = userEvent.setup();
+            const errorMessage = 'Email already exists';
+            mockIsPasswordValid.mockReturnValue(true);
+            mockRegisterCustomer.mockResolvedValue({ success: false, error: errorMessage } as any);
+
+            const Stub = createRoutesStub([
+                {
+                    path: '/',
+                    Component: Signup,
+                    action: async ({ request }) => action({ request, params: {}, context: mockContext } as any),
+                },
+            ]);
+            render(<Stub initialEntries={['/']} />);
+
+            // Fill out the form
+            await user.type(screen.getByLabelText(t('signup:form.firstNameLabel')), 'John');
+            await user.type(screen.getByLabelText(t('signup:form.lastNameLabel')), 'Doe');
+            await user.type(screen.getByLabelText(t('signup:form.emailLabel')), 'test@example.com');
+            await user.type(screen.getByLabelText(t('signup:form.passwordLabel')), 'Test123!');
+            await user.type(screen.getByLabelText(t('signup:form.confirmPasswordLabel')), 'Test123!');
+
+            // Submit the form
+            const submitButton = screen.getByRole('button', { name: t('signup:form.createAccountButton') });
+            await user.click(submitButton);
+
+            // Wait for error to appear
+            await waitFor(() => {
+                expect(screen.getByText(errorMessage)).toBeInTheDocument();
             });
-
-            renderWithRouter(<Signup />);
-
-            expect(screen.getByTestId('form-error')).toHaveTextContent(errorMessage);
         });
 
-        it('should not show error when actionData is undefined', () => {
-            mockUseActionData.mockReturnValue(undefined);
+        it('should display validation error when passwords do not match', async () => {
+            const user = userEvent.setup();
+            mockIsPasswordValid.mockReturnValue(true);
 
-            renderWithRouter(<Signup />);
+            const Stub = createRoutesStub([
+                {
+                    path: '/',
+                    Component: Signup,
+                    action: async ({ request }) => action({ request, params: {}, context: mockContext } as any),
+                },
+            ]);
+            render(<Stub initialEntries={['/']} />);
 
-            expect(screen.queryByTestId('form-error')).not.toBeInTheDocument();
+            // Fill out the form with mismatched passwords
+            await user.type(screen.getByLabelText(t('signup:form.firstNameLabel')), 'John');
+            await user.type(screen.getByLabelText(t('signup:form.lastNameLabel')), 'Doe');
+            await user.type(screen.getByLabelText(t('signup:form.emailLabel')), 'test@example.com');
+            await user.type(screen.getByLabelText(t('signup:form.passwordLabel')), 'Test123!');
+            await user.type(screen.getByLabelText(t('signup:form.confirmPasswordLabel')), 'Different123!');
+
+            // Submit the form
+            const submitButton = screen.getByRole('button', { name: t('signup:form.createAccountButton') });
+            await user.click(submitButton);
+
+            // Wait for error to appear
+            await waitFor(() => {
+                expect(screen.getByText(t('signup:passwordsDoNotMatch'))).toBeInTheDocument();
+            });
         });
 
-        it('should not show error when actionData has no error', () => {
-            mockUseActionData.mockReturnValue({});
+        it('should not show error on initial render', () => {
+            renderWithRoutesStub();
 
-            renderWithRouter(<Signup />);
-
-            expect(screen.queryByTestId('form-error')).not.toBeInTheDocument();
-        });
-
-        it('should render form element with POST method', () => {
-            mockUseActionData.mockReturnValue(undefined);
-
-            renderWithRouter(<Signup />);
-
-            const form = screen.getByTestId('signup-form').closest('form');
-            expect(form).toBeInTheDocument();
-            expect(form).toHaveAttribute('method', 'POST');
+            // No error should be visible initially
+            expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
         });
     });
 });

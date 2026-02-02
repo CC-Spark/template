@@ -19,6 +19,8 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import { ConfigProvider } from '@/config/context';
+import { mockConfig } from '@/test-utils/config';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -63,11 +65,13 @@ const meta: Meta<typeof ProductImage> = {
     },
     decorators: [
         (Story) => (
-            <ActionLogger>
-                <div className="w-64 h-64">
-                    <Story />
-                </div>
-            </ActionLogger>
+            <ConfigProvider config={mockConfig}>
+                <ActionLogger>
+                    <div className="w-64 h-64">
+                        <Story />
+                    </div>
+                </ActionLogger>
+            </ConfigProvider>
         ),
     ],
 };

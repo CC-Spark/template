@@ -40,7 +40,7 @@ export const mockBuildConfig: Config = {
         defaultMrtTarget: '',
         ssrOnly: ['loader.js'],
         ssrShared: ['static/**/*'],
-        ssrParameters: { ssrFunctionNodeVersion: '22.x' },
+        ssrParameters: { ssrFunctionNodeVersion: '24.x' },
     },
     app: {
         pages: {
@@ -51,7 +51,11 @@ export const mockBuildConfig: Config = {
                 maxQuantityPerItem: 999,
                 enableSaveForLater: false,
                 removeAction: '/action/cart-item-remove',
+                ruleBasedProductLimit: 4,
                 confirmDescription: 'Are you sure you want to remove this item from your cart?',
+                miniCart: {
+                    enableViewCartButton: true,
+                },
             },
             search: {
                 placeholder: 'Search',
@@ -70,41 +74,47 @@ export const mockBuildConfig: Config = {
                 proxy: '/mobify/proxy/api',
                 callback: '/callback',
                 privateKeyEnabled: false,
+                registeredRefreshTokenExpirySeconds: undefined,
+                guestRefreshTokenExpirySeconds: undefined,
+            },
+            sites: [
+                {
+                    id: 'RefArchGlobal',
+                    defaultLocale: 'en-US',
+                    defaultCurrency: 'USD',
+                    supportedLocales: [
+                        { id: 'en-US', preferredCurrency: 'USD' },
+                        { id: 'it-IT', preferredCurrency: 'EUR' },
+                    ],
+                    supportedCurrencies: ['EUR', 'USD'],
+                },
+            ],
+        },
+        defaultSiteId: 'RefArchGlobal',
+        features: {
+            guestCheckout: true,
+            googleCloudAPI: {
+                apiKey: '',
+            },
+            passwordlessLogin: {
+                enabled: false,
+                callbackUri: '/passwordless-login-callback',
+                landingUri: '/passwordless-login-landing',
+            },
+            resetPassword: {
+                callbackUri: '/reset-password-callback',
+                landingUri: '/reset-password-landing',
+            },
+            socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+            socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
+            shopperContext: {
+                enabled: false,
+                dwsourcecodeCookieSuffix: 'test-site',
             },
         },
-        site: {
-            locale: 'en-US',
-            currency: 'USD',
-            cookies: {
-                domain: undefined,
-            },
-            features: {
-                passwordlessLogin: {
-                    enabled: false,
-                    callbackUri: '/passwordless-login-callback',
-                    landingUri: '/passwordless-login-landing',
-                },
-                resetPassword: {
-                    callbackUri: '/reset-password-callback',
-                    landingUri: '/reset-password-landing',
-                },
-                socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
-                socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                guestCheckout: true,
-                shopperContext: {
-                    enabled: false,
-                    dwsourcecodeCookieSuffix: 'test-site',
-                },
-            },
-            hybrid: {
-                enabled: false,
-                legacyRoutes: [],
-            },
-            supportedLocales: [
-                { id: 'en-US', preferredCurrency: 'USD' },
-                { id: 'it-IT', preferredCurrency: 'EUR' },
-            ],
-            supportedCurrencies: ['EUR', 'USD'],
+        hybrid: {
+            enabled: false,
+            legacyRoutes: [],
         },
         i18n: {
             fallbackLng: 'en-US',
@@ -162,9 +172,15 @@ export const mockBuildConfig: Config = {
                 },
             },
         },
+        links: {
+            preconnect: ['https://edge.disstg.commercecloud.salesforce.com'],
+        },
+        images: {
+            quality: 70,
+            formats: ['webp'],
+            fallbackFormat: 'jpg',
+        },
         performance: {
-            preconnectOrigins: ['https://edge.disstg.commercecloud.salesforce.com'],
-            images: { quality: 80, formats: ['webp', 'jpeg'], lazyLoading: true },
             caching: { apiCacheTtl: 300, staticAssetCacheTtl: 31536000 },
             metrics: {
                 serverPerformanceMetricsEnabled: true,
@@ -193,6 +209,8 @@ export const mockBuildConfig: Config = {
                         cart_item_add: true,
                         checkout_start: true,
                         checkout_step: true,
+                        view_search_suggestion: true,
+                        click_search_suggestion: true,
                     },
                 },
                 dataCloud: {
@@ -212,6 +230,8 @@ export const mockBuildConfig: Config = {
                         cart_item_add: true,
                         checkout_start: true,
                         checkout_step: true,
+                        view_search_suggestion: true,
+                        click_search_suggestion: true,
                     },
                 },
                 activeData: {
@@ -232,6 +252,8 @@ export const mockBuildConfig: Config = {
                         cart_item_add: false,
                         checkout_start: false,
                         checkout_step: false,
+                        view_search_suggestion: false,
+                        click_search_suggestion: false,
                     },
                 },
             },
@@ -249,6 +271,9 @@ export const mockBuildConfig: Config = {
             enableDevtools: true,
             hotReload: true,
             strictMode: true,
+        },
+        siteAliasMap: {
+            RefArchGlobal: 'global',
         },
     },
 };

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { createCommerceApiClients, type Clients } from './createClients';
 import { ApiError } from './ApiError';
 import type { Middleware } from 'openapi-fetch';
@@ -229,7 +229,8 @@ describe('createCommerceApiClients', () => {
     });
 
     describe('type safety and runtime integration tests', () => {
-        let mockFetch: ReturnType<typeof vi.fn>;
+        // Type mockFetch as Mock with fetch signature for Vitest 4.x compatibility
+        let mockFetch: Mock<(input: Request) => Promise<Response>>;
 
         // Helper to create a proper mock Response object
         const createMockResponse = (data: unknown, status = 200, ok = true) => {
@@ -475,7 +476,7 @@ describe('createCommerceApiClients', () => {
                     ok: true,
                     status: 204,
                     headers: new Headers(),
-                });
+                } as Response);
 
                 const clients = createCommerceApiClients({
                     ...defaultConfig,

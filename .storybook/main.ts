@@ -74,14 +74,13 @@ const config: StorybookConfig = {
             'PUBLIC__app__commerce__api__proxy': '/mobify/proxy/api',
             'PUBLIC__app__commerce__api__callback': '/callback',
             'PUBLIC__app__commerce__api__privateKeyEnabled': 'false',
-            'PUBLIC__app__site__locale': 'en-US',
-            'PUBLIC__app__site__currency': 'USD',
-            'PUBLIC__app__site__features__passwordlessLogin__enabled': 'false',
-            'PUBLIC__app__site__features__socialLogin__providers': '["Apple","Google"]',
-            'PUBLIC__app__site__features__passwordlessLogin__callbackUri': '/passwordless-login-callback',
-            'PUBLIC__app__site__features__passwordlessLogin__landingUri': '/passwordless-login-landing',
-            'PUBLIC__app__site__features__passwordReset__callbackUri': '/reset-password-callback',
-            'PUBLIC__app__site__features__passwordReset__landingUri': '/reset-password-landing',
+            'PUBLIC__app__i18n__fallbackLng': 'en-US',
+            'PUBLIC__app__features__passwordlessLogin__enabled': 'false',
+            'PUBLIC__app__features__socialLogin__providers': '["Apple","Google"]',
+            'PUBLIC__app__features__passwordlessLogin__callbackUri': '/passwordless-login-callback',
+            'PUBLIC__app__features__passwordlessLogin__landingUri': '/passwordless-login-landing',
+            'PUBLIC__app__features__resetPassword__callbackUri': '/reset-password-callback',
+            'PUBLIC__app__features__resetPassword__landingUri': '/reset-password-landing',
         };
 
         // Automatically inject all PUBLIC__ environment variables

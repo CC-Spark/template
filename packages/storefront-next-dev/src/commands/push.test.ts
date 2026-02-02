@@ -13,80 +13,127 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import type { PushOptions, CloudAPIResponse } from '../types';
-// Import after mocks
-import { push } from './push';
-import { createBundle } from '../bundle';
-import { CloudAPIClient } from '../cloud-api';
-import { buildMrtConfig } from '../config';
-import { getMrtConfig } from '../utils';
-import { info, success, warn, error } from '../utils/logger';
-import fs from 'fs-extra';
+import type { push as PushFn } from './push';
+import type { createBundle as CreateBundleFn } from '../bundle';
+import type { buildMrtConfig as BuildMrtConfigFn } from '../config';
+import type fsExtra from 'fs-extra';
 
-// Mock dependencies - use factory functions to avoid hoisting issues
-vi.mock('../bundle', () => ({
-    createBundle: vi.fn(() => Promise.resolve('mock-bundle')),
-}));
+// Module-level variables for mocked modules
+let push: typeof PushFn;
+let createBundle: typeof CreateBundleFn;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- assigned from dynamic import
+let CloudAPIClient: any;
+let buildMrtConfig: typeof BuildMrtConfigFn;
+let getMrtConfig: ReturnType<typeof vi.fn>;
+let info: ReturnType<typeof vi.fn>;
+let success: ReturnType<typeof vi.fn>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- assigned from dynamic import, freshWarn used in tests
+let warn: ReturnType<typeof vi.fn>;
+let error: ReturnType<typeof vi.fn>;
+let fs: typeof fsExtra;
 
-vi.mock('../cloud-api', () => ({
-    CloudAPIClient: vi.fn(() => ({
-        push: vi.fn(() =>
-            Promise.resolve<CloudAPIResponse>({
-                url: 'https://example.com/bundle',
-                warnings: [],
-            })
-        ),
-        waitForDeploy: vi.fn(() => Promise.resolve()),
-    })),
-}));
-
-vi.mock('../config', () => ({
-    buildMrtConfig: vi.fn(() => ({
-        ssrParameters: {},
-        ssrOnly: [],
-        ssrShared: [],
-    })),
-}));
-
-vi.mock('../utils', () => ({
-    DEFAULT_CLOUD_ORIGIN: 'https://cloud.mobify.com',
-    getDefaultBuildDir: vi.fn(() => '/test/build'),
-    getCredentialsFile: vi.fn(() => '/test/.credentials'),
-    readCredentials: vi.fn(() =>
-        Promise.resolve({
-            username: 'test@example.com',
-            api_key: 'test-api-key',
-        })
-    ),
-    getMrtConfig: vi.fn(() => ({
-        defaultMrtProject: 'test-project',
-        defaultMrtTarget: 'staging' as string | undefined,
-    })),
-    getDefaultMessage: vi.fn(() => 'main:abc123'),
-}));
-
-vi.mock('../utils/logger', () => ({
-    info: vi.fn(),
-    success: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
-}));
-
-vi.mock('fs-extra', () => ({
-    default: {
-        existsSync: vi.fn(() => true),
-    },
-    existsSync: vi.fn(() => true),
-}));
+// Track CloudAPIClient instances for assertions
+let mockCloudAPIInstances: Array<{ push: ReturnType<typeof vi.fn>; waitForDeploy: ReturnType<typeof vi.fn> }> = [];
 
 describe('push', () => {
+    beforeAll(async () => {
+        // Setup mocks before importing modules
+        vi.doMock('../bundle', () => ({
+            createBundle: vi.fn(() => Promise.resolve('mock-bundle')),
+        }));
+
+        vi.doMock('../cloud-api', () => ({
+            CloudAPIClient: class MockCloudAPIClient {
+                push: ReturnType<typeof vi.fn>;
+                waitForDeploy: ReturnType<typeof vi.fn>;
+                constructor() {
+                    this.push = vi.fn(() =>
+                        Promise.resolve<CloudAPIResponse>({
+                            url: 'https://example.com/bundle',
+                            warnings: [],
+                        })
+                    );
+                    this.waitForDeploy = vi.fn(() => Promise.resolve());
+                    mockCloudAPIInstances.push(this);
+                }
+            },
+        }));
+
+        vi.doMock('../config', () => ({
+            buildMrtConfig: vi.fn(() => ({
+                ssrParameters: {},
+                ssrOnly: [],
+                ssrShared: [],
+            })),
+        }));
+
+        vi.doMock('../utils', () => ({
+            DEFAULT_CLOUD_ORIGIN: 'https://cloud.mobify.com',
+            getDefaultBuildDir: vi.fn(() => '/test/build'),
+            getCredentialsFile: vi.fn(() => '/test/.credentials'),
+            readCredentials: vi.fn(() =>
+                Promise.resolve({
+                    username: 'test@example.com',
+                    api_key: 'test-api-key',
+                })
+            ),
+            getMrtConfig: vi.fn(() => ({
+                defaultMrtProject: 'test-project',
+                defaultMrtTarget: 'staging' as string | undefined,
+            })),
+            getDefaultMessage: vi.fn(() => 'main:abc123'),
+        }));
+
+        vi.doMock('../utils/logger', () => ({
+            info: vi.fn(),
+            success: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            debug: vi.fn(),
+        }));
+
+        vi.doMock('fs-extra', () => ({
+            default: {
+                existsSync: vi.fn(() => true),
+            },
+            existsSync: vi.fn(() => true),
+        }));
+
+        // Dynamic imports after mocks are set up
+        const pushModule = await import('./push');
+        push = pushModule.push;
+
+        const bundleModule = await import('../bundle');
+        createBundle = bundleModule.createBundle;
+
+        const cloudApiModule = await import('../cloud-api');
+        CloudAPIClient = cloudApiModule.CloudAPIClient;
+
+        const configModule = await import('../config');
+        buildMrtConfig = configModule.buildMrtConfig;
+
+        const utilsModule = await import('../utils');
+        getMrtConfig = utilsModule.getMrtConfig as ReturnType<typeof vi.fn>;
+
+        const loggerModule = await import('../utils/logger');
+        info = loggerModule.info as ReturnType<typeof vi.fn>;
+        success = loggerModule.success as ReturnType<typeof vi.fn>;
+        warn = loggerModule.warn as ReturnType<typeof vi.fn>;
+        error = loggerModule.error as ReturnType<typeof vi.fn>;
+
+        const fsModule = await import('fs-extra');
+        fs = fsModule.default;
+    });
+
     beforeEach(() => {
         vi.clearAllMocks();
+        // Clear tracked instances
+        mockCloudAPIInstances = [];
         // Reset mocks to default values
         (fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(true);
-        (getMrtConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+        getMrtConfig.mockReturnValue({
             defaultMrtProject: 'test-project',
             defaultMrtTarget: 'staging' as string | undefined,
         });
@@ -124,7 +171,9 @@ describe('push', () => {
 
         await push(options);
 
-        const clientInstance = (CloudAPIClient as ReturnType<typeof vi.fn>).mock.results[0]?.value;
+        // Use tracked instance instead of mock.results
+        const clientInstance = mockCloudAPIInstances[0];
+        expect(clientInstance).toBeDefined();
         expect(clientInstance.waitForDeploy).toHaveBeenCalledWith('test-project', 'staging');
         expect(success).toHaveBeenCalledWith('Deployment complete!');
     });
@@ -156,7 +205,7 @@ describe('push', () => {
     });
 
     it('should throw error when wait is set without target', async () => {
-        (getMrtConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+        getMrtConfig.mockReturnValue({
             defaultMrtProject: 'test-project',
             defaultMrtTarget: undefined,
         });
@@ -198,7 +247,7 @@ describe('push', () => {
     });
 
     it('should throw error when project slug cannot be determined', async () => {
-        (getMrtConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+        getMrtConfig.mockReturnValue({
             defaultMrtProject: '',
             defaultMrtTarget: 'staging' as string | undefined,
         });
@@ -223,26 +272,40 @@ describe('push', () => {
     });
 
     it('should display warnings from API response', async () => {
-        const mockClientInstance = {
-            push: vi.fn(() =>
-                Promise.resolve<CloudAPIResponse>({
-                    url: 'https://example.com/bundle',
-                    warnings: ['Warning 1', 'Warning 2'],
-                })
-            ),
-            waitForDeploy: vi.fn(() => Promise.resolve()),
-        };
-        (CloudAPIClient as ReturnType<typeof vi.fn>).mockReturnValueOnce(mockClientInstance);
+        // First, we need to reset the module to get a fresh mock with warnings
+        vi.resetModules();
+        mockCloudAPIInstances = [];
+
+        // Re-mock with warnings
+        vi.doMock('../cloud-api', () => ({
+            CloudAPIClient: class MockCloudAPIClient {
+                push = vi.fn(() =>
+                    Promise.resolve<CloudAPIResponse>({
+                        url: 'https://example.com/bundle',
+                        warnings: ['Warning 1', 'Warning 2'],
+                    })
+                );
+                waitForDeploy = vi.fn(() => Promise.resolve());
+                constructor() {
+                    mockCloudAPIInstances.push(this);
+                }
+            },
+        }));
+
+        // Re-import with fresh mocks
+        const { push: freshPush } = await import('./push');
+        const loggerModule = await import('../utils/logger');
+        const freshWarn = loggerModule.warn as ReturnType<typeof vi.fn>;
 
         const options: PushOptions = {
             projectDirectory: '/test/project',
         };
 
-        await push(options);
+        await freshPush(options);
 
         // warnings.forEach(warn) passes index and array as additional parameters
-        expect(warn).toHaveBeenNthCalledWith(1, 'Warning 1', 0, ['Warning 1', 'Warning 2']);
-        expect(warn).toHaveBeenNthCalledWith(2, 'Warning 2', 1, ['Warning 1', 'Warning 2']);
+        expect(freshWarn).toHaveBeenNthCalledWith(1, 'Warning 1', 0, ['Warning 1', 'Warning 2']);
+        expect(freshWarn).toHaveBeenNthCalledWith(2, 'Warning 2', 1, ['Warning 1', 'Warning 2']);
     });
 
     it('should use custom cloud origin when provided', async () => {

@@ -15,24 +15,20 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { useProductSetsBundles } from './use-product-sets-bundles';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
-// Mock useFetcher for useScapiFetcher
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetcher: vi.fn(() => ({
-            data: null,
-            state: 'idle',
-            submit: vi.fn(),
-            load: vi.fn(),
-        })),
-    };
-});
+// Mock useFetcher function
+const mockUseFetcher = vi.fn(() => ({
+    data: null,
+    state: 'idle',
+    submit: vi.fn(),
+    load: vi.fn(),
+}));
 
 // Mock useBulkChildProductInventory
 vi.mock('./use-bulk-child-product-inventory', () => ({
@@ -73,6 +69,14 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
 };
 
 describe('useProductSetsBundles', () => {
+    beforeEach(() => {
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockImplementation(mockUseFetcher as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
     const createMockProduct = (
         type: 'set' | 'bundle',
         childProducts: any[] = []
@@ -510,6 +514,8 @@ describe('useProductSetsBundles', () => {
             (child2 as any).quantity = 1;
 
             const product = createMockProduct('set', [child1, child2]);
+            // Add inventory to parent product so fallback works
+            product.inventory = { id: 'parent-inv', stockLevel: 5, ats: 5, orderable: true };
 
             const { result } = renderHook(() => useProductSetsBundles({ product }), { wrapper });
 

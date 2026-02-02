@@ -79,11 +79,14 @@ export const currencyMiddleware: MiddlewareFunction<Response> = async ({ request
         const cookieHeader = request.headers.get('Cookie');
         const userCurrency = cookieHeader ? await currencyCookie.parse(cookieHeader) : null;
 
+        // Get current site configuration (using first site as default for now)
+        const currentSite = config.commerce.sites[0];
+
         // Validate and use cookie currency if valid
         if (
             userCurrency &&
             typeof userCurrency === 'string' &&
-            config.site.supportedCurrencies.includes(userCurrency)
+            currentSite.supportedCurrencies.includes(userCurrency)
         ) {
             context.set(currencyContext, userCurrency);
         } else {
@@ -91,24 +94,32 @@ export const currencyMiddleware: MiddlewareFunction<Response> = async ({ request
             const i18nextData = context.get(i18nextContext);
             if (i18nextData) {
                 const currentLocale = i18nextData.getLocale();
-                const supportedLocale = config.site.supportedLocales.find(
+                const supportedLocale = currentSite.supportedLocales.find(
                     (loc: { id: string; preferredCurrency: string }) => loc.id === currentLocale
                 );
                 if (supportedLocale?.preferredCurrency) {
                     context.set(currencyContext, supportedLocale.preferredCurrency);
                 } else {
-                    // Final fallback: Use site default currency
-                    context.set(currencyContext, config.site.currency);
+                    // Final fallback: Use site default locale's preferred currency
+                    const defaultLocaleConfig = currentSite.supportedLocales.find(
+                        (loc) => loc.id === currentSite.defaultLocale
+                    );
+                    context.set(currencyContext, defaultLocaleConfig?.preferredCurrency || 'USD');
                 }
             } else {
-                // Final fallback: Use site default currency
-                context.set(currencyContext, config.site.currency);
+                // Final fallback: Use site default locale's preferred currency
+                const defaultLocaleConfig = currentSite.supportedLocales.find(
+                    (loc) => loc.id === currentSite.defaultLocale
+                );
+                context.set(currencyContext, defaultLocaleConfig?.preferredCurrency || 'USD');
             }
         }
     } catch {
         // On error, set to default to prevent loader failures
         const config = getConfig(context);
-        context.set(currencyContext, config.site.currency);
+        const currentSite = config.commerce.sites[0];
+        const defaultLocaleConfig = currentSite.supportedLocales.find((loc) => loc.id === currentSite.defaultLocale);
+        context.set(currencyContext, defaultLocaleConfig?.preferredCurrency ?? currentSite.defaultCurrency);
     }
 
     // Execute handler (loader/action/render)
@@ -124,9 +135,10 @@ export const currencyMiddleware: MiddlewareFunction<Response> = async ({ request
             const updatedCurrency = currencyStorage.get('currency') as string;
             if (updatedCurrency) {
                 const config = getConfig(context);
+                const currentSite = config.commerce.sites[0];
 
                 // Validate the currency
-                if (config.site.supportedCurrencies.includes(updatedCurrency)) {
+                if (currentSite.supportedCurrencies.includes(updatedCurrency)) {
                     // Set currency cookie automatically
                     const currencyCookie = createCurrencyCookie(context);
                     const cookieHeader = await currencyCookie.serialize(updatedCurrency);

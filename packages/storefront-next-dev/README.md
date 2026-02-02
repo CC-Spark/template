@@ -199,7 +199,7 @@ The tool automatically generates the following configuration:
 ```json
 {
     "ssrParameters": {
-        "ssrFunctionNodeVersion": "22.x"
+        "ssrFunctionNodeVersion": "24.x"
     },
     "ssrOnly": ["loader.js", "streamingHandler.mjs", "server/**/*", "!static/**/*"],
     "ssrShared": ["client/**/*", "static/**/*", "**/*.css", "**/*.png", "**/*.jpg", "**/*.svg", "**/*.ico"]

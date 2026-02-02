@@ -1860,6 +1860,13 @@ exports[`Payment stories snapshot > WithFormError story renders and matches snap
         class="space-y-6"
       >
         <div
+          aria-live="polite"
+          class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+          role="alert"
+        >
+          Failed to save payment information. Please try again.
+        </div>
+        <div
           class="space-y-4"
         >
           <h3
@@ -2128,17 +2135,23 @@ exports[`Payment stories snapshot > WithValidationErrors story renders and match
           class="space-y-2"
         >
           <div
+            aria-live="polite"
             class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+            role="alert"
           >
             Please enter a valid card number
           </div>
           <div
+            aria-live="polite"
             class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+            role="alert"
           >
             Please enter a valid expiry date
           </div>
           <div
+            aria-live="polite"
             class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+            role="alert"
           >
             Please enter a valid CVV
           </div>

@@ -30,7 +30,7 @@ describe('createAppConfig', () => {
 
         // Should have all app properties
         expect(appConfig.commerce).toBe(mockBuildConfig.app.commerce);
-        expect(appConfig.site).toBe(mockBuildConfig.app.site);
+        expect(appConfig.commerce.sites).toBe(mockBuildConfig.app.commerce.sites);
         expect(appConfig.pages).toBe(mockBuildConfig.app.pages);
         expect(appConfig.global).toBe(mockBuildConfig.app.global);
 

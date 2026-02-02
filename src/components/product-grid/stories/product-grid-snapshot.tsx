@@ -48,7 +48,7 @@ vi.mock('react-router', () => ({
     },
 }));
 vi.mock('react-router-dom', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<object>();
     return {
         ...actual,
         useFetcher: () => fetcherMock,
@@ -124,8 +124,8 @@ const mockConfig = {
             { propertyName: 'c_isNew', label: 'New', color: 'green', priority: 2 },
         ],
     },
+    images: { quality: 70, formats: ['webp'], fallbackFormat: 'jpg' },
     performance: {
-        images: { quality: 80, formats: ['webp', 'jpeg'], lazyLoading: true },
         caching: { apiCacheTtl: 300, staticAssetCacheTtl: 31536000 },
     },
     development: {

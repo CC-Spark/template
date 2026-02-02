@@ -183,6 +183,34 @@ describe('create-storefront', () => {
         expect(fs.rmSync).toHaveBeenCalledWith(join('sfcc-storefront', '.git'), { recursive: true, force: true });
     });
 
+    it('should use provided name and template without prompting for them', async () => {
+        vi.mocked(execSync).mockImplementation(() => {
+            return '';
+        });
+        vi.mocked(fs.existsSync as any).mockImplementation((path: string) => {
+            if (path.includes(join('src', 'extensions', 'config.json'))) return false;
+            if (path.endsWith('.env.default')) return false;
+            return true;
+        });
+        vi.mocked(fs.readFileSync).mockImplementation((path: any) => {
+            if (String(path).endsWith('config-meta.json')) {
+                return JSON.stringify({ configs: [] });
+            }
+            return '';
+        });
+
+        await createStorefront({
+            name: 'my-storefront',
+            template: 'https://example.com/storefront-template.git',
+        });
+
+        expect(execSync).toHaveBeenCalledWith(
+            'git clone --depth 1 https://example.com/storefront-template.git my-storefront'
+        );
+        expect(prompts).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'storefront' }));
+        expect(prompts).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'template' }));
+    });
+
     it('should configure extensions', async () => {
         // Arrange
         vi.mocked(fs.existsSync).mockReturnValue(true as any);

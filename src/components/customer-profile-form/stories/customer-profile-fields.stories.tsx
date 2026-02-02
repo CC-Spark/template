@@ -202,7 +202,6 @@ export const Default: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
@@ -268,7 +267,6 @@ export const WithInitialValues: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: 'John',
@@ -327,7 +325,6 @@ export const WithCancelButton: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
@@ -378,7 +375,6 @@ export const Submitting: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: 'John',
@@ -428,7 +424,6 @@ export const Interactive: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',

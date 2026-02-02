@@ -16,7 +16,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { AppConfig } from '@/config';
 import { getCookieNameWithSiteId, getCookieConfig, COOKIE_NAMESPACE_EXCLUSIONS } from './cookie-utils';
-
+import { mockBuildConfig } from '@/test-utils/config';
 // Mock getConfig
 vi.mock('@/config/get-config', () => ({
     getConfig: vi.fn(),
@@ -25,13 +25,32 @@ vi.mock('@/config/get-config', () => ({
 import { getConfig } from '@/config/get-config';
 
 describe('cookie-utils', () => {
-    const mockAppConfig: AppConfig = {
+    const mockAppConfig = {
+        ...mockBuildConfig.app,
         commerce: {
             api: {
                 siteId: 'RefArch',
+                clientId: 'test-client',
+                organizationId: 'test-org',
+                shortCode: 'test123',
+                proxy: '/mobify/proxy/api',
+                callback: '/callback',
+                privateKeyEnabled: false,
+                registeredRefreshTokenExpirySeconds: undefined,
+                guestRefreshTokenExpirySeconds: undefined,
             },
+            sites: [
+                {
+                    defaultSiteId: 'RefArch',
+                    defaultLocale: 'en-US',
+                    defaultCurrency: 'USD',
+                    supportedLocales: [],
+                    supportedCurrencies: [],
+                    cookies: {},
+                },
+            ],
         },
-    } as AppConfig;
+    };
 
     describe('COOKIE_NAMESPACE_EXCLUSIONS', () => {
         it('should contain expected excluded cookies', () => {
@@ -151,10 +170,14 @@ describe('cookie-utils', () => {
 
         it('should apply domain from appConfig (highest priority)', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    cookies: {
-                        domain: '.example.com',
-                    },
+                commerce: {
+                    sites: [
+                        {
+                            cookies: {
+                                domain: '.example.com',
+                            },
+                        },
+                    ],
                 },
             } as AppConfig);
 
@@ -170,10 +193,14 @@ describe('cookie-utils', () => {
 
         it('should override provided domain with appConfig domain', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    cookies: {
-                        domain: '.env-domain.com',
-                    },
+                commerce: {
+                    sites: [
+                        {
+                            cookies: {
+                                domain: '.env-domain.com',
+                            },
+                        },
+                    ],
                 },
             } as AppConfig);
 
@@ -192,8 +219,12 @@ describe('cookie-utils', () => {
 
         it('should handle appConfig without cookie domain', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    cookies: {},
+                commerce: {
+                    sites: [
+                        {
+                            cookies: {},
+                        },
+                    ],
                 },
             } as AppConfig);
 
@@ -209,10 +240,14 @@ describe('cookie-utils', () => {
 
         it('should handle appConfig with empty string domain', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    cookies: {
-                        domain: '',
-                    },
+                commerce: {
+                    sites: [
+                        {
+                            cookies: {
+                                domain: '',
+                            },
+                        },
+                    ],
                 },
             } as AppConfig);
 
@@ -228,7 +263,11 @@ describe('cookie-utils', () => {
         });
 
         it('should handle appConfig without site or cookies properties', () => {
-            vi.mocked(getConfig).mockReturnValue({} as AppConfig);
+            vi.mocked(getConfig).mockReturnValue({
+                commerce: {
+                    sites: [],
+                },
+            } as any);
 
             const config = getCookieConfig({ httpOnly: true });
 
@@ -252,10 +291,14 @@ describe('cookie-utils', () => {
 
         it('should handle all cookie attributes', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    cookies: {
-                        domain: '.example.com',
-                    },
+                commerce: {
+                    sites: [
+                        {
+                            cookies: {
+                                domain: '.example.com',
+                            },
+                        },
+                    ],
                 },
             } as AppConfig);
 
@@ -318,10 +361,14 @@ describe('cookie-utils', () => {
 
         it('should verify precedence order: appConfig > options > defaults', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    cookies: {
-                        domain: '.appconfig.com',
-                    },
+                commerce: {
+                    sites: [
+                        {
+                            cookies: {
+                                domain: '.appconfig.com',
+                            },
+                        },
+                    ],
                 },
             } as AppConfig);
 

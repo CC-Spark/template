@@ -21,6 +21,12 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import resources from '@/locales';
 
+// Mock static asset imports that fail on Windows due to absolute path resolution
+// Windows converts '/path' to 'file:///path' which is invalid (missing drive letter)
+vi.mock('/favicon.ico', () => ({ default: '/favicon.ico' }));
+vi.mock('/images/GoogleMaps_Logo_Gray_4x.png', () => ({ default: '/images/GoogleMaps_Logo_Gray_4x.png' }));
+vi.mock('/images/hero-cube.webp', () => ({ default: '/images/hero-cube.webp' }));
+
 // Clear engagement-related PUBLIC__ env vars before any modules load
 // The engagement config is protected from env var overrides, so these must be cleared
 // to prevent defineConfig from throwing during module initialization
@@ -98,32 +104,57 @@ afterEach(() => {
 });
 
 // Mock window.matchMedia for required components
+// Use a regular function instead of vi.fn() to prevent vi.restoreAllMocks() from clearing it
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation((query) => ({
+    value: (query: string) => ({
         matches: false,
         media: query,
         onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-    })),
+        addListener: () => {
+            // noop
+        },
+        removeListener: () => {
+            // noop
+        },
+        addEventListener: () => {
+            // noop
+        },
+        removeEventListener: () => {
+            // noop
+        },
+        dispatchEvent: () => true,
+    }),
 });
 
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-}));
+// Mock ResizeObserver - use class for Vitest 4 compatibility
+global.ResizeObserver = class ResizeObserver {
+    observe() {
+        // noop for test mock
+    }
+    unobserve() {
+        // noop for test mock
+    }
+    disconnect() {
+        // noop for test mock
+    }
+};
 
-// Mock IntersectionObserver for carousel components
-global.IntersectionObserver = vi.fn().mockImplementation((_callback) => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-    root: null,
-    rootMargin: '',
-    thresholds: [],
-}));
+// Mock IntersectionObserver for carousel components - use class for Vitest 4 compatibility
+global.IntersectionObserver = class IntersectionObserver {
+    root = null;
+    rootMargin = '';
+    thresholds: number[] = [];
+    observe() {
+        // noop for test mock
+    }
+    unobserve() {
+        // noop for test mock
+    }
+    disconnect() {
+        // noop for test mock
+    }
+    takeRecords(): IntersectionObserverEntry[] {
+        return [];
+    }
+};

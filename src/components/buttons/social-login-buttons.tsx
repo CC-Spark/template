@@ -24,9 +24,9 @@ interface SocialLoginButtonsProps {
 }
 
 export function SocialLoginButtons({ redirectPath }: SocialLoginButtonsProps = {}): ReactElement | null {
-    const { site } = useConfig();
+    const config = useConfig();
     const { t } = useTranslation('login');
-    const socialIDPs: string[] = site.features.socialLogin.providers;
+    const socialIDPs: string[] = config.features.socialLogin.providers;
 
     const getProviderIcon = (provider: string) => {
         switch (provider.toLowerCase()) {

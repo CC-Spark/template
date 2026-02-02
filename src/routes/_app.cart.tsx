@@ -36,8 +36,8 @@ import { currencyContext } from '@/lib/currency';
 
 // Components
 import CartContent from '@/components/cart/cart-content';
-import CartSkeleton from '@/components/cart/cart-skeleton';
 import createPage from '@/components/create-page';
+import CartEmptySkeleton from '@/components/cart/cart-empty-skeleton';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
 import { getInventoryIdsFromPickupShipments } from '@/extensions/bopis/lib/basket-utils';
@@ -263,7 +263,7 @@ async function fetchProductsInBasket(
  * @returns JSX element representing the cart skeleton loading state
  */
 export function HydrateFallback() {
-    return <CartSkeleton />;
+    return <CartEmptySkeleton isRegistered={false} />;
 }
 
 /**
@@ -357,5 +357,5 @@ function Cart({
 // eslint-disable-next-line react-refresh/only-export-components
 export default createPage<CartPageData>({
     component: Cart,
-    fallback: <CartSkeleton />,
+    fallback: <CartEmptySkeleton isRegistered={false} />,
 });

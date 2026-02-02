@@ -15,8 +15,10 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { createMemoryRouter, RouterProvider, useFetcher } from 'react-router';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import type {
     ShopperProducts,
     ShopperBasketsV2,
@@ -29,17 +31,12 @@ import BasketProvider from '@/providers/basket';
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetcher: vi.fn(() => ({
-            data: null,
-            state: 'idle',
-            submit: vi.fn(),
-        })),
-    };
-});
+// Mock useFetcher function
+const mockUseFetcher = vi.fn(() => ({
+    data: null,
+    state: 'idle',
+    submit: vi.fn(),
+}));
 
 vi.mock('@/components/toast', () => ({
     useToast: () => ({
@@ -151,6 +148,14 @@ const wrapper = ({ children, basket }: { children: React.ReactNode; basket?: Sho
 };
 
 describe('useProductActions', () => {
+    beforeEach(() => {
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockImplementation(mockUseFetcher as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
     const createStandardProduct = (): ShopperProducts.schemas['Product'] => ({
         id: 'standard-123',
         name: 'Standard Product',
@@ -328,7 +333,7 @@ describe('useProductActions', () => {
             const product = createBundleProduct();
             const mockSubmit = vi.fn();
 
-            vi.mocked(useFetcher).mockReturnValue({
+            mockUseFetcher.mockReturnValue({
                 data: null,
                 state: 'idle',
                 submit: mockSubmit,
@@ -366,7 +371,7 @@ describe('useProductActions', () => {
             const product = createBundleProduct();
             const mockSubmit = vi.fn();
 
-            vi.mocked(useFetcher).mockReturnValue({
+            mockUseFetcher.mockReturnValue({
                 data: null,
                 state: 'idle',
                 submit: mockSubmit,
@@ -402,7 +407,7 @@ describe('useProductActions', () => {
             const product = createBundleProduct();
             const mockSubmit = vi.fn();
 
-            vi.mocked(useFetcher).mockReturnValue({
+            mockUseFetcher.mockReturnValue({
                 data: null,
                 state: 'idle',
                 submit: mockSubmit,

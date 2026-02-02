@@ -1,9 +1,14 @@
 import fs from "fs";
-import path, { basename, extname, join, posix, resolve } from "path";
+import path, { extname } from "path";
 import archiver from "archiver";
-import { access, mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
+import { access, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { basename, extname as extname$1, join, resolve } from "node:path";
+import { execSync } from "node:child_process";
 import { Node, Project } from "ts-morph";
-import { execSync } from "child_process";
+import { existsSync, readFileSync, unlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { randomUUID } from "node:crypto";
+import { npmRunPathEnv } from "npm-run-path";
 
 //#region src/cartridge-services/types.ts
 const WEBDAV_BASE = "/on/demandware.servlet/webdav/Sites";
@@ -25,25 +30,6 @@ const WEBDAV_OPERATIONS = {
 
 //#endregion
 //#region src/cartridge-services/sfcc-client.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
-* SFCC API client utilities for Commerce Cloud requests
-* Handles SSL, authentication, and network requests for WebDAV and OCAPI
-*/
 /**
 * Create HTTP request options for WebDAV operations (file upload/download)
 *
@@ -125,25 +111,6 @@ async function makeRequest(opts) {
 
 //#endregion
 //#region src/cartridge-services/validation.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
-* Input validation utilities for cartridge services
-* Validates parameters before calling core business logic functions
-*/
 /**
 * Validation error class for cartridge service parameter validation
 */
@@ -228,25 +195,6 @@ function validateDeployCodeParams(instance, codeVersionName, cartridgeDirectoryP
 
 //#endregion
 //#region src/cartridge-services/deploy-cartridge.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
-* Core cartridge business logic
-* Contains the actual implementation without validation
-*/
 /**
 * Extract the filename (including extension) from a file path
 *
@@ -392,22 +340,110 @@ async function deployCode(instance, codeVersionName, sourceDir, basicAuth) {
 }
 
 //#endregion
-//#region src/cartridge-services/generate-cartridge.ts
+//#region src/cartridge-services/react-router-config.ts
+let isCliAvailable = null;
+function checkReactRouterCli(projectDirectory) {
+	if (isCliAvailable !== null) return isCliAvailable;
+	try {
+		execSync("react-router --version", {
+			cwd: projectDirectory,
+			env: npmRunPathEnv(),
+			stdio: "pipe"
+		});
+		isCliAvailable = true;
+	} catch {
+		isCliAvailable = false;
+	}
+	return isCliAvailable;
+}
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* Get the fully resolved routes from React Router by invoking its CLI.
+* This ensures we get the exact same route resolution as React Router uses internally,
+* including all presets, file-system routes, and custom route configurations.
+* @param projectDirectory - The project root directory
+* @returns Array of resolved route config entries
+* @example
+* const routes = getReactRouterRoutes('/path/to/project');
+* // Returns the same structure as `react-router routes --json`
 */
+function getReactRouterRoutes(projectDirectory) {
+	if (!checkReactRouterCli(projectDirectory)) throw new Error("React Router CLI is not available. Please make sure @react-router/dev is installed and accessible.");
+	const tempFile = join(tmpdir(), `react-router-routes-${randomUUID()}.json`);
+	try {
+		execSync(`react-router routes --json > "${tempFile}"`, {
+			cwd: projectDirectory,
+			env: npmRunPathEnv(),
+			encoding: "utf-8",
+			stdio: [
+				"pipe",
+				"pipe",
+				"pipe"
+			]
+		});
+		const output = readFileSync(tempFile, "utf-8");
+		return JSON.parse(output);
+	} catch (error) {
+		throw new Error(`Failed to get routes from React Router CLI: ${error.message}`);
+	} finally {
+		try {
+			if (existsSync(tempFile)) unlinkSync(tempFile);
+		} catch {}
+	}
+}
+/**
+* Convert a file path to its corresponding route path using React Router's CLI.
+* This ensures we get the exact same route resolution as React Router uses internally.
+* @param filePath - Absolute path to the route file
+* @param projectRoot - The project root directory
+* @returns The route path (e.g., '/cart', '/product/:productId')
+* @example
+* const route = filePathToRoute('/path/to/project/src/routes/_app.cart.tsx', '/path/to/project');
+* // Returns: '/cart'
+*/
+function filePathToRoute(filePath, projectRoot) {
+	const filePathPosix = filePath.replace(/\\/g, "/");
+	const flatRoutes = flattenRoutes(getReactRouterRoutes(projectRoot));
+	for (const route of flatRoutes) {
+		const routeFilePosix = route.file.replace(/\\/g, "/");
+		if (filePathPosix.endsWith(routeFilePosix) || filePathPosix.endsWith(`/${routeFilePosix}`)) return route.path;
+		const routeFileNormalized = routeFilePosix.replace(/^\.\//, "");
+		if (filePathPosix.endsWith(routeFileNormalized) || filePathPosix.endsWith(`/${routeFileNormalized}`)) return route.path;
+	}
+	console.warn(`Warning: Could not find route for file: ${filePath}`);
+	return "/unknown";
+}
+/**
+* Flatten a nested route tree into a flat array with computed paths.
+* Each route will have its full path computed from parent paths.
+* @param routes - The nested route config entries
+* @param parentPath - The parent path prefix (used internally for recursion)
+* @returns Flat array of routes with their full paths
+*/
+function flattenRoutes(routes, parentPath = "") {
+	const result = [];
+	for (const route of routes) {
+		let fullPath;
+		if (route.index) fullPath = parentPath || "/";
+		else if (route.path) {
+			const pathSegment = route.path.startsWith("/") ? route.path : `/${route.path}`;
+			fullPath = parentPath ? `${parentPath}${pathSegment}`.replace(/\/+/g, "/") : pathSegment;
+		} else fullPath = parentPath || "/";
+		if (route.id) result.push({
+			id: route.id,
+			path: fullPath,
+			file: route.file,
+			index: route.index
+		});
+		if (route.children && route.children.length > 0) {
+			const childPath = route.path ? fullPath : parentPath;
+			result.push(...flattenRoutes(route.children, childPath));
+		}
+	}
+	return result;
+}
+
+//#endregion
+//#region src/cartridge-services/generate-cartridge.ts
 const SKIP_DIRECTORIES = [
 	"build",
 	"dist",
@@ -496,16 +532,6 @@ function parseNestedObject(objectLiteral) {
 		return result;
 	}
 	return result;
-}
-function filePathToRoute(filePath, projectRoot) {
-	const filePathPosix = filePath.replace(/\\/g, "/");
-	const projectRootPosix = projectRoot.replace(/\\/g, "/");
-	const routesRoot = posix.join(projectRootPosix, "src/routes");
-	const marker = "/src/routes/";
-	let routePath = (filePathPosix.includes(marker) ? filePathPosix.slice(filePathPosix.indexOf(marker) + 12) : posix.relative(routesRoot, filePathPosix)).replace(/\.(tsx|ts|jsx|js)$/i, "");
-	routePath = routePath.replace(/(?<!\.)\.(?!\.)/g, "/");
-	routePath = routePath.replace(/^_index$/i, "").replace(/^index$/i, "").replace(/\/_index$/i, "").replace(/\/index$/i, "").replace(/\$([^/]+)/g, ":$1");
-	return routePath.startsWith("/") ? routePath : `/${routePath}`;
 }
 function parseArrayLiteral(arrayLiteral) {
 	const result = [];
@@ -866,7 +892,7 @@ async function generateMetadata(projectDirectory, metadataDirectory, options) {
 					const fullPath = join(dir, entry.name);
 					if (entry.isDirectory()) {
 						if (!SKIP_DIRECTORIES.includes(entry.name)) await scanDirectory(fullPath);
-					} else if (entry.isFile() && (extname(entry.name) === ".ts" || extname(entry.name) === ".tsx" || extname(entry.name) === ".json")) files.push(fullPath);
+					} else if (entry.isFile() && (extname$1(entry.name) === ".ts" || extname$1(entry.name) === ".tsx" || extname$1(entry.name) === ".json")) files.push(fullPath);
 				}
 			};
 			await scanDirectory(srcDir);

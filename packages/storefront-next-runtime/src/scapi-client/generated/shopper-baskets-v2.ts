@@ -19,7 +19,8 @@ export interface paths {
          *
          *     The created basket is initialized with default values. Optional JSON data provided in the request body is populated into the created basket. It can be updated with other endpoints offered by the Shopper Baskets API.
          *
-         *     Each customer can have just one open basket. When a basket is created, it is said to be open. It remains open until either an order is created from it or it is deleted.
+         *     Each shopper is limited to one open basket at a time. Attempting to create a second basket for the same customer will result in a 400 Bad Request error with the message: "Customer Baskets Quota Exceeded".
+         *     A basket is considered "open" upon creation and remains in this state until it is either converted into an order or explicitly deleted. For implementation best practices, see [Hybrid Storefront Best Practices for Working with Baskets](https://developer.salesforce.com/docs/commerce/commerce-api/guide/hybrid-storefront-baskets.html#hybrid-storefront-best-practices-for-working-with-baskets).
          */
         post: operations["createBasket"];
         delete?: never;
@@ -1044,9 +1045,8 @@ export interface components {
          * @description A specialized value indicating the system default values for locales.
          * @default default
          * @example default
-         * @enum {string}
          */
-        DefaultFallback: "default";
+        DefaultFallback: string;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
         /**
@@ -1228,22 +1228,10 @@ export interface components {
             [key: string]: unknown;
         };
         /**
-         * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-         * @example USD
-         */
-        ISOCurrency: string;
-        /**
-         * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-         * @default N/A
-         * @example N/A
-         * @enum {string}
-         */
-        NoValue: "N/A";
-        /**
          * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
          * @example USD
          */
-        CurrencyCode: components["schemas"]["ISOCurrency"] | components["schemas"]["NoValue"];
+        CurrencyCode: string;
         /** @description The customer information for guest or logged-in customers. */
         CustomerInfo: {
             /**
@@ -1542,16 +1530,43 @@ export interface components {
                  */
                 paymentReferenceId?: string;
                 /**
-                 * @description Client secret for payment confirmation. Used primarily by Stripe for client-side payment confirmation.
-                 * @example pi_3N4B2vF0wDjebNCp1234567_secret_abc123
-                 */
-                clientSecret?: string;
-                /**
                  * Format: uri
                  * @description Redirect URL for payment methods that require user redirection to complete payment.
                  * @example https://checkout.stripe.com/pay/cs_test_abc123
                  */
                 redirectUrl?: string;
+                /**
+                 * @description The payment gateway used to process the payment.
+                 * @example stripe
+                 * @enum {string}
+                 */
+                gateway?: "stripe" | "paypal" | "adyen";
+                /** @description The payment gateway specific properties. */
+                gatewayProperties?: {
+                    /**
+                     * @description # Stripe specific properties.
+                     *
+                     *     - setupFutureUsage: Indicates that you intend to make future payments with this payment method.
+                     *       - **on_session**: The payment method is intended to be used for a future payment on the same website session.
+                     *       - **off_session**: The payment method is intended to be used for a future payment on a different website session.
+                     *      - **null**: The payment method is not intended to be used for a future payment.
+                     *     - clientSecret: Secret for Stripe client-side payment confirmation. Don't store, log, or expose the client secret to anyone other than the customer, and only use it on pages where TLS is enabled.
+                     *       - type: string
+                     *       - maxLength: 256
+                     *       - example: "pi_1J4K5L2eZvKYlo2CyZ8K5L6M_secret_abc123"
+                     */
+                    stripe?: {
+                        [key: string]: unknown;
+                    };
+                    /** @description # PayPal specific properties. */
+                    paypal?: {
+                        [key: string]: unknown;
+                    };
+                    /** @description # Adyen specific properties. */
+                    adyen?: {
+                        [key: string]: unknown;
+                    };
+                };
             };
         };
         /** @description Document representing a product item. */
@@ -1670,6 +1685,8 @@ export interface components {
              * @example 006490dcc338feeafc71c964bf
              */
             shippingItemId?: string;
+            /** @description Information retrieved from Order Management (OMS) for the product. Only available in context of an order. */
+            omsData?: components["schemas"]["OmsProductData"];
             /**
              * Format: double
              * @description The tax for the product item, not including price adjustments. It is read only.
@@ -1896,6 +1913,25 @@ export interface components {
              * @enum {string}
              */
             type?: "product" | "gift_certificate";
+        };
+        /**
+         * @description Additional information retrieved from Order Management (OMS)
+         *     See https://developer.salesforce.com/docs/atlas.en-us.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_orderitemsummary.htm for more information.
+         *     Only available in context of an order.
+         */
+        OmsProductData: {
+            /**
+             * @description Order Management (OMS) status
+             * @example ordered
+             * @enum {string}
+             */
+            status?: "ordered" | "returned" | "canceled" | "paid" | "reshipped" | "fulfilled" | "partially_fulfilled" | "allocated" | "partially_allocated" | "return_initiated";
+            /**
+             * Format: double
+             * @description The quantity that can be cancelled.
+             * @example 2
+             */
+            quantityAvailableToCancel?: number;
         };
         /**
          * @description The identifier of the shipment
@@ -2400,11 +2436,40 @@ export interface components {
              */
             zoneId?: string;
             /**
-             * @description Shipping preference for PayPal payment processing. Applicable only for basket payment instruments.
-             * @example GET_FROM_FILE
+             * @description The payment gateway used to process the payment.
+             * @example stripe
              * @enum {string}
              */
-            shippingPreference?: "GET_FROM_FILE" | "NO_SHIPPING" | "SET_PROVIDED_ADDRESS";
+            gateway?: "stripe" | "paypal" | "adyen";
+            /** @description The payment gateway specific properties. */
+            gatewayProperties?: {
+                /**
+                 * @description # Stripe specific properties.
+                 *
+                 *     - setupFutureUsage: Indicates that you intend to make future payments with this payment method.
+                 *       - **on_session**: The payment method is intended to be used for a future payment on the same website session.
+                 *       - **off_session**: The payment method is intended to be used for a future payment on a different website session.
+                 *       - **null**: The payment method is not intended to be used for a future payment.
+                 */
+                stripe?: {
+                    [key: string]: unknown;
+                };
+                /**
+                 * @description # PayPal specific properties.
+                 *
+                 *     - shippingPreference: Shipping preference for PayPal payment processing. Applicable only for basket payment instruments.
+                 *       - **GET_FROM_FILE**
+                 *       - **NO_SHIPPING**
+                 *       - **SET_PROVIDED_ADDRESS**
+                 */
+                paypal?: {
+                    [key: string]: unknown;
+                };
+                /** @description # Adyen specific properties. */
+                adyen?: {
+                    [key: string]: unknown;
+                };
+            };
         };
         /** @description Document representing a basket payment instrument request. */
         BasketPaymentInstrumentRequest: {

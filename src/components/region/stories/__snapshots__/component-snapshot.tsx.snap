@@ -10,36 +10,3 @@ exports[`Component stories snapshot > Default story renders and matches snapshot
   </div>
 </div>
 `;
-
-exports[`Component stories snapshot > Desktop story renders and matches snapshot 1`] = `
-<div>
-  <div
-    data-testid="dynamic-component"
-  >
-    Component: 
-    Unknown
-  </div>
-</div>
-`;
-
-exports[`Component stories snapshot > Mobile story renders and matches snapshot 1`] = `
-<div>
-  <div
-    data-testid="dynamic-component"
-  >
-    Component: 
-    Unknown
-  </div>
-</div>
-`;
-
-exports[`Component stories snapshot > Tablet story renders and matches snapshot 1`] = `
-<div>
-  <div
-    data-testid="dynamic-component"
-  >
-    Component: 
-    Unknown
-  </div>
-</div>
-`;

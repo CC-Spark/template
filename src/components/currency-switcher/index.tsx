@@ -37,12 +37,14 @@ export default function CurrencySwitcher(): ReactElement {
     const config = useConfig();
     const currentCurrency = useCurrency();
     const { addToast } = useToast();
+    //TODO: will change when multi site implementation starts
+    const currentSite = config.commerce.sites[0];
 
     const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newCurrency = e.target.value;
 
         // Validate: Check if currency is in supportedCurrencies
-        if (!config.site.supportedCurrencies.includes(newCurrency)) {
+        if (!currentSite.supportedCurrencies.includes(newCurrency)) {
             addToast(t('validation.unsupportedCurrency'), 'error');
             return;
         }
@@ -60,7 +62,7 @@ export default function CurrencySwitcher(): ReactElement {
     return (
         <div>
             <NativeSelect id={id} onChange={handleCurrencyChange} aria-label={t('ariaLabel')} value={currentCurrency}>
-                {config.site.supportedCurrencies.map((currency) => (
+                {currentSite.supportedCurrencies.map((currency) => (
                     <option key={currency} value={currency}>
                         {t(`currencies.${currency}`, { defaultValue: currency })}
                     </option>

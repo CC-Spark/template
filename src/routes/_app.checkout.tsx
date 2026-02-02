@@ -18,7 +18,7 @@ import { use } from 'react';
 import { getAuth as getAuthServer } from '@/middlewares/auth.server';
 import {
     getServerCustomerProfileData,
-    getServerShippingMethodsData,
+    getServerShippingMethodsMapData,
     clientLoader as getClientLoaderData,
     type CheckoutPageData,
 } from '@/lib/checkout-loaders';
@@ -55,11 +55,11 @@ export function loader(args: LoaderFunctionArgs): CheckoutPageData {
             ? getServerCustomerProfileData(context, authSession)
             : Promise.resolve(null);
 
-        const shippingMethodsPromise = getServerShippingMethodsData(context, authSession);
+        const shippingMethodsMapPromise = getServerShippingMethodsMapData(context, authSession);
 
         return {
             customerProfile: customerProfilePromise,
-            shippingMethods: shippingMethodsPromise,
+            shippingMethodsMap: shippingMethodsMapPromise,
             productMap: Promise.resolve({}),
             promotions: Promise.resolve({}),
             isRegisteredCustomer: isRegistered,
@@ -68,7 +68,7 @@ export function loader(args: LoaderFunctionArgs): CheckoutPageData {
         // Fallback to minimal data
         return {
             customerProfile: Promise.resolve(null),
-            shippingMethods: Promise.resolve(null),
+            shippingMethodsMap: Promise.resolve({}),
             productMap: Promise.resolve({}),
             promotions: Promise.resolve({}),
             isRegisteredCustomer: false,
@@ -154,13 +154,13 @@ export function HydrateFallback() {
  * Checkout view component that handles parallel data loading with clean error boundaries.
  *
  * Streaming strategy:
- * - customerProfile & shippingMethods: Resolved here (needed for form setup)
+ * - customerProfile & shippingMethodsMap: Resolved here (needed for form setup)
  * - productMap: Passed as Promise to allow MyCart to stream independently
  */
 function CheckoutView({
     loaderData: {
         customerProfile,
-        shippingMethods,
+        shippingMethodsMap,
         productMap,
         promotions,
         shippingDefaultSet,
@@ -171,14 +171,14 @@ function CheckoutView({
     // Handle each promise individually, only calling use() if the promise exists
     // React automatically parallelizes multiple use() calls in the same component
     const customerProfileData = customerProfile ? use(customerProfile) : null;
-    const shippingMethodsData = shippingMethods ? use(shippingMethods) : null;
+    const shippingMethodsMapData = shippingMethodsMap ? use(shippingMethodsMap) : {};
 
     const content = (
         <CheckoutProvider
             customerProfile={customerProfileData ?? undefined}
             shippingDefaultSet={shippingDefaultSet ?? Promise.resolve(undefined)}>
             <CheckoutFormPage
-                shippingMethods={shippingMethodsData ?? undefined}
+                shippingMethodsMap={shippingMethodsMapData}
                 productMapPromise={productMap}
                 promotionsPromise={promotions}
             />

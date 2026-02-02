@@ -18,7 +18,7 @@ export interface paths {
          *     You must provide the `aspectTypeId` along with either a `categoryId` or a `productId`. Since you can only create one page-to-product or page-to-category assignment per aspect type, the result contains at most one element.
          *
          *     **Important**:
-         *     - Currently, you can't use the Shopper Experience API when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
+         *     - Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
          *     - Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.
          *     - Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching).
          */
@@ -43,11 +43,135 @@ export interface paths {
          * @description Get a Page Designer page for a specific page ID. The results apply the visibility rules for the page's components, such as personalization or scheduled visibility.
          *
          *     **Important**:
-         *     - Currently, you can't use the Shopper Experience API when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
+         *     - Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
          *     - Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.
          *     - Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching).
          */
         get: operations["getPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/contents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a content asset by ID.
+         * @description Get a content asset by its unique identifier. Only content assets that are marked as online are returned.
+         *
+         *     Content assets contain rich content that can be displayed on storefronts, including text, HTML, images, and custom attributes.
+         *
+         *     **Important**:
+         *     - Because this resource uses the GET method, you must not pass sensitive data and must not perform transactional processes.
+         */
+        get: operations["getContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/contents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get multiple content assets.
+         * @description Get multiple content assets by their identifiers. Only content assets that are marked as online are returned.
+         *
+         *     This endpoint allows you to retrieve multiple content assets in a single request, which is more efficient than making multiple individual requests.
+         *
+         *     **Important**:
+         *     - Because this resource uses the GET method, you must not pass sensitive data and must not perform transactional processes.
+         */
+        get: operations["getMultipleContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/content-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search for content assets.
+         * @description Provides keyword and refinement search functionality for content assets. The search result contains only content
+         *     that is online and assigned to a folder.
+         *
+         *     **Refinement Parameters:**
+         *     The following system refinement attribute IDs are supported:
+         *     - `fdid`: Allows refinement per single content folder ID. Multiple folder IDs are not supported.
+         *
+         *     **Important**:
+         *     - Because this resource uses the GET method, you must not pass sensitive data and must not perform transactional processes.
+         */
+        get: operations["searchContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/folders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get content folder
+         * @description To access a content folder, you construct a URL using the template shown below.
+         *     This template requires you to specify a content folder id and a subfolder level.
+         *     In response, the server returns a corresponding content folder document.
+         *     Only content folders which are marked as online are returned.
+         */
+        get: operations["getContentFolder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/folders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get multiple content folders
+         * @description To access one or more content folders, you construct a URL using the template shown below.
+         *     This template requires you to specify one or more content folder ids as a query parameter and a subfolder level.
+         *     In response, the server returns a result set of corresponding content folder documents.
+         *     Only content folders which are marked as online are returned.
+         */
+        get: operations["getContentFolders"];
         put?: never;
         post?: never;
         delete?: never;
@@ -84,126 +208,10 @@ export interface components {
          * @description A specialized value indicating the system default values for locales.
          * @default default
          * @example default
-         * @enum {string}
          */
-        DefaultFallback: "default";
+        DefaultFallback: string;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
-        /** @description Represents a component type for content management */
-        ComponentType: components["schemas"]["BaseType"] & {
-            /** @description A grouping identifier for display purposes */
-            group?: string;
-        };
-        /** @description Represents a page type for content management */
-        PageType: components["schemas"]["BaseType"] & {
-            /** @description Route of a page that this page type is used for */
-            route?: string;
-            /** @description The IDs of the aspect types this page supports */
-            supportedAspectTypes?: string[];
-        };
-        /** @description Base type for a page or component type */
-        BaseType: {
-            /** @description Unique identifier of the page type */
-            id: string;
-            /** @description Name of the page type for display purposes */
-            name?: string;
-            /** @description Description of the page type for display purposes */
-            description?: string;
-            /**
-             * @description Architecture type identifier
-             * @enum {string}
-             */
-            archType?: "headless" | "controller";
-            /** @description The regions where components can be plugged into */
-            regionDefinitions?: components["schemas"]["RegionDefinition"][];
-            /** @description Attribute groups that provide the content attributes */
-            attributeDefinitionGroups?: components["schemas"]["AttributeDefinitionGroup"][];
-        };
-        /** @description Represents a region used by pages and components for structuring content hierarchically */
-        RegionDefinition: {
-            /** @description The ID of the region (unique within respective page/component type) */
-            id: string;
-            /** @description The name of the region for display purposes */
-            name?: string;
-            /** @description The maximum number of components that can be visible within this region during rendering */
-            maxComponents?: number;
-            /** @description The component types to be excluded from this region */
-            componentTypeExclusions?: components["schemas"]["ComponentTypeExclusion"][];
-            /** @description The component types to be included in this region */
-            componentTypeInclusions?: components["schemas"]["ComponentTypeInclusion"][];
-            /** @description The constructors for the components the region will be filled with on creation */
-            defaultComponentConstructors?: components["schemas"]["ComponentConstructor"][];
-        };
-        /** @description Represents the definition of a content attribute group for representing component content attributes in a grouped manner */
-        AttributeDefinitionGroup: {
-            /** @description The ID of the attribute group (unique within respective component type) */
-            id: string;
-            /** @description Name of the attribute group for display purposes */
-            name?: string;
-            /** @description Description of the attribute group for display purposes */
-            description?: string;
-            /** @description The attribute definitions that belong to this group */
-            attributeDefinitions?: components["schemas"]["AttributeDefinition"][];
-        };
-        /** @description Represents the definition of a content attribute used for representing the content of components */
-        AttributeDefinition: {
-            /** @description The ID of the attribute (unique within respective component type) */
-            id: string;
-            /** @description Name of the attribute for display purposes */
-            name?: string;
-            /** @description Description of the attribute for display purposes */
-            description?: string;
-            /**
-             * @description The type of value the attribute can hold
-             * @enum {string}
-             */
-            type: "string" | "text" | "markup" | "product" | "category" | "file" | "boolean" | "integer" | "enum" | "page" | "image" | "url" | "custom" | "cms_record";
-            /** @description The definition of the editor for this attribute */
-            editorDefinition?: {
-                [key: string]: unknown;
-            };
-            /** @description The valid values for enum type attributes */
-            values?: Record<string, never>[];
-            /**
-             * @description Whether the attribute is required to be set for its component
-             * @default true
-             */
-            required: boolean;
-            /** @description The fallback value if no value was set explicitly */
-            defaultValue?: Record<string, never>;
-            dynamicLookup?: components["schemas"]["DynamicAttributeLookup"];
-        };
-        /** @description Describes the rule for a component type exclusion, commonly used per RegionDefinition */
-        ComponentTypeExclusion: {
-            /** @description The ID of the component type to be excluded */
-            typeId: string;
-        };
-        /** @description Describes the rule for a component type inclusion, commonly used per RegionDefinition */
-        ComponentTypeInclusion: {
-            /** @description The ID of the component type to be included */
-            typeId: string;
-        };
-        /** @description Describes the rule for component creation, commonly used per RegionDefinition */
-        ComponentConstructor: {
-            /** @description The ID of the component type used for component creation */
-            typeId: string;
-            /** @description Name of the component */
-            name?: string;
-            /** @description The component constructors per region */
-            regionComponentConstructors?: components["schemas"]["RegionComponentConstructor"][];
-        };
-        /** @description Describes the rule for component creation per region, used by ComponentConstructor */
-        RegionComponentConstructor: {
-            /** @description The ID of the region the component constructors are targeted for */
-            regionId: string;
-            /** @description The component constructors for the region */
-            componentConstructors?: components["schemas"]["ComponentConstructor"][];
-        };
-        /** @description Represents the definition of dynamic attribute lookup, currently only to aspect attributes based on attribute ID aliasing */
-        DynamicAttributeLookup: {
-            /** @description The ID of the referenced aspect attribute */
-            aspectAttributeAlias: string;
-        };
         Region: {
             /**
              * ID
@@ -251,21 +259,7 @@ export interface components {
              *       "category": "topseller"
              *     }
              */
-            data?: {
-                [key: string]: unknown;
-            };
-            /**
-             * Localized
-             * @description Whether the compononent has been localized in the current locale.
-             * @example true
-             */
-            localized?: boolean;
-            /**
-             * Visibility
-             * @description Whether the compononent is visible based on the current visiblity rules and context.
-             * @example true
-             */
-            visible?: boolean;
+            data?: Record<string, never>;
             /**
              * Custom Component Data
              * @description Any custom data added by the custom code for this component.
@@ -274,7 +268,6 @@ export interface components {
              *     }
              */
             custom?: Record<string, never>;
-            designMetadata?: components["schemas"]["ComponentType"];
             /**
              * Regions
              * @description The regions (and their assigned components) for the component.
@@ -358,10 +351,7 @@ export interface components {
              *       "thumbnail": "myshop.jpg"
              *     }
              */
-            data?: {
-                [key: string]: unknown;
-            };
-            designMetadata?: components["schemas"]["PageType"];
+            data?: Record<string, never>;
             /**
              * Custom Page Data
              * @description Any custom data added by the custom code for the page type.
@@ -479,8 +469,237 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /**
+         * @description The id of the content asset.
+         * @example homepage-banner
+         */
+        ContentId: string;
+        Content: {
+            /** ID */
+            id: components["schemas"]["ContentId"];
+            /**
+             * Name
+             * @description The localized content asset name.
+             * @example Homepage Banner
+             */
+            name?: string;
+            /**
+             * Description
+             * @description The localized content asset description.
+             * @example Main banner displayed on the homepage
+             */
+            description?: string;
+            /**
+             * Page Description
+             * @description The localized content asset page description for SEO.
+             * @example Discover our latest products and offers
+             */
+            pageDescription?: string;
+            /**
+             * Page Keywords
+             * @description The localized content asset page keywords for SEO.
+             * @example products, offers, sale, fashion
+             */
+            pageKeywords?: string;
+            /**
+             * Page Title
+             * @description The localized content asset page title for SEO
+             * @example Shop Now - Best Deals
+             */
+            pageTitle?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * Format: int32
+         * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+         * @default 0
+         * @example 10
+         */
+        Total: number;
+        /**
+         * @description Schema defining generic list result. Each response schema of a resource requiring a list response should extend this schema.
+         *     Additionally it needs to be defined what data is returned.
+         */
+        ResultBase: {
+            /**
+             * Format: int32
+             * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+             * @example 10
+             */
+            limit: number;
+            total: components["schemas"]["Total"];
+        };
+        ContentResult: {
+            /**
+             * Data
+             * @description List of content assets.
+             */
+            data: components["schemas"]["Content"][];
+        } & components["schemas"]["ResultBase"];
+        /**
+         * Format: int32
+         * @description The zero-based index of the first hit/data to include in the result.
+         * @default 0
+         * @example 0
+         */
+        Offset: number;
+        /**
+         * @description Schema defining generic pageable result. Each response schema of a resource requiring pagination should extend this schema.
+         *     If you use this extend this schema directly, it needs to be defined what data is returned. Allowed names for the data field is `data`.
+         */
+        PaginatedResultBase: {
+            offset: components["schemas"]["Offset"];
+        } & WithRequired<components["schemas"]["ResultBase"], "limit" | "total">;
+        ContentSearchRefinementValue: {
+            /**
+             * Label
+             * @description The localized label of the refinement value.
+             * @example Banner
+             */
+            label?: string;
+            /**
+             * Value
+             * @description The refinement value.
+             * @example banner
+             */
+            value: string;
+            /**
+             * Hit Count
+             * @description The number of search hits when this refinement value is applied.
+             * @example 5
+             */
+            hitCount?: number;
+        };
+        ContentSearchRefinement: {
+            /**
+             * Attribute ID
+             * @description The ID of the refinement attribute.
+             * @example c_contentType
+             */
+            attributeId: string;
+            /**
+             * Label
+             * @description The localized label of the refinement attribute.
+             * @example Content Type
+             */
+            label?: string;
+            /**
+             * Values
+             * @description The array of refinement values.
+             */
+            values?: components["schemas"]["ContentSearchRefinementValue"][];
+        };
+        ContentSearchResult: {
+            /**
+             * Query
+             * @description The query String that was searched for.
+             * @example banner
+             */
+            query?: string;
+            /**
+             * Content Hits
+             * @description The sorted array of search hits. Can be empty.
+             */
+            hits: components["schemas"]["Content"][];
+            /**
+             * Selected Refinements
+             * @description Map of selected refinement attribute id/value(s) pairs. The sorting order is the same like in request URL.
+             * @example {
+             *       "fdid": "homepage-folder",
+             *       "c_contentType": "banner"
+             *     }
+             */
+            selectedRefinements?: {
+                [key: string]: string;
+            };
+            /**
+             * Refinements
+             * @description The sorted array of search refinements. Can be empty.
+             */
+            refinements?: components["schemas"]["ContentSearchRefinement"][];
+        } & components["schemas"]["PaginatedResultBase"];
+        /** @example homepage-folder */
+        FolderId: string;
+        ContentFolder: {
+            /**
+             * ID
+             * @description The id of the content folder.
+             * @example homepage-folder
+             */
+            id: string;
+            /**
+             * Parent Folder ID
+             * @description The id of the parent content folder.
+             * @example root-folder
+             */
+            parentFolderId?: string;
+            /**
+             * Name
+             * @description The localized content folder name.
+             * @example Homepage Folder
+             */
+            name?: string;
+            /**
+             * Description
+             * @description The localized content folder description.
+             * @example Folder containing homepage content assets
+             */
+            description?: string;
+            /**
+             * Page Description
+             * @description The localized content folder page description.
+             * @example SEO description for homepage folder
+             */
+            pageDescription?: string;
+            /**
+             * Page Keywords
+             * @description The localized content folder page keywords.
+             * @example homepage, main, landing
+             */
+            pageKeywords?: string;
+            /**
+             * Page Title
+             * @description The localized content folder page title.
+             * @example Homepage Folder - My Store
+             */
+            pageTitle?: string;
+            /**
+             * Folders
+             * @description The array of content subfolders. This array can be empty.
+             */
+            folders?: components["schemas"]["ContentFolder"][];
+        } & {
+            [key: string]: unknown;
+        };
+        ContentFolderResult: {
+            /**
+             * Data
+             * @description List of content folders.
+             */
+            data: components["schemas"]["ContentFolder"][];
+        } & components["schemas"]["ResultBase"];
     };
-    responses: never;
+    responses: {
+        /** @description Your access token is invalid or expired and can’t be used to identify a user. */
+        "401unauthorized": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description Forbidden. Your access token is valid, but you don’t have the required permissions to access the resource. */
+        "403forbidden": {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["ErrorResponse"];
+            };
+        };
+    };
     parameters: {
         /**
          * @description An identifier for the organization the request is being made by
@@ -503,6 +722,38 @@ export interface components {
         locale: components["schemas"]["LocaleCode"];
         /** @description Identifier for the requested page. */
         pageId: string;
+        /** @description Identifier for the requested content asset. */
+        contentId: components["schemas"]["ContentId"];
+        /**
+         * @description Comma-separated list of content asset identifiers to retrieve.
+         * @example homepage-banner,footer-content,sidebar-promo
+         */
+        contentIds: components["schemas"]["ContentId"][];
+        /** @description The query phrase to search for content assets. For example, to search for content with "banner", type q=banner. */
+        contentSearchQuery: string;
+        /**
+         * @description Parameter that represents a refinement attribute/value(s) pair. Refinement attribute ID and value(s) are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = "|"). Value ranges can be specified like this: refine=foo=(100..500).
+         *     Multiple refine parameters can be provided by adding an underscore in combination with an integer counter right behind the parameter name and a counter range 1..9. I.e. refine_1=c_refinementType=type1|type2|type3.
+         *
+         *     The following system refinement attribute IDs are supported:
+         *     - `fdid`: Allows refinement per single content folder ID. Multiple folder IDs are not supported.
+         */
+        contentSearchRefine: string;
+        /**
+         * @description Parameter that represents a sorting attribute/value(s) pair. Sorting attribute ID and value are separated by '='. The value describes the sort direction. Possible values are 'asc' and 'desc', for ascending or descending sort direction. I.e. sort=c_myAttribute=desc.
+         *
+         *     Precondition: You have to select your sorting attributes in Business Manager > YourSite > Search Indexes > Content Index > Sorting Attributes.
+         */
+        contentSearchSort: string;
+        /** @description Identifier for the requested content folder. */
+        folderId: components["schemas"]["FolderId"];
+        /** @description Specifies how many levels of nested subfolders you want the server to return. The default value is 1. Valid values are 0, 1, or 2. */
+        levels: number;
+        /**
+         * @description Comma-separated list of content folder identifiers.
+         * @example homepage-folder,category-folder,product-folder
+         */
+        folderIds: components["schemas"]["FolderId"][];
     };
     requestBodies: never;
     headers: never;
@@ -604,8 +855,17 @@ export interface operations {
                     "application/json": components["schemas"]["Page"];
                 };
             };
-            /** @description Provided Aspect Attribute Invalid */
+            /** @description Invalid Query Parameter */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized Access */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -624,4 +884,258 @@ export interface operations {
             };
         };
     };
+    getContent: {
+        parameters: {
+            query: {
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+                /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+                locale?: components["parameters"]["locale"];
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+                /** @description Identifier for the requested content asset. */
+                id: components["parameters"]["contentId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Content"];
+                };
+            };
+            /** @description Content Asset Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getMultipleContent: {
+        parameters: {
+            query: {
+                /**
+                 * @description Comma-separated list of content asset identifiers to retrieve.
+                 * @example homepage-banner,footer-content,sidebar-promo
+                 */
+                ids: components["parameters"]["contentIds"];
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+                /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+                locale?: components["parameters"]["locale"];
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContentResult"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    searchContent: {
+        parameters: {
+            query: {
+                /** @description The query phrase to search for content assets. For example, to search for content with "banner", type q=banner. */
+                q?: components["parameters"]["contentSearchQuery"];
+                /**
+                 * @description Parameter that represents a refinement attribute/value(s) pair. Refinement attribute ID and value(s) are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = "|"). Value ranges can be specified like this: refine=foo=(100..500).
+                 *     Multiple refine parameters can be provided by adding an underscore in combination with an integer counter right behind the parameter name and a counter range 1..9. I.e. refine_1=c_refinementType=type1|type2|type3.
+                 *
+                 *     The following system refinement attribute IDs are supported:
+                 *     - `fdid`: Allows refinement per single content folder ID. Multiple folder IDs are not supported.
+                 */
+                refine?: components["parameters"]["contentSearchRefine"];
+                /**
+                 * @description Parameter that represents a sorting attribute/value(s) pair. Sorting attribute ID and value are separated by '='. The value describes the sort direction. Possible values are 'asc' and 'desc', for ascending or descending sort direction. I.e. sort=c_myAttribute=desc.
+                 *
+                 *     Precondition: You have to select your sorting attributes in Business Manager > YourSite > Search Indexes > Content Index > Sorting Attributes.
+                 */
+                sort?: components["parameters"]["contentSearchSort"];
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+                /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+                locale?: components["parameters"]["locale"];
+                /** @description Maximum records to retrieve per request, not to exceed 200. Defaults to 50. */
+                limit?: number;
+                /** @description Used to retrieve the results based on a particular resource offset. */
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContentSearchResult"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getContentFolder: {
+        parameters: {
+            query: {
+                /** @description Specifies how many levels of nested subfolders you want the server to return. The default value is 1. Valid values are 0, 1, or 2. */
+                levels?: components["parameters"]["levels"];
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+                /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+                locale?: components["parameters"]["locale"];
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+                /** @description Identifier for the requested content folder. */
+                id: components["parameters"]["folderId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContentFolder"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            401: components["responses"]["401unauthorized"];
+            403: components["responses"]["403forbidden"];
+            /** @description Folder Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getContentFolders: {
+        parameters: {
+            query: {
+                /**
+                 * @description Comma-separated list of content folder identifiers.
+                 * @example homepage-folder,category-folder,product-folder
+                 */
+                ids: components["parameters"]["folderIds"];
+                /** @description Specifies how many levels of nested subfolders you want the server to return. The default value is 1. Valid values are 0, 1, or 2. */
+                levels?: components["parameters"]["levels"];
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+                /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+                locale?: components["parameters"]["locale"];
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContentFolderResult"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            401: components["responses"]["401unauthorized"];
+            403: components["responses"]["403forbidden"];
+        };
+    };
 }
+type WithRequired<T, K extends keyof T> = T & {
+    [P in K]-?: T[P];
+};

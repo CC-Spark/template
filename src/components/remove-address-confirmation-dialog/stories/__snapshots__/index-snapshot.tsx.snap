@@ -3,9 +3,3 @@
 exports[`RemoveAddressConfirmationDialog stories snapshot > Closed story renders and matches snapshot 1`] = `<div />`;
 
 exports[`RemoveAddressConfirmationDialog stories snapshot > Default story renders and matches snapshot 1`] = `<div />`;
-
-exports[`RemoveAddressConfirmationDialog stories snapshot > Desktop story renders and matches snapshot 1`] = `<div />`;
-
-exports[`RemoveAddressConfirmationDialog stories snapshot > Mobile story renders and matches snapshot 1`] = `<div />`;
-
-exports[`RemoveAddressConfirmationDialog stories snapshot > Tablet story renders and matches snapshot 1`] = `<div />`;

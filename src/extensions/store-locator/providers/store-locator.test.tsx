@@ -79,9 +79,9 @@ describe('StoreLocatorProvider', () => {
             '@/extensions/store-locator/utils'
         );
 
-        createStoreLocatorStore.mockImplementation(mockCreateStoreLocatorStore);
-        getCookieFromDocumentAs.mockImplementation(mockGetSelectedStoreInfoFromDocument);
-        getSelectedStoreInfoCookieName.mockReturnValue('selectedStoreInfo_test');
+        vi.mocked(createStoreLocatorStore).mockImplementation(mockCreateStoreLocatorStore);
+        vi.mocked(getCookieFromDocumentAs).mockImplementation(mockGetSelectedStoreInfoFromDocument);
+        vi.mocked(getSelectedStoreInfoCookieName).mockReturnValue('selectedStoreInfo_test');
 
         mockCreateStoreLocatorStore.mockReturnValue(mockStore);
         mockGetSelectedStoreInfoFromDocument.mockReturnValue({
@@ -112,7 +112,7 @@ describe('StoreLocatorProvider', () => {
             inventoryId: 'test-inventory',
         };
 
-        getCookieFromDocumentAs.mockReturnValue(initialStoreInfo);
+        vi.mocked(getCookieFromDocumentAs).mockReturnValue(initialStoreInfo);
 
         render(
             <StoreLocatorProvider>
@@ -120,8 +120,8 @@ describe('StoreLocatorProvider', () => {
             </StoreLocatorProvider>
         );
 
-        expect(getCookieFromDocumentAs).toHaveBeenCalled();
-        expect(createStoreLocatorStore).toHaveBeenCalledWith({
+        expect(vi.mocked(getCookieFromDocumentAs)).toHaveBeenCalled();
+        expect(vi.mocked(createStoreLocatorStore)).toHaveBeenCalledWith({
             selectedStoreInfo: initialStoreInfo,
         });
     });
@@ -130,7 +130,7 @@ describe('StoreLocatorProvider', () => {
         const { createStoreLocatorStore } = await import('@/extensions/store-locator/stores/store-locator-store');
         const { getCookieFromDocumentAs } = await import('@/extensions/store-locator/utils');
 
-        getCookieFromDocumentAs.mockReturnValue(null);
+        vi.mocked(getCookieFromDocumentAs).mockReturnValue(null);
 
         render(
             <StoreLocatorProvider>
@@ -138,7 +138,7 @@ describe('StoreLocatorProvider', () => {
             </StoreLocatorProvider>
         );
 
-        expect(createStoreLocatorStore).toHaveBeenCalledWith({
+        expect(vi.mocked(createStoreLocatorStore)).toHaveBeenCalledWith({
             selectedStoreInfo: null,
         });
     });

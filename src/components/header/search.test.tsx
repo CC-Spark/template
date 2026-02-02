@@ -15,6 +15,8 @@
  */
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach, type MockedFunction } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { BrowserRouter } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 
@@ -45,14 +47,6 @@ const mockUseSearchSuggestions = useSearchSuggestions as MockedFunction<typeof u
 const mockUseTransformSearchSuggestions = useTransformSearchSuggestions as MockedFunction<
     typeof useTransformSearchSuggestions
 >;
-
-vi.mock('react-router', async (importOriginal) => {
-    const actual = await importOriginal();
-    return {
-        ...actual,
-        useNavigate: () => mockNavigate,
-    };
-});
 
 vi.mock('@/config', () => ({
     useConfig: vi.fn(() => ({
@@ -91,6 +85,8 @@ describe('SearchBar Component', () => {
     beforeEach(() => {
         mockRefetch.mockClear();
         mockNavigate.mockClear();
+        // Use vi.spyOn to mock useNavigate while keeping real router exports
+        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(mockNavigate);
         mockUseSearchSuggestions.mockReturnValue({
             data: null,
             refetch: mockRefetch,
@@ -104,6 +100,7 @@ describe('SearchBar Component', () => {
 
     afterEach(() => {
         vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     describe('Basic Rendering', () => {

@@ -20,7 +20,7 @@ import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi'
 
 // Mock decorators (minimal mocking to avoid testing them)
 vi.mock('@/lib/decorators/component', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<object>();
     return {
         ...actual,
         Component: () => (target: any) => target,

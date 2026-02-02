@@ -113,6 +113,10 @@ vi.mock('@/components/region', () => ({
     Region: ({ fallback }: any) => <div data-testid="region">{fallback}</div>,
 }));
 
+vi.mock('@/components/json-ld', () => ({
+    JsonLd: () => null,
+}));
+
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 vi.mock('@/extensions/store-locator/utils', () => ({
     getCookieFromRequestAs: vi.fn(),
@@ -307,6 +311,7 @@ describe('Product Detail Route', () => {
                 page: mockPage,
                 componentData: mockComponentData,
                 pageKey: 'test-product-123',
+                productSchema: Promise.resolve(null),
             };
 
             // Render the page component to exercise ProductDetailView
@@ -332,6 +337,7 @@ describe('Product Detail Route', () => {
                 page: mockPage,
                 componentData: mockComponentData,
                 pageKey: 'test-product-123',
+                productSchema: Promise.resolve(null),
             };
 
             // Render the page component to exercise ProductDetailView
@@ -352,6 +358,7 @@ describe('Product Detail Route', () => {
                 page: mockPage,
                 componentData: mockComponentData,
                 pageKey: 'test-product-123',
+                productSchema: Promise.resolve(null),
             };
 
             // Render the page component to exercise ProductDetailView with product set
@@ -369,6 +376,7 @@ describe('Product Detail Route', () => {
                 page: mockPage,
                 componentData: mockComponentData,
                 pageKey: 'test-product-123',
+                productSchema: Promise.resolve(null),
             };
 
             // Render the page component to exercise ProductDetailView with product bundle
@@ -396,6 +404,7 @@ describe('Product Detail Route', () => {
                 page: mockPage,
                 componentData: mockComponentData,
                 pageKey: 'test-product-123',
+                productSchema: Promise.resolve(null),
             };
 
             // Test that pageKey is correctly passed through
@@ -409,6 +418,7 @@ describe('Product Detail Route', () => {
                 page: mockPage,
                 componentData: mockComponentData,
                 pageKey: 'test-product-123',
+                productSchema: Promise.resolve(null),
             };
 
             // Test that all required properties are present
@@ -417,6 +427,7 @@ describe('Product Detail Route', () => {
             expect(mockLoaderData).toHaveProperty('page');
             expect(mockLoaderData).toHaveProperty('componentData');
             expect(mockLoaderData).toHaveProperty('pageKey');
+            expect(mockLoaderData).toHaveProperty('productSchema');
         });
 
         test('should render product skeleton while loading', async () => {
@@ -430,6 +441,7 @@ describe('Product Detail Route', () => {
                 page: mockPage,
                 componentData: mockComponentData,
                 pageKey: 'test-product-123',
+                productSchema: Promise.resolve(null),
             };
 
             const { getByTestId } = render(<ProductPage loaderData={mockLoaderData} />);

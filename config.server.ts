@@ -21,14 +21,13 @@ import { TrackingConsent } from '@/types/tracking-consent';
  *
  * This file defines the default configuration for the application.
  * All values can be overridden using PUBLIC__ prefixed environment variables.
- *
  * Environment Variable Convention:
  *
  * Use PUBLIC__ prefix with double underscore (__) path separators:
  *    - PUBLIC__app__commerce__api__clientId → app.commerce.api.clientId
  *    - PUBLIC__app__site__locale → app.site.locale
  *    - PUBLIC__app__pages__cart__quantityUpdateDebounce → app.pages.cart.quantityUpdateDebounce
- *    - PUBLIC__app__site__features__socialLogin__providers=["Apple","Google"] → app.site.features.socialLogin.providers
+ *    - PUBLIC__app__site__features__socialLogin__providers=["Apple","Google"] → app.features.socialLogin.providers
  *
  * The PUBLIC__ prefix indicates these values are SAFE TO EXPOSE to the client.
  * They get bundled into window.__APP_CONFIG__ and are accessible in browser code.
@@ -70,7 +69,7 @@ export default defineConfig({
             '**/*.eot',
         ],
         ssrParameters: {
-            ssrFunctionNodeVersion: '22.x',
+            ssrFunctionNodeVersion: '24.x',
         },
     },
     // Main application configuration (public settings)
@@ -117,125 +116,129 @@ export default defineConfig({
                 registeredRefreshTokenExpirySeconds: undefined,
                 guestRefreshTokenExpirySeconds: undefined,
             },
-        },
-        // Site configuration and localization
-        // See CONFIG-OPTIONS.md#site for detailed documentation
-        site: {
-            locale: 'en-US',
-            currency: 'USD',
-            cookies: {
-                domain: undefined,
-            },
-            hybrid: {
-                enabled: false,
-                legacyRoutes: [],
-            },
-            // Feature flags for enabling/disabling functionality
-            // See CONFIG-OPTIONS.md#features for detailed documentation
-            features: {
-                passwordlessLogin: {
-                    enabled: false,
-                    callbackUri: '/passwordless-login-callback',
-                    landingUri: '/passwordless-login-landing',
-                },
-                resetPassword: {
-                    callbackUri: '/reset-password-callback',
-                    landingUri: '/reset-password-landing',
-                },
-                socialLogin: {
-                    enabled: false,
-                    callbackUri: '/social-callback',
-                    providers: ['Apple', 'Google'],
-                },
-                socialShare: {
-                    enabled: true,
-                    providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'],
-                },
-                guestCheckout: true,
-                shopperContext: {
-                    enabled: false,
-                    dwsourcecodeCookieSuffix: undefined,
-                },
-                googleCloudAPI: {
-                    apiKey: '',
-                },
-            },
-            // these locales matches with BM supported locales
-            // this preferredCurrency will be used if user has not preference on locale
-            // these locales will not show up on your app until you add them to i18n.supportedLngs config
-            supportedLocales: [
+            // Multi-site configuration
+            // Each site can have its own locale, currency, and detection settings
+            sites: [
                 {
-                    id: 'en-US',
-                    preferredCurrency: 'USD',
-                },
-                {
-                    id: 'da-DK',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'de-DE',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'en-GB',
-                    preferredCurrency: 'GBP',
-                },
-                {
-                    id: 'es-MX',
-                    // there is not MXN support on BM, so we use USD
-                    preferredCurrency: 'USD',
-                },
-                {
-                    id: 'fi-FI',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'fr-FR',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'it-IT',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'ja-JP',
-                    preferredCurrency: 'JPY',
-                },
-                {
-                    id: 'ko-KR',
-                    preferredCurrency: 'KRW',
-                },
-                {
-                    id: 'nl-NL',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'no-NO',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'pl-PL',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'pt-BR',
-                    preferredCurrency: 'BRL',
-                },
-                {
-                    id: 'sv-SE',
-                    preferredCurrency: 'EUR',
-                },
-                {
-                    id: 'zh-CN',
-                    preferredCurrency: 'CNY',
-                },
-                {
-                    id: 'zh-TW',
-                    preferredCurrency: 'TWD',
+                    id: 'RefArchGlobal',
+                    defaultLocale: 'en-US',
+                    defaultCurrency: 'USD',
+                    supportedLocales: [
+                        {
+                            id: 'en-US',
+                            preferredCurrency: 'USD',
+                        },
+                        {
+                            id: 'da-DK',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'de-DE',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'en-GB',
+                            preferredCurrency: 'GBP',
+                        },
+                        {
+                            id: 'es-MX',
+                            // there is not MXN support on BM, so we use USD
+                            preferredCurrency: 'USD',
+                        },
+                        {
+                            id: 'fi-FI',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'fr-FR',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'it-IT',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'ja-JP',
+                            preferredCurrency: 'JPY',
+                        },
+                        {
+                            id: 'ko-KR',
+                            preferredCurrency: 'KRW',
+                        },
+                        {
+                            id: 'nl-NL',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'no-NO',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'pl-PL',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'pt-BR',
+                            preferredCurrency: 'BRL',
+                        },
+                        {
+                            id: 'sv-SE',
+                            preferredCurrency: 'EUR',
+                        },
+                        {
+                            id: 'zh-CN',
+                            preferredCurrency: 'CNY',
+                        },
+                        {
+                            id: 'zh-TW',
+                            preferredCurrency: 'TWD',
+                        },
+                    ],
+                    supportedCurrencies: ['EUR', 'USD'],
                 },
             ],
-            // Currencies that users can manually select
-            supportedCurrencies: ['EUR', 'USD'],
+        },
+        // Default site ID configuration
+        // See CONFIG-OPTIONS.md#defaultSiteId for detailed documentation
+        defaultSiteId: 'RefArchGlobal',
+        siteAliasMap: {
+            RefArchGlobal: 'global',
+        },
+        // Hybrid mode configuration
+        // See CONFIG-OPTIONS.md#hybrid for detailed documentation
+        hybrid: {
+            enabled: false,
+            legacyRoutes: [],
+        },
+        // Feature flags for enabling/disabling functionality
+        // See CONFIG-OPTIONS.md#features for detailed documentation
+        features: {
+            passwordlessLogin: {
+                enabled: false,
+                callbackUri: '/passwordless-login-callback',
+                landingUri: '/passwordless-login-landing',
+            },
+            resetPassword: {
+                callbackUri: '/reset-password-callback',
+                landingUri: '/reset-password-landing',
+            },
+            socialLogin: {
+                enabled: false,
+                callbackUri: '/social-callback',
+                providers: ['Apple', 'Google'],
+            },
+            socialShare: {
+                enabled: true,
+                providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'],
+            },
+            guestCheckout: true,
+            shopperContext: {
+                enabled: false,
+                dwsourcecodeCookieSuffix: undefined,
+            },
+            googleCloudAPI: {
+                apiKey: '',
+            },
         },
         // Internationalization configuration
         // See CONFIG-OPTIONS.md#i18n for detailed documentation
@@ -309,15 +312,21 @@ export default defineConfig({
                 },
             },
         },
+        // Link hints for browser resource loading
+        // See CONFIG-OPTIONS.md#links for detailed documentation
+        links: {
+            preconnect: ['https://edge.disstg.commercecloud.salesforce.com'],
+        },
+        // Salesforce Dynamic Imaging Service settings
+        // See CONFIG-OPTIONS.md#images for detailed documentation
+        images: {
+            quality: 70,
+            formats: ['webp'],
+            fallbackFormat: 'jpg',
+        },
         // Performance optimization settings
         // See CONFIG-OPTIONS.md#performance for detailed documentation
         performance: {
-            preconnectOrigins: ['https://edge.disstg.commercecloud.salesforce.com'],
-            images: {
-                quality: 80,
-                formats: ['webp', 'jpeg'],
-                lazyLoading: true,
-            },
             caching: { apiCacheTtl: 300, staticAssetCacheTtl: 31536000 },
             metrics: {
                 serverPerformanceMetricsEnabled: false,

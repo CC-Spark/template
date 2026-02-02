@@ -30,6 +30,6 @@ export const customMiddlewares: RequestHandler[] = [
     /** @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY */
     // Cookie capture must run before other middlewares to wrap the request
     cookieCaptureMiddleware,
-    createHybridProxyMiddleware(config.app.commerce.api.siteId, config.app.site.locale),
+    createHybridProxyMiddleware(config.app.commerce.api.siteId, config.app.commerce.sites[0].defaultLocale),
     /** @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY */
 ];

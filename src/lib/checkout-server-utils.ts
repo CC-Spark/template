@@ -23,11 +23,11 @@
 
 import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
-import { getShippingMethodsForShipment } from '@/lib/api/shipping-methods';
 import type { SessionData as AuthData } from '@/lib/api/types';
 import type { CustomerProfile } from '@/components/checkout/utils/checkout-context-types';
 import { createApiClients } from '@/lib/api-clients';
 import { getBasket } from '@/middlewares/basket.client';
+import { fetchShippingMethodsMapForBasket } from '@/lib/checkout-loaders';
 
 /**
  * Server-side customer profile retrieval using validated auth session
@@ -75,23 +75,19 @@ export function getServerCustomerProfile(
 }
 
 /**
- * Fetches shipping methods for a basket using the existing basket middleware.
+ * Fetches shipping methods for all shipments in the basket (server-side wrapper)
+ * Gets the basket from middleware and delegates to shared utility
  */
-export function getServerShippingMethods(
+export async function getServerShippingMethodsMap(
     context: LoaderFunctionArgs['context']
-): Promise<ShopperBasketsV2.schemas['ShippingMethodResult'] | null> {
+): Promise<Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>> {
     try {
         // Get basket using existing basket middleware
         const basket = getBasket(context);
-        if (!basket?.basketId || !basket.shipments?.[0]?.shippingAddress) {
-            return Promise.resolve(null);
-        }
-
-        // Fetch shipping methods and return promise for streaming
-        return getShippingMethodsForShipment(context, basket.basketId);
+        return await fetchShippingMethodsMapForBasket(context, basket);
     } catch {
         // Failed to fetch shipping methods
-        return Promise.resolve(null);
+        return {};
     }
 }
 
@@ -104,7 +100,7 @@ export function getServerShippingMethods(
 export type ServerCheckoutData = {
     basket?: ShopperBasketsV2.schemas['Basket'] | null;
     customerProfile?: Promise<CustomerProfile | null>;
-    shippingMethods?: Promise<ShopperBasketsV2.schemas['ShippingMethodResult'] | null>;
+    shippingMethodsMap?: Promise<Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>>;
     isRegisteredCustomer?: boolean;
 };
 
@@ -120,7 +116,7 @@ export function getServerCheckoutData({ context }: LoaderFunctionArgs, authSessi
             return {
                 basket: null,
                 customerProfile: Promise.resolve(null),
-                shippingMethods: Promise.resolve(null),
+                shippingMethodsMap: Promise.resolve({}),
                 isRegisteredCustomer: false,
             };
         }
@@ -134,16 +130,16 @@ export function getServerCheckoutData({ context }: LoaderFunctionArgs, authSessi
             ? getServerCustomerProfile(context, authSession)
             : Promise.resolve(null);
 
-        const shippingMethodsPromise =
-            basket?.basketId && basket.shipments?.[0]?.shippingAddress
-                ? getServerShippingMethods(context)
-                : Promise.resolve(null);
+        const shippingMethodsMapPromise =
+            basket?.basketId && basket.shipments && basket.shipments.length > 0
+                ? getServerShippingMethodsMap(context)
+                : Promise.resolve({});
 
         // Execute all remaining fetches in parallel - return promises directly for streaming
         return {
             basket,
             customerProfile: customerProfilePromise,
-            shippingMethods: shippingMethodsPromise,
+            shippingMethodsMap: shippingMethodsMapPromise,
             isRegisteredCustomer: isRegistered,
         };
     } catch {
@@ -151,7 +147,7 @@ export function getServerCheckoutData({ context }: LoaderFunctionArgs, authSessi
         return {
             basket: null,
             customerProfile: Promise.resolve(null),
-            shippingMethods: Promise.resolve(null),
+            shippingMethodsMap: Promise.resolve({}),
             isRegisteredCustomer: false,
         };
     }

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import type { RouterContextProvider } from 'react-router';
-import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperBasketsV2, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import type { PickupItemInfo } from '@/extensions/bopis/context/pickup-context';
-import type { ToastType } from '@/components/toast';
-import { clearPickupFromShipment, updateShipmentForPickup } from '@/extensions/bopis/lib/api/shipment';
-import { getTranslation } from '@/lib/i18next';
+import { PICKUP_SHIPPING_METHOD_ID } from '@/extensions/bopis/constants';
+import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
+
 /**
  * Extracts pickup items from basket by checking shipments for store pickup.
  *
@@ -229,6 +228,36 @@ export function getFirstPickupStoreId(
 }
 
 /**
+ * Gets the Store object for the first pickup store in the basket.
+ *
+ * This function gets the first store ID from the basket using getStoreIdsFromBasket
+ * and then looks it up in the pickupStores map using getPickupStoreFromMap.
+ *
+ * @param basket - The shopping basket containing shipments
+ * @param pickupStores - Map of storeId → Store objects
+ * @returns The Store object for the first pickup store, or undefined if no pickup store found
+ *
+ * @example
+ * ```tsx
+ * const pickup = usePickup();
+ * const store = getFirstPickupStore(basket, pickup?.pickupStores);
+ *
+ * if (store) {
+ *     // Display store information
+ *     console.log(`Pickup store: ${store.name}`);
+ * }
+ * ```
+ */
+export function getFirstPickupStore(
+    basket: ShopperBasketsV2.schemas['Basket'] | null | undefined,
+    pickupStores?: Map<string, ShopperStores.schemas['Store']>
+): ShopperStores.schemas['Store'] | undefined {
+    const storeIds = getStoreIdsFromBasket(basket);
+    const firstStoreId = storeIds[0];
+    return getPickupStoreFromMap(firstStoreId, pickupStores);
+}
+
+/**
  * Gets the store ID (c_fromStoreId) for a specific basket item.
  *
  * This function looks up a product item by its itemId and returns the c_fromStoreId
@@ -328,7 +357,6 @@ export function getPickupProductItemsForStore(
  * to determine if it should be included in the pickup items list.
  *
  * @param basket - The shopping basket containing product items
- * @param pickupBasketItems - Map of productId to PickupItemInfo for items marked for pickup
  * @returns Array of product items that are marked for pickup, or empty array if none found
  *
  * @example
@@ -342,10 +370,55 @@ export function getPickupProductItemsForStore(
  * ```
  */
 export function filterPickupProductItems(
-    basket: ShopperBasketsV2.schemas['Basket'] | undefined,
-    pickupBasketItems?: Map<string, PickupItemInfo>
+    basket: ShopperBasketsV2.schemas['Basket'] | undefined
 ): ShopperBasketsV2.schemas['ProductItem'][] {
-    return basket?.productItems?.filter((item) => item.productId && pickupBasketItems?.has(item.productId)) ?? [];
+    if (!basket?.productItems || !basket.shipments) return [];
+    const pickupShipmentIds = new Set(basket.shipments.filter((s) => s.c_fromStoreId).map((s) => s.shipmentId));
+    return basket.productItems.filter((item) => item.shipmentId && pickupShipmentIds.has(item.shipmentId));
+}
+
+/**
+ * Filters out pickup shipping methods from a shipping methods map.
+ *
+ * This function removes any shipping methods that match the PICKUP_SHIPPING_METHOD_ID
+ * constant ('005'), leaving only delivery shipping methods. Useful when you want to
+ * display only delivery options to the customer.
+ *
+ * @param shippingMethodsMap - A map of shipment ID to shipping method results
+ * @returns A shipping methods map with pickup methods filtered out from each shipment
+ *
+ * @example
+ * ```tsx
+ * const shippingMethodsMap = {
+ *     'shipment-1': await client.ShopperBaskets.getShippingMethodsForShipment({
+ *         parameters: { basketId, shipmentId: 'shipment-1' }
+ *     }),
+ * };
+ *
+ * const deliveryMethodsMap = filterDeliveryShippingMethods(shippingMethodsMap);
+ * // deliveryMethodsMap now only contains delivery options, not pickup
+ * ```
+ */
+export function filterDeliveryShippingMethods(
+    shippingMethodsMap: Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>
+): Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']> {
+    const filteredMap: Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']> = {};
+
+    for (const [shipmentId, shippingMethods] of Object.entries(shippingMethodsMap)) {
+        if (!shippingMethods.applicableShippingMethods) {
+            filteredMap[shipmentId] = shippingMethods;
+            continue;
+        }
+
+        filteredMap[shipmentId] = {
+            ...shippingMethods,
+            applicableShippingMethods: shippingMethods.applicableShippingMethods.filter(
+                (method) => method.id !== PICKUP_SHIPPING_METHOD_ID
+            ),
+        };
+    }
+
+    return filteredMap;
 }
 
 /**
@@ -375,91 +448,4 @@ export function getPickupShipment(
     basket: ShopperBasketsV2.schemas['Basket'] | null | undefined
 ): ShopperBasketsV2.schemas['Shipment'] | undefined {
     return basket?.shipments?.find((shipment) => Boolean(shipment.c_fromStoreId));
-}
-
-/**
- * Validates if adding a new item with pickup/delivery option is compatible with existing basket items.
- *
- * This function checks for conflicts when adding items to the cart:
- * - Cannot add pickup item from a different store if basket already has pickup items
- * - Cannot add delivery item if basket already has pickup items
- * - Cannot add pickup item if basket already has delivery items
- *
- * If validation fails, an error toast is shown and the function returns false.
- *
- * @param basket - Current basket
- * @param newStoreId - Store ID for the new item (null for delivery items)
- * @param addToast - Toast function to show error messages
- * @returns true if validation passes, false if validation fails (toast shown)
- */
-export function isSelectedDeliveryOptionValid(
-    basket: ShopperBasketsV2.schemas['Basket'] | undefined,
-    newStoreId: string | null,
-    addToast: (message: string, type: ToastType) => void
-): boolean {
-    // Skip validation if basket is empty or has no product items
-    if (!basket || !basket.productItems) {
-        return true;
-    }
-
-    const { t } = getTranslation();
-    const existingStoreId = getFirstPickupStoreId(basket);
-
-    // Cannot add pickup item from a different store
-    if (newStoreId && existingStoreId && newStoreId !== existingStoreId) {
-        addToast(t('extBopis:cart.addToCartValidation.changeStoreError'), 'error');
-        return false;
-    }
-
-    // Cannot add delivery item if basket already has pickup items
-    if (existingStoreId && !newStoreId) {
-        addToast(t('extBopis:cart.addToCartValidation.changeToDeliveryError'), 'error');
-        return false;
-    }
-
-    // Cannot add pickup item if basket already has delivery items
-    if (!existingStoreId && newStoreId) {
-        addToast(t('extBopis:cart.addToCartValidation.changeToPickupError'), 'error');
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * Updates or clears pickup shipment based on product item's store pickup configuration.
- *
- * This function handles the logic for updating shipment with store information when a pickup item
- * is added, or clearing pickup from shipment when a delivery item is added to a basket that
- * previously had pickup items.
- *
- * @param context - Router context
- * @param basket - Current basket state
- * @param productItem - Product item with optional storeId and inventoryId
- * @returns Updated basket with pickup shipment updated or cleared
- */
-export async function syncShipmentWithDeliveryOptionChange(
-    context: Readonly<RouterContextProvider>,
-    basket: ShopperBasketsV2.schemas['Basket'],
-    productItem?: Pick<ShopperBasketsV2.schemas['ProductItem'], 'inventoryId'> & {
-        storeId?: string | null;
-    }
-): Promise<ShopperBasketsV2.schemas['Basket']> {
-    const { t } = getTranslation(context);
-    if (!basket.basketId) {
-        throw new Error(t('errors:noBasketFound'));
-    }
-    if (!productItem) {
-        return basket;
-    }
-    const pickupShipment = getPickupShipment(basket);
-    const shipmentId = pickupShipment?.shipmentId ?? 'me';
-
-    if (productItem.storeId && productItem.inventoryId) {
-        return await updateShipmentForPickup(context, basket.basketId, shipmentId, productItem.storeId);
-    } else if (!productItem.storeId && pickupShipment) {
-        return await clearPickupFromShipment(context, basket.basketId, shipmentId);
-    }
-
-    return basket;
 }

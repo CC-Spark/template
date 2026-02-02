@@ -23,7 +23,7 @@ import { mockConfig } from '@/test-utils/config';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 
-const DEFAULT_SOCIAL_IDS = mockConfig.site.features.socialLogin.providers ?? [];
+const DEFAULT_SOCIAL_IDS = mockConfig.features.socialLogin.providers ?? [];
 
 function SocialLoginStoryHarness({ children, providers }: { children: ReactNode; providers: string[] }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -34,14 +34,11 @@ function SocialLoginStoryHarness({ children, providers }: { children: ReactNode;
     const configValue = useMemo(() => {
         return {
             ...mockConfig,
-            site: {
-                ...mockConfig.site,
-                features: {
-                    ...mockConfig.site.features,
-                    socialLogin: {
-                        ...mockConfig.site.features.socialLogin,
-                        providers,
-                    },
+            features: {
+                ...mockConfig.features,
+                socialLogin: {
+                    ...mockConfig.features.socialLogin,
+                    providers,
                 },
             },
         } as typeof mockConfig;

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createRoutesStub, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
 import ResetPassword, { loader, action } from './_empty.reset-password';
 import { resetPasswordWithToken } from '@/middlewares/auth.server';
 import { isPasswordValid } from '@/lib/utils';
@@ -37,40 +38,46 @@ vi.mock('@/lib/utils', async () => {
     };
 });
 
-// Mock React Router hooks
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useActionData: vi.fn(),
-    };
-});
-
-// Mock ResetPasswordForm component
-vi.mock('@/components/reset-password-form', () => ({
-    ResetPasswordForm: ({ error, token, email }: { error?: string; token: string; email: string }) => (
-        <div data-testid="reset-password-form">
-            <div data-testid="form-error">{error}</div>
-            <div data-testid="form-token">{token}</div>
-            <div data-testid="form-email">{email}</div>
-        </div>
-    ),
+// Mock PasswordRequirement component to avoid needing to deal with its complexity
+vi.mock('@/components/password-requirements', () => ({
+    PasswordRequirement: () => null,
 }));
 
-// Helper to render with router
-const renderWithRouter = (component: React.ReactElement) => {
-    return render(<MemoryRouter>{component}</MemoryRouter>);
+// Helper to render with createRoutesStub (provides full data router context for Form/Link components)
+const renderWithRoutesStub = (loaderData: { token: string; email: string }) => {
+    // Wrap the component to pass loaderData as a prop
+    const WrappedComponent = () => <ResetPassword loaderData={loaderData} />;
+    const Stub = createRoutesStub([
+        {
+            path: '/',
+            Component: WrappedComponent,
+        },
+    ]);
+    return render(<Stub initialEntries={['/']} />);
 };
+
+// Helper to render with createRoutesStub and real action for full-flow tests
+const renderWithAction = (loaderData: { token: string; email: string }) => {
+    const WrappedComponent = () => <ResetPassword loaderData={loaderData} />;
+    const Stub = createRoutesStub([
+        {
+            path: '/',
+            Component: WrappedComponent,
+            action: async ({ request }) => action({ request, params: {}, context: mockContext } as any),
+        },
+    ]);
+    return render(<Stub initialEntries={['/']} />);
+};
+
+const mockContext = {
+    get: vi.fn(),
+    set: vi.fn(),
+} as any;
 
 const mockResetPasswordWithToken = vi.mocked(resetPasswordWithToken);
 const mockIsPasswordValid = vi.mocked(isPasswordValid);
 
 describe('reset-password route', () => {
-    const mockContext = {
-        get: vi.fn(),
-        set: vi.fn(),
-    } as any;
-
     beforeEach(() => {
         vi.clearAllMocks();
     });
@@ -561,75 +568,80 @@ describe('reset-password route', () => {
     });
 
     describe('Component', () => {
-        let mockUseActionData: ReturnType<typeof vi.fn>;
+        it('should render form with all required elements', () => {
+            const loaderData = {
+                token: 'test-token-123',
+                email: 'test@example.com',
+            };
 
-        beforeEach(async () => {
-            const reactRouter = await import('react-router');
-            mockUseActionData = vi.mocked(reactRouter.useActionData);
+            renderWithRoutesStub(loaderData);
+
+            expect(screen.getByRole('heading', { name: t('resetPassword:title') })).toBeInTheDocument();
+            expect(screen.getByLabelText(t('resetPassword:emailLabel'))).toBeInTheDocument();
+            expect(screen.getByLabelText(t('resetPassword:newPasswordLabel'))).toBeInTheDocument();
+            expect(screen.getByLabelText(t('resetPassword:confirmPasswordLabel'))).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: t('resetPassword:resetPasswordButton') })).toBeInTheDocument();
         });
 
-        it('should render form with all required elements', () => {
-            mockUseActionData.mockReturnValue(undefined);
+        it('should display error when passwords do not match', async () => {
+            const user = userEvent.setup();
+            mockIsPasswordValid.mockReturnValue(true);
 
             const loaderData = {
                 token: 'test-token-123',
                 email: 'test@example.com',
             };
 
-            renderWithRouter(<ResetPassword loaderData={loaderData} />);
+            renderWithAction(loaderData);
 
-            // Title and subtitle
-            expect(screen.getByText(t('resetPassword:title'))).toBeInTheDocument();
-            const subtitle = t('resetPassword:subtitle') || 'Enter your new password below';
-            expect(screen.getByText(subtitle)).toBeInTheDocument();
+            await user.type(screen.getByLabelText(t('resetPassword:newPasswordLabel')), 'Test123!');
+            await user.type(screen.getByLabelText(t('resetPassword:confirmPasswordLabel')), 'Different456!');
 
-            // Form with correct props
-            expect(screen.getByTestId('reset-password-form')).toBeInTheDocument();
-            expect(screen.getByTestId('form-token')).toHaveTextContent('test-token-123');
-            expect(screen.getByTestId('form-email')).toHaveTextContent('test@example.com');
+            const submitButton = screen.getByRole('button', { name: t('resetPassword:resetPasswordButton') });
+            await user.click(submitButton);
 
-            // No error by default
-            const errorElement = screen.getByTestId('form-error');
-            expect(errorElement).toBeEmptyDOMElement();
+            await waitFor(() => {
+                expect(screen.getByText(t('resetPassword:passwordsMustMatch'))).toBeInTheDocument();
+            });
         });
 
-        it('should pass error from actionData to ResetPasswordForm', () => {
-            const errorMessage = 'Passwords must match';
-            mockUseActionData.mockReturnValue({
-                error: errorMessage,
-            });
+        // Note: "password not strong enough" validation is tested in action unit tests.
+        // Full-flow testing is not possible here because client-side validation in
+        // usePasswordValidation hook disables the submit button for weak passwords.
+
+        it('should display error when API call fails', async () => {
+            const user = userEvent.setup();
+            mockIsPasswordValid.mockReturnValue(true);
+            mockResetPasswordWithToken.mockRejectedValue(new Error('Invalid token'));
 
             const loaderData = {
-                token: 'test-token',
+                token: 'test-token-123',
                 email: 'test@example.com',
             };
 
-            renderWithRouter(<ResetPassword loaderData={loaderData} />);
+            renderWithAction(loaderData);
 
-            expect(screen.getByTestId('form-error')).toHaveTextContent(errorMessage);
+            await user.type(screen.getByLabelText(t('resetPassword:newPasswordLabel')), 'Test123!');
+            await user.type(screen.getByLabelText(t('resetPassword:confirmPasswordLabel')), 'Test123!');
+
+            const submitButton = screen.getByRole('button', { name: t('resetPassword:resetPasswordButton') });
+            await user.click(submitButton);
+
+            await waitFor(() => {
+                expect(screen.getByText(t('errors:somethingWentWrong'))).toBeInTheDocument();
+            });
         });
 
-        it('should handle special characters in email and token', () => {
-            mockUseActionData.mockReturnValue(undefined);
-
-            // Test email with special characters
-            const loaderDataEmail = {
-                token: 'test-token',
-                email: 'test+user@example.com',
-            };
-
-            const { unmount } = renderWithRouter(<ResetPassword loaderData={loaderDataEmail} />);
-            expect(screen.getByTestId('form-email')).toHaveTextContent('test+user@example.com');
-            unmount();
-
-            // Test token with special characters
-            const loaderDataToken = {
-                token: 'test+token/123=',
+        it('should not show error on initial render', () => {
+            const loaderData = {
+                token: 'test-token-123',
                 email: 'test@example.com',
             };
 
-            renderWithRouter(<ResetPassword loaderData={loaderDataToken} />);
-            expect(screen.getByTestId('form-token')).toHaveTextContent('test+token/123=');
+            renderWithRoutesStub(loaderData);
+
+            // No error should be visible initially (check for error container class)
+            expect(screen.queryByText(/went wrong/i)).not.toBeInTheDocument();
         });
     });
 });

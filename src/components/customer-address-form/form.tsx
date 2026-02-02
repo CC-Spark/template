@@ -89,6 +89,7 @@ export const CustomerAddressForm = ({
     onSuccess,
     onError,
     onCancel,
+    isFirstAddress = false,
 }: CustomerAddressFormProps) => {
     const { t } = useTranslation('account');
     const schema = useMemo(() => createCustomerAddressFormSchema(t), [t]);
@@ -182,9 +183,16 @@ export const CustomerAddressForm = ({
      * @param data - The validated form data containing address information
      */
     const handleSubmit = form.handleSubmit((data) => {
+        // Auto-generate addressId if not provided (for new addresses)
+        // Use existing addressId for edits, or generate from name for new addresses
+        const addressId = data.addressId || `${data.firstName}_${data.lastName}_${Date.now()}`.replace(/\s+/g, '_');
+
+        // If this is the first address and it's a new address (no initialData), set preferred to true
+        const shouldSetPreferred = isFirstAddress && !initialData;
+
         // Prepare address data in the format expected by Commerce SDK
         const addressData = {
-            addressId: data.addressId,
+            addressId,
             firstName: data.firstName,
             lastName: data.lastName,
             phone: data.phone || undefined,
@@ -194,7 +202,7 @@ export const CustomerAddressForm = ({
             city: data.city,
             stateCode: data.stateCode || undefined,
             postalCode: data.postalCode,
-            preferred: Boolean(data.preferred),
+            preferred: shouldSetPreferred ? true : Boolean(data.preferred),
         };
 
         // Submit the update request - response will be handled by parent component's fetcher effect
@@ -216,7 +224,7 @@ export const CustomerAddressForm = ({
     const isSubmitting = updateFetcher.state === FETCHER_STATES.SUBMITTING;
 
     return (
-        <div className="w-full relative p-4">
+        <div className="w-full relative">
             <Form {...form}>
                 <form onSubmit={(e) => void handleSubmit(e)} data-testid="customer-address-form">
                     {inlineSuccessMessage && (
@@ -230,14 +238,11 @@ export const CustomerAddressForm = ({
                         </div>
                     )}
                     <CustomerAddressFields form={form} />
+                    {/* Separator */}
+                    <hr className="border-border mt-4" />
+
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-2">
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground px-6">
-                            {isSubmitting ? t('addressForm.savingButton') : t('addressForm.saveButton')}
-                        </Button>
+                    <div className="flex gap-3 pt-4 justify-end">
                         {onCancel && (
                             <Button
                                 type="button"
@@ -248,6 +253,12 @@ export const CustomerAddressForm = ({
                                 {t('addressForm.cancelButton')}
                             </Button>
                         )}
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground px-6">
+                            {isSubmitting ? t('addressForm.savingButton') : t('addressForm.saveButton')}
+                        </Button>
                     </div>
                 </form>
             </Form>

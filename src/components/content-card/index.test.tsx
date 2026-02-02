@@ -108,6 +108,26 @@ describe('ContentCard', () => {
         expect(card?.className).toContain('h-full');
     });
 
+    test('applies custom classnames for footer, description, and button', () => {
+        const { container } = renderWithRouter(
+            <ContentCard
+                {...defaultProps}
+                cardFooterClassName="footer-custom"
+                cardDescriptionClassName="description-custom"
+                buttonClassName="button-custom"
+            />
+        );
+
+        const footer = container.querySelector('[data-slot="card-footer"]');
+        expect(footer?.className).toContain('footer-custom');
+
+        const descriptionWrapper = screen.getByText('Test description content').closest('div');
+        expect(descriptionWrapper?.className).toContain('description-custom');
+
+        const link = screen.getByRole('link', { name: 'Click Me' });
+        expect(link.className).toContain('button-custom');
+    });
+
     test('forwards ref to Card component', () => {
         const ref = createRef<HTMLDivElement>();
         renderWithRouter(<ContentCard {...defaultProps} ref={ref} />);

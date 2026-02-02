@@ -25,13 +25,24 @@ const MODULE_TO_PATCH = 'react-router';
  * @returns {Plugin} A Vite plugin for patching react-router components
  */
 export const patchReactRouterPlugin = (): Plugin => {
+    let isTestMode = false;
+
     return {
         name: 'odyssey:patch-react-router',
         // must be enforce: 'pre'
         // otherwise the react-router plugin will resolve the module first
         // and we will not be able to enhance the module with our custom logic
         enforce: 'pre',
+        config(_config, { mode }) {
+            // Detect test mode to disable patching
+            // Virtual module IDs with \0 prefix cause path resolution errors on Windows
+            // when Vitest tries to resolve them with vi.importActual
+            isTestMode = mode === 'test';
+        },
         configEnvironment(name) {
+            if (isTestMode) {
+                return;
+            }
             if (name === 'ssr') {
                 // By default, on dev mode, Vite does not process external modules like react-router
                 // but we need to patch it, so we mark react-router as noExternal
@@ -44,6 +55,10 @@ export const patchReactRouterPlugin = (): Plugin => {
             }
         },
         resolveId(id, importer) {
+            // Skip patching in test mode to avoid Windows path resolution errors
+            if (isTestMode) {
+                return null;
+            }
             if (id === MODULE_TO_PATCH) {
                 // In the virtual module, we need to import the same react-router module
                 // and then re-export everything from it, and override a subset of the exports.
@@ -58,6 +73,10 @@ export const patchReactRouterPlugin = (): Plugin => {
         },
 
         load(id) {
+            // Skip patching in test mode
+            if (isTestMode) {
+                return null;
+            }
             if (id === VIRTUAL_MODULE_ID) {
                 const scriptsImportPath = '@salesforce/storefront-next-dev/react-router/Scripts';
 

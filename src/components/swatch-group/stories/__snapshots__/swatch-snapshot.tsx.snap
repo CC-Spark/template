@@ -27,33 +27,6 @@ exports[`Swatch stories snapshot > Default story renders and matches snapshot 1`
 </div>
 `;
 
-exports[`Swatch stories snapshot > Desktop story renders and matches snapshot 1`] = `
-<div>
-  <button
-    aria-checked="false"
-    aria-label="Red"
-    class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
-    position="relative"
-    role="radio"
-    tabindex="-1"
-    type="button"
-  >
-    <div
-      class="flex items-center justify-center w-full h-full text-sm font-medium"
-    >
-      <div
-        class="w-full h-full bg-red-500 rounded-full"
-      />
-      <span
-        class="ml-1"
-      >
-        Red
-      </span>
-    </div>
-  </button>
-</div>
-`;
-
 exports[`Swatch stories snapshot > Disabled story renders and matches snapshot 1`] = `
 <div>
   <button
@@ -109,33 +82,6 @@ exports[`Swatch stories snapshot > HoverMode story renders and matches snapshot 
 </div>
 `;
 
-exports[`Swatch stories snapshot > Mobile story renders and matches snapshot 1`] = `
-<div>
-  <button
-    aria-checked="false"
-    aria-label="Red"
-    class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
-    position="relative"
-    role="radio"
-    tabindex="-1"
-    type="button"
-  >
-    <div
-      class="flex items-center justify-center w-full h-full text-sm font-medium"
-    >
-      <div
-        class="w-full h-full bg-red-500 rounded-full"
-      />
-      <span
-        class="ml-1"
-      >
-        Red
-      </span>
-    </div>
-  </button>
-</div>
-`;
-
 exports[`Swatch stories snapshot > Selected story renders and matches snapshot 1`] = `
 <div>
   <button
@@ -182,33 +128,6 @@ exports[`Swatch stories snapshot > Square story renders and matches snapshot 1`]
         class="ml-1"
       >
         Large
-      </span>
-    </div>
-  </button>
-</div>
-`;
-
-exports[`Swatch stories snapshot > Tablet story renders and matches snapshot 1`] = `
-<div>
-  <button
-    aria-checked="false"
-    aria-label="Red"
-    class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
-    position="relative"
-    role="radio"
-    tabindex="-1"
-    type="button"
-  >
-    <div
-      class="flex items-center justify-center w-full h-full text-sm font-medium"
-    >
-      <div
-        class="w-full h-full bg-red-500 rounded-full"
-      />
-      <span
-        class="ml-1"
-      >
-        Red
       </span>
     </div>
   </button>

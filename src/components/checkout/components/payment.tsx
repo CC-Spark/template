@@ -34,6 +34,8 @@ import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
 import { AddressFormFields } from '@/components/address-form-fields';
 import type { CheckoutActionData } from '../types';
+import CheckoutErrorBanner from './checkout-error-banner';
+import { getCheckoutDisplayError } from './checkout-display-error';
 import { useTranslation } from 'react-i18next';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
@@ -65,6 +67,7 @@ export default function Payment({
     // @sfdc-extension-line SFDC_EXT_BOPIS
     showBillingSameAsShipping = !isStorePickup(cart);
     const { t } = useTranslation('checkout');
+    const paymentFormError = getCheckoutDisplayError(actionData, 'payment');
 
     // Get customer's saved payment methods
     const savedPaymentMethods = getPaymentMethodsFromCustomer(customerProfile);
@@ -212,14 +215,11 @@ export default function Payment({
             <ToggleCardEdit>
                 <Form {...form}>
                     <form onSubmit={(e) => void form.handleSubmit(handleFormSubmit)(e)} className="space-y-6">
+                        {paymentFormError && <CheckoutErrorBanner message={paymentFormError} />}
                         {actionData?.fieldErrors && (
                             <div className="space-y-2">
                                 {Object.entries(actionData.fieldErrors).map(([field, error]) => (
-                                    <div
-                                        key={field}
-                                        className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold">
-                                        {error}
-                                    </div>
+                                    <CheckoutErrorBanner key={field} message={error} />
                                 ))}
                             </div>
                         )}

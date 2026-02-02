@@ -171,7 +171,7 @@ export async function authorizePasswordless(
     const userId = parameters.userid;
 
     const appConfig = getConfig(context);
-    const passwordlessCallback = appConfig.site.features.passwordlessLogin.callbackUri;
+    const passwordlessCallback = appConfig.features.passwordlessLogin.callbackUri;
 
     const passwordlessLoginCallbackUri = isAbsoluteURL(passwordlessCallback)
         ? passwordlessCallback
@@ -212,7 +212,7 @@ export async function getPasswordResetToken(
 
     const clients = createApiClients(context);
     const appConfig = getConfig(context);
-    const resetPasswordCallbackUri = appConfig.site.features.resetPassword.callbackUri;
+    const resetPasswordCallbackUri = appConfig.features.resetPassword.callbackUri;
     const callbackUri = isAbsoluteURL(resetPasswordCallbackUri)
         ? resetPasswordCallbackUri
         : `${getAppOrigin()}${resetPasswordCallbackUri}`;

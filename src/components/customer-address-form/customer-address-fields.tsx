@@ -23,7 +23,6 @@
 /* c8 ignore end */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Checkbox } from '@/components/ui/checkbox';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -31,6 +30,30 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { COUNTRY_CODES } from './constants';
 import { getStatesForCountry, getCountryName } from './utils';
 import { type CustomerAddressFieldsProps } from './types';
+
+/**
+ * Formats a phone number with standard US format: (XXX) XXX-XXXX
+ * @param value - The raw phone number input
+ * @returns Formatted phone number
+ */
+const formatPhoneWithParens = (value: string): string => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+
+    // Limit to 10 digits
+    const limitedDigits = digits.slice(0, 10);
+
+    // Format based on length
+    if (limitedDigits.length >= 7) {
+        return `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3, 6)}-${limitedDigits.slice(6)}`;
+    } else if (limitedDigits.length >= 4) {
+        return `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3)}`;
+    } else if (limitedDigits.length > 0) {
+        return `(${limitedDigits}`;
+    }
+
+    return limitedDigits;
+};
 
 /**
  * CustomerAddressFields component that renders the form fields for editing customer address.
@@ -87,7 +110,13 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             {t('addressForm.addressTitleLabel')}
                         </FormLabel>
                         <FormControl>
-                            <Input type="text" autoComplete="off" className="rounded-md" {...field} />
+                            <Input
+                                type="text"
+                                maxLength={256}
+                                placeholder={t('addressForm.addressTitlePlaceholder')}
+                                className="rounded-md"
+                                {...field}
+                            />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -131,7 +160,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 />
             </div>
 
-            {/* Phone Number Field */}
+            {/* Phone Field */}
             <FormField
                 control={form.control}
                 name="phone"
@@ -144,9 +173,15 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                             <Input
                                 type="tel"
                                 autoComplete="tel"
-                                inputMode="numeric"
+                                maxLength={32}
+                                placeholder={t('addressForm.phonePlaceholder')}
                                 className="rounded-md"
                                 {...field}
+                                value={field.value || ''}
+                                onChange={(e) => {
+                                    const formatted = formatPhoneWithParens(e.target.value);
+                                    field.onChange(formatted);
+                                }}
                             />
                         </FormControl>
                         <FormMessage />
@@ -226,25 +261,40 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                 )}
             />
 
-            {/* City Field */}
-            <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="text-sm font-medium text-foreground">
-                            {t('addressForm.cityLabel')}
-                        </FormLabel>
-                        <FormControl>
-                            <Input type="text" autoComplete="address-level2" className="rounded-md" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+            {/* Zip Code, City, and State Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Postal Code Field */}
+                <FormField
+                    control={form.control}
+                    name="postalCode"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-sm font-medium text-foreground">{postalCodeLabel}</FormLabel>
+                            <FormControl>
+                                <Input type="text" autoComplete="postal-code" className="rounded-md" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-            {/* State/Province and Postal Code Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* City Field */}
+                <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-sm font-medium text-foreground">
+                                {t('addressForm.cityLabel')}
+                            </FormLabel>
+                            <FormControl>
+                                <Input type="text" autoComplete="address-level2" className="rounded-md" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
                 {/* State/Province Field */}
                 <FormField
                     control={form.control}
@@ -270,43 +320,7 @@ export function CustomerAddressFields({ form }: CustomerAddressFieldsProps) {
                         </FormItem>
                     )}
                 />
-
-                {/* Postal Code Field */}
-                <FormField
-                    control={form.control}
-                    name="postalCode"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-sm font-medium text-foreground">{postalCodeLabel}</FormLabel>
-                            <FormControl>
-                                <Input type="text" autoComplete="postal-code" className="rounded-md" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
             </div>
-
-            {/* Preferred Checkbox */}
-            <FormField
-                control={form.control}
-                name="preferred"
-                render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                            <Checkbox
-                                checked={field.value}
-                                onCheckedChange={(checked) => field.onChange(checked === true)}
-                            />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                            <FormLabel className="text-sm font-medium text-foreground cursor-pointer">
-                                {t('addressForm.preferredLabel')}
-                            </FormLabel>
-                        </div>
-                    </FormItem>
-                )}
-            />
         </div>
     );
 }

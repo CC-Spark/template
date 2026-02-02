@@ -36,7 +36,7 @@ import OrderSkeleton from '@/components/order-skeleton';
 import { useTranslation } from 'react-i18next';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { fetchStoresForOrder } from '@/extensions/bopis/lib/api/stores';
-import { getOrderPickupShipment } from '@/extensions/bopis/lib/order-utils';
+import { getOrderDeliveryShipments, getOrderPickupShipment } from '@/extensions/bopis/lib/order-utils';
 import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
 import StoreDetails from '@/extensions/store-locator/components/store-locator/details';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
@@ -222,21 +222,17 @@ function OrderConfirmationContent({
 }: OrderConfirmationData): ReactElement {
     const { t, i18n } = useTranslation('checkout');
     const currency = useCurrency();
-    // @sfdc-extension-line SFDC_EXT_BOPIS
-    const { t: tBopis } = useTranslation('extBopis');
+    let deliveryShipments = order.shipments;
 
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    // note: this BOPIS implementation assumes at mose 1 pickup store is used for the order
+    const { t: tBopis } = useTranslation('extBopis');
+    deliveryShipments = getOrderDeliveryShipments(order);
     const store = getPickupStoreFromMap(
         getOrderPickupShipment(order)?.c_fromStoreId as string | undefined,
         storesByStoreId
     );
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
-
-    const primaryShipment = order.shipments?.[0];
-    const shippingAddress = primaryShipment?.shippingAddress;
-    const shippingMethodName = primaryShipment?.shippingMethod?.name || t('confirmation.fields.defaultShippingMethod');
-    const estimatedDeliveryTime =
-        primaryShipment?.shippingMethod?.description || t('confirmation.summaryLabels.estimatedDatePlaceholder');
 
     const customerName =
         order.customerInfo?.firstName || order.billingAddress?.firstName || t('confirmation.hero.defaultName');
@@ -328,42 +324,6 @@ function OrderConfirmationContent({
                     </CardContent>
                 </Card>
 
-                {/* Shipping Details section */}
-                {!store && (
-                    <Card className="border border-border/70 shadow-sm">
-                        <CardContent className="grid gap-6 p-6 md:grid-cols-3">
-                            <div>
-                                <p className="text-md font-semibold tracking-wide text-foreground">
-                                    {t('confirmation.summaryLabels.arriving')}
-                                </p>
-                                <p className="mt-3 text-sm font-medium text-muted-foreground">
-                                    {estimatedDeliveryTime}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-md font-semibold tracking-wide text-foreground">
-                                    {t('confirmation.summaryLabels.shippingAddress')}
-                                </p>
-                                <div className="mt-3 space-y-2">
-                                    {shippingAddress ? (
-                                        <AddressDisplay address={shippingAddress} />
-                                    ) : (
-                                        <p className="text-sm font-medium text-muted-foreground">
-                                            {t('confirmation.summaryLabels.noAddress')}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-md font-semibold tracking-wide text-foreground">
-                                    {t('confirmation.summaryLabels.shippingMethod')}
-                                </p>
-                                <p className="mt-3 text-sm font-medium text-muted-foreground">{shippingMethodName}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
                 {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
                 {/* Pickup Details */}
                 {store && (
@@ -385,6 +345,52 @@ function OrderConfirmationContent({
                     </Card>
                 )}
                 {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
+
+                {/* Shipping Details section - supports multiple shipments if present */}
+                {deliveryShipments.map((shipment) => {
+                    const shippingAddress = shipment.shippingAddress;
+                    const shippingMethodName =
+                        shipment.shippingMethod?.name || t('confirmation.fields.defaultShippingMethod');
+                    const estimatedDeliveryTime =
+                        shipment.shippingMethod?.description ||
+                        t('confirmation.summaryLabels.estimatedDatePlaceholder');
+                    return (
+                        <Card key={shipment.shipmentId} className="border border-border/70 shadow-sm">
+                            <CardContent className="grid gap-6 p-6 md:grid-cols-3">
+                                <div>
+                                    <p className="text-md font-semibold tracking-wide text-foreground">
+                                        {t('confirmation.summaryLabels.arriving')}
+                                    </p>
+                                    <p className="mt-3 text-sm font-medium text-muted-foreground">
+                                        {estimatedDeliveryTime}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-md font-semibold tracking-wide text-foreground">
+                                        {t('confirmation.summaryLabels.shippingAddress')}
+                                    </p>
+                                    <div className="mt-3 space-y-2">
+                                        {shippingAddress ? (
+                                            <AddressDisplay address={shippingAddress} />
+                                        ) : (
+                                            <p className="text-sm font-medium text-muted-foreground">
+                                                {t('confirmation.summaryLabels.noAddress')}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-md font-semibold tracking-wide text-foreground">
+                                        {t('confirmation.summaryLabels.shippingMethod')}
+                                    </p>
+                                    <p className="mt-3 text-sm font-medium text-muted-foreground">
+                                        {shippingMethodName}
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    );
+                })}
 
                 {/* Product Items Summary section */}
                 <Card className="border border-border/70 shadow-sm">

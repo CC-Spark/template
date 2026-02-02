@@ -49,7 +49,7 @@ export function useProductIdChangeHandler({
                 // (This allows variant selection to work properly)
                 const isVariantOfRequestedProduct =
                     currentProduct.id === productId || // Same product
-                    currentProduct.variants?.some((v) => v.productId === productId); // currentProduct is master of requested variant
+                    currentProduct.variants?.some((v: { productId?: string }) => v.productId === productId); // currentProduct is master of requested variant
 
                 if (!isVariantOfRequestedProduct) {
                     setCurrentProduct(null);

@@ -71,7 +71,7 @@ export function JsonLd({ data, id }: JsonLdProps): ReactElement | null {
 
     let jsonString: string;
     try {
-        jsonString = JSON.stringify(data, null, 0);
+        jsonString = JSON.stringify(data);
     } catch (error) {
         devError('[JsonLd] Failed to stringify data:', error);
         return null;

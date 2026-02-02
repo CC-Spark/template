@@ -1,25 +1,12 @@
+import "./messaging-api.js";
 import { a as isComponentTypeAllowedInRegion, i as useDesignState, o as useComponentDiscovery, r as useDesignContext } from "./DesignContext.js";
+import "./modeDetection.js";
 import { n as usePageDesignerMode } from "./PageDesignerProvider.js";
 import { i as useRegionContext, n as useComponentContext, r as RegionContext, t as ComponentContext } from "./ComponentContext.js";
 import React, { useCallback, useMemo, useRef } from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 
 //#region src/design/react/hooks/useComponentDecoratorClasses.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function useComponentDecoratorClasses({ componentId, isFragment, isLocalized }) {
 	const { selectedComponentId, hoveredComponentId, dragState } = useDesignState();
 	const isSelected = selectedComponentId === componentId;
@@ -44,21 +31,6 @@ function useComponentDecoratorClasses({ componentId, isFragment, isLocalized }) 
 //#endregion
 //#region src/design/react/hooks/useFocusedComponentHandler.ts
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
 * Focuses a component when the focused component id matches the component id.
 * @param componentId - The id of the component to focus.
 * @param nodeRef - The ref object to the node to focus.
@@ -77,21 +49,6 @@ function useFocusedComponentHandler(componentId, nodeRef) {
 
 //#endregion
 //#region src/design/react/hooks/useNodeToTargetStore.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function useNodeToTargetStore({ parentId, componentId, regionId, nodeRef, type, componentIds, componentTypeInclusions, componentTypeExclusions }) {
 	const { nodeToTargetMap } = useDesignState();
 	React.useEffect(() => {
@@ -119,21 +76,6 @@ function useNodeToTargetStore({ parentId, componentId, regionId, nodeRef, type, 
 
 //#endregion
 //#region src/design/react/hooks/useComponentType.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function useComponentType(componentId) {
 	const { pageDesignerConfig } = useDesignContext();
 	const { type = "" } = pageDesignerConfig?.components[componentId] ?? {};
@@ -185,21 +127,6 @@ const MoveToolboxButton = ({ title }) => /* @__PURE__ */ jsx("button", {
 
 //#endregion
 //#region src/design/react/hooks/useLabels.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function useLabels() {
 	const { pageDesignerConfig } = useDesignContext();
 	return pageDesignerConfig?.labels ?? {};
@@ -244,21 +171,6 @@ const DesignOverlay = () => {
 
 //#endregion
 //#region src/design/react/components/DesignFrame.tsx
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 const DesignFrame = ({ componentId, children, name, parentId, regionId, localized = false, showFrame = false, showToolbox = true, isMoveable = true }) => {
 	const componentType = useComponentType(componentId ?? "");
 	const { deleteComponent } = useDesignState();
@@ -327,21 +239,6 @@ DesignFrame.defaultProps = {
 
 //#endregion
 //#region src/design/react/components/DesignComponent.tsx
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function DesignComponent(props) {
 	const { designMetadata, children } = props;
 	const { id, name, isFragment, isVisible, isLocalized } = designMetadata;
@@ -450,7 +347,7 @@ function DesignComponent(props) {
 */
 function createReactComponentDesignDecorator(Component) {
 	return function DesignDecoratedComponent(props) {
-		const { designMetadata, children, ...componentProps } = props;
+		const { designMetadata, children,...componentProps } = props;
 		const { isDesignMode } = usePageDesignerMode();
 		return isDesignMode ? /* @__PURE__ */ jsx(DesignComponent, {
 			designMetadata,
@@ -467,21 +364,6 @@ function createReactComponentDesignDecorator(Component) {
 
 //#endregion
 //#region src/design/react/hooks/useRegionDecoratorClasses.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function useRegionDecoratorClasses({ regionId, componentTypeInclusions, componentTypeExclusions }) {
 	const { dragState: { currentDropTarget, componentType } } = useDesignState();
 	const isHovered = regionId && currentDropTarget?.regionId === regionId;
@@ -499,21 +381,6 @@ function useRegionDecoratorClasses({ regionId, componentTypeInclusions, componen
 
 //#endregion
 //#region src/design/react/components/DesignRegion.tsx
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function DesignRegion(props) {
 	const { designMetadata, children } = props;
 	const { name, id, componentIds, componentTypeInclusions, componentTypeExclusions } = designMetadata;
@@ -571,7 +438,7 @@ function DesignRegion(props) {
 //#region src/design/react/components/RegionDecorator.tsx
 function createReactRegionDesignDecorator(Region) {
 	return function DesignDecoratedRegion(props) {
-		const { designMetadata, children, ...componentProps } = props;
+		const { designMetadata, children,...componentProps } = props;
 		const { isDesignMode } = usePageDesignerMode();
 		return isDesignMode ? /* @__PURE__ */ jsx(DesignRegion, {
 			designMetadata,
@@ -588,21 +455,6 @@ function createReactRegionDesignDecorator(Region) {
 
 //#endregion
 //#region src/design/react/registry/adapter.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 /**
 * React framework adapter that implements React-specific behavior
 * for the framework-agnostic component registry.

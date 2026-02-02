@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type ReactElement, Fragment, Suspense, useState } from 'react';
-import { useOutletContext, Await } from 'react-router';
+import { type ReactElement, Suspense, useState, useEffect, useMemo } from 'react';
+import { useOutletContext, Await, useRevalidator } from 'react-router';
 
 // Third-party libraries
-import { MapPin } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 
 // UI components
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Typography } from '@/components/typography';
 import AddressCard from '@/components/address-card';
 import { AccountAddressesSkeleton } from '@/components/account-addresses-skeleton';
 import { CustomerAddressForm, type CustomerAddressFormData } from '@/components/customer-address-form';
@@ -46,19 +46,6 @@ type EditingAddressId = string | null;
 const NEW_ADDRESS_ID = 'new' as const;
 
 /**
- * Arrow indicator component that points from an address card to its edit form
- */
-function EditIndicator(): ReactElement {
-    return (
-        <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 z-10">
-            <svg className="w-6 h-[26px] text-primary" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 17l6-8 6 8z" />
-            </svg>
-        </div>
-    );
-}
-
-/**
  * Account addresses content component that renders when customer data is loaded.
  * This component receives the resolved customer data and displays all addresses.
  */
@@ -68,13 +55,21 @@ function AccountAddressesContent({
     customer: ShopperCustomers.schemas['Customer'] | null;
 }): ReactElement {
     const { t } = useTranslation('account');
+    const revalidator = useRevalidator();
 
-    const addresses = customer?.addresses || [];
+    // Sort addresses by addressId to maintain consistent order regardless of preferred status
+    const addresses = useMemo(() => {
+        const addressList = customer?.addresses || [];
+        return [...addressList].sort((a, b) => (a.addressId || '').localeCompare(b.addressId || ''));
+    }, [customer?.addresses]);
     const { addToast } = useToast();
     const auth = useAuth();
     const customerId = auth?.customer_id;
-    const [addressToRemove, setAddressToRemove] = useState<string | null>(null);
+    const [addressToRemove, setAddressToRemove] = useState<ShopperCustomers.schemas['CustomerAddress'] | null>(null);
     const [editingAddressId, setEditingAddressId] = useState<EditingAddressId>(null);
+    const [settingDefaultAddress, setSettingDefaultAddress] = useState<
+        ShopperCustomers.schemas['CustomerAddress'] | null
+    >(null);
 
     // Create fetcher for creating customer address
     const createAddressFetcher = useScapiFetcher('shopperCustomers', 'createCustomerAddress', {
@@ -103,6 +98,17 @@ function AccountAddressesContent({
         body: {} as ShopperCustomers.schemas['CustomerAddress'],
     });
 
+    // Create fetcher for setting default address
+    const setDefaultAddressFetcher = useScapiFetcher('shopperCustomers', 'updateCustomerAddress', {
+        params: {
+            path: {
+                customerId: customerId || '',
+                addressName: settingDefaultAddress?.addressId || '',
+            },
+        },
+        body: {} as ShopperCustomers.schemas['CustomerAddress'],
+    });
+
     const handleAdd = () => {
         // Clear any existing editing state and switch to "Add Address" mode
         setEditingAddressId(NEW_ADDRESS_ID);
@@ -111,23 +117,44 @@ function AccountAddressesContent({
     const handleEdit = (addressId?: string) => {
         if (!addressId) return;
         setEditingAddressId(addressId);
+        setUpdateAddressName(addressId);
     };
 
     const handleCancel = () => {
         setEditingAddressId(null);
+        setUpdateAddressName('');
     };
 
-    const handleRemove = (addressId?: string) => {
-        if (addressId) {
-            setAddressToRemove(addressId);
+    const handleRemove = (address: ShopperCustomers.schemas['CustomerAddress']) => {
+        if (address?.addressId) {
+            setAddressToRemove(address);
         }
     };
+
+    const handleSetDefault = (address: ShopperCustomers.schemas['CustomerAddress']) => {
+        if (!address.addressId) return;
+        setSettingDefaultAddress(address);
+    };
+
+    // Effect to trigger set default API call when address is selected
+    useEffect(() => {
+        if (settingDefaultAddress?.addressId) {
+            // Submit the update request to set preferred to true
+            void setDefaultAddressFetcher.submit({
+                ...settingDefaultAddress,
+                preferred: true,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [settingDefaultAddress]);
 
     // Handle successful address creation
     useScapiFetcherEffect(createAddressFetcher, {
         onSuccess: () => {
             addToast(t('addresses.addSuccess'), 'success');
             setEditingAddressId(null);
+            void revalidator.revalidate();
         },
         onError: (errors) => {
             const errorMessage = errors?.length > 0 ? errors.join(', ') : t('addresses.addError');
@@ -141,10 +168,25 @@ function AccountAddressesContent({
             addToast(t('addresses.updateSuccess'), 'success');
             setEditingAddressId(null);
             setUpdateAddressName('');
+            void revalidator.revalidate();
         },
         onError: (errors) => {
             const errorMessage = errors?.length > 0 ? errors.join(', ') : t('addresses.updateError');
             addToast(errorMessage, 'error');
+        },
+    });
+
+    // Handle successful set default
+    useScapiFetcherEffect(setDefaultAddressFetcher, {
+        onSuccess: () => {
+            addToast(t('addresses.setDefaultSuccess'), 'success');
+            setSettingDefaultAddress(null);
+            void revalidator.revalidate();
+        },
+        onError: (errors) => {
+            const errorMessage = errors?.length > 0 ? errors.join(', ') : t('addresses.setDefaultError');
+            addToast(errorMessage, 'error');
+            setSettingDefaultAddress(null);
         },
     });
 
@@ -154,170 +196,101 @@ function AccountAddressesContent({
             ? addresses.find((addr) => addr.addressId === editingAddressId)
             : null;
 
-    // Determine which fetcher to use based on whether we're creating or updating
-    const addressFetcher = editingAddressId === NEW_ADDRESS_ID ? createAddressFetcher : updateAddressFetcher;
-
     const hasAddresses = addresses.length > 0;
-    const isEditingAnyAddress = editingAddressId !== null;
 
     return (
         <div className="space-y-6">
             {/* Page Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                    {t('navigation.addresses')}
-                </h1>
-            </div>
-
-            {/* No Saved Addresses Empty State */}
-            {!hasAddresses && !isEditingAnyAddress && (
-                <Card className="max-w-md mx-auto">
-                    <CardContent className="p-8 text-center">
-                        <div className="space-y-6">
-                            {/* Location Icon */}
-                            <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                                <MapPin className="w-8 h-8 text-muted-foreground" />
-                            </div>
-
-                            {/* Empty State Message */}
-                            <div className="space-y-2">
-                                <Typography variant="h2" as="h2" className="text-xl font-semibold text-foreground">
-                                    {t('addresses.noSavedAddresses')}
-                                </Typography>
-                                <p className="text-muted-foreground">{t('addresses.empty')}</p>
-                            </div>
-
-                            {/* Add Address Button */}
-                            <Button onClick={handleAdd} className="w-full">
-                                {t('addresses.addAddress')}
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+            <Card className="p-6">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
+                            {t('navigation.addresses')}
+                        </h1>
+                        <p className="text-muted-foreground mt-1">{t('addresses.subtitle')}</p>
+                    </div>
+                    <Button onClick={handleAdd}>
+                        <Plus className="w-4 h-4" />
+                        {t('addresses.addNewAddress')}
+                    </Button>
+                </div>
+            </Card>
 
             {/* Addresses Content */}
             {hasAddresses && (
-                <div className="grid grid-flow-dense grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Add Address Button */}
-                    <div className="relative">
-                        <Card className="border-border gap-0 py-2 h-full flex flex-col">
-                            <div className="flex-1 flex items-center justify-center">
-                                <Button
-                                    onClick={handleAdd}
-                                    variant="link"
-                                    className="w-full h-full min-h-[200px] flex items-center justify-center gap-2 font-bold">
-                                    <svg
-                                        className="w-5 h-5 text-muted-foreground"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M12 4v16m8-8H4"
-                                        />
-                                    </svg>
-                                    <span className="text-sm font-medium">{t('addresses.addAddress')}</span>
-                                </Button>
-                            </div>
-                        </Card>
-                        {/* Indicator pointing to add address card when editing */}
-                        {editingAddressId === NEW_ADDRESS_ID && <EditIndicator />}
-                    </div>
-
-                    {/* Form for "Add Address" - spans all columns when editing */}
-                    {editingAddressId === NEW_ADDRESS_ID && (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                            <Card className="border-2 border-primary">
-                                <CardContent className="p-6">
-                                    <h3 className="text-lg font-semibold mb-4">{t('addresses.addAddress')}</h3>
-                                    <CustomerAddressForm
-                                        key={NEW_ADDRESS_ID}
-                                        initialData={undefined}
-                                        updateFetcher={addressFetcher}
-                                        onSuccess={(_formData: CustomerAddressFormData) => {
-                                            // Success is handled by useScapiFetcherEffect
-                                        }}
-                                        onError={(_error: string) => {
-                                            // Error is handled by useScapiFetcherEffect
-                                        }}
-                                        onCancel={handleCancel}
-                                    />
-                                </CardContent>
-                            </Card>
-                        </div>
-                    )}
-
+                <div className="flex flex-col gap-4">
                     {/* Existing Address Cards */}
-                    {addresses.map((address) => {
-                        const isEditing = editingAddressId === address.addressId;
-
-                        return (
-                            <Fragment key={address.addressId}>
-                                <div className="relative">
-                                    <AddressCard
-                                        address={address}
-                                        onEdit={() => handleEdit(address.addressId)}
-                                        onRemove={() => handleRemove(address.addressId)}
-                                        isPreferred={address.preferred || false}
-                                    />
-                                    {/* Indicator pointing to address card being edited */}
-                                    {isEditing && <EditIndicator />}
-                                </div>
-
-                                {/* Form for editing this address - spans all columns */}
-                                {isEditing && (
-                                    <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                                        <Card className="border-2 border-primary">
-                                            <CardContent className="p-6">
-                                                <h3 className="text-lg font-semibold mb-4">
-                                                    {t('addresses.editAddress')}
-                                                </h3>
-                                                <CustomerAddressForm
-                                                    key={address.addressId}
-                                                    initialData={{
-                                                        addressId: editingAddress?.addressId,
-                                                        firstName: editingAddress?.firstName || '',
-                                                        lastName: editingAddress?.lastName || '',
-                                                        phone: editingAddress?.phone || '',
-                                                        countryCode:
-                                                            (editingAddress?.countryCode as 'US' | 'CA') || 'US',
-                                                        address1: editingAddress?.address1 || '',
-                                                        city: editingAddress?.city || '',
-                                                        stateCode: editingAddress?.stateCode || '',
-                                                        postalCode: editingAddress?.postalCode || '',
-                                                        preferred: editingAddress?.preferred || false,
-                                                    }}
-                                                    updateFetcher={addressFetcher}
-                                                    onSuccess={(_formData: CustomerAddressFormData) => {
-                                                        // Success is handled by useScapiFetcherEffect
-                                                    }}
-                                                    onError={(_error: string) => {
-                                                        // Error is handled by useScapiFetcherEffect
-                                                    }}
-                                                    onCancel={handleCancel}
-                                                />
-                                            </CardContent>
-                                        </Card>
-                                    </div>
-                                )}
-                            </Fragment>
-                        );
-                    })}
+                    {addresses.map((address) => (
+                        <AddressCard
+                            key={address.addressId}
+                            address={address}
+                            onEdit={() => handleEdit(address.addressId)}
+                            onRemove={() => handleRemove(address)}
+                            onSetDefault={() => handleSetDefault(address)}
+                            isPreferred={address.preferred || false}
+                            isSettingDefault={settingDefaultAddress?.addressId === address.addressId}
+                        />
+                    ))}
                 </div>
             )}
 
-            {/* Show Add Address form when no addresses and editing */}
-            {!hasAddresses && isEditingAnyAddress && editingAddressId === NEW_ADDRESS_ID && (
-                <Card className="border-2 border-primary max-w-2xl mx-auto">
-                    <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold mb-4">{t('addresses.addAddress')}</h3>
+            {/* Add New Address Dialog */}
+            <Dialog
+                open={editingAddressId === NEW_ADDRESS_ID}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        handleCancel();
+                    }
+                }}>
+                <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{t('addresses.addNewAddress')}</DialogTitle>
+                    </DialogHeader>
+                    <CustomerAddressForm
+                        key={NEW_ADDRESS_ID}
+                        initialData={undefined}
+                        updateFetcher={createAddressFetcher}
+                        isFirstAddress={addresses.length === 0}
+                        onSuccess={(_formData: CustomerAddressFormData) => {
+                            // Success is handled by useScapiFetcherEffect
+                        }}
+                        onError={(_error: string) => {
+                            // Error is handled by useScapiFetcherEffect
+                        }}
+                        onCancel={handleCancel}
+                    />
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Address Dialog */}
+            <Dialog
+                open={editingAddressId !== null && editingAddressId !== NEW_ADDRESS_ID}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        handleCancel();
+                    }
+                }}>
+                <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{t('addresses.editAddress')}</DialogTitle>
+                    </DialogHeader>
+                    {editingAddress && (
                         <CustomerAddressForm
-                            key={NEW_ADDRESS_ID}
-                            initialData={undefined}
-                            updateFetcher={addressFetcher}
+                            key={editingAddress.addressId}
+                            initialData={{
+                                addressId: editingAddress.addressId,
+                                firstName: editingAddress.firstName || '',
+                                lastName: editingAddress.lastName || '',
+                                phone: editingAddress.phone || '',
+                                countryCode: (editingAddress.countryCode as 'US' | 'CA') || 'US',
+                                address1: editingAddress.address1 || '',
+                                address2: editingAddress.address2 || '',
+                                city: editingAddress.city || '',
+                                stateCode: editingAddress.stateCode || '',
+                                postalCode: editingAddress.postalCode || '',
+                                preferred: editingAddress.preferred || false,
+                            }}
+                            updateFetcher={updateAddressFetcher}
                             onSuccess={(_formData: CustomerAddressFormData) => {
                                 // Success is handled by useScapiFetcherEffect
                             }}
@@ -326,9 +299,9 @@ function AccountAddressesContent({
                             }}
                             onCancel={handleCancel}
                         />
-                    </CardContent>
-                </Card>
-            )}
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Remove Confirmation Dialog */}
             {addressToRemove && (
@@ -339,7 +312,7 @@ function AccountAddressesContent({
                             setAddressToRemove(null);
                         }
                     }}
-                    addressId={addressToRemove}
+                    address={addressToRemove}
                     customerId={customerId || ''}
                 />
             )}

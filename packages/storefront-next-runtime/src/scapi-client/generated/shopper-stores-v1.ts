@@ -75,20 +75,12 @@ export interface components {
          * @description A specialized value indicating the system default values for locales.
          * @default default
          * @example default
-         * @enum {string}
          */
-        DefaultFallback: "default";
+        DefaultFallback: string;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
         /**
          * Format: int32
-         * @description Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
-         * @default 10
-         * @example 10
-         */
-        Limit: number;
-        /**
-         * Format: int64
          * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
          * @default 0
          * @example 10
@@ -99,7 +91,12 @@ export interface components {
          *     Additionally it needs to be defined what data is returned.
          */
         ResultBase: {
-            limit: components["schemas"]["Limit"];
+            /**
+             * Format: int32
+             * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+             * @example 10
+             */
+            limit: number;
             total: components["schemas"]["Total"];
         };
         /**
@@ -212,7 +209,7 @@ export interface components {
             [key: string]: unknown;
         };
         /**
-         * Format: int64
+         * Format: int32
          * @description The zero-based index of the first hit/data to include in the result.
          * @default 0
          * @example 0

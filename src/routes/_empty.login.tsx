@@ -84,8 +84,8 @@ export function loader({ request, context }: LoaderFunctionArgs) {
     // Get runtime config to determine if passwordless login is enabled
     const config = getConfig(context);
     const isSlasPrivate = config.commerce.api.privateKeyEnabled;
-    const isPasswordlessLoginEnabled = config.site.features.passwordlessLogin.enabled && isSlasPrivate;
-    const isSocialLoginEnabled = Boolean(config.site.features.socialLogin?.enabled);
+    const isPasswordlessLoginEnabled = config.features.passwordlessLogin.enabled && isSlasPrivate;
+    const isSocialLoginEnabled = Boolean(config.features.socialLogin?.enabled);
     const mode = url.searchParams.get('mode') || (isPasswordlessLoginEnabled ? 'passwordless' : 'password');
 
     return {
@@ -120,14 +120,14 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
         const loginMode = formData.get('loginMode')?.toString();
         const provider = formData.get('provider')?.toString();
         const redirectPath = formData.get('redirectPath')?.toString();
-        const isSocialLoginEnabled = Boolean(config.site.features.socialLogin?.enabled);
+        const isSocialLoginEnabled = Boolean(config.features.socialLogin?.enabled);
 
         if (loginMode === 'social') {
             // Social login flow
             if (!provider || !isSocialLoginEnabled) {
                 return { error: genericError };
             }
-            const socialCallback = config.site.features.socialLogin.callbackUri;
+            const socialCallback = config.features.socialLogin.callbackUri;
             const socialLoginRedirectURI = isAbsoluteURL(socialCallback)
                 ? socialCallback
                 : `${getAppOrigin()}${socialCallback}`;

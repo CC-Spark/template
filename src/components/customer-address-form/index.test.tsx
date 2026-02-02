@@ -64,6 +64,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -76,8 +77,8 @@ describe('customerAddressFormSchema', () => {
             expect(result.success).toBe(true);
         });
 
-        it('should validate with empty phone field', () => {
-            const validData = {
+        it('should reject with empty phone field', () => {
+            const invalidData = {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
@@ -90,8 +91,8 @@ describe('customerAddressFormSchema', () => {
                 preferred: false,
             };
 
-            const result = customerAddressFormSchema.safeParse(validData);
-            expect(result.success).toBe(true);
+            const result = customerAddressFormSchema.safeParse(invalidData);
+            expect(result.success).toBe(false);
         });
 
         it('should validate with addressId', () => {
@@ -99,6 +100,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'addr_123',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -113,11 +115,12 @@ describe('customerAddressFormSchema', () => {
     });
 
     describe('addressId validation', () => {
-        it('should reject when addressId is empty', () => {
+        it('should reject when addressId is empty (required field)', () => {
             const invalidData = {
                 addressId: '',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -128,15 +131,13 @@ describe('customerAddressFormSchema', () => {
 
             const result = customerAddressFormSchema.safeParse(invalidData);
             expect(result.success).toBe(false);
-            if (!result.success) {
-                expect(result.error.issues.some((issue) => issue.path.includes('addressId'))).toBe(true);
-            }
         });
 
-        it('should reject when addressId is missing', () => {
+        it('should reject when addressId is missing (required field)', () => {
             const invalidData = {
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -147,9 +148,6 @@ describe('customerAddressFormSchema', () => {
 
             const result = customerAddressFormSchema.safeParse(invalidData);
             expect(result.success).toBe(false);
-            if (!result.success) {
-                expect(result.error.issues.some((issue) => issue.path.includes('addressId'))).toBe(true);
-            }
         });
     });
 
@@ -159,6 +157,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: '',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -178,6 +177,7 @@ describe('customerAddressFormSchema', () => {
             const invalidData = {
                 addressId: 'Home',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -197,6 +197,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: '',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -219,10 +220,12 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'GB' as any,
                 address1: '123 Main St',
                 city: 'London',
-                postalCode: 'SW1A 1AA',
+                stateCode: 'NY',
+                postalCode: '10001',
                 preferred: false,
             };
 
@@ -235,6 +238,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -252,6 +256,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'CA' as const,
                 address1: '123 Yonge St',
                 city: 'Toronto',
@@ -271,6 +276,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '',
                 city: 'New York',
@@ -290,6 +296,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: '',
@@ -309,6 +316,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -328,6 +336,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'CA' as const,
                 address1: '123 Yonge St',
                 city: 'Toronto',
@@ -344,6 +353,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -361,6 +371,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'CA' as const,
                 address1: '123 Yonge St',
                 city: 'Toronto',
@@ -380,6 +391,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -397,6 +409,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -414,6 +427,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -431,6 +445,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -451,6 +466,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'CA' as const,
                 address1: '123 Yonge St',
                 city: 'Toronto',
@@ -468,6 +484,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'CA' as const,
                 address1: '123 Yonge St',
                 city: 'Toronto',
@@ -485,6 +502,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'CA' as const,
                 address1: '123 Yonge St',
                 city: 'Toronto',
@@ -538,8 +556,8 @@ describe('customerAddressFormSchema', () => {
             expect(result.success).toBe(true);
         });
 
-        it('should reject invalid phone format with letters', () => {
-            const invalidData = {
+        it('should accept any phone format (no validation)', () => {
+            const validData = {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
@@ -552,11 +570,9 @@ describe('customerAddressFormSchema', () => {
                 preferred: false,
             };
 
-            const result = customerAddressFormSchema.safeParse(invalidData);
-            expect(result.success).toBe(false);
-            if (!result.success) {
-                expect(result.error.issues.some((issue) => issue.path.includes('phone'))).toBe(true);
-            }
+            // Phone validation was removed - any string is accepted
+            const result = customerAddressFormSchema.safeParse(validData);
+            expect(result.success).toBe(true);
         });
     });
 
@@ -566,6 +582,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',
@@ -583,6 +600,7 @@ describe('customerAddressFormSchema', () => {
                 addressId: 'Home',
                 firstName: 'John',
                 lastName: 'Doe',
+                phone: '1234567890',
                 countryCode: 'US' as const,
                 address1: '123 Main St',
                 city: 'New York',

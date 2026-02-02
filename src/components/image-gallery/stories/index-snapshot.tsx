@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { vi, expect, test, describe, afterEach } from 'vitest';
+import type { IndexRouteProps } from 'react-router';
 
 vi.mock('react-router', () => ({
     createContext: vi.fn().mockImplementation(() => ({})),
@@ -42,7 +43,9 @@ vi.mock('react-router', () => ({
         );
     },
     createMemoryRouter: vi.fn(),
-    RouterProvider: ({ router }: { router: { routes: unknown[] } }) => <div>{router.routes[0]?.element || null}</div>,
+    RouterProvider: ({ router }: { router: { routes: IndexRouteProps[] } }) => (
+        <div>{router.routes[0]?.element || null}</div>
+    ),
 }));
 
 import { composeStories } from '@storybook/react-vite';

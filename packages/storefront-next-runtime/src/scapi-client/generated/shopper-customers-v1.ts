@@ -219,7 +219,8 @@ export interface paths {
         delete: operations["deleteCustomerPaymentInstrument"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update a customer's payment instrument. This endpoint only accepts a registered customer ShopperToken (JWT). */
+        patch: operations["updateCustomerPaymentInstrument"];
         trace?: never;
     };
     "/organizations/{organizationId}/customers/{customerId}/product-lists": {
@@ -347,6 +348,26 @@ export interface paths {
         };
         /** Retrieve a public product list by ID and the items under that product list. This endpoint accepts a registered customer ShopperToken (JWT) or a guest customer ShopperToken. */
         get: operations["getPublicProductList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/product-lists/{listId}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve all items of a public product list.
+         * @description The possible expansions are product, images, and availability. For images and availability, the product must be expanded as well. This endpoint accepts a registered customer ShopperToken (JWT) or a guest customer ShopperToken.
+         */
+        get: operations["getPublicProductListItems"];
         put?: never;
         post?: never;
         delete?: never;
@@ -606,6 +627,29 @@ export interface components {
              */
             default?: boolean;
         };
+        CustomerPaymentMethodReference: {
+            /**
+             * @description The payment method type. It is read only.
+             * @example card
+             * @enum {string}
+             */
+            type?: "card" | "sepa_debit";
+            /**
+             * @description The gateway ID for the payment method. It is read only.
+             * @example pm_1234567890
+             */
+            id?: string;
+            /**
+             * @description The last four digits of the payment method number. It is read only.
+             * @example 4242
+             */
+            last4?: string;
+            /**
+             * @description Account identifier
+             * @example acct_1RegszI5I22eU0I3
+             */
+            accountId?: string;
+        };
         /** @description Person or entity who shops on Commerce Cloud storefronts by creating a shopper account in Commerce Cloud. */
         Customer: {
             /** @description The customer's addresses. */
@@ -715,6 +759,8 @@ export interface components {
             note?: string;
             /** @description The customer's payment instruments. */
             paymentInstruments?: components["schemas"]["CustomerPaymentInstrument"][];
+            /** @description Payment method reference information for Salesforce Payments. */
+            paymentMethodReferences?: components["schemas"]["CustomerPaymentMethodReference"][];
             /**
              * @description The customer's business phone number.
              * @example 555-555-5555
@@ -1087,22 +1133,10 @@ export interface components {
             [key: string]: unknown;
         };
         /**
-         * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-         * @example USD
-         */
-        ISOCurrency: string;
-        /**
-         * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-         * @default N/A
-         * @example N/A
-         * @enum {string}
-         */
-        NoValue: "N/A";
-        /**
          * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
          * @example USD
          */
-        CurrencyCode: components["schemas"]["ISOCurrency"] | components["schemas"]["NoValue"];
+        CurrencyCode: string;
         /** @description The customer information for guest or logged-in customers. */
         CustomerInfo: {
             /**
@@ -1330,6 +1364,52 @@ export interface components {
              * @example CREDIT_CARD
              */
             paymentMethodId?: string;
+            /** @description Payment reference information for various payment service providers, only when Salesforce Payments is enabled. */
+            paymentReference?: {
+                /**
+                 * @description Payment reference identifier. Can be payment intent ID for Stripe, PSP reference for Adyen, PayPal order ID for PayPal, or similar identifier for other payment providers.
+                 * @example pi_3N4B2vF0wDjebNCp1234567
+                 */
+                paymentReferenceId?: string;
+                /**
+                 * Format: uri
+                 * @description Redirect URL for payment methods that require user redirection to complete payment.
+                 * @example https://checkout.stripe.com/pay/cs_test_abc123
+                 */
+                redirectUrl?: string;
+                /**
+                 * @description The payment gateway used to process the payment.
+                 * @example stripe
+                 * @enum {string}
+                 */
+                gateway?: "stripe" | "paypal" | "adyen";
+                /** @description The payment gateway specific properties. */
+                gatewayProperties?: {
+                    /**
+                     * @description # Stripe specific properties.
+                     *
+                     *     - setupFutureUsage: Indicates that you intend to make future payments with this payment method.
+                     *       - **on_session**: The payment method is intended to be used for a future payment on the same website session.
+                     *       - **off_session**: The payment method is intended to be used for a future payment on a different website session.
+                     *      - **null**: The payment method is not intended to be used for a future payment.
+                     *     - clientSecret: Secret for Stripe client-side payment confirmation. Don't store, log, or expose the client secret to anyone other than the customer, and only use it on pages where TLS is enabled.
+                     *       - type: string
+                     *       - maxLength: 256
+                     *       - example: "pi_1J4K5L2eZvKYlo2CyZ8K5L6M_secret_abc123"
+                     */
+                    stripe?: {
+                        [key: string]: unknown;
+                    };
+                    /** @description # PayPal specific properties. */
+                    paypal?: {
+                        [key: string]: unknown;
+                    };
+                    /** @description # Adyen specific properties. */
+                    adyen?: {
+                        [key: string]: unknown;
+                    };
+                };
+            };
         };
         /** @description Document representing a product item. */
         ProductItem: {
@@ -1447,6 +1527,8 @@ export interface components {
              * @example 006490dcc338feeafc71c964bf
              */
             shippingItemId?: string;
+            /** @description Information retrieved from Order Management (OMS) for the product. Only available in context of an order. */
+            omsData?: components["schemas"]["OmsProductData"];
             /**
              * Format: double
              * @description The tax for the product item, not including price adjustments. It is read only.
@@ -1673,6 +1755,25 @@ export interface components {
              * @enum {string}
              */
             type?: "product" | "gift_certificate";
+        };
+        /**
+         * @description Additional information retrieved from Order Management (OMS)
+         *     See https://developer.salesforce.com/docs/atlas.en-us.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_orderitemsummary.htm for more information.
+         *     Only available in context of an order.
+         */
+        OmsProductData: {
+            /**
+             * @description Order Management (OMS) status
+             * @example ordered
+             * @enum {string}
+             */
+            status?: "ordered" | "returned" | "canceled" | "paid" | "reshipped" | "fulfilled" | "partially_fulfilled" | "allocated" | "partially_allocated" | "return_initiated";
+            /**
+             * Format: double
+             * @description The quantity that can be cancelled.
+             * @example 2
+             */
+            quantityAvailableToCancel?: number;
         };
         /**
          * @description The identifier of the shipment
@@ -2064,13 +2165,6 @@ export interface components {
         };
         /**
          * Format: int32
-         * @description Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
-         * @default 10
-         * @example 10
-         */
-        Limit: number;
-        /**
-         * Format: int64
          * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
          * @default 0
          * @example 10
@@ -2081,11 +2175,16 @@ export interface components {
          *     Additionally it needs to be defined what data is returned.
          */
         ResultBase: {
-            limit: components["schemas"]["Limit"];
+            /**
+             * Format: int32
+             * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+             * @example 10
+             */
+            limit: number;
             total: components["schemas"]["Total"];
         };
         /**
-         * Format: int64
+         * Format: int32
          * @description The zero-based index of the first hit/data to include in the result.
          * @default 0
          * @example 0
@@ -2103,6 +2202,80 @@ export interface components {
          * @example 00000410
          */
         OrderNo: string;
+        /** @description Individual item within a shipment */
+        OmsShipmentItem: {
+            /**
+             * @description Unique identifier for the shipment item
+             * @example 0OBVF000006603F4AQ
+             */
+            id?: string;
+            /**
+             * @description Reference to the product item in the order
+             * @example 10uVF0000002fGnYAI
+             */
+            productItemId?: string;
+            /**
+             * Format: double
+             * @description Quantity of product items with the referenced productItemId in this shipment
+             * @example 2
+             */
+            quantity?: number;
+        };
+        /** @description Shipment information from Salesforce Order Management created during fulfillment process. See https://developer.salesforce.com/docs/atlas.en-us.230.0.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_fulfillmentorder.htm for more information. */
+        OmsShipment: {
+            /**
+             * @description Unique identifier for the shipment
+             * @example 0OBVF000000003F4AQ
+             */
+            id?: string;
+            /**
+             * @description Current status of the shipment
+             * @example shipped
+             */
+            status?: string;
+            /**
+             * @description Shipping provider name
+             * @example UPS
+             */
+            provider?: string;
+            /**
+             * @description Tracking number for the shipment
+             * @example 123456789
+             */
+            trackingNumber?: string;
+            /**
+             * @description URL to track the shipment
+             * @example https://www.ups.com/track?loc=en_US&tracknum=123456789
+             */
+            trackingUrl?: string;
+            /**
+             * Format: date-time
+             * @description Expected delivery date and time
+             * @example 2025-11-12T20:00:00.000+0000
+             */
+            expectedDeliveryDate?: string;
+            /**
+             * Format: date-time
+             * @description Actual delivery date and time (null if not yet delivered)
+             * @example 2025-11-12T20:00:00.000+0000
+             */
+            actualDeliveryDate?: string;
+            /** @description Items included in this shipment */
+            shipmentItems?: components["schemas"]["OmsShipmentItem"][];
+        };
+        /**
+         * @description Additional information retrieved from Order Management (OMS)
+         *     See https://developer.salesforce.com/docs/atlas.en-us.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_ordersummary.htm for more information.
+         */
+        OmsData: {
+            /**
+             * @description Current status of the order
+             * @example shipped
+             */
+            status?: string;
+            /** @description List of shipments associated with the order */
+            shipments?: components["schemas"]["OmsShipment"][];
+        };
         /** @description Document representing an order. */
         Order: {
             /**
@@ -2272,6 +2445,8 @@ export interface components {
              * @example ShoppingSite
              */
             siteId?: components["schemas"]["SiteId"];
+            /** @description Information retrieved from Order Management (OMS) for the order. */
+            omsData?: components["schemas"]["OmsData"];
             /**
              * @description The source code assigned to the basket from which this order was created. It is read only.
              * @example OUTDOOR1
@@ -2426,6 +2601,29 @@ export interface components {
              * @example true
              */
             default?: boolean;
+        };
+        /** @description Document representing a customer payment instrument update request. Only allows updating the default flag and card expiration date. */
+        CustomerPaymentInstrumentUpdateRequest: {
+            /**
+             * @description The default payment instrument.
+             * @example true
+             */
+            default?: boolean;
+            /** @description The payment card expiration information. */
+            paymentCard?: {
+                /**
+                 * Format: int32
+                 * @description The month when the payment card expires.
+                 * @example 12
+                 */
+                expirationMonth?: number;
+                /**
+                 * Format: int32
+                 * @description The year when the payment card expires.
+                 * @example 2028
+                 */
+                expirationYear?: number;
+            };
         };
         /** @description Document representing a customer product list registrant. */
         CustomerProductListRegistrant: {
@@ -2651,6 +2849,11 @@ export interface components {
             variationValues?: {
                 [key: string]: string;
             };
+            /**
+             * @description The array of applicable shipping methods for this product. This array can be empty.
+             *     This property is only returned in context of the 'shipping_methods' expansion.
+             */
+            shippingMethods?: components["schemas"]["ShippingMethod"][];
         } & {
             [key: string]: unknown;
         };
@@ -3353,6 +3556,11 @@ export interface components {
              */
             type: "wish_list" | "gift_registry" | "shopping_list" | "custom_1" | "custom_2" | "custom_3";
         };
+        /** @description Results containing an array of public product list items. */
+        PublicProductListItemResult: components["schemas"]["ResultBase"] & {
+            /** @description The array of public product list items. */
+            data?: components["schemas"]["PublicProductListItem"][];
+        };
     };
     responses: never;
     parameters: {
@@ -3369,6 +3577,14 @@ export interface components {
         authenticationProviderId: string;
         /** @description The customer ID. */
         customerId: string;
+        /**
+         * @description Expands the response with additional customer data.
+         *     - addresses (Default)
+         *     - paymentinstruments (Default)
+         *     - paymentmethodreferences (Requires Salesforce Payments integration; ignored otherwise)
+         *     - none (Excludes all expansion data)
+         */
+        expandCustomer: ("none" | "addresses" | "paymentinstruments" | "paymentmethodreferences")[];
         /** @description The name of the address to update. */
         addressName: string;
         /** @description The flag indicating whether all sites should be searched. This flag is ignored unless a valid User / Agent is present with a trusted agent on behalf (TAOB) token. Without a TAOB token, only the customer's orders placed on the site specified by siteId are returned. */
@@ -3376,6 +3592,12 @@ export interface components {
         from: string;
         until: string;
         status: string;
+        /**
+         * @description This parameter enhances the order result with extra data. By using `expand=som`, all orders for the current customer are loaded
+         *     directly from Salesforce Order Management (SOM). The system returns the retrieved SOM order data, along with any orders not yet
+         *     transferred to SOM. If your instance is not integrated with SOM, the `expand=som` command is disregarded.
+         */
+        expandCustomersOrders: "oms";
         /** @description The ID of the payment instrument to be retrievedCustomer. */
         paymentInstrumentId: string;
         /** @description The ID of the list. */
@@ -3384,10 +3606,12 @@ export interface components {
         itemId: string;
         /** @description The email address of the customer the product lists belong to. */
         email: string;
-        /** @description The first name of the customer the product lists belong to. */
+        /** @description The first name of the customer the product lists belong to. This field is case sensitive and must be an exact match. */
         firstName: string;
-        /** @description The last name of the customer the product lists belong to. */
+        /** @description The last name of the customer the product lists belong to. This field is case sensitive and must be an exact match. */
         lastName: string;
+        /** @description Expand product details. Valid values are 'product', 'images', 'availability'. For images and availability, the product must also be expanded. */
+        expandProductListsItems: ("product" | "images" | "availability")[];
     };
     requestBodies: never;
     headers: never;
@@ -3635,6 +3859,14 @@ export interface operations {
             query: {
                 /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
                 siteId: components["parameters"]["siteId"];
+                /**
+                 * @description Expands the response with additional customer data.
+                 *     - addresses (Default)
+                 *     - paymentinstruments (Default)
+                 *     - paymentmethodreferences (Requires Salesforce Payments integration; ignored otherwise)
+                 *     - none (Excludes all expansion data)
+                 */
+                expand?: components["parameters"]["expandCustomer"];
             };
             header?: never;
             path: {
@@ -3997,6 +4229,12 @@ export interface operations {
                 from?: components["parameters"]["from"];
                 until?: components["parameters"]["until"];
                 status?: components["parameters"]["status"];
+                /**
+                 * @description This parameter enhances the order result with extra data. By using `expand=som`, all orders for the current customer are loaded
+                 *     directly from Salesforce Order Management (SOM). The system returns the retrieved SOM order data, along with any orders not yet
+                 *     transferred to SOM. If your instance is not integrated with SOM, the `expand=som` command is disregarded.
+                 */
+                expand?: components["parameters"]["expandCustomersOrders"];
                 /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
                 siteId: components["parameters"]["siteId"];
                 /** @description Maximum records to retrieve per request, not to exceed 50. Defaults to 10. */
@@ -4232,6 +4470,61 @@ export interface operations {
                 content?: never;
             };
             /** @description CustomerId URL parameter does not match the verified customer represented by the JWT token. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Requested resource not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateCustomerPaymentInstrument: {
+        parameters: {
+            query: {
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+            };
+            header?: never;
+            path: {
+                /** @description The ID of the payment instrument to be retrievedCustomer. */
+                paymentInstrumentId: components["parameters"]["paymentInstrumentId"];
+                /** @description The customer ID. */
+                customerId: components["parameters"]["customerId"];
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerPaymentInstrumentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerPaymentInstrument"];
+                };
+            };
+            /** @description Either the CustomerId URL parameter does not match the verified customer represented by the JWT token, or the request contains unsupported fields for update. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4711,9 +5004,9 @@ export interface operations {
             query: {
                 /** @description The email address of the customer the product lists belong to. */
                 email?: components["parameters"]["email"];
-                /** @description The first name of the customer the product lists belong to. */
+                /** @description The first name of the customer the product lists belong to. This field is case sensitive and must be an exact match. */
                 firstName?: components["parameters"]["firstName"];
-                /** @description The last name of the customer the product lists belong to. */
+                /** @description The last name of the customer the product lists belong to. This field is case sensitive and must be an exact match. */
                 lastName?: components["parameters"]["lastName"];
                 /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
                 siteId: components["parameters"]["siteId"];
@@ -4816,6 +5109,57 @@ export interface operations {
                 };
             };
             /** @description Requested resource not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPublicProductListItems: {
+        parameters: {
+            query: {
+                /** @description Expand product details. Valid values are 'product', 'images', 'availability'. For images and availability, the product must also be expanded. */
+                expand?: components["parameters"]["expandProductListsItems"];
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+            };
+            header?: never;
+            path: {
+                /** @description The ID of the list. */
+                listId: components["parameters"]["listId"];
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProductListItemResult"];
+                };
+            };
+            /** @description Invalid request parameters */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The specified product list was not found or is not public. */
             404: {
                 headers: {
                     [name: string]: unknown;

@@ -37,7 +37,7 @@ async function sendResetPasswordEmail(
     const base = getAppOrigin();
 
     const config = getConfig(context);
-    const landingPath = config.site.features.resetPassword.landingUri;
+    const landingPath = config.features.resetPassword.landingUri;
     const magicLink = `${base}${landingPath}?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email_id)}`;
 
     const templateId = process.env.MARKETING_CLOUD_PASSWORDLESS_LOGIN_TEMPLATE;

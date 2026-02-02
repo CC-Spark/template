@@ -23,3 +23,5 @@ export const DELIVERY_OPTIONS = {
 export type DeliveryOption = (typeof DELIVERY_OPTIONS)[keyof typeof DELIVERY_OPTIONS];
 
 export const PICKUP_SHIPPING_METHOD_ID = '005';
+
+export const PICKUP_SHIPMENT_ID = 'pickup';

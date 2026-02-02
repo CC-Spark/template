@@ -74,8 +74,6 @@ export function loader(args: LoaderFunctionArgs): HomePageData {
         pageId: 'homepage',
     });
 
-    const componentDataPromises = collectComponentDataPromises(args, pagePromise);
-
     return {
         page: pagePromise,
         searchResult: fetchSearchProducts(args.context, {
@@ -84,7 +82,7 @@ export function loader(args: LoaderFunctionArgs): HomePageData {
             currency: currency ?? undefined,
         }),
         categories: fetchCategories(args.context, 'root', 1),
-        componentData: componentDataPromises,
+        componentData: collectComponentDataPromises(args, pagePromise),
     };
 }
 
@@ -129,38 +127,36 @@ export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
     return (
         <div className="pb-16 -mt-8">
             {/* Header Banner Region - Region component handles its own Suspense internally */}
-            <div className="py-8">
-                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <Region
-                        page={loaderData.page}
-                        regionId="headerbanner"
-                        componentData={loaderData.componentData}
-                        fallbackElement={
-                            <>
-                                {/* Provide fallback skeletons for the above the fold content */}
-                                <HeroCarouselSkeleton showDots={true} showNavigation={true} />
-                                <ProductCarouselSkeleton title={t('featuredProducts.title')} />
-                            </>
-                        }
-                        errorElement={
-                            <>
-                                <HeroCarousel
-                                    slides={heroSlides}
-                                    autoPlay={true}
-                                    autoPlayInterval={6000}
-                                    showNavigation={true}
-                                    showDots={true}
-                                />
+            <div>
+                <Region
+                    page={loaderData.page}
+                    regionId="headerbanner"
+                    componentData={loaderData.componentData}
+                    fallbackElement={
+                        <>
+                            {/* Provide fallback skeletons for the above the fold content */}
+                            <HeroCarouselSkeleton showDots={true} showNavigation={true} />
+                            <ProductCarouselSkeleton title={t('featuredProducts.title')} />
+                        </>
+                    }
+                    errorElement={
+                        <>
+                            <HeroCarousel
+                                slides={heroSlides}
+                                autoPlay={true}
+                                autoPlayInterval={6000}
+                                showNavigation={true}
+                                showDots={true}
+                            />
 
-                                {/* Featured Products - ProductCarouselWithSuspense handles its own Suspense */}
-                                <ProductCarouselWithSuspense
-                                    resolve={loaderData.searchResult}
-                                    title={t('featuredProducts.title')}
-                                />
-                            </>
-                        }
-                    />
-                </div>
+                            {/* Featured Products - ProductCarouselWithSuspense handles its own Suspense */}
+                            <ProductCarouselWithSuspense
+                                resolve={loaderData.searchResult}
+                                title={t('featuredProducts.title')}
+                            />
+                        </>
+                    }
+                />
             </div>
 
             {/* New Arrivals - Static content, no Suspense needed */}

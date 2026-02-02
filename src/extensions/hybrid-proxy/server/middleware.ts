@@ -25,7 +25,7 @@ export function createHybridProxyMiddleware(siteId: string, locale: string): Req
     const hybridPrefix = getRewritePrefix ? getRewritePrefix(siteId, locale) : `/s/${siteId}/${locale}`;
 
     if (!enabled || !sfccOrigin) {
-        return (req, res, next) => next();
+        return (_req, _res, next) => next();
     }
 
     const proxy = createProxyMiddleware({

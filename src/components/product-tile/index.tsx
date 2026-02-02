@@ -289,7 +289,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                                 PRODUCT_TILE_SELECTABLE_ATTRIBUTE_ID === 'color' ? selectedAttributeValue : null
                             }
                             imgAspectRatio={effectiveImgAspectRatio}
-                            className="w-full aspect-square [&_img]:!object-contain [&_img]:!h-full [&_img]:!max-w-full [&_img]:!mx-auto"
+                            className="w-full aspect-square [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
                             handleProductClick={handleProductClick}
                         />
                     </div>

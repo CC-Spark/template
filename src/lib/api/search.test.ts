@@ -231,8 +231,8 @@ describe('', () => {
             const mockContext = createTestContext({
                 currency: 'EUR',
                 appConfig: {
-                    site: {
-                        currency: 'EUR',
+                    commerce: {
+                        defaultCurrency: 'EUR',
                     },
                 } as never,
             });
@@ -264,8 +264,12 @@ describe('', () => {
         it('should build refine from categoryId and filters (and not include duplicates)', async () => {
             const mockContext = createTestContext({
                 appConfig: {
-                    site: {
-                        currency: 'USD',
+                    commerce: {
+                        sites: [
+                            {
+                                defaultCurrency: 'USD',
+                            },
+                        ],
                     },
                 } as never,
             });
@@ -319,8 +323,12 @@ describe('', () => {
             const mockContext = createTestContext({
                 currency: 'JPY',
                 appConfig: {
-                    site: {
-                        currency: 'EUR',
+                    commerce: {
+                        sites: [
+                            {
+                                defaultCurrency: 'EUR',
+                            },
+                        ],
                     },
                 } as never,
             });

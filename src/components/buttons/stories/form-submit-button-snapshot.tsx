@@ -57,7 +57,7 @@ vi.mock('react-router', () => ({
     },
 }));
 vi.mock('react-router-dom', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<object>();
     return {
         ...actual,
         useFetcher: () => fetcherMock,

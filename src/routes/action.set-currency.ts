@@ -36,9 +36,10 @@ export const action: ActionFunction = async ({ request, context }) => {
     }
 
     const config = getConfig(context);
-
+    // this will change when multi site implementation starts, for now we use first site in the list
+    const currentSite = config.commerce.sites[0];
     // Validate currency
-    if (!config.site.supportedCurrencies.includes(currency)) {
+    if (!currentSite.supportedCurrencies.includes(currency)) {
         throw new Response(`Currency "${currency}" is not supported`, { status: 400 });
     }
 

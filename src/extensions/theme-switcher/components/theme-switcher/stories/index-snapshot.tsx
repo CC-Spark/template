@@ -41,8 +41,8 @@ vi.mock('react-router', () => ({
         );
     },
     createMemoryRouter: vi.fn(),
-    RouterProvider: ({ router }: { router: { routes: Array<{ element?: unknown }> } }) => (
-        <div>{router.routes[0]?.element || null}</div>
+    RouterProvider: ({ router }: { router: { routes: Array<{ element?: React.ReactNode }> } }) => (
+        <div>{router.routes[0]?.element ?? null}</div>
     ),
 }));
 

@@ -31,7 +31,9 @@ import { prepareForLocalDev } from './utils/local-dev-setup';
 const DEFAULT_STOREFRONT = 'sfcc-storefront';
 const STOREFRONT_NEXT_GITHUB_URL = 'https://github.com/SalesforceCommerceCloud/storefront-next-template';
 
-export const createStorefront = async (options: { verbose?: boolean; localPackagesDir?: string } = {}) => {
+export const createStorefront = async (
+    options: { verbose?: boolean; localPackagesDir?: string; name?: string; template?: string } = {}
+) => {
     // Check if git is available before proceeding
     try {
         execSync('git --version', { stdio: 'ignore' });
@@ -39,40 +41,56 @@ export const createStorefront = async (options: { verbose?: boolean; localPackag
         error(`❌ git isn't installed or found in your PATH. Install git before running this command: ${String(e)}`);
         process.exit(1);
     }
-    const { storefront } = await prompts({
-        type: 'text',
-        name: 'storefront',
-        message: '🏪 What would you like to name your storefront?\n',
-        initial: DEFAULT_STOREFRONT,
-    });
+
+    // Use provided name or prompt for it
+    let storefront = options.name;
+    if (!storefront) {
+        const response = await prompts({
+            type: 'text',
+            name: 'storefront',
+            message: '🏪 What would you like to name your storefront?\n',
+            initial: DEFAULT_STOREFRONT,
+        });
+        storefront = response.storefront;
+    }
     if (!storefront) {
         error('Storefront name is required.');
         process.exit(1);
     }
     // eslint-disable-next-line no-console
     console.log('\n');
-    let { template } = await prompts({
-        type: 'select',
-        name: 'template',
-        message: '📄 Which template would you like to use for your storefront?\n',
-        choices: [
-            { title: 'Salesforce B2C Commerce Retail Storefront', value: STOREFRONT_NEXT_GITHUB_URL },
-            { title: 'A different template (I will provide the Github URL)', value: 'custom' },
-        ],
-    });
-    // eslint-disable-next-line no-console
-    console.log('\n');
-    if (template === 'custom') {
-        const { githubUrl } = await prompts({
-            type: 'text',
-            name: 'githubUrl',
-            message: '🌐 What is the Github URL for your template?\n',
+
+    // Use provided template or prompt for it
+    let template = options.template;
+    if (!template) {
+        const response = await prompts({
+            type: 'select',
+            name: 'template',
+            message: '📄 Which template would you like to use for your storefront?\n',
+            choices: [
+                { title: 'Salesforce B2C Commerce Retail Storefront', value: STOREFRONT_NEXT_GITHUB_URL },
+                { title: 'A different template (I will provide the Github URL)', value: 'custom' },
+            ],
         });
-        if (!githubUrl) {
-            error('Github URL is required.');
-            process.exit(1);
+        template = response.template;
+        // eslint-disable-next-line no-console
+        console.log('\n');
+        if (template === 'custom') {
+            const { githubUrl } = await prompts({
+                type: 'text',
+                name: 'githubUrl',
+                message: '🌐 What is the Github URL for your template?\n',
+            });
+            if (!githubUrl) {
+                error('Github URL is required.');
+                process.exit(1);
+            }
+            template = githubUrl;
         }
-        template = githubUrl;
+    }
+    if (!template) {
+        error('Template is required.');
+        process.exit(1);
     }
     // Clone the template based on the template URL and storefront name
     // Use --depth 1 for shallow clone since we delete .git anyway - much faster!

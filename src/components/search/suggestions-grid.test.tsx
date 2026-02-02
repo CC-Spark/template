@@ -83,7 +83,7 @@ describe('SearchSuggestionsPopup Component', () => {
         const images = container.querySelectorAll('img');
         expect(images).toHaveLength(3); // Only 3 products have images
 
-        expect(images[0]).toHaveAttribute('src', 'https://example.com/iphone15.jpg[?sw={width}&q=60]');
+        expect(images[0]).toHaveAttribute('src', 'https://example.com/iphone15.jpg[?sw={width}]');
         // Decorative images have empty alt text to avoid redundant-alt a11y violation
         expect(images[0]).toHaveAttribute('alt', '');
         expect(images[0]).toHaveAttribute('aria-hidden', 'true');

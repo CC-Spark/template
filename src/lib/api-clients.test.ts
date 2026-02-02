@@ -43,14 +43,16 @@ vi.mock('@/config', async (importOriginal) => {
                     siteId: 'test-site-id',
                     callback: '/callback',
                 },
-            },
-            site: {
-                currency: 'USD',
-                supportedLocales: [
-                    { id: 'en-US', preferredCurrency: 'USD' },
-                    { id: 'es-MX', preferredCurrency: 'MXN' },
+                sites: [
+                    {
+                        defaultCurrency: 'USD',
+                        supportedLocales: [
+                            { id: 'en-US', preferredCurrency: 'USD' },
+                            { id: 'es-MX', preferredCurrency: 'MXN' },
+                        ],
+                        supportedCurrencies: ['USD', 'MXN'],
+                    },
                 ],
-                supportedCurrencies: ['USD', 'MXN'],
             },
         })),
     };
@@ -113,14 +115,16 @@ describe('createApiClients', () => {
                     siteId: 'test-site-id',
                     callback: '/callback',
                 },
-            },
-            site: {
-                currency: 'USD',
-                supportedLocales: [
-                    { id: 'en-US', preferredCurrency: 'USD' },
-                    { id: 'es-MX', preferredCurrency: 'MXN' },
+                sites: [
+                    {
+                        defaultCurrency: 'USD',
+                        supportedLocales: [
+                            { id: 'en-US', preferredCurrency: 'USD' },
+                            { id: 'es-MX', preferredCurrency: 'MXN' },
+                        ],
+                        supportedCurrencies: ['USD', 'MXN'],
+                    },
                 ],
-                supportedCurrencies: ['USD', 'MXN'],
             },
         });
         mockCreateCommerceApiClients.mockReturnValue(mockClients);
@@ -186,11 +190,13 @@ describe('createApiClients', () => {
                             shortCode: 'kv7kzm78',
                             proxy: '/custom/api/path',
                         },
-                    },
-                    site: {
-                        currency: 'USD',
-                        supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
-                        supportedCurrencies: ['USD'],
+                        sites: [
+                            {
+                                defaultCurrency: 'USD',
+                                supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                                supportedCurrencies: ['USD'],
+                            },
+                        ],
                     },
                 });
 
@@ -210,11 +216,13 @@ describe('createApiClients', () => {
                             shortCode: 'kv7kzm78',
                             proxy: '',
                         },
-                    },
-                    site: {
-                        currency: 'USD',
-                        supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
-                        supportedCurrencies: ['USD'],
+                        sites: [
+                            {
+                                defaultCurrency: 'USD',
+                                supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                                supportedCurrencies: ['USD'],
+                            },
+                        ],
                     },
                 });
 
@@ -255,11 +263,13 @@ describe('createApiClients', () => {
                                 shortCode: 'custom123',
                                 proxy: '/mobify/proxy/api',
                             },
-                        },
-                        site: {
-                            currency: 'USD',
-                            supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
-                            supportedCurrencies: ['USD'],
+                            sites: [
+                                {
+                                    defaultCurrency: 'USD',
+                                    supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                                    supportedCurrencies: ['USD'],
+                                },
+                            ],
                         },
                     });
 

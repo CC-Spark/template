@@ -941,7 +941,7 @@ describe('auth middleware (server)', () => {
 
         it('should handle absolute callback URI', async () => {
             const { provider, appConfig } = mockContext({}, false);
-            appConfig.site.features.resetPassword.callbackUri = 'https://custom-domain.com/reset';
+            appConfig.features.resetPassword.callbackUri = 'https://custom-domain.com/reset';
             const email = 'test@example.com';
 
             mockAuth.password.requestReset.mockResolvedValue(undefined);
@@ -956,7 +956,7 @@ describe('auth middleware (server)', () => {
 
         it('should handle relative callback URI and prepend app origin', async () => {
             const { provider, appConfig } = mockContext({}, false);
-            appConfig.site.features.resetPassword.callbackUri = '/reset-password';
+            appConfig.features.resetPassword.callbackUri = '/reset-password';
             const email = 'test@example.com';
 
             mockAuth.password.requestReset.mockResolvedValue(undefined);

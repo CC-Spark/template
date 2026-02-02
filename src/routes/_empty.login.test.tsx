@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { LoaderFunctionArgs, ActionFunctionArgs, ClientActionFunctionArgs } from 'react-router';
+import {
+    createRoutesStub,
+    type LoaderFunctionArgs,
+    type ActionFunctionArgs,
+    type ClientActionFunctionArgs,
+} from 'react-router';
 import Login, { loader, action, clientAction } from './_empty.login';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { getAuth, authorizePasswordless } from '@/middlewares/auth.server';
 import { getAuth as getClientAuth, updateAuth } from '@/middlewares/auth.client';
 import { updateBasket } from '@/middlewares/basket.client';
@@ -61,11 +67,7 @@ vi.mock('@/lib/utils', () => ({
     cn: (...args: Array<string | false | null | undefined>) => args.filter(Boolean).join(' '),
 }));
 
-// Mock child components to make component rendering assertions stable
-vi.mock('@/components/login/standard-login-form', () => ({
-    __esModule: true,
-    default: () => <div data-testid="standard-form" />,
-}));
+// Mock passwordless form since we're focusing on standard login full-flow tests
 vi.mock('@/components/login/passwordless-login-form', () => ({
     __esModule: true,
     default: () => <div data-testid="passwordless-form" />,
@@ -75,29 +77,18 @@ vi.mock('@/components/buttons/social-login-buttons', () => ({
     SocialLoginButtons: () => <div data-testid="social-buttons" />,
 }));
 
-// Mock React Router hooks
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useActionData: vi.fn(() => undefined),
-    };
-});
-
 vi.mock('@/config', () => ({
     getConfig: vi.fn(() => ({
-        site: {
-            features: {
-                passwordlessLogin: {
-                    enabled: true,
-                    landingUri: '/passwordless-login-landing',
-                    callbackUri: '/passwordless-login-callback',
-                },
-                socialLogin: {
-                    enabled: true,
-                    callbackUri: '/social-callback',
-                    providers: ['Apple', 'Google'],
-                },
+        features: {
+            passwordlessLogin: {
+                enabled: true,
+                landingUri: '/passwordless-login-landing',
+                callbackUri: '/passwordless-login-callback',
+            },
+            socialLogin: {
+                enabled: true,
+                callbackUri: '/social-callback',
+                providers: ['Apple', 'Google'],
             },
         },
         commerce: {
@@ -837,72 +828,96 @@ describe('Login Route', () => {
     });
 
     describe('component', () => {
-        it('renders StandardLoginForm when mode is password', () => {
-            render(
-                <Login
-                    loaderData={{
-                        passwordlessSent: false,
-                        email: undefined,
-                        mode: 'password',
-                        isPasswordlessLoginEnabled: false,
-                        isSocialLoginEnabled: true,
-                    }}
-                />
-            );
+        // Helper to render with createRoutesStub and real action for full-flow tests
+        const renderWithAction = (loaderData: Parameters<typeof Login>[0]['loaderData']) => {
+            const WrappedComponent = () => <Login loaderData={loaderData} />;
+            const actionContext = { get: vi.fn(), set: vi.fn() } as any;
+            const Stub = createRoutesStub([
+                {
+                    path: '/',
+                    Component: WrappedComponent,
+                    action: async ({ request }) => action({ request, params: {}, context: actionContext } as any),
+                },
+            ]);
+            return render(<Stub initialEntries={['/']} />);
+        };
 
-            expect(screen.getByTestId('standard-form')).toBeInTheDocument();
-            expect(screen.getByTestId('social-buttons')).toBeInTheDocument();
-        });
-
-        it('passes returnUrl, action, and actionParams to StandardLoginForm', () => {
-            const loaderData = {
+        it('renders standard login form with all required elements', () => {
+            renderWithAction({
                 passwordlessSent: false,
                 email: undefined,
                 mode: 'password',
                 isPasswordlessLoginEnabled: false,
                 isSocialLoginEnabled: true,
-                returnUrl: '/product/123',
-                action: 'addToCart',
-                actionParams: '{"productId":"123"}',
-            };
+            });
 
-            render(<Login loaderData={loaderData} />);
+            expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+            expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
 
-            expect(screen.getByTestId('standard-form')).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+            expect(screen.getByTestId('social-buttons')).toBeInTheDocument();
+        });
+
+        it('displays error when login fails', async () => {
+            const user = userEvent.setup();
+            mockGetAuth.mockReturnValue({ userType: 'guest' });
+            mockLoginRegisteredUser.mockResolvedValue({ success: false });
+
+            renderWithAction({
+                passwordlessSent: false,
+                email: undefined,
+                mode: 'password',
+                isPasswordlessLoginEnabled: false,
+                isSocialLoginEnabled: true,
+            });
+
+            await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+            await user.type(screen.getByLabelText(/password/i), 'wrongpassword');
+
+            const submitButton = screen.getByRole('button', { name: /sign in/i });
+            await user.click(submitButton);
+
+            await waitFor(() => {
+                expect(screen.getByText('An error occurred. Please try again.')).toBeInTheDocument();
+            });
         });
 
         it('renders PasswordlessLoginForm when mode is passwordless', () => {
-            render(
-                <Login
-                    loaderData={{
-                        passwordlessSent: false,
-                        email: undefined,
-                        mode: 'passwordless',
-                        isPasswordlessLoginEnabled: true,
-                        isSocialLoginEnabled: true,
-                    }}
-                />
-            );
+            renderWithAction({
+                passwordlessSent: false,
+                email: undefined,
+                mode: 'passwordless',
+                isPasswordlessLoginEnabled: true,
+                isSocialLoginEnabled: true,
+            });
 
             expect(screen.getByTestId('passwordless-form')).toBeInTheDocument();
             expect(screen.getByTestId('social-buttons')).toBeInTheDocument();
         });
 
         it('hides social login buttons when social login is disabled', () => {
-            render(
-                <Login
-                    loaderData={{
-                        passwordlessSent: false,
-                        email: undefined,
-                        mode: 'password',
-                        isPasswordlessLoginEnabled: false,
-                        isSocialLoginEnabled: false,
-                    }}
-                />
-            );
+            renderWithAction({
+                passwordlessSent: false,
+                email: undefined,
+                mode: 'password',
+                isPasswordlessLoginEnabled: false,
+                isSocialLoginEnabled: false,
+            });
 
-            expect(screen.getByTestId('standard-form')).toBeInTheDocument();
+            expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
             expect(screen.queryByTestId('social-buttons')).not.toBeInTheDocument();
+        });
+
+        it('should not show error on initial render', () => {
+            renderWithAction({
+                passwordlessSent: false,
+                email: undefined,
+                mode: 'password',
+                isPasswordlessLoginEnabled: false,
+                isSocialLoginEnabled: true,
+            });
+
+            expect(screen.queryByText('An error occurred. Please try again.')).not.toBeInTheDocument();
         });
     });
 });

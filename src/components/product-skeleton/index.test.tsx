@@ -56,16 +56,16 @@ describe('ProductSkeleton', () => {
         expect(screen.getByTestId('quantity-skeleton')).toBeInTheDocument();
     });
 
-    test('renders add to cart button skeleton', () => {
+    test('renders mobile title skeleton', () => {
         render(<ProductSkeleton />);
 
-        expect(screen.getByTestId('add-to-cart-skeleton')).toBeInTheDocument();
+        expect(screen.getByTestId('mobile-title-skeleton')).toBeInTheDocument();
     });
 
-    test('renders wishlist button skeleton', () => {
+    test('renders desktop title skeleton', () => {
         render(<ProductSkeleton />);
 
-        expect(screen.getByTestId('wishlist-skeleton')).toBeInTheDocument();
+        expect(screen.getByTestId('desktop-title-skeleton')).toBeInTheDocument();
     });
 
     test('renders product features skeleton', () => {
@@ -74,25 +74,32 @@ describe('ProductSkeleton', () => {
         expect(screen.getByTestId('features-skeleton')).toBeInTheDocument();
     });
 
-    test('renders accordion skeleton', () => {
+    test('renders inventory skeleton', () => {
         render(<ProductSkeleton />);
 
-        expect(screen.getByTestId('accordion-skeleton')).toBeInTheDocument();
+        expect(screen.getByTestId('inventory-skeleton')).toBeInTheDocument();
     });
 
-    test('renders 4 accordion item skeletons', () => {
+    test('renders delivery options skeleton', () => {
         render(<ProductSkeleton />);
 
-        const accordionItems = screen.getAllByTestId('accordion-item-skeleton');
-        expect(accordionItems).toHaveLength(4);
+        expect(screen.getByTestId('delivery-options-skeleton')).toBeInTheDocument();
     });
 
-    test('renders recommended products skeleton', () => {
+    test('renders cart actions skeleton with add to cart and secondary buttons', () => {
+        render(<ProductSkeleton />);
+
+        expect(screen.getByTestId('cart-actions-skeleton')).toBeInTheDocument();
+        expect(screen.getByTestId('add-to-cart-skeleton')).toBeInTheDocument();
+        expect(screen.getByTestId('wishlist-skeleton')).toBeInTheDocument();
+        expect(screen.getByTestId('share-skeleton')).toBeInTheDocument();
+    });
+
+    test('renders recommended products skeleton with 1 section', () => {
         render(<ProductSkeleton />);
 
         expect(screen.getByTestId('recommended-products-skeleton')).toBeInTheDocument();
-        expect(screen.getByTestId('recommended-title-skeleton')).toBeInTheDocument();
-        expect(screen.getByTestId('recommended-products-grid')).toBeInTheDocument();
+        expect(screen.getByTestId('recommendation-section-skeleton')).toBeInTheDocument();
     });
 
     test('renders 4 recommended product items', () => {

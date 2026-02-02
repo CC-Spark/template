@@ -28,28 +28,8 @@ import { masterProduct as mockProduct } from '@/components/__mocks__/master-vari
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 import { bundleProd } from '@/components/__mocks__/bundle-product';
 import { setProduct } from '@/components/__mocks__/set-product';
-import { createConfigWrapper, mockBuildConfig } from '@/test-utils/config';
+import { mockBuildConfig } from '@/test-utils/config';
 import { createAppConfig } from '@/config/context';
-
-// Create a wrapper with default config
-const defaultConfigWrapper = createConfigWrapper({
-    app: {
-        site: {
-            locale: 'en-US',
-            currency: 'USD',
-            features: {
-                passwordlessLogin: {
-                    enabled: false,
-                    callbackUri: '/passwordless-login-callback',
-                    landingUri: '/passwordless-login-landing',
-                },
-                socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                guestCheckout: true,
-            },
-        },
-    },
-} as any);
 
 // Mock useToast
 const mockAddToast = vi.fn();
@@ -98,7 +78,7 @@ const renderProductView = (props: React.ComponentProps<typeof ProductView>, init
         }
     );
     return {
-        ...render(<RouterProvider router={router} />, { wrapper: defaultConfigWrapper }),
+        ...render(<RouterProvider router={router} />),
         router,
     };
 };
@@ -454,39 +434,9 @@ describe('ProductView', () => {
                 ...mockBuildConfig,
                 app: {
                     ...mockBuildConfig.app,
-                    site: {
-                        ...mockBuildConfig.app.site,
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            ...mockBuildConfig.app.site.features,
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                            guestCheckout: true,
-                        },
-                    },
-                },
-            } as any);
-            const customWrapper = createConfigWrapper({
-                app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                            guestCheckout: true,
-                        },
+                    features: {
+                        ...mockBuildConfig.app.features,
+                        socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
                     },
                 },
             } as any);
@@ -507,7 +457,7 @@ describe('ProductView', () => {
                     initialEntries: ['/product/test-product'],
                 }
             );
-            render(<RouterProvider router={router} />, { wrapper: customWrapper });
+            render(<RouterProvider router={router} />);
 
             const shareButton = screen.getByRole('button', { name: /share/i });
             await user.click(shareButton);
@@ -526,39 +476,9 @@ describe('ProductView', () => {
                 ...mockBuildConfig,
                 app: {
                     ...mockBuildConfig.app,
-                    site: {
-                        ...mockBuildConfig.app.site,
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            ...mockBuildConfig.app.site.features,
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: true, providers: ['Email'] },
-                            guestCheckout: true,
-                        },
-                    },
-                },
-            } as any);
-            const customWrapper = createConfigWrapper({
-                app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: true, providers: ['Email'] },
-                            guestCheckout: true,
-                        },
+                    features: {
+                        ...mockBuildConfig.app.features,
+                        socialShare: { enabled: true, providers: ['Email'] },
                     },
                 },
             } as any);
@@ -579,7 +499,7 @@ describe('ProductView', () => {
                     initialEntries: ['/product/test-product'],
                 }
             );
-            render(<RouterProvider router={router} />, { wrapper: customWrapper });
+            render(<RouterProvider router={router} />);
 
             const shareButton = screen.getByRole('button', { name: /share/i });
             await user.click(shareButton);

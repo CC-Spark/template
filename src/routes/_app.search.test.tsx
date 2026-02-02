@@ -227,6 +227,7 @@ describe('SearchPage', () => {
                 request: new Request('https://example.com/search?q=shoes&offset=0'),
                 context: mockContext,
                 params: {},
+                unstable_pattern: '/search',
             };
 
             const result = loader(args);
@@ -261,6 +262,7 @@ describe('SearchPage', () => {
                 ),
                 context: mockContext,
                 params: {},
+                unstable_pattern: '/search',
             };
 
             loader(args);

@@ -15,47 +15,50 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle, CardAction, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 /**
  * Skeleton component for the account addresses page content.
- * Matches the structure of the actual addresses page with a grid of address cards.
+ * Matches the structure of the actual addresses page with vertically stacked address cards.
  */
 export function AccountAddressesSkeleton() {
     const { t } = useTranslation('account');
     return (
         <div className="space-y-6">
             {/* Page Header Skeleton */}
-            <div>
-                <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                    {t('navigation.addresses')}
-                </h1>
-            </div>
+            <Card className="p-6">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
+                            {t('navigation.addresses')}
+                        </h1>
+                        <Skeleton className="h-4 w-48 mt-2" />
+                    </div>
+                    <Skeleton className="h-9 w-36" />
+                </div>
+            </Card>
 
-            {/* Address Cards Grid Skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 3 }, (_, i) => i).map((index) => (
+            {/* Address Cards Vertical Stack Skeleton */}
+            <div className="flex flex-col gap-4">
+                {Array.from({ length: 2 }, (_, i) => i).map((index) => (
                     <Card key={index} className="border-border gap-0 py-4">
-                        <CardHeader>
-                            <CardTitle>
-                                <Skeleton className="h-5 w-16" />
+                        <CardHeader className="px-6 pb-2">
+                            <CardTitle className="flex items-center gap-2">
+                                <Skeleton className="h-5 w-32" />
+                                {index === 0 && <Skeleton className="h-5 w-14 rounded-md" />}
                             </CardTitle>
-                            <CardAction>
-                                <Skeleton className="h-5 w-20" />
-                            </CardAction>
                         </CardHeader>
-                        <CardContent className="p-4">
-                            <div className="space-y-2">
-                                <Skeleton className="h-4 w-32" />
-                                <Skeleton className="h-4 w-40" />
-                                <Skeleton className="h-4 w-36" />
-                                <Skeleton className="h-4 w-24" />
+                        <CardContent className="px-6 py-2">
+                            <div className="space-y-1">
+                                <Skeleton className="h-4 w-48" />
+                                <Skeleton className="h-4 w-56" />
                             </div>
                         </CardContent>
-                        <CardFooter className="gap-2">
-                            <Skeleton className="h-8 w-12" />
-                            <Skeleton className="h-8 w-16" />
+                        <CardFooter className="gap-4 px-6 pt-2">
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-4 w-16" />
                         </CardFooter>
                     </Card>
                 ))}

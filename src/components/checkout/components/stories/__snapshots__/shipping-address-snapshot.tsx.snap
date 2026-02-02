@@ -1817,6 +1817,13 @@ exports[`ShippingAddress stories snapshot > WithFormError story renders and matc
       <form
         class="space-y-6"
       >
+        <div
+          aria-live="polite"
+          class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+          role="alert"
+        >
+          Failed to save shipping address. Please try again.
+        </div>
         <div>
           <div
             class="grid grid-cols-2 gap-4 mb-4"
@@ -2086,22 +2093,30 @@ exports[`ShippingAddress stories snapshot > WithValidationErrors story renders a
           class="space-y-2"
         >
           <div
+            aria-live="polite"
             class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+            role="alert"
           >
             First name is required
           </div>
           <div
+            aria-live="polite"
             class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+            role="alert"
           >
             Last name is required
           </div>
           <div
+            aria-live="polite"
             class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+            role="alert"
           >
             Address is required
           </div>
           <div
+            aria-live="polite"
             class="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold"
+            role="alert"
           >
             City is required
           </div>

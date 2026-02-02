@@ -10,26 +10,6 @@ exports[`ActiveFilters stories snapshot > Default story renders and matches snap
 </div>
 `;
 
-exports[`ActiveFilters stories snapshot > Desktop story renders and matches snapshot 1`] = `
-<div
-  data-active-filters-harness="true"
->
-  <div
-    data-active-filters-harness="true"
-  />
-</div>
-`;
-
-exports[`ActiveFilters stories snapshot > Mobile story renders and matches snapshot 1`] = `
-<div
-  data-active-filters-harness="true"
->
-  <div
-    data-active-filters-harness="true"
-  />
-</div>
-`;
-
 exports[`ActiveFilters stories snapshot > MultipleFilters story renders and matches snapshot 1`] = `
 <div
   data-active-filters-harness="true"
@@ -41,16 +21,6 @@ exports[`ActiveFilters stories snapshot > MultipleFilters story renders and matc
 `;
 
 exports[`ActiveFilters stories snapshot > NoActiveFilters story renders and matches snapshot 1`] = `
-<div
-  data-active-filters-harness="true"
->
-  <div
-    data-active-filters-harness="true"
-  />
-</div>
-`;
-
-exports[`ActiveFilters stories snapshot > Tablet story renders and matches snapshot 1`] = `
 <div
   data-active-filters-harness="true"
 >

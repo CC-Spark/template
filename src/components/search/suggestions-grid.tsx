@@ -69,7 +69,7 @@ const SearchSuggestionsPopup: React.FC<SearchSuggestionsPopupProps> = ({
                                 <div className="w-full relative aspect-[4/3]">
                                     {suggestion.image ? (
                                         <DynamicImage
-                                            src={`${suggestion.image}[?sw={width}&q=60]`}
+                                            src={`${suggestion.image}[?sw={width}]`}
                                             alt=""
                                             imageProps={{
                                                 className: 'absolute inset-0 w-full h-full object-cover block',

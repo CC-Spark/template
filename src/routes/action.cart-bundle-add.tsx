@@ -18,7 +18,7 @@ import { ApiError, type ShopperBasketsV2, type ShopperProducts } from '@salesfor
 import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { createApiClients } from '@/lib/api-clients';
 // @sfdc-extension-line SFDC_EXT_BOPIS
-import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
+import { findOrCreatePickupShipment } from '@/extensions/bopis/lib/api/shipment';
 import { getTranslation } from '@/lib/i18next';
 
 /**
@@ -55,6 +55,16 @@ async function addBundleToCart(
     }
 
     try {
+        const clients = createApiClients(context);
+        let shipmentId = 'me';
+
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        if (bundleItem.storeId && bundleItem.inventoryId) {
+            const pickupShipment = await findOrCreatePickupShipment(basket, context, bundleItem.storeId);
+            shipmentId = pickupShipment.shipmentId;
+        }
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
         // Extract productId and quantity from ProductSelectionValues structure for API call
         // Prefer variant.productId if variant exists, otherwise use product.id
         const bundledProductItems = childSelections.map((selection) => ({
@@ -63,7 +73,6 @@ async function addBundleToCart(
         }));
 
         // Add bundle to basket with bundled product items
-        const clients = createApiClients(context);
         const { data: initialBasket } = await clients.shopperBasketsV2.addItemToBasket({
             params: {
                 path: { basketId },
@@ -72,7 +81,8 @@ async function addBundleToCart(
                 {
                     productId: bundleItem.productId,
                     quantity: bundleItem.quantity,
-                    inventoryId: bundleItem.inventoryId,
+                    ...(bundleItem.inventoryId ? { inventoryId: bundleItem.inventoryId } : {}),
+                    shipmentId,
                     bundledProductItems,
                 },
             ],
@@ -105,6 +115,8 @@ async function addBundleToCart(
                         itemId: bundledItem.itemId,
                         productId: selectedProductId || bundledItem.productId,
                         quantity: matchingSelection?.quantity || bundledItem.quantity,
+                        ...(bundleItem.inventoryId ? { inventoryId: bundleItem.inventoryId } : {}),
+                        shipmentId,
                     };
                 });
 
@@ -124,11 +136,6 @@ async function addBundleToCart(
                 updatedBasket = refreshedBasket;
             }
         }
-
-        // @sfdc-extension-block-start SFDC_EXT_BOPIS
-        // Update shipment with store information based on selected delivery option
-        updatedBasket = await syncShipmentWithDeliveryOptionChange(context, updatedBasket, bundleItem);
-        // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
         // Update the basket storage
         updateBasket(context, updatedBasket);

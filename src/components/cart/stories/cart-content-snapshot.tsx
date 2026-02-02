@@ -93,8 +93,7 @@ import { composeStories } from '@storybook/react-vite';
 
 import * as CartStories from './cart-content.stories';
 import { render, cleanup } from '@testing-library/react';
-import { ConfigProvider } from '@/config/context';
-import { mockConfig } from '@/test-utils/config';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 const composed = composeStories(CartStories);
 
@@ -107,9 +106,9 @@ describe('CartContent stories snapshot', () => {
         if (Story?.parameters?.snapshot === false || /interactiontests?/i.test(storyName)) continue;
         test(`${storyName} story renders and matches snapshot`, () => {
             const { container } = render(
-                <ConfigProvider config={mockConfig}>
+                <AllProvidersWrapper>
                     <Story />
-                </ConfigProvider>
+                </AllProvidersWrapper>
             );
             expect(container.firstChild).toMatchSnapshot();
         });

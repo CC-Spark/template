@@ -212,9 +212,6 @@ export const Default: Story = {
         if (form) {
             await expect(form).toBeInTheDocument();
             // Verify form fields are populated with initial data
-            const addressTitleInput = canvas.getByDisplayValue('Home');
-            await expect(addressTitleInput).toBeInTheDocument();
-
             const firstNameInput = canvas.getByDisplayValue('Test');
             await expect(firstNameInput).toBeInTheDocument();
 

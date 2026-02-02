@@ -17,7 +17,6 @@ import type { APIGatewayProxyEvent } from 'aws-lambda';
 
 const MRT_BUNDLE_TYPE_SSR = 'ssr' as const;
 const MRT_STREAMING_ENTRY_FILE = 'streamingHandler' as const;
-const MRT_BUNDLE_TYPE_STREAMING = 'streaming' as const;
 export type MrtBundleType = typeof MRT_BUNDLE_TYPE_SSR | typeof MRT_STREAMING_ENTRY_FILE;
 /**
  * Gets the MRT entry file for the given mode
@@ -26,7 +25,8 @@ export type MrtBundleType = typeof MRT_BUNDLE_TYPE_SSR | typeof MRT_STREAMING_EN
  */
 export const getMrtEntryFile = (mode: string): MrtBundleType => {
     // TODO: Move the MRT_BUNDLE_TYPE env var to a command line option with sfnext
-    const enableStreaming = process.env.MRT_BUNDLE_TYPE === MRT_BUNDLE_TYPE_STREAMING && mode === 'production';
+    // Streaming is enabled by default in production unless explicitly set to 'ssr'
+    const enableStreaming = process.env.MRT_BUNDLE_TYPE !== MRT_BUNDLE_TYPE_SSR && mode === 'production';
     return enableStreaming ? MRT_STREAMING_ENTRY_FILE : MRT_BUNDLE_TYPE_SSR;
 };
 

@@ -44,15 +44,9 @@ import { useCurrency } from '@/providers/currency';
 // Utils
 import { formatCurrency } from '@/lib/currency';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
-import { createProductUrl, getDisplayVariationValues } from '@/lib/product-utils';
+import { createProductUrl, getDisplayVariationValues, type EnrichedProductItem } from '@/lib/product-utils';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-
-// Constants
-/**
- * Basket item data enriched with product details
- */
-type Item = ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>;
 
 /**
  * ProductItemVariantImage component that renders product images with fallback
@@ -62,11 +56,11 @@ type Item = ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.sc
  * @param props.className - Optional CSS class name
  * @returns JSX element with product image or placeholder
  */
-function ProductItemVariantImage({
+export function ProductItemVariantImage({
     productItem,
     className = '',
 }: {
-    productItem: Item;
+    productItem: EnrichedProductItem;
     className?: string;
     width?: string;
 }): ReactElement {
@@ -111,7 +105,7 @@ function ProductItemVariantImage({
  * @param props.product - Product data containing name and ID information
  * @returns JSX element with product name link
  */
-function ProductItemVariantName({ productItem }: { productItem: Item }): ReactElement {
+function ProductItemVariantName({ productItem }: { productItem: EnrichedProductItem }): ReactElement {
     const { t: tCart } = useTranslation('cart');
     const { t: tProduct } = useTranslation('product');
     if (!productItem) {
@@ -150,12 +144,12 @@ function ProductItemVariantName({ productItem }: { productItem: Item }): ReactEl
  * @param props.promotions - Promotions data by ID
  * @returns JSX element with variation attributes or fallback
  */
-function ProductItemVariantAttributes({
+export function ProductItemVariantAttributes({
     productItem,
     displayVariant = 'default',
     promotions,
 }: {
-    productItem: Item;
+    productItem: EnrichedProductItem;
     displayVariant?: 'default' | 'summary';
     promotions?: Record<string, ShopperPromotions.schemas['Promotion']>;
 }): ReactElement {
@@ -247,11 +241,12 @@ function ProductItemVariantAttributes({
  * @property {function} [secondaryActions] - Render prop function to create secondary actions
  */
 interface ProductItemProps {
-    productItem: Item | undefined;
+    productItem: EnrichedProductItem | undefined;
     displayVariant?: 'default' | 'summary';
     promotions?: Record<string, ShopperPromotions.schemas['Promotion']>;
-    primaryAction?: (productItem: Item) => ReactElement | undefined;
-    secondaryActions?: (productItem: Item) => ReactElement | undefined;
+    primaryAction?: (productItem: EnrichedProductItem) => ReactElement | undefined;
+    secondaryActions?: (productItem: EnrichedProductItem) => ReactElement | undefined;
+    deliveryActions?: (productItem: EnrichedProductItem) => ReactElement | undefined;
     bonusDiscountLineItems?: ShopperBasketsV2.schemas['BonusDiscountLineItem'][];
     maxBonusQuantity?: number;
 }
@@ -278,6 +273,7 @@ function ProductItem({
     promotions,
     primaryAction,
     secondaryActions,
+    deliveryActions,
     bonusDiscountLineItems,
     maxBonusQuantity,
 }: ProductItemProps): ReactElement {
@@ -415,6 +411,9 @@ function ProductItem({
                                 </div>
 
                                 <div className="grid gap-4 justify-items-end flex-shrink-0">
+                                    {/* Delivery Actions */}
+                                    {deliveryActions?.(productItem)}
+
                                     {/* Quantity Display/Selector */}
                                     <CartQuantityPicker
                                         value={String(productItem.quantity)}

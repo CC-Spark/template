@@ -63,8 +63,8 @@ export function Region(props: RegionProps) {
                     <Await resolve={page} errorElement={errorElement}>
                         {(resolvedPage) => {
                             // Find the region within the page
-                            const region = resolvedPage.regions?.find((r) => r.id === regionId);
-                            const metadata = resolvedPage.designMetadata?.regionDefinitions?.find(
+                            const region = resolvedPage?.regions?.find((r) => r.id === regionId);
+                            const metadata = resolvedPage?.designMetadata?.regionDefinitions?.find(
                                 (r) => r.id === regionId
                             );
 

@@ -104,7 +104,8 @@ export const Default: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Standard content card with all features enabled.
 
 ### Features:
@@ -113,6 +114,7 @@ Standard content card with all features enabled.
 - Call-to-action button
 - Background and border enabled
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -145,7 +147,8 @@ export const WithoutImage: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Content card without an image.
 
 ### Features:
@@ -153,6 +156,7 @@ Content card without an image.
 - Text content only
 - Still has button
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -172,7 +176,8 @@ export const Minimal: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Minimal content card with only title and description.
 
 ### Features:
@@ -180,6 +185,7 @@ Minimal content card with only title and description.
 - No button
 - Just text content
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -206,7 +212,8 @@ export const NoBackground: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Content card with transparent background and no border.
 
 ### Features:
@@ -214,6 +221,7 @@ Content card with transparent background and no border.
 - No border
 - Clean, minimal appearance
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -224,5 +232,35 @@ Content card with transparent background and no border.
         // Check for title
         const title = await canvas.findByText(/transparent card/i, {}, { timeout: 5000 });
         await expect(title).toBeInTheDocument();
+    },
+};
+
+export const CustomClassNames: Story = {
+    render: () => (
+        <ContentCard
+            title="Custom Class Names"
+            description="This example applies custom classes to the footer, description, and button."
+            imageUrl="https://via.placeholder.com/400x300"
+            imageAlt="Custom class names"
+            buttonText="View Details"
+            buttonLink="/details"
+            className="flex-row"
+            cardFooterClassName="flex-row items-center"
+            cardDescriptionClassName="flex-none"
+            buttonClassName="w-fit"
+        />
+    ),
+    parameters: {
+        docs: {
+            description: {
+                story: `
+Content card with customized footer, description, and button class names.
+
+### Features:
+- Custom footer and description alignment
+- Custom button width
+            `,
+            },
+        },
     },
 };

@@ -16,7 +16,7 @@ import { inBasketProductDetails } from '../src/components/__mocks__/basket-with-
 // Transform array of products into Record<productId, product> format
 // expected by useBasketWithProducts hook
 const mockProductsData = inBasketProductDetails.data.reduce(
-    (acc, product) => {
+    (acc: Record<string, (typeof inBasketProductDetails.data)[0]>, product: (typeof inBasketProductDetails.data)[0]) => {
         acc[product.id] = product;
         return acc;
     },

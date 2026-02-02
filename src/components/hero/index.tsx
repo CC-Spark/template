@@ -89,21 +89,18 @@ export default function Hero({
                     style={{ objectPosition }}
                 />
 
-                {/* Gradient overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
-
                 {/* Content overlay */}
                 <div className="absolute inset-0 z-10 flex items-center">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="max-w-xl lg:max-w-2xl">
                             {/* Responsive heading */}
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-3 sm:mb-4 md:mb-6 leading-tight tracking-tight drop-shadow-lg">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-3 sm:mb-4 md:mb-6 leading-tight tracking-tight drop-shadow-lg">
                                 {title}
                             </h1>
 
                             {/* Responsive subtitle */}
                             {subtitle && (
-                                <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-normal text-primary-foreground/90 mb-6 sm:mb-8 leading-relaxed tracking-wide drop-shadow-md max-w-prose">
+                                <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-normal text-muted-foreground mb-6 sm:mb-8 leading-relaxed tracking-wide max-w-prose">
                                     {subtitle}
                                 </p>
                             )}

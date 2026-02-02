@@ -19,6 +19,15 @@ import { composeStories } from '@storybook/react-vite';
 import * as ProductRecommendationsStories from './index.stories';
 import { render, cleanup } from '@testing-library/react';
 
+// Hoist dependencies for use in vi.mock (avoids async imports which fail on Windows)
+const { createContext: reactCreateContext, actualReactRouter } = vi.hoisted(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const React = require('react');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const reactRouter = require('react-router');
+    return { createContext: React.createContext, actualReactRouter: reactRouter };
+});
+
 // Mock the necessary hooks and providers
 vi.mock('@/hooks/recommenders/use-recommenders', () => ({
     useRecommenders: vi.fn(() => ({
@@ -38,10 +47,10 @@ vi.mock('@/hooks/recommenders/use-recommenders', () => ({
 }));
 
 // Mock react-router hooks
-vi.mock('react-router', async (importOriginal) => {
-    const actual = await importOriginal();
+vi.mock('react-router', () => {
     return {
-        ...actual,
+        ...actualReactRouter,
+        createContext: reactCreateContext,
         useNavigate: () => vi.fn(),
         useLocation: () => ({
             pathname: '/',

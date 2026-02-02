@@ -464,3 +464,98 @@ export function getPrimaryProductImageUrl(
 
     return undefined;
 }
+
+/**
+ * Converts a product map keyed by itemId to a product map keyed by productId.
+ * Useful for converting checkout loader product maps to the format expected by hooks
+ * like useBasketWithProducts.
+ *
+ * @param productsByItemId - Map of itemId to Product data (keyed by basket item ID)
+ * @returns Map of productId to Product data (keyed by product catalog ID)
+ *
+ * @example
+ * const productsByProductId = convertProductsByItemIdToProductId(productsByItemId);
+ * // Returns products keyed by productId instead of itemId
+ */
+export function convertProductsByItemIdToProductId(
+    productsByItemId: Record<string, ShopperProducts.schemas['Product']> | undefined
+): Record<string, ShopperProducts.schemas['Product']> {
+    if (!productsByItemId) {
+        return {};
+    }
+
+    const productsByProductId: Record<string, ShopperProducts.schemas['Product']> = {};
+
+    // Iterate over products and use product.id as the key
+    // Deduplicate by only keeping the first occurrence of each productId
+    Object.values(productsByItemId).forEach((product) => {
+        if (product?.id && !productsByProductId[product.id]) {
+            productsByProductId[product.id] = product;
+        }
+    });
+
+    return productsByProductId;
+}
+
+/**
+ * Enriched product item type that combines basket item data with product catalog data.
+ * This type merges the ProductItem schema from the basket API with optional Product
+ * schema fields from the product catalog, allowing access to additional product
+ * information like imageGroups for display purposes.
+ */
+export type EnrichedProductItem = ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>;
+
+/**
+ * Enriches basket product items with full product data from productMap.
+ * Merges product catalog data (images, variations, attributes) with basket item data,
+ * finding the correct image group for each item's variation.
+ *
+ * @param productMap - Map of productId to Product data (keyed by product catalog ID)
+ * @param productItems - Array of basket product items to enrich
+ * @returns Array of enriched product items combining basket and product data
+ *
+ * @example
+ * const enrichedItems = getEnrichedProducts(productMap, basket.productItems);
+ * // Returns items with merged product data including correct variation images
+ */
+export function getEnrichedProducts(
+    productMap: Record<string, ShopperProducts.schemas['Product']> | undefined,
+    productItems?: ShopperBasketsV2.schemas['ProductItem'][]
+): EnrichedProductItem[] {
+    if (!productItems || !productMap) {
+        return productItems || [];
+    }
+
+    return productItems.map((item) => {
+        const productId = item.productId;
+        if (!productId || !productMap[productId]) {
+            return item;
+        }
+
+        const fullProduct = productMap[productId];
+
+        // Find the correct image for this variation
+        const imageGroup = findImageGroupBy(fullProduct.imageGroups, {
+            viewType: 'small',
+            selectedVariationAttributes: (item.variationValues as Record<string, string> | undefined) || {},
+        });
+
+        return {
+            ...item,
+            ...fullProduct,
+            // Preserve basket-specific data (only override if item has the value)
+            itemId: item.itemId,
+            quantity: item.quantity,
+            price: item.price,
+            priceAfterItemDiscount: item.priceAfterItemDiscount,
+            // Use product name for productName if available (for display consistency)
+            productName: fullProduct.name || item.productName,
+            // Keep fullProduct.variationValues unless item has its own
+            variationValues: item.variationValues || fullProduct.variationValues,
+            // Keep fullProduct.variationAttributes for proper display names
+            variationAttributes: fullProduct.variationAttributes,
+            // Use the correct image for the variation
+            imageGroups: imageGroup ? [imageGroup] : fullProduct.imageGroups,
+        };
+    });
+}

@@ -41,7 +41,7 @@ async function sendMagicLinkEmail(
 
     // Get the configured landing path from app config
     const config = getConfig(context);
-    const landingPath = config.site.features.passwordlessLogin.landingUri;
+    const landingPath = config.features.passwordlessLogin.landingUri;
     let magicLink = `${base}${landingPath}?token=${encodeURIComponent(token)}`;
 
     if (redirectUrl) {

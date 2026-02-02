@@ -32,14 +32,14 @@ import { BonusProductModal } from '@/components/bonus-product-modal';
 import BonusProductSelection from '@/components/cart/bonus-product-selection';
 import { useTranslation } from 'react-i18next';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
-import PickupStoreInfo from '@/extensions/bopis/components/pickup-store-info';
+import CartPickup from '@/extensions/bopis/components/cart-pickup';
+import { getFirstPickupStore, filterPickupProductItems } from '@/extensions/bopis/lib/basket-utils';
 import { usePickup } from '@/extensions/bopis/context/pickup-context';
-import { getStoreIdsFromBasket, filterPickupProductItems } from '@/extensions/bopis/lib/basket-utils';
-import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
+import CartDeliveryOption from '@/extensions/bopis/components/delivery-options/cart-delivery-option';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 // utils
-import { isStandardProduct, isBonusProduct, isRuleBasedPromotion } from '@/lib/product-utils';
+import { isStandardProduct, isBonusProduct, isRuleBasedPromotion, type EnrichedProductItem } from '@/lib/product-utils';
 
 /**
  * Props for the CartContent component
@@ -77,6 +77,8 @@ export default function CartContent({
     promotions,
 }: CartContentProps): ReactElement {
     const { t } = useTranslation('cart');
+    // @sfdc-extension-line SFDC_EXT_BOPIS
+    const { t: tBopis } = useTranslation('extBopis');
 
     // TEMPORARY: State to facilitate bonus product modal development
     const [bonusModalOpen, setBonusModalOpen] = useState(false);
@@ -90,9 +92,8 @@ export default function CartContent({
 
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
     const pickup = usePickup();
-    const pickupBasketItems = pickup?.pickupBasketItems;
-    const store = getPickupStoreFromMap(getStoreIdsFromBasket(basket)[0], pickup?.pickupStores);
-    const pickupItems = filterPickupProductItems(basket, pickupBasketItems);
+    const store = getFirstPickupStore(basket, pickup?.pickupStores);
+    const pickupItems = filterPickupProductItems(basket);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     // Check if cart is empty using the basket prop from loader data
@@ -105,8 +106,9 @@ export default function CartContent({
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
     // Only filter pickup items from delivery if we have a store to render them in the pickup section
     // If no store exists, render all items as delivery items
+    const pickupShipmentId = new Set(basket?.shipments?.filter((s) => s.c_fromStoreId).map((s) => s.shipmentId));
     deliveryItems = store
-        ? deliveryItems.filter((item) => !item.productId || !pickupBasketItems?.has(item.productId))
+        ? basket.productItems.filter((item) => item.shipmentId && !pickupShipmentId.has(item.shipmentId))
         : deliveryItems;
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
@@ -126,9 +128,7 @@ export default function CartContent({
     };
 
     // Render prop function for cart-specific secondary actions
-    const cartSecondaryActions = (
-        product: ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>
-    ) => {
+    const cartSecondaryActions = (product: EnrichedProductItem) => {
         // Return undefined if no itemId - this will hide the buttons in the UI
         if (!product.itemId) {
             return undefined;
@@ -153,6 +153,14 @@ export default function CartContent({
             </div>
         );
     };
+
+    // Render prop function for cart-specific delivery actions
+    let cartDeliveryActions: ((product: EnrichedProductItem) => ReactElement | undefined) | null = null;
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    cartDeliveryActions = (product: EnrichedProductItem) => {
+        return <CartDeliveryOption key={product.itemId || product.productId} product={product} />;
+    };
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     return (
         <div className="flex-1 min-h-screen bg-background mb-10" data-testid="sf-cart-container">
@@ -184,7 +192,7 @@ export default function CartContent({
                         {/* Group store info cards with their product items */}
                         {pickupItems.length > 0 && store && (
                             <div key={store.id} className="md:p-8 p-3 border border-border rounded-lg shadow-sm mb-3">
-                                <PickupStoreInfo store={store} />
+                                <CartPickup store={store} />
                                 <div className="mt-4">
                                     <ProductItemsList
                                         promotions={promotions}
@@ -192,6 +200,7 @@ export default function CartContent({
                                         productsByItemId={productsByItemId}
                                         bonusDiscountLineItems={bonusDiscountItems}
                                         secondaryActions={cartSecondaryActions}
+                                        deliveryActions={cartDeliveryActions}
                                     />
                                 </div>
                             </div>
@@ -200,12 +209,23 @@ export default function CartContent({
                         {/* Show delivery items if any exist */}
                         {deliveryItems.length > 0 && (
                             <div className="md:p-8 p-3 border border-border rounded-lg shadow-sm mb-3">
+                                {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
+                                {pickupItems.length > 0 && (
+                                    <h2 className="text-lg font-semibold mb-4">
+                                        {tBopis('cart.deliveryItemsHeading', {
+                                            deliveryCount: deliveryItems.length,
+                                            totalCount: basket?.productItems?.length ?? 0,
+                                        })}
+                                    </h2>
+                                )}
+                                {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
                                 <ProductItemsList
                                     promotions={promotions}
                                     productItems={deliveryItems}
                                     productsByItemId={productsByItemId}
                                     bonusDiscountLineItems={bonusDiscountItems}
                                     secondaryActions={cartSecondaryActions}
+                                    deliveryActions={cartDeliveryActions}
                                 />
                             </div>
                         )}

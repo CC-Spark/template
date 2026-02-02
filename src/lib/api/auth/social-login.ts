@@ -174,7 +174,7 @@ export async function handleSocialLoginLanding({ request, context }: LoaderFunct
         // Handle successful authorization with code
         if (code) {
             // Construct redirect URI - use absolute URL if provided, otherwise build from app origin
-            const callbackUri = config.site.features.socialLogin.callbackUri;
+            const callbackUri = config.features.socialLogin.callbackUri;
             const redirectURI = isAbsoluteURL(callbackUri) ? callbackUri : `${getAppOrigin()}${callbackUri}`;
 
             const result = await loginIDPUser(context, {

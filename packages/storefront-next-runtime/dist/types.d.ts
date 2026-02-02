@@ -28,7 +28,8 @@ interface paths$4 {
      *
      *     The created basket is initialized with default values. Optional JSON data provided in the request body is populated into the created basket. It can be updated with other endpoints offered by the Shopper Baskets API.
      *
-     *     Each customer can have just one open basket. When a basket is created, it is said to be open. It remains open until either an order is created from it or it is deleted.
+     *     Each shopper is limited to one open basket at a time. Attempting to create a second basket for the same customer will result in a 400 Bad Request error with the message: "Customer Baskets Quota Exceeded".
+     *     A basket is considered "open" upon creation and remains in this state until it is either converted into an order or explicitly deleted. For implementation best practices, see [Hybrid Storefront Best Practices for Working with Baskets](https://developer.salesforce.com/docs/commerce/commerce-api/guide/hybrid-storefront-baskets.html#hybrid-storefront-best-practices-for-working-with-baskets).
      */
     post: operations$4["createBasket"];
     delete?: never;
@@ -59,12 +60,16 @@ interface paths$4 {
      * Transfer an existing basket.
      * @description Transfer the previous shopper's basket to the current shopper by updating the basket's owner. No other values change. You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token.
      *
-     *     A success response contains the transferred basket.
+     *     This endpoint provides different methods for handling the scenario in which both a previous guest shopper and the current registered shopper have an active basket attached, and utilizes the `merge` parameter as follows:
+     *     - `true` (recommended): Triggers a merge hook for graceful handling and prevents 409 status returns. For more information, refer to the `merge` parameter documentation.
+     *     - `false`: Either overrides the basket of the current registered shopper or returns a 409 response, and allows you to choose between the options explained below.
      *
-     *     If the current shopper has an active basket, and the `overrideExisting` request parameter is `false`, then the transfer request returns a BasketTransferException (HTTP status 409). You can proceed with one of these options:
+     *     If you call the endpoint with `merge=false` and the current shopper has an active basket, you have two options using the `overrideExisting` parameter. Setting it to `true` deletes the registered user's basket, while setting it to `false` returns a `BasketTransferException` (HTTP status 409), after which you can choose how to proceed:
      *     - Keep the current shopper's active basket.
-     *     - Merge the previous and current shoppers' baskets by calling the `baskets/merge` endpoint.
-     *     - Force the transfer by calling the `baskets/transfer` endpoint again, with the parameter `overrideExisting=true`. Forcing the transfer deletes the current shopper's active basket.
+     *     - Merge the previous and current shoppers' baskets by calling the `baskets/actions/merge` endpoint.
+     *     - Force the transfer by calling the `baskets/actions/transfer` endpoint again, with the parameter `overrideExisting=true`. Forcing the transfer deletes the current shopper's active basket.
+     *
+     *     A successful response provides the transferred (and merged) current basket. However, if neither the previous nor current shopper had an active basket, a 204 (No Content) response is returned.
      */
     post: operations$4["transferBasket"];
     delete?: never;
@@ -93,7 +98,9 @@ interface paths$4 {
     put?: never;
     /**
      * Merge baskets.
-     * @description Merge data from the previous shopper's basket into the current shopper's active basket and delete the previous shopper's basket. This endpoint doesn't merge Personally Identifiable Information (PII). You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token. After the merge, all basket amounts are recalculated and totaled, including lookups for prices, taxes, shipping, and promotions, unless hooks are enabled.
+     * @description ( DEPRECATED ) Instead of using this endpoint, we recommend using the `/baskets/actions/transfer` endpoint with the `merge=true` parameter, because the transfer endpoint offers greater customization by invoking a hook, allowing for adjustments if the default implementation does not process the merge as expected.
+     *
+     *     Merge data from the previous shopper's basket into the current shopper's active basket and delete the previous shopper's basket. This endpoint doesn't merge Personally Identifiable Information (PII). You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token. After the merge, all basket amounts are recalculated and totaled, including lookups for prices, taxes, shipping, and promotions, unless hooks are enabled.
      *
      *     The following information is merged:
      *     - custom attributes on the basket and on all copied records
@@ -1025,9 +1032,8 @@ interface components$4 {
      * @description A specialized value indicating the system default values for locales.
      * @default default
      * @example default
-     * @enum {string}
      */
-    DefaultFallback: "default";
+    DefaultFallback: string;
     /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
     LocaleCode: components$4["schemas"]["LanguageCountry"] | components$4["schemas"]["LanguageCode"] | components$4["schemas"]["DefaultFallback"];
     /**
@@ -1209,22 +1215,10 @@ interface components$4 {
       [key: string]: unknown;
     };
     /**
-     * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-     * @example USD
-     */
-    ISOCurrency: string;
-    /**
-     * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-     * @default N/A
-     * @example N/A
-     * @enum {string}
-     */
-    NoValue: "N/A";
-    /**
      * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
      * @example USD
      */
-    CurrencyCode: components$4["schemas"]["ISOCurrency"] | components$4["schemas"]["NoValue"];
+    CurrencyCode: string;
     /** @description The customer information for guest or logged-in customers. */
     CustomerInfo: {
       /**
@@ -2502,6 +2496,34 @@ interface components$4 {
      */
     overrideExisting: boolean;
     /**
+     * @description This parameter controls the behavior:
+     *         - `false` (default): Transfers the basket or returns a 409 response with the appropriate message (taking `overrideExisting` in consideration).
+     *         - `true`: (recommended): Executes the dw.order.mergeBasket hook if at least one basket exists.
+     *
+     *     The hook dw.order.mergeBasket default implementation merges a source basket into the current basket. This behavior can be customized, as shown
+     *     in this [sample implementation](https://gist.github.com/sf-thomas-loesche/3446c7d71a97e559bf1caee96ae56d9f).
+     *
+     *     There are four possible use cases:
+     *
+     *     a) Guest basket and registered basket exist
+     *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+     *     dw.order.mergeBasket is called with the source basket (former registered shopper basket) and the transferred current basket (former guest basket).
+     *
+     *     b) Guest basket exists but no registered basket exists
+     *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+     *     dw.order.mergeBasket is called without the source basket (null passed to the hook) and the transferred current basket (former guest basket).
+     *
+     *     c) No guest basket exists but a registered basket exists
+     *     The registered basket is retained. The hook dw.order.mergeBasket is called with the retained current basket but without the source basket (null
+     *     passed to the hook).
+     *
+     *     d) Neither basket exists
+     *     The hook dw.order.mergeBasket is not called.
+     *
+     *     The API returns the current basket (after executing dw.order.mergeBasket).
+     */
+    merge: boolean;
+    /**
      * @description If the current shopper has an active basket, this parameter is ignored. If the current shopper has no active basket, this parameter controls the behavior:
      *     - `false` (default): Return a BasketMergeException (HTTP status 409).
      *     - `true`: Force the merge by creating a basket for the current shopper and copying information from the previous shopper's basket into it. Return success (HTTP status 200).
@@ -2614,7 +2636,7 @@ interface operations$4 {
           [name: string]: unknown;
         };
         content: {
-          "application/problem+json": unknown;
+          "application/problem+json": components$4["schemas"]["ErrorResponse"];
         };
       };
     };
@@ -2630,6 +2652,34 @@ interface operations$4 {
          *     - `true`: Force the transfer by deleting the current shopper's active basket and making the current shopper the owner of the previous shopper's basket. Returns the transferred basket (HTTP status 200).
          */
         overrideExisting?: components$4["parameters"]["overrideExisting"];
+        /**
+         * @description This parameter controls the behavior:
+         *         - `false` (default): Transfers the basket or returns a 409 response with the appropriate message (taking `overrideExisting` in consideration).
+         *         - `true`: (recommended): Executes the dw.order.mergeBasket hook if at least one basket exists.
+         *
+         *     The hook dw.order.mergeBasket default implementation merges a source basket into the current basket. This behavior can be customized, as shown
+         *     in this [sample implementation](https://gist.github.com/sf-thomas-loesche/3446c7d71a97e559bf1caee96ae56d9f).
+         *
+         *     There are four possible use cases:
+         *
+         *     a) Guest basket and registered basket exist
+         *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+         *     dw.order.mergeBasket is called with the source basket (former registered shopper basket) and the transferred current basket (former guest basket).
+         *
+         *     b) Guest basket exists but no registered basket exists
+         *     The guest basket becomes the current basket for the registered shopper by updating the basket's owner (no personal data is removed). The hook
+         *     dw.order.mergeBasket is called without the source basket (null passed to the hook) and the transferred current basket (former guest basket).
+         *
+         *     c) No guest basket exists but a registered basket exists
+         *     The registered basket is retained. The hook dw.order.mergeBasket is called with the retained current basket but without the source basket (null
+         *     passed to the hook).
+         *
+         *     d) Neither basket exists
+         *     The hook dw.order.mergeBasket is not called.
+         *
+         *     The API returns the current basket (after executing dw.order.mergeBasket).
+         */
+        merge?: components$4["parameters"]["merge"];
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         locale?: components$4["parameters"]["locale"];
       };
@@ -2645,7 +2695,7 @@ interface operations$4 {
     };
     requestBody?: never;
     responses: {
-      /** @description The transferred basket. */
+      /** @description The current basket. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -2653,6 +2703,13 @@ interface operations$4 {
         content: {
           "application/json": components$4["schemas"]["Basket"];
         };
+      };
+      /** @description The operation was successful. No current basket was returned because neither the previous nor current shopper had an active basket attached that could be transferred. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description The call returns this error if no SLAS token for a registered shopper is available. */
       403: {
@@ -2664,9 +2721,9 @@ interface operations$4 {
         };
       };
       /**
-       * @description The call returns this response in either of these cases:
+       * @description The call returns this response when the `merge` request parameter is set to `false` and one of the following cases applies:
        *     - The previous shopper has no active basket.
-       *     - The current shopper has an active basket and the `overrideExisting` query parameter was `false` (default value).
+       *     - The current shopper has an active basket and the `overrideExisting` query parameter is set to `false` (default value).
        */
       409: {
         headers: {
@@ -4808,7 +4865,8 @@ interface paths$3 {
      *
      *     The created basket is initialized with default values. Optional JSON data provided in the request body is populated into the created basket. It can be updated with other endpoints offered by the Shopper Baskets API.
      *
-     *     Each customer can have just one open basket. When a basket is created, it is said to be open. It remains open until either an order is created from it or it is deleted.
+     *     Each shopper is limited to one open basket at a time. Attempting to create a second basket for the same customer will result in a 400 Bad Request error with the message: "Customer Baskets Quota Exceeded".
+     *     A basket is considered "open" upon creation and remains in this state until it is either converted into an order or explicitly deleted. For implementation best practices, see [Hybrid Storefront Best Practices for Working with Baskets](https://developer.salesforce.com/docs/commerce/commerce-api/guide/hybrid-storefront-baskets.html#hybrid-storefront-best-practices-for-working-with-baskets).
      */
     post: operations$3["createBasket"];
     delete?: never;
@@ -5832,9 +5890,8 @@ interface components$3 {
      * @description A specialized value indicating the system default values for locales.
      * @default default
      * @example default
-     * @enum {string}
      */
-    DefaultFallback: "default";
+    DefaultFallback: string;
     /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
     LocaleCode: components$3["schemas"]["LanguageCountry"] | components$3["schemas"]["LanguageCode"] | components$3["schemas"]["DefaultFallback"];
     /**
@@ -6016,22 +6073,10 @@ interface components$3 {
       [key: string]: unknown;
     };
     /**
-     * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-     * @example USD
-     */
-    ISOCurrency: string;
-    /**
-     * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-     * @default N/A
-     * @example N/A
-     * @enum {string}
-     */
-    NoValue: "N/A";
-    /**
      * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
      * @example USD
      */
-    CurrencyCode: components$3["schemas"]["ISOCurrency"] | components$3["schemas"]["NoValue"];
+    CurrencyCode: string;
     /** @description The customer information for guest or logged-in customers. */
     CustomerInfo: {
       /**
@@ -6330,16 +6375,43 @@ interface components$3 {
          */
         paymentReferenceId?: string;
         /**
-         * @description Client secret for payment confirmation. Used primarily by Stripe for client-side payment confirmation.
-         * @example pi_3N4B2vF0wDjebNCp1234567_secret_abc123
-         */
-        clientSecret?: string;
-        /**
          * Format: uri
          * @description Redirect URL for payment methods that require user redirection to complete payment.
          * @example https://checkout.stripe.com/pay/cs_test_abc123
          */
         redirectUrl?: string;
+        /**
+         * @description The payment gateway used to process the payment.
+         * @example stripe
+         * @enum {string}
+         */
+        gateway?: "stripe" | "paypal" | "adyen";
+        /** @description The payment gateway specific properties. */
+        gatewayProperties?: {
+          /**
+           * @description # Stripe specific properties.
+           *
+           *     - setupFutureUsage: Indicates that you intend to make future payments with this payment method.
+           *       - **on_session**: The payment method is intended to be used for a future payment on the same website session.
+           *       - **off_session**: The payment method is intended to be used for a future payment on a different website session.
+           *      - **null**: The payment method is not intended to be used for a future payment.
+           *     - clientSecret: Secret for Stripe client-side payment confirmation. Don't store, log, or expose the client secret to anyone other than the customer, and only use it on pages where TLS is enabled.
+           *       - type: string
+           *       - maxLength: 256
+           *       - example: "pi_1J4K5L2eZvKYlo2CyZ8K5L6M_secret_abc123"
+           */
+          stripe?: {
+            [key: string]: unknown;
+          };
+          /** @description # PayPal specific properties. */
+          paypal?: {
+            [key: string]: unknown;
+          };
+          /** @description # Adyen specific properties. */
+          adyen?: {
+            [key: string]: unknown;
+          };
+        };
       };
     };
     /** @description Document representing a product item. */
@@ -6458,6 +6530,8 @@ interface components$3 {
        * @example 006490dcc338feeafc71c964bf
        */
       shippingItemId?: string;
+      /** @description Information retrieved from Order Management (OMS) for the product. Only available in context of an order. */
+      omsData?: components$3["schemas"]["OmsProductData"];
       /**
        * Format: double
        * @description The tax for the product item, not including price adjustments. It is read only.
@@ -6684,6 +6758,25 @@ interface components$3 {
        * @enum {string}
        */
       type?: "product" | "gift_certificate";
+    };
+    /**
+     * @description Additional information retrieved from Order Management (OMS)
+     *     See https://developer.salesforce.com/docs/atlas.en-us.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_orderitemsummary.htm for more information.
+     *     Only available in context of an order.
+     */
+    OmsProductData: {
+      /**
+       * @description Order Management (OMS) status
+       * @example ordered
+       * @enum {string}
+       */
+      status?: "ordered" | "returned" | "canceled" | "paid" | "reshipped" | "fulfilled" | "partially_fulfilled" | "allocated" | "partially_allocated" | "return_initiated";
+      /**
+       * Format: double
+       * @description The quantity that can be cancelled.
+       * @example 2
+       */
+      quantityAvailableToCancel?: number;
     };
     /**
      * @description The identifier of the shipment
@@ -7188,11 +7281,40 @@ interface components$3 {
        */
       zoneId?: string;
       /**
-       * @description Shipping preference for PayPal payment processing. Applicable only for basket payment instruments.
-       * @example GET_FROM_FILE
+       * @description The payment gateway used to process the payment.
+       * @example stripe
        * @enum {string}
        */
-      shippingPreference?: "GET_FROM_FILE" | "NO_SHIPPING" | "SET_PROVIDED_ADDRESS";
+      gateway?: "stripe" | "paypal" | "adyen";
+      /** @description The payment gateway specific properties. */
+      gatewayProperties?: {
+        /**
+         * @description # Stripe specific properties.
+         *
+         *     - setupFutureUsage: Indicates that you intend to make future payments with this payment method.
+         *       - **on_session**: The payment method is intended to be used for a future payment on the same website session.
+         *       - **off_session**: The payment method is intended to be used for a future payment on a different website session.
+         *       - **null**: The payment method is not intended to be used for a future payment.
+         */
+        stripe?: {
+          [key: string]: unknown;
+        };
+        /**
+         * @description # PayPal specific properties.
+         *
+         *     - shippingPreference: Shipping preference for PayPal payment processing. Applicable only for basket payment instruments.
+         *       - **GET_FROM_FILE**
+         *       - **NO_SHIPPING**
+         *       - **SET_PROVIDED_ADDRESS**
+         */
+        paypal?: {
+          [key: string]: unknown;
+        };
+        /** @description # Adyen specific properties. */
+        adyen?: {
+          [key: string]: unknown;
+        };
+      };
     };
     /** @description Document representing a basket payment instrument request. */
     BasketPaymentInstrumentRequest: {
@@ -9784,7 +9906,7 @@ interface paths$2 {
      *     You must provide the `aspectTypeId` along with either a `categoryId` or a `productId`. Since you can only create one page-to-product or page-to-category assignment per aspect type, the result contains at most one element.
      *
      *     **Important**:
-     *     - Currently, you can't use the Shopper Experience API when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
+     *     - Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
      *     - Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.
      *     - Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching).
      */
@@ -9809,11 +9931,135 @@ interface paths$2 {
      * @description Get a Page Designer page for a specific page ID. The results apply the visibility rules for the page's components, such as personalization or scheduled visibility.
      *
      *     **Important**:
-     *     - Currently, you can't use the Shopper Experience API when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
+     *     - Currently, you can't use the Shopper Experience Pages endpoints when the [storefront password protection](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fpermissions%2Fb2c_storefront_password_protection.html&resultof=%22%73%74%6f%72%65%66%72%6f%6e%74%22%20%22%70%72%6f%74%65%63%74%69%6f%6e%22%20%22%70%72%6f%74%65%63%74%22%20) feature is enabled.
      *     - Because this resource uses the GET method, you must not pass sensitive data, for example: payment card information, and must not perform transactional processes within the server-side scripts that are run for the page and components.
      *     - Be aware that pagecache during fingerprint calculation will only be leveraged for pages and their components that don't use visibility rules. Furthermore the pagecaching of the actual response assembly solely depends on the response instrumentation with the serverside page type and component type script implementations. For more details also see the [Page Designer Caching Guide](https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/b2c-dev-for-page-designer.html#page-caching).
      */
     get: operations$2["getPage"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations/{organizationId}/contents/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a content asset by ID.
+     * @description Get a content asset by its unique identifier. Only content assets that are marked as online are returned.
+     *
+     *     Content assets contain rich content that can be displayed on storefronts, including text, HTML, images, and custom attributes.
+     *
+     *     **Important**:
+     *     - Because this resource uses the GET method, you must not pass sensitive data and must not perform transactional processes.
+     */
+    get: operations$2["getContent"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations/{organizationId}/contents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get multiple content assets.
+     * @description Get multiple content assets by their identifiers. Only content assets that are marked as online are returned.
+     *
+     *     This endpoint allows you to retrieve multiple content assets in a single request, which is more efficient than making multiple individual requests.
+     *
+     *     **Important**:
+     *     - Because this resource uses the GET method, you must not pass sensitive data and must not perform transactional processes.
+     */
+    get: operations$2["getMultipleContent"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations/{organizationId}/content-search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search for content assets.
+     * @description Provides keyword and refinement search functionality for content assets. The search result contains only content
+     *     that is online and assigned to a folder.
+     *
+     *     **Refinement Parameters:**
+     *     The following system refinement attribute IDs are supported:
+     *     - `fdid`: Allows refinement per single content folder ID. Multiple folder IDs are not supported.
+     *
+     *     **Important**:
+     *     - Because this resource uses the GET method, you must not pass sensitive data and must not perform transactional processes.
+     */
+    get: operations$2["searchContent"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations/{organizationId}/folders/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get content folder
+     * @description To access a content folder, you construct a URL using the template shown below.
+     *     This template requires you to specify a content folder id and a subfolder level.
+     *     In response, the server returns a corresponding content folder document.
+     *     Only content folders which are marked as online are returned.
+     */
+    get: operations$2["getContentFolder"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations/{organizationId}/folders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get multiple content folders
+     * @description To access one or more content folders, you construct a URL using the template shown below.
+     *     This template requires you to specify one or more content folder ids as a query parameter and a subfolder level.
+     *     In response, the server returns a result set of corresponding content folder documents.
+     *     Only content folders which are marked as online are returned.
+     */
+    get: operations$2["getContentFolders"];
     put?: never;
     post?: never;
     delete?: never;
@@ -9849,126 +10095,10 @@ interface components$2 {
      * @description A specialized value indicating the system default values for locales.
      * @default default
      * @example default
-     * @enum {string}
      */
-    DefaultFallback: "default";
+    DefaultFallback: string;
     /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
     LocaleCode: components$2["schemas"]["LanguageCountry"] | components$2["schemas"]["LanguageCode"] | components$2["schemas"]["DefaultFallback"];
-    /** @description Represents a component type for content management */
-    ComponentType: components$2["schemas"]["BaseType"] & {
-      /** @description A grouping identifier for display purposes */
-      group?: string;
-    };
-    /** @description Represents a page type for content management */
-    PageType: components$2["schemas"]["BaseType"] & {
-      /** @description Route of a page that this page type is used for */
-      route?: string;
-      /** @description The IDs of the aspect types this page supports */
-      supportedAspectTypes?: string[];
-    };
-    /** @description Base type for a page or component type */
-    BaseType: {
-      /** @description Unique identifier of the page type */
-      id: string;
-      /** @description Name of the page type for display purposes */
-      name?: string;
-      /** @description Description of the page type for display purposes */
-      description?: string;
-      /**
-       * @description Architecture type identifier
-       * @enum {string}
-       */
-      archType?: "headless" | "controller";
-      /** @description The regions where components can be plugged into */
-      regionDefinitions?: components$2["schemas"]["RegionDefinition"][];
-      /** @description Attribute groups that provide the content attributes */
-      attributeDefinitionGroups?: components$2["schemas"]["AttributeDefinitionGroup"][];
-    };
-    /** @description Represents a region used by pages and components for structuring content hierarchically */
-    RegionDefinition: {
-      /** @description The ID of the region (unique within respective page/component type) */
-      id: string;
-      /** @description The name of the region for display purposes */
-      name?: string;
-      /** @description The maximum number of components that can be visible within this region during rendering */
-      maxComponents?: number;
-      /** @description The component types to be excluded from this region */
-      componentTypeExclusions?: components$2["schemas"]["ComponentTypeExclusion"][];
-      /** @description The component types to be included in this region */
-      componentTypeInclusions?: components$2["schemas"]["ComponentTypeInclusion"][];
-      /** @description The constructors for the components the region will be filled with on creation */
-      defaultComponentConstructors?: components$2["schemas"]["ComponentConstructor"][];
-    };
-    /** @description Represents the definition of a content attribute group for representing component content attributes in a grouped manner */
-    AttributeDefinitionGroup: {
-      /** @description The ID of the attribute group (unique within respective component type) */
-      id: string;
-      /** @description Name of the attribute group for display purposes */
-      name?: string;
-      /** @description Description of the attribute group for display purposes */
-      description?: string;
-      /** @description The attribute definitions that belong to this group */
-      attributeDefinitions?: components$2["schemas"]["AttributeDefinition"][];
-    };
-    /** @description Represents the definition of a content attribute used for representing the content of components */
-    AttributeDefinition: {
-      /** @description The ID of the attribute (unique within respective component type) */
-      id: string;
-      /** @description Name of the attribute for display purposes */
-      name?: string;
-      /** @description Description of the attribute for display purposes */
-      description?: string;
-      /**
-       * @description The type of value the attribute can hold
-       * @enum {string}
-       */
-      type: "string" | "text" | "markup" | "product" | "category" | "file" | "boolean" | "integer" | "enum" | "page" | "image" | "url" | "custom" | "cms_record";
-      /** @description The definition of the editor for this attribute */
-      editorDefinition?: {
-        [key: string]: unknown;
-      };
-      /** @description The valid values for enum type attributes */
-      values?: Record<string, never>[];
-      /**
-       * @description Whether the attribute is required to be set for its component
-       * @default true
-       */
-      required: boolean;
-      /** @description The fallback value if no value was set explicitly */
-      defaultValue?: Record<string, never>;
-      dynamicLookup?: components$2["schemas"]["DynamicAttributeLookup"];
-    };
-    /** @description Describes the rule for a component type exclusion, commonly used per RegionDefinition */
-    ComponentTypeExclusion: {
-      /** @description The ID of the component type to be excluded */
-      typeId: string;
-    };
-    /** @description Describes the rule for a component type inclusion, commonly used per RegionDefinition */
-    ComponentTypeInclusion: {
-      /** @description The ID of the component type to be included */
-      typeId: string;
-    };
-    /** @description Describes the rule for component creation, commonly used per RegionDefinition */
-    ComponentConstructor: {
-      /** @description The ID of the component type used for component creation */
-      typeId: string;
-      /** @description Name of the component */
-      name?: string;
-      /** @description The component constructors per region */
-      regionComponentConstructors?: components$2["schemas"]["RegionComponentConstructor"][];
-    };
-    /** @description Describes the rule for component creation per region, used by ComponentConstructor */
-    RegionComponentConstructor: {
-      /** @description The ID of the region the component constructors are targeted for */
-      regionId: string;
-      /** @description The component constructors for the region */
-      componentConstructors?: components$2["schemas"]["ComponentConstructor"][];
-    };
-    /** @description Represents the definition of dynamic attribute lookup, currently only to aspect attributes based on attribute ID aliasing */
-    DynamicAttributeLookup: {
-      /** @description The ID of the referenced aspect attribute */
-      aspectAttributeAlias: string;
-    };
     Region: {
       /**
        * ID
@@ -10016,21 +10146,7 @@ interface components$2 {
        *       "category": "topseller"
        *     }
        */
-      data?: {
-        [key: string]: unknown;
-      };
-      /**
-       * Localized
-       * @description Whether the compononent has been localized in the current locale.
-       * @example true
-       */
-      localized?: boolean;
-      /**
-       * Visibility
-       * @description Whether the compononent is visible based on the current visiblity rules and context.
-       * @example true
-       */
-      visible?: boolean;
+      data?: Record<string, never>;
       /**
        * Custom Component Data
        * @description Any custom data added by the custom code for this component.
@@ -10039,7 +10155,6 @@ interface components$2 {
        *     }
        */
       custom?: Record<string, never>;
-      designMetadata?: components$2["schemas"]["ComponentType"];
       /**
        * Regions
        * @description The regions (and their assigned components) for the component.
@@ -10123,10 +10238,7 @@ interface components$2 {
        *       "thumbnail": "myshop.jpg"
        *     }
        */
-      data?: {
-        [key: string]: unknown;
-      };
-      designMetadata?: components$2["schemas"]["PageType"];
+      data?: Record<string, never>;
       /**
        * Custom Page Data
        * @description Any custom data added by the custom code for the page type.
@@ -10244,8 +10356,237 @@ interface components$2 {
     } & {
       [key: string]: unknown;
     };
+    /**
+     * @description The id of the content asset.
+     * @example homepage-banner
+     */
+    ContentId: string;
+    Content: {
+      /** ID */
+      id: components$2["schemas"]["ContentId"];
+      /**
+       * Name
+       * @description The localized content asset name.
+       * @example Homepage Banner
+       */
+      name?: string;
+      /**
+       * Description
+       * @description The localized content asset description.
+       * @example Main banner displayed on the homepage
+       */
+      description?: string;
+      /**
+       * Page Description
+       * @description The localized content asset page description for SEO.
+       * @example Discover our latest products and offers
+       */
+      pageDescription?: string;
+      /**
+       * Page Keywords
+       * @description The localized content asset page keywords for SEO.
+       * @example products, offers, sale, fashion
+       */
+      pageKeywords?: string;
+      /**
+       * Page Title
+       * @description The localized content asset page title for SEO
+       * @example Shop Now - Best Deals
+       */
+      pageTitle?: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * Format: int32
+     * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
+     * @default 0
+     * @example 10
+     */
+    Total: number;
+    /**
+     * @description Schema defining generic list result. Each response schema of a resource requiring a list response should extend this schema.
+     *     Additionally it needs to be defined what data is returned.
+     */
+    ResultBase: {
+      /**
+       * Format: int32
+       * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+       * @example 10
+       */
+      limit: number;
+      total: components$2["schemas"]["Total"];
+    };
+    ContentResult: {
+      /**
+       * Data
+       * @description List of content assets.
+       */
+      data: components$2["schemas"]["Content"][];
+    } & components$2["schemas"]["ResultBase"];
+    /**
+     * Format: int32
+     * @description The zero-based index of the first hit/data to include in the result.
+     * @default 0
+     * @example 0
+     */
+    Offset: number;
+    /**
+     * @description Schema defining generic pageable result. Each response schema of a resource requiring pagination should extend this schema.
+     *     If you use this extend this schema directly, it needs to be defined what data is returned. Allowed names for the data field is `data`.
+     */
+    PaginatedResultBase: {
+      offset: components$2["schemas"]["Offset"];
+    } & WithRequired$1<components$2["schemas"]["ResultBase"], "limit" | "total">;
+    ContentSearchRefinementValue: {
+      /**
+       * Label
+       * @description The localized label of the refinement value.
+       * @example Banner
+       */
+      label?: string;
+      /**
+       * Value
+       * @description The refinement value.
+       * @example banner
+       */
+      value: string;
+      /**
+       * Hit Count
+       * @description The number of search hits when this refinement value is applied.
+       * @example 5
+       */
+      hitCount?: number;
+    };
+    ContentSearchRefinement: {
+      /**
+       * Attribute ID
+       * @description The ID of the refinement attribute.
+       * @example c_contentType
+       */
+      attributeId: string;
+      /**
+       * Label
+       * @description The localized label of the refinement attribute.
+       * @example Content Type
+       */
+      label?: string;
+      /**
+       * Values
+       * @description The array of refinement values.
+       */
+      values?: components$2["schemas"]["ContentSearchRefinementValue"][];
+    };
+    ContentSearchResult: {
+      /**
+       * Query
+       * @description The query String that was searched for.
+       * @example banner
+       */
+      query?: string;
+      /**
+       * Content Hits
+       * @description The sorted array of search hits. Can be empty.
+       */
+      hits: components$2["schemas"]["Content"][];
+      /**
+       * Selected Refinements
+       * @description Map of selected refinement attribute id/value(s) pairs. The sorting order is the same like in request URL.
+       * @example {
+       *       "fdid": "homepage-folder",
+       *       "c_contentType": "banner"
+       *     }
+       */
+      selectedRefinements?: {
+        [key: string]: string;
+      };
+      /**
+       * Refinements
+       * @description The sorted array of search refinements. Can be empty.
+       */
+      refinements?: components$2["schemas"]["ContentSearchRefinement"][];
+    } & components$2["schemas"]["PaginatedResultBase"];
+    /** @example homepage-folder */
+    FolderId: string;
+    ContentFolder: {
+      /**
+       * ID
+       * @description The id of the content folder.
+       * @example homepage-folder
+       */
+      id: string;
+      /**
+       * Parent Folder ID
+       * @description The id of the parent content folder.
+       * @example root-folder
+       */
+      parentFolderId?: string;
+      /**
+       * Name
+       * @description The localized content folder name.
+       * @example Homepage Folder
+       */
+      name?: string;
+      /**
+       * Description
+       * @description The localized content folder description.
+       * @example Folder containing homepage content assets
+       */
+      description?: string;
+      /**
+       * Page Description
+       * @description The localized content folder page description.
+       * @example SEO description for homepage folder
+       */
+      pageDescription?: string;
+      /**
+       * Page Keywords
+       * @description The localized content folder page keywords.
+       * @example homepage, main, landing
+       */
+      pageKeywords?: string;
+      /**
+       * Page Title
+       * @description The localized content folder page title.
+       * @example Homepage Folder - My Store
+       */
+      pageTitle?: string;
+      /**
+       * Folders
+       * @description The array of content subfolders. This array can be empty.
+       */
+      folders?: components$2["schemas"]["ContentFolder"][];
+    } & {
+      [key: string]: unknown;
+    };
+    ContentFolderResult: {
+      /**
+       * Data
+       * @description List of content folders.
+       */
+      data: components$2["schemas"]["ContentFolder"][];
+    } & components$2["schemas"]["ResultBase"];
   };
-  responses: never;
+  responses: {
+    /** @description Your access token is invalid or expired and can’t be used to identify a user. */
+    "401unauthorized": {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/problem+json": components$2["schemas"]["ErrorResponse"];
+      };
+    };
+    /** @description Forbidden. Your access token is valid, but you don’t have the required permissions to access the resource. */
+    "403forbidden": {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/problem+json": components$2["schemas"]["ErrorResponse"];
+      };
+    };
+  };
   parameters: {
     /**
      * @description An identifier for the organization the request is being made by
@@ -10268,6 +10609,38 @@ interface components$2 {
     locale: components$2["schemas"]["LocaleCode"];
     /** @description Identifier for the requested page. */
     pageId: string;
+    /** @description Identifier for the requested content asset. */
+    contentId: components$2["schemas"]["ContentId"];
+    /**
+     * @description Comma-separated list of content asset identifiers to retrieve.
+     * @example homepage-banner,footer-content,sidebar-promo
+     */
+    contentIds: components$2["schemas"]["ContentId"][];
+    /** @description The query phrase to search for content assets. For example, to search for content with "banner", type q=banner. */
+    contentSearchQuery: string;
+    /**
+     * @description Parameter that represents a refinement attribute/value(s) pair. Refinement attribute ID and value(s) are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = "|"). Value ranges can be specified like this: refine=foo=(100..500).
+     *     Multiple refine parameters can be provided by adding an underscore in combination with an integer counter right behind the parameter name and a counter range 1..9. I.e. refine_1=c_refinementType=type1|type2|type3.
+     *
+     *     The following system refinement attribute IDs are supported:
+     *     - `fdid`: Allows refinement per single content folder ID. Multiple folder IDs are not supported.
+     */
+    contentSearchRefine: string;
+    /**
+     * @description Parameter that represents a sorting attribute/value(s) pair. Sorting attribute ID and value are separated by '='. The value describes the sort direction. Possible values are 'asc' and 'desc', for ascending or descending sort direction. I.e. sort=c_myAttribute=desc.
+     *
+     *     Precondition: You have to select your sorting attributes in Business Manager > YourSite > Search Indexes > Content Index > Sorting Attributes.
+     */
+    contentSearchSort: string;
+    /** @description Identifier for the requested content folder. */
+    folderId: components$2["schemas"]["FolderId"];
+    /** @description Specifies how many levels of nested subfolders you want the server to return. The default value is 1. Valid values are 0, 1, or 2. */
+    levels: number;
+    /**
+     * @description Comma-separated list of content folder identifiers.
+     * @example homepage-folder,category-folder,product-folder
+     */
+    folderIds: components$2["schemas"]["FolderId"][];
   };
   requestBodies: never;
   headers: never;
@@ -10368,8 +10741,17 @@ interface operations$2 {
           "application/json": components$2["schemas"]["Page"];
         };
       };
-      /** @description Provided Aspect Attribute Invalid */
+      /** @description Invalid Query Parameter */
       400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components$2["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized Access */
+      401: {
         headers: {
           [name: string]: unknown;
         };
@@ -10388,7 +10770,259 @@ interface operations$2 {
       };
     };
   };
+  getContent: {
+    parameters: {
+      query: {
+        /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+        siteId: components$2["parameters"]["siteId"];
+        /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+        locale?: components$2["parameters"]["locale"];
+      };
+      header?: never;
+      path: {
+        /**
+         * @description An identifier for the organization the request is being made by
+         * @example f_ecom_zzxy_prd
+         */
+        organizationId: components$2["parameters"]["organizationId"];
+        /** @description Identifier for the requested content asset. */
+        id: components$2["parameters"]["contentId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components$2["schemas"]["Content"];
+        };
+      };
+      /** @description Content Asset Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components$2["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getMultipleContent: {
+    parameters: {
+      query: {
+        /**
+         * @description Comma-separated list of content asset identifiers to retrieve.
+         * @example homepage-banner,footer-content,sidebar-promo
+         */
+        ids: components$2["parameters"]["contentIds"];
+        /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+        siteId: components$2["parameters"]["siteId"];
+        /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+        locale?: components$2["parameters"]["locale"];
+      };
+      header?: never;
+      path: {
+        /**
+         * @description An identifier for the organization the request is being made by
+         * @example f_ecom_zzxy_prd
+         */
+        organizationId: components$2["parameters"]["organizationId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components$2["schemas"]["ContentResult"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components$2["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  searchContent: {
+    parameters: {
+      query: {
+        /** @description The query phrase to search for content assets. For example, to search for content with "banner", type q=banner. */
+        q?: components$2["parameters"]["contentSearchQuery"];
+        /**
+         * @description Parameter that represents a refinement attribute/value(s) pair. Refinement attribute ID and value(s) are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = "|"). Value ranges can be specified like this: refine=foo=(100..500).
+         *     Multiple refine parameters can be provided by adding an underscore in combination with an integer counter right behind the parameter name and a counter range 1..9. I.e. refine_1=c_refinementType=type1|type2|type3.
+         *
+         *     The following system refinement attribute IDs are supported:
+         *     - `fdid`: Allows refinement per single content folder ID. Multiple folder IDs are not supported.
+         */
+        refine?: components$2["parameters"]["contentSearchRefine"];
+        /**
+         * @description Parameter that represents a sorting attribute/value(s) pair. Sorting attribute ID and value are separated by '='. The value describes the sort direction. Possible values are 'asc' and 'desc', for ascending or descending sort direction. I.e. sort=c_myAttribute=desc.
+         *
+         *     Precondition: You have to select your sorting attributes in Business Manager > YourSite > Search Indexes > Content Index > Sorting Attributes.
+         */
+        sort?: components$2["parameters"]["contentSearchSort"];
+        /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+        siteId: components$2["parameters"]["siteId"];
+        /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+        locale?: components$2["parameters"]["locale"];
+        /** @description Maximum records to retrieve per request, not to exceed 200. Defaults to 50. */
+        limit?: number;
+        /** @description Used to retrieve the results based on a particular resource offset. */
+        offset?: number;
+      };
+      header?: never;
+      path: {
+        /**
+         * @description An identifier for the organization the request is being made by
+         * @example f_ecom_zzxy_prd
+         */
+        organizationId: components$2["parameters"]["organizationId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components$2["schemas"]["ContentSearchResult"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components$2["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getContentFolder: {
+    parameters: {
+      query: {
+        /** @description Specifies how many levels of nested subfolders you want the server to return. The default value is 1. Valid values are 0, 1, or 2. */
+        levels?: components$2["parameters"]["levels"];
+        /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+        siteId: components$2["parameters"]["siteId"];
+        /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+        locale?: components$2["parameters"]["locale"];
+      };
+      header?: never;
+      path: {
+        /**
+         * @description An identifier for the organization the request is being made by
+         * @example f_ecom_zzxy_prd
+         */
+        organizationId: components$2["parameters"]["organizationId"];
+        /** @description Identifier for the requested content folder. */
+        id: components$2["parameters"]["folderId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components$2["schemas"]["ContentFolder"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components$2["schemas"]["ErrorResponse"];
+        };
+      };
+      401: components$2["responses"]["401unauthorized"];
+      403: components$2["responses"]["403forbidden"];
+      /** @description Folder Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components$2["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getContentFolders: {
+    parameters: {
+      query: {
+        /**
+         * @description Comma-separated list of content folder identifiers.
+         * @example homepage-folder,category-folder,product-folder
+         */
+        ids: components$2["parameters"]["folderIds"];
+        /** @description Specifies how many levels of nested subfolders you want the server to return. The default value is 1. Valid values are 0, 1, or 2. */
+        levels?: components$2["parameters"]["levels"];
+        /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+        siteId: components$2["parameters"]["siteId"];
+        /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+        locale?: components$2["parameters"]["locale"];
+      };
+      header?: never;
+      path: {
+        /**
+         * @description An identifier for the organization the request is being made by
+         * @example f_ecom_zzxy_prd
+         */
+        organizationId: components$2["parameters"]["organizationId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components$2["schemas"]["ContentFolderResult"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components$2["schemas"]["ErrorResponse"];
+        };
+      };
+      401: components$2["responses"]["401unauthorized"];
+      403: components$2["responses"]["403forbidden"];
+    };
+  };
 }
+type WithRequired$1<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 //#endregion
 //#region src/scapi-client/generated/shopper-products-v1.d.ts
 /**
@@ -10411,7 +11045,7 @@ interface paths$1 {
     };
     /**
      * Returns product details for multiple products.
-     * @description Allows access to multiple product details with a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of product IDs that you can request is 24. In addition to product details, the availability, product options, images, price, promotions, and variations for the valid products are included, as applicable.
+     * @description Allows access to multiple product details with a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of product IDs that you can request is 24. In addition to product details, the availability, images, price, bundled_products, set_products, recommendations, product options, variations, shipping_methods, and promotions for the products are included, as applicable.
      */
     get: operations$1["getProducts"];
     put?: never;
@@ -10439,7 +11073,7 @@ interface paths$1 {
     };
     /**
      * Returns product details for a single product.
-     * @description Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. In addition to product details, the availability, images, price, bundled_products, set_products, recommedations, product options, variations, and promotions for the products are included, as applicable.
+     * @description Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. In addition to product details, the availability, images, price, bundled_products, set_products, recommendations, product options, variations, shipping_methods, and promotions for the products are included, as applicable.
      */
     get: operations$1["getProduct"];
     put?: never;
@@ -10535,7 +11169,7 @@ interface components$1 {
      */
     SiteId: string;
     /**
-     * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+     * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. For more information, please read the documentation about property selectors [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-property-selection.html).
      * @example (name,id,variationAttributes.(**))
      */
     Select: string;
@@ -10553,28 +11187,15 @@ interface components$1 {
      * @description A specialized value indicating the system default values for locales.
      * @default default
      * @example default
-     * @enum {string}
      */
-    DefaultFallback: "default";
+    DefaultFallback: string;
     /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
     LocaleCode: components$1["schemas"]["LanguageCountry"] | components$1["schemas"]["LanguageCode"] | components$1["schemas"]["DefaultFallback"];
-    /**
-     * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-     * @example USD
-     */
-    ISOCurrency: string;
-    /**
-     * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-     * @default N/A
-     * @example N/A
-     * @enum {string}
-     */
-    NoValue: "N/A";
     /**
      * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
      * @example USD
      */
-    CurrencyCode: components$1["schemas"]["ISOCurrency"] | components$1["schemas"]["NoValue"];
+    CurrencyCode: string;
     /** @description Any product that is sold, shown alone, and does not have variations such as different sizes or colors. A product has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*. */
     Product: {
       /**
@@ -10763,6 +11384,11 @@ interface components$1 {
       variationValues?: {
         [key: string]: string;
       };
+      /**
+       * @description The array of applicable shipping methods for this product. This array can be empty.
+       *     This property is only returned in context of the 'shipping_methods' expansion.
+       */
+      shippingMethods?: components$1["schemas"]["ShippingMethod"][];
     } & {
       [key: string]: unknown;
     };
@@ -11174,6 +11800,60 @@ interface components$1 {
         [key: string]: string;
       };
     };
+    /** @description Document representing a shipping promotion. */
+    ShippingPromotion: {
+      /**
+       * @description The localized callout message of the promotion.
+       * @example $30 Fixed Shipping Amount Above 150
+       */
+      calloutMsg?: string;
+      /**
+       * @description The unique ID of the promotion.
+       * @example $30FixedShippingAmountAbove150
+       */
+      promotionId?: string;
+      /**
+       * @description The localized promotion name.
+       * @example $30 Fixed Shipping Amount Above 150
+       */
+      promotionName?: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /** @description Document representing a shipping method. */
+    ShippingMethod: {
+      /**
+       * @description The localized description of the shipping method.
+       * @example Order received within 7-10 business days
+       */
+      description?: string;
+      /** @description The external shipping method. */
+      externalShippingMethod?: string;
+      /**
+       * @description The shipping method ID.
+       * @example 001
+       */
+      id: string;
+      /**
+       * @description The localized name of the shipping method.
+       * @example Ground
+       */
+      name?: string;
+      /**
+       * Format: double
+       * @description The shipping cost total, including shipment level costs,
+       *     product level fix, and surcharge costs. It is read only.
+       * @example 15
+       */
+      price?: number;
+      /**
+       * @description The array of active customer shipping promotions for this shipping
+       *     method. This array can be empty.
+       */
+      shippingPromotions?: components$1["schemas"]["ShippingPromotion"][];
+    } & {
+      [key: string]: unknown;
+    };
     /** @description Result document containing an array of products. */
     ProductResult: {
       /**
@@ -11235,13 +11915,6 @@ interface components$1 {
     CategoryId: string;
     /**
      * Format: int32
-     * @description Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
-     * @default 10
-     * @example 10
-     */
-    Limit: number;
-    /**
-     * Format: int64
      * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
      * @default 0
      * @example 10
@@ -11252,7 +11925,12 @@ interface components$1 {
      *     Additionally it needs to be defined what data is returned.
      */
     ResultBase: {
-      limit: components$1["schemas"]["Limit"];
+      /**
+       * Format: int32
+       * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+       * @example 10
+       */
+      limit: number;
       total: components$1["schemas"]["Total"];
     };
     /** @description Categories allow products to be organized into hierarchical structures. Categories can have relationships to other parent categories. Each category can also provide a context inherited by subcategories. For example, a category may have an attribute value assigned to it, and any product assigned to the category or a subcategory would inherit the attribute value as long as the product is assigned. Once the product is removed from the category those attribute values would no longer be in the context of the product. Linking of categories is also used for Site hierarchical navigation. For example, inside 'Clothing' you may have 'Mens', and inside 'Mens' you may have 'Pants'. Categories are not *Tags.* */
@@ -11337,7 +12015,7 @@ interface components$1 {
         [name: string]: unknown;
       };
       content: {
-        "application/json": components$1["schemas"]["ErrorResponse"];
+        "application/problem+json": components$1["schemas"]["ErrorResponse"];
       };
     };
   };
@@ -11347,23 +12025,29 @@ interface components$1 {
      * @example f_ecom_zzxy_prd
      */
     organizationId: components$1["schemas"]["OrganizationId"];
-    /** @description The IDs of the requested products (comma-separated, max 24 IDs). */
-    ids: (components$1["schemas"]["ProductId"] & unknown)[];
-    /** @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs). */
-    inventoryIds: (components$1["schemas"]["InventoryId"] & unknown)[];
+    /**
+     * @description The IDs of the requested products (comma-separated, max 24 IDs).
+     * @example apple-ipod-shuffle,apple-ipod-nano
+     */
+    ids: components$1["schemas"]["ProductId"][];
+    /**
+     * @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+     * @example Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList
+     */
+    inventoryIds: components$1["schemas"]["InventoryId"][];
     /**
      * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
      *     The value "none" may be used to turn off all expand options.
      *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+     * @example prices,promotions
      */
-    expand_multiId: ("none" | "availability" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "recommendations" | "page_meta_tags")[];
+    expand_multiId: ("none" | "availability" | "bundled_products" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "set_products" | "recommendations" | "shipping_methods" | "page_meta_tags")[];
     /** @description The flag that indicates whether to retrieve the whole image model for the requested product. */
     allImages: boolean;
     /** @description The flag that indicates whether to retrieve the per PriceBook prices and tiered prices (if available) for requested Products. Available end of June, 2021. */
     perPricebook: boolean;
     /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
     siteId: components$1["schemas"]["SiteId"];
-    /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
     select: components$1["schemas"]["Select"];
     /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
     locale: components$1["schemas"]["LocaleCode"];
@@ -11375,10 +12059,14 @@ interface components$1 {
      * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
      *     The value "none" may be used to turn off all expand options.
      *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+     * @example prices,promotions
      */
-    expand_singleId: ("none" | "availability" | "bundled_products" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "set_products" | "recommendations" | "page_meta_tags")[];
-    /** @description The comma separated list of category IDs (max 50). */
-    "parameters-ids": (components$1["schemas"]["CategoryId"] & unknown)[];
+    expand_singleId: ("none" | "availability" | "bundled_products" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "set_products" | "recommendations" | "shipping_methods" | "page_meta_tags")[];
+    /**
+     * @description The comma separated list of category IDs (max 50).
+     * @example electronics-digital-cameras,electronics-televisions
+     */
+    "parameters-ids": components$1["schemas"]["CategoryId"][];
     /** @description Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2. Only online subcategories are returned. */
     levels: 0 | 1 | 2;
     /** @description The ID of the requested category. */
@@ -11392,14 +12080,21 @@ interface operations$1 {
   getProducts: {
     parameters: {
       query: {
-        /** @description The IDs of the requested products (comma-separated, max 24 IDs). */
+        /**
+         * @description The IDs of the requested products (comma-separated, max 24 IDs).
+         * @example apple-ipod-shuffle,apple-ipod-nano
+         */
         ids: components$1["parameters"]["ids"];
-        /** @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs). */
+        /**
+         * @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+         * @example Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList
+         */
         inventoryIds?: components$1["parameters"]["inventoryIds"];
         /**
          * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
          *     The value "none" may be used to turn off all expand options.
          *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+         * @example prices,promotions
          */
         expand?: components$1["parameters"]["expand_multiId"];
         /** @description The flag that indicates whether to retrieve the whole image model for the requested product. */
@@ -11408,7 +12103,6 @@ interface operations$1 {
         perPricebook?: components$1["parameters"]["perPricebook"];
         /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
         siteId: components$1["parameters"]["siteId"];
-        /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
         select?: components$1["parameters"]["select"];
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         locale?: components$1["parameters"]["locale"];
@@ -11451,19 +12145,22 @@ interface operations$1 {
   getProduct: {
     parameters: {
       query: {
-        /** @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs). */
+        /**
+         * @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+         * @example Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList
+         */
         inventoryIds?: components$1["parameters"]["inventoryIds"];
         /**
          * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
          *     The value "none" may be used to turn off all expand options.
          *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+         * @example prices,promotions
          */
         expand?: components$1["parameters"]["expand_singleId"];
         /** @description The flag that indicates whether to retrieve the whole image model for the requested product. */
         allImages?: components$1["parameters"]["allImages"];
         /** @description The flag that indicates whether to retrieve the per PriceBook prices and tiered prices (if available) for requested Products. Available end of June, 2021. */
         perPricebook?: components$1["parameters"]["perPricebook"];
-        /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
         select?: components$1["parameters"]["select"];
         /** @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable. */
         currency?: components$1["parameters"]["currency"];
@@ -11519,7 +12216,10 @@ interface operations$1 {
   getCategories: {
     parameters: {
       query: {
-        /** @description The comma separated list of category IDs (max 50). */
+        /**
+         * @description The comma separated list of category IDs (max 50).
+         * @example electronics-digital-cameras,electronics-televisions
+         */
         ids: components$1["parameters"]["parameters-ids"];
         /** @description Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2. Only online subcategories are returned. */
         levels?: components$1["parameters"]["levels"];
@@ -11677,7 +12377,7 @@ interface components {
      */
     OrganizationId: string;
     /**
-     * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+     * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. For more information, please read the documentation about property selectors [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-property-selection.html).
      * @example (name,id,variationAttributes.(**))
      */
     Select: string;
@@ -11696,22 +12396,10 @@ interface components {
      */
     String256: string;
     /**
-     * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-     * @example USD
-     */
-    ISOCurrency: string;
-    /**
-     * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-     * @default N/A
-     * @example N/A
-     * @enum {string}
-     */
-    NoValue: "N/A";
-    /**
      * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
      * @example USD
      */
-    CurrencyCode: components["schemas"]["ISOCurrency"] | components["schemas"]["NoValue"];
+    CurrencyCode: string;
     /**
      * @description A concatenated version of the standard Language and Country codes, combined with a hyphen '`-`'.
      * @example en-US
@@ -11726,20 +12414,12 @@ interface components {
      * @description A specialized value indicating the system default values for locales.
      * @default default
      * @example default
-     * @enum {string}
      */
-    DefaultFallback: "default";
+    DefaultFallback: string;
     /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
     LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
     /**
      * Format: int32
-     * @description Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
-     * @default 10
-     * @example 10
-     */
-    Limit: number;
-    /**
-     * Format: int64
      * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
      * @default 0
      * @example 10
@@ -11750,11 +12430,16 @@ interface components {
      *     Additionally it needs to be defined what data is returned.
      */
     ResultBase: {
-      limit: components["schemas"]["Limit"];
+      /**
+       * Format: int32
+       * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+       * @example 10
+       */
+      limit: number;
       total: components["schemas"]["Total"];
     };
     /**
-     * Format: int64
+     * Format: int32
      * @description The zero-based index of the first hit/data to include in the result.
      * @default 0
      * @example 0
@@ -11974,6 +12659,8 @@ interface components {
        *      Coupon promotions are not returned in this array.
        */
       productPromotions?: components["schemas"]["ProductPromotion"][];
+    } & {
+      [key: string]: unknown;
     };
     /** @description Representation of a group of variant products by an attribute. This can't be purchased by a shopper. It provides inheritable attributes for its product variants and is used for navigation. A VariationGroup doesn't have a SKU. */
     VariationGroup: {
@@ -12352,16 +13039,18 @@ interface components {
      * @example f_ecom_zzxy_prd
      */
     organizationId: components["schemas"]["OrganizationId"];
-    /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
-    select: components["schemas"]["Select"];
+    /** @example (hits.(**), refinements, sortingOptions.(id)) */
+    productSearchSelect: components["schemas"]["Select"];
     /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
     siteId: components["schemas"]["SiteId"];
     /** @description The query phrase to search for. For example to search for a product "shirt", type q=shirt. */
     qProductSearch: string;
     /**
-     * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\") i.e. refine=c_refinementColor=red|green|blue. Value ranges can be specified like this: refine=price=(100..500) .
-     *     Multiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. The refinements can be a collection of custom defined attributes IDs
-     *     and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.
+     * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='.<br>
+     *     Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\"), for example: refine=c_refinementColor=red|green|blue.<br>
+     *     Value ranges can be specified like this: refine=price=(100..500).<br>
+     *     Multiple refine parameters can be provided by using the refine as the key, for example: refine=price=(0..10)&refine=c_refinementColor=green.<br>
+     *     The refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.<br>
      *
      *     The following system refinement attribute ids are supported:<br>
      *     `cgid`: Allows refinement per single category ID. Multiple category ids are not supported.
@@ -12389,7 +13078,6 @@ interface components {
      * @description A comma-separated list with allowed values - `availability`, `images`, `prices`, `represented_products`, `variations`, `promotions`, `custom_properties`.
      *     By default, the expand parameter includes `availability, images, prices, represented_products, variations`.
      *     Use none to disable all expand options.
-     *     **The page_meta_tags expand value is optional and is available B2C Commerce version 25.2.**"
      */
     expandProductSearch: ("none" | "availability" | "images" | "prices" | "represented_products" | "variations" | "promotions" | "custom_properties" | "page_meta_tags")[];
     /**
@@ -12426,16 +13114,18 @@ interface operations {
   productSearch: {
     parameters: {
       query: {
-        /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
-        select?: components["parameters"]["select"];
+        /** @example (hits.(**), refinements, sortingOptions.(id)) */
+        select?: components["parameters"]["productSearchSelect"];
         /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
         siteId: components["parameters"]["siteId"];
         /** @description The query phrase to search for. For example to search for a product "shirt", type q=shirt. */
         q?: components["parameters"]["qProductSearch"];
         /**
-         * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\") i.e. refine=c_refinementColor=red|green|blue. Value ranges can be specified like this: refine=price=(100..500) .
-         *     Multiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. The refinements can be a collection of custom defined attributes IDs
-         *     and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.
+         * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='.<br>
+         *     Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\"), for example: refine=c_refinementColor=red|green|blue.<br>
+         *     Value ranges can be specified like this: refine=price=(100..500).<br>
+         *     Multiple refine parameters can be provided by using the refine as the key, for example: refine=price=(0..10)&refine=c_refinementColor=green.<br>
+         *     The refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.<br>
          *
          *     The following system refinement attribute ids are supported:<br>
          *     `cgid`: Allows refinement per single category ID. Multiple category ids are not supported.
@@ -12463,7 +13153,6 @@ interface operations {
          * @description A comma-separated list with allowed values - `availability`, `images`, `prices`, `represented_products`, `variations`, `promotions`, `custom_properties`.
          *     By default, the expand parameter includes `availability, images, prices, represented_products, variations`.
          *     Use none to disable all expand options.
-         *     **The page_meta_tags expand value is optional and is available B2C Commerce version 25.2.**"
          */
         expand?: components["parameters"]["expandProductSearch"];
         /**

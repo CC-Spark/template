@@ -30,6 +30,19 @@ export type Locale = {
     preferredCurrency: string;
 };
 
+// Site configuration type
+export type Site = {
+    cookies?: {
+        domain?: string;
+    };
+    defaultCurrency: string;
+    defaultLocale: string;
+    domain?: string;
+    id: string;
+    supportedCurrencies: string[];
+    supportedLocales: Array<Locale>;
+};
+
 // Main configuration type for config.server.ts
 export type Config = {
     metadata: {
@@ -80,47 +93,40 @@ export type Config = {
                 registeredRefreshTokenExpirySeconds?: number;
                 guestRefreshTokenExpirySeconds?: number;
             };
+            sites: Array<Site>;
         };
-        site: {
-            locale: string;
-            currency: string;
-            supportedLocales: Array<Locale>;
-            supportedCurrencies: string[];
-            domain?: string;
-            cookies?: {
-                domain?: string;
-            };
-            hybrid: {
+        defaultSiteId: string;
+        siteAliasMap?: Record<string, string>;
+        hybrid: {
+            enabled: boolean;
+            legacyRoutes?: string[];
+        };
+        features: {
+            passwordlessLogin: {
                 enabled: boolean;
-                legacyRoutes?: string[];
+                callbackUri: string;
+                landingUri: string;
             };
-            features: {
-                passwordlessLogin: {
-                    enabled: boolean;
-                    callbackUri: string;
-                    landingUri: string;
-                };
-                resetPassword: {
-                    callbackUri: string;
-                    landingUri: string;
-                };
-                socialLogin: {
-                    enabled: boolean;
-                    callbackUri: string;
-                    providers: Array<'Apple' | 'Google' | 'Facebook' | 'Twitter'>;
-                };
-                socialShare: {
-                    enabled: boolean;
-                    providers: Array<'Twitter' | 'Facebook' | 'LinkedIn' | 'Email'>;
-                };
-                guestCheckout: boolean;
-                shopperContext: {
-                    enabled: boolean;
-                    dwsourcecodeCookieSuffix?: string;
-                };
-                googleCloudAPI: {
-                    apiKey: string;
-                };
+            resetPassword: {
+                callbackUri: string;
+                landingUri: string;
+            };
+            socialLogin: {
+                enabled: boolean;
+                callbackUri: string;
+                providers: Array<'Apple' | 'Google' | 'Facebook' | 'Twitter'>;
+            };
+            socialShare: {
+                enabled: boolean;
+                providers: Array<'Twitter' | 'Facebook' | 'LinkedIn' | 'Email'>;
+            };
+            guestCheckout: boolean;
+            shopperContext: {
+                enabled: boolean;
+                dwsourcecodeCookieSuffix?: string;
+            };
+            googleCloudAPI: {
+                apiKey: string;
             };
         };
         i18n: {
@@ -181,13 +187,22 @@ export type Config = {
                 };
             };
         };
+        links?: {
+            preconnect?: string[];
+            prefetch?: string[];
+            prefetchDns?: string[];
+        };
+        /**
+         * Supported target formats of Salesforce's Dynamic Imaging Service are: avif, gif, jp2, jpg, jpeg, jxr, png, and webp.
+         * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_image_transformation_service.htm&type=5}
+         * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_creating_image_transformation_urls.htm&type=5}
+         */
+        images: {
+            quality?: number;
+            formats?: Array<'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp'>;
+            fallbackFormat?: 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp';
+        };
         performance: {
-            preconnectOrigins?: string[];
-            images: {
-                quality: number;
-                formats: Array<'webp' | 'avif' | 'jpeg' | 'png'>;
-                lazyLoading: boolean;
-            };
             caching: {
                 apiCacheTtl: number;
                 staticAssetCacheTtl: number;
@@ -214,6 +229,10 @@ export type Config = {
             enableDevtools: boolean;
             hotReload: boolean;
             strictMode: boolean;
+        };
+        url?: {
+            prefix: string;
+            search: string;
         };
     };
 };

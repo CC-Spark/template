@@ -26,6 +26,15 @@ import { mergeBasket } from '@/lib/api/basket';
 import { getAppOrigin, getErrorMessage } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
 
+// Hoist dependencies for use in vi.mock (avoids async imports which fail on Windows)
+const { createContext: reactCreateContext, actualReactRouter } = vi.hoisted(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const React = require('react');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const reactRouter = require('react-router');
+    return { createContext: React.createContext, actualReactRouter: reactRouter };
+});
+
 const { t } = getTranslation();
 // Mock global fetch
 const mockFetch = vi.fn();
@@ -35,11 +44,10 @@ global.fetch = mockFetch;
 const mockRandomUUID = vi.fn();
 vi.stubGlobal('crypto', { randomUUID: mockRandomUUID });
 
-// Mock react-router
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
+vi.mock('react-router', () => {
     return {
-        ...actual,
+        ...actualReactRouter,
+        createContext: reactCreateContext,
         redirect: vi.fn(),
     };
 });
@@ -78,14 +86,22 @@ vi.mock('@/config', () => ({
                 shortCode: 'kv7kzm78',
                 siteId: 'RefArchGlobal',
             },
-        },
-        site: {
-            features: {
-                passwordlessLogin: {
-                    enabled: true,
-                    callbackUri: '/passwordless-login-callback',
-                    landingUri: '/passwordless-login-landing',
+            sites: [
+                {
+                    defaultSiteId: 'RefArchGlobal',
+                    defaultLocale: 'en-US',
+                    defaultCurrency: 'USD',
+                    supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                    supportedCurrencies: ['USD'],
+                    cookies: {},
                 },
+            ],
+        },
+        features: {
+            passwordlessLogin: {
+                enabled: true,
+                callbackUri: '/passwordless-login-callback',
+                landingUri: '/passwordless-login-landing',
             },
         },
     })),
@@ -189,6 +205,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result).toEqual({
@@ -256,6 +273,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result.success).toBe(true);
@@ -285,6 +303,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result).toEqual({
@@ -314,6 +333,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result).toEqual({
@@ -342,6 +362,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result.success).toBe(false);
@@ -378,6 +399,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(mockGetPasswordLessAccessToken).toHaveBeenCalledWith(mockContext, 'valid-token');
@@ -414,6 +436,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(mockRedirect).toHaveBeenCalledWith('/dashboard');
@@ -449,6 +472,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(consoleSpy).toHaveBeenCalledWith(
@@ -474,6 +498,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 // Should redirect with error in URL parameter
@@ -498,6 +523,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 // Should redirect with error in URL parameter

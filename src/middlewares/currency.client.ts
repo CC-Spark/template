@@ -29,6 +29,7 @@ export const currencyClientMiddleware: MiddlewareFunction<Record<string, DataStr
 ) => {
     try {
         const config = getConfig(context);
+        const currentSite = config.commerce.sites[0];
         const { i18next } = getTranslation(context);
         const currentLocale = i18next.language ?? config.i18n.fallbackLng;
 
@@ -37,14 +38,17 @@ export const currencyClientMiddleware: MiddlewareFunction<Record<string, DataStr
 
         // Validate and determine final currency
         let currency: string;
-        if (userCurrency && config.site.supportedCurrencies.includes(userCurrency)) {
+        if (userCurrency && currentSite.supportedCurrencies.includes(userCurrency)) {
             currency = userCurrency;
         } else {
             // Fallback to locale's preferred currency or default
-            const supportedLocale = config.site.supportedLocales.find(
+            const supportedLocale = currentSite.supportedLocales.find(
                 (loc: { id: string; preferredCurrency: string }) => loc.id === currentLocale
             );
-            currency = supportedLocale?.preferredCurrency ?? config.site.currency;
+            const defaultLocaleConfig = currentSite.supportedLocales.find(
+                (loc) => loc.id === currentSite.defaultLocale
+            );
+            currency = supportedLocale?.preferredCurrency ?? defaultLocaleConfig?.preferredCurrency ?? 'USD';
         }
 
         // Store in context (same as server middleware)
@@ -52,7 +56,15 @@ export const currencyClientMiddleware: MiddlewareFunction<Record<string, DataStr
     } catch {
         // On error, set to default to prevent failures
         const config = getConfig(context);
-        context.set(currencyContext, config.site.currency);
+        // this will change when multi site implementation is done, for now use first site on the list
+        const currentSite = config.commerce.sites[0];
+        const defaultLocaleConfig = currentSite.supportedLocales.find(
+            (loc) => loc.id === config.commerce.sites[0].defaultLocale
+        );
+        context.set(
+            currencyContext,
+            defaultLocaleConfig?.preferredCurrency ?? config.commerce.sites[0].defaultCurrency
+        );
     }
 
     return next();

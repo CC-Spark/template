@@ -19,6 +19,7 @@ import { ConfigProvider, type AppConfig } from '@/config/context';
 import { mockConfig } from './context-provider-utils';
 import { PluginProviders } from '@/plugins/plugin-providers';
 import { CurrencyProvider } from '@/providers/currency';
+// @sfdc-extension-line SFDC_EXT_STORE_LOCATOR
 import StoreLocatorProvider from '@/extensions/store-locator/providers/store-locator';
 
 /**
@@ -73,8 +74,10 @@ export function AllProvidersWrapper({
     return (
         <ConfigProvider config={config}>
             <CurrencyWrapper currency={currency}>
+                {/* @sfdc-extension-line SFDC_EXT_STORE_LOCATOR */}
                 <StoreLocatorProvider>
                     <PluginProviders>{children}</PluginProviders>
+                    {/* @sfdc-extension-line SFDC_EXT_STORE_LOCATOR */}
                 </StoreLocatorProvider>
             </CurrencyWrapper>
         </ConfigProvider>

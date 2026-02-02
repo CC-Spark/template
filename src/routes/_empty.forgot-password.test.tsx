@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { MemoryRouter, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 
@@ -39,15 +41,6 @@ vi.mock('@/components/forgot-password-form', () => ({
     ),
 }));
 
-// Mock React Router hooks
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useActionData: vi.fn(),
-    };
-});
-
 // Helper to render with router
 const renderWithRouter = (component: React.ReactElement) => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
@@ -58,6 +51,12 @@ describe('forgot-password route', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // Use vi.spyOn to mock useActionData while keeping real router exports
+        vi.spyOn(ReactRouter, 'useActionData').mockReturnValue(undefined);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('loader', () => {

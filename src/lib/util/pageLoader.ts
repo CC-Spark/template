@@ -21,14 +21,14 @@ import { isDesignModeActive, isPreviewModeActive } from '@salesforce/storefront-
 
 type PageParams = Omit<PageDesignerPageParams, 'mode' | 'pdToken'>;
 export function fetchPageFromLoader(
-    args: LoaderFunctionArgs,
+    { context, request }: LoaderFunctionArgs,
     params: PageParams
 ): Promise<ShopperExperience.schemas['Page']> {
-    const isPageDesignerActive = isDesignModeActive(args.request) || isPreviewModeActive(args.request);
-    const url = new URL(args.request.url);
+    const isPageDesignerActive = isDesignModeActive(request) || isPreviewModeActive(request);
+    const url = new URL(request.url);
 
     if (!isPageDesignerActive) {
-        return fetchPage(args.context, params);
+        return fetchPage(context, params);
     }
 
     const pageDesignerParams: Partial<PageDesignerPageParams> = {
@@ -41,7 +41,7 @@ export function fetchPageFromLoader(
         Object.entries(pageDesignerParams).filter(([, value]) => value !== undefined)
     );
 
-    return fetchPage(args.context, { ...params, ...cleanParams });
+    return fetchPage(context, { ...params, ...cleanParams });
 }
 
 /**

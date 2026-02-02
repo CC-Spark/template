@@ -88,7 +88,11 @@ export interface components {
          *         "BigSpenders",
          *         "MobileUsers"
          *       ],
-         *       "clientIp": "12.12.12.1"
+         *       "clientIp": "12.12.12.1",
+         *       "couponCodes": [
+         *         "Save20",
+         *         "FREESHIP"
+         *       ]
          *     }
          */
         ShopperContext: {
@@ -189,6 +193,8 @@ export interface components {
                  */
                 regionCode?: string;
             };
+            /** @description Array of coupon codes to be saved in the shopper context. Set the coupon codes to evaluate promotions that can be triggered by these codes. */
+            couponCodes?: string[];
         };
         ErrorResponse: {
             /**

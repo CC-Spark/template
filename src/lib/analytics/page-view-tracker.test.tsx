@@ -28,6 +28,7 @@ import { render, waitFor, act } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { PageViewTracker } from './page-view-tracker';
 import type { SessionData } from '@/lib/api/types';
+
 import { createEvent, sendViewPageEvent, getEventMediator } from '@salesforce/storefront-next-runtime/events';
 import { getAllAdapters } from '@/lib/adapters';
 import { initializeEngagementAdapters } from '@/adapters';

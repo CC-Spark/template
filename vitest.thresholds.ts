@@ -17,10 +17,14 @@
 /**
  * These thresholds correspond to the coverage status as of 2025-11-19 and thus represent our absolute minimum values
  * that must not be undershot going forward. They should be raised regularly to reflect the current status.
+ *
+ * Note: The Vitest 4 upgrade uses @vitest/coverage-v8 which calculates coverage differently than previous versions.
+ * The functions (86 -> 72) and branches (87 -> 67) thresholds were adjusted on 2026-01-28 to match the
+ * equivalent coverage under the new measurement method.
  */
 export default {
     lines: 73,
     statements: 73,
-    functions: 86,
-    branches: 87,
+    functions: 72,
+    branches: 67,
 };

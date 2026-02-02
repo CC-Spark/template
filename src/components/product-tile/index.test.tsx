@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { vi, test, describe, expect, beforeEach } from 'vitest';
+import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 
@@ -69,13 +71,6 @@ vi.mock('@/lib/product-badges', () => ({
 }));
 
 const mockNavigate = vi.fn();
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useNavigate: () => mockNavigate,
-    };
-});
 
 const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
     productId: 'test-product',
@@ -147,6 +142,12 @@ const renderComponent = (props = {}) => {
 describe('ProductTile', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        // Use vi.spyOn to mock useNavigate while keeping real router exports
+        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(mockNavigate);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     test('renders product information correctly', () => {
@@ -274,6 +275,15 @@ describe('ProductTile', () => {
 });
 
 describe('ProductTile UI Variants', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(mockNavigate);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     test('renders color swatches with circular shape', () => {
         renderComponent();
 

@@ -32,6 +32,8 @@ import { ProductProvider } from '@/providers/product-context';
 import { PageType } from '@/lib/decorators/page-type';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
+import { JsonLd } from '@/components/json-ld';
+import { generateProductSchema } from '@/utils/product-schema';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { getCookieFromRequestAs, getSelectedStoreInfoCookieName } from '@/extensions/store-locator/utils';
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
@@ -65,6 +67,7 @@ export type ProductPageData = {
     page: Promise<ShopperExperience.schemas['Page']>;
     componentData: Promise<Record<string, Promise<unknown>>>;
     pageKey: string;
+    productSchema: Promise<ReturnType<typeof generateProductSchema> | null>;
 };
 
 /**
@@ -73,7 +76,8 @@ export type ProductPageData = {
  * @returns Object containing product, category, page data, and component data promises
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export function loader({ request, params, context }: LoaderFunctionArgs): ProductPageData {
+export function loader(args: LoaderFunctionArgs): ProductPageData {
+    const { request, params, context } = args;
     const { productId = '' } = params;
     const { searchParams } = new URL(request.url);
 
@@ -82,30 +86,29 @@ export function loader({ request, params, context }: LoaderFunctionArgs): Produc
     const selectedStoreInfo = getCookieFromRequestAs<SelectedStoreInfo>(request, cookieName);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
-    // Check for variant product ID in search params (for product variants)
-    const clients = createApiClients(context);
-
     // Get currency from context for product pricing
     const currency = context.get(currencyContext) as string;
     if (!currency) {
         throw new Error('Currency not found in context');
     }
 
+    const clients = createApiClients(context);
     const productPromise = clients.shopperProducts
         .getProduct({
             params: {
                 path: {
+                    // Check for variant product ID in search params (for product variants)
                     id: searchParams.get('pid') || productId,
                 },
                 query: {
                     expand: [
-                        'availability',
+                        'availability', // <-- TTL = 60s (!)
                         'bundled_products',
                         'images',
                         'options',
                         'page_meta_tags',
-                        'prices',
-                        'promotions',
+                        'prices', // <-- TTL = 900s
+                        'promotions', // <-- TTL = 900s
                         'set_products',
                         'variations',
                     ],
@@ -176,30 +179,39 @@ export function loader({ request, params, context }: LoaderFunctionArgs): Produc
     });
 
     // Fetch page data from Page Designer API
-    const pagePromise = fetchPageFromLoader(
-        { request, params, context },
-        {
-            pageId: 'pdp',
-            productId: searchParams.get('pid') || productId,
-        }
-    );
+    const pagePromise = fetchPageFromLoader(args, {
+        pageId: 'pdp',
+        productId: searchParams.get('pid') || productId,
+    });
 
-    // Collect component data promises for components in regions
-    // Handle errors gracefully - return empty object if page fetch failed
-    const componentDataPromises = pagePromise
-        .then((page) => {
-            return collectComponentDataPromises({ request, params, context }, Promise.resolve(page));
+    // Generate product schema in loader (server-side) for SEO
+    // This ensures it's available immediately and can be rendered outside Suspense
+    const productSchemaPromise = productPromise
+        .then((product) => {
+            try {
+                // Construct absolute URL from request
+                const url = new URL(request.url);
+                const productUrl = `${url.origin}${url.pathname}${url.search}`;
+                return generateProductSchema(product, productUrl);
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error('Error generating product schema in loader:', error);
+                return null;
+            }
         })
-        .catch(() => {
-            return Promise.resolve({});
-        });
+        .catch(() => null);
 
     return {
         product: productPromise,
         category: categoryPromise,
         page: pagePromise,
-        componentData: componentDataPromises,
+        /**
+         * Collect component data promises for components in regions.
+         * Handle errors gracefully - return empty object if page fetch failed.
+         */
+        componentData: collectComponentDataPromises(args, pagePromise).catch(() => ({})),
         pageKey: productId,
+        productSchema: productSchemaPromise,
     };
 }
 
@@ -341,18 +353,16 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
         return (
             <>
                 {/* Promo Content Region - Promotional content above main product */}
-                {
-                    <div className="mb-8">
-                        <Region
-                            page={page}
-                            regionId="promoContent"
-                            componentData={loaderData.componentData}
-                            errorElement={<div />}
-                        />
-                    </div>
-                }
+                <div className="mb-8">
+                    <Region
+                        page={page}
+                        regionId="promoContent"
+                        componentData={loaderData.componentData}
+                        errorElement={<div />}
+                    />
+                </div>
 
-                {/* Mobile Product Title - shown on mobile only, always shown */}
+                {/* Mobile Product Title - shown on mobile only */}
                 <div className="block md:hidden mb-8">
                     <Typography variant="h1" className="text-2xl font-bold text-foreground">
                         {productData.name}
@@ -393,6 +403,7 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
     finalContent = <PickupProvider>{content}</PickupProvider>;
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
     return finalContent;
 }
 
@@ -404,6 +415,19 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
  * Uses React's use() hook internally to handle async data fetching.
  * @returns JSX element representing the product page with Suspense boundary
  */
+/**
+ * Component that renders JSON-LD schema when productSchema promise resolves.
+ * Must be inside Suspense boundary to ensure it streams correctly in SSR.
+ */
+function JsonLdWrapper({
+    productSchemaPromise,
+}: {
+    productSchemaPromise: Promise<ReturnType<typeof generateProductSchema> | null>;
+}) {
+    const productSchema = use(productSchemaPromise);
+    return productSchema ? <JsonLd data={productSchema} id="product-schema" /> : null;
+}
+
 export default function ProductPage({ loaderData }: { loaderData: ProductPageData }) {
     // Use pageKey from loaderData to force remount only when productId changes
     // This prevents showing skeleton when switching variants (pid parameter)
@@ -411,6 +435,10 @@ export default function ProductPage({ loaderData }: { loaderData: ProductPageDat
 
     return (
         <Fragment key={pageKey}>
+            {/* Product JSON-LD Schema for SEO - separate Suspense to ensure it appears at the very top of body */}
+            <Suspense fallback={null}>
+                <JsonLdWrapper productSchemaPromise={loaderData.productSchema} />
+            </Suspense>
             <Suspense fallback={<ProductSkeleton />}>
                 <ProductDetailView loaderData={loaderData} />
             </Suspense>

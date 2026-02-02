@@ -9,9 +9,13 @@ This reference provides detailed documentation for all configuration options ava
 - [app](#app) - Application-specific configuration
   - [pages](#pages) - Page-specific settings
   - [commerce](#commerce) - Commerce Cloud API details
-  - [site](#site) - Site configuration and localization
+  - [siteAliasMap](#sitealiasmap) - Site alias mapping configuration
+  - [hybrid](#hybrid) - Hybrid mode configuration
+  - [features](#features) - Feature flags
   - [i18n](#i18n) - Internationalization settings
   - [global](#global) - Global UI and component settings
+  - [links](#links) - Link hints for browser resource loading
+  - [images](#images) - Salesforce [Dynamic Imaging Service](https://help.salesforce.com/s/articleView?id=cc.b2c_image_transformation_service.htm&type=5) settings
   - [performance](#performance) - Performance optimization settings
   - [engagement](#engagement) - Analytics and engagement adapters
   - [development](#development) - Development tools and features
@@ -88,7 +92,7 @@ An array of glob patterns for files that are available to the server-side render
 
 ### ssrParameters
 
-Type: `Record<string, string | number | boolean>` Optional | Default: `{ ssrFunctionNodeVersion: '22.x' }`
+Type: `Record<string, string | number | boolean>` Optional | Default: `{ ssrFunctionNodeVersion: '24.x' }`
 
 Additional parameters for SSR function configuration. The `ssrFunctionNodeVersion` property is a string that determines which version of Node.js to use for running the application server.
 
@@ -97,6 +101,19 @@ Additional parameters for SSR function configuration. The `ssrFunctionNodeVersio
 ## app
 
 The main application configuration section containing all public settings that control the storefront behavior.
+
+---
+
+### app.defaultSiteId
+
+Type: `string` | Default: `'RefArchGlobal'`
+
+The default site ID to use when no site can be determined from the request. This acts as a fallback when site detection fails or when running in a single-site configuration.
+
+Example:
+```bash
+PUBLIC__app__defaultSiteId="RefArch"
+```
 
 ---
 
@@ -147,6 +164,19 @@ PUBLIC__app__pages__cart__enableRemoveConfirmation=false
 
 ---
 
+### pages.cart.confirmDescription
+
+Type: `string` Optional | Default: `undefined`
+
+The custom message to display in the remove confirmation modal. If not set, a default message will be used.
+
+Example:
+```bash
+PUBLIC__app__pages__cart__confirmDescription="Are you sure you want to remove this item?"
+```
+
+---
+
 ### pages.cart.maxQuantityPerItem
 
 Type: `number` | Default: `999`
@@ -178,6 +208,19 @@ PUBLIC__app__pages__cart__enableSaveForLater=true
 Type: `string` | Default: `'/action/cart-item-remove'`
 
 The action endpoint URL for removing items from the cart. Use this path for form submissions and server actions.
+
+---
+
+### pages.cart.ruleBasedProductLimit
+
+Type: `number` | Default: `50`
+
+The maximum number of items allowed in the cart when rule-based product recommendations are enabled. This helps prevent performance issues with large carts.
+
+Example:
+```bash
+PUBLIC__app__pages__cart__ruleBasedProductLimit=100
+```
 
 ---
 
@@ -357,50 +400,59 @@ The number of seconds before refresh tokens expire for guest users. If you don't
 
 ---
 
-## site
+### commerce.sites
 
-Site-level configuration including localization, features, and cookies.
+Type: `Site[]` | Default: Array with one site configuration
 
-### site.locale
+Site configuration array. Each site can have its own locale, currency, cookies domain, and detection settings.
 
-Type: `string` | Default: `'en-US'`
+**Site Configuration Properties:**
+- `cookies` - Cookie configuration for the site
+  - `domain` (string | undefined) - Domain for cookies (e.g., '.example.com' for subdomain sharing)
+- `id` (string) - Unique site identifier - ECOM site Id
+- `defaultLocale` (string) - Default locale (e.g., 'en-US')
+- `defaultCurrency` (string) - Default currency code (e.g., 'USD')
+- `supportedLocales` (Locale[]) - Array of supported locales with preferred currencies
+- `supportedCurrencies` (string[]) - Array of currency codes for the currency switcher
+- `domain` (string, optional) - Domain name for site detection
 
-The default locale for the site. This option determines the language and regional formatting used throughout the application. The locale affects date formatting, number formatting, and default language. Ensure the locale is also included in `supportedLocales` and `i18n.supportedLngs`.
-
-Example:
+**Example (single-line JSON):**
 ```bash
-PUBLIC__app__site__locale="de-DE"
+PUBLIC__app__commerce__sites='[{"cookies":{"domain":null},"defaultSiteId":"RefArchGlobal","defaultLocale":"en-US","defaultCurrency":"USD","supportedLocales":[{"id":"en-US","preferredCurrency":"USD"},{"id":"de-DE","preferredCurrency":"EUR"}],"supportedCurrencies":["EUR","USD"]}]'
 ```
+
+**Example (multi-line JSON for readability):**
+```bash
+PUBLIC__app__commerce__sites='[
+  {
+    "cookies": {"domain": null},
+    "id": "RefArchGlobal",
+    "defaultLocale": "en-US",
+    "defaultCurrency": "USD",
+    "supportedLocales": [
+      {"id": "en-US", "preferredCurrency": "USD"},
+      {"id": "de-DE", "preferredCurrency": "EUR"},
+      {"id": "fr-FR", "preferredCurrency": "EUR"}
+    ],
+    "supportedCurrencies": ["EUR", "USD"]
+  }
+]'
+```
+
+**Note:** Multi-line JSON is supported - the parser automatically normalizes whitespace. This makes complex configurations much easier to read and edit in .env files.
+
+**Troubleshooting:**
+- If a locale doesn't appear in the language selector, verify it's in both the site's `supportedLocales` and `i18n.supportedLngs`
+- Ensure translation files exist for each supported locale
+- If only one currency is in `supportedCurrencies`, the currency switcher won't be displayed
 
 ---
 
-### site.currency
+## hybrid
 
-Type: `string` | Default: `'USD'`
+Hybrid mode configuration for integrating with legacy storefront pages.
 
-The default currency code for displaying prices. This should be a valid ISO 4217 currency code. Prices throughout the site display in this currency by default. Users can switch currencies if `supportedCurrencies` includes multiple options.
-
-Example:
-```bash
-PUBLIC__app__site__currency="EUR"
-```
-
----
-
-### site.cookies.domain
-
-Type: `string` Optional | Default: `undefined`
-
-The domain to use for cookies. When set, cookies are shared across subdomains. Leave undefined to use the current domain only.
-
-Example:
-```bash
-PUBLIC__app__site__cookies__domain=".example.com"
-```
-
----
-
-### site.hybrid.enabled
+### hybrid.enabled
 
 Type: `boolean` | Default: `false`
 
@@ -408,12 +460,12 @@ Enables hybrid mode for integrating with legacy storefront pages. When enabled, 
 
 Example:
 ```bash
-PUBLIC__app__site__hybrid__enabled=true
+PUBLIC__app__hybrid__enabled=true
 ```
 
 ---
 
-### site.hybrid.legacyRoutes
+### hybrid.legacyRoutes
 
 Type: `string[]` Optional | Default: `[]`
 
@@ -421,37 +473,7 @@ Array of route patterns that should be handled by the legacy system when hybrid 
 
 Example:
 ```bash
-PUBLIC__app__site__hybrid__legacyRoutes='["/account","/checkout"]'
-```
-
----
-
-### site.supportedLocales
-
-Type: `Locale[]` | Default: Array of 17 locales including en-US, de-DE, fr-FR, etc.
-
-Array of locale objects that define which locales are supported by your site. Each locale object includes an `id` (locale code) and `preferredCurrency` (default currency for that locale).
-
-Example:
-```bash
-PUBLIC__app__site__supportedLocales='[{"id":"en-US","preferredCurrency":"USD"},{"id":"de-DE","preferredCurrency":"EUR"}]'
-```
-
-When a user selects a locale, the preferred currency is automatically selected. These locales match Business Manager supported locales. Locales don't appear in the locale selector until they're also added to `i18n.supportedLngs`.
-
-**Troubleshooting:** If a locale doesn't appear in the language selector, verify it's in both `supportedLocales` and `i18n.supportedLngs`. Ensure translation files exist for each supported locale.
-
----
-
-### site.supportedCurrencies
-
-Type: `string[]` | Default: `['EUR', 'USD']`
-
-Array of currency codes that users can manually select. This enables the currency switcher in the UI. If only one currency is specified, the currency switcher won't be displayed in the UI.
-
-Example:
-```bash
-PUBLIC__app__site__supportedCurrencies='["USD","EUR","GBP","JPY"]'
+PUBLIC__app__hybrid__legacyRoutes='["/account", "/checkout"]'
 ```
 
 ---
@@ -468,7 +490,7 @@ Enables passwordless login functionality, allowing users to log in via email lin
 
 Example:
 ```bash
-PUBLIC__app__site__features__passwordlessLogin__enabled=true
+PUBLIC__app__features__passwordlessLogin__enabled=true
 ```
 
 ---
@@ -513,7 +535,7 @@ Enables social login functionality, allowing users to authenticate using third-p
 
 Example:
 ```bash
-PUBLIC__app__site__features__socialLogin__enabled=true
+PUBLIC__app__features__socialLogin__enabled=true
 ```
 
 ---
@@ -534,7 +556,7 @@ Array of social login providers to enable. Each provider requires configuration 
 
 Example:
 ```bash
-PUBLIC__app__site__features__socialLogin__providers='["Apple","Google","Facebook"]'
+PUBLIC__app__features__socialLogin__providers='["Apple","Google","Facebook"]'
 ```
 
 ---
@@ -555,7 +577,7 @@ Array of social sharing options to display on product pages.
 
 Example:
 ```bash
-PUBLIC__app__site__features__socialShare__providers='["Twitter","Facebook","Email"]'
+PUBLIC__app__features__socialShare__providers='["Twitter","Facebook","Email"]'
 ```
 
 ---
@@ -568,7 +590,7 @@ When enabled, allows users to complete purchases without creating an account. Di
 
 Example:
 ```bash
-PUBLIC__app__site__features__guestCheckout=false
+PUBLIC__app__features__guestCheckout=false
 ```
 
 ---
@@ -617,7 +639,7 @@ Example:
 PUBLIC__app__i18n__supportedLngs='["en-US","de-DE","fr-FR"]'
 ```
 
-Each language in this array must have corresponding translation files in your project. Languages must also be included in `site.supportedLocales` for full support. The fallback language should be listed last. See `src/middlewares/i18next.ts` for middleware configuration.
+Each language in this array must have corresponding translation files in your project. Languages must also be included in your site's `supportedLocales` (configured in `commerce.sites`) for full support. The fallback language should be listed last. See `src/middlewares/i18next.ts` for middleware configuration.
 
 ---
 
@@ -844,11 +866,11 @@ PUBLIC__app__global__recommendations__types='{"you-may-also-like":{"enabled":tru
 
 ---
 
-## performance
+## links
 
-Performance optimization configuration.
+Link hints for browser resource loading. These hints help the browser optimize resource loading by establishing early connections or prefetching resources before they're needed.
 
-### performance.preconnectOrigins
+### links.preconnect
 
 Type: `string[]` Optional | Default: `['https://edge.disstg.commercecloud.salesforce.com']`
 
@@ -856,7 +878,7 @@ An array of origin URLs to preconnect to. The browser establishes early connecti
 
 Example:
 ```bash
-PUBLIC__app__performance__preconnectOrigins='["https://edge.commercecloud.salesforce.com"]'
+PUBLIC__app__links__preconnect='["https://edge.commercecloud.salesforce.com"]'
 ```
 
 **Important:** The default value uses the staging DIS (Dynamic Image Service) origin. For production deployments, update this to your production DIS origin (e.g., `https://edge.commercecloud.salesforce.com`).
@@ -867,46 +889,93 @@ PUBLIC__app__performance__preconnectOrigins='["https://edge.commercecloud.salesf
 
 ---
 
-### performance.images.quality
+### links.prefetch
 
-Type: `number` | Default: `80`
+Type: `string[]` Optional | Default: `undefined`
+
+An array of URLs for resources to prefetch. Prefetched resources are downloaded and cached for future use, improving load times when the user navigates to pages that need them.
+
+Example:
+```bash
+PUBLIC__app__links__prefetch='["/static/fonts/custom-font.woff2", "/api/products/featured"]'
+```
+
+**Use cases:**
+- Fonts that will be used on subsequent pages
+- API responses that are likely to be needed soon
+- JavaScript bundles for routes the user is likely to visit
+
+**Note:** Prefetch has low priority and won't compete with critical resources. The browser may ignore prefetch hints under memory pressure or slow connections.
+
+---
+
+### links.prefetchDns
+
+Type: `string[]` Optional | Default: `undefined`
+
+An array of origin URLs for DNS prefetching. The browser performs DNS lookups for these origins in advance, reducing latency when resources from these origins are later requested. The property name aligns with React's built-in [`prefetchDNS`](https://react.dev/reference/react-dom/prefetchDNS) utility.
+
+Example:
+```bash
+PUBLIC__app__links__prefetchDns='["https://analytics.example.com", "https://cdn.example.com"]'
+```
+
+**When to use prefetchDns vs preconnect:**
+- Use `prefetchDns` for third-party origins where you only need the DNS lookup (lighter weight)
+- Use `preconnect` for origins where you'll make requests soon (establishes full connection)
+
+**Note:** DNS prefetch is more lightweight than preconnect, so it's safer to use for origins that might not be accessed on every page load.
+
+---
+
+## images
+
+Salesforce Dynamic Imaging Service configuration.
+
+### images.quality
+
+Type: `number` | Default: `70`
 
 The quality level for image compression (0-100). Lower values reduce file size but can affect image quality.
 
 Example:
 ```bash
-PUBLIC__app__performance__images__quality=85
+PUBLIC__app__images__quality=85
 ```
 
 **Troubleshooting:** If images appear blurry or pixelated, increase this value. If images load slowly, decrease it.
 
 ---
 
-### performance.images.formats
+### images.formats
 
-Type: `('webp' | 'avif' | 'jpeg' | 'png')[]` | Default: `['webp', 'jpeg']`
+Type: `Array<"avif" | "gif" | "jp2" | "jpg" | "jpeg" | "jxr" | "png" | "webp">` | Default: `["webp"]`
 
-Array of image formats to generate. Modern formats like WebP and AVIF provide better compression but may not be supported by all browsers. The application generates images in each format and uses the `<picture>` element to let browsers choose the best supported format.
+Array of image formats to generate. Modern formats like [WebP](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types#webp_image) and [AVIF](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types#avif_image) provide better compression but may not be supported by all browsers. The application uses the [`<picture>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture) element, generates [`<source>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/source) elements for each defined image format, and thus ultimately lets the browsers choose the respective best supported formats and dimensions.
 
 Example:
 ```bash
-PUBLIC__app__performance__images__formats='["avif","webp","jpeg"]'
+PUBLIC__app__images__formats='["avif","webp","jpg"]'
 ```
 
 ---
 
-### performance.images.lazyLoading
+### images.fallbackFormat
 
-Type: `boolean` | Default: `true`
+Type: `"avif" | "gif" | "jp2" | "jpg" | "jpeg" | "jxr" | "png" | "webp"` | Default: `jpg`
 
-When enabled, images load only when they're about to enter the viewport. This improves initial page load performance.
+While modern web-optimized image formats such as WebP and AVIF are widely supported and used, some systems still lack compatibility. A fallback to an established image format is therefore recommended.
 
 Example:
 ```bash
-PUBLIC__app__performance__images__lazyLoading=false
+PUBLIC__app__images__fallbackFormat='png'
 ```
 
 ---
+
+## performance
+
+Performance optimization configuration.
 
 ### performance.caching.apiCacheTtl
 
@@ -1258,33 +1327,41 @@ PUBLIC__app__commerce__api__organizationId="your-org-id"
 PUBLIC__app__commerce__api__siteId="your-site-id"
 PUBLIC__app__commerce__api__shortCode="your-short-code"
 
-# Site basics
-PUBLIC__app__site__locale="en-US"
-PUBLIC__app__site__currency="USD"
+# Basic branding
 PUBLIC__app__global__branding__name="Your Store Name"
 ```
+
+**Note:** Site-specific settings (locale, currency, supported locales/currencies) are configured in `commerce.sites` array. See the next scenario for multi-language configuration.
 
 ---
 
 ### Configuring Multiple Languages
 
-To support multiple languages and currencies.
+To support multiple languages and currencies using multi-line JSON format for readability.
 
 ```bash
-# Configure supported locales with preferred currencies
-PUBLIC__app__site__supportedLocales='[
-  {"id":"en-US","preferredCurrency":"USD"},
-  {"id":"de-DE","preferredCurrency":"EUR"},
-  {"id":"fr-FR","preferredCurrency":"EUR"}
+# Configure site with multi-language support (multi-line JSON)
+PUBLIC__app__commerce__sites='[
+  {
+    "cookies": {"domain": null},
+    "id": "RefArchGlobal",
+    "defaultLocale": "en-US",
+    "defaultCurrency": "USD",
+    "supportedLocales": [
+      {"id": "en-US", "preferredCurrency": "USD"},
+      {"id": "de-DE", "preferredCurrency": "EUR"},
+      {"id": "fr-FR", "preferredCurrency": "EUR"}
+    ],
+    "supportedCurrencies": ["USD", "EUR", "GBP"]
+  }
 ]'
 
-# Enable currency selection
-PUBLIC__app__site__supportedCurrencies='["USD","EUR","GBP"]'
-
 # Configure i18n with all supported languages
-PUBLIC__app__i18n__supportedLngs='["en-US","de-DE","fr-FR"]'
+PUBLIC__app__i18n__supportedLngs='["en-US", "de-DE", "fr-FR"]'
 PUBLIC__app__i18n__fallbackLng="en-US"
 ```
+
+**Important:** Multi-line JSON is supported and recommended for readability. The parser automatically normalizes whitespace.
 
 Make sure translation files exist for each language in your project.
 
@@ -1296,9 +1373,9 @@ To enable login with Apple, Google, or other providers.
 
 ```bash
 # Enable social login
-PUBLIC__app__site__features__socialLogin__enabled=true
-PUBLIC__app__site__features__socialLogin__providers='["Apple","Google","Facebook"]'
-PUBLIC__app__site__features__socialLogin__callbackUri="/social-callback"
+PUBLIC__app__features__socialLogin__enabled=true
+PUBLIC__app__features__socialLogin__providers='["Apple", "Google", "Facebook"]'
+PUBLIC__app__features__socialLogin__callbackUri="/social-callback"
 ```
 
 **Additional Steps Required:**
@@ -1310,16 +1387,15 @@ PUBLIC__app__site__features__socialLogin__callbackUri="/social-callback"
 
 ### Optimizing Performance
 
-For high-traffic sites, consider these performance settings.
+For high-traffic sites, consider these settings.
 
 ```bash
 # Reduce API calls
 PUBLIC__app__performance__caching__apiCacheTtl=600
 
 # Optimize images
-PUBLIC__app__performance__images__quality=75
-PUBLIC__app__performance__images__formats='["avif","webp","jpeg"]'
-PUBLIC__app__performance__images__lazyLoading=true
+PUBLIC__app__images__quality=65
+PUBLIC__app__images__formats='["webp","jpg"]'
 
 # Reduce quantity update API calls
 PUBLIC__app__pages__cart__quantityUpdateDebounce=1000
@@ -1400,7 +1476,7 @@ PUBLIC__app__global__productListing__enableQuickView=false
 **Problem:** A locale doesn't appear in the language selector or translations aren't working.
 
 **Possible Solutions:**
-1. Verify the locale is in both `site.supportedLocales` and `i18n.supportedLngs`.
+1. Verify the locale is in both your site's `supportedLocales` (in `commerce.sites` array) and `i18n.supportedLngs`.
 2. Ensure translation files exist for the locale in your project.
 3. Check the locale format matches (e.g., 'en-US' not 'en_US').
 4. Verify the middleware configuration in `src/middlewares/i18next.ts` matches.

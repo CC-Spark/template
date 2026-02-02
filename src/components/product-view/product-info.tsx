@@ -171,18 +171,6 @@ export default function ProductInfo({
                 );
             })}
 
-            {/* Quantity Selector - Only for non-set/bundle products and not when opened from cart page */}
-            {!isProductASet && !isProductABundle && mode !== 'edit' && (
-                <ProductQuantityPicker
-                    value={quantity.toString()}
-                    onChange={setQuantity}
-                    stockLevel={stockLevel}
-                    isOutOfStock={isOutOfStock}
-                    productName={product.name}
-                    maxQuantity={maxQuantity}
-                />
-            )}
-
             {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
             {/* Delivery Options - For individual products */}
             {/* Hide for non-pickup items when opened from cart page */}
@@ -195,6 +183,18 @@ export default function ProductInfo({
                 />
             )}
             {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
+
+            {/* Quantity Selector - Only for non-set/bundle products and not when opened from cart page */}
+            {!isProductASet && !isProductABundle && mode !== 'edit' && (
+                <ProductQuantityPicker
+                    value={quantity.toString()}
+                    onChange={setQuantity}
+                    stockLevel={stockLevel}
+                    isOutOfStock={isOutOfStock}
+                    productName={product.name}
+                    maxQuantity={maxQuantity}
+                />
+            )}
 
             {/* Product Features - Only shown if longDescription is different from shortDescription */}
             {product.longDescription && product.longDescription !== product.shortDescription && (

@@ -77,13 +77,15 @@ function CurrencySwitcherMock({ initialCurrency = 'USD' }: { initialCurrency?: s
     const id = useId();
     const { t } = useTranslation('currencySwitcher');
     const config = useConfig();
+    // this will change when multi site support is implemented. Use first site for now
+    const currentSite = config.commerce.sites[0];
     const [currentCurrency, setCurrentCurrency] = useState(initialCurrency);
 
     const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newCurrency = e.target.value;
 
         // Validate: Check if currency is in supportedCurrencies
-        if (!config.site.supportedCurrencies.includes(newCurrency)) {
+        if (!currentSite.supportedCurrencies.includes(newCurrency)) {
             return;
         }
 
@@ -103,7 +105,7 @@ function CurrencySwitcherMock({ initialCurrency = 'USD' }: { initialCurrency?: s
     return (
         <div>
             <NativeSelect id={id} onChange={handleCurrencyChange} aria-label={t('ariaLabel')} value={currentCurrency}>
-                {config.site.supportedCurrencies.map((currency) => (
+                {currentSite.supportedCurrencies.map((currency) => (
                     <option key={currency} value={currency}>
                         {t(`currencies.${currency}`, { defaultValue: currency })}
                     </option>
@@ -207,7 +209,7 @@ This is the standard currency switcher component.
         const select = await canvas.findByRole('combobox', {}, { timeout: 5000 });
         await expect(select).toBeInTheDocument();
 
-        // Verify options are present (EUR and USD from mockConfig.site.supportedCurrencies)
+        // Verify options are present (EUR and USD from mockConfig.commerce.sites[siteId].supportedCurrencies)
         const options = canvas.getAllByRole('option');
         await expect(options.length).toBeGreaterThanOrEqual(2);
     },

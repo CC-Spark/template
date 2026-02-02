@@ -83,13 +83,6 @@ export interface components {
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
         /**
          * Format: int32
-         * @description Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
-         * @default 10
-         * @example 10
-         */
-        Limit: number;
-        /**
-         * Format: int64
          * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
          * @default 0
          * @example 10
@@ -100,7 +93,12 @@ export interface components {
          *     Additionally it needs to be defined what data is returned.
          */
         ResultBase: {
-            limit: components["schemas"]["Limit"];
+            /**
+             * Format: int32
+             * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+             * @example 10
+             */
+            limit: number;
             total: components["schemas"]["Total"];
         };
         /** @description Document representing a promotion. */

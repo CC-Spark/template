@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // React Router
-import { createMemoryRouter, RouterProvider, useFetchers } from 'react-router';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider, type useFetchers } from 'react-router';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
@@ -35,16 +37,8 @@ import { formatCurrency } from '@/lib/currency';
 // Mock data
 import { bundleProd as mockedBundleProduct } from '../__mocks__/bundle-product';
 
-// Mock useFetchers
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetchers: vi.fn(),
-    };
-});
-
-const mockUseFetchers = vi.mocked(useFetchers);
+// Mock useFetchers will be set up via vi.spyOn in beforeEach
+const mockUseFetchers = vi.fn();
 
 // Helper function to create mock fetchers
 const createMockFetcher = (key: string, state: 'idle' | 'submitting' | 'loading') =>
@@ -127,8 +121,14 @@ describe('ProductItem', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // Use vi.spyOn to mock useFetchers while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetchers').mockImplementation(mockUseFetchers);
         // Default mock: no active fetchers
         mockUseFetchers.mockReturnValue([]);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('ProductItem', () => {

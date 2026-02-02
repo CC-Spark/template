@@ -23,7 +23,8 @@ import type { ShopperProducts, ShopperBasketsV2 } from '@salesforce/storefront-n
 import { useToast } from '@/components/toast';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { usePickup } from '@/extensions/bopis/context/pickup-context';
-import { getStoreIdForBasketItem, isSelectedDeliveryOptionValid } from '@/extensions/bopis/lib/basket-utils';
+import { getStoreIdForBasketItem } from '@/extensions/bopis/lib/basket-utils';
+import { isSelectedDeliveryOptionValid } from '@/extensions/bopis/lib/actions/product-actions';
 import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 import { useBasket } from '@/providers/basket';

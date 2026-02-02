@@ -34,7 +34,8 @@ import {
 } from './types/action-responses';
 import { getTranslation } from '@/lib/i18next';
 
-// Constants
+// @sfdc-extension-line SFDC_EXT_BOPIS
+import { handleCartItemDeliveryOptionChange } from '@/extensions/bopis/lib/actions/cart-item-delivery-option-handler';
 
 /**
  * Client action for updating a cart item (variant and/or quantity)
@@ -97,6 +98,13 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         const { itemId, productId, quantity } = validationResult.data;
 
         const clients = createApiClients(context);
+
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        const response = await handleCartItemDeliveryOptionChange(validationResult.data, context);
+        if (response) {
+            return response;
+        }
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
         // Build the update body - only include productId if it's provided (for variant changes)
         const updateBody: { quantity: number; productId?: string } = {

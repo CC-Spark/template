@@ -148,7 +148,9 @@ export const getCookieConfig = <T extends object = CookieConfig>(
     // Get config using getConfig() - handles both server (with context) and client (without)
     const config = getConfig(context);
 
-    const cookieDomain = config.site?.cookies?.domain;
+    // this will change when multi site implementation starts, for now we use first site in the list
+    const currentSite = config.commerce.sites[0];
+    const cookieDomain = currentSite?.cookies?.domain;
     if (cookieDomain) {
         cookieConfigOverrides.domain = cookieDomain;
     }

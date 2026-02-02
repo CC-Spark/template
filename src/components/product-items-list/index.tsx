@@ -29,6 +29,7 @@ import {
     getAttachedBonusPromotions,
     calculateMaxQuantityForBonusProduct,
 } from '@/lib/bonus-product-utils';
+import type { EnrichedProductItem } from '@/lib/product-utils';
 
 /**
  * Spacing constants for different display variants
@@ -69,17 +70,19 @@ interface ProductItemsListProps {
      * @param product - Combined product data (basket item + product details)
      * @returns React element for primary action or undefined
      */
-    primaryAction?: (
-        product: ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>
-    ) => ReactElement | undefined;
+    primaryAction?: (product: EnrichedProductItem) => ReactElement | undefined;
     /**
      * Optional render prop function to generate secondary action buttons for each product
      * @param product - Combined product data (basket item + product details)
      * @returns React element for secondary actions or undefined
      */
-    secondaryActions?: (
-        product: ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>
-    ) => ReactElement | undefined;
+    secondaryActions?: (product: EnrichedProductItem) => ReactElement | undefined;
+    /**
+     * Optional render delivery option UI for each product
+     * @param product - Combined product data
+     * @returns React element for delivery actions || undefined
+     */
+    deliveryActions?: (product: EnrichedProductItem) => ReactElement | undefined;
     /** Optional basket for bonus product selection */
     basket?: ShopperBasketsV2.schemas['Basket'];
     /** Callback when user clicks select bonus products button */
@@ -152,6 +155,7 @@ export default function ProductItemsList({
     variant = 'default',
     primaryAction,
     secondaryActions,
+    deliveryActions,
     basket,
     onSelectBonusProducts,
     separateCards = false,
@@ -209,7 +213,7 @@ export default function ProductItemsList({
 
             /**
              * Basket item data enriched with product details
-             * @type {ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']> & { isProductUnavailable: boolean }}
+             * @type {EnrichedProductItem & { isProductUnavailable: boolean }}
              */
             const enrichedProductItem = {
                 ...(productData || {}),
@@ -234,6 +238,7 @@ export default function ProductItemsList({
                         productItem={enrichedProductItem}
                         primaryAction={primaryAction}
                         secondaryActions={secondaryActions}
+                        deliveryActions={deliveryActions}
                         displayVariant={variant}
                         promotions={promotions}
                         bonusDiscountLineItems={bonusDiscountLineItems}

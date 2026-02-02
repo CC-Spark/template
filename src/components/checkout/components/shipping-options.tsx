@@ -24,6 +24,8 @@ import { getDefaultShippingMethod } from '@/lib/customer-profile-utils';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { CheckoutActionData } from '../types';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import CheckoutErrorBanner from './checkout-error-banner';
+import { getCheckoutDisplayError } from './checkout-display-error';
 import { useTranslation } from 'react-i18next';
 
 interface ShippingMethod {
@@ -84,6 +86,7 @@ export default function ShippingOptions({
         selectedMethod,
         shippingMethods?.defaultShippingMethodId
     );
+    const shippingOptionsError = getCheckoutDisplayError(actionData, 'shippingOptions');
 
     // Track if we've already auto-submitted to prevent infinite loops
     const hasAutoSubmitted = useRef(false);
@@ -149,11 +152,7 @@ export default function ShippingOptions({
             isLoading={isLoading}>
             <ToggleCardEdit>
                 <form method="post" className="space-y-6" onSubmit={handleSubmit}>
-                    {actionData?.formError && actionData.step === 'shippingOptions' && (
-                        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold">
-                            {actionData.formError}
-                        </div>
-                    )}
+                    {shippingOptionsError && <CheckoutErrorBanner message={shippingOptionsError} />}
 
                     <div className="space-y-4">
                         <label className="text-sm font-medium text-foreground">{t('shippingOptions.title')}</label>

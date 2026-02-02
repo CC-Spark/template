@@ -155,6 +155,8 @@ program
     .command('create-storefront')
     .description('Create a storefront project.')
     .option('-v --verbose', 'Verbose mode')
+    .option('-n, --name <name>', 'Name for the storefront (skips interactive prompt)')
+    .option('-t, --template <template>', 'Template URL or path (e.g., file:///path/to/template or GitHub URL)')
     .option(
         '-l, --local-packages-dir <dir>',
         'Local monorepo packages directory for file:// templates (pre-fills dependency paths)'
@@ -163,6 +165,8 @@ program
         try {
             await createStorefront({
                 verbose: options.verbose,
+                name: options.name,
+                template: options.template,
                 localPackagesDir: options.localPackagesDir,
             });
         } catch (err) {
@@ -364,7 +368,7 @@ extensionsCommand
             await manageExtensions({
                 projectDirectory: options.projectDirectory,
                 uninstall: true,
-                extensions: options.extensions,
+                extensions: options.extensions?.split(','),
                 verbose: options.verbose,
             });
         } catch (err) {

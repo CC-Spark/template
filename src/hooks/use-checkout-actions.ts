@@ -24,6 +24,7 @@ const contactInfoActionRoute = '/action/submit-contact-info';
 const shippingAddressActionRoute = '/action/submit-shipping-address';
 const shippingOptionsActionRoute = '/action/submit-shipping-options';
 const paymentActionRoute = '/action/submit-payment';
+const placeOrderActionRoute = '/action/place-order';
 
 /**
  * Custom hook for managing checkout form actions using React Router fetchers.
@@ -44,12 +45,13 @@ const paymentActionRoute = '/action/submit-payment';
  * @returns isSubmitting - Function to check if a specific step is submitting
  */
 export function useCheckoutActions() {
-    const { exitEditMode, editingStep, markShippingOptionsCompleted } = useCheckoutContext();
+    const { exitEditMode, editingStep } = useCheckoutContext();
 
     const contactFetcher = useFetcher<CheckoutActionData>({ key: 'contact-form' });
     const shippingAddressFetcher = useFetcher<CheckoutActionData>({ key: 'shipping-address-form' });
     const shippingOptionsFetcher = useFetcher<CheckoutActionData>({ key: 'shipping-options-form' });
     const paymentFetcher = useFetcher<CheckoutActionData>({ key: 'payment-form' });
+    const placeOrderFetcher = useFetcher<{ success?: boolean; error?: string; step?: string }>({ key: 'place-order' });
 
     // Track if we've already exited edit mode for this action to prevent multiple exits
     const hasExitedEditModeRef = useRef<Record<string, boolean>>({});
@@ -168,9 +170,6 @@ export function useCheckoutActions() {
         // Track that this fetcher was submitted during the current edit session
         submittedInEditSessionRef.current.shippingOptions = true;
 
-        // Mark shipping options as completed by user action (prevents auto-advancement)
-        markShippingOptionsCompleted();
-
         void shippingOptionsFetcher.submit(formData, {
             method: 'post',
             action: shippingOptionsActionRoute,
@@ -266,18 +265,35 @@ export function useCheckoutActions() {
         }
     };
 
+    /**
+     * Submits the place-order action via fetcher so errors can be shown in-page.
+     */
+    const submitPlaceOrder = () => {
+        if (placeOrderFetcher.state === 'submitting') {
+            return;
+        }
+        const formData = new FormData();
+        formData.append('shouldCreateAccount', shouldCreateAccount ? 'true' : 'false');
+        void placeOrderFetcher.submit(formData, {
+            method: 'post',
+            action: placeOrderActionRoute,
+        });
+    };
+
     return {
         // Action functions
         submitContactInfo,
         submitShippingAddress,
         submitShippingOptions,
         submitPayment,
+        submitPlaceOrder,
 
         // Fetcher objects
         contactFetcher,
         shippingAddressFetcher,
         shippingOptionsFetcher,
         paymentFetcher,
+        placeOrderFetcher,
 
         // Helper functions
         isSubmitting,

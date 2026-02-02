@@ -53,7 +53,6 @@
         "title": "Modifica articolo del carrello"
     },
     "header": {
-        "brand": "Market\nStreet",
         "logoAlt": "Home",
         "searchPlaceholder": "Cerca",
         "welcomeBack": "Bentornato!",
@@ -196,6 +195,7 @@
             "orderCreationFailed": "Impossibile creare l'ordine. Riprovi.",
             "paymentProcessingFailed": "Elaborazione del pagamento non riuscita. Riprovi.",
             "shippingMethodNotAvailable": "Il metodo di spedizione selezionato non è disponibile. Scelga un'altra opzione.",
+            "shippingMethodRequired": "Selezioni un metodo di spedizione per continuare.",
             "addressValidationFailed": "Validazione dell'indirizzo non riuscita. Controlli il Suo indirizzo e riprovi.",
             "promoCodeInvalid": "Codice promozionale non valido. Controlli e riprovi.",
             "stockNotAvailable": "Stock insufficiente per uno o più articoli nel Suo carrello."

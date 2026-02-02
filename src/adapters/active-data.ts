@@ -264,7 +264,7 @@ function extractActiveDataParamsFromEvent(event: AnalyticsEvent): ActiveDataPara
         case 'view_product': {
             const viewProductEvent = event;
             const productId = getProductId(viewProductEvent.product);
-            params.baseParams.set('pcat', viewProductEvent.product.categoryId || '');
+            params.baseParams.set('pcat', (viewProductEvent.product.categoryId as string) || '');
             if (productId) {
                 addProductDataToParams(params, [viewProductEvent.product], getEventTypeString('view_product'));
             }

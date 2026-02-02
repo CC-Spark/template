@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, vi } from 'vitest';
 import { action } from './action.set-locale';
 import type { ActionFunctionArgs } from 'react-router';
+import { createFormDataRequest } from '@/test-utils/request-helpers';
+
+vi.mock('@/middlewares/i18next.server', () => ({
+    localeCookie: {
+        serialize: vi.fn((locale: string) => Promise.resolve(`lng=${locale}; Path=/`)),
+    },
+}));
+
+vi.mock('react-router', async () => {
+    const actual = await vi.importActual('react-router');
+    return {
+        ...actual,
+        data: (body: any, init?: ResponseInit) => ({ data: body, init }),
+    };
+});
 
 describe('action.set-locale', () => {
     test('should return success response with locale cookie when given valid locale', async () => {
         const locale = 'es';
-        const formData = new FormData();
-        formData.append('locale', locale);
-
-        const mockRequest = new Request('http://localhost/action/set-locale', {
-            method: 'POST',
-            body: formData,
+        const mockRequest = createFormDataRequest('http://localhost/action/set-locale', 'POST', {
+            locale,
         });
 
         const args: ActionFunctionArgs = {
@@ -48,12 +59,8 @@ describe('action.set-locale', () => {
         const testCases = ['en-US', 'es-MX', 'fr-FR', 'de-DE'];
 
         for (const locale of testCases) {
-            const formData = new FormData();
-            formData.append('locale', locale);
-
-            const mockRequest = new Request('http://localhost/action/set-locale', {
-                method: 'POST',
-                body: formData,
+            const mockRequest = createFormDataRequest('http://localhost/action/set-locale', 'POST', {
+                locale,
             });
 
             const args: ActionFunctionArgs = {
@@ -70,13 +77,7 @@ describe('action.set-locale', () => {
     });
 
     test('should reject request when locale is missing', async () => {
-        const formData = new FormData();
-        // Not appending locale
-
-        const mockRequest = new Request('http://localhost/action/set-locale', {
-            method: 'POST',
-            body: formData,
-        });
+        const mockRequest = createFormDataRequest('http://localhost/action/set-locale', 'POST', {});
 
         const args: ActionFunctionArgs = {
             request: mockRequest,
@@ -98,12 +99,8 @@ describe('action.set-locale', () => {
     });
 
     test('should reject request when locale is empty string', async () => {
-        const formData = new FormData();
-        formData.append('locale', '');
-
-        const mockRequest = new Request('http://localhost/action/set-locale', {
-            method: 'POST',
-            body: formData,
+        const mockRequest = createFormDataRequest('http://localhost/action/set-locale', 'POST', {
+            locale: '',
         });
 
         const args: ActionFunctionArgs = {

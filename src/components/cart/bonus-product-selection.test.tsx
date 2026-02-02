@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 import type React from 'react';
-import { vi, describe, test, expect, beforeEach } from 'vitest';
+import { vi, describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 
 import BonusProductSelection from './bonus-product-selection';
 import { getTranslation } from '@/lib/i18next';
@@ -34,7 +37,7 @@ vi.mock('react-i18next', () => ({
     },
 }));
 
-// Mock useFetcher from react-router
+// Mock useFetcher from react-router - will be spied on in beforeEach
 const mockSubmit = vi.fn();
 const mockFetcher = {
     state: 'idle' as 'idle' | 'loading' | 'submitting',
@@ -43,14 +46,6 @@ const mockFetcher = {
     load: vi.fn(),
     Form: vi.fn(),
 };
-
-vi.mock('react-router', async (importOriginal) => {
-    const actual = (await importOriginal()) as any;
-    return {
-        ...actual,
-        useFetcher: vi.fn(() => mockFetcher),
-    };
-});
 
 // Mock useToast
 const mockAddToast = vi.fn();
@@ -181,6 +176,22 @@ function getDefaultProps() {
     };
 }
 
+// Helper to render with router context
+function renderWithRouter(ui: React.ReactElement) {
+    const router = createMemoryRouter(
+        [
+            {
+                path: '/',
+                element: ui,
+            },
+        ],
+        {
+            initialEntries: ['/'],
+        }
+    );
+    return render(<RouterProvider router={router} />);
+}
+
 // ============================================================================
 // Tests
 // ============================================================================
@@ -199,6 +210,12 @@ describe('BonusProductSelection', () => {
             error: undefined,
             total: 0,
         });
+        // Use vi.spyOn for useFetcher hook
+        vi.spyOn(ReactRouter, 'useFetcher').mockReturnValue(mockFetcher as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     // ========================================================================
@@ -208,7 +225,7 @@ describe('BonusProductSelection', () => {
     describe('Carousel Rendering', () => {
         test('renders carousel with correct products, images, names, and "Free" badge', async () => {
             const props = getDefaultProps();
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Click accordion to expand
             const trigger = screen.getByRole('button', { name: /buy one get one free/i });
@@ -241,7 +258,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             props.bonusDiscountLineItem = createMockBonusDiscountLineItem({ bonusProducts: [] });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Click accordion to expand
             const trigger = screen.getByRole('button', { name: /buy one get one free/i });
@@ -256,7 +273,7 @@ describe('BonusProductSelection', () => {
             mockGetPrimaryProductImageUrl.mockReturnValue(undefined);
             const props = getDefaultProps();
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Click accordion to expand
             fireEvent.click(screen.getByRole('button', { name: /buy one get one free/i }));
@@ -278,7 +295,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             props.promotionName = 'Summer Sale Bonus';
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Check title with count (mocked as 1 of 3)
             expect(screen.getByText('Summer Sale Bonus')).toBeInTheDocument();
@@ -289,7 +306,7 @@ describe('BonusProductSelection', () => {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { promotionName, ...propsWithoutPromoName } = getDefaultProps();
 
-            render(<BonusProductSelection {...propsWithoutPromoName} />);
+            renderWithRouter(<BonusProductSelection {...propsWithoutPromoName} />);
 
             expect(screen.getByText('Bonus Products Available')).toBeInTheDocument();
         });
@@ -303,7 +320,7 @@ describe('BonusProductSelection', () => {
             });
 
             const props = getDefaultProps();
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Accordion should be expanded by default
             await waitFor(() => {
@@ -356,7 +373,7 @@ describe('BonusProductSelection', () => {
                 return product.type?.master === true;
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Accordion should be expanded by default since slots are available (0/3)
             const selectButtons = await screen.findAllByRole('button', { name: /select/i });
@@ -395,7 +412,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             const user = userEvent.setup();
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Accordion should be expanded by default since slots are available (0/3)
             const selectButtons = await screen.findAllByRole('button', { name: /select/i });
@@ -420,7 +437,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             const user = userEvent.setup();
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Accordion should be expanded by default since slots are available (0/3)
             // Click first Select button
@@ -452,15 +469,12 @@ describe('BonusProductSelection', () => {
         test('shows success toast after successful direct add', async () => {
             const { t } = getTranslation();
             mockRequiresVariantSelection.mockReturnValue(false);
-            const props = getDefaultProps();
-
-            const { rerender } = render(<BonusProductSelection {...props} />);
-
-            // Simulate fetcher returning success
+            // Set up fetcher with success state before render
             mockFetcher.state = 'idle';
             mockFetcher.data = { success: true };
 
-            rerender(<BonusProductSelection {...props} />);
+            const props = getDefaultProps();
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             await waitFor(() => {
                 expect(mockAddToast).toHaveBeenCalledWith(t('product:bonusProducts.addedToCart'), 'success');
@@ -470,15 +484,12 @@ describe('BonusProductSelection', () => {
         test('shows error toast after failed direct add', async () => {
             const { t } = getTranslation();
             mockRequiresVariantSelection.mockReturnValue(false);
-            const props = getDefaultProps();
-
-            const { rerender } = render(<BonusProductSelection {...props} />);
-
-            // Simulate fetcher returning error
+            // Set up fetcher with error state before render
             mockFetcher.state = 'idle';
             mockFetcher.data = { success: false, error: 'Out of stock' };
 
-            rerender(<BonusProductSelection {...props} />);
+            const props = getDefaultProps();
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             await waitFor(() => {
                 expect(mockAddToast).toHaveBeenCalledWith(
@@ -499,7 +510,7 @@ describe('BonusProductSelection', () => {
                 maxBonusItems: 3,
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Expand accordion
             await user.click(screen.getByRole('button', { name: /buy one get one free/i }));
@@ -515,7 +526,7 @@ describe('BonusProductSelection', () => {
             mockFetcher.state = 'submitting';
             const props = getDefaultProps();
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Expand accordion
             fireEvent.click(screen.getByRole('button', { name: /buy one get one free/i }));
@@ -540,7 +551,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             props.bonusDiscountLineItem = createMockBonusDiscountLineItem({ id: '' });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Accordion should be expanded by default since slots are available (0/3)
             // Wait for Select buttons to be visible
@@ -575,7 +586,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             props.bonusDiscountLineItem = createMockBonusDiscountLineItem({ promotionId: '' });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Accordion should be expanded by default since slots are available (0/3)
             // Wait for Select buttons to be visible
@@ -606,7 +617,7 @@ describe('BonusProductSelection', () => {
             });
 
             const props1 = getDefaultProps();
-            const { unmount } = render(<BonusProductSelection {...props1} />);
+            const { unmount } = renderWithRouter(<BonusProductSelection {...props1} />);
 
             // Accordion should be expanded by default - content should be visible without clicking
             await waitFor(() => {
@@ -623,7 +634,7 @@ describe('BonusProductSelection', () => {
             });
 
             const props2 = getDefaultProps();
-            render(<BonusProductSelection {...props2} />);
+            renderWithRouter(<BonusProductSelection {...props2} />);
 
             // Accordion should be collapsed by default - content should NOT be visible
             const carouselItems = screen.queryAllByTestId('carousel-item');
@@ -650,7 +661,7 @@ describe('BonusProductSelection', () => {
             // Remove product-2 from the map
             delete props.bonusProductsById['product-2'];
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Expand accordion
             fireEvent.click(screen.getByRole('button', { name: /buy one get one free/i }));
@@ -679,7 +690,7 @@ describe('BonusProductSelection', () => {
                 'product-1': createMockProduct({ id: 'product-1', name: 'Name From Product Data' }),
             };
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Expand accordion
             fireEvent.click(screen.getByRole('button', { name: /buy one get one free/i }));
@@ -700,7 +711,7 @@ describe('BonusProductSelection', () => {
                 'product-1': createMockProduct({ id: 'product-1', name: undefined }),
             };
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Expand accordion
             fireEvent.click(screen.getByRole('button', { name: /buy one get one free/i }));
@@ -750,7 +761,7 @@ describe('BonusProductSelection', () => {
                 bonusProducts: [], // Empty list-based products
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Should be expanded by default since slots are available
             await waitFor(() => {
@@ -794,7 +805,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             // Keep the list-based products from default props (product-1, product-2)
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Should show all 4 products (2 list-based + 2 rule-based)
             await waitFor(() => {
@@ -845,7 +856,7 @@ describe('BonusProductSelection', () => {
             const props = getDefaultProps();
             // Default props have product-1 and product-2
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Should show only 3 unique products (product-1 deduplicated)
             await waitFor(() => {
@@ -876,7 +887,7 @@ describe('BonusProductSelection', () => {
                 bonusProducts: [], // Also empty list-based
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             // Expand accordion
             fireEvent.click(screen.getByRole('button', { name: /buy one get one free/i }));
@@ -917,7 +928,7 @@ describe('BonusProductSelection', () => {
                 bonusProducts: [],
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             await waitFor(() => {
                 const image = screen.getByRole('presentation');
@@ -955,7 +966,7 @@ describe('BonusProductSelection', () => {
                 bonusProducts: [],
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             await waitFor(() => {
                 const image = screen.getByRole('presentation');
@@ -991,7 +1002,7 @@ describe('BonusProductSelection', () => {
                 bonusProducts: [],
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             await waitFor(() => {
                 expect(screen.getByText('Rule Product without image')).toBeInTheDocument();
@@ -1032,7 +1043,7 @@ describe('BonusProductSelection', () => {
                 bonusProducts: [],
             });
 
-            render(<BonusProductSelection {...props} />);
+            renderWithRouter(<BonusProductSelection {...props} />);
 
             await waitFor(() => {
                 // Should only show the valid product

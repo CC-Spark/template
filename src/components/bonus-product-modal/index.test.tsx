@@ -15,7 +15,9 @@
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { BonusProductModal } from './index';
 import { AllProvidersWrapper } from '@/test-utils/context-provider';
@@ -29,18 +31,6 @@ const mockAddToast = vi.fn();
 let mockFetcherData: any = null;
 let mockFetcherState: 'idle' | 'loading' | 'submitting' = 'idle';
 let mockFetcherSuccess = false;
-
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetcher: () => ({
-            submit: mockFetcherSubmit,
-            data: null,
-            state: 'idle',
-        }),
-    };
-});
 
 vi.mock('@/hooks/use-scapi-fetcher', () => ({
     useScapiFetcher: () => ({
@@ -122,6 +112,16 @@ describe('BonusProductModal', () => {
         mockFetcherLoad.mockClear();
         mockFetcherSubmit.mockClear();
         mockAddToast.mockClear();
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockReturnValue({
+            submit: mockFetcherSubmit,
+            data: null,
+            state: 'idle',
+        } as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('Rendering', () => {

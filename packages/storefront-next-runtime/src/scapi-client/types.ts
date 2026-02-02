@@ -31,6 +31,14 @@ export namespace ShopperBasketsV2 {
     export type operations = ShopperBasketsV2Types.operations;
 }
 
+// Shopper Configurations
+import type * as ShopperConfigurationsTypes from './generated/shopper-configurations-v1';
+export namespace ShopperConfigurations {
+    export type endpoints = ShopperConfigurationsTypes.paths;
+    export type schemas = ShopperConfigurationsTypes.components['schemas'];
+    export type operations = ShopperConfigurationsTypes.operations;
+}
+
 // Shopper Consents
 import type * as ShopperConsentsTypes from './generated/shopper-consents-v1';
 export namespace ShopperConsents {
@@ -85,6 +93,14 @@ export namespace ShopperOrders {
     export type endpoints = ShopperOrdersTypes.paths;
     export type schemas = ShopperOrdersTypes.components['schemas'];
     export type operations = ShopperOrdersTypes.operations;
+}
+
+// Shopper Payments
+import type * as ShopperPaymentsTypes from './generated/shopper-payments-v1';
+export namespace ShopperPayments {
+    export type endpoints = ShopperPaymentsTypes.paths;
+    export type schemas = ShopperPaymentsTypes.components['schemas'];
+    export type operations = ShopperPaymentsTypes.operations;
 }
 
 // Shopper Products

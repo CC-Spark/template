@@ -64,6 +64,8 @@ const mockConfig: ActiveDataConfig = {
         cart_item_add: false,
         checkout_start: false,
         checkout_step: false,
+        view_search_suggestion: false,
+        click_search_suggestion: false,
     },
 };
 

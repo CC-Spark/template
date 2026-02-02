@@ -34,6 +34,8 @@ import {
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
 import { createErrorResponse } from '@/lib/error-handler';
 import { getTranslation } from '@/lib/i18next';
+// @sfdc-extension-line SFDC_EXT_MULTISHIP
+import { resolveEmptyShipments } from '@/extensions/multiship/lib/api/basket';
 
 // eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
@@ -46,7 +48,6 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
 
         // Get current basket
         const basket = getBasket(context);
-
         if (!basket || !basket.basketId) {
             return Response.json(
                 {
@@ -70,26 +71,45 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             );
         }
 
-        if (!basket.shipments?.[0]?.shippingAddress) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('errors:api.shippingAddressRequired'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+        // Build a map of shipmentId -> item count for efficient lookups
+        const shipmentItemCounts = new Map<string, number>();
+        if (basket.productItems) {
+            basket.productItems.forEach((item) => {
+                if (item.shipmentId) {
+                    shipmentItemCounts.set(item.shipmentId, (shipmentItemCounts.get(item.shipmentId) || 0) + 1);
+                }
+            });
         }
 
-        if (!basket.shipments?.[0]?.shippingMethod) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('errors:checkout.shippingMethodNotAvailable'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+        // Filter to get only non-empty shipments (shipments with at least one item assigned)
+        const nonEmptyShipments = (basket.shipments || []).filter((shipment) => {
+            if (!shipment.shipmentId) return false;
+            return (shipmentItemCounts.get(shipment.shipmentId) || 0) > 0;
+        });
+
+        // Check that all non-empty shipments have shipping address and method
+        for (const shipment of nonEmptyShipments) {
+            if (!shipment.shippingAddress) {
+                return Response.json(
+                    {
+                        success: false,
+                        error: t('errors:api.shippingAddressRequired'),
+                        step: 'placeOrder',
+                    },
+                    { status: 400 }
+                );
+            }
+
+            if (!shipment.shippingMethod) {
+                return Response.json(
+                    {
+                        success: false,
+                        error: t('errors:checkout.shippingMethodRequired'),
+                        step: 'placeOrder',
+                    },
+                    { status: 400 }
+                );
+            }
         }
 
         if (!basket.paymentInstruments?.[0]) {
@@ -183,10 +203,8 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             }
         }
 
-        // Get the updated basket after potential payment application
         const updatedBasket = getBasket(context);
 
-        // Ensure billing address is set (SFCC requirement)
         if (!updatedBasket.billingAddress) {
             return Response.json(
                 {
@@ -198,8 +216,9 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             );
         }
 
-        // Calculate basket totals before creating order (SFCC requirement)
-        // Use the updated basket's currency or appropriate fallback
+        // @sfdc-extension-line SFDC_EXT_MULTISHIP
+        await resolveEmptyShipments(context, updatedBasket);
+
         const currency = getBasketCurrency(context, updatedBasket);
 
         if (!updatedBasket.basketId) {
@@ -215,10 +234,8 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
 
         const calculatedBasket = await calculateBasket(context, updatedBasket.basketId, currency);
 
-        // Update local basket state with calculated totals
         updateBasket(context, calculatedBasket);
 
-        // Create the order
         const clients = createApiClients(context);
 
         const { data: order } = await clients.shopperOrders.createOrder({

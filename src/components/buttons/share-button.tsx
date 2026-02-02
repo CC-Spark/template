@@ -56,7 +56,7 @@ const providerLabels: Record<ShareProvider, string> = {
 
 /**
  * Share button that provides a custom dropdown menu with share options.
- * Share options are configurable via site.features.socialShare config.
+ * Share options are configurable via config.features.socialShare config.
  *
  * @param props - Component props
  * @param props.product - The product data to share
@@ -65,7 +65,7 @@ const providerLabels: Record<ShareProvider, string> = {
  */
 export function ShareButton({ product, className }: ShareButtonProps): ReactElement {
     const { addToast } = useToast();
-    const { site } = useConfig();
+    const config = useConfig();
     const { t } = useTranslation('product');
 
     const productName = product.name || 'Check out this product';
@@ -134,7 +134,7 @@ export function ShareButton({ product, className }: ShareButtonProps): ReactElem
 
     // Build share provider configurations
     const shareProviders = useMemo(() => {
-        const enabledProviders = site.features.socialShare.enabled ? site.features.socialShare.providers : [];
+        const enabledProviders = config.features.socialShare.enabled ? config.features.socialShare.providers : [];
 
         return enabledProviders
             .filter((provider): provider is ShareProvider => {
@@ -146,7 +146,7 @@ export function ShareButton({ product, className }: ShareButtonProps): ReactElem
                 label: providerLabels[provider],
                 handler: shareHandlers[provider],
             }));
-    }, [site.features.socialShare.enabled, site.features.socialShare.providers, shareHandlers]);
+    }, [config.features.socialShare.enabled, config.features.socialShare.providers, shareHandlers]);
 
     return (
         <DropdownMenu>

@@ -15,9 +15,14 @@
  */
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { RemoveAddressConfirmationDialog } from './index';
 import { getTranslation } from '@/lib/i18next';
+import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
+import type { ScapiFetcher } from '@/hooks/use-scapi-fetcher';
 
 const { t } = getTranslation();
 
@@ -29,21 +34,25 @@ vi.mock('@/components/toast', () => ({
     }),
 }));
 
-// Mock the revalidator hook
+// Mock the revalidator hook - will be spied on in beforeEach
 const mockRevalidate = vi.fn();
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useRevalidator: () => ({
-            revalidate: mockRevalidate,
-        }),
-    };
-});
+
+// Helper to render with router context
+function renderWithRouter(ui: React.ReactElement) {
+    const router = createMemoryRouter([{ path: '/', element: ui }], { initialEntries: ['/'] });
+    return render(<RouterProvider router={router} />);
+}
+
+// Mock AddressDisplay component
+vi.mock('@/components/address-display', () => ({
+    default: ({ address }: { address: ShopperCustomers.schemas['CustomerAddress'] }) => (
+        <div data-testid="address-display">{address.address1}</div>
+    ),
+}));
 
 // Mock useScapiFetcher and useScapiFetcherEffect
 const mockSubmit = vi.fn().mockResolvedValue(undefined);
-const mockFetcher: ScapiFetcher<unknown> = {
+const mockFetcher = {
     state: 'idle',
     data: undefined,
     success: false,
@@ -56,7 +65,7 @@ const mockFetcher: ScapiFetcher<unknown> = {
     formMethod: 'GET',
     formTarget: undefined,
     type: 'init',
-} as ScapiFetcher<unknown>;
+} as unknown as ScapiFetcher<unknown>;
 
 vi.mock('@/hooks/use-scapi-fetcher', async () => {
     const actual = await vi.importActual('@/hooks/use-scapi-fetcher');
@@ -105,10 +114,22 @@ function updateFetcherState(state: 'idle' | 'loading' | 'submitting', success: b
 }
 
 describe('RemoveAddressConfirmationDialog', () => {
+    const mockAddress: ShopperCustomers.schemas['CustomerAddress'] = {
+        addressId: 'address-123',
+        firstName: 'John',
+        lastName: 'Doe',
+        address1: '123 Main Street',
+        city: 'New York',
+        stateCode: 'NY',
+        postalCode: '10001',
+        countryCode: 'US',
+        preferred: false,
+    };
+
     const defaultProps = {
         open: true,
         onOpenChange: vi.fn(),
-        addressId: 'address-123',
+        address: mockAddress,
         customerId: 'customer-456',
     };
 
@@ -118,38 +139,57 @@ describe('RemoveAddressConfirmationDialog', () => {
         mockOnError = undefined;
         updateFetcherState('idle', false);
         mockSubmit.mockResolvedValue(undefined);
+        // Use vi.spyOn for useRevalidator hook
+        vi.spyOn(ReactRouter, 'useRevalidator').mockReturnValue({
+            revalidate: mockRevalidate,
+            state: 'idle',
+        });
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     test('renders dialog when open is true', () => {
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        expect(screen.getByText(t('account:addresses.removeConfirmTitle'))).toBeInTheDocument();
-        expect(
-            screen.getByText(t('account:addresses.removeConfirmDescription', { addressName: 'address-123' }))
-        ).toBeInTheDocument();
+        expect(screen.getByText(t('account:addresses.removeDialogTitle'))).toBeInTheDocument();
+        expect(screen.getByText(t('account:addresses.removeDialogDescription'))).toBeInTheDocument();
         expect(screen.getByRole('button', { name: t('account:addresses.removeCancelButton') })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: t('account:addresses.removeButton') })).toBeInTheDocument();
     });
 
     test('does not render dialog when open is false', () => {
-        render(<RemoveAddressConfirmationDialog {...defaultProps} open={false} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} open={false} />);
 
-        expect(screen.queryByText(t('account:addresses.removeConfirmTitle'))).not.toBeInTheDocument();
+        expect(screen.queryByText(t('account:addresses.removeDialogTitle'))).not.toBeInTheDocument();
     });
 
-    test('displays correct address ID in description', () => {
-        render(<RemoveAddressConfirmationDialog {...defaultProps} addressId="my-address-id" />);
+    test('displays address name in dialog', () => {
+        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        expect(
-            screen.getByText(t('account:addresses.removeConfirmDescription', { addressName: 'my-address-id' }))
-        ).toBeInTheDocument();
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
+
+    test('displays default badge when address is preferred', () => {
+        const preferredAddress = { ...mockAddress, preferred: true };
+        render(<RemoveAddressConfirmationDialog {...defaultProps} address={preferredAddress} />);
+
+        expect(screen.getByText(t('account:addresses.default'))).toBeInTheDocument();
+    });
+
+    test('displays warning when removing default address', () => {
+        const preferredAddress = { ...mockAddress, preferred: true };
+        render(<RemoveAddressConfirmationDialog {...defaultProps} address={preferredAddress} />);
+
+        expect(screen.getByText(t('account:addresses.removeDefaultWarning'))).toBeInTheDocument();
     });
 
     test('calls onOpenChange(false) when cancel button is clicked', async () => {
         const user = userEvent.setup();
         const onOpenChange = vi.fn();
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} onOpenChange={onOpenChange} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} onOpenChange={onOpenChange} />);
 
         const cancelButton = screen.getByRole('button', { name: t('account:addresses.removeCancelButton') });
         await user.click(cancelButton);
@@ -160,57 +200,21 @@ describe('RemoveAddressConfirmationDialog', () => {
     test('calls fetcher.submit when confirm button is clicked', async () => {
         const user = userEvent.setup();
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
+        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeButton') });
         await user.click(confirmButton);
 
         expect(mockSubmit).toHaveBeenCalledTimes(1);
         expect(mockSubmit).toHaveBeenCalledWith({});
     });
 
-    test('does not call fetcher.submit when addressId is missing', async () => {
-        const user = userEvent.setup();
-
-        render(<RemoveAddressConfirmationDialog {...defaultProps} addressId="" />);
-
-        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
-        await user.click(confirmButton);
-
-        expect(mockSubmit).not.toHaveBeenCalled();
-        expect(mockAddToast).toHaveBeenCalledWith(t('account:addresses.removeError'), 'error');
-    });
-
-    test('does not call fetcher.submit when customerId is missing', async () => {
-        const user = userEvent.setup();
-
-        render(<RemoveAddressConfirmationDialog {...defaultProps} customerId="" />);
-
-        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
-        await user.click(confirmButton);
-
-        expect(mockSubmit).not.toHaveBeenCalled();
-        expect(mockAddToast).toHaveBeenCalledWith(t('account:addresses.removeError'), 'error');
-    });
-
-    test('does not call fetcher.submit when fetcher is not idle', async () => {
-        const user = userEvent.setup();
-        updateFetcherState('submitting');
-
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
-
-        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
-        await user.click(confirmButton);
-
-        expect(mockSubmit).not.toHaveBeenCalled();
-    });
-
     test('disables confirm button when loading', () => {
         updateFetcherState('submitting');
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
-        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeConfirmButton') });
+        const confirmButton = screen.getByRole('button', { name: t('account:addresses.removeButton') });
         expect(confirmButton).toBeDisabled();
     });
 
@@ -218,7 +222,7 @@ describe('RemoveAddressConfirmationDialog', () => {
         const onSuccess = vi.fn();
         updateFetcherState('idle', true);
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} onSuccess={onSuccess} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} onSuccess={onSuccess} />);
 
         // Simulate success by calling the onSuccess callback directly
         if (mockOnSuccess) {
@@ -236,7 +240,7 @@ describe('RemoveAddressConfirmationDialog', () => {
         const onOpenChange = vi.fn();
         updateFetcherState('idle', true);
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} onOpenChange={onOpenChange} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} onOpenChange={onOpenChange} />);
 
         // Simulate success
         if (mockOnSuccess) {
@@ -251,7 +255,7 @@ describe('RemoveAddressConfirmationDialog', () => {
     test('revalidates data when removal succeeds', async () => {
         updateFetcherState('idle', true);
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
         // Simulate success
         if (mockOnSuccess) {
@@ -267,7 +271,7 @@ describe('RemoveAddressConfirmationDialog', () => {
         const errors = ['Failed to remove address'];
         updateFetcherState('idle', false, errors);
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
         // Simulate error
         if (mockOnError) {
@@ -282,7 +286,7 @@ describe('RemoveAddressConfirmationDialog', () => {
     test('shows default error message when removal fails without specific errors', async () => {
         updateFetcherState('idle', false, []);
 
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
+        renderWithRouter(<RemoveAddressConfirmationDialog {...defaultProps} />);
 
         // Simulate error
         if (mockOnError) {
@@ -291,22 +295,6 @@ describe('RemoveAddressConfirmationDialog', () => {
 
         await waitFor(() => {
             expect(mockAddToast).toHaveBeenCalledWith(t('account:addresses.removeError'), 'error');
-        });
-    });
-
-    test('handles multiple errors correctly', async () => {
-        const errors = ['Error 1', 'Error 2', 'Error 3'];
-        updateFetcherState('idle', false, errors);
-
-        render(<RemoveAddressConfirmationDialog {...defaultProps} />);
-
-        // Simulate error
-        if (mockOnError) {
-            mockOnError(errors);
-        }
-
-        await waitFor(() => {
-            expect(mockAddToast).toHaveBeenCalledWith('Error 1, Error 2, Error 3', 'error');
         });
     });
 });

@@ -59,7 +59,7 @@ export interface components {
          */
         OrganizationId: string;
         /**
-         * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+         * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. For more information, please read the documentation about property selectors [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-property-selection.html).
          * @example (name,id,variationAttributes.(**))
          */
         Select: string;
@@ -78,22 +78,10 @@ export interface components {
          */
         String256: string;
         /**
-         * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-         * @example USD
-         */
-        ISOCurrency: string;
-        /**
-         * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-         * @default N/A
-         * @example N/A
-         * @enum {string}
-         */
-        NoValue: "N/A";
-        /**
          * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
          * @example USD
          */
-        CurrencyCode: components["schemas"]["ISOCurrency"] | components["schemas"]["NoValue"];
+        CurrencyCode: string;
         /**
          * @description A concatenated version of the standard Language and Country codes, combined with a hyphen '`-`'.
          * @example en-US
@@ -108,20 +96,12 @@ export interface components {
          * @description A specialized value indicating the system default values for locales.
          * @default default
          * @example default
-         * @enum {string}
          */
-        DefaultFallback: "default";
+        DefaultFallback: string;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
         /**
          * Format: int32
-         * @description Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
-         * @default 10
-         * @example 10
-         */
-        Limit: number;
-        /**
-         * Format: int64
          * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
          * @default 0
          * @example 10
@@ -132,11 +112,16 @@ export interface components {
          *     Additionally it needs to be defined what data is returned.
          */
         ResultBase: {
-            limit: components["schemas"]["Limit"];
+            /**
+             * Format: int32
+             * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+             * @example 10
+             */
+            limit: number;
             total: components["schemas"]["Total"];
         };
         /**
-         * Format: int64
+         * Format: int32
          * @description The zero-based index of the first hit/data to include in the result.
          * @default 0
          * @example 0
@@ -356,6 +341,8 @@ export interface components {
              *      Coupon promotions are not returned in this array.
              */
             productPromotions?: components["schemas"]["ProductPromotion"][];
+        } & {
+            [key: string]: unknown;
         };
         /** @description Representation of a group of variant products by an attribute. This can't be purchased by a shopper. It provides inheritable attributes for its product variants and is used for navigation. A VariationGroup doesn't have a SKU. */
         VariationGroup: {
@@ -734,16 +721,18 @@ export interface components {
          * @example f_ecom_zzxy_prd
          */
         organizationId: components["schemas"]["OrganizationId"];
-        /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
-        select: components["schemas"]["Select"];
+        /** @example (hits.(**), refinements, sortingOptions.(id)) */
+        productSearchSelect: components["schemas"]["Select"];
         /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
         siteId: components["schemas"]["SiteId"];
         /** @description The query phrase to search for. For example to search for a product "shirt", type q=shirt. */
         qProductSearch: string;
         /**
-         * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\") i.e. refine=c_refinementColor=red|green|blue. Value ranges can be specified like this: refine=price=(100..500) .
-         *     Multiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. The refinements can be a collection of custom defined attributes IDs
-         *     and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.
+         * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='.<br>
+         *     Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\"), for example: refine=c_refinementColor=red|green|blue.<br>
+         *     Value ranges can be specified like this: refine=price=(100..500).<br>
+         *     Multiple refine parameters can be provided by using the refine as the key, for example: refine=price=(0..10)&refine=c_refinementColor=green.<br>
+         *     The refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.<br>
          *
          *     The following system refinement attribute ids are supported:<br>
          *     `cgid`: Allows refinement per single category ID. Multiple category ids are not supported.
@@ -771,7 +760,6 @@ export interface components {
          * @description A comma-separated list with allowed values - `availability`, `images`, `prices`, `represented_products`, `variations`, `promotions`, `custom_properties`.
          *     By default, the expand parameter includes `availability, images, prices, represented_products, variations`.
          *     Use none to disable all expand options.
-         *     **The page_meta_tags expand value is optional and is available B2C Commerce version 25.2.**"
          */
         expandProductSearch: ("none" | "availability" | "images" | "prices" | "represented_products" | "variations" | "promotions" | "custom_properties" | "page_meta_tags")[];
         /**
@@ -809,16 +797,18 @@ export interface operations {
     productSearch: {
         parameters: {
             query: {
-                /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
-                select?: components["parameters"]["select"];
+                /** @example (hits.(**), refinements, sortingOptions.(id)) */
+                select?: components["parameters"]["productSearchSelect"];
                 /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
                 siteId: components["parameters"]["siteId"];
                 /** @description The query phrase to search for. For example to search for a product "shirt", type q=shirt. */
                 q?: components["parameters"]["qProductSearch"];
                 /**
-                 * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='. Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\") i.e. refine=c_refinementColor=red|green|blue. Value ranges can be specified like this: refine=price=(100..500) .
-                 *     Multiple refine parameters can be provided by using the refine as the key i.e refine=price=(0..10)&refine=c_refinementColor=green. The refinements can be a collection of custom defined attributes IDs
-                 *     and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.
+                 * @description Parameter that represents a refinement attribute or values pair. Refinement attribute ID and values are separated by '='.<br>
+                 *     Multiple values are supported by a subset of refinement attributes and can be provided by separating them using a pipe (URL encoded = \"|\"), for example: refine=c_refinementColor=red|green|blue.<br>
+                 *     Value ranges can be specified like this: refine=price=(100..500).<br>
+                 *     Multiple refine parameters can be provided by using the refine as the key, for example: refine=price=(0..10)&refine=c_refinementColor=green.<br>
+                 *     The refinements can be a collection of custom defined attributes IDs and the system defined attributes IDs but the search can only accept a total of 9 refinements at a time.<br>
                  *
                  *     The following system refinement attribute ids are supported:<br>
                  *     `cgid`: Allows refinement per single category ID. Multiple category ids are not supported.
@@ -846,7 +836,6 @@ export interface operations {
                  * @description A comma-separated list with allowed values - `availability`, `images`, `prices`, `represented_products`, `variations`, `promotions`, `custom_properties`.
                  *     By default, the expand parameter includes `availability, images, prices, represented_products, variations`.
                  *     Use none to disable all expand options.
-                 *     **The page_meta_tags expand value is optional and is available B2C Commerce version 25.2.**"
                  */
                 expand?: components["parameters"]["expandProductSearch"];
                 /**

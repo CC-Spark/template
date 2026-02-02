@@ -46,7 +46,7 @@ const shopperContextMiddleware: MiddlewareFunction<Record<string, DataStrategyRe
     const config = getConfig(context);
 
     // Check feature flag - skip if shopper context is disabled
-    if (!config.site.features.shopperContext.enabled) {
+    if (!config.features.shopperContext.enabled) {
         return await next();
     }
 

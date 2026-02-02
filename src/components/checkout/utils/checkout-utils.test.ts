@@ -40,7 +40,7 @@ vi.mock('@/lib/api-clients', () => ({
 }));
 
 vi.mock('@/config', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<Record<string, unknown>>();
     return {
         ...actual,
         getConfig: vi.fn(() => ({
@@ -64,10 +64,23 @@ vi.mock('@/lib/api/shipping-methods', () => ({
     getShippingMethodsForShipment: vi.fn(),
 }));
 
+// Mock shipment distribution for tests (default: no pickup items)
+const mockShipmentDistribution = {
+    hasPickupItems: false,
+    hasDeliveryItems: true,
+    enableMultiAddress: false,
+    hasMultipleDeliveryAddresses: false,
+    hasUnaddressedDeliveryItems: false,
+    needsShippingMethods: false,
+    hasEmptyShipments: false,
+    isDeliveryProductItem: () => false as const,
+    deliveryShipments: [] as ShopperBasketsV2.schemas['Shipment'][],
+};
+
 describe('Checkout Utils', () => {
     describe('computeStepFromBasket', () => {
         it('should return CONTACT_INFO when basket is undefined', () => {
-            const result = computeStepFromBasket(undefined, false);
+            const result = computeStepFromBasket(undefined, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.CONTACT_INFO);
         });
 
@@ -77,7 +90,7 @@ describe('Checkout Utils', () => {
                 customerInfo: {},
             } as ShopperBasketsV2.schemas['Basket'];
 
-            const result = computeStepFromBasket(basket, false);
+            const result = computeStepFromBasket(basket, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.CONTACT_INFO);
         });
 
@@ -88,7 +101,12 @@ describe('Checkout Utils', () => {
                 shipments: [{}],
             } as ShopperBasketsV2.schemas['Basket'];
 
-            const result = computeStepFromBasket(basket, false);
+            const distributionWithUnaddressedItems = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: true,
+                needsShippingMethods: false,
+            };
+            const result = computeStepFromBasket(basket, distributionWithUnaddressedItems);
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_ADDRESS);
         });
 
@@ -111,7 +129,12 @@ describe('Checkout Utils', () => {
                 ],
             } as ShopperBasketsV2.schemas['Basket'];
 
-            const result = computeStepFromBasket(basket, false);
+            const distributionNeedingMethods = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: false,
+                needsShippingMethods: true,
+            };
+            const result = computeStepFromBasket(basket, distributionNeedingMethods);
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_OPTIONS);
         });
 
@@ -121,6 +144,7 @@ describe('Checkout Utils', () => {
                 customerInfo: { email: 'test@example.com' },
                 shipments: [
                     {
+                        shipmentId: 'me',
                         shippingAddress: {
                             firstName: 'John',
                             lastName: 'Doe',
@@ -139,7 +163,7 @@ describe('Checkout Utils', () => {
                 paymentInstruments: [],
             } as ShopperBasketsV2.schemas['Basket'];
 
-            const result = computeStepFromBasket(basket, true); // User has selected shipping options
+            const result = computeStepFromBasket(basket, mockShipmentDistribution); // User has selected shipping options
             expect(result).toBe(CHECKOUT_STEPS.PAYMENT);
         });
 
@@ -177,7 +201,7 @@ describe('Checkout Utils', () => {
                 ],
             } as ShopperBasketsV2.schemas['Basket'];
 
-            const result = computeStepFromBasket(basket, true);
+            const result = computeStepFromBasket(basket, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.REVIEW_ORDER);
         });
 
@@ -201,14 +225,19 @@ describe('Checkout Utils', () => {
                 ],
             } as ShopperBasketsV2.schemas['Basket'];
 
-            const result = computeStepFromBasket(basket, false); // User hasn't completed shipping options
+            const distributionNeedingMethods = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: false,
+                needsShippingMethods: true,
+            };
+            const result = computeStepFromBasket(basket, distributionNeedingMethods); // User hasn't completed shipping options
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_OPTIONS);
         });
     });
 
     describe('getCompletedSteps', () => {
         it('should return empty array when basket is undefined', () => {
-            const result = getCompletedSteps(undefined, CHECKOUT_STEPS.CONTACT_INFO);
+            const result = getCompletedSteps(undefined, mockShipmentDistribution, CHECKOUT_STEPS.CONTACT_INFO);
             expect(result).toEqual([]);
         });
 
@@ -231,7 +260,7 @@ describe('Checkout Utils', () => {
                 ],
             } as ShopperBasketsV2.schemas['Basket'];
 
-            const result = getCompletedSteps(basket, CHECKOUT_STEPS.SHIPPING_OPTIONS);
+            const result = getCompletedSteps(basket, mockShipmentDistribution, CHECKOUT_STEPS.SHIPPING_OPTIONS);
             expect(result).toContain(CHECKOUT_STEPS.CONTACT_INFO);
             expect(result).toContain(CHECKOUT_STEPS.SHIPPING_ADDRESS);
             expect(result).not.toContain(CHECKOUT_STEPS.SHIPPING_OPTIONS);
@@ -249,7 +278,7 @@ describe('Checkout Utils', () => {
                 writable: true,
             });
 
-            const result = getCompletedSteps(basket, CHECKOUT_STEPS.SHIPPING_ADDRESS);
+            const result = getCompletedSteps(basket, mockShipmentDistribution, CHECKOUT_STEPS.SHIPPING_ADDRESS);
             expect(result).not.toContain(CHECKOUT_STEPS.CONTACT_INFO);
         });
     });
@@ -528,6 +557,7 @@ describe('Checkout Utils', () => {
             mockBasket.customerInfo = { email: 'test@example.com' };
             mockBasket.shipments = [
                 {
+                    shipmentId: 'me',
                     shippingAddress: {
                         firstName: 'John',
                         lastName: 'Doe',
@@ -547,7 +577,11 @@ describe('Checkout Utils', () => {
     describe('computeFinalStepForReturningCustomer', () => {
         it('should return null when customer profile is missing', () => {
             const basket = { basketId: 'test' } as ShopperBasketsV2.schemas['Basket'];
-            const result = computeFinalStepForReturningCustomer(basket, undefined as unknown as CustomerProfile);
+            const result = computeFinalStepForReturningCustomer(
+                basket,
+                undefined as unknown as CustomerProfile,
+                mockShipmentDistribution
+            );
             expect(result).toBeNull();
         });
 
@@ -563,7 +597,7 @@ describe('Checkout Utils', () => {
                 paymentInstruments: [],
             } as CustomerProfile;
 
-            const result = computeFinalStepForReturningCustomer(basket, customerProfile);
+            const result = computeFinalStepForReturningCustomer(basket, customerProfile, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.CONTACT_INFO);
         });
 
@@ -580,7 +614,15 @@ describe('Checkout Utils', () => {
                 paymentInstruments: [],
             } as CustomerProfile;
 
-            const result = computeFinalStepForReturningCustomer(basket, customerProfile);
+            const distributionWithUnaddressedItems = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: true,
+            };
+            const result = computeFinalStepForReturningCustomer(
+                basket,
+                customerProfile,
+                distributionWithUnaddressedItems
+            );
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_ADDRESS);
         });
 
@@ -601,7 +643,7 @@ describe('Checkout Utils', () => {
                 ],
             } as CustomerProfile;
 
-            const result = computeFinalStepForReturningCustomer(basket, customerProfile);
+            const result = computeFinalStepForReturningCustomer(basket, customerProfile, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.REVIEW_ORDER);
         });
 
@@ -617,8 +659,35 @@ describe('Checkout Utils', () => {
                 paymentInstruments: [],
             } as CustomerProfile;
 
-            const result = computeFinalStepForReturningCustomer(basket, customerProfile);
+            const result = computeFinalStepForReturningCustomer(basket, customerProfile, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.PAYMENT);
+        });
+
+        it('should return REVIEW_ORDER when customer has addresses and valid payment instrument in basket, even without saved payment methods', () => {
+            const basket = {
+                basketId: 'test',
+                customerInfo: { email: 'test@example.com' },
+                paymentInstruments: [
+                    {
+                        paymentMethodId: 'CREDIT_CARD',
+                        paymentCard: {
+                            cardType: 'Visa',
+                            expirationMonth: 12,
+                            expirationYear: 2025,
+                            maskedNumber: '************1234',
+                        },
+                    },
+                ],
+            } as ShopperBasketsV2.schemas['Basket'];
+
+            const customerProfile = {
+                customer: { login: 'test@example.com' },
+                addresses: [{ addressId: 'addr_1', countryCode: 'US', lastName: 'Doe' }],
+                paymentInstruments: [],
+            } as CustomerProfile;
+
+            const result = computeFinalStepForReturningCustomer(basket, customerProfile, mockShipmentDistribution);
+            expect(result).toBe(CHECKOUT_STEPS.REVIEW_ORDER);
         });
     });
 });

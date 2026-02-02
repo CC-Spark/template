@@ -391,9 +391,6 @@ const HeroSlideContent = React.memo(
                 className="w-full h-full min-h-[300px] object-cover"
             />
 
-            {/* Dark overlay for better text contrast */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent z-[5]" />
-
             <div className="absolute inset-0 z-10 flex items-center">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-2xl" data-theme="light">
@@ -402,7 +399,7 @@ const HeroSlideContent = React.memo(
                         </h1>
 
                         {slide.subtitle && (
-                            <p className="text-sm sm:text-base md:text-lg lg:text-xl font-normal text-white/90 mb-4 sm:mb-6 md:mb-8 leading-none tracking-wide drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                            <p className="text-sm sm:text-base md:text-lg lg:text-xl font-normal text-muted-foreground mb-4 sm:mb-6 md:mb-8 leading-none tracking-wide">
                                 {slide.subtitle}
                             </p>
                         )}

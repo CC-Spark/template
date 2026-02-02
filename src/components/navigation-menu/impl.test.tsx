@@ -16,34 +16,21 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router';
 import CategoryNavigationMenu from './impl';
 import { testData } from './__tests__/data';
 
-// Mock NavLink to avoid router complexity
-vi.mock('react-router', async (importOriginal) => {
-    const actual = await importOriginal();
-    return {
-        ...actual,
-        NavLink: ({ to, children, ...props }: any) => (
-            <a href={to} {...props}>
-                {children}
-            </a>
-        ),
-    };
-});
-
 describe('CategoryNavigationMenu Component', () => {
     const renderComponent = (props: ComponentPropsWithoutRef<typeof CategoryNavigationMenu>) => {
-        return render(<CategoryNavigationMenu {...props} />);
+        return render(
+            <MemoryRouter>
+                <CategoryNavigationMenu {...props} />
+            </MemoryRouter>
+        );
     };
 
     beforeEach(() => {
         vi.clearAllMocks();
-        global.ResizeObserver = vi.fn().mockImplementation(() => ({
-            observe: vi.fn(),
-            unobserve: vi.fn(),
-            disconnect: vi.fn(),
-        }));
     });
 
     afterEach(() => {

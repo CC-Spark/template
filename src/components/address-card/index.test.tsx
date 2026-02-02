@@ -53,19 +53,21 @@ describe('AddressCard', () => {
         test('renders address card with address data', () => {
             render(<AddressCard address={mockAddress} />);
 
-            expect(screen.getByText('address-123')).toBeInTheDocument();
+            // Card title now shows displayName (firstName + lastName)
+            expect(screen.getByText('John Doe')).toBeInTheDocument();
             expect(screen.getByTestId('address-display')).toBeInTheDocument();
         });
 
-        test('displays addressId in card title', () => {
-            const addressWithCustomId: ShopperCustomers.schemas['CustomerAddress'] = {
+        test('displays full name in card title', () => {
+            const addressWithCustomName: ShopperCustomers.schemas['CustomerAddress'] = {
                 ...mockAddress,
-                addressId: 'home-address',
+                firstName: 'Jane',
+                lastName: 'Smith',
             };
 
-            render(<AddressCard address={addressWithCustomId} />);
+            render(<AddressCard address={addressWithCustomName} />);
 
-            expect(screen.getByText('home-address')).toBeInTheDocument();
+            expect(screen.getByText('Jane Smith')).toBeInTheDocument();
         });
 
         test('renders AddressDisplay component with address prop', () => {
@@ -78,23 +80,23 @@ describe('AddressCard', () => {
         });
     });
 
-    describe('Preferred Badge', () => {
-        test('displays preferred badge when isPreferred is true', () => {
+    describe('Default Badge', () => {
+        test('displays default badge when isPreferred is true', () => {
             render(<AddressCard address={mockAddress} isPreferred={true} />);
 
-            expect(screen.getByText(t('account:addresses.preferred'))).toBeInTheDocument();
+            expect(screen.getByText(t('account:addresses.default'))).toBeInTheDocument();
         });
 
-        test('does not display preferred badge when isPreferred is false', () => {
+        test('does not display default badge when isPreferred is false', () => {
             render(<AddressCard address={mockAddress} isPreferred={false} />);
 
-            expect(screen.queryByText(t('account:addresses.preferred'))).not.toBeInTheDocument();
+            expect(screen.queryByText(t('account:addresses.default'))).not.toBeInTheDocument();
         });
 
-        test('does not display preferred badge when isPreferred is not provided (defaults to false)', () => {
+        test('does not display default badge when isPreferred is not provided (defaults to false)', () => {
             render(<AddressCard address={mockAddress} />);
 
-            expect(screen.queryByText(t('account:addresses.preferred'))).not.toBeInTheDocument();
+            expect(screen.queryByText(t('account:addresses.default'))).not.toBeInTheDocument();
         });
     });
 
@@ -110,9 +112,9 @@ describe('AddressCard', () => {
             const onEdit = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} />);
 
-            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
+            const editButton = screen.getByRole('button', { name: t('account:addresses.editAddress') });
             expect(editButton).toBeInTheDocument();
-            expect(editButton).toHaveAttribute('aria-label', t('actionCard:edit'));
+            expect(editButton).toHaveAttribute('aria-label', t('account:addresses.editAddress'));
         });
 
         test('renders Remove button when onRemove is provided', () => {
@@ -129,7 +131,7 @@ describe('AddressCard', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} onRemove={onRemove} />);
 
-            expect(screen.getByRole('button', { name: t('actionCard:edit') })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: t('account:addresses.editAddress') })).toBeInTheDocument();
             expect(screen.getByRole('button', { name: t('actionCard:remove') })).toBeInTheDocument();
         });
 
@@ -148,7 +150,7 @@ describe('AddressCard', () => {
             const onEdit = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} />);
 
-            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
+            const editButton = screen.getByRole('button', { name: t('account:addresses.editAddress') });
             await user.click(editButton);
 
             expect(onEdit).toHaveBeenCalledTimes(1);
@@ -171,7 +173,7 @@ describe('AddressCard', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} onRemove={onRemove} />);
 
-            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
+            const editButton = screen.getByRole('button', { name: t('account:addresses.editAddress') });
             const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
 
             await user.click(editButton);
@@ -185,13 +187,13 @@ describe('AddressCard', () => {
     });
 
     describe('Button Styling', () => {
-        test('Remove button has destructive styling classes', () => {
+        test('Remove button has link styling classes', () => {
             const onRemove = vi.fn();
             render(<AddressCard address={mockAddress} onRemove={onRemove} />);
 
             const removeButton = screen.getByRole('button', { name: t('actionCard:remove') });
-            expect(removeButton).toHaveClass('text-destructive');
-            expect(removeButton).toHaveClass('hover:text-destructive');
+            expect(removeButton).toHaveClass('font-bold');
+            expect(removeButton).toHaveClass('px-0');
         });
     });
 
@@ -203,11 +205,11 @@ describe('AddressCard', () => {
             expect(card).toHaveClass('border-border', 'gap-0', 'py-4');
         });
 
-        test('card header contains title and action area', () => {
+        test('card header contains title and default badge', () => {
             render(<AddressCard address={mockAddress} isPreferred={true} />);
 
-            expect(screen.getByText('address-123')).toBeInTheDocument();
-            expect(screen.getByText(t('account:addresses.preferred'))).toBeInTheDocument();
+            expect(screen.getByText('John Doe')).toBeInTheDocument();
+            expect(screen.getByText(t('account:addresses.default'))).toBeInTheDocument();
         });
 
         test('card content contains AddressDisplay', () => {
@@ -227,24 +229,28 @@ describe('AddressCard', () => {
                 lastName: 'Smith',
             };
 
-            render(<AddressCard address={minimalAddress} />);
+            const { container } = render(<AddressCard address={minimalAddress} />);
 
-            expect(screen.getByText('minimal-address')).toBeInTheDocument();
+            // Card title shows addressId
+            const titleElement = container.querySelector('[data-slot="card-title"]');
+            expect(titleElement).toHaveTextContent('minimal-address');
+            // Display name (firstName + lastName) is shown as subtitle - check it exists
+            expect(screen.getAllByText('Jane Smith').length).toBeGreaterThan(0);
             expect(screen.getByTestId('address-display')).toBeInTheDocument();
         });
 
-        test('handles address with empty string addressId', () => {
-            const addressWithEmptyId: ShopperCustomers.schemas['CustomerAddress'] = {
+        test('handles address with missing name fields', () => {
+            const addressWithNoName: ShopperCustomers.schemas['CustomerAddress'] = {
                 ...mockAddress,
-                addressId: '',
+                firstName: undefined,
+                lastName: undefined,
             };
 
-            const { container } = render(<AddressCard address={addressWithEmptyId} />);
+            const { container } = render(<AddressCard address={addressWithNoName} />);
 
             // Query for the card title element specifically
             const titleElement = container.querySelector('[data-slot="card-title"]');
             expect(titleElement).toBeInTheDocument();
-            expect(titleElement?.textContent).toBe('');
         });
 
         test('handles multiple rapid clicks on Edit button', async () => {
@@ -252,7 +258,7 @@ describe('AddressCard', () => {
             const onEdit = vi.fn();
             render(<AddressCard address={mockAddress} onEdit={onEdit} />);
 
-            const editButton = screen.getByRole('button', { name: t('actionCard:edit') });
+            const editButton = screen.getByRole('button', { name: t('account:addresses.editAddress') });
             await user.click(editButton);
             await user.click(editButton);
             await user.click(editButton);

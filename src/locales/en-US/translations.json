@@ -53,7 +53,6 @@
         "title": "Edit Cart Item"
     },
     "header": {
-        "brand": "Market\nStreet",
         "logoAlt": "Home",
         "searchPlaceholder": "Search",
         "welcomeBack": "Welcome back!",
@@ -207,6 +206,7 @@
             "orderCreationFailed": "Failed to create order. Try again.",
             "paymentProcessingFailed": "Payment processing failed. Try again.",
             "shippingMethodNotAvailable": "The selected shipping method isn't available. Choose another option.",
+            "shippingMethodRequired": "Please select a shipping method to continue.",
             "addressValidationFailed": "Address validation failed. Check your address and try again.",
             "promoCodeInvalid": "Invalid promo code. Check and try again.",
             "stockNotAvailable": "Insufficient stock for one or more items in your cart."
@@ -734,11 +734,17 @@
             "viewDetails": "View Details"
         },
         "addresses": {
+            "subtitle": "Manage your shipping addresses",
             "empty": "No addresses saved. Add an address to make checkout faster!",
             "noSavedAddresses": "No Saved Addresses",
             "addAddress": "Add Address",
+            "addNewAddress": "Add new address",
             "editAddress": "Edit Address",
             "preferred": "Preferred",
+            "default": "Default",
+            "setDefault": "Set Default",
+            "setDefaultSuccess": "Address was set as default.",
+            "setDefaultError": "Failed to set address as default. Try again.",
             "billing": "Billing",
             "shipping": "Shipping",
             "removeSuccess": "Address was removed.",
@@ -747,6 +753,10 @@
             "addError": "Failed to add address.",
             "updateSuccess": "Address was updated.",
             "updateError": "Failed to update address.",
+            "removeDialogTitle": "Remove Address",
+            "removeDialogDescription": "Are you sure you want to remove this address?",
+            "removeDefaultWarning": "This is your default address. Removing it will automatically set another address as default if available.",
+            "removeButton": "Remove",
             "removeConfirmTitle": "Confirm Remove Address",
             "removeConfirmDescription": "Are you sure you want to remove address \"{{addressName}}\"?",
             "removeCancelButton": "Cancel",
@@ -754,9 +764,11 @@
         },
         "addressForm": {
             "addressTitleLabel": "Address Title",
+            "addressTitlePlaceholder": "e.g., Home, Work, Mom's House",
             "firstNameLabel": "First Name",
             "lastNameLabel": "Last Name",
             "phoneLabel": "Phone",
+            "phonePlaceholder": "(555) 123-4567",
             "countryLabel": "Country",
             "addressLabel": "Address",
             "address2Label": "Address Line 2",
@@ -775,7 +787,10 @@
             "successMessage": "Address was saved.",
             "errorMessage": "Failed to save address. Try again.",
             "validation": {
-                "stateRequired": "State/Province is required"
+                "stateRequired": "State/Province is required",
+                "addressTitleRequired": "Address title is required",
+                "addressTitleMaxLength": "Address title must be 256 characters or less",
+                "phoneRequired": "Phone number is required"
             }
         },
         "profile": {
@@ -846,6 +861,55 @@
                 "hasNumber": "At least one number",
                 "hasSpecial": "At least one special character"
             }
+        },
+        "interests": {
+            "title": "Your Interests",
+            "description": "Add your design interests to get personalized content, recommendations & offers",
+            "selectedLabel": "Your selected interests",
+            "noneSelected": "No interests selected",
+            "noneInCategory": "None selected",
+            "addMore": "Add more",
+            "addInterestsTitle": "Add Your Interests",
+            "dialogTitle": "Select Your Interests",
+            "dialogDescription": "Choose from the categories below to personalize your experience",
+            "selectCategory": "Select {{category}}",
+            "selectCategoryDescription": "Choose the options that interest you",
+            "successMessage": "Your interests were updated.",
+            "errorMessage": "Failed to update interests. Try again."
+        },
+        "interestsPreferences": {
+            "title": "Interests & Preferences",
+            "description": "Add your design interests and manage your shopping preferences",
+            "successMessage": "Your interests and preferences were updated.",
+            "errorMessage": "Failed to update. Try again."
+        },
+        "preferences": {
+            "title": "Your Preferences",
+            "description": "Manage your shopping preferences and newsletter subscription",
+            "noneSelected": "None selected",
+            "addMore": "Add more",
+            "dialogTitle": "Select Options",
+            "selectCategory": "Select {{category}}",
+            "selectCategoryDescription": "Choose the options that apply to you",
+            "successMessage": "Your preferences were updated.",
+            "errorMessage": "Failed to update preferences. Try again."
+        },
+        "common": {
+            "save": "Save",
+            "saving": "Saving...",
+            "cancel": "Cancel",
+            "edit": "Edit",
+            "done": "Done",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
+        },
+        "marketingConsent": {
+            "title": "Marketing & Communication Preferences",
+            "edit": "Edit",
+            "editA11y": "Edit marketing preferences",
+            "optedIn": "Opted in",
+            "optedOut": "Not opted in",
+            "disclaimer": "By enabling these communication preferences, you agree to receive marketing communications from us, including exclusive offers, latest product information, and news about upcoming collections. See our Terms & Conditions and Privacy Policy for more details."
         }
     },
     "home": {
@@ -971,8 +1035,8 @@
                 "emailLabel": "Email",
                 "messageLabel": "Message",
                 "placeholders": {
-                    "fullName": "Full Name",
-                    "email": "you@email.com",
+                    "fullName": "Enter your full name",
+                    "email": "you@example.com",
                     "topic": "General information",
                     "message": "Leave us a message"
                 },

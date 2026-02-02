@@ -29,7 +29,7 @@ describe('Configuration System', () => {
         it('should load config.server.ts', () => {
             expect(config).toBeDefined();
             expect(config.metadata.projectName).toBeTruthy();
-            expect(config.app.site.locale).toBeTruthy();
+            expect(config.app.commerce.sites).toBeTruthy();
         });
 
         it('should have commerce configuration structure', () => {
@@ -57,30 +57,22 @@ describe('Configuration System', () => {
             expect(Array.isArray(config.runtime?.ssrOnly)).toBe(true);
             expect(Array.isArray(config.runtime?.ssrShared)).toBe(true);
             expect(config.runtime?.ssrParameters).toBeDefined();
-            expect(config.runtime?.ssrParameters?.ssrFunctionNodeVersion).toBe('22.x');
+            expect(config.runtime?.ssrParameters?.ssrFunctionNodeVersion).toBe('24.x');
         });
 
         it('should have site configuration with defaults', () => {
-            expect(config.app.site.locale).toBe('en-US');
-            expect(config.app.site.currency).toBe('USD');
+            expect(config.app.commerce.sites[0].defaultLocale).toBe('en-US');
+            expect(config.app.commerce.sites[0].defaultCurrency).toBe('USD');
             expect(config.app.commerce.api.proxy).toBe('/mobify/proxy/api');
         });
 
-        it('should have cookies configuration structure', () => {
-            expect(config.app.site.cookies).toBeDefined();
-            expect(config.app.site.cookies).toHaveProperty('domain');
-        });
-
-        it('should allow cookies.domain to be undefined or string', () => {
-            // When PUBLIC_COOKIE_DOMAIN is not set, domain should be undefined
-            const domain = config.app.site.cookies?.domain;
-            expect(domain === undefined || typeof domain === 'string').toBe(true);
-        });
-
-        it('should allow site.domain to be undefined by default', () => {
-            // site.domain is optional in the schema
-            if (config.app.site.domain !== undefined) {
-                expect(config.app.site.domain).toBeTypeOf('string');
+        it('should allow cookies to be optional', () => {
+            // cookies is optional in the schema
+            const cookies = config.app.commerce.sites[0].cookies;
+            if (cookies !== undefined) {
+                expect(cookies).toHaveProperty('domain');
+                const domain = cookies.domain;
+                expect(domain).toBeTypeOf('string');
             }
         });
     });
@@ -102,7 +94,7 @@ describe('Configuration System', () => {
 
             expect(appConfig).toBeDefined();
             expect(appConfig.commerce).toBeDefined();
-            expect(appConfig.site).toBeDefined();
+            expect(appConfig.commerce.sites[0]).toBeDefined();
             expect(appConfig.pages).toBeDefined();
             expect(appConfig.global).toBeDefined();
         });
@@ -111,7 +103,7 @@ describe('Configuration System', () => {
             const appConfig = getConfig();
 
             expect(appConfig.commerce.api.clientId).toBe('test-client');
-            expect(appConfig.site.locale).toBe('en-US');
+            expect(appConfig.commerce.sites[0].defaultLocale).toBe('en-US');
             expect(appConfig.global.productListing.productsPerPage).toBe(24);
         });
 

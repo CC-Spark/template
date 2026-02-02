@@ -24,9 +24,9 @@ import {
     type CustomerProfile,
 } from './checkout-context-types';
 import { useBasket } from '@/providers/basket';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import { computeFinalStepForReturningCustomer, computeStepFromBasket } from './checkout-utils';
-// @sfdc-extension-line SFDC_EXT_BOPIS
-import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
+import { getShipmentDistribution } from './checkout-distribution';
 
 interface CheckoutProviderProps {
     children: ReactNode;
@@ -36,36 +36,35 @@ interface CheckoutProviderProps {
 
 export default function CheckoutProvider({ children, customerProfile, shippingDefaultSet }: CheckoutProviderProps) {
     const basket = useBasket();
+    const shipmentDistribution = getShipmentDistribution(basket);
     const [editingStep, setEditingStep] = useState<CheckoutStep | null>(null);
-    const [hasCompletedShippingOptions, setHasCompletedShippingOptions] = useState(false);
     const [currentStep, setCurrentStep] = useState<CheckoutStep>(CHECKOUT_STEPS.CONTACT_INFO);
     const [isActiveCheckoutFlow, setIsActiveCheckoutFlow] = useState(false);
-    let showAddressAndOptions = true;
-    // @sfdc-extension-line SFDC_EXT_BOPIS
-    showAddressAndOptions = !isStorePickup(basket);
+    const [savedAddresses, setSavedAddresses] = useState<ShopperBasketsV2.schemas['OrderAddress'][]>([]);
+    // sfdc-extension-line SFDC_EXT_MULTISHIP
+    const [productItemAddresses, setProductItemAddresses] = useState<
+        Map<string, ShopperBasketsV2.schemas['OrderAddress'] & { id: string }>
+    >(new Map());
 
     // Get checkout step order based on whether address and options are needed
     const getCheckoutStepOrder = (): CheckoutStep[] => {
-        return showAddressAndOptions
+        return shipmentDistribution.hasDeliveryItems
             ? [
                   CHECKOUT_STEPS.CONTACT_INFO,
+                  CHECKOUT_STEPS.PICKUP,
                   CHECKOUT_STEPS.SHIPPING_ADDRESS,
                   CHECKOUT_STEPS.SHIPPING_OPTIONS,
                   CHECKOUT_STEPS.PAYMENT,
                   CHECKOUT_STEPS.REVIEW_ORDER,
               ]
-            : [CHECKOUT_STEPS.CONTACT_INFO, CHECKOUT_STEPS.PAYMENT, CHECKOUT_STEPS.REVIEW_ORDER];
-    };
-
-    const markShippingOptionsCompleted = () => {
-        setHasCompletedShippingOptions(true);
+            : [CHECKOUT_STEPS.CONTACT_INFO, CHECKOUT_STEPS.PICKUP, CHECKOUT_STEPS.PAYMENT, CHECKOUT_STEPS.REVIEW_ORDER];
     };
 
     // Compute the initial step from basket or customer profile
     const computedStep = customerProfile
-        ? computeFinalStepForReturningCustomer(basket, customerProfile) ||
-          computeStepFromBasket(basket, hasCompletedShippingOptions)
-        : computeStepFromBasket(basket, hasCompletedShippingOptions);
+        ? computeFinalStepForReturningCustomer(basket, customerProfile, shipmentDistribution) ||
+          computeStepFromBasket(basket, shipmentDistribution)
+        : computeStepFromBasket(basket, shipmentDistribution);
 
     // Update current step when basket changes, but only if not actively editing
     // For active checkout flow, only ignore basket-based step computation for guest users
@@ -80,6 +79,7 @@ export default function CheckoutProvider({ children, customerProfile, shippingDe
         }
     }, [computedStep, editingStep, isActiveCheckoutFlow, customerProfile]);
 
+    // only used for storybook
     const goToNextStep = () => {
         const stepOrder = getCheckoutStepOrder();
         const currentIndex = stepOrder.indexOf(currentStep);
@@ -94,19 +94,22 @@ export default function CheckoutProvider({ children, customerProfile, shippingDe
     };
 
     const exitEditMode = () => {
-        // Only mark checkout flow as active for guest users (no customer profile)
-        // Returning customers should continue to benefit from auto-population
-        if (!customerProfile) {
-            setIsActiveCheckoutFlow(true);
-        }
         const stepOrder = getCheckoutStepOrder();
-        const currentIndex = stepOrder.indexOf(currentStep);
-        if (currentIndex < stepOrder.length - 1) {
-            const nextStep = stepOrder[currentIndex + 1];
-            setCurrentStep(nextStep);
-        }
+        const computedStepIndex = stepOrder.indexOf(computedStep);
+        const nextIndex = stepOrder.indexOf(currentStep) + 1;
+        const bestIndex = nextIndex < computedStepIndex ? nextIndex : computedStepIndex;
 
-        setEditingStep(null);
+        if (!customerProfile && bestIndex < stepOrder.length - 1) {
+            // Only mark checkout flow as active for guest users (no customer profile)
+            // Returning customers should continue to benefit from auto-population
+            setIsActiveCheckoutFlow(true);
+            // manual advancement because effect and action advance are disabled for non-edit
+            setCurrentStep(stepOrder[bestIndex]);
+            setEditingStep(stepOrder[bestIndex]);
+        } else {
+            setCurrentStep(stepOrder[bestIndex]);
+            setEditingStep(null);
+        }
     };
 
     const value: CheckoutContextValue = {
@@ -116,10 +119,16 @@ export default function CheckoutProvider({ children, customerProfile, shippingDe
         STEPS: CHECKOUT_STEPS,
         customerProfile,
         shippingDefaultSet,
+        shipmentDistribution,
+        savedAddresses,
+        setSavedAddresses,
+        // sfdc-extension-block-start SFDC_EXT_MULTISHIP
+        productItemAddresses,
+        setProductItemAddresses,
+        // sfdc-extension-block-end SFDC_EXT_MULTISHIP
         goToNextStep,
         goToStep,
         exitEditMode,
-        markShippingOptionsCompleted,
     };
 
     return <CheckoutContext.Provider value={value}>{children}</CheckoutContext.Provider>;

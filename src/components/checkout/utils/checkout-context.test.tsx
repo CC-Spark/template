@@ -14,12 +14,26 @@
  * limitations under the License.
  */
 import { describe, it, expect } from 'vitest';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import {
     computeStepFromBasket,
     shouldAutoAdvanceForReturningCustomer,
     computeFinalStepForReturningCustomer,
 } from './checkout-utils';
 import { CHECKOUT_STEPS } from './checkout-context-types';
+
+// Mock shipment distribution for tests (default: no pickup items)
+const mockShipmentDistribution = {
+    hasPickupItems: false,
+    hasDeliveryItems: true,
+    enableMultiAddress: false,
+    hasMultipleDeliveryAddresses: false,
+    hasUnaddressedDeliveryItems: false,
+    needsShippingMethods: false,
+    hasEmptyShipments: false,
+    isDeliveryProductItem: () => false as const,
+    deliveryShipments: [] as ShopperBasketsV2.schemas['Shipment'][],
+};
 
 // Mock basket data for testing
 const mockBasketWithAllInfo = {
@@ -37,6 +51,7 @@ const mockBasketWithAllInfo = {
     },
     shipments: [
         {
+            shipmentId: 'me',
             shippingAddress: {
                 firstName: 'John',
                 lastName: 'Doe',
@@ -103,6 +118,7 @@ const mockBasketWithoutShippingAddress = {
     },
     shipments: [
         {
+            shipmentId: 'me',
             shippingAddress: undefined,
         },
     ],
@@ -113,7 +129,7 @@ describe('Checkout Context Functions', () => {
     describe('computeStepFromBasket', () => {
         it('should return CONTACT_INFO when no customer info', () => {
             const basket = {};
-            const result = computeStepFromBasket(basket, false, false);
+            const result = computeStepFromBasket(basket, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.CONTACT_INFO);
         });
 
@@ -121,7 +137,12 @@ describe('Checkout Context Functions', () => {
             const basket = {
                 customerInfo: { email: 'test@example.com' },
             };
-            const result = computeStepFromBasket(basket, false, false);
+            const distributionWithUnaddressedItems = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: true,
+                needsShippingMethods: false,
+            };
+            const result = computeStepFromBasket(basket, distributionWithUnaddressedItems);
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_ADDRESS);
         });
 
@@ -130,6 +151,7 @@ describe('Checkout Context Functions', () => {
                 customerInfo: { email: 'test@example.com' },
                 shipments: [
                     {
+                        shipmentId: 'me',
                         shippingAddress: {
                             firstName: 'John',
                             lastName: 'Doe',
@@ -138,7 +160,12 @@ describe('Checkout Context Functions', () => {
                     },
                 ],
             };
-            const result = computeStepFromBasket(basket, false, false);
+            const distributionNeedingMethods = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: false,
+                needsShippingMethods: true,
+            };
+            const result = computeStepFromBasket(basket, distributionNeedingMethods);
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_OPTIONS);
         });
 
@@ -147,6 +174,7 @@ describe('Checkout Context Functions', () => {
                 customerInfo: { email: 'test@example.com' },
                 shipments: [
                     {
+                        shipmentId: 'me',
                         shippingAddress: {
                             firstName: 'John',
                             lastName: 'Doe',
@@ -156,12 +184,12 @@ describe('Checkout Context Functions', () => {
                     },
                 ],
             };
-            const result = computeStepFromBasket(basket, true, false);
+            const result = computeStepFromBasket(basket, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.PAYMENT);
         });
 
         it('should return REVIEW when all info is complete', () => {
-            const result = computeStepFromBasket(mockBasketWithAllInfo, true, false);
+            const result = computeStepFromBasket(mockBasketWithAllInfo, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.REVIEW_ORDER);
         });
 
@@ -170,6 +198,7 @@ describe('Checkout Context Functions', () => {
                 customerInfo: { email: 'test@example.com' },
                 shipments: [
                     {
+                        shipmentId: 'me',
                         shippingAddress: {
                             firstName: 'John',
                             lastName: 'Doe',
@@ -180,7 +209,7 @@ describe('Checkout Context Functions', () => {
                 ],
             };
             // Without auto-advance, would require userCompletedShippingOptions = true
-            const result = computeStepFromBasket(basket, false, true);
+            const result = computeStepFromBasket(basket, mockShipmentDistribution);
             expect(result).toBe(CHECKOUT_STEPS.PAYMENT);
         });
     });
@@ -215,7 +244,11 @@ describe('Checkout Context Functions', () => {
     describe('computeFinalStepForReturningCustomer', () => {
         it('should return REVIEW when all profile data is complete', () => {
             // With complete customer profile (email, addresses, payment methods)
-            const result = computeFinalStepForReturningCustomer(mockBasketWithAllInfo, mockCustomerProfile);
+            const result = computeFinalStepForReturningCustomer(
+                mockBasketWithAllInfo,
+                mockCustomerProfile,
+                mockShipmentDistribution
+            );
             expect(result).toBe(CHECKOUT_STEPS.REVIEW_ORDER);
         });
 
@@ -225,8 +258,16 @@ describe('Checkout Context Functions', () => {
                 ...mockCustomerProfile,
                 paymentInstruments: [],
             };
-            // Note: Basket state doesn't matter, only profile matters for returning customers
-            const result = computeFinalStepForReturningCustomer(mockBasketWithAllInfo, profileWithoutPayment);
+            // Basket without payment instrument - should go to PAYMENT step
+            const basketWithoutPayment = {
+                ...mockBasketWithAllInfo,
+                paymentInstruments: [],
+            };
+            const result = computeFinalStepForReturningCustomer(
+                basketWithoutPayment,
+                profileWithoutPayment,
+                mockShipmentDistribution
+            );
             expect(result).toBe(CHECKOUT_STEPS.PAYMENT);
         });
 
@@ -236,10 +277,15 @@ describe('Checkout Context Functions', () => {
                 ...mockCustomerProfile,
                 addresses: [],
             };
+            const distributionWithUnaddressedItems = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: true,
+            };
             // Note: Basket state doesn't matter, only profile matters for returning customers
             const result = computeFinalStepForReturningCustomer(
                 mockBasketWithoutShippingAddress,
-                profileWithoutAddresses
+                profileWithoutAddresses,
+                distributionWithUnaddressedItems
             );
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_ADDRESS);
         });
@@ -250,7 +296,11 @@ describe('Checkout Context Functions', () => {
                 ...mockCustomerProfile,
                 addresses: [],
             };
-            const result = computeFinalStepForReturningCustomer(mockBasketWithAllInfo, profileWithoutAddress);
+            const result = computeFinalStepForReturningCustomer(
+                mockBasketWithAllInfo,
+                profileWithoutAddress,
+                mockShipmentDistribution
+            );
             expect(result).toBeNull();
         });
 
@@ -260,7 +310,11 @@ describe('Checkout Context Functions', () => {
                 ...mockCustomerProfile,
                 customer: {},
             };
-            const result = computeFinalStepForReturningCustomer(mockBasketWithAllInfo, profileWithoutEmail);
+            const result = computeFinalStepForReturningCustomer(
+                mockBasketWithAllInfo,
+                profileWithoutEmail,
+                mockShipmentDistribution
+            );
             expect(result).toBe(CHECKOUT_STEPS.CONTACT_INFO);
         });
 
@@ -271,8 +325,16 @@ describe('Checkout Context Functions', () => {
                 addresses: [],
                 paymentInstruments: [],
             };
+            const distributionWithUnaddressedItems = {
+                ...mockShipmentDistribution,
+                hasUnaddressedDeliveryItems: true,
+            };
             // Should go to SHIPPING_ADDRESS because profile has no addresses
-            const result = computeFinalStepForReturningCustomer(mockBasketWithoutShippingAddress, minimalProfile);
+            const result = computeFinalStepForReturningCustomer(
+                mockBasketWithoutShippingAddress,
+                minimalProfile,
+                distributionWithUnaddressedItems
+            );
             expect(result).toBe(CHECKOUT_STEPS.SHIPPING_ADDRESS);
         });
     });

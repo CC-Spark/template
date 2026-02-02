@@ -193,7 +193,7 @@ export const isAbsoluteURL = (url: string): boolean => /^([a-z][a-z\d+\-.]*:)?\/
 /**
  * Check if code is running on the server side
  */
-export const isServer = typeof window === 'undefined';
+export const isServer = () => typeof window === 'undefined';
 
 /**
  * Retrieves an item from session storage and parses it as JSON
@@ -201,7 +201,7 @@ export const isServer = typeof window === 'undefined';
  * @returns The parsed JSON value or undefined if not found or on server
  */
 export const getSessionJSONItem = <T = unknown>(key: string): T | undefined => {
-    if (isServer) {
+    if (isServer()) {
         return undefined;
     }
     try {
@@ -221,7 +221,7 @@ export const getSessionJSONItem = <T = unknown>(key: string): T | undefined => {
  * @param value - The value to stringify and store
  */
 export const setSessionJSONItem = <T = unknown>(key: string, value: T): void => {
-    if (isServer) {
+    if (isServer()) {
         return;
     }
     try {
@@ -232,7 +232,7 @@ export const setSessionJSONItem = <T = unknown>(key: string, value: T): void => 
 };
 
 export const clearSessionJSONItem = (key: string): void => {
-    if (isServer) {
+    if (isServer()) {
         return;
     }
     try {

@@ -15,7 +15,6 @@
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import ProductTile from '../index';
-// @ts-expect-error mock file is JS
 import {
     mockProductSearchItem,
     mockMasterProductHitWithMultipleVariants,

@@ -48,7 +48,7 @@ export function getShopperContextCookieName(usid: string): string {
  */
 export function getSourceCodeCookieName(context: Readonly<RouterContextProvider>): string {
     const config = getConfig(context);
-    const _suffix = config.site.features.shopperContext.dwsourcecodeCookieSuffix;
+    const _suffix = config.features.shopperContext.dwsourcecodeCookieSuffix;
     // In setNamespacedCookie, cookie name with siteId suffix is already added, so we don't need to add it here
     const suffix = _suffix ? `_${_suffix}` : '';
     return `${SOURCE_CODE_COOKIE_NAME_BASE}${suffix}`;

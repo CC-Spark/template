@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { convertProductToProductSearchHit } from './product-conversion';
 
 describe('convertProductToProductSearchHit', () => {
-    afterEach(() => {
-        vi.unstubAllEnvs();
-    });
-
     it('should convert a basic product to ProductSearchHit format', () => {
         const product: ShopperProducts.schemas['Product'] = {
             id: 'test-product-123',
@@ -78,7 +74,8 @@ describe('convertProductToProductSearchHit', () => {
             price: 19.99,
             currency: 'USD',
             inventory: {
-                available: 0,
+                id: 'inventory-1',
+                ats: 0,
             },
         };
 
@@ -118,6 +115,7 @@ describe('convertProductToProductSearchHit', () => {
 
     it('should use productId as fallback when id is missing', () => {
         const product: ShopperProducts.schemas['Product'] = {
+            id: '',
             productId: 'fallback-product-id',
             name: 'Product Without ID',
             price: 15.99,
@@ -140,32 +138,6 @@ describe('convertProductToProductSearchHit', () => {
         const result = convertProductToProductSearchHit(product);
 
         expect(result.price).toBe(99.99);
-    });
-
-    it('should default currency to site currency when product currency is missing', () => {
-        vi.stubEnv('PUBLIC__app__site__currency', 'EUR');
-
-        const product: ShopperProducts.schemas['Product'] = {
-            id: 'test-product',
-            name: 'Product Without Currency',
-            price: 25.99,
-        };
-
-        const result = convertProductToProductSearchHit(product);
-
-        expect(result.currency).toBe('EUR');
-    });
-
-    it('should default currency to USD when missing', () => {
-        const product: ShopperProducts.schemas['Product'] = {
-            id: 'test-product',
-            name: 'Product Without Currency',
-            price: 25.99,
-        };
-
-        const result = convertProductToProductSearchHit(product);
-
-        expect(result.currency).toBe('USD');
     });
 
     it('should handle product with custom properties', () => {
@@ -203,6 +175,7 @@ describe('convertProductToProductSearchHit', () => {
 
     it('should default to empty string when both id and productId are missing', () => {
         const product: ShopperProducts.schemas['Product'] = {
+            id: '',
             name: 'Product Without IDs',
             price: 15.99,
             currency: 'USD',
@@ -308,6 +281,7 @@ describe('convertProductToProductSearchHit', () => {
             currency: 'USD',
             variationAttributes: [
                 {
+                    id: '',
                     name: 'Color',
                     values: [{ value: 'red', name: 'Red' }],
                 },
@@ -330,7 +304,7 @@ describe('convertProductToProductSearchHit', () => {
                 {
                     id: 'color',
                     name: 'Color',
-                    values: [{ name: 'Red' }],
+                    values: [{ value: '', name: 'Red' }],
                 },
             ],
         };
@@ -341,13 +315,15 @@ describe('convertProductToProductSearchHit', () => {
         expect(result.variants?.[0].variationValues).toEqual({});
     });
 
-    it('should handle inventory with available undefined', () => {
+    it('should handle inventory with ats undefined', () => {
         const product: ShopperProducts.schemas['Product'] = {
             id: 'test-product',
-            name: 'Product With Inventory No Available',
+            name: 'Product With Inventory No ATS',
             price: 25.99,
             currency: 'USD',
-            inventory: {},
+            inventory: {
+                id: 'inventory-1',
+            },
         };
 
         const result = convertProductToProductSearchHit(product);
@@ -355,14 +331,15 @@ describe('convertProductToProductSearchHit', () => {
         expect(result.inStock).toBe(true);
     });
 
-    it('should handle inventory with available greater than 0', () => {
+    it('should handle inventory with ats greater than 0', () => {
         const product: ShopperProducts.schemas['Product'] = {
             id: 'test-product',
             name: 'Product In Stock',
             price: 25.99,
             currency: 'USD',
             inventory: {
-                available: 10,
+                id: 'inventory-1',
+                ats: 10,
             },
         };
 

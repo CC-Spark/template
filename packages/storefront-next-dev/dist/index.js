@@ -1,6 +1,6 @@
-import path, { resolve } from "node:path";
+import path, { basename, extname, join, resolve } from "node:path";
 import fs from "fs-extra";
-import path$1, { basename, dirname, extname, join, posix, relative, resolve as resolve$1 } from "path";
+import path$1, { dirname, join as join$1, relative, resolve as resolve$1 } from "path";
 import { URL as URL$1, fileURLToPath, pathToFileURL } from "url";
 import { parse } from "@babel/parser";
 import { isJSXAttribute, isJSXElement, isJSXFragment, isJSXIdentifier, jsxClosingElement, jsxClosingFragment, jsxElement, jsxFragment, jsxIdentifier, jsxOpeningElement, jsxOpeningFragment, jsxText } from "@babel/types";
@@ -17,12 +17,16 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import express from "express";
 import { createRequestHandler } from "@react-router/express";
-import { existsSync as existsSync$1, readFileSync as readFileSync$1 } from "node:fs";
+import { existsSync as existsSync$1, readFileSync as readFileSync$1, unlinkSync } from "node:fs";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import compression from "compression";
 import zlib from "node:zlib";
 import morgan from "morgan";
-import { access, mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
+import { access, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { execSync as execSync$1 } from "node:child_process";
+import { tmpdir } from "node:os";
+import { randomUUID } from "node:crypto";
+import { npmRunPathEnv } from "npm-run-path";
 
 //#region src/plugins/fixReactRouterManifestUrls.ts
 function patchAssetsPaths(dir) {
@@ -156,14 +160,13 @@ const readableChunkFileNamesPlugin = () => {
 //#region src/mrt/utils.ts
 const MRT_BUNDLE_TYPE_SSR = "ssr";
 const MRT_STREAMING_ENTRY_FILE = "streamingHandler";
-const MRT_BUNDLE_TYPE_STREAMING = "streaming";
 /**
 * Gets the MRT entry file for the given mode
 * @param mode - The mode to get the MRT entry file for
 * @returns The MRT entry file for the given mode
 */
 const getMrtEntryFile = (mode) => {
-	return process.env.MRT_BUNDLE_TYPE === MRT_BUNDLE_TYPE_STREAMING && mode === "production" ? MRT_STREAMING_ENTRY_FILE : MRT_BUNDLE_TYPE_SSR;
+	return process.env.MRT_BUNDLE_TYPE !== MRT_BUNDLE_TYPE_SSR && mode === "production" ? MRT_STREAMING_ENTRY_FILE : MRT_BUNDLE_TYPE_SSR;
 };
 
 //#endregion
@@ -241,13 +244,19 @@ const MODULE_TO_PATCH = "react-router";
 * @returns {Plugin} A Vite plugin for patching react-router components
 */
 const patchReactRouterPlugin = () => {
+	let isTestMode = false;
 	return {
 		name: "odyssey:patch-react-router",
 		enforce: "pre",
+		config(_config, { mode }) {
+			isTestMode = mode === "test";
+		},
 		configEnvironment(name) {
+			if (isTestMode) return;
 			if (name === "ssr") return { resolve: { noExternal: ["react-router"] } };
 		},
 		resolveId(id, importer) {
+			if (isTestMode) return null;
 			if (id === MODULE_TO_PATCH) {
 				if (importer === VIRTUAL_MODULE_ID || importer?.includes("storefront-next-dev")) return null;
 				return VIRTUAL_MODULE_ID;
@@ -255,6 +264,7 @@ const patchReactRouterPlugin = () => {
 			return null;
 		},
 		load(id) {
+			if (isTestMode) return null;
 			if (id === VIRTUAL_MODULE_ID) return `
                     export * from 'react-router';
                     export { Scripts } from '@salesforce/storefront-next-dev/react-router/Scripts';
@@ -266,21 +276,6 @@ const patchReactRouterPlugin = () => {
 
 //#endregion
 //#region src/extensibility/plugin-utils.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 const traverse = traverseModule.default || traverseModule;
 const PLUGIN_COMPONENT_TAG = "PluginComponent";
 const PLUGIN_PROVIDERS_TAG = "PluginProviders";
@@ -474,21 +469,6 @@ function buildPluginRegistry(rootDir) {
 
 //#endregion
 //#region src/plugins/transformPlugins.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 function transformPluginPlaceholderPlugin() {
 	let componentRegistry;
 	let contextProviders;
@@ -816,21 +796,6 @@ const staticRegistryPlugin = (config = {}) => {
 //#endregion
 //#region src/plugins/configLoader.ts
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
 * Load the engagement config from config.server.ts
 */
 async function loadEngagementConfig(projectRoot, configPath, verbose$1) {
@@ -861,7 +826,7 @@ async function scanForInstrumentedEvents(projectRoot, scanPaths, verbose$1) {
 	const sendViewPagePattern = /sendViewPageEvent\s*\(/g;
 	const createEventPattern = /createEvent\s*\(\s*['"]([^'"]+)['"]/g;
 	for (const scanPath of scanPaths) {
-		const files = await glob(join(resolve$1(projectRoot, scanPath), "**/*.{ts,tsx}"), { ignore: [
+		const files = await glob(join$1(resolve$1(projectRoot, scanPath), "**/*.{ts,tsx}"), { ignore: [
 			"**/*.test.ts",
 			"**/*.test.tsx",
 			"**/*.spec.ts",
@@ -1055,21 +1020,6 @@ const debug = (msg, data) => {
 
 //#endregion
 //#region src/utils.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 const DEFAULT_CLOUD_ORIGIN = "https://cloud.mobify.com";
 const getDefaultBuildDir = (targetDir) => path$1.join(targetDir, "build");
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -1191,21 +1141,6 @@ const getDefaultMessage = (projectDir) => {
 //#endregion
 //#region src/bundle.ts
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
 * Create a bundle from the build directory
 */
 const createBundle = async (options) => {
@@ -1280,21 +1215,6 @@ const createBundle = async (options) => {
 
 //#endregion
 //#region src/cloud-api.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 var CloudAPIClient = class {
 	credentials;
 	origin;
@@ -1385,21 +1305,6 @@ var CloudAPIClient = class {
 
 //#endregion
 //#region src/config.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 const SFNEXT_BASE_CARTRIDGE_NAME = "app_storefrontnext_base";
 const SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR = `${SFNEXT_BASE_CARTRIDGE_NAME}/cartridge/experience`;
 /**
@@ -1453,27 +1358,12 @@ const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
 			"!**/__mocks__/**/*",
 			"!**/__snapshots__/**/*"
 		],
-		ssrParameters: { ssrFunctionNodeVersion: "22.x" }
+		ssrParameters: { ssrFunctionNodeVersion: "24.x" }
 	};
 };
 
 //#endregion
 //#region src/commands/push.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 /**
 * Main function to push bundle to Managed Runtime
 */
@@ -1541,21 +1431,6 @@ async function push(options) {
 //#endregion
 //#region src/server/ts-import.ts
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
 * Parse TypeScript paths from tsconfig.json and convert to jiti alias format.
 *
 * @param tsconfigPath - Path to tsconfig.json
@@ -1604,21 +1479,6 @@ async function importTypescript(filePath, options) {
 
 //#endregion
 //#region src/server/config.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 /**
 * This is a temporary function before we move the config implementation from
 * template-retail-rsc-app to the SDK.
@@ -1708,21 +1568,6 @@ function getBundlePath(bundleId) {
 //#endregion
 //#region src/server/middleware/proxy.ts
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
 * Create proxy middleware for Commerce Cloud API
 * Proxies requests from /mobify/proxy/api to the Commerce Cloud API
 */
@@ -1735,21 +1580,6 @@ function createCommerceProxyMiddleware(config) {
 
 //#endregion
 //#region src/server/middleware/static.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 /**
 * Create static file serving middleware for client assets
 * Serves files from build/client at /mobify/bundle/{BUNDLE_ID}/client/
@@ -1766,21 +1596,6 @@ function createStaticMiddleware(bundleId, projectDirectory) {
 
 //#endregion
 //#region src/server/middleware/compression.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 /**
 * Parse and validate COMPRESSION_LEVEL environment variable
 * @returns Valid compression level (0-9) or default compression level
@@ -1949,21 +1764,6 @@ const ServerModeFeatureMap = {
 //#endregion
 //#region src/server/index.ts
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
 * Create a unified Express server for development, preview, or production mode
 */
 async function createServer(options) {
@@ -2038,25 +1838,6 @@ function isSupportedFileExtension(fileName) {
 
 //#endregion
 //#region src/extensibility/trim-extensions.ts
-/**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-/**
-* Utility to trim the directory to remove unused components and unused extensions.
-* This is used to reduce the size of the project by removing the code that is not part of the selected extensions.
-*/
 const SINGLE_LINE_MARKER = "@sfdc-extension-line";
 const BLOCK_MARKER_START = "@sfdc-extension-block-start";
 const BLOCK_MARKER_END = "@sfdc-extension-block-end";
@@ -2211,22 +1992,110 @@ function deleteExtensionFolders(projectRoot, extensions, extensionConfig) {
 }
 
 //#endregion
-//#region src/cartridge-services/generate-cartridge.ts
+//#region src/cartridge-services/react-router-config.ts
+let isCliAvailable = null;
+function checkReactRouterCli(projectDirectory) {
+	if (isCliAvailable !== null) return isCliAvailable;
+	try {
+		execSync$1("react-router --version", {
+			cwd: projectDirectory,
+			env: npmRunPathEnv(),
+			stdio: "pipe"
+		});
+		isCliAvailable = true;
+	} catch {
+		isCliAvailable = false;
+	}
+	return isCliAvailable;
+}
 /**
-* Copyright 2026 Salesforce, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* Get the fully resolved routes from React Router by invoking its CLI.
+* This ensures we get the exact same route resolution as React Router uses internally,
+* including all presets, file-system routes, and custom route configurations.
+* @param projectDirectory - The project root directory
+* @returns Array of resolved route config entries
+* @example
+* const routes = getReactRouterRoutes('/path/to/project');
+* // Returns the same structure as `react-router routes --json`
 */
+function getReactRouterRoutes(projectDirectory) {
+	if (!checkReactRouterCli(projectDirectory)) throw new Error("React Router CLI is not available. Please make sure @react-router/dev is installed and accessible.");
+	const tempFile = join(tmpdir(), `react-router-routes-${randomUUID()}.json`);
+	try {
+		execSync$1(`react-router routes --json > "${tempFile}"`, {
+			cwd: projectDirectory,
+			env: npmRunPathEnv(),
+			encoding: "utf-8",
+			stdio: [
+				"pipe",
+				"pipe",
+				"pipe"
+			]
+		});
+		const output = readFileSync$1(tempFile, "utf-8");
+		return JSON.parse(output);
+	} catch (error$1) {
+		throw new Error(`Failed to get routes from React Router CLI: ${error$1.message}`);
+	} finally {
+		try {
+			if (existsSync$1(tempFile)) unlinkSync(tempFile);
+		} catch {}
+	}
+}
+/**
+* Convert a file path to its corresponding route path using React Router's CLI.
+* This ensures we get the exact same route resolution as React Router uses internally.
+* @param filePath - Absolute path to the route file
+* @param projectRoot - The project root directory
+* @returns The route path (e.g., '/cart', '/product/:productId')
+* @example
+* const route = filePathToRoute('/path/to/project/src/routes/_app.cart.tsx', '/path/to/project');
+* // Returns: '/cart'
+*/
+function filePathToRoute(filePath, projectRoot) {
+	const filePathPosix = filePath.replace(/\\/g, "/");
+	const flatRoutes = flattenRoutes(getReactRouterRoutes(projectRoot));
+	for (const route of flatRoutes) {
+		const routeFilePosix = route.file.replace(/\\/g, "/");
+		if (filePathPosix.endsWith(routeFilePosix) || filePathPosix.endsWith(`/${routeFilePosix}`)) return route.path;
+		const routeFileNormalized = routeFilePosix.replace(/^\.\//, "");
+		if (filePathPosix.endsWith(routeFileNormalized) || filePathPosix.endsWith(`/${routeFileNormalized}`)) return route.path;
+	}
+	console.warn(`Warning: Could not find route for file: ${filePath}`);
+	return "/unknown";
+}
+/**
+* Flatten a nested route tree into a flat array with computed paths.
+* Each route will have its full path computed from parent paths.
+* @param routes - The nested route config entries
+* @param parentPath - The parent path prefix (used internally for recursion)
+* @returns Flat array of routes with their full paths
+*/
+function flattenRoutes(routes, parentPath = "") {
+	const result = [];
+	for (const route of routes) {
+		let fullPath;
+		if (route.index) fullPath = parentPath || "/";
+		else if (route.path) {
+			const pathSegment = route.path.startsWith("/") ? route.path : `/${route.path}`;
+			fullPath = parentPath ? `${parentPath}${pathSegment}`.replace(/\/+/g, "/") : pathSegment;
+		} else fullPath = parentPath || "/";
+		if (route.id) result.push({
+			id: route.id,
+			path: fullPath,
+			file: route.file,
+			index: route.index
+		});
+		if (route.children && route.children.length > 0) {
+			const childPath = route.path ? fullPath : parentPath;
+			result.push(...flattenRoutes(route.children, childPath));
+		}
+	}
+	return result;
+}
+
+//#endregion
+//#region src/cartridge-services/generate-cartridge.ts
 const SKIP_DIRECTORIES = [
 	"build",
 	"dist",
@@ -2315,16 +2184,6 @@ function parseNestedObject(objectLiteral) {
 		return result;
 	}
 	return result;
-}
-function filePathToRoute(filePath, projectRoot) {
-	const filePathPosix = filePath.replace(/\\/g, "/");
-	const projectRootPosix = projectRoot.replace(/\\/g, "/");
-	const routesRoot = posix.join(projectRootPosix, "src/routes");
-	const marker = "/src/routes/";
-	let routePath = (filePathPosix.includes(marker) ? filePathPosix.slice(filePathPosix.indexOf(marker) + 12) : posix.relative(routesRoot, filePathPosix)).replace(/\.(tsx|ts|jsx|js)$/i, "");
-	routePath = routePath.replace(/(?<!\.)\.(?!\.)/g, "/");
-	routePath = routePath.replace(/^_index$/i, "").replace(/^index$/i, "").replace(/\/_index$/i, "").replace(/\/index$/i, "").replace(/\$([^/]+)/g, ":$1");
-	return routePath.startsWith("/") ? routePath : `/${routePath}`;
 }
 function parseArrayLiteral(arrayLiteral) {
 	const result = [];
@@ -2611,7 +2470,7 @@ async function generateAspectCartridge(aspect, outputDir, dryRun = false) {
 function lintGeneratedFiles(metadataDir, projectRoot) {
 	try {
 		console.log("🔧 Running ESLint --fix on generated JSON files...");
-		execSync(`npx eslint "${metadataDir}/**/*.json" --fix --no-error-on-unmatched-pattern`, {
+		execSync$1(`npx eslint "${metadataDir}/**/*.json" --fix --no-error-on-unmatched-pattern`, {
 			cwd: projectRoot,
 			stdio: "pipe",
 			encoding: "utf-8"
@@ -2634,9 +2493,9 @@ async function generateMetadata(projectDirectory, metadataDirectory, options) {
 		if (dryRun) console.log("🔍 [DRY RUN] Scanning for decorated components and page types...");
 		else if (isIncrementalMode) console.log(`🔍 Generating metadata for ${filePaths.length} specified file(s)...`);
 		else console.log("🔍 Generating metadata for decorated components and page types...");
-		const projectRoot = resolve$1(projectDirectory);
+		const projectRoot = resolve(projectDirectory);
 		const srcDir = join(projectRoot, "src");
-		const metadataDir = resolve$1(metadataDirectory);
+		const metadataDir = resolve(metadataDirectory);
 		const componentsOutputDir = join(metadataDir, "components");
 		const pagesOutputDir = join(metadataDir, "pages");
 		const aspectsOutputDir = join(metadataDir, "aspects");
@@ -2676,7 +2535,7 @@ async function generateMetadata(projectDirectory, metadataDirectory, options) {
 		else console.log("📝 [DRY RUN] Would clean and regenerate all metadata files");
 		let files = [];
 		if (isIncrementalMode && filePaths) {
-			files = filePaths.map((fp) => resolve$1(projectRoot, fp));
+			files = filePaths.map((fp) => resolve(projectRoot, fp));
 			console.log(`📂 Processing ${files.length} specified file(s)...`);
 		} else {
 			const scanDirectory = async (dir) => {

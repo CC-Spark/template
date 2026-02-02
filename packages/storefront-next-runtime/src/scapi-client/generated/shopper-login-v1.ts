@@ -395,6 +395,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/organizations/{organizationId}/oauth2/webauthn/register/authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Authorize user for WebAuthn registration
+         * @description Authorizes a user to register a WebAuthn credential (passkey). This endpoint validates the user's
+         *     credentials and creates a password action token that can be used to start the registration process.
+         *     The token is sent to the user via the specified channel (email or SMS).
+         */
+        post: operations["authorizeWebauthnRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/oauth2/webauthn/register/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start WebAuthn registration
+         * @description Starts the WebAuthn registration process by generating credential creation options.
+         *     Returns the challenge and other parameters needed by the authenticator to create a new credential.
+         */
+        post: operations["startWebauthnUserRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/oauth2/webauthn/register/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish WebAuthn registration
+         * @description Completes the WebAuthn registration process by verifying the credential created by the authenticator.
+         *     Stores the public key and credential information for future authentication.
+         */
+        post: operations["finishWebauthnUserRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/oauth2/webauthn/authenticate/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start WebAuthn authentication
+         * @description Starts the WebAuthn authentication process by generating credential request options.
+         *     Returns the challenge and allowed credentials for the user to authenticate with.
+         */
+        post: operations["startWebauthnAuthentication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/organizations/{organizationId}/oauth2/webauthn/authenticate/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish WebAuthn authentication
+         * @description Completes the WebAuthn authentication process by verifying the assertion from the authenticator.
+         *     Returns OAuth tokens upon successful authentication.
+         */
+        post: operations["finishWebauthnAuthentication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -475,7 +581,7 @@ export interface components {
             /** @example Missing access token or refresh token. */
             error_description?: string;
         };
-        /** @description A request for a passwordless login token. This is only available for resgistered users using B2C Commerce. */
+        /** @description A request for a passwordless login token. This is only available for registered users using B2C Commerce. */
         PasswordlessLoginRequest: {
             /**
              * @description User ID for logging in.
@@ -486,7 +592,7 @@ export interface components {
              * @description Password Action delivery modes
              * @enum {string}
              */
-            mode: "callback" | "sms";
+            mode: "callback" | "sms" | "email";
             /**
              * @description The locale of the template. Not needed for the `callback` mode
              * @example en-us
@@ -509,6 +615,30 @@ export interface components {
              * @example http://localhost:9050/passwordless/login/callback
              */
             callback_uri?: string;
+            /**
+             * @description The user's last name. Required when `register_customer` is `true`.
+             *     The `last_name` parameter is not used when `register_customer` parameter is not added or is `false`.
+             * @example Sampleson
+             */
+            last_name?: string;
+            /**
+             * @description The user's email address. Required when `register_customer` is `true` and `user_id` is not an email address.
+             *     The `email` parameter is not used when `register_customer` parameter is not added or is `false`.
+             * @example samantha.sampleson@example.com
+             */
+            email?: string;
+            /**
+             * @description The user's first name. Optional when `register_customer` is `true`.
+             *     The `first_name` parameter is not used when `register_customer` parameter is not added or is `false`.
+             * @example Samantha
+             */
+            first_name?: string;
+            /**
+             * @description The user's phone number. Optional when `register_customer` is `true`.
+             *     The `phone_number` parameter is not used when `register_customer` parameter is not added or is `false`.
+             * @example 17776665555
+             */
+            phone_number?: string;
         };
         /**
          * @description Token Type
@@ -567,6 +697,16 @@ export interface components {
              * @example eyJraWQiOiJYS21HbHVuSm0zSlBTMHNjQXZXV19XQlYtRi1wMkxLSDR0V05UMHVVSjVJIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULjFMY0xxTWhqM2t0N1FKeFhxQ0VtdGZOOVV2eUcweW1meDFxZG9BdzF1NWMub2FyeXhveHF0QUtxaVFMbkM1ZDYiLCJpc3MiOiJodHRwczovL2Rldi05NTY1MjM2Lm9rdGEuY29tIiwiYXVkIjoiaHR0cHM6Ly9kZXYtOTU2NTIzNi5va3RhLmNvbSIsInN1YiI6Im9rdGEuc2xhcy50ZXN0IiwiaWF0IjoxNjc5Njk4MzA4LCJleHAiOjE2Nzk3MDE5MDgsImNpZCI6IjBvYTJrNXNma0JXZ0poTEVHNWQ2IiwidWlkIjoiMDB1MzhxZGpuU2NMT0IxbXE1ZDYiLCJzY3AiOlsib2ZmbGluZV9hY2Nlc3MiLCJvcGVuaWQiLCJlbWFpbCIsInByb2ZpbGUiXSwiYXV0aF90aW1lIjoxNjc5Njk4MzA2fQ.FDbGsnZGwTYVKGSlAo6jqcjG2HQ_BqQKRk72M5h69DRHyOM4wngsEELN_Wtgj3E77sP7IOmIKjiK5SFP17ADMbKZptVr2pqaMVF3PuU3Cbl_MgXZValfT-z12jHRq9sHMfsdTjY2RnvG44ZDFKc2no8mdL6IJ1MfCaZT5Tql5Ktq_UgudaWFsYqad3ETcmp5Y8ivz1bFnqud0sO9D9JzYOtfd9h71JKcsSC2rXc_Si-INPKKaGl8CDgaLXxu_Am9twJpUenHLpy0BerhcVvdFz7_611E53xOT_Esrc1pe-XAZtlYsJFnhxTBDT342ukiSWk2m6juVappv1GsRfUf2g
              */
             idp_access_token: string;
+            /**
+             * @description This is the refresh token that is returned from the IDP. The IDP refresh token is returned to be able to make calls into the IDP outside of SLAS.
+             * @example EgMYpjfFKdlSy-a3PYeyihmP95IpIp3FaDpPmVH1yu8.lahomBi7zJbRa6yKAuAAiKu3lprTPsEueKwqcBvhRLU
+             */
+            idp_refresh_token?: string;
+            /**
+             * @description Do not track
+             * @example true
+             */
+            dnt?: string;
         };
         /**
          * @description Grant Type
@@ -865,7 +1005,7 @@ export interface components {
              * @description Password Action delivery modes
              * @enum {string}
              */
-            mode: "callback" | "sms";
+            mode: "callback" | "sms" | "email";
             /**
              * @description The channel (B2C Commerce site) that the user is associated with.
              * @example RefArch
@@ -932,7 +1072,7 @@ export interface components {
              *     The `code_verifier` should be a high entropy cryptographically random string with a minimum of 43 characters and a maximum of 128 characters.
              * @example Ar0lAwU_jsuA~ZXX8-JnMbZFxrnDot2OtgLEi1kOT_FxD6Bo0EQDbbrvoym9xHvatNGnNzrObLJeK6e4U9m4pveRMbdwNGa4jwiAlKGvijVn0PW0hqb03_w1gQE00wTo
              */
-            code_verifier: string;
+            code_verifier?: string;
             /**
              * @description The new password to set for the shopper associated with the password action token.
              * @example new_password
@@ -948,6 +1088,11 @@ export interface components {
              * @example cross_device
              */
             hint?: string;
+            /**
+             * @description User ID for logging in. This is the id that is used to log into SFCC. Required only when hint is provided.
+             * @example samantha.sampleson@example.com
+             */
+            user_id?: string;
         };
         /** @description A request for an access token using a passwordless token. */
         PasswordLessLoginTokenRequest: {
@@ -980,6 +1125,12 @@ export interface components {
              * @example Ar0lAwU_jsuA~ZXX8-JnMbZFxrnDot2OtgLEi1kOT_FxD6Bo0EQDbbrvoym9xHvatNGnNzrObLJeK6e4U9m4pveRMbdwNGa4jwiAlKGvijVn0PW0hqb03_w1gQE00wTo
              */
             code_verifier?: string;
+            /**
+             * @description The ID used by the shopper for password token request. When provided, login_id must exactly match the ID used during passwordless login.
+             *     ex. If passwordless login used `samantha.sampleson@example.com`, but the passwordless login token request provides `sam.sampleson@example.com`, the request fails due to mismatch.
+             * @example samantha.sampleson@example.com
+             */
+            login_id?: string;
         };
         TokenActionRequest: {
             /**
@@ -993,6 +1144,277 @@ export interface components {
              */
             token_type_hint?: "access_token" | "refresh_token";
         };
+        /**
+         * @description WebAuthn registration request. Inherits most fields from PasswordActionVerifyRequest
+         *     but does NOT use code_verifier or new_password fields.
+         */
+        RegistrationStartRequest: {
+            /**
+             * @description OAuth client identifier. Required if Authorization header is not provided.
+             * @example 12345678-1234-1234-1234-123456789012
+             */
+            client_id?: string;
+            /**
+             * @description Password action token (TOTP) received by the user.
+             * @example 12345678
+             */
+            pwd_action_token: string;
+            /**
+             * @description The ID of the user.
+             * @example user@example.com
+             */
+            user_id: string;
+            /**
+             * @description The ID of the channel.
+             * @example RefArch
+             */
+            channel_id: string;
+            /**
+             * @description Display name for the passkey.
+             * @example John Doe
+             */
+            display_name?: string;
+            /**
+             * @description Nickname for the credential.
+             * @example My iPhone
+             */
+            nick_name?: string;
+        };
+        /** @description Authenticator response for registration (attestation). */
+        AuthenticatorAttestationResponseJson: {
+            /** @description Base64url-encoded client data JSON. */
+            clientDataJSON: {
+                /**
+                 * Format: byte
+                 * @example eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiVjJGc2RHVnlJRmRvYVhSbElGUmxjM1FnUTJoaGJHeGxibWRsIiwib3JpZ2luIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSJ9
+                 */
+                id?: string;
+            }[];
+            /** @description Base64url-encoded attestation object. */
+            attestationObject: {
+                /**
+                 * Format: byte
+                 * @example o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVikSZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2NFAAAAAK3OAAI1vMYKZIsLJfHwVQMAIAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gpQECAyYgASFYIIGjL8Hs9Yz5LvVGBnGJlGYKbJZXLqLLnKLJKLJLKLJLIlgg
+                 */
+                id?: string;
+            }[];
+        };
+        /** @description Authenticator response for authentication (assertion). */
+        AuthenticatorAssertionResponseJson: {
+            /** @description Base64url-encoded authenticator data */
+            authenticatorData: {
+                /**
+                 * Format: byte
+                 * @example SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MFAAAAAQ
+                 */
+                id?: string;
+            }[];
+            /** @description Base64url-encoded client data JSON. */
+            clientDataJSON: {
+                /**
+                 * Format: byte
+                 * @example eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiVjJGc2RHVnlJRmRvYVhSbElGUmxjM1FnUTJoaGJHeGxibWRsIiwib3JpZ2luIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSJ9
+                 */
+                id?: string;
+            }[];
+            /** @description Base64url-encoded signature. */
+            signature: {
+                /**
+                 * Format: byte
+                 * @example MEYCIQDqwzerkQlKKLJKLJKLJKLJKLJKLJKLJKLJKLJKLJKLJAiEA
+                 */
+                id?: string;
+            }[];
+            /** @description Base64url-encoded user handle. */
+            userHandle?: {
+                /**
+                 * Format: byte
+                 * @example dXNlckBleGFtcGxlLmNvbQ
+                 */
+                id?: string;
+            }[] | null;
+        };
+        /**
+         * @description WebAuthn credential representation. The response field can contain either
+         *     AuthenticatorAttestationResponseJson (for registration) or
+         *     AuthenticatorAssertionResponseJson (for authentication).
+         */
+        PublicKeyCredentialJson: {
+            /**
+             * @description Base64url-encoded credential ID
+             * @example AQIDBAUGBwgJCgsMDQ4PEA
+             */
+            id: string;
+            /**
+             * @description Base64url-encoded raw credential ID.
+             * @example AQIDBAUGBwgJCgsMDQ4PEA
+             */
+            rawId: string;
+            /**
+             * @description The type of credential.
+             * @example public-key
+             * @enum {string}
+             */
+            type: "public-key";
+            /**
+             * @description WebAuthn client extension results (typically empty).
+             * @example {
+             *       "extensions": {}
+             *     }
+             */
+            clientExtensionResults?: string | null;
+            /** @description Authenticator response (attestation for registration, assertion for authentication) */
+            response: components["schemas"]["AuthenticatorAttestationResponseJson"] | components["schemas"]["AuthenticatorAssertionResponseJson"];
+        };
+        RegistrationFinishRequest: {
+            /**
+             * @description The ID of the OAuth client.
+             * @example 12345678-1234-1234-1234-123456789012
+             */
+            client_id: string;
+            /**
+             * @description Username for the credential.
+             * @example user@example.com
+             */
+            username: string;
+            credential: components["schemas"]["PublicKeyCredentialJson"];
+            /**
+             * @description The ID of the channel.
+             * @example RefArch
+             */
+            channel_id: string;
+            /**
+             * @description Password action token.
+             * @example 12345678
+             */
+            pwd_action_token: string;
+        };
+        AuthenticateRequest: {
+            /**
+             * @description The ID of the tenant.
+             * @example zzte_053
+             */
+            tenant_id?: string;
+            /**
+             * @description The ID of the OAuth client.
+             * @example 12345678-1234-1234-1234-123456789012
+             */
+            client_id: string;
+            /**
+             * @description The ID of the channel.
+             * @example RefArch
+             */
+            channel_id: string;
+            /**
+             * @description The ID of the user.
+             * @example user@example.com
+             */
+            user_id: string;
+        };
+        /** @description Public key credential descriptor. */
+        PublicKeyCredentialDescriptor: {
+            /**
+             * @description Credential type.
+             * @example public-key
+             * @enum {string}
+             */
+            type: "public-key";
+            /**
+             * @description The base64url-encoded ID of the credential.
+             * @example AQIDBAUGBwgJCgsMDQ4PEA
+             */
+            id: string;
+            /**
+             * @description Authenticator transports.
+             * @example [
+             *       "internal",
+             *       "usb"
+             *     ]
+             */
+            transports?: ("usb" | "nfc" | "ble" | "internal")[];
+        };
+        /** @description Options for requesting a WebAuthn credential (returned by authenticate/start). */
+        PublicKeyCredentialRequestOptions: {
+            /**
+             * @description Base64url-encoded challenge.
+             * @example V2FsdGVyIFdoaXRlIFRlc3QgQ2hhbGxlbmdl
+             */
+            challenge?: string;
+            /**
+             * @description Timeout value in milliseconds.
+             * @example 60000
+             */
+            timeout?: number;
+            /**
+             * @description The ID of the relying party.
+             * @example example.com
+             */
+            rpId?: string;
+            /** @description Allowed credentials for authentication. */
+            allowCredentials?: components["schemas"]["PublicKeyCredentialDescriptor"][];
+            /**
+             * @description The level of requirement for user verification.
+             * @example preferred
+             * @enum {string}
+             */
+            userVerification?: "required" | "preferred" | "discouraged";
+            /** @description WebAuthn extensions. */
+            extensions?: {
+                [key: string]: unknown;
+            };
+        };
+        AuthenticateFinishRequest: {
+            /**
+             * @description The ID of the user.
+             * @example user@example.com
+             */
+            user_id?: string;
+            /**
+             * @description The ID of the channel.
+             * @example RefArch
+             */
+            channel_id: string;
+            /**
+             * @description The ID of the OAuth client.
+             * @example 12345678-1234-1234-1234-123456789012
+             */
+            client_id: string;
+            /**
+             * Format: email
+             * @description User's email address.
+             * @example user@example.com
+             */
+            email?: string;
+            /**
+             * @description The ID of the tenant.
+             * @example zzte_053
+             */
+            tenant_id?: string;
+            /**
+             * @description The unique session ID.
+             * @example 87654321-4321-4321-4321-210987654321
+             */
+            usid?: string;
+            credential: components["schemas"]["PublicKeyCredentialJson"];
+        };
+        AuthenticateResult: {
+            /**
+             * @description The credential ID that was used for authentication.
+             * @example AQIDBAUGBwgJCgsMDQ4PEA
+             */
+            credentialId?: string;
+            /**
+             * @description The authenticated username.
+             * @example user@example.com
+             */
+            username?: string;
+            /**
+             * @description Specifies whether authentication was successful (true) or not (false).
+             * @example true
+             */
+            success?: boolean;
+            tokenResponse?: components["schemas"]["TokenResponse"];
+        };
     };
     responses: never;
     parameters: {
@@ -1001,12 +1423,21 @@ export interface components {
          * @example f_ecom_zzxy_prd
          */
         organizationId: components["schemas"]["OrganizationId"];
+        /**
+         * @description When set to `true`, creates a new customer profile in B2C Commerce if one doesn't already exist. Requires `last_name` and `email` body parameters unless `user_id` is an email address. Optionally accepts `first_name` and `phone_number` body parameters.
+         *     If the customer profile doesn't exist, it is created when the TOTP is validated via the `passwordless/token` endpoint.
+         *
+         *     When set to `false` (or omitted), no customer profile is created in B2C Commerce.
+         */
+        register_customer: string;
         /** @description The SLAS public client ID or SLAS private client ID for use with trusted-agent requests. When using a private client ID a PKCE code challenge is not required. */
         client_id: string;
         /** @description Refresh token that was given during the access token request. */
         refresh_token: string;
         /**
-         * @description `hint=all-sessions` logs out all sessions of the shopper and invalidates all active refresh tokens for the shopper.
+         * @description `hint=all-sessions` logs out all sessions and invalidates all refresh tokens for a shopper with the same SLAS user ID.
+         *     This only works within the same session type. Sessions created through different authentication methods (/authorize vs. Trusted System On Behalf) are treated as separate sessions. To invalidate tokens with different SLAS User IDs, you must make explicit logout calls with each token.
+         *     A shopper authenticated via both /authorize and TSOB has two separate sessions. You will need two logout calls (one per token) to fully log them out.
          *
          *     If this query parameter is not provided, the default behavior is to log out only the current session that matches the refresh token in the request.
          *
@@ -1203,7 +1634,15 @@ export interface operations {
     };
     authorizePasswordlessCustomer: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description When set to `true`, creates a new customer profile in B2C Commerce if one doesn't already exist. Requires `last_name` and `email` body parameters unless `user_id` is an email address. Optionally accepts `first_name` and `phone_number` body parameters.
+                 *     If the customer profile doesn't exist, it is created when the TOTP is validated via the `passwordless/token` endpoint.
+                 *
+                 *     When set to `false` (or omitted), no customer profile is created in B2C Commerce.
+                 */
+                register_customer?: components["parameters"]["register_customer"];
+            };
             header?: {
                 /** @description Base64-encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`), for example: `clientId:clientSecret` */
                 Authorization?: string;
@@ -1322,7 +1761,9 @@ export interface operations {
                  */
                 channel_id?: string;
                 /**
-                 * @description `hint=all-sessions` logs out all sessions of the shopper and invalidates all active refresh tokens for the shopper.
+                 * @description `hint=all-sessions` logs out all sessions and invalidates all refresh tokens for a shopper with the same SLAS user ID.
+                 *     This only works within the same session type. Sessions created through different authentication methods (/authorize vs. Trusted System On Behalf) are treated as separate sessions. To invalidate tokens with different SLAS User IDs, you must make explicit logout calls with each token.
+                 *     A shopper authenticated via both /authorize and TSOB has two separate sessions. You will need two logout calls (one per token) to fully log them out.
                  *
                  *     If this query parameter is not provided, the default behavior is to log out only the current session that matches the refresh token in the request.
                  *
@@ -2760,6 +3201,266 @@ export interface operations {
             };
             /** @description Internal Server Error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+        };
+    };
+    authorizeWebauthnRegistration: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Base64-encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). For example: `clientId:clientSecret`. */
+                Authorization?: string;
+            };
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["PasswordActionRequest"];
+            };
+        };
+        responses: {
+            /** @description User successfully authorized for WebAuthn registration. TOTP sent to user. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+        };
+    };
+    startWebauthnUserRegistration: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Base64-encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). For example: `clientId:clientSecret`. */
+                Authorization?: string;
+            };
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["RegistrationStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Registration options successfully generated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+        };
+    };
+    finishWebauthnUserRegistration: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Base64-encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). For example: `clientId:clientSecret`. */
+                Authorization?: string;
+            };
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Registration successfully completed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+        };
+    };
+    startWebauthnAuthentication: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Base64-encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). For example: `clientId:clientSecret`. */
+                Authorization?: string;
+            };
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["AuthenticateRequest"];
+            };
+        };
+        responses: {
+            /** @description Authentication options successfully generated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicKeyCredentialRequestOptions"];
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+        };
+    };
+    finishWebauthnAuthentication: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Base64-encoded string for HTTP Basic authentication. The string is composed of a client ID and client secret, separated by a colon (`:`). For example: `clientId:clientSecret`. */
+                Authorization?: string;
+            };
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuthenticateFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Authentication successful */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticateResult"];
+                };
+            };
+            /** @description Bad request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Oauth2ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

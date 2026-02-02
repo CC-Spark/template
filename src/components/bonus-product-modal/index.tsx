@@ -164,12 +164,14 @@ export function BonusProductModal({
         if (!currentProduct?.variants) return undefined;
 
         // Filter variants where ALL currently selected attributes match
-        const potentialVariants = currentProduct.variants.filter((variant) => {
-            return (
-                variant.variationValues &&
-                Object.keys(variationValues).every((key) => variant.variationValues?.[key] === variationValues[key])
-            );
-        });
+        const potentialVariants = currentProduct.variants.filter(
+            (variant: { variationValues?: Record<string, string> }) => {
+                return (
+                    variant.variationValues &&
+                    Object.keys(variationValues).every((key) => variant.variationValues?.[key] === variationValues[key])
+                );
+            }
+        );
 
         // If exactly 1 variant matches, all attributes must be selected
         // If 0 matches: invalid combination

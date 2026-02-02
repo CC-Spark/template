@@ -109,7 +109,7 @@ describe('Config Schema Helpers', () => {
 
             expect(config.metadata.projectName).toBe('Test Project');
             expect(config.app.commerce.api.clientId).toBe('test-client');
-            expect(config.app.site.locale).toBe('en-US');
+            expect(config.app.commerce.sites[0].defaultLocale).toBe('en-US');
             expect(config.app.global.productListing.productsPerPage).toBe(24);
 
             // Restore original env
@@ -143,12 +143,12 @@ describe('Config Schema Helpers', () => {
             // Start with clean env (no PUBLIC__ vars), then add test-specific overrides
             process.env = {
                 ...getCleanEnv(),
-                PUBLIC__app__site__features__socialLogin__providers: '["Apple","Facebook","Twitter"]',
+                PUBLIC__app__features__socialLogin__providers: '["Apple","Facebook","Twitter"]',
             };
 
             const config = defineConfig(mockBuildConfig);
 
-            expect(config.app.site.features.socialLogin.providers).toEqual(['Apple', 'Facebook', 'Twitter']);
+            expect(config.app.features.socialLogin.providers).toEqual(['Apple', 'Facebook', 'Twitter']);
 
             // Restore original env
             process.env = originalEnv;

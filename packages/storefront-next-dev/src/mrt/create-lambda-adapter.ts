@@ -38,7 +38,7 @@ import { ServerlessRequest } from '@h4ad/serverless-adapter';
  */
 const REQUEST_HEADERS_TO_COPY = ['x-correlation-id'] as const;
 
-// Check if zstd compression is available (Node.js v22.15.0+)
+// Check if zstd compression is available (Node.js v24.0.0+)
 let createZstdCompress: ((options?: ZstdOptions) => ZstdCompress) | undefined;
 try {
     // Try to import createZstdCompress - it may not exist in older Node.js versions
@@ -387,7 +387,7 @@ function createCompressionStream(encoding: string, compressionConfig?: Compressi
             return zlib.createBrotliCompress(options as BrotliOptions);
         case 'zstd':
             if (!createZstdCompress) {
-                throw new Error('zstd compression is not available in this Node.js version (requires v22.15.0+)');
+                throw new Error('zstd compression is not available in this Node.js version (requires v24.0.0+)');
             }
             return createZstdCompress(options as ZstdOptions);
         case 'gzip':

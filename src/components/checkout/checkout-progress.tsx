@@ -30,6 +30,11 @@ const TIMELINE_STEPS: TimelineStep[] = [
         description: 'Email address',
     },
     {
+        id: CHECKOUT_STEPS.PICKUP,
+        title: 'Pickup',
+        description: 'Store pickup',
+    },
+    {
         id: CHECKOUT_STEPS.SHIPPING_ADDRESS,
         title: 'Shipping',
         description: 'Delivery address',

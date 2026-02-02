@@ -14,9 +14,44 @@
  * limitations under the License.
  */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach, type Mock, type MockInstance } from 'vitest';
 import { Project as TsMorphProject, Project } from 'ts-morph';
 import { filePathToRoute, generateMetadata } from '../generate-cartridge';
+import { testRoutes } from './generate-cartridge.data';
+
+// Import the actual functions from generate-cartridge for testing
+import { readdir, readFile, writeFile, mkdir, access, rm } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+
+// Mock node:child_process
+vi.mock('node:child_process', async (importOriginal) => {
+    const actual = (await importOriginal()) as any;
+    return {
+        ...actual,
+        execSync: vi.fn(),
+    };
+});
+
+// Mock node:fs
+vi.mock('node:fs', async (importOriginal) => {
+    const actual = (await importOriginal()) as any;
+    return {
+        ...actual,
+        existsSync: vi.fn(),
+        readFileSync: vi.fn(),
+        unlinkSync: vi.fn(),
+    };
+});
+
+// Mock node:fs/promises
+vi.mock('node:fs/promises', () => ({
+    readdir: vi.fn(),
+    readFile: vi.fn(),
+    writeFile: vi.fn(),
+    mkdir: vi.fn(),
+    access: vi.fn(),
+    rm: vi.fn(),
+}));
 
 // Test utility functions (copied from the main script for testing)
 const ARCH_TYPE_HEADLESS = 'headless';
@@ -125,149 +160,82 @@ describe('parseDecoratorArgs', () => {
 });
 
 describe('filePathToRoute', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.resetAllMocks();
+        (readFileSync as Mock).mockReturnValue(JSON.stringify(testRoutes));
+    });
+
     test.each([
         // Basic file paths
-        ['/Users/test/project/src/routes/about.tsx', '/Users/test/project', '/about', 'basic page route'],
-        ['/Users/test/project/src/routes/products/list.tsx', '/Users/test/project', '/products/list', 'nested route'],
+        ['/Users/test/project/src/routes/_app.about-us.tsx', '/Users/test/project', '/about-us', 'basic route'],
         [
-            '/Users/test/project/src/routes/admin/users/manage.jsx',
+            '/Users/test/project/src/routes/_app.account.addresses.tsx',
             '/Users/test/project',
-            '/admin/users/manage',
-            'deeply nested route',
+            '/account/addresses',
+            'nested route',
+        ],
+        [
+            '/Users/test/project/src/routes/action.update-shopper-context.ts',
+            '/Users/test/project',
+            '/action/update-shopper-context',
+            'basic route without layout',
         ],
 
         // Index files
-        ['/Users/test/project/src/routes/_index.tsx', '/Users/test/project', '/', 'root index file with underscore'],
-        ['/Users/test/project/src/routes/index.tsx', '/Users/test/project', '/', 'root index file without underscore'],
         [
-            '/Users/test/project/src/routes/products/_index.tsx',
+            '/Users/test/project/src/routes/_app._index.tsx',
             '/Users/test/project',
-            '/products',
-            'nested index file with underscore',
+            '/',
+            'root index file with underscore',
         ],
         [
-            '/Users/test/project/src/routes/products/index.tsx',
+            '/Users/test/project/src/routes/_app.account._index.tsx',
             '/Users/test/project',
-            '/products',
-            'nested index file without underscore',
+            '/account',
+            'nested index file with underscore',
         ],
 
         // Dynamic parameters
         [
-            '/Users/test/project/src/routes/products/$id.tsx',
+            '/Users/test/project/src/routes/_app.product.$productId.tsx',
             '/Users/test/project',
-            '/products/:id',
-            'single dynamic parameter',
+            '/product/:productId',
+            'layout route _app with dynamic parameter',
         ],
         [
-            '/Users/test/project/src/routes/users/$userId/posts/$postId.tsx',
+            '/Users/test/project/src/routes/_app.category.$categoryId.tsx',
             '/Users/test/project',
-            '/users/:userId/posts/:postId',
-            'multiple dynamic parameters',
+            '/category/:categoryId',
+            'layout route _app with category parameter',
         ],
-        ['/Users/test/project/src/routes/$slug.tsx', '/Users/test/project', '/:slug', 'root-level dynamic parameter'],
-        [
-            '/Users/test/project/src/routes/$param1/$param2/$param3.tsx',
-            '/Users/test/project',
-            '/:param1/:param2/:param3',
-            'multiple consecutive dynamic parameters',
-        ],
-
-        // File extensions
-        ['/Users/test/project/src/routes/page.tsx', '/Users/test/project', '/page', 'TSX extension'],
-        ['/Users/test/project/src/routes/page.ts', '/Users/test/project', '/page', 'TS extension'],
-        ['/Users/test/project/src/routes/page.jsx', '/Users/test/project', '/page', 'JSX extension'],
-        ['/Users/test/project/src/routes/page.js', '/Users/test/project', '/page', 'JS extension'],
-        ['/Users/test/project/src/routes/page.TSX', '/Users/test/project', '/page', 'uppercase TSX extension'],
-        ['/Users/test/project/src/routes/page.TS', '/Users/test/project', '/page', 'uppercase TS extension'],
 
         // Windows-style paths
         [
-            'C:\\Users\\test\\project\\src\\routes\\about.tsx',
+            'C:\\Users\\test\\project\\src\\routes\\_app.about-us.tsx',
             'C:\\Users\\test\\project',
-            '/about',
+            '/about-us',
             'Windows path with backslashes',
         ],
         [
-            'C:\\Users\\test\\project\\src\\routes\\products\\$id.tsx',
+            'C:\\Users\\test\\project\\src\\routes\\_app._index.tsx',
             'C:\\Users\\test\\project',
-            '/products/:id',
-            'Windows path with dynamic parameter',
+            '/',
+            'Windows path with index',
         ],
         [
-            'C:\\Users\\test\\project\\src\\routes\\admin\\users\\_index.tsx',
+            'C:\\Users\\test\\project\\src\\routes\\_app.product.$productId.tsx',
             'C:\\Users\\test\\project',
-            '/admin/users',
-            'Windows path with nested index',
+            '/product/:productId',
+            'Windows path with dynamic parameter',
         ],
 
         // Mixed path separators
         [
-            '/Users/test/project\\src\\routes/about.tsx',
+            '/Users/test/project\\src\\routes/_app.about-us.tsx',
             '/Users/test/project',
-            '/about',
+            '/about-us',
             'mixed forward and backslashes',
-        ],
-        [
-            '/Users\\test\\project/src/routes\\products/$id.tsx',
-            '/Users/test/project',
-            '/products/:id',
-            'mixed separators with dynamic parameter',
-        ],
-
-        // Edge cases
-        [
-            '/Users/test/project/src/routes/special-chars-and-numbers123.tsx',
-            '/Users/test/project',
-            '/special-chars-and-numbers123',
-            'special characters and numbers in filename',
-        ],
-        [
-            '/Users/test/project/src/routes/very/deeply/nested/route/structure.tsx',
-            '/Users/test/project',
-            '/very/deeply/nested/route/structure',
-            'very deeply nested route',
-        ],
-
-        // Files outside routes directory
-        [
-            '/Users/test/project/src/components/Button.tsx',
-            '/Users/test/project',
-            '/../components/Button',
-            'component file outside routes',
-        ],
-        ['/Users/test/project/src/lib/utils.ts', '/Users/test/project', '/../lib/utils', 'utility file outside routes'],
-        [
-            '/Users/test/project/src/pages/about.tsx',
-            '/Users/test/project',
-            '/../pages/about',
-            'pages directory instead of routes',
-        ],
-
-        // Complex real-world scenarios
-        [
-            '/Users/dev/ecommerce-app/src/routes/shop/categories/$categoryId/products/$productId/_index.tsx',
-            '/Users/dev/ecommerce-app',
-            '/shop/categories/:categoryId/products/:productId',
-            'e-commerce product detail page with nested index',
-        ],
-        [
-            '/Users/dev/ecommerce-app/src/routes/admin/dashboard/analytics/$timeframe.tsx',
-            '/Users/dev/ecommerce-app',
-            '/admin/dashboard/analytics/:timeframe',
-            'admin dashboard with dynamic timeframe',
-        ],
-        [
-            '/Users/dev/ecommerce-app/src/routes/api/v2/users/$userId/orders/$orderId.tsx',
-            '/Users/dev/ecommerce-app',
-            '/api/v2/users/:userId/orders/:orderId',
-            'API endpoint with multiple dynamic segments',
-        ],
-        [
-            '/Users/dev/ecommerce-app/src/routes/checkout/payment/success.tsx',
-            '/Users/dev/ecommerce-app',
-            '/checkout/payment/success',
-            'checkout flow success page',
         ],
     ])('should convert file path to route: %s -> %s (%s)', (filePath, projectRoot, expected) => {
         const result = filePathToRoute(filePath, projectRoot);
@@ -883,41 +851,22 @@ describe('aspect file processing', () => {
     });
 });
 
-// Import the actual functions from generate-cartridge for testing
-import { readdir, readFile, writeFile, mkdir, access, rm } from 'fs/promises';
-
-// Mock fs/promises
-vi.mock('fs/promises', () => ({
-    readdir: vi.fn(),
-    readFile: vi.fn(),
-    writeFile: vi.fn(),
-    mkdir: vi.fn(),
-    access: vi.fn(),
-    rm: vi.fn(),
-}));
-
-// Mock ts-morph for error testing
-vi.mock('ts-morph', async () => {
-    const actual = await vi.importActual('ts-morph');
-    return actual;
-});
-
-// Mock console methods
-const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation((...args: any[]) => {
-    // Log to stderr to match actual behavior
-    process.stderr.write(`${args.map(String).join(' ')}\n`);
-});
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
-
 describe('generateMetadata integration tests', () => {
+    // Mock console methods
+    let consoleLogSpy: MockInstance<typeof console.log>;
+    let consoleWarnSpy: MockInstance<typeof console.warn>;
+    let consoleErrorSpy: MockInstance<typeof console.error>;
+    let processExitSpy: MockInstance<typeof process.exit>;
+
     beforeEach(() => {
         vi.clearAllMocks();
-        consoleLogSpy.mockClear();
-        consoleWarnSpy.mockClear();
-        consoleErrorSpy.mockClear();
-        processExitSpy.mockClear();
+        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation((...args: any[]) => {
+            // Log to stderr to match actual behavior
+            process.stderr.write(`${args.map(String).join(' ')}\n`);
+        });
+        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
     });
 
     test('should generate metadata for components', async () => {

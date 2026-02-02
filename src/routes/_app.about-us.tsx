@@ -26,7 +26,16 @@ import {
 import ContentCard from '@/components/content-card';
 import Contact from '@/components/contact';
 import { Typography } from '@/components/typography';
+import { PageType } from '@/lib/decorators/page-type';
 import { useTranslation } from 'react-i18next';
+import visionImage from '/images/hero-new-arrivals.webp';
+
+@PageType({
+    name: 'About Us Page',
+    description: 'About Us page containing company information and a contact form.',
+    supportedAspectTypes: [],
+})
+export class AboutUsPageMetadata {}
 
 /**
  * About Us page component that displays company information
@@ -68,18 +77,22 @@ export default function AboutUs(): ReactElement {
                 <ContentCard
                     title={t('section.ourGoal.title')}
                     description={t('section.ourGoal.content')}
-                    className="max-w-4xl"
+                    className="full-width"
                 />
-                <ContentCard
-                    title={t('section.ourVision.title')}
-                    description={t('section.ourVision.content')}
-                    className="max-w-4xl"
-                />
-                <ContentCard
-                    title={t('section.ourValue.title')}
-                    description={t('section.ourValue.content')}
-                    className="max-w-4xl"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <ContentCard
+                        title={t('section.ourVision.title')}
+                        description={t('section.ourVision.content')}
+                        imageUrl={visionImage}
+                        imageAlt={t('section.ourVision.imageAlt', { defaultValue: 'Our vision' })}
+                    />
+                    <ContentCard
+                        title={t('section.ourValue.title')}
+                        description={t('section.ourValue.content')}
+                        imageUrl={visionImage}
+                        imageAlt={t('section.ourValue.imageAlt', { defaultValue: 'Our values' })}
+                    />
+                </div>
             </div>
 
             <div className="md:px-8 px-4 py-12 bg-secondary">
@@ -93,12 +106,23 @@ export default function AboutUs(): ReactElement {
                 <ContentCard
                     title={t('section.ourMission.title')}
                     description={t('section.ourMission.content')}
-                    className="max-w-4xl"
+                    buttonText={t('section.ourMission.cta', { defaultValue: 'Explore' })}
+                    buttonLink="/"
+                    className="full-width"
+                    cardFooterClassName="flex-col md:flex-row items-center"
+                    buttonClassName="w-fit"
                 />
                 <ContentCard
                     title={t('section.ourTeam.title')}
                     description={t('section.ourTeam.content')}
-                    className="max-w-4xl"
+                    imageUrl={visionImage}
+                    imageAlt={t('section.ourTeam.imageAlt', { defaultValue: 'Our team' })}
+                    buttonText={t('section.ourTeam.cta', { defaultValue: 'Explore' })}
+                    buttonLink="/"
+                    className="full-width md:flex-row"
+                    cardFooterClassName="justify-center flex-auto"
+                    cardDescriptionClassName="flex-none"
+                    buttonClassName="w-fit"
                 />
             </div>
         </div>

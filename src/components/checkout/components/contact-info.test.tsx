@@ -28,6 +28,41 @@ vi.mock('@/hooks/checkout/use-customer-profile', () => ({
     useCustomerProfile: vi.fn(() => null),
 }));
 
+const mockUseCheckoutContext = vi.fn();
+
+const defaultSteps = {
+    CONTACT_INFO: 0,
+    PICKUP: 1,
+    SHIPPING_ADDRESS: 2,
+    SHIPPING_OPTIONS: 3,
+    PAYMENT: 4,
+    REVIEW_ORDER: 5,
+} as const;
+
+const buildCheckoutContext = (overrides?: Record<string, unknown>) => ({
+    step: 0,
+    computedStep: 0,
+    editingStep: null,
+    STEPS: defaultSteps,
+    customerProfile: undefined,
+    shippingDefaultSet: Promise.resolve(undefined),
+    shipmentDistribution: {
+        hasUnaddressedDeliveryItems: false,
+        hasEmptyShipments: false,
+        deliveryShipments: [],
+    },
+    savedAddresses: [],
+    setSavedAddresses: vi.fn(),
+    goToNextStep: vi.fn(),
+    goToStep: vi.fn(),
+    exitEditMode: vi.fn(),
+    ...(overrides || {}),
+});
+
+vi.mock('@/hooks/use-checkout', () => ({
+    useCheckoutContext: () => mockUseCheckoutContext(),
+}));
+
 const mockGetContactInfoFromCustomer = vi.fn((_customerProfile?: unknown) => ({}));
 vi.mock('@/lib/customer-profile-utils', () => ({
     getContactInfoFromCustomer: (customerProfile?: unknown) => mockGetContactInfoFromCustomer(customerProfile),
@@ -73,6 +108,8 @@ describe('ContactInfo Integration Tests', () => {
             { dialingCode: '+1', countryName: 'United States' },
             { dialingCode: '+44', countryName: 'United Kingdom' },
         ]);
+        mockUseCheckoutContext.mockReturnValue(buildCheckoutContext());
+
         const basketModule = await import('@/providers/basket');
         const profileModule = await import('@/hooks/checkout/use-customer-profile');
         const lookupModule = await import('@/hooks/use-customer-lookup');

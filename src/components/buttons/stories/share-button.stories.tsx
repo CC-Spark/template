@@ -34,14 +34,11 @@ function ShareStoryHarness({ children, providers }: { children: ReactNode; provi
     const configValue = useMemo(() => {
         return {
             ...mockConfig,
-            site: {
-                ...mockConfig.site,
-                features: {
-                    ...mockConfig.site.features,
-                    socialShare: {
-                        enabled: true,
-                        providers: providers ?? ['Twitter', 'Facebook', 'LinkedIn', 'Email'],
-                    },
+            features: {
+                ...mockConfig.features,
+                socialShare: {
+                    enabled: true,
+                    providers: providers ?? ['Twitter', 'Facebook', 'LinkedIn', 'Email'],
                 },
             },
         } as typeof mockConfig;
@@ -129,7 +126,7 @@ A share button component that provides a dropdown menu with various sharing opti
 - **Multiple providers**: Supports Twitter, Facebook, LinkedIn, and Email
 - **Native sharing**: Uses Web Share API when available
 - **Copy link**: Quick copy-to-clipboard functionality
-- **Configurable**: Share providers configured via site.features.socialShare config
+- **Configurable**: Share providers configured via config.features.socialShare config
 - **Accessibility**: Proper ARIA attributes and keyboard navigation
 
 ## Usage
@@ -171,7 +168,7 @@ function ProductDetail({ product }) {
 
 ## Configuration
 
-Share providers are configured via \`site.features.socialShare\`:
+Share providers are configured via \`config.features.socialShare\`:
 
 \`\`\`typescript
 {

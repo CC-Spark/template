@@ -196,7 +196,7 @@ describe('local-dev-setup', () => {
                     },
                     volta: {
                         extends: '../../package.json',
-                        node: '22.0.0',
+                        node: '24.0.0',
                     },
                 }),
                 '/packages/storefront-next-dev/package.json': '{}',
@@ -210,7 +210,7 @@ describe('local-dev-setup', () => {
 
             const updatedPackageJson = JSON.parse(vol.readFileSync('/test-project/package.json', 'utf8') as string);
             expect(updatedPackageJson.volta.extends).toBeUndefined();
-            expect(updatedPackageJson.volta.node).toBe('22.0.0');
+            expect(updatedPackageJson.volta.node).toBe('24.0.0');
         });
 
         it('should remove empty volta object', async () => {

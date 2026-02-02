@@ -453,6 +453,7 @@ describe('HomePage', () => {
                 request: new Request('http://localhost/'),
                 params: {},
                 context: mockContext,
+                unstable_pattern: '/',
             };
 
             // Common promise setup for loader tests

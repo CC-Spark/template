@@ -16,19 +16,24 @@
 import { createApiClients } from '@/lib/api-clients';
 import type { RouterContextProvider } from 'react-router';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { getConfig } from '@/config';
 
 /**
  * Get the appropriate currency for basket calculations
  * Priority: basket.currency > site default > USD fallback
  */
-export function getBasketCurrency(basket: ShopperBasketsV2.schemas['Basket'] | undefined): string {
+export function getBasketCurrency(
+    context: Readonly<RouterContextProvider>,
+    basket: ShopperBasketsV2.schemas['Basket'] | undefined
+): string {
     // 1. Use basket's current currency if available
     if (basket?.currency) {
         return basket.currency;
     }
+    const appConfig = getConfig(context);
 
-    // 2. Use site configuration currency or 3. Fallback to USD for backward compatibility
-    return import.meta.env.PUBLIC__app__site__currency || 'USD';
+    // fallback value
+    return appConfig.commerce.sites[0].defaultCurrency;
 }
 
 /**

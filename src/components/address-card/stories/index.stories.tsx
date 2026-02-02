@@ -148,8 +148,8 @@ export const Default: Story = {
         const card = canvasElement.querySelector('[data-slot="card"]');
         await expect(card || canvasElement).toBeInTheDocument();
 
-        // Verify address title is displayed
-        const addressTitle = canvas.getByText('address-1');
+        // Verify address title shows full name (firstName + lastName)
+        const addressTitle = canvas.getByText('John Doe');
         await expect(addressTitle).toBeInTheDocument();
 
         // Verify address information is displayed
@@ -217,12 +217,12 @@ export const PreferredAddress: Story = {
         const card = canvasElement.querySelector('[data-slot="card"]');
         await expect(card || canvasElement).toBeInTheDocument();
 
-        // Verify preferred badge is displayed
-        const preferredBadge = canvas.getByText(/preferred/i);
-        await expect(preferredBadge).toBeInTheDocument();
+        // Verify default badge is displayed
+        const defaultBadge = canvas.getByText(/default/i);
+        await expect(defaultBadge).toBeInTheDocument();
 
-        // Verify address information is displayed
-        const addressTitle = canvas.getByText('address-3');
+        // Verify address title shows full name (firstName + lastName)
+        const addressTitle = canvas.getByText('John Doe');
         await expect(addressTitle).toBeInTheDocument();
     },
 };
@@ -380,8 +380,8 @@ export const NoActions: Story = {
         const card = canvasElement.querySelector('[data-slot="card"]');
         await expect(card || canvasElement).toBeInTheDocument();
 
-        // Verify address information is displayed
-        const addressTitle = canvas.getByText('address-6');
+        // Verify address title shows full name (firstName + lastName)
+        const addressTitle = canvas.getByText('John Doe');
         await expect(addressTitle).toBeInTheDocument();
 
         // Verify no action buttons are present

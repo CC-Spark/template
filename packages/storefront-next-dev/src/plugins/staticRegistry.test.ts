@@ -1054,6 +1054,10 @@ export const registry = new ComponentRegistry();
         const mockProjectRoot = '/test/project';
 
         beforeEach(() => {
+            // Reset mocks to clear any state from previous tests (especially the error-throwing mock)
+            mockWriteFileSync.mockReset();
+            mockExistsSync.mockReset();
+            mockGlob.mockReset();
             mockExistsSync.mockReturnValue(true);
         });
 

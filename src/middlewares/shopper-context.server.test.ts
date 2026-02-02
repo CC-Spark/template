@@ -48,12 +48,10 @@ vi.mock('@/config', async (importOriginal) => {
                     siteId: 'test-site',
                 },
             },
-            site: {
-                features: {
-                    shopperContext: {
-                        enabled: true,
-                        dwsourcecodeCookieSuffix: 'test-site',
-                    },
+            features: {
+                shopperContext: {
+                    enabled: true,
+                    dwsourcecodeCookieSuffix: 'test-site',
                 },
             },
         }),
@@ -92,12 +90,10 @@ describe('shopper-context.server', () => {
                         siteId: 'test-site',
                     },
                 },
-                site: {
-                    features: {
-                        shopperContext: {
-                            enabled: false,
-                            dwsourcecodeCookieSuffix: 'test-site',
-                        },
+                features: {
+                    shopperContext: {
+                        enabled: false,
+                        dwsourcecodeCookieSuffix: 'test-site',
                     },
                 },
             } as any);
@@ -120,12 +116,10 @@ describe('shopper-context.server', () => {
                             siteId: 'test-site',
                         },
                     },
-                    site: {
-                        features: {
-                            shopperContext: {
-                                enabled: true,
-                                dwsourcecodeCookieSuffix: 'test-site',
-                            },
+                    features: {
+                        shopperContext: {
+                            enabled: true,
+                            dwsourcecodeCookieSuffix: 'test-site',
                         },
                     },
                 } as any);

@@ -17,6 +17,7 @@ import createBaseClient, { type Middleware, type ClientOptions, type Client } fr
 import type {
     ShopperBasketsV1,
     ShopperBasketsV2,
+    ShopperConfigurations,
     ShopperConsents,
     ShopperContext,
     ShopperCustomers,
@@ -24,6 +25,7 @@ import type {
     ShopperGiftCertificates,
     ShopperLogin,
     ShopperOrders,
+    ShopperPayments,
     ShopperProducts,
     ShopperPromotions,
     ShopperSearch,
@@ -61,6 +63,7 @@ export interface CommerceApiClientConfig extends ClientOptions {
 // Import operation maps for all APIs
 import { operations as shopperBasketsV1Ops } from './generated/shopper-baskets-v1.operations';
 import { operations as shopperBasketsV2Ops } from './generated/shopper-baskets-v2.operations';
+import { operations as shopperConfigurationsOps } from './generated/shopper-configurations-v1.operations';
 import { operations as shopperConsentsOps } from './generated/shopper-consents-v1.operations';
 import { operations as shopperContextOps } from './generated/shopper-context-v1.operations';
 import { operations as shopperCustomersOps } from './generated/shopper-customers-v1.operations';
@@ -68,6 +71,7 @@ import { operations as shopperExperienceOps } from './generated/shopper-experien
 import { operations as shopperGiftCertificatesOps } from './generated/shopper-gift-certificates-v1.operations';
 import { operations as shopperLoginOps } from './generated/shopper-login-v1.operations';
 import { operations as shopperOrdersOps } from './generated/shopper-orders-v1.operations';
+import { operations as shopperPaymentsOps } from './generated/shopper-payments-v1.operations';
 import { operations as shopperProductsOps } from './generated/shopper-products-v1.operations';
 import { operations as shopperPromotionsOps } from './generated/shopper-promotions-v1.operations';
 import { operations as shopperSearchOps } from './generated/shopper-search-v1.operations';
@@ -77,6 +81,7 @@ import { operations as shopperStoresOps } from './generated/shopper-stores-v1.op
 export type Clients = {
     shopperBasketsV1: ProxyClient<Client<ShopperBasketsV1.endpoints>, typeof shopperBasketsV1Ops>;
     shopperBasketsV2: ProxyClient<Client<ShopperBasketsV2.endpoints>, typeof shopperBasketsV2Ops>;
+    shopperConfigurations: ProxyClient<Client<ShopperConfigurations.endpoints>, typeof shopperConfigurationsOps>;
     shopperConsents: ProxyClient<Client<ShopperConsents.endpoints>, typeof shopperConsentsOps>;
     shopperContext: ProxyClient<Client<ShopperContext.endpoints>, typeof shopperContextOps>;
     shopperCustomers: ProxyClient<Client<ShopperCustomers.endpoints>, typeof shopperCustomersOps>;
@@ -84,6 +89,7 @@ export type Clients = {
     shopperGiftCertificates: ProxyClient<Client<ShopperGiftCertificates.endpoints>, typeof shopperGiftCertificatesOps>;
     shopperLogin: ProxyClient<Client<ShopperLogin.endpoints>, typeof shopperLoginOps>;
     shopperOrders: ProxyClient<Client<ShopperOrders.endpoints>, typeof shopperOrdersOps>;
+    shopperPayments: ProxyClient<Client<ShopperPayments.endpoints>, typeof shopperPaymentsOps>;
     shopperProducts: ProxyClient<Client<ShopperProducts.endpoints>, typeof shopperProductsOps>;
     shopperPromotions: ProxyClient<Client<ShopperPromotions.endpoints>, typeof shopperPromotionsOps>;
     shopperSearch: ProxyClient<Client<ShopperSearch.endpoints>, typeof shopperSearchOps>;
@@ -155,6 +161,14 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
         shopperBasketsV2Ops,
         globalParams
     );
+    const shopperConfigurations = createClient(
+        createBaseClient<ShopperConfigurations.endpoints>({
+            baseUrl: `${baseUrl}/configuration/shopper-configurations/v1`,
+            ...clientOptions,
+        }),
+        shopperConfigurationsOps,
+        globalParamsWithoutLocale // API does not accept locale parameter
+    );
     const shopperConsents = createClient(
         createBaseClient<ShopperConsents.endpoints>({
             baseUrl: `${baseUrl}/shopper/shopper-consents/v1`,
@@ -211,6 +225,14 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
         shopperOrdersOps,
         globalParams
     );
+    const shopperPayments = createClient(
+        createBaseClient<ShopperPayments.endpoints>({
+            baseUrl: `${baseUrl}/checkout/shopper-payments/v1`,
+            ...clientOptions,
+        }),
+        shopperPaymentsOps,
+        globalParamsWithoutLocale // API does not accept locale parameter
+    );
     const shopperProducts = createClient(
         createBaseClient<ShopperProducts.endpoints>({
             baseUrl: `${baseUrl}/product/shopper-products/v1`,
@@ -255,6 +277,7 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
     const allClients = [
         shopperBasketsV1,
         shopperBasketsV2,
+        shopperConfigurations,
         shopperConsents,
         shopperContext,
         shopperCustomers,
@@ -262,6 +285,7 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
         shopperGiftCertificates,
         shopperLogin,
         shopperOrders,
+        shopperPayments,
         shopperProducts,
         shopperPromotions,
         shopperSearch,
@@ -283,6 +307,7 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
     return {
         shopperBasketsV1,
         shopperBasketsV2,
+        shopperConfigurations,
         shopperConsents,
         shopperContext,
         shopperCustomers,
@@ -290,6 +315,7 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
         shopperGiftCertificates,
         shopperLogin,
         shopperOrders,
+        shopperPayments,
         shopperProducts,
         shopperPromotions,
         shopperSearch,

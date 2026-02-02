@@ -19,7 +19,7 @@ export interface paths {
         };
         /**
          * Returns product details for multiple products.
-         * @description Allows access to multiple product details with a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of product IDs that you can request is 24. In addition to product details, the availability, product options, images, price, promotions, and variations for the valid products are included, as applicable.
+         * @description Allows access to multiple product details with a single request. Only products that are online and assigned to a site catalog are returned. The maximum number of product IDs that you can request is 24. In addition to product details, the availability, images, price, bundled_products, set_products, recommendations, product options, variations, shipping_methods, and promotions for the products are included, as applicable.
          */
         get: operations["getProducts"];
         put?: never;
@@ -47,7 +47,7 @@ export interface paths {
         };
         /**
          * Returns product details for a single product.
-         * @description Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. In addition to product details, the availability, images, price, bundled_products, set_products, recommedations, product options, variations, and promotions for the products are included, as applicable.
+         * @description Allows access to product details for a single product ID. Only products that are online and assigned to a site catalog are returned. In addition to product details, the availability, images, price, bundled_products, set_products, recommendations, product options, variations, shipping_methods, and promotions for the products are included, as applicable.
          */
         get: operations["getProduct"];
         put?: never;
@@ -144,7 +144,7 @@ export interface components {
          */
         SiteId: string;
         /**
-         * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses.
+         * @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. For more information, please read the documentation about property selectors [here](https://developer.salesforce.com/docs/commerce/commerce-api/guide/scapi-property-selection.html).
          * @example (name,id,variationAttributes.(**))
          */
         Select: string;
@@ -162,28 +162,15 @@ export interface components {
          * @description A specialized value indicating the system default values for locales.
          * @default default
          * @example default
-         * @enum {string}
          */
-        DefaultFallback: "default";
+        DefaultFallback: string;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
-        /**
-         * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-         * @example USD
-         */
-        ISOCurrency: string;
-        /**
-         * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-         * @default N/A
-         * @example N/A
-         * @enum {string}
-         */
-        NoValue: "N/A";
         /**
          * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
          * @example USD
          */
-        CurrencyCode: components["schemas"]["ISOCurrency"] | components["schemas"]["NoValue"];
+        CurrencyCode: string;
         /** @description Any product that is sold, shown alone, and does not have variations such as different sizes or colors. A product has no reliance on any other product for inheritance. *A product has a SKU and can have a product option, which has a different SKU*. */
         Product: {
             /**
@@ -372,6 +359,11 @@ export interface components {
             variationValues?: {
                 [key: string]: string;
             };
+            /**
+             * @description The array of applicable shipping methods for this product. This array can be empty.
+             *     This property is only returned in context of the 'shipping_methods' expansion.
+             */
+            shippingMethods?: components["schemas"]["ShippingMethod"][];
         } & {
             [key: string]: unknown;
         };
@@ -783,6 +775,60 @@ export interface components {
                 [key: string]: string;
             };
         };
+        /** @description Document representing a shipping promotion. */
+        ShippingPromotion: {
+            /**
+             * @description The localized callout message of the promotion.
+             * @example $30 Fixed Shipping Amount Above 150
+             */
+            calloutMsg?: string;
+            /**
+             * @description The unique ID of the promotion.
+             * @example $30FixedShippingAmountAbove150
+             */
+            promotionId?: string;
+            /**
+             * @description The localized promotion name.
+             * @example $30 Fixed Shipping Amount Above 150
+             */
+            promotionName?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Document representing a shipping method. */
+        ShippingMethod: {
+            /**
+             * @description The localized description of the shipping method.
+             * @example Order received within 7-10 business days
+             */
+            description?: string;
+            /** @description The external shipping method. */
+            externalShippingMethod?: string;
+            /**
+             * @description The shipping method ID.
+             * @example 001
+             */
+            id: string;
+            /**
+             * @description The localized name of the shipping method.
+             * @example Ground
+             */
+            name?: string;
+            /**
+             * Format: double
+             * @description The shipping cost total, including shipment level costs,
+             *     product level fix, and surcharge costs. It is read only.
+             * @example 15
+             */
+            price?: number;
+            /**
+             * @description The array of active customer shipping promotions for this shipping
+             *     method. This array can be empty.
+             */
+            shippingPromotions?: components["schemas"]["ShippingPromotion"][];
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Result document containing an array of products. */
         ProductResult: {
             /**
@@ -844,13 +890,6 @@ export interface components {
         CategoryId: string;
         /**
          * Format: int32
-         * @description Maximum records to retrieve per request, not to exceed the maximum defined. A limit must be at least 1 so at least one record is returned (if any match the criteria).
-         * @default 10
-         * @example 10
-         */
-        Limit: number;
-        /**
-         * Format: int64
          * @description The total number of hits that match the search's criteria. This can be greater than the number of results returned as search results are pagenated.
          * @default 0
          * @example 10
@@ -861,7 +900,12 @@ export interface components {
          *     Additionally it needs to be defined what data is returned.
          */
         ResultBase: {
-            limit: components["schemas"]["Limit"];
+            /**
+             * Format: int32
+             * @description Maximum records to retrieve per request. The limit with its constraints (minimum, maximum, default) is defined by the request parameter `limit` of the endpoint returning this schema.
+             * @example 10
+             */
+            limit: number;
             total: components["schemas"]["Total"];
         };
         /** @description Categories allow products to be organized into hierarchical structures. Categories can have relationships to other parent categories. Each category can also provide a context inherited by subcategories. For example, a category may have an attribute value assigned to it, and any product assigned to the category or a subcategory would inherit the attribute value as long as the product is assigned. Once the product is removed from the category those attribute values would no longer be in the context of the product. Linking of categories is also used for Site hierarchical navigation. For example, inside 'Clothing' you may have 'Mens', and inside 'Mens' you may have 'Pants'. Categories are not *Tags.* */
@@ -946,7 +990,7 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
-                "application/json": components["schemas"]["ErrorResponse"];
+                "application/problem+json": components["schemas"]["ErrorResponse"];
             };
         };
     };
@@ -956,23 +1000,29 @@ export interface components {
          * @example f_ecom_zzxy_prd
          */
         organizationId: components["schemas"]["OrganizationId"];
-        /** @description The IDs of the requested products (comma-separated, max 24 IDs). */
-        ids: (components["schemas"]["ProductId"] & unknown)[];
-        /** @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs). */
-        inventoryIds: (components["schemas"]["InventoryId"] & unknown)[];
+        /**
+         * @description The IDs of the requested products (comma-separated, max 24 IDs).
+         * @example apple-ipod-shuffle,apple-ipod-nano
+         */
+        ids: components["schemas"]["ProductId"][];
+        /**
+         * @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+         * @example Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList
+         */
+        inventoryIds: components["schemas"]["InventoryId"][];
         /**
          * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
          *     The value "none" may be used to turn off all expand options.
          *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+         * @example prices,promotions
          */
-        expand_multiId: ("none" | "availability" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "recommendations" | "page_meta_tags")[];
+        expand_multiId: ("none" | "availability" | "bundled_products" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "set_products" | "recommendations" | "shipping_methods" | "page_meta_tags")[];
         /** @description The flag that indicates whether to retrieve the whole image model for the requested product. */
         allImages: boolean;
         /** @description The flag that indicates whether to retrieve the per PriceBook prices and tiered prices (if available) for requested Products. Available end of June, 2021. */
         perPricebook: boolean;
         /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
         siteId: components["schemas"]["SiteId"];
-        /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
         select: components["schemas"]["Select"];
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         locale: components["schemas"]["LocaleCode"];
@@ -984,10 +1034,14 @@ export interface components {
          * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
          *     The value "none" may be used to turn off all expand options.
          *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+         * @example prices,promotions
          */
-        expand_singleId: ("none" | "availability" | "bundled_products" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "set_products" | "recommendations" | "page_meta_tags")[];
-        /** @description The comma separated list of category IDs (max 50). */
-        "parameters-ids": (components["schemas"]["CategoryId"] & unknown)[];
+        expand_singleId: ("none" | "availability" | "bundled_products" | "links" | "promotions" | "options" | "images" | "prices" | "variations" | "set_products" | "recommendations" | "shipping_methods" | "page_meta_tags")[];
+        /**
+         * @description The comma separated list of category IDs (max 50).
+         * @example electronics-digital-cameras,electronics-televisions
+         */
+        "parameters-ids": components["schemas"]["CategoryId"][];
         /** @description Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2. Only online subcategories are returned. */
         levels: 0 | 1 | 2;
         /** @description The ID of the requested category. */
@@ -1002,14 +1056,21 @@ export interface operations {
     getProducts: {
         parameters: {
             query: {
-                /** @description The IDs of the requested products (comma-separated, max 24 IDs). */
+                /**
+                 * @description The IDs of the requested products (comma-separated, max 24 IDs).
+                 * @example apple-ipod-shuffle,apple-ipod-nano
+                 */
                 ids: components["parameters"]["ids"];
-                /** @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs). */
+                /**
+                 * @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+                 * @example Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList
+                 */
                 inventoryIds?: components["parameters"]["inventoryIds"];
                 /**
                  * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
                  *     The value "none" may be used to turn off all expand options.
                  *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+                 * @example prices,promotions
                  */
                 expand?: components["parameters"]["expand_multiId"];
                 /** @description The flag that indicates whether to retrieve the whole image model for the requested product. */
@@ -1018,7 +1079,6 @@ export interface operations {
                 perPricebook?: components["parameters"]["perPricebook"];
                 /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
                 siteId: components["parameters"]["siteId"];
-                /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
                 select?: components["parameters"]["select"];
                 /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
                 locale?: components["parameters"]["locale"];
@@ -1061,19 +1121,22 @@ export interface operations {
     getProduct: {
         parameters: {
             query: {
-                /** @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs). */
+                /**
+                 * @description The optional inventory list IDs, for which the availability should be shown (comma-separated, max 5 inventoryListIDs).
+                 * @example Site1InventoryList,Site2InventoryList,Site3InventoryList,Site4InventoryList,Site5InventoryList
+                 */
                 inventoryIds?: components["parameters"]["inventoryIds"];
                 /**
                  * @description All expand parameters except page_meta_tags are used for the request when no expand parameter is provided.
                  *     The value "none" may be used to turn off all expand options.
                  *     The page_meta_tags expand value is optional and available starting from B2C Commerce version 25.2.
+                 * @example prices,promotions
                  */
                 expand?: components["parameters"]["expand_singleId"];
                 /** @description The flag that indicates whether to retrieve the whole image model for the requested product. */
                 allImages?: components["parameters"]["allImages"];
                 /** @description The flag that indicates whether to retrieve the per PriceBook prices and tiered prices (if available) for requested Products. Available end of June, 2021. */
                 perPricebook?: components["parameters"]["perPricebook"];
-                /** @description The property selector declaring which fields are included into the response payload. You can specify a single field name, a comma-separated list of names or work with wildcards. You can also specify array operations and filter expressions. The actual selector value must be enclosed within parentheses. */
                 select?: components["parameters"]["select"];
                 /** @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable. */
                 currency?: components["parameters"]["currency"];
@@ -1129,7 +1192,10 @@ export interface operations {
     getCategories: {
         parameters: {
             query: {
-                /** @description The comma separated list of category IDs (max 50). */
+                /**
+                 * @description The comma separated list of category IDs (max 50).
+                 * @example electronics-digital-cameras,electronics-televisions
+                 */
                 ids: components["parameters"]["parameters-ids"];
                 /** @description Specifies how many levels of nested subcategories you want the server to return. The default value is 1. Valid values are 0, 1, or 2. Only online subcategories are returned. */
                 levels?: components["parameters"]["levels"];

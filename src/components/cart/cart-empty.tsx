@@ -63,7 +63,10 @@ export default function EmptyCart({ isRegistered = false }: EmptyCartProps): Rea
 
                             {/* Empty Cart Message */}
                             <div className="space-y-2">
-                                <Typography variant="h2" as="h2" className="text-xl font-semibold text-foreground">
+                                <Typography
+                                    variant="h2"
+                                    as="h2"
+                                    className="text-xl text-center font-semibold text-foreground">
                                     {t('empty.title')}
                                 </Typography>
                                 <p className="text-muted-foreground">

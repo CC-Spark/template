@@ -17,33 +17,37 @@ import { vi, expect, test, describe, afterEach } from 'vitest';
 import type React from 'react';
 
 // Mock react-router hooks
-vi.mock('react-router', () => ({
-    useRevalidator: () => ({
-        revalidate: vi.fn(),
-    }),
-    useFetcher: () => ({
-        data: null,
-        state: 'idle',
-        submit: vi.fn(),
-        Form: (props: React.PropsWithChildren<Record<string, unknown>>) => <form {...props}>{props.children}</form>,
-    }),
-    useFetchers: () => [],
-    useNavigate: () => vi.fn(),
-    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
-    useNavigation: () => ({
-        state: 'idle',
-        location: { pathname: '/', search: '', hash: '', state: null, key: 'test' },
-    }),
-    useSearchParams: () => [new URLSearchParams(), vi.fn()],
-    Link: (props: React.PropsWithChildren<{ to?: string; href?: string; [key: string]: unknown }>) => {
-        const { to, href, children, ...rest } = props ?? {};
-        return (
-            <a href={to ?? href} {...rest}>
-                {children}
-            </a>
-        );
-    },
-}));
+vi.mock('react-router', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('react-router')>();
+    return {
+        ...actual,
+        useRevalidator: () => ({
+            revalidate: vi.fn(),
+        }),
+        useFetcher: () => ({
+            data: null,
+            state: 'idle',
+            submit: vi.fn(),
+            Form: (props: React.PropsWithChildren<Record<string, unknown>>) => <form {...props}>{props.children}</form>,
+        }),
+        useFetchers: () => [],
+        useNavigate: () => vi.fn(),
+        useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+        useNavigation: () => ({
+            state: 'idle',
+            location: { pathname: '/', search: '', hash: '', state: null, key: 'test' },
+        }),
+        useSearchParams: () => [new URLSearchParams(), vi.fn()],
+        Link: (props: React.PropsWithChildren<{ to?: string; href?: string; [key: string]: unknown }>) => {
+            const { to, href, children, ...rest } = props ?? {};
+            return (
+                <a href={to ?? href} {...rest}>
+                    {children}
+                </a>
+            );
+        },
+    };
+});
 
 // Mock hooks
 vi.mock('@/hooks/use-scapi-fetcher', () => ({

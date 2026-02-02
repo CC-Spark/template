@@ -55,7 +55,7 @@ exports[`CartEmpty stories snapshot > Default story renders and matches snapshot
               class="space-y-2"
             >
               <h2
-                class="tracking-tight text-left text-xl font-semibold text-foreground"
+                class="tracking-tight text-xl text-center font-semibold text-foreground"
               >
                 Your cart is empty.
               </h2>
@@ -172,7 +172,7 @@ exports[`CartEmpty stories snapshot > DesktopView story renders and matches snap
               class="space-y-2"
             >
               <h2
-                class="tracking-tight text-left text-xl font-semibold text-foreground"
+                class="tracking-tight text-xl text-center font-semibold text-foreground"
               >
                 Your cart is empty.
               </h2>
@@ -289,7 +289,7 @@ exports[`CartEmpty stories snapshot > GuestUser story renders and matches snapsh
               class="space-y-2"
             >
               <h2
-                class="tracking-tight text-left text-xl font-semibold text-foreground"
+                class="tracking-tight text-xl text-center font-semibold text-foreground"
               >
                 Your cart is empty.
               </h2>
@@ -406,7 +406,7 @@ exports[`CartEmpty stories snapshot > MobileView story renders and matches snaps
               class="space-y-2"
             >
               <h2
-                class="tracking-tight text-left text-xl font-semibold text-foreground"
+                class="tracking-tight text-xl text-center font-semibold text-foreground"
               >
                 Your cart is empty.
               </h2>
@@ -523,7 +523,7 @@ exports[`CartEmpty stories snapshot > RegisteredUser story renders and matches s
               class="space-y-2"
             >
               <h2
-                class="tracking-tight text-left text-xl font-semibold text-foreground"
+                class="tracking-tight text-xl text-center font-semibold text-foreground"
               >
                 Your cart is empty.
               </h2>
@@ -609,7 +609,7 @@ exports[`CartEmpty stories snapshot > TabletView story renders and matches snaps
               class="space-y-2"
             >
               <h2
-                class="tracking-tight text-left text-xl font-semibold text-foreground"
+                class="tracking-tight text-xl text-center font-semibold text-foreground"
               >
                 Your cart is empty.
               </h2>

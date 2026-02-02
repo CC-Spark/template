@@ -794,5 +794,43 @@ export function CartTracker({ items, onAdd }) {
             await expect(callPluginHooks(plugin, path)).resolves.not.toThrow();
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('All enabled events are instrumented'));
         });
+
+        it('handles engagement config with no adapters', async () => {
+            mockLoadEngagementConfig.mockResolvedValue({
+                // No adapters property
+            });
+            mockGlob.mockResolvedValue(['/test/project/src/hooks/use-analytics.ts']);
+            mockReadFileSync.mockReturnValue(`trackEvent(a, b, c, 'view_page', {});`);
+
+            const plugin = eventInstrumentationValidatorPlugin({ verbose: true });
+
+            const path = normalizePath('/test/project');
+            await expect(callPluginHooks(plugin, path)).resolves.not.toThrow();
+        });
+
+        it('handles file read errors gracefully in verbose mode', async () => {
+            mockLoadEngagementConfig.mockResolvedValue({
+                adapters: {
+                    einstein: {
+                        enabled: true,
+                        eventToggles: {
+                            view_page: true,
+                        },
+                    },
+                },
+            });
+            mockGlob.mockResolvedValue(['/test/project/src/hooks/use-analytics.ts']);
+            mockReadFileSync.mockImplementation(() => {
+                throw new Error('Permission denied');
+            });
+
+            const plugin = eventInstrumentationValidatorPlugin({ verbose: true });
+
+            const path = normalizePath('/test/project');
+            await callPluginHooks(plugin, path);
+
+            // Should warn about the file read error
+            expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Could not read'));
+        });
     });
 });

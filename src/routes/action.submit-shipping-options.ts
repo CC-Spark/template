@@ -18,7 +18,10 @@ import { getBasket, updateBasket } from '@/middlewares/basket.client';
 import { createShippingOptionsSchema, parseShippingOptionsFromFormData } from '@/lib/checkout-schemas';
 import { createApiClients } from '@/lib/api-clients';
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
+import { extractResponseError } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
+// @sfdc-extension-line SFDC_EXT_MULTISHIP
+import { handleMultiShipShippingOptions } from '@/extensions/multiship/lib/actions/checkout-submit-multi-options';
 
 // eslint-disable-next-line custom/no-client-actions
 export async function clientAction({ request, context }: ActionFunctionArgs) {
@@ -26,6 +29,28 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
 
     const formData = await request.formData();
 
+    // Update shipping method in Commerce Cloud (like PWA Kit)
+    const basket = getBasket(context);
+    if (!basket || !basket.basketId) {
+        return Response.json(
+            {
+                success: false,
+                error: t('errors:checkout.noActiveBasket'),
+                step: 'shippingOptions',
+            },
+            { status: 400 }
+        );
+    }
+
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    // Check if this is a multi-shipment submission and handle it
+    const multiShipResponse = await handleMultiShipShippingOptions(formData, basket, context);
+    if (multiShipResponse) {
+        return multiShipResponse;
+    }
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
+
+    // Single-shipment mode: use traditional validation and update
     // Parse and validate using shared schema
     // This ensures server-side validation matches client-side validation exactly
     const shippingData = parseShippingOptionsFromFormData(formData);
@@ -45,19 +70,6 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
 
     // Use validated data
     const { shippingMethodId } = result.data;
-
-    // Update shipping method in Commerce Cloud (like PWA Kit)
-    const basket = getBasket(context);
-    if (!basket || !basket.basketId) {
-        return Response.json(
-            {
-                success: false,
-                error: t('errors:checkout.noActiveBasket'),
-                step: 'shippingOptions',
-            },
-            { status: 400 }
-        );
-    }
 
     try {
         const clients = createApiClients(context);
@@ -96,13 +108,21 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             updateBasket(context, updatedBasket);
         }
     } catch (error) {
+        let errorMessage = t('errors:api.serverError');
+        if (error instanceof ApiError) {
+            try {
+                const { responseMessage } = await extractResponseError(error);
+                if (responseMessage) {
+                    errorMessage = responseMessage;
+                }
+            } catch {
+                // Use default error message
+            }
+        }
         return Response.json(
             {
                 success: false,
-                error:
-                    error instanceof ApiError
-                        ? `Failed to save shipping method: ${error.statusText}`
-                        : 'Failed to save shipping method. Please try again.',
+                error: errorMessage,
                 step: 'shippingOptions',
             },
             { status: 500 }

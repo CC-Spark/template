@@ -24,16 +24,10 @@ import {
     getStoreIdForBasketItem,
     getPickupProductItemsForStore,
     filterPickupProductItems,
+    filterDeliveryShippingMethods,
     isStorePickup,
     getPickupShipment,
-    isSelectedDeliveryOptionValid,
-    syncShipmentWithDeliveryOptionChange,
 } from './basket-utils';
-import type { PickupItemInfo } from '@/extensions/bopis/context/pickup-context';
-import { createMockBasketWithPickupItems } from '@/extensions/bopis/tests/__mocks__/basket';
-import type { RouterContextProvider } from 'react-router';
-import { updateShipmentForPickup, clearPickupFromShipment } from '@/extensions/bopis/lib/api/shipment';
-import { getTranslation } from '@/lib/i18next';
 
 vi.mock('@/lib/api-clients', () => ({
     createApiClients: vi.fn(),
@@ -979,6 +973,26 @@ describe('getStoreIdForBasketItem', () => {
         expect(getStoreIdForBasketItem(undefined, 'item-1')).toBeUndefined();
     });
 
+    it('should return undefined when itemId is undefined', () => {
+        const basket = {
+            basketId: 'basket-1',
+            shipments: [{ shipmentId: 'shipment-1', c_fromStoreId: 'store-123' }],
+            productItems: [{ itemId: 'item-1', productId: 'product-1', shipmentId: 'shipment-1' }],
+        } as ShopperBasketsV2.schemas['Basket'];
+
+        expect(getStoreIdForBasketItem(basket, undefined)).toBeUndefined();
+    });
+
+    it('should return undefined when itemId is empty string', () => {
+        const basket = {
+            basketId: 'basket-1',
+            shipments: [{ shipmentId: 'shipment-1', c_fromStoreId: 'store-123' }],
+            productItems: [{ itemId: 'item-1', productId: 'product-1', shipmentId: 'shipment-1' }],
+        } as ShopperBasketsV2.schemas['Basket'];
+
+        expect(getStoreIdForBasketItem(basket, '')).toBeUndefined();
+    });
+
     it('should return undefined when item is not found', () => {
         const basket = {
             basketId: 'basket-1',
@@ -1050,171 +1064,214 @@ describe('getStoreIdForBasketItem', () => {
 
 describe('filterPickupProductItems', () => {
     it('should return empty array when basket is undefined', () => {
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(undefined, pickupBasketItems);
+        const result = filterPickupProductItems(undefined);
         expect(result).toEqual([]);
     });
 
     it('should return empty array when basket has no product items', () => {
         const basket: ShopperBasketsV2.schemas['Basket'] = {
             basketId: 'test-basket',
-        };
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(basket, pickupBasketItems);
-        expect(result).toEqual([]);
-    });
-
-    it('should return empty array when pickupBasketItems is undefined', () => {
-        const basket: ShopperBasketsV2.schemas['Basket'] = {
-            basketId: 'test-basket',
-            productItems: [
+            shipments: [
                 {
-                    productId: 'product-1',
-                    quantity: 1,
+                    shipmentId: 'shipment-1',
+                    c_fromStoreId: 'store-1',
                 },
             ],
         };
-        const result = filterPickupProductItems(basket, undefined);
+        const result = filterPickupProductItems(basket);
         expect(result).toEqual([]);
     });
 
-    it('should return empty array when pickupBasketItems is empty', () => {
+    it('should return empty array when basket has no shipments', () => {
         const basket: ShopperBasketsV2.schemas['Basket'] = {
             basketId: 'test-basket',
             productItems: [
                 {
                     productId: 'product-1',
                     quantity: 1,
+                    shipmentId: 'shipment-1',
                 },
             ],
         };
-        const pickupBasketItems = new Map<string, PickupItemInfo>();
-        const result = filterPickupProductItems(basket, pickupBasketItems);
+        const result = filterPickupProductItems(basket);
         expect(result).toEqual([]);
     });
 
-    it('should filter items that are in pickup context', () => {
+    it('should return empty array when no shipments have c_fromStoreId', () => {
         const basket: ShopperBasketsV2.schemas['Basket'] = {
             basketId: 'test-basket',
+            shipments: [
+                {
+                    shipmentId: 'shipment-1',
+                    // No c_fromStoreId - regular delivery
+                },
+            ],
             productItems: [
                 {
                     productId: 'product-1',
                     quantity: 1,
+                    shipmentId: 'shipment-1',
+                },
+            ],
+        };
+        const result = filterPickupProductItems(basket);
+        expect(result).toEqual([]);
+    });
+
+    it('should filter items that are in pickup shipments', () => {
+        const basket: ShopperBasketsV2.schemas['Basket'] = {
+            basketId: 'test-basket',
+            shipments: [
+                {
+                    shipmentId: 'shipment-1',
+                    c_fromStoreId: 'store-1',
+                },
+                {
+                    shipmentId: 'shipment-2',
+                    // No c_fromStoreId - delivery shipment
+                },
+            ],
+            productItems: [
+                {
+                    productId: 'product-1',
+                    quantity: 1,
+                    shipmentId: 'shipment-1',
                 },
                 {
                     productId: 'product-2',
                     quantity: 2,
+                    shipmentId: 'shipment-2',
                 },
                 {
                     productId: 'product-3',
                     quantity: 3,
+                    shipmentId: 'shipment-1',
                 },
             ],
         };
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-            ['product-3', { inventoryId: 'inv-3', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(basket, pickupBasketItems);
+        const result = filterPickupProductItems(basket);
         expect(result).toHaveLength(2);
         expect(result[0].productId).toBe('product-1');
         expect(result[1].productId).toBe('product-3');
     });
 
-    it('should exclude items not in pickup context', () => {
+    it('should exclude items in delivery shipments', () => {
         const basket: ShopperBasketsV2.schemas['Basket'] = {
             basketId: 'test-basket',
+            shipments: [
+                {
+                    shipmentId: 'shipment-1',
+                    c_fromStoreId: 'store-1',
+                },
+                {
+                    shipmentId: 'shipment-2',
+                    // No c_fromStoreId - delivery shipment
+                },
+            ],
             productItems: [
                 {
                     productId: 'product-1',
                     quantity: 1,
+                    shipmentId: 'shipment-1',
                 },
                 {
                     productId: 'product-2',
                     quantity: 2,
+                    shipmentId: 'shipment-2',
                 },
             ],
         };
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(basket, pickupBasketItems);
+        const result = filterPickupProductItems(basket);
         expect(result).toHaveLength(1);
         expect(result[0].productId).toBe('product-1');
     });
 
-    it('should exclude items without productId', () => {
+    it('should exclude items without shipmentId', () => {
         const basket: ShopperBasketsV2.schemas['Basket'] = {
             basketId: 'test-basket',
-            productItems: [
+            shipments: [
                 {
-                    productId: 'product-1',
-                    quantity: 1,
-                },
-                {
-                    // No productId
-                    quantity: 2,
+                    shipmentId: 'shipment-1',
+                    c_fromStoreId: 'store-1',
                 },
             ],
-        };
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(basket, pickupBasketItems);
-        expect(result).toHaveLength(1);
-        expect(result[0].productId).toBe('product-1');
-    });
-
-    it('should handle items with empty productId string', () => {
-        const basket: ShopperBasketsV2.schemas['Basket'] = {
-            basketId: 'test-basket',
             productItems: [
                 {
                     productId: 'product-1',
                     quantity: 1,
-                },
-                {
-                    productId: '',
-                    quantity: 2,
-                },
-            ],
-        };
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(basket, pickupBasketItems);
-        expect(result).toHaveLength(1);
-        expect(result[0].productId).toBe('product-1');
-    });
-
-    it('should return all items when all are in pickup context', () => {
-        const basket: ShopperBasketsV2.schemas['Basket'] = {
-            basketId: 'test-basket',
-            productItems: [
-                {
-                    productId: 'product-1',
-                    quantity: 1,
+                    shipmentId: 'shipment-1',
                 },
                 {
                     productId: 'product-2',
                     quantity: 2,
+                    // No shipmentId
+                },
+            ],
+        };
+        const result = filterPickupProductItems(basket);
+        expect(result).toHaveLength(1);
+        expect(result[0].productId).toBe('product-1');
+    });
+
+    it('should handle items with empty shipmentId string', () => {
+        const basket: ShopperBasketsV2.schemas['Basket'] = {
+            basketId: 'test-basket',
+            shipments: [
+                {
+                    shipmentId: 'shipment-1',
+                    c_fromStoreId: 'store-1',
+                },
+            ],
+            productItems: [
+                {
+                    productId: 'product-1',
+                    quantity: 1,
+                    shipmentId: 'shipment-1',
+                },
+                {
+                    productId: 'product-2',
+                    quantity: 2,
+                    shipmentId: '',
+                },
+            ],
+        };
+        const result = filterPickupProductItems(basket);
+        expect(result).toHaveLength(1);
+        expect(result[0].productId).toBe('product-1');
+    });
+
+    it('should return all items when all are in pickup shipments', () => {
+        const basket: ShopperBasketsV2.schemas['Basket'] = {
+            basketId: 'test-basket',
+            shipments: [
+                {
+                    shipmentId: 'shipment-1',
+                    c_fromStoreId: 'store-1',
+                },
+                {
+                    shipmentId: 'shipment-2',
+                    c_fromStoreId: 'store-2',
+                },
+            ],
+            productItems: [
+                {
+                    productId: 'product-1',
+                    quantity: 1,
+                    shipmentId: 'shipment-1',
+                },
+                {
+                    productId: 'product-2',
+                    quantity: 2,
+                    shipmentId: 'shipment-2',
                 },
                 {
                     productId: 'product-3',
                     quantity: 3,
+                    shipmentId: 'shipment-1',
                 },
             ],
         };
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-            ['product-2', { inventoryId: 'inv-2', storeId: 'store-1' }],
-            ['product-3', { inventoryId: 'inv-3', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(basket, pickupBasketItems);
+        const result = filterPickupProductItems(basket);
         expect(result).toHaveLength(3);
         expect(result.map((item) => item.productId)).toEqual(['product-1', 'product-2', 'product-3']);
     });
@@ -1222,31 +1279,41 @@ describe('filterPickupProductItems', () => {
     it('should preserve all item properties in filtered results', () => {
         const basket: ShopperBasketsV2.schemas['Basket'] = {
             basketId: 'test-basket',
+            shipments: [
+                {
+                    shipmentId: 'shipment-1',
+                    c_fromStoreId: 'store-1',
+                },
+                {
+                    shipmentId: 'shipment-2',
+                    // No c_fromStoreId - delivery shipment
+                },
+            ],
             productItems: [
                 {
                     itemId: 'item-1',
                     productId: 'product-1',
                     quantity: 1,
                     price: 10.99,
+                    shipmentId: 'shipment-1',
                 },
                 {
                     itemId: 'item-2',
                     productId: 'product-2',
                     quantity: 2,
                     price: 20.99,
+                    shipmentId: 'shipment-2',
                 },
             ],
         };
-        const pickupBasketItems = new Map<string, PickupItemInfo>([
-            ['product-1', { inventoryId: 'inv-1', storeId: 'store-1' }],
-        ]);
-        const result = filterPickupProductItems(basket, pickupBasketItems);
+        const result = filterPickupProductItems(basket);
         expect(result).toHaveLength(1);
         expect(result[0]).toEqual({
             itemId: 'item-1',
             productId: 'product-1',
             quantity: 1,
             price: 10.99,
+            shipmentId: 'shipment-1',
         });
     });
 });
@@ -1616,6 +1683,134 @@ describe('getPickupProductItemsForStore', () => {
     });
 });
 
+describe('filterDeliveryShippingMethods', () => {
+    const PICKUP_SHIPPING_METHOD_ID = '005';
+
+    it('should filter out pickup shipping methods', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                applicableShippingMethods: [
+                    { id: '001', name: 'Standard Ground' },
+                    { id: PICKUP_SHIPPING_METHOD_ID, name: 'Store Pickup' },
+                    { id: '002', name: 'Express' },
+                ],
+            },
+        } as Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1'].applicableShippingMethods).toHaveLength(2);
+        expect(result['shipment-1'].applicableShippingMethods?.[0].id).toBe('001');
+        expect(result['shipment-1'].applicableShippingMethods?.[1].id).toBe('002');
+    });
+
+    it('should handle empty applicableShippingMethods array', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                applicableShippingMethods: [],
+            },
+        } as Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1'].applicableShippingMethods).toEqual([]);
+    });
+
+    it('should handle shipping methods without applicableShippingMethods', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                defaultShippingMethodId: '001',
+            },
+        } as Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1']).toEqual({ defaultShippingMethodId: '001' });
+    });
+
+    it('should handle multiple shipments', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                applicableShippingMethods: [
+                    { id: '001', name: 'Standard' },
+                    { id: PICKUP_SHIPPING_METHOD_ID, name: 'Pickup' },
+                ],
+            },
+            'shipment-2': {
+                applicableShippingMethods: [
+                    { id: '002', name: 'Express' },
+                    { id: PICKUP_SHIPPING_METHOD_ID, name: 'Pickup' },
+                    { id: '003', name: 'Overnight' },
+                ],
+            },
+        } as Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1'].applicableShippingMethods).toHaveLength(1);
+        expect(result['shipment-1'].applicableShippingMethods?.[0].id).toBe('001');
+        expect(result['shipment-2'].applicableShippingMethods).toHaveLength(2);
+        expect(result['shipment-2'].applicableShippingMethods?.[0].id).toBe('002');
+        expect(result['shipment-2'].applicableShippingMethods?.[1].id).toBe('003');
+    });
+
+    it('should return empty map when input is empty', () => {
+        const shippingMethodsMap = {};
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result).toEqual({});
+    });
+
+    it('should preserve all properties except applicableShippingMethods', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                defaultShippingMethodId: '001',
+                applicableShippingMethods: [
+                    { id: '001', name: 'Standard' },
+                    { id: PICKUP_SHIPPING_METHOD_ID, name: 'Pickup' },
+                ],
+                c_customProperty: 'custom-value',
+            },
+        } as any;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1'].defaultShippingMethodId).toBe('001');
+        expect((result['shipment-1'] as any).c_customProperty).toBe('custom-value');
+        expect(result['shipment-1'].applicableShippingMethods).toHaveLength(1);
+    });
+
+    it('should handle shipment with only pickup method', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                applicableShippingMethods: [{ id: PICKUP_SHIPPING_METHOD_ID, name: 'Store Pickup' }],
+            },
+        } as Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1'].applicableShippingMethods).toEqual([]);
+    });
+
+    it('should handle shipment with no pickup methods', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                applicableShippingMethods: [
+                    { id: '001', name: 'Standard' },
+                    { id: '002', name: 'Express' },
+                ],
+            },
+        } as Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1'].applicableShippingMethods).toHaveLength(2);
+        expect(result['shipment-1'].applicableShippingMethods?.[0].id).toBe('001');
+        expect(result['shipment-1'].applicableShippingMethods?.[1].id).toBe('002');
+    });
+});
+
 describe('isStorePickup', () => {
     it('returns false when basket is undefined', () => {
         expect(isStorePickup(undefined)).toBe(false);
@@ -1709,197 +1904,5 @@ describe('getPickupShipment', () => {
         } as ShopperBasketsV2.schemas['Basket'];
 
         expect(getPickupShipment(basket)).toBe(validPickupShipment);
-    });
-});
-
-describe('isSelectedDeliveryOptionValid', () => {
-    let mockAddToast: ReturnType<typeof vi.fn>;
-
-    beforeEach(() => {
-        mockAddToast = vi.fn();
-    });
-
-    it('should return true when basket is undefined', () => {
-        const result = isSelectedDeliveryOptionValid(undefined, 'store-123', mockAddToast);
-        expect(result).toBe(true);
-        expect(mockAddToast).not.toHaveBeenCalled();
-    });
-
-    it('should return true when basket has no product items', () => {
-        const basket = createMockBasketWithPickupItems(undefined, {
-            productItems: undefined,
-        });
-
-        const result = isSelectedDeliveryOptionValid(basket, 'store-123', mockAddToast);
-        expect(result).toBe(true);
-        expect(mockAddToast).not.toHaveBeenCalled();
-    });
-
-    it('should return true when adding delivery item to basket with empty productItems array', () => {
-        const basket = createMockBasketWithPickupItems();
-
-        // Adding delivery item (null) when existingStoreId is undefined should pass
-        const result = isSelectedDeliveryOptionValid(basket, null, mockAddToast);
-        expect(result).toBe(true);
-        expect(mockAddToast).not.toHaveBeenCalled();
-    });
-
-    it('should return true when adding delivery item to empty basket', () => {
-        const basket = createMockBasketWithPickupItems();
-
-        const result = isSelectedDeliveryOptionValid(basket, null, mockAddToast);
-        expect(result).toBe(true);
-        expect(mockAddToast).not.toHaveBeenCalled();
-    });
-
-    it('should return true when adding pickup item from same store to basket with pickup items', () => {
-        const basket = createMockBasketWithPickupItems([
-            { productId: 'product-1', inventoryId: 'inventory-1', storeId: 'store-123' },
-        ]);
-
-        const result = isSelectedDeliveryOptionValid(basket, 'store-123', mockAddToast);
-        expect(result).toBe(true);
-        expect(mockAddToast).not.toHaveBeenCalled();
-    });
-
-    it('should return false and show error when adding pickup item from different store', () => {
-        const basket = createMockBasketWithPickupItems([
-            { productId: 'product-1', inventoryId: 'inventory-1', storeId: 'store-123' },
-        ]);
-
-        const result = isSelectedDeliveryOptionValid(basket, 'store-456', mockAddToast);
-        const { t } = getTranslation();
-        expect(result).toBe(false);
-        expect(mockAddToast).toHaveBeenCalledWith(t('extBopis:cart.addToCartValidation.changeStoreError'), 'error');
-    });
-
-    it('should return false and show error when adding delivery item to basket with pickup items', () => {
-        const basket = createMockBasketWithPickupItems([
-            { productId: 'product-1', inventoryId: 'inventory-1', storeId: 'store-123' },
-        ]);
-
-        const result = isSelectedDeliveryOptionValid(basket, null, mockAddToast);
-        const { t } = getTranslation();
-        expect(result).toBe(false);
-        expect(mockAddToast).toHaveBeenCalledWith(
-            t('extBopis:cart.addToCartValidation.changeToDeliveryError'),
-            'error'
-        );
-    });
-
-    it('should return false and show error when adding pickup item to basket with delivery items', () => {
-        const basket = createMockBasketWithPickupItems([], {
-            shipments: [
-                {
-                    shipmentId: 'shipment-1',
-                    // No c_fromStoreId - delivery shipment
-                },
-            ],
-            productItems: [
-                {
-                    itemId: 'item-1',
-                    productId: 'product-1',
-                    shipmentId: 'shipment-1',
-                },
-            ],
-        });
-
-        const result = isSelectedDeliveryOptionValid(basket, 'store-123', mockAddToast);
-        const { t } = getTranslation();
-        expect(result).toBe(false);
-        expect(mockAddToast).toHaveBeenCalledWith(t('extBopis:cart.addToCartValidation.changeToPickupError'), 'error');
-    });
-});
-
-describe('syncShipmentWithDeliveryOptionChange', () => {
-    const mockContext = {
-        get: vi.fn(),
-        set: vi.fn(),
-    } as unknown as RouterContextProvider;
-
-    const { t } = getTranslation();
-
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
-
-    it('should throw error when basket has no basketId', async () => {
-        const basket = createMockBasketWithPickupItems(undefined, {
-            basketId: undefined,
-        });
-
-        await expect(
-            syncShipmentWithDeliveryOptionChange(mockContext, basket, {
-                inventoryId: 'inventory-1',
-                storeId: 'store-123',
-            })
-        ).rejects.toThrow(t('errors:noBasketFound'));
-    });
-
-    it('should return basket unchanged when productItem is not provided', async () => {
-        const basket = createMockBasketWithPickupItems([
-            { productId: 'product-1', inventoryId: 'inventory-1', storeId: 'store-123' },
-        ]);
-
-        const result = await syncShipmentWithDeliveryOptionChange(mockContext, basket);
-
-        expect(result).toBe(basket);
-        expect(updateShipmentForPickup).not.toHaveBeenCalled();
-        expect(clearPickupFromShipment).not.toHaveBeenCalled();
-    });
-
-    it('should call updateShipmentForPickup when productItem has storeId and inventoryId', async () => {
-        const basket = createMockBasketWithPickupItems([
-            { productId: 'product-1', inventoryId: 'inventory-1', storeId: 'store-123' },
-        ]);
-        const updatedBasket = createMockBasketWithPickupItems([
-            { productId: 'product-2', inventoryId: 'inventory-2', storeId: 'store-456' },
-        ]);
-
-        vi.mocked(updateShipmentForPickup).mockResolvedValue(updatedBasket);
-
-        const result = await syncShipmentWithDeliveryOptionChange(mockContext, basket, {
-            inventoryId: 'inventory-2',
-            storeId: 'store-456',
-        });
-
-        expect(updateShipmentForPickup).toHaveBeenCalledWith(
-            mockContext,
-            basket.basketId,
-            basket.shipments?.[0]?.shipmentId ?? 'me',
-            'store-456'
-        );
-        expect(result).toBe(updatedBasket);
-        expect(clearPickupFromShipment).not.toHaveBeenCalled();
-    });
-
-    it('should return basket unchanged when productItem has no storeId and no pickup shipment exists', async () => {
-        const basket = createMockBasketWithPickupItems([], {
-            basketId: 'basket-1',
-        });
-
-        const result = await syncShipmentWithDeliveryOptionChange(mockContext, basket, {
-            inventoryId: 'inventory-1',
-            storeId: null,
-        });
-
-        expect(result).toBe(basket);
-        expect(updateShipmentForPickup).not.toHaveBeenCalled();
-        expect(clearPickupFromShipment).not.toHaveBeenCalled();
-    });
-
-    it('should return basket unchanged when productItem has inventoryId but no storeId and no pickup shipment', async () => {
-        const basket = createMockBasketWithPickupItems([], {
-            basketId: 'basket-1',
-        });
-
-        const result = await syncShipmentWithDeliveryOptionChange(mockContext, basket, {
-            inventoryId: 'inventory-1',
-            storeId: null,
-        });
-
-        expect(result).toBe(basket);
-        expect(updateShipmentForPickup).not.toHaveBeenCalled();
-        expect(clearPickupFromShipment).not.toHaveBeenCalled();
     });
 });

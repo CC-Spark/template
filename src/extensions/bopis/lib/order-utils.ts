@@ -32,6 +32,21 @@ export function getOrderPickupShipment(
 }
 
 /**
+ * Gets all delivery shipments (i.e. shipments that are *not* configured for store pickup).
+ *
+ * A shipment is considered "pickup" when it has a truthy `c_fromStoreId`. This function returns
+ * all other shipments (including those with an empty string `c_fromStoreId`).
+ *
+ * @param order - The order containing shipments
+ * @returns Array of delivery shipments, or an empty array if none found
+ */
+export function getOrderDeliveryShipments(
+    order: ShopperOrders.schemas['Order'] | null | undefined
+): ShopperOrders.schemas['Shipment'][] {
+    return order?.shipments?.filter((shipment) => !shipment.c_fromStoreId) ?? [];
+}
+
+/**
  * Extracts unique store IDs from pickup shipments in the basket.
  *
  * This function collects all c_fromStoreId values from shipments that have

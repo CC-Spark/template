@@ -48,7 +48,7 @@ vi.mock('react-router', () => ({
     },
 }));
 vi.mock('react-router-dom', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<object>();
     return {
         ...actual,
         useFetcher: () => fetcherMock,
@@ -89,6 +89,32 @@ vi.mock('@/hooks/checkout/use-customer-profile', () => ({
             lastName: 'Doe',
         },
         isLoading: false,
+    }),
+}));
+
+vi.mock('@/hooks/use-checkout', () => ({
+    useCheckoutContext: () => ({
+        step: 1,
+        computedStep: 1,
+        STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, REVIEW_ORDER: 5 },
+        goToStep: vi.fn(),
+        goToNextStep: vi.fn(),
+        exitEditMode: vi.fn(),
+        editingStep: null,
+        customerProfile: undefined,
+        shippingDefaultSet: Promise.resolve(undefined),
+        shipmentDistribution: {
+            hasUnaddressedDeliveryItems: false,
+            hasEmptyShipments: false,
+            deliveryShipments: [],
+            hasDeliveryItems: true,
+            hasPickupItems: false,
+            enableMultiAddress: false,
+            hasMultipleDeliveryAddresses: false,
+            isDeliveryProductItem: () => true,
+        },
+        savedAddresses: [],
+        setSavedAddresses: vi.fn(),
     }),
 }));
 

@@ -71,6 +71,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/organizations/{organizationId}/orders/{orderNo}/actions/fail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fail an Order.
+         * @description Fails an unplaced order and optionally reopens the basket when indicated.
+         *     Creates a HistoryEntry in the failed Order with provided reasonCode.
+         */
+        post: operations["failOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/organizations/{organizationId}/orders/{orderNo}/payment-instruments": {
         parameters: {
             query?: never;
@@ -196,9 +217,8 @@ export interface components {
          * @description A specialized value indicating the system default values for locales.
          * @default default
          * @example default
-         * @enum {string}
          */
-        DefaultFallback: "default";
+        DefaultFallback: string;
         /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
         LocaleCode: components["schemas"]["LanguageCountry"] | components["schemas"]["LanguageCode"] | components["schemas"]["DefaultFallback"];
         /**
@@ -380,22 +400,10 @@ export interface components {
             [key: string]: unknown;
         };
         /**
-         * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard.
-         * @example USD
-         */
-        ISOCurrency: string;
-        /**
-         * @description A specialized value indicating the lack of definition of a currency, for example, if the value of the monetary value of the currency is an undefined number.
-         * @default N/A
-         * @example N/A
-         * @enum {string}
-         */
-        NoValue: "N/A";
-        /**
          * @description A three letter uppercase currency code conforming to the [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) standard, or the string `N/A` indicating that a currency is not applicable.
          * @example USD
          */
-        CurrencyCode: components["schemas"]["ISOCurrency"] | components["schemas"]["NoValue"];
+        CurrencyCode: string;
         /** @description The customer information for guest or logged-in customers. */
         CustomerInfo: {
             /**
@@ -686,6 +694,52 @@ export interface components {
              * @example CREDIT_CARD
              */
             paymentMethodId?: string;
+            /** @description Payment reference information for various payment service providers, only when Salesforce Payments is enabled. */
+            paymentReference?: {
+                /**
+                 * @description Payment reference identifier. Can be payment intent ID for Stripe, PSP reference for Adyen, PayPal order ID for PayPal, or similar identifier for other payment providers.
+                 * @example pi_3N4B2vF0wDjebNCp1234567
+                 */
+                paymentReferenceId?: string;
+                /**
+                 * Format: uri
+                 * @description Redirect URL for payment methods that require user redirection to complete payment.
+                 * @example https://checkout.stripe.com/pay/cs_test_abc123
+                 */
+                redirectUrl?: string;
+                /**
+                 * @description The payment gateway used to process the payment.
+                 * @example stripe
+                 * @enum {string}
+                 */
+                gateway?: "stripe" | "paypal" | "adyen";
+                /** @description The payment gateway specific properties. */
+                gatewayProperties?: {
+                    /**
+                     * @description # Stripe specific properties.
+                     *
+                     *     - setupFutureUsage: Indicates that you intend to make future payments with this payment method.
+                     *       - **on_session**: The payment method is intended to be used for a future payment on the same website session.
+                     *       - **off_session**: The payment method is intended to be used for a future payment on a different website session.
+                     *      - **null**: The payment method is not intended to be used for a future payment.
+                     *     - clientSecret: Secret for Stripe client-side payment confirmation. Don't store, log, or expose the client secret to anyone other than the customer, and only use it on pages where TLS is enabled.
+                     *       - type: string
+                     *       - maxLength: 256
+                     *       - example: "pi_1J4K5L2eZvKYlo2CyZ8K5L6M_secret_abc123"
+                     */
+                    stripe?: {
+                        [key: string]: unknown;
+                    };
+                    /** @description # PayPal specific properties. */
+                    paypal?: {
+                        [key: string]: unknown;
+                    };
+                    /** @description # Adyen specific properties. */
+                    adyen?: {
+                        [key: string]: unknown;
+                    };
+                };
+            };
         };
         /** @description Document representing a product item. */
         ProductItem: {
@@ -803,6 +857,8 @@ export interface components {
              * @example 006490dcc338feeafc71c964bf
              */
             shippingItemId?: string;
+            /** @description Information retrieved from Order Management (OMS) for the product. */
+            omsData?: components["schemas"]["OmsData"];
             /**
              * Format: double
              * @description The tax for the product item, not including price adjustments. It is read only.
@@ -1029,6 +1085,24 @@ export interface components {
              * @enum {string}
              */
             type?: "product" | "gift_certificate";
+        };
+        /**
+         * @description Additional information retrieved from Order Management (OMS)
+         *     See https://developer.salesforce.com/docs/atlas.en-us.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_orderitemsummary.htm for more information.
+         */
+        OmsData: {
+            /**
+             * @description Order Management (OMS) status
+             * @example ordered
+             * @enum {string}
+             */
+            status?: "ordered" | "returned" | "canceled" | "paid" | "reshipped" | "fulfilled" | "partially_fulfilled" | "allocated" | "partially_allocated" | "return_initiated";
+            /**
+             * Format: double
+             * @description The quantity that can be cancelled.
+             * @example 2
+             */
+            quantityAvailableToCancel?: number;
         };
         /**
          * @description The identifier of the shipment
@@ -1412,6 +1486,80 @@ export interface components {
          * @example 00000410
          */
         OrderNo: string;
+        /** @description Individual item within a shipment */
+        ShipmentItem: {
+            /**
+             * @description Unique identifier for the shipment item
+             * @example 0OBVF000006603F4AQ
+             */
+            id?: string;
+            /**
+             * @description Reference to the product item in the order
+             * @example 10uVF0000002fGnYAI
+             */
+            productItemId?: string;
+            /**
+             * Format: double
+             * @description Quantity of product items with the referenced productItemId in this shipment
+             * @example 2
+             */
+            quantity?: number;
+        };
+        /** @description Shipment information from Salesforce Order Management created during fulfillment process. See https://developer.salesforce.com/docs/atlas.en-us.230.0.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_fulfillmentorder.htm for more information. */
+        "schemas-Shipment": {
+            /**
+             * @description Unique identifier for the shipment
+             * @example 0OBVF000000003F4AQ
+             */
+            id?: string;
+            /**
+             * @description Current status of the shipment
+             * @example shipped
+             */
+            status?: string;
+            /**
+             * @description Shipping provider name
+             * @example UPS
+             */
+            provider?: string;
+            /**
+             * @description Tracking number for the shipment
+             * @example 123456789
+             */
+            trackingNumber?: string;
+            /**
+             * @description URL to track the shipment
+             * @example https://www.ups.com/track?loc=en_US&tracknum=123456789
+             */
+            trackingUrl?: string;
+            /**
+             * Format: date-time
+             * @description Expected delivery date and time
+             * @example 2025-11-12T20:00:00.000+0000
+             */
+            expectedDeliveryDate?: string;
+            /**
+             * Format: date-time
+             * @description Actual delivery date and time (null if not yet delivered)
+             * @example 2025-11-12T20:00:00.000+0000
+             */
+            actualDeliveryDate?: string;
+            /** @description Items included in this shipment */
+            shipmentItems?: components["schemas"]["ShipmentItem"][];
+        };
+        /**
+         * @description Additional information retrieved from Order Management (OMS)
+         *     See https://developer.salesforce.com/docs/atlas.en-us.order_management_developer_guide.meta/order_management_developer_guide/sforce_api_objects_ordersummary.htm for more information.
+         */
+        "schemas-OmsData": {
+            /**
+             * @description Current status of the order
+             * @example shipped
+             */
+            status?: string;
+            /** @description List of shipments associated with the order */
+            shipments?: components["schemas"]["schemas-Shipment"][];
+        };
         /** @description Document representing an order. */
         Order: {
             /**
@@ -1581,6 +1729,8 @@ export interface components {
              * @example ShoppingSite
              */
             siteId?: components["schemas"]["SiteId"];
+            /** @description Information retrieved from Order Management (OMS) for the order. */
+            omsData?: components["schemas"]["schemas-OmsData"];
             /**
              * @description The source code assigned to the basket from which this order was created. It is read only.
              * @example OUTDOOR1
@@ -1662,6 +1812,15 @@ export interface components {
             /** @description The order view code associated with the order to be looked up. */
             orderViewCode: string;
         };
+        /** @description Document representing a fail order request. */
+        FailOrderRequest: {
+            /**
+             * @description The reason code for failing the order.
+             * @example payment_confirm_failure
+             * @enum {string}
+             */
+            reasonCode?: "payment_confirm_failure" | "payment_capture_failure" | "payment_auth_failure";
+        };
         /** @description Document representing an order payment card request. */
         OrderPaymentCardRequest: {
             /**
@@ -1715,6 +1874,56 @@ export interface components {
              */
             validFromYear?: number;
         };
+        /** @description Properties for Payments Reference Request */
+        PaymentReferenceRequest: {
+            /**
+             * @description Payment Method Type
+             * @example card
+             */
+            paymentMethodType?: string;
+            /**
+             * @description The unique identifier for a Payments zone.
+             * @example {
+             *       "Amer-Zone": null
+             *     }
+             */
+            zoneId?: string;
+            /**
+             * @description The payment gateway used to process the payment.
+             * @example stripe
+             * @enum {string}
+             */
+            gateway?: "stripe" | "paypal" | "adyen";
+            /** @description The payment gateway specific properties. */
+            gatewayProperties?: {
+                /**
+                 * @description # Stripe specific properties.
+                 *
+                 *     - setupFutureUsage: Indicates that you intend to make future payments with this payment method.
+                 *       - **on_session**: The payment method is intended to be used for a future payment on the same website session.
+                 *       - **off_session**: The payment method is intended to be used for a future payment on a different website session.
+                 *       - **null**: The payment method is not intended to be used for a future payment.
+                 */
+                stripe?: {
+                    [key: string]: unknown;
+                };
+                /**
+                 * @description # PayPal specific properties.
+                 *
+                 *     - shippingPreference: Shipping preference for PayPal payment processing. Applicable only for basket payment instruments.
+                 *       - **GET_FROM_FILE**
+                 *       - **NO_SHIPPING**
+                 *       - **SET_PROVIDED_ADDRESS**
+                 */
+                paypal?: {
+                    [key: string]: unknown;
+                };
+                /** @description # Adyen specific properties. */
+                adyen?: {
+                    [key: string]: unknown;
+                };
+            };
+        };
         /** @description Document representing an order payment instrument request. */
         OrderPaymentInstrumentRequest: {
             /**
@@ -1737,6 +1946,8 @@ export interface components {
              * @example CREDIT_CARD
              */
             paymentMethodId?: string;
+            /** @description Payment reference information for various payment service providers, only when Salesforce Payments is enabled. */
+            paymentReferenceRequest?: components["schemas"]["PaymentReferenceRequest"];
         } & {
             [key: string]: unknown;
         };
@@ -1838,6 +2049,22 @@ export interface components {
         locale: components["schemas"]["LocaleCode"];
         /** @description The order number of the order to be modified. */
         orderNo: components["schemas"]["OrderNo"];
+        /**
+         * @description When you select 'oms' expand, data is loaded from Order Management (OMS), if available.
+         *     When OMS data is available, the expand parameter has the following behavior:
+         *     "expand=oms": order and related order entities (product & shipping items, delivery groups and price adjustments) are returned.
+         *     "expand=oms_shipments": order and fulfillment (shipment) data is returned.
+         *     "expand=oms,oms_shipments": order, related order entities and fulfillment (shipment) data are returned.
+         *     If your instance is not integrated with OMS or the order data is not available, the `expand=oms` command is disregarded.
+         * @example oms,oms_shipments
+         */
+        expandOrders: ("oms" | "oms_shipments")[];
+        /**
+         * @description Set to true to reopen basket from the order.
+         *     A basket can only be reopened if no other basket for the customer exists at the moment of the call to fail Order,
+         *     since a customer is limited to 1 storefront basket at a time.
+         */
+        reopenBasket: boolean;
         paymentInstrumentId: components["schemas"]["PaymentInstrumentId"];
     };
     requestBodies: never;
@@ -1921,6 +2148,16 @@ export interface operations {
                 siteId: components["parameters"]["siteId"];
                 /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
                 locale?: components["parameters"]["locale"];
+                /**
+                 * @description When you select 'oms' expand, data is loaded from Order Management (OMS), if available.
+                 *     When OMS data is available, the expand parameter has the following behavior:
+                 *     "expand=oms": order and related order entities (product & shipping items, delivery groups and price adjustments) are returned.
+                 *     "expand=oms_shipments": order and fulfillment (shipment) data is returned.
+                 *     "expand=oms,oms_shipments": order, related order entities and fulfillment (shipment) data are returned.
+                 *     If your instance is not integrated with OMS or the order data is not available, the `expand=oms` command is disregarded.
+                 * @example oms,oms_shipments
+                 */
+                expand?: components["parameters"]["expandOrders"];
             };
             header?: never;
             path: {
@@ -2011,6 +2248,86 @@ export interface operations {
              *     - the authorized customer of a registered customer order lookup does not match the customer in the order.
              */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    failOrder: {
+        parameters: {
+            query: {
+                /** @description The identifier of the site that a request is being made in the context of. Attributes might have site specific values, and some objects may only be assigned to specific sites. */
+                siteId: components["parameters"]["siteId"];
+                /** @description A descriptor for a geographical region by both a language and country code. By combining these two, regional differences in a language can be addressed, such as with the request header parameter `Accept-Language` following [RFC 2616](https://tools.ietf.org/html/rfc2616) & [RFC 1766](https://tools.ietf.org/html/rfc1766). This can also just refer to a language code, also RFC 2616/1766 compliant, as a default if there is no specific match for a country. Finally, can also be used to define default behavior if there is no locale specified. */
+                locale?: components["parameters"]["locale"];
+                /**
+                 * @description Set to true to reopen basket from the order.
+                 *     A basket can only be reopened if no other basket for the customer exists at the moment of the call to fail Order,
+                 *     since a customer is limited to 1 storefront basket at a time.
+                 */
+                reopenBasket?: components["parameters"]["reopenBasket"];
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description An identifier for the organization the request is being made by
+                 * @example f_ecom_zzxy_prd
+                 */
+                organizationId: components["parameters"]["organizationId"];
+                /** @description The order number of the order to be modified. */
+                orderNo: components["parameters"]["orderNo"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["FailOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description Order failed successfully. No content returned. */
+            201: {
+                headers: {
+                    /** @description The location for accessing the reopened basket if one exists. */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order failed successfully. No content returned. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /**
+             * @description Possible reasons:
+             *       - Invalid request parameters.
+             */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The order with the given order number is unknown for the shopper. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The order is in invalid status. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2154,7 +2471,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Success, the response body contains the order with the updated payment instrument. */
+            /** @description Success, the response body contains the order with the updated payment instrument. When Salesforce Payments is enabled, the paymentReference object will be included in the paymentInstruments. */
             200: {
                 headers: {
                     [name: string]: unknown;

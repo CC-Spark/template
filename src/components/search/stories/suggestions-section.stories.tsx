@@ -19,6 +19,8 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
+import { ConfigProvider } from '@/config/context';
+import { mockConfig } from '@/test-utils/config';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -72,9 +74,11 @@ const meta: Meta<typeof SuggestionSection> = {
     tags: ['autodocs', 'interaction'],
     decorators: [
         (Story) => (
-            <ActionLogger>
-                <Story />
-            </ActionLogger>
+            <ConfigProvider config={mockConfig}>
+                <ActionLogger>
+                    <Story />
+                </ActionLogger>
+            </ConfigProvider>
         ),
     ],
     argTypes: {

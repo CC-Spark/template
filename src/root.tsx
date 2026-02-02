@@ -21,6 +21,7 @@ import {
     type DataStrategyResult,
     isRouteErrorResponse,
     Links,
+    type LinksFunction,
     type LoaderFunctionArgs,
     Meta,
     type MiddlewareFunction,
@@ -34,7 +35,7 @@ import {
 } from 'react-router';
 
 // Third-party libraries
-import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import { type i18n } from 'i18next';
 import { I18nextProvider } from 'react-i18next';
 import { PageDesignerProvider } from '@salesforce/storefront-next-runtime/design/react/core';
@@ -77,7 +78,6 @@ import { useExecutePendingAction } from '@/hooks/use-execute-pending-action';
 
 // Lib/Utils
 import type { SessionData } from '@/lib/api/types';
-import { fetchCategory } from '@/lib/api/categories';
 import { i18nextContext } from '@/lib/i18next';
 import { initI18next } from '@/lib/i18next.client';
 import { PageViewTracker } from '@/lib/analytics/page-view-tracker';
@@ -92,7 +92,7 @@ import favicon from '/favicon.ico';
 
 // Styles
 import { PageDesignerStyles } from '@/page-designer-styles';
-import './app.css';
+import appStylesHref from './app.css?url';
 
 // Extensions
 /** @sfdc-extension-line SFDC_EXT_HYBRID_PROXY */
@@ -101,11 +101,11 @@ import { HybridProxyNavigationInterceptor } from '@/extensions/hybrid-proxy/navi
 import { isProxyPath } from '@/extensions/hybrid-proxy/config';
 import { PluginProviders } from '@/plugins/plugin-providers';
 
-// On the client side, initialize i18next.
-// (On the server side, it's initialized elsewhere in middlewares/i18next.ts file)
-// Read the language from the server-rendered HTML to avoid language detection issues
-const i18nextOnClient =
-    typeof window !== 'undefined' ? initI18next({ language: document.documentElement.lang || undefined }) : undefined;
+// eslint-disable-next-line react-refresh/only-export-components
+export const links: LinksFunction = () => [
+    { rel: 'preload', href: appStylesHref, as: 'style' },
+    { rel: 'stylesheet', href: appStylesHref },
+];
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const middleware: MiddlewareFunction<Response>[] = [
@@ -131,13 +131,17 @@ export const clientMiddleware: MiddlewareFunction<Record<string, DataStrategyRes
     shopperContextMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
 ];
 
+// On the client side, initialize i18next.
+// (On the server side, it's initialized elsewhere in middlewares/i18next.ts file)
+// Read the language from the server-rendered HTML to avoid language detection issues
+const i18nextOnClient =
+    typeof window !== 'undefined' ? initI18next({ language: document.documentElement.lang || undefined }) : undefined;
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const loader = ({
     context,
     request,
 }: LoaderFunctionArgs): {
-    root: Promise<ShopperProducts.schemas['Category']>;
-    subs: Promise<ShopperProducts.schemas['Category'][]>;
     auth: () => SessionData; // Use a function to prevent state serialization
     appConfig: AppConfig;
     locale: string;
@@ -169,35 +173,7 @@ export const loader = ({
     // Get correlation ID from middleware for request tracing
     const correlationId = context.get(correlationContext);
 
-    // Load the root category and its sub categories information
-    const rootCategoryPromise = fetchCategory(context, 'root', 1);
-
-    // Load each second-level sub categories tree as well, in case the resolved root-level category has any sub
-    // categories. We then base this composed second-level promise on the initial root category promise to allow
-    // for parallel loading and streaming of the two main promises.
-    const subCategoriesPromise = rootCategoryPromise.then((rootCategory: ShopperProducts.schemas['Category']) =>
-        Promise.all(
-            rootCategory.categories?.reduce(
-                (
-                    acc: Promise<ShopperProducts.schemas['Category']>[],
-                    subCategory: ShopperProducts.schemas['Category']
-                ) => {
-                    if (
-                        typeof subCategory.onlineSubCategoriesCount === 'number' &&
-                        subCategory.onlineSubCategoriesCount > 0
-                    ) {
-                        acc.push(fetchCategory(context, subCategory.id, 2));
-                    }
-                    return acc;
-                },
-                []
-            ) ?? []
-        )
-    );
-
     return {
-        root: rootCategoryPromise,
-        subs: subCategoriesPromise,
         appConfig,
         locale,
         currency,
@@ -249,8 +225,14 @@ export function Layout({ children }: PropsWithChildren) {
         <html lang={i18next.language} dir={i18next.dir(i18next.language)}>
             <head>
                 <meta charSet="utf-8" />
-                {appConfig?.performance?.preconnectOrigins?.map((origin: string) => (
+                {appConfig?.links?.preconnect?.map((origin: string) => (
                     <link key={origin} rel="preconnect" href={origin} />
+                ))}
+                {appConfig?.links?.prefetchDns?.map((origin: string) => (
+                    <link key={origin} rel="dns-prefetch" href={origin} />
+                ))}
+                {appConfig?.links?.prefetch?.map((href: string) => (
+                    <link key={href} rel="prefetch" href={href} />
                 ))}
                 <script
                     // eslint-disable-next-line react/no-danger

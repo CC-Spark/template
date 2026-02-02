@@ -20,6 +20,8 @@ import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, waitFor } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
+import { ConfigProvider } from '@/config/context';
+import { mockConfig } from '@/test-utils/config';
 
 function ImageGalleryStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -74,9 +76,11 @@ An image gallery component with main image display and thumbnail navigation.
     },
     decorators: [
         (Story) => (
-            <ImageGalleryStoryHarness>
-                <Story />
-            </ImageGalleryStoryHarness>
+            <ConfigProvider config={mockConfig}>
+                <ImageGalleryStoryHarness>
+                    <Story />
+                </ImageGalleryStoryHarness>
+            </ConfigProvider>
         ),
     ],
 };

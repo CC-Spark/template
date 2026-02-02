@@ -57,11 +57,9 @@ describe('shopper-context-utils', () => {
     describe('getSourceCodeCookieName', () => {
         test('should return cookie name with configurable suffix', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    features: {
-                        shopperContext: {
-                            dwsourcecodeCookieSuffix: 'test-site',
-                        },
+                features: {
+                    shopperContext: {
+                        dwsourcecodeCookieSuffix: 'test-site',
                     },
                 },
             } as any);
@@ -76,11 +74,9 @@ describe('shopper-context-utils', () => {
 
         test('should return base cookie name when suffix is undefined', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    features: {
-                        shopperContext: {
-                            dwsourcecodeCookieSuffix: undefined,
-                        },
+                features: {
+                    shopperContext: {
+                        dwsourcecodeCookieSuffix: undefined,
                     },
                 },
             } as any);
@@ -949,11 +945,9 @@ describe('shopper-context-utils', () => {
             } as any;
 
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    features: {
-                        shopperContext: {
-                            dwsourcecodeCookieSuffix: 'test-site',
-                        },
+                features: {
+                    shopperContext: {
+                        dwsourcecodeCookieSuffix: 'test-site',
                     },
                 },
             } as any);

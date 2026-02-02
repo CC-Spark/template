@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { APIGatewayProxyHandler } from 'aws-lambda';
+import type { APIGatewayProxyEvent, APIGatewayProxyHandler, Callback, Context } from 'aws-lambda';
 import serverlessExpress from '@codegenie/serverless-express';
 import type { ServerBuild } from 'react-router';
 import { createServer } from '../server/index';
@@ -22,20 +22,62 @@ import { mergeHeadersIntoMultiValueHeaders } from './utils';
 // cache the server instance to avoid creating a new one for each request
 let handler: APIGatewayProxyHandler | null = null;
 
+/**
+ * Default build loader that imports the server build from MRT.
+ * This is separated to allow testing with a mock build loader.
+ */
+const defaultBuildLoader = async (): Promise<ServerBuild> => {
+    // @ts-expect-error: This file isn't available during build time, but will be on MRT.
+    const { default: build } = (await import('./server/index.js')) as unknown as {
+        default: ServerBuild;
+    };
+    return build;
+};
+
+/**
+ * Creates a handler using the provided build loader.
+ * Exported for testing purposes.
+ */
+export const createHandler = async (
+    buildLoader: () => Promise<ServerBuild> = defaultBuildLoader
+): Promise<APIGatewayProxyHandler> => {
+    const build = await buildLoader();
+    const app = await createServer({
+        mode: 'production',
+        build,
+        streaming: false,
+    });
+    return serverlessExpress({ app, resolutionMode: 'CALLBACK' });
+};
+
 const getHandler = async (): Promise<typeof handler> => {
     if (!handler) {
-        // @ts-expect-error: This file isn't available during build time, but will be on MRT.
-        const { default: build } = (await import('./server/index.js')) as unknown as {
-            default: ServerBuild;
-        };
-        const app = await createServer({
-            mode: 'production',
-            build,
-            streaming: false,
-        });
-        handler = serverlessExpress({ app, resolutionMode: 'CALLBACK' });
+        handler = await createHandler();
     }
     return handler;
+};
+
+/**
+ * Invokes the handler with proper error handling.
+ * Exported for testing purposes.
+ */
+export const invokeHandler = (
+    handlerPromise: Promise<APIGatewayProxyHandler | null>,
+    event: APIGatewayProxyEvent,
+    context: Context,
+    callback: Callback
+): void => {
+    void handlerPromise
+        .then((handlerInstance) => {
+            if (!handlerInstance) {
+                callback(new Error('Serverless Express handler is not available'));
+                return;
+            }
+            void handlerInstance(event, context, callback);
+        })
+        .catch((error) => {
+            callback(error);
+        });
 };
 
 // Important Constraints:
@@ -50,15 +92,5 @@ export const get: APIGatewayProxyHandler = (event, context, callback) => {
     // This fixes an issue where @codegenie/serverless-express only reads multiValueHeaders
     const mergedEvent = mergeHeadersIntoMultiValueHeaders(event);
 
-    void getHandler()
-        .then((handlerInstance) => {
-            if (!handlerInstance) {
-                callback(new Error('Serverless Express handler is not available'));
-                return;
-            }
-            void handlerInstance(mergedEvent, context, callback);
-        })
-        .catch((error) => {
-            callback(error);
-        });
+    invokeHandler(getHandler(), mergedEvent, context, callback);
 };
