@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { describe, it, expect } from 'vitest';
-import { odysseyPreset } from './react-router.config';
+import { storefrontNextPreset } from './react-router.config';
 
 // Helper to create a mock resolved config with all required properties
 const createMockResolvedConfig = (overrides: Record<string, any> = {}) => {
@@ -43,27 +43,27 @@ const createMockResolvedConfig = (overrides: Record<string, any> = {}) => {
 };
 
 describe('react-router.config', () => {
-    describe('odysseyPreset', () => {
+    describe('storefrontNextPreset', () => {
         it('should return a preset with correct name', () => {
-            const preset = odysseyPreset();
-            expect(preset.name).toBe('odyssey-preset');
+            const preset = storefrontNextPreset();
+            expect(preset.name).toBe('storefront-next-preset');
         });
 
         it('should have reactRouterConfig function', () => {
-            const preset = odysseyPreset();
+            const preset = storefrontNextPreset();
             expect(preset.reactRouterConfig).toBeDefined();
             expect(typeof preset.reactRouterConfig).toBe('function');
         });
 
         it('should have reactRouterConfigResolved function', () => {
-            const preset = odysseyPreset();
+            const preset = storefrontNextPreset();
             expect(preset.reactRouterConfigResolved).toBeDefined();
             expect(typeof preset.reactRouterConfigResolved).toBe('function');
         });
 
         describe('reactRouterConfig', () => {
             it('should return correct configuration values', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const mockUserConfig = {
                     appDirectory: './app',
                     buildDirectory: 'dist',
@@ -84,7 +84,7 @@ describe('react-router.config', () => {
             });
 
             it('should return consistent config on multiple calls', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const mockUserConfig = {};
                 const config1 = preset.reactRouterConfig?.({ reactRouterUserConfig: mockUserConfig });
                 const config2 = preset.reactRouterConfig?.({ reactRouterUserConfig: mockUserConfig });
@@ -95,7 +95,7 @@ describe('react-router.config', () => {
 
         describe('reactRouterConfigResolved', () => {
             it('should not throw error when config matches preset values', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const validConfig = createMockResolvedConfig();
 
                 expect(() => {
@@ -104,14 +104,14 @@ describe('react-router.config', () => {
             });
 
             it('should throw error when routeDiscovery.mode is overridden', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const invalidConfig = createMockResolvedConfig({
                     routeDiscovery: { mode: 'lazy' as const },
                 });
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
-                }).toThrow('Odyssey preset configuration was overridden');
+                }).toThrow('Storefront Next preset configuration was overridden');
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
@@ -119,14 +119,14 @@ describe('react-router.config', () => {
             });
 
             it('should throw error when serverModuleFormat is overridden', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const invalidConfig = createMockResolvedConfig({
                     serverModuleFormat: 'esm' as const,
                 });
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
-                }).toThrow('Odyssey preset configuration was overridden');
+                }).toThrow('Storefront Next preset configuration was overridden');
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
@@ -134,14 +134,14 @@ describe('react-router.config', () => {
             });
 
             it('should throw error when ssr is overridden', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const invalidConfig = createMockResolvedConfig({
                     ssr: false,
                 });
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
-                }).toThrow('Odyssey preset configuration was overridden');
+                }).toThrow('Storefront Next preset configuration was overridden');
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
@@ -149,7 +149,7 @@ describe('react-router.config', () => {
             });
 
             it('should throw error when future.v8_middleware is overridden', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const invalidConfig = createMockResolvedConfig({
                     future: {
                         v8_middleware: false,
@@ -162,7 +162,7 @@ describe('react-router.config', () => {
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
-                }).toThrow('Odyssey preset configuration was overridden');
+                }).toThrow('Storefront Next preset configuration was overridden');
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
@@ -170,7 +170,7 @@ describe('react-router.config', () => {
             });
 
             it('should throw error when future.v8_viteEnvironmentApi is overridden', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const invalidConfig = createMockResolvedConfig({
                     future: {
                         v8_middleware: true,
@@ -183,7 +183,7 @@ describe('react-router.config', () => {
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
-                }).toThrow('Odyssey preset configuration was overridden');
+                }).toThrow('Storefront Next preset configuration was overridden');
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
@@ -191,7 +191,7 @@ describe('react-router.config', () => {
             });
 
             it('should throw error with all validation errors when multiple values are overridden', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const invalidConfig = createMockResolvedConfig({
                     routeDiscovery: { mode: 'lazy' as const },
                     serverModuleFormat: 'esm' as const,
@@ -207,7 +207,7 @@ describe('react-router.config', () => {
 
                 expect(() => {
                     void preset.reactRouterConfigResolved?.({ reactRouterConfig: invalidConfig });
-                }).toThrow('Odyssey preset configuration was overridden');
+                }).toThrow('Storefront Next preset configuration was overridden');
 
                 let errorMessage = '';
                 try {
@@ -224,7 +224,7 @@ describe('react-router.config', () => {
             });
 
             it('should handle missing routeDiscovery object', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { routeDiscovery, ...configWithoutRouteDiscovery } = createMockResolvedConfig();
 
@@ -234,7 +234,7 @@ describe('react-router.config', () => {
             });
 
             it('should handle missing future object', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { future, ...configWithoutFuture } = createMockResolvedConfig();
 
@@ -254,7 +254,7 @@ describe('react-router.config', () => {
             });
 
             it('should not validate appDirectory and buildDirectory', () => {
-                const preset = odysseyPreset();
+                const preset = storefrontNextPreset();
                 const configWithDifferentPaths = createMockResolvedConfig({
                     appDirectory: '/absolute/path/to/different/src',
                     buildDirectory: '/absolute/path/to/different/build',

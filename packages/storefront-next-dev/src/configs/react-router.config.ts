@@ -16,11 +16,11 @@
 import type { Preset } from '@react-router/dev/config';
 
 /**
- * Odyssey preset for React Router configuration.
- * This preset enforces standard configuration for SFCC Odyssey applications.
+ * Storefront Next preset for React Router configuration.
+ * This preset enforces standard configuration for SFCC Storefront Next applications.
  * Users cannot override these values - they will be validated and an error will be thrown if modified.
  */
-export function odysseyPreset(): Preset {
+export function storefrontNextPreset(): Preset {
     const presetConfig = {
         appDirectory: './src',
         buildDirectory: 'build',
@@ -34,7 +34,7 @@ export function odysseyPreset(): Preset {
     };
 
     return {
-        name: 'odyssey-preset',
+        name: 'storefront-next-preset',
         reactRouterConfig: () => presetConfig,
         reactRouterConfigResolved: ({ reactRouterConfig }) => {
             // Validate that critical config values have not been overridden
@@ -72,7 +72,7 @@ export function odysseyPreset(): Preset {
 
             if (errors.length > 0) {
                 throw new Error(
-                    `Odyssey preset configuration was overridden. The following values must not be modified:\n${errors.map((e) => `  - ${e}`).join('\n')}`
+                    `Storefront Next preset configuration was overridden. The following values must not be modified:\n${errors.map((e) => `  - ${e}`).join('\n')}`
                 );
             }
         },

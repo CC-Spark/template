@@ -3,11 +3,11 @@ import { Preset } from "@react-router/dev/config";
 //#region src/configs/react-router.config.d.ts
 
 /**
- * Odyssey preset for React Router configuration.
- * This preset enforces standard configuration for SFCC Odyssey applications.
+ * Storefront Next preset for React Router configuration.
+ * This preset enforces standard configuration for SFCC Storefront Next applications.
  * Users cannot override these values - they will be validated and an error will be thrown if modified.
  */
-declare function odysseyPreset(): Preset;
+declare function storefrontNextPreset(): Preset;
 //#endregion
-export { odysseyPreset };
+export { storefrontNextPreset };
 //# sourceMappingURL=react-router.config.d.ts.map

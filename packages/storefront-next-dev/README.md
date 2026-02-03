@@ -58,10 +58,10 @@ Use the React Router preset in your `react-router.config.ts`:
 
 ```typescript
 import type { Config } from '@react-router/dev/config';
-import { odysseyPreset } from '@salesforce/storefront-next-dev/react-router-preset';
+import { storefrontNextPreset } from '@salesforce/storefront-next-dev/react-router-preset';
 
 export default {
-    presets: [odysseyPreset()],
+    presets: [storefrontNextPreset()],
 } satisfies Config;
 ```
 

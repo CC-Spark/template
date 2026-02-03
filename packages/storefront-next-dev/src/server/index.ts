@@ -170,7 +170,7 @@ async function createSSRHandler(
                     const error = new Error(
                         'SSR environment is not runnable. Please ensure:\n' +
                             '  1. "@salesforce/storefront-next-dev" plugin is added to vite.config.ts\n' +
-                            '  2. React Router config uses the Odyssey preset'
+                            '  2. React Router config uses the Storefront Next preset'
                     );
                     next(error);
                     return;

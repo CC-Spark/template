@@ -1,10 +1,10 @@
 //#region src/configs/react-router.config.ts
 /**
-* Odyssey preset for React Router configuration.
-* This preset enforces standard configuration for SFCC Odyssey applications.
+* Storefront Next preset for React Router configuration.
+* This preset enforces standard configuration for SFCC Storefront Next applications.
 * Users cannot override these values - they will be validated and an error will be thrown if modified.
 */
-function odysseyPreset() {
+function storefrontNextPreset() {
 	const presetConfig = {
 		appDirectory: "./src",
 		buildDirectory: "build",
@@ -17,7 +17,7 @@ function odysseyPreset() {
 		}
 	};
 	return {
-		name: "odyssey-preset",
+		name: "storefront-next-preset",
 		reactRouterConfig: () => presetConfig,
 		reactRouterConfigResolved: ({ reactRouterConfig }) => {
 			const errors = [];
@@ -26,11 +26,11 @@ function odysseyPreset() {
 			if (reactRouterConfig.ssr !== presetConfig.ssr) errors.push(`ssr: expected ${presetConfig.ssr}, got ${reactRouterConfig.ssr}`);
 			if (reactRouterConfig.future?.v8_middleware !== presetConfig.future.v8_middleware) errors.push(`future.v8_middleware: expected ${presetConfig.future.v8_middleware}, got ${reactRouterConfig.future?.v8_middleware}`);
 			if (reactRouterConfig.future?.v8_viteEnvironmentApi !== presetConfig.future.v8_viteEnvironmentApi) errors.push(`future.v8_viteEnvironmentApi: expected ${presetConfig.future.v8_viteEnvironmentApi}, got ${reactRouterConfig.future?.v8_viteEnvironmentApi}`);
-			if (errors.length > 0) throw new Error(`Odyssey preset configuration was overridden. The following values must not be modified:\n${errors.map((e) => `  - ${e}`).join("\n")}`);
+			if (errors.length > 0) throw new Error(`Storefront Next preset configuration was overridden. The following values must not be modified:\n${errors.map((e) => `  - ${e}`).join("\n")}`);
 		}
 	};
 }
 
 //#endregion
-export { odysseyPreset };
+export { storefrontNextPreset };
 //# sourceMappingURL=react-router.config.js.map
