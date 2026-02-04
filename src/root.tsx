@@ -118,8 +118,8 @@ export const middleware: MiddlewareFunction<Response>[] = [
     i18nextMiddleware,
     currencyMiddleware, // Read currency cookie early
     performanceMetricsMiddlewareServer,
-    authMiddlewareServer,
     maintenanceMiddleware,
+    authMiddlewareServer,
     shopperContextMiddlewareServer,
 ];
 
