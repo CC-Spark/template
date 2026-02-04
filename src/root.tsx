@@ -59,6 +59,7 @@ import { i18nextMiddleware } from '@/middlewares/i18next.server';
 import { currencyMiddleware } from '@/middlewares/currency.server';
 import { currencyClientMiddleware } from '@/middlewares/currency.client';
 import { correlationMiddleware } from '@/middlewares/correlation.server';
+import { modeDetectionMiddlewareServer, modeDetectionMiddlewareClient } from '@/middlewares/mode-detection';
 import { maintenanceMiddleware } from '@/middlewares/maintenance.server';
 
 // Providers
@@ -114,6 +115,7 @@ export const links: LinksFunction = () => [
 // eslint-disable-next-line react-refresh/only-export-components
 export const middleware: MiddlewareFunction<Response>[] = [
     correlationMiddleware,
+    modeDetectionMiddlewareServer,
     appConfigMiddlewareServer,
     i18nextMiddleware,
     currencyMiddleware, // Read currency cookie early
@@ -128,6 +130,7 @@ export const clientMiddleware: MiddlewareFunction<Record<string, DataStrategyRes
     // Client middleware functions have varying return types, but React Router expects Record<string, DataStrategyResult>
     // We cast through unknown to avoid type errors while maintaining runtime correctness
     appConfigMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Must run first to set config in context
+    modeDetectionMiddlewareClient,
     legacyRoutesMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Checks hybrid.enabled, needs config from context
     performanceMetricsMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
     currencyClientMiddleware as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Read currency from cookie
