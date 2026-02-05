@@ -1,5 +1,5 @@
 {
-  "message": "release-0.1.x: 8c7c4a1d",
+  "message": "fix-normalize-volta: 9b95f508",
   "encoding": "base64",
   "ssr_parameters": {
     "ssrFunctionNodeVersion": "24.x"
@@ -477,8 +477,8 @@
       "@radix-ui/react-slot": "1.2.3",
       "@radix-ui/react-tooltip": "1.2.8",
       "@react-router/node": "7.12.0",
-      "@salesforce/storefront-next-dev": "0.1.0",
-      "@salesforce/storefront-next-runtime": "0.1.0",
+      "@salesforce/storefront-next-dev": "workspace:*",
+      "@salesforce/storefront-next-runtime": "workspace:*",
       "@vis.gl/react-google-maps": "1.7.1",
       "class-variance-authority": "0.7.1",
       "clsx": "2.1.1",
