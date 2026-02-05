@@ -1,8 +1,27 @@
-import { describe, test, expect, vi } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { afterEach, beforeEach, describe, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { getTranslation } from '@/lib/i18next';
+import { CurrencyProvider } from '@/providers/currency';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 
 const { t } = getTranslation();
 import OrderSummary from './index';
@@ -21,50 +40,6 @@ vi.mock('@/components/product-items-list', () => ({
     ),
 }));
 
-// Mock useFetcher, useNavigate, and Link from react-router
-vi.mock('react-router', async (importOriginal) => {
-    const actual = (await importOriginal()) as any;
-    return {
-        ...actual,
-        useFetcher: () => ({
-            submit: vi.fn(),
-            state: 'idle',
-            data: null,
-            formData: null,
-            formAction: null,
-            formMethod: null,
-            formEncType: null,
-            text: null,
-            form: null,
-            load: vi.fn(),
-            Form: ({
-                children,
-                ...props
-            }: React.FormHTMLAttributes<HTMLFormElement> & { children: React.ReactNode }) => (
-                <form {...props}>{children}</form>
-            ),
-        }),
-        useNavigate: () => vi.fn(),
-        Link: ({
-            to,
-            children,
-            onClick,
-            className,
-            ...props
-        }: {
-            to: string;
-            children: React.ReactNode;
-            onClick?: () => void;
-            className?: string;
-            [key: string]: unknown;
-        }) => (
-            <a href={to} onClick={onClick} className={className} {...props}>
-                {children}
-            </a>
-        ),
-    };
-});
-
 // Mock the useToast hook
 vi.mock('@/components/toast', () => ({
     useToast: () => ({
@@ -72,7 +47,44 @@ vi.mock('@/components/toast', () => ({
     }),
 }));
 
+// Mock fetcher for useFetcher hook
+const mockFetcher = {
+    submit: vi.fn(),
+    state: 'idle' as const,
+    data: null,
+    formData: null,
+    formAction: null,
+    formMethod: null,
+    formEncType: null,
+    text: null,
+    form: null,
+    load: vi.fn(),
+    Form: ({ children, ...props }: React.FormHTMLAttributes<HTMLFormElement> & { children: React.ReactNode }) => (
+        <form {...props}>{children}</form>
+    ),
+};
+
+// Helper function to render component with Router and CurrencyProvider
+const renderWithProviders = (component: React.ReactElement, currency: string = 'USD') => {
+    const router = createMemoryRouter(
+        [{ path: '/', element: <CurrencyProvider value={currency}>{component}</CurrencyProvider> }],
+        { initialEntries: ['/'] }
+    );
+    return render(<RouterProvider router={router} />);
+};
+
 describe('OrderSummary', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        // Use vi.spyOn to mock React Router hooks while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockReturnValue(mockFetcher as any);
+        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(vi.fn());
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     const mockBasket: ShopperBasketsV2.schemas['Basket'] = {
         basketId: 'test-basket-id',
         productSubTotal: 100.0,
@@ -113,7 +125,7 @@ describe('OrderSummary', () => {
     };
 
     test('renders order summary with default props', () => {
-        render(<OrderSummary basket={mockBasket} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} />);
 
         expect(screen.getByText(t('cart:summary.orderSummary'))).toBeInTheDocument();
         expect(screen.getByTestId('sf-order-summary')).toBeInTheDocument();
@@ -128,13 +140,13 @@ describe('OrderSummary', () => {
     });
 
     test('does not render heading when showHeading is false', () => {
-        render(<OrderSummary basket={mockBasket} showHeading={false} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} showHeading={false} />);
 
         expect(screen.queryByText(t('cart:summary.orderSummary'))).not.toBeInTheDocument();
     });
 
     test('does not render cart items when showCartItems is false', () => {
-        render(<OrderSummary basket={mockBasket} showCartItems={false} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} showCartItems={false} />);
 
         expect(screen.queryByText('3 items in cart')).not.toBeInTheDocument();
         expect(screen.queryByTestId('product-items-list')).not.toBeInTheDocument();
@@ -142,7 +154,7 @@ describe('OrderSummary', () => {
 
     test('renders cart items accordion with correct item count', async () => {
         const user = userEvent.setup();
-        render(<OrderSummary basket={mockBasket} productsByItemId={mockProductsByItemId} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} productsByItemId={mockProductsByItemId} />);
 
         // Total items: 2 + 1 = 3 items
         expect(screen.getByText(t('cart:items.itemsInCart.other', { count: 3 }))).toBeInTheDocument();
@@ -158,7 +170,7 @@ describe('OrderSummary', () => {
     test('shows correct item count text for different quantities', () => {
         // Test zero items
         const emptyBasket = { ...mockBasket, productItems: [] };
-        const { rerender } = render(<OrderSummary basket={emptyBasket} />);
+        const { rerender } = renderWithProviders(<OrderSummary basket={emptyBasket} />);
         expect(screen.getByText(t('cart:items.itemsInCart.zero'))).toBeInTheDocument();
 
         // Test one item
@@ -166,12 +178,16 @@ describe('OrderSummary', () => {
             ...mockBasket,
             productItems: [{ itemId: 'item1', productId: 'product1', quantity: 1, price: 50.0 }],
         };
-        rerender(<OrderSummary basket={oneItemBasket} />);
+        rerender(
+            <CurrencyProvider value="USD">
+                <OrderSummary basket={oneItemBasket} />
+            </CurrencyProvider>
+        );
         expect(screen.getByText(t('cart:items.itemsInCart.one'))).toBeInTheDocument();
     });
 
     test('expands cart items accordion when itemsExpanded is true', () => {
-        render(<OrderSummary basket={mockBasket} itemsExpanded={true} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} itemsExpanded={true} />);
 
         // The accordion should be expanded by default, so ProductItemsList should be visible
         expect(screen.getByTestId('product-items-list')).toBeInTheDocument();
@@ -180,7 +196,7 @@ describe('OrderSummary', () => {
 
     test('renders promo code form when showPromoCodeForm is true', async () => {
         const user = userEvent.setup();
-        render(<OrderSummary basket={mockBasket} showPromoCodeForm={true} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} showPromoCodeForm={true} />);
 
         // Open the promo code accordion
         const promoCodeTrigger = screen.getByText(t('cart:promoCode.accordionTitle'));
@@ -191,7 +207,7 @@ describe('OrderSummary', () => {
     });
 
     test('shows estimated total when isEstimate is true', () => {
-        render(<OrderSummary basket={mockBasket} isEstimate={true} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} isEstimate={true} />);
 
         expect(screen.getByText(t('cart:summary.estimatedTotal'))).toBeInTheDocument();
         expect(screen.queryByText(t('cart:summary.orderTotal'))).not.toBeInTheDocument();
@@ -209,7 +225,7 @@ describe('OrderSummary', () => {
             ],
         };
 
-        render(<OrderSummary basket={basketWithAdjustments} />);
+        renderWithProviders(<OrderSummary basket={basketWithAdjustments} />);
 
         expect(screen.getByText('10% Off Promotion')).toBeInTheDocument();
         expect(screen.getByText('$-10.00')).toBeInTheDocument();
@@ -235,7 +251,7 @@ describe('OrderSummary', () => {
             ],
         };
 
-        render(<OrderSummary basket={basketWithFreeShipping} />);
+        renderWithProviders(<OrderSummary basket={basketWithFreeShipping} />);
 
         expect(screen.getByText(t('cart:summary.shippingPromotionApplied'))).toBeInTheDocument();
         expect(screen.getByText(t('cart:summary.shippingFree'))).toBeInTheDocument();
@@ -247,7 +263,7 @@ describe('OrderSummary', () => {
             shippingTotal: undefined,
         };
 
-        render(<OrderSummary basket={basketWithUndefinedShipping} />);
+        renderWithProviders(<OrderSummary basket={basketWithUndefinedShipping} />);
 
         expect(screen.getByText(t('cart:summary.shippingTbd'))).toBeInTheDocument();
         expect(screen.queryByText(t('cart:summary.shippingFree'))).not.toBeInTheDocument();
@@ -260,7 +276,7 @@ describe('OrderSummary', () => {
             shippingTotal: null as unknown as number,
         };
 
-        render(<OrderSummary basket={basketWithNullShipping} />);
+        renderWithProviders(<OrderSummary basket={basketWithNullShipping} />);
 
         expect(screen.getByText(t('cart:summary.shippingTbd'))).toBeInTheDocument();
         expect(screen.queryByText(t('cart:summary.shippingFree'))).not.toBeInTheDocument();
@@ -273,7 +289,7 @@ describe('OrderSummary', () => {
             shippingTotal: 15.99,
         };
 
-        render(<OrderSummary basket={basketWithPositiveShipping} />);
+        renderWithProviders(<OrderSummary basket={basketWithPositiveShipping} />);
 
         expect(screen.getByText('$15.99')).toBeInTheDocument();
         expect(screen.queryByText(t('cart:summary.shippingFree'))).not.toBeInTheDocument();
@@ -286,7 +302,7 @@ describe('OrderSummary', () => {
             taxTotal: undefined,
         };
 
-        render(<OrderSummary basket={basketWithoutTax} />);
+        renderWithProviders(<OrderSummary basket={basketWithoutTax} />);
 
         expect(screen.getByText(t('cart:summary.taxTbd'))).toBeInTheDocument();
     });
@@ -297,7 +313,7 @@ describe('OrderSummary', () => {
             taxTotal: null as unknown as number,
         };
 
-        render(<OrderSummary basket={basketWithNullTax} />);
+        renderWithProviders(<OrderSummary basket={basketWithNullTax} />);
 
         expect(screen.getByText(t('cart:summary.taxTbd'))).toBeInTheDocument();
     });
@@ -308,7 +324,7 @@ describe('OrderSummary', () => {
             taxTotal: 0,
         };
 
-        render(<OrderSummary basket={basketWithZeroTax} />);
+        renderWithProviders(<OrderSummary basket={basketWithZeroTax} />);
 
         expect(screen.getByText('$0.00')).toBeInTheDocument();
         expect(screen.queryByText(t('cart:summary.taxTbd'))).not.toBeInTheDocument();
@@ -320,7 +336,7 @@ describe('OrderSummary', () => {
             taxTotal: 12.75,
         };
 
-        render(<OrderSummary basket={basketWithPositiveTax} />);
+        renderWithProviders(<OrderSummary basket={basketWithPositiveTax} />);
 
         expect(screen.getByText('$12.75')).toBeInTheDocument();
         expect(screen.queryByText(t('cart:summary.taxTbd'))).not.toBeInTheDocument();
@@ -341,7 +357,7 @@ describe('OrderSummary', () => {
             ],
         };
 
-        render(<OrderSummary basket={basketWithCoupons} showPromoCodeForm={true} />);
+        renderWithProviders(<OrderSummary basket={basketWithCoupons} showPromoCodeForm={true} />);
 
         // Coupon codes are displayed by PromoCodeForm component
         expect(screen.getByText('SAVE10')).toBeInTheDocument();
@@ -360,13 +376,13 @@ describe('OrderSummary', () => {
             ],
         };
 
-        render(<OrderSummary basket={basketWithOrderNo} showPromoCodeForm={true} />);
+        renderWithProviders(<OrderSummary basket={basketWithOrderNo} showPromoCodeForm={true} />);
 
         expect(screen.getByText('SAVE10')).toBeInTheDocument();
     });
 
     test('handles missing basket data gracefully', () => {
-        render(<OrderSummary basket={{} as ShopperBasketsV2.schemas['Basket']} />);
+        renderWithProviders(<OrderSummary basket={{} as ShopperBasketsV2.schemas['Basket']} />);
 
         expect(screen.getByText(t('cart:summary.noBasketData'))).toBeInTheDocument();
     });
@@ -378,7 +394,7 @@ describe('OrderSummary', () => {
             orderNo: 'ORDER-123',
         };
 
-        render(<OrderSummary basket={orderBasket} />);
+        renderWithProviders(<OrderSummary basket={orderBasket} />);
 
         expect(screen.getByText(t('cart:summary.orderSummary'))).toBeInTheDocument();
         expect(screen.getByTestId('sf-order-summary')).toBeInTheDocument();
@@ -391,20 +407,20 @@ describe('OrderSummary', () => {
             productTotal: 95.0,
         };
 
-        render(<OrderSummary basket={basketWithProductTotal} />);
+        renderWithProviders(<OrderSummary basket={basketWithProductTotal} />);
 
         expect(screen.getByText('$95.00')).toBeInTheDocument();
     });
 
     test('renders separator when promo code form is not shown', () => {
-        render(<OrderSummary basket={mockBasket} showPromoCodeForm={false} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} showPromoCodeForm={false} />);
 
         const separator = document.querySelector('.shrink-0.bg-border');
         expect(separator).toBeInTheDocument();
     });
 
     test('has proper accessibility attributes', () => {
-        render(<OrderSummary basket={mockBasket} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} />);
 
         const orderSummaryRegion = screen.getByRole('region', { name: t('cart:summary.orderSummary') });
         expect(orderSummaryRegion).toBeInTheDocument();
@@ -416,7 +432,7 @@ describe('OrderSummary', () => {
 
     test('handles cart items accordion interaction', async () => {
         const user = userEvent.setup();
-        render(<OrderSummary basket={mockBasket} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} />);
 
         const accordionTrigger = screen.getByRole('button');
         expect(accordionTrigger).toBeInTheDocument();
@@ -428,7 +444,7 @@ describe('OrderSummary', () => {
 
     test('displays ProductItemsList with correct variant', async () => {
         const user = userEvent.setup();
-        render(<OrderSummary basket={mockBasket} />);
+        renderWithProviders(<OrderSummary basket={mockBasket} />);
 
         // Open the accordion to access the content
         const accordionTrigger = screen.getByRole('button');

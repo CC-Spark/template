@@ -1,16 +1,29 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 import { SiFacebook, SiInstagram, SiX, SiYoutube } from '@icons-pack/react-simple-icons';
 import Signup from './signup';
+import { PluginComponent } from '@/plugins/plugin-component';
 import { useTranslation } from 'react-i18next';
-// @sfdc-extension-line SFDC_EXT_INTERNAL_THEME_SWITCHER
-import ThemeSwitcher from '@/extensions/theme-switcher/components/theme-switcher';
 import LocaleSwitcher from '@/components/locale-switcher';
+import CurrencySwitcher from '@/components/currency-switcher';
 
 export default function Footer(): ReactElement {
     const { t } = useTranslation('footer');
-    // @sfdc-extension-line SFDC_EXT_STORE_LOCATOR
-    const { t: tStoreLocator } = useTranslation('extStoreLocator');
 
     return (
         <footer data-theme="inverse" className="bg-background/90 py-12 mt-auto border-accent ring-secondary/40">
@@ -20,6 +33,7 @@ export default function Footer(): ReactElement {
                     <div>
                         <h3 className="text-lg font-semibold mb-4">{t('sections.customerSupport')}</h3>
                         <ul className="space-y-2">
+                            <PluginComponent pluginId="footer.customersupport.start" />
                             <li>
                                 <Link to="/contact" className="hover:underline">
                                     {t('links.contactUs')}
@@ -30,16 +44,15 @@ export default function Footer(): ReactElement {
                                     {t('links.shipping')}
                                 </Link>
                             </li>
+                            <PluginComponent pluginId="footer.customersupport.end" />
                         </ul>
-                        {/* @sfdc-extension-block-start SFDC_EXT_INTERNAL_THEME_SWITCHER */}
-                        <h3 className="text-lg font-semibold my-4">{t('sections.switchThemes')}</h3>
-                        <div className="flex items-center gap-2">
-                            <ThemeSwitcher />
-                        </div>
-                        {/* @sfdc-extension-block-end SFDC_EXT_INTERNAL_THEME_SWITCHER */}
                         <h3 className="text-lg font-semibold my-4">{t('sections.switchLanguage')}</h3>
                         <div className="flex items-center gap-2">
                             <LocaleSwitcher />
+                        </div>
+                        <h3 className="text-lg font-semibold my-4">{t('sections.switchCurrency')}</h3>
+                        <div className="flex items-center gap-2">
+                            <CurrencySwitcher />
                         </div>
                     </div>
 
@@ -47,6 +60,7 @@ export default function Footer(): ReactElement {
                     <div>
                         <h3 className="text-lg font-semibold mb-4">{t('sections.account')}</h3>
                         <ul className="space-y-2">
+                            <PluginComponent pluginId="footer.account.start" />
                             <li>
                                 <Link to="/orders" className="hover:underline">
                                     {t('links.orderStatus')}
@@ -57,6 +71,7 @@ export default function Footer(): ReactElement {
                                     {t('links.signInOrCreateAccount')}
                                 </Link>
                             </li>
+                            <PluginComponent pluginId="footer.account.end" />
                         </ul>
                     </div>
 
@@ -64,18 +79,13 @@ export default function Footer(): ReactElement {
                     <div>
                         <h3 className="text-lg font-semibold mb-4">{t('sections.ourCompany')}</h3>
                         <ul className="space-y-2">
-                            {/* @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR */}
+                            <PluginComponent pluginId="footer.ourcompany.start" />
                             <li>
-                                <Link to="/store-locator" className="hover:underline">
-                                    {tStoreLocator('footer.links.storeLocator')}
-                                </Link>
-                            </li>
-                            {/* @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR */}
-                            <li>
-                                <Link to="/about" className="hover:underline">
+                                <Link to="/about-us" className="hover:underline">
                                     {t('links.aboutUs')}
                                 </Link>
                             </li>
+                            <PluginComponent pluginId="footer.ourcompany.end" />
                         </ul>
                     </div>
 

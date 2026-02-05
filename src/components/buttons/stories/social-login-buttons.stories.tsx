@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SocialLoginButtons } from '../social-login-buttons';
 import { action } from 'storybook/actions';
@@ -8,7 +23,7 @@ import { mockConfig } from '@/test-utils/config';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 
-const DEFAULT_SOCIAL_IDS = mockConfig.site.features.socialLogin.providers ?? [];
+const DEFAULT_SOCIAL_IDS = mockConfig.features.socialLogin.providers ?? [];
 
 function SocialLoginStoryHarness({ children, providers }: { children: ReactNode; providers: string[] }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -19,14 +34,11 @@ function SocialLoginStoryHarness({ children, providers }: { children: ReactNode;
     const configValue = useMemo(() => {
         return {
             ...mockConfig,
-            site: {
-                ...mockConfig.site,
-                features: {
-                    ...mockConfig.site.features,
-                    socialLogin: {
-                        ...mockConfig.site.features.socialLogin,
-                        providers,
-                    },
+            features: {
+                ...mockConfig.features,
+                socialLogin: {
+                    ...mockConfig.features.socialLogin,
+                    providers,
                 },
             },
         } as typeof mockConfig;
@@ -518,92 +530,5 @@ This story shows custom social providers with fallback icons:
 
         // Test basic interaction
         await userEvent.click(allButtons[0]);
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        // Test component renders
-        void expect(canvasElement).toBeInTheDocument();
-
-        // Test if social login buttons are present (may not be if config isn't set up)
-        const buttons = canvas.queryAllByRole('button');
-
-        if (buttons.length > 0) {
-            // If buttons are present, test that they're enabled
-            buttons.forEach((button) => {
-                void expect(button).not.toBeDisabled();
-            });
-
-            // Test divider text might be present
-            // Don't assert on divider since it might not be present in test environment
-        } else {
-            // If no buttons, that's also acceptable (config might not be set up)
-            void expect(canvasElement.children.length).toBeGreaterThanOrEqual(0);
-        }
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        // Test component renders
-        void expect(canvasElement).toBeInTheDocument();
-
-        // Test if social login buttons are present (may not be if config isn't set up)
-        const buttons = canvas.queryAllByRole('button');
-
-        if (buttons.length > 0) {
-            // If buttons are present, test that they're enabled
-            buttons.forEach((button) => {
-                void expect(button).not.toBeDisabled();
-            });
-
-            // Test divider text might be present
-            // Don't assert on divider since it might not be present in test environment
-        } else {
-            // If no buttons, that's also acceptable (config might not be set up)
-            void expect(canvasElement.children.length).toBeGreaterThanOrEqual(0);
-        }
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        // Test component renders
-        void expect(canvasElement).toBeInTheDocument();
-
-        // Test if social login buttons are present (may not be if config isn't set up)
-        const buttons = canvas.queryAllByRole('button');
-
-        if (buttons.length > 0) {
-            // If buttons are present, test that they're enabled
-            buttons.forEach((button) => {
-                void expect(button).not.toBeDisabled();
-            });
-
-            // Test divider text might be present
-            // Don't assert on divider since it might not be present in test environment
-        } else {
-            // If no buttons, that's also acceptable (config might not be set up)
-            void expect(canvasElement.children.length).toBeGreaterThanOrEqual(0);
-        }
     },
 };

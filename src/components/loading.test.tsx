@@ -1,19 +1,28 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, act } from '@testing-library/react';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-
-// Mock useNavigation hook
-const mockUseNavigation = vi.fn();
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useNavigation: () => mockUseNavigation(),
-    };
-});
-
-// Import the component after mocking
+// Import the component - it will use the mocked useNavigation
 import Loading from './loading';
+
+// Mock return value for useNavigation
+const mockNavigationState = { state: 'idle' as string | undefined };
 
 const renderLoading = () => {
     const router = createMemoryRouter(
@@ -34,14 +43,17 @@ describe('Loading', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.useFakeTimers();
+        // Use vi.spyOn to mock useNavigation while keeping real router exports
+        vi.spyOn(ReactRouter, 'useNavigation').mockImplementation(() => mockNavigationState as any);
     });
 
     afterEach(() => {
         vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     test('renders nothing when navigation state is idle', () => {
-        mockUseNavigation.mockReturnValue({ state: 'idle' });
+        mockNavigationState.state = 'idle';
 
         const { container } = renderLoading();
 
@@ -49,7 +61,7 @@ describe('Loading', () => {
     });
 
     test('renders nothing when navigation is null', () => {
-        mockUseNavigation.mockReturnValue(null);
+        vi.spyOn(ReactRouter, 'useNavigation').mockReturnValue(null as any);
 
         const { container } = renderLoading();
 
@@ -57,7 +69,7 @@ describe('Loading', () => {
     });
 
     test('renders nothing when navigation state is undefined', () => {
-        mockUseNavigation.mockReturnValue({ state: undefined });
+        mockNavigationState.state = undefined;
 
         const { container } = renderLoading();
 
@@ -65,7 +77,7 @@ describe('Loading', () => {
     });
 
     test('shows loading indicator after 150ms delay when navigation state is not idle', () => {
-        mockUseNavigation.mockReturnValue({ state: 'loading' });
+        mockNavigationState.state = 'loading';
 
         const { container } = renderLoading();
 
@@ -85,7 +97,7 @@ describe('Loading', () => {
 
     test('hides loading indicator immediately when navigation state changes to idle', () => {
         // Start with loading state
-        mockUseNavigation.mockReturnValue({ state: 'loading' });
+        mockNavigationState.state = 'loading';
 
         const { rerender, container } = renderLoading();
 
@@ -98,7 +110,7 @@ describe('Loading', () => {
         expect(container.firstChild).toBeNull();
 
         // Change to idle state
-        mockUseNavigation.mockReturnValue({ state: 'idle' });
+        mockNavigationState.state = 'idle';
         rerender(
             <RouterProvider
                 router={createMemoryRouter([{ path: '/', element: <Loading /> }], { initialEntries: ['/'] })}
@@ -113,7 +125,7 @@ describe('Loading', () => {
         const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
 
         // Start with loading state
-        mockUseNavigation.mockReturnValue({ state: 'loading' });
+        mockNavigationState.state = 'loading';
 
         const { container } = renderLoading();
 
@@ -123,7 +135,7 @@ describe('Loading', () => {
         });
 
         // Change to idle state
-        mockUseNavigation.mockReturnValue({ state: 'idle' });
+        mockNavigationState.state = 'idle';
         act(() => {
             vi.advanceTimersByTime(50); // Complete the 150ms
         });
@@ -139,7 +151,7 @@ describe('Loading', () => {
     test('clears timeout on component unmount', () => {
         const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
 
-        mockUseNavigation.mockReturnValue({ state: 'loading' });
+        mockNavigationState.state = 'loading';
 
         const { unmount } = renderLoading();
 
@@ -153,13 +165,13 @@ describe('Loading', () => {
 
     test('handles multiple navigation state changes correctly', () => {
         // Start with idle
-        mockUseNavigation.mockReturnValue({ state: 'idle' });
+        mockNavigationState.state = 'idle';
 
         const { rerender, container } = renderLoading();
         expect(container.firstChild).toBeNull();
 
         // Change to loading
-        mockUseNavigation.mockReturnValue({ state: 'loading' });
+        mockNavigationState.state = 'loading';
         rerender(
             <RouterProvider
                 router={createMemoryRouter([{ path: '/', element: <Loading /> }], { initialEntries: ['/'] })}
@@ -175,7 +187,7 @@ describe('Loading', () => {
         expect(container.firstChild).toBeNull();
 
         // Change to submitting
-        mockUseNavigation.mockReturnValue({ state: 'submitting' });
+        mockNavigationState.state = 'submitting';
         rerender(
             <RouterProvider
                 router={createMemoryRouter([{ path: '/', element: <Loading /> }], { initialEntries: ['/'] })}
@@ -186,7 +198,7 @@ describe('Loading', () => {
         expect(container.firstChild).toBeNull();
 
         // Change back to idle
-        mockUseNavigation.mockReturnValue({ state: 'idle' });
+        mockNavigationState.state = 'idle';
         rerender(
             <RouterProvider
                 router={createMemoryRouter([{ path: '/', element: <Loading /> }], { initialEntries: ['/'] })}
@@ -198,7 +210,7 @@ describe('Loading', () => {
     });
 
     test('renders correct loading indicator structure', () => {
-        mockUseNavigation.mockReturnValue({ state: 'loading' });
+        mockNavigationState.state = 'loading';
 
         const { container } = renderLoading();
 
@@ -212,7 +224,7 @@ describe('Loading', () => {
     });
 
     test('handles edge case with navigation state being empty string', () => {
-        mockUseNavigation.mockReturnValue({ state: '' });
+        mockNavigationState.state = '';
 
         const { container } = renderLoading();
 
@@ -221,7 +233,7 @@ describe('Loading', () => {
     });
 
     test('handles edge case with navigation state being 0', () => {
-        mockUseNavigation.mockReturnValue({ state: 0 });
+        (mockNavigationState as any).state = 0;
 
         const { container } = renderLoading();
 
@@ -235,7 +247,7 @@ describe('Loading', () => {
         // The component should set showLoader to true when state is not idle, then hide it after 150ms
         // Currently it only sets a timeout to hide the loader but never shows it
 
-        mockUseNavigation.mockReturnValue({ state: 'loading' });
+        mockNavigationState.state = 'loading';
 
         const { container } = renderLoading();
 

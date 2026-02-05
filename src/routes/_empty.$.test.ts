@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loader, action } from './_empty.$';
 import { handlePasswordlessCallback, handlePasswordlessLanding } from '@/lib/passwordless-login';
@@ -25,20 +40,18 @@ vi.mock('@/lib/api/auth/reset-password', () => ({
 // Mock config
 vi.mock('@/config', () => ({
     getConfig: vi.fn(() => ({
-        site: {
-            features: {
-                passwordlessLogin: {
-                    landingUri: '/passwordless-login-landing',
-                    callbackUri: '/passwordless-login-callback',
-                },
-                socialLogin: {
-                    enabled: true,
-                    callbackUri: '/social-callback',
-                },
-                resetPassword: {
-                    landingUri: '/reset-password-landing',
-                    callbackUri: '/reset-password-callback',
-                },
+        features: {
+            passwordlessLogin: {
+                landingUri: '/passwordless-login-landing',
+                callbackUri: '/passwordless-login-callback',
+            },
+            socialLogin: {
+                enabled: true,
+                callbackUri: '/social-callback',
+            },
+            resetPassword: {
+                landingUri: '/reset-password-landing',
+                callbackUri: '/reset-password-callback',
             },
         },
     })),
@@ -221,6 +234,121 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
             }
             expect(mockPasswordlessLanding).not.toHaveBeenCalled();
             expect(mockPasswordlessCallback).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('absolute URL support', () => {
+        it('should handle social login callback with absolute URL in config', async () => {
+            // Mock getConfig to return absolute URL for callbackUri
+            const { getConfig } = await import('@/config');
+            vi.mocked(getConfig).mockReturnValueOnce({
+                features: {
+                    passwordlessLogin: {
+                        landingUri: '/passwordless-login-landing',
+                        callbackUri: '/passwordless-login-callback',
+                    },
+                    socialLogin: {
+                        enabled: true,
+                        callbackUri: 'https://dev2.phased-launch-testing.com/social-callback',
+                    },
+                    resetPassword: {
+                        landingUri: '/reset-password-landing',
+                        callbackUri: '/reset-password-callback',
+                    },
+                },
+            } as any);
+
+            const mockResponse = new Response(null, {
+                status: 302,
+                headers: { Location: '/' },
+            });
+            mockSocialLoginCallback.mockResolvedValue(mockResponse);
+
+            const args: LoaderFunctionArgs = {
+                request: new Request('http://localhost/social-callback?code=auth_code_123'),
+                params: {},
+                context: mockContext,
+            };
+
+            const result = await loader(args);
+
+            expect(mockSocialLoginCallback).toHaveBeenCalledWith(args);
+            expect(result).toBe(mockResponse);
+        });
+
+        it('should handle passwordless landing with absolute URL in config', async () => {
+            // Mock getConfig to return absolute URL for landingUri
+            const { getConfig } = await import('@/config');
+            vi.mocked(getConfig).mockReturnValueOnce({
+                features: {
+                    passwordlessLogin: {
+                        landingUri: 'https://production.example.com/passwordless-login-landing',
+                        callbackUri: '/passwordless-login-callback',
+                    },
+                    socialLogin: {
+                        enabled: true,
+                        callbackUri: '/social-callback',
+                    },
+                    resetPassword: {
+                        landingUri: '/reset-password-landing',
+                        callbackUri: '/reset-password-callback',
+                    },
+                },
+            } as any);
+
+            const mockResponse = new Response(null, {
+                status: 302,
+                headers: { Location: '/account' },
+            });
+            mockPasswordlessLanding.mockResolvedValue(mockResponse);
+
+            const args: LoaderFunctionArgs = {
+                request: new Request('http://localhost/passwordless-login-landing?token=test'),
+                params: {},
+                context: mockContext,
+            };
+
+            const result = await loader(args);
+
+            expect(mockPasswordlessLanding).toHaveBeenCalledWith(args);
+            expect(result).toBe(mockResponse);
+        });
+
+        it('should handle reset password callback with absolute URL in config', async () => {
+            // Mock getConfig to return absolute URL for callbackUri
+            const { getConfig } = await import('@/config');
+            vi.mocked(getConfig).mockReturnValueOnce({
+                features: {
+                    passwordlessLogin: {
+                        landingUri: '/passwordless-login-landing',
+                        callbackUri: '/passwordless-login-callback',
+                    },
+                    socialLogin: {
+                        enabled: true,
+                        callbackUri: '/social-callback',
+                    },
+                    resetPassword: {
+                        landingUri: '/reset-password-landing',
+                        callbackUri: 'https://vanity-domain.com/reset-password-callback',
+                    },
+                },
+            } as any);
+
+            const mockResult = { success: true, result: {} };
+            mockResetPasswordCallback.mockResolvedValue(mockResult);
+
+            const args: ActionFunctionArgs = {
+                request: new Request('http://localhost/reset-password-callback', {
+                    method: 'POST',
+                }),
+                params: {},
+                context: mockContext,
+            };
+
+            const result = await action(args);
+
+            expect(mockResetPasswordCallback).toHaveBeenCalledWith(args);
+            expect(result).toBe(mockResult);
         });
     });
 });

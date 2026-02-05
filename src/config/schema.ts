@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { deepMerge, mergeEnvConfig } from './utils';
 import type { EngagementAdapterConfig } from '@/lib/adapters';
 import type { TrackingConsent } from '@/types/tracking-consent';
@@ -8,6 +23,24 @@ export type BadgeDetail = {
     label: string;
     color: 'green' | 'yellow' | 'orange' | 'purple' | 'red' | 'blue' | 'pink';
     priority?: number;
+};
+
+export type Locale = {
+    id: string;
+    preferredCurrency: string;
+};
+
+// Site configuration type
+export type Site = {
+    cookies?: {
+        domain?: string;
+    };
+    defaultCurrency: string;
+    defaultLocale: string;
+    domain?: string;
+    id: string;
+    supportedCurrencies: string[];
+    supportedLocales: Array<Locale>;
 };
 
 // Main configuration type for config.server.ts
@@ -34,6 +67,7 @@ export type Config = {
                 maxQuantityPerItem: number;
                 enableSaveForLater: boolean;
                 removeAction: string;
+                ruleBasedProductLimit: number;
                 confirmDescription?: string;
                 miniCart?: {
                     enableViewCartButton: boolean;
@@ -45,6 +79,11 @@ export type Config = {
                 maxSuggestions: number;
                 enableRecentSearches: boolean;
                 suggestionsDebounce: number;
+            };
+            maintenancePage: {
+                sharedMaintenancePage: boolean;
+                cdnUrl: string;
+                forwardedHost: string;
             };
         };
         commerce: {
@@ -59,38 +98,40 @@ export type Config = {
                 registeredRefreshTokenExpirySeconds?: number;
                 guestRefreshTokenExpirySeconds?: number;
             };
+            sites: Array<Site>;
         };
-        site: {
-            locale: string;
-            currency: string;
-            domain?: string;
-            cookies?: {
-                domain?: string;
+        defaultSiteId: string;
+        siteAliasMap?: Record<string, string>;
+        hybrid: {
+            enabled: boolean;
+            legacyRoutes?: string[];
+        };
+        features: {
+            passwordlessLogin: {
+                enabled: boolean;
+                callbackUri: string;
+                landingUri: string;
             };
-            features: {
-                passwordlessLogin: {
-                    enabled: boolean;
-                    callbackUri: string;
-                    landingUri: string;
-                };
-                resetPassword: {
-                    callbackUri: string;
-                    landingUri: string;
-                };
-                socialLogin: {
-                    enabled: boolean;
-                    callbackUri: string;
-                    providers: Array<'Apple' | 'Google' | 'Facebook' | 'Twitter'>;
-                };
-                socialShare: {
-                    enabled: boolean;
-                    providers: Array<'Twitter' | 'Facebook' | 'LinkedIn' | 'Email'>;
-                };
-                guestCheckout: boolean;
-                shopperContext: {
-                    enabled: boolean;
-                    dwsourcecodeCookieSuffix?: string;
-                };
+            resetPassword: {
+                callbackUri: string;
+                landingUri: string;
+            };
+            socialLogin: {
+                enabled: boolean;
+                callbackUri: string;
+                providers: Array<'Apple' | 'Google' | 'Facebook' | 'Twitter'>;
+            };
+            socialShare: {
+                enabled: boolean;
+                providers: Array<'Twitter' | 'Facebook' | 'LinkedIn' | 'Email'>;
+            };
+            guestCheckout: boolean;
+            shopperContext: {
+                enabled: boolean;
+                dwsourcecodeCookieSuffix?: string;
+            };
+            googleCloudAPI: {
+                apiKey: string;
             };
         };
         i18n: {
@@ -151,12 +192,27 @@ export type Config = {
                 };
             };
         };
-        performance: {
-            images: {
-                quality: number;
-                formats: Array<'webp' | 'avif' | 'jpeg' | 'png'>;
-                lazyLoading: boolean;
+        links?: {
+            preconnect?: string[];
+            prefetch?: string[];
+            prefetchDns?: string[];
+        };
+        /**
+         * Supported target formats of Salesforce's Dynamic Imaging Service are: avif, gif, jp2, jpg, jpeg, jxr, png, and webp.
+         * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_image_transformation_service.htm&type=5}
+         * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_creating_image_transformation_urls.htm&type=5}
+         */
+        images?: {
+            quality?: number;
+            formats?: Array<'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp'>;
+            fallbackFormat?: 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp';
+        };
+        search?: {
+            products?: {
+                orderableOnly?: boolean;
             };
+        };
+        performance: {
             caching: {
                 apiCacheTtl: number;
                 staticAssetCacheTtl: number;
@@ -183,6 +239,10 @@ export type Config = {
             enableDevtools: boolean;
             hotReload: boolean;
             strictMode: boolean;
+        };
+        url?: {
+            prefix: string;
+            search: string;
         };
     };
 };

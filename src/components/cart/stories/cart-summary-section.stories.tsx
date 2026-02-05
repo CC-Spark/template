@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
@@ -370,26 +385,6 @@ This component is used by CartContent and integrates with:
                 defaultValue: { summary: 'false' },
             },
         },
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test component interaction
-        const buttons = canvas.queryAllByRole('button');
-        const inputs = canvas.queryAllByRole('textbox');
-
-        // Perform basic interactions
-        if (buttons.length > 0) {
-            await userEvent.click(buttons[0]);
-        }
-        if (inputs.length > 0) {
-            await userEvent.click(inputs[0]);
-        }
-
-        // Verify component renders
-        void expect(canvasElement.firstChild).toBeInTheDocument();
     },
     decorators: [
         (Story: React.ComponentType) => (

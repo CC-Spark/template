@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
@@ -12,6 +21,7 @@ import { isStoreOutOfStock as storeOutOfStockFor, isSiteOutOfStock as siteOutOfS
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import { usePickup } from '@/extensions/bopis/context/pickup-context';
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
+import { useStoreLocator } from '@/extensions/store-locator/providers/store-locator';
 
 interface UseDeliveryOptionsProps {
     /** The product to check inventory for */
@@ -65,6 +75,10 @@ export function useDeliveryOptions({ product, quantity, isInBasket, pickupStore 
 
     const pickupContext = usePickup();
     const pickupRef = useRef(pickupContext);
+
+    // Track store locator dialog state
+    const isStoreLocatorOpen = useStoreLocator((state) => state.isOpen);
+    const prevIsStoreLocatorOpen = useRef(isStoreLocatorOpen);
 
     // Update ref when pickupContext changes
     useEffect(() => {
@@ -162,6 +176,12 @@ export function useDeliveryOptions({ product, quantity, isInBasket, pickupStore 
         // Skip auto-change for items already in the basket
         if (isInBasket) return;
 
+        // Don't auto-switch when dialog is open (user is selecting a store)
+        if (isStoreLocatorOpen) {
+            prevIsStoreLocatorOpen.current = isStoreLocatorOpen;
+            return;
+        }
+
         const isDeliveryAvailable = !isSiteOutOfStock;
         const isPickupAvailable = !isStoreOutOfStock && !!pickupStore?.inventoryId;
 
@@ -176,6 +196,9 @@ export function useDeliveryOptions({ product, quantity, isInBasket, pickupStore 
         } else if (selectedDeliveryOption === DELIVERY_OPTIONS.DELIVERY && !isDeliveryAvailable && isPickupAvailable) {
             handleDeliveryOptionChange(DELIVERY_OPTIONS.PICKUP);
         }
+
+        // Update ref after all checks to detect transitions on next render
+        prevIsStoreLocatorOpen.current = isStoreLocatorOpen;
     }, [
         selectedDeliveryOption,
         isStoreOutOfStock,
@@ -183,6 +206,7 @@ export function useDeliveryOptions({ product, quantity, isInBasket, pickupStore 
         pickupStore?.inventoryId,
         handleDeliveryOptionChange,
         isInBasket,
+        isStoreLocatorOpen,
     ]);
 
     return {

@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 'use client';
@@ -47,7 +56,7 @@ const providerLabels: Record<ShareProvider, string> = {
 
 /**
  * Share button that provides a custom dropdown menu with share options.
- * Share options are configurable via site.features.socialShare config.
+ * Share options are configurable via config.features.socialShare config.
  *
  * @param props - Component props
  * @param props.product - The product data to share
@@ -56,7 +65,7 @@ const providerLabels: Record<ShareProvider, string> = {
  */
 export function ShareButton({ product, className }: ShareButtonProps): ReactElement {
     const { addToast } = useToast();
-    const { site } = useConfig();
+    const config = useConfig();
     const { t } = useTranslation('product');
 
     const productName = product.name || 'Check out this product';
@@ -125,7 +134,7 @@ export function ShareButton({ product, className }: ShareButtonProps): ReactElem
 
     // Build share provider configurations
     const shareProviders = useMemo(() => {
-        const enabledProviders = site.features.socialShare.enabled ? site.features.socialShare.providers : [];
+        const enabledProviders = config.features.socialShare.enabled ? config.features.socialShare.providers : [];
 
         return enabledProviders
             .filter((provider): provider is ShareProvider => {
@@ -137,7 +146,7 @@ export function ShareButton({ product, className }: ShareButtonProps): ReactElem
                 label: providerLabels[provider],
                 handler: shareHandlers[provider],
             }));
-    }, [site.features.socialShare.enabled, site.features.socialShare.providers, shareHandlers]);
+    }, [config.features.socialShare.enabled, config.features.socialShare.providers, shareHandlers]);
 
     return (
         <DropdownMenu>

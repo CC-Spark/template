@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { createCookie, type MiddlewareFunction } from 'react-router';
 import { getCookieConfig } from '@/lib/cookie-utils';
 import { getConfig } from '@/config';
@@ -11,6 +26,7 @@ import {
     isPageDesignerMode,
     extractQualifiersFromUrl,
     computeEffectiveShopperContext,
+    computeEffectiveSourceCodeContext,
     buildShopperContextBody,
 } from '@/lib/shopper-context-utils';
 
@@ -42,7 +58,7 @@ const shopperContextMiddleware: MiddlewareFunction<Response> = async ({ request,
     let response: Response | undefined;
 
     // Check feature flag - skip if shopper context is disabled
-    if (!config.site.features.shopperContext.enabled) {
+    if (!config.features.shopperContext.enabled) {
         return await next();
     }
 
@@ -62,17 +78,18 @@ const shopperContextMiddleware: MiddlewareFunction<Response> = async ({ request,
             extractQualifiersFromUrl(url);
         const contextCookieName = getShopperContextCookieName(session.usid);
         const sourceCodeCookieName = getSourceCodeCookieName(context);
+
         const cookieConfig = getCookieConfig({ httpOnly: false });
+
         const contextCookieHandler = createCookie(contextCookieName, cookieConfig);
         const sourceCodeCookieHandler = createCookie(sourceCodeCookieName, cookieConfig);
         const cookieHeader = request.headers.get('Cookie') || '';
         const currentShopperContext = cookieHeader ? (await contextCookieHandler.parse(cookieHeader)) || {} : {};
         const currentSourceCodeContext = cookieHeader ? (await sourceCodeCookieHandler.parse(cookieHeader)) || {} : {};
 
-        const { effectiveShopperContext, effectiveSourceCodeContext } = computeEffectiveShopperContext(
-            newShopperContext,
+        const effectiveShopperContext = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
+        const effectiveSourceCodeContext = computeEffectiveSourceCodeContext(
             newSourceCodeContext,
-            currentShopperContext,
             currentSourceCodeContext
         );
 
@@ -109,7 +126,11 @@ const shopperContextMiddleware: MiddlewareFunction<Response> = async ({ request,
         return response;
     } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Shopper context middleware error:', error);
+        console.error('Shopper context server middleware error:', {
+            error: error instanceof Error ? error.message : String(error),
+            usid: session.usid,
+            url: request.url,
+        });
         return response ?? (await next());
     }
 };

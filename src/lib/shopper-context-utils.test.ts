@@ -1,4 +1,19 @@
-import { describe, expect, test, vi } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import {
     getShopperContextCookieName,
     getSourceCodeCookieName,
@@ -6,14 +21,33 @@ import {
     SOURCE_CODE_COOKIE_NAME_BASE,
     isPageDesignerMode,
     extractQualifiersFromUrl,
+    extractQualifiersFromInput,
     computeEffectiveShopperContext,
+    computeEffectiveSourceCodeContext,
     buildShopperContextBody,
+    safeParseCookie,
+    updateShopperContext,
 } from './shopper-context-utils';
 import { SHOPPER_CONTEXT_SEARCH_PARAMS } from '@/lib/shopper-context-constants';
 import { getConfig } from '@/config';
+import type { RouterContextProvider } from 'react-router';
 
 vi.mock('@/config', () => ({
     getConfig: vi.fn(),
+}));
+
+vi.mock('@/lib/api/shopper-context', () => ({
+    createShopperContext: vi.fn(),
+}));
+
+vi.mock('@/lib/cookies.client', () => ({
+    getCookie: vi.fn(),
+    setNamespacedCookie: vi.fn(),
+}));
+
+vi.mock('@salesforce/storefront-next-runtime/design/mode', () => ({
+    isDesignModeActive: vi.fn(),
+    isPreviewModeActive: vi.fn(),
 }));
 
 describe('shopper-context-utils', () => {
@@ -28,11 +62,9 @@ describe('shopper-context-utils', () => {
     describe('getSourceCodeCookieName', () => {
         test('should return cookie name with configurable suffix', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    features: {
-                        shopperContext: {
-                            dwsourcecodeCookieSuffix: 'test-site',
-                        },
+                features: {
+                    shopperContext: {
+                        dwsourcecodeCookieSuffix: 'test-site',
                     },
                 },
             } as any);
@@ -47,11 +79,9 @@ describe('shopper-context-utils', () => {
 
         test('should return base cookie name when suffix is undefined', () => {
             vi.mocked(getConfig).mockReturnValue({
-                site: {
-                    features: {
-                        shopperContext: {
-                            dwsourcecodeCookieSuffix: undefined,
-                        },
+                features: {
+                    shopperContext: {
+                        dwsourcecodeCookieSuffix: undefined,
                     },
                 },
             } as any);
@@ -64,30 +94,214 @@ describe('shopper-context-utils', () => {
         });
     });
 
+    describe('safeParseCookie', () => {
+        let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+
+        beforeEach(() => {
+            consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        });
+
+        afterEach(() => {
+            consoleWarnSpy.mockRestore();
+        });
+
+        test('should return empty object for empty string', () => {
+            const result = safeParseCookie('');
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should return empty object for null', () => {
+            const result = safeParseCookie(null as any);
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should return empty object for undefined', () => {
+            const result = safeParseCookie(undefined as any);
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should parse valid JSON object', () => {
+            const cookieValue = JSON.stringify({ key1: 'value1', key2: 'value2' });
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({ key1: 'value1', key2: 'value2' });
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should parse JSON object with nested structure', () => {
+            const cookieValue = JSON.stringify({ nested: { key: 'value' } });
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({ nested: { key: 'value' } });
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should parse empty JSON object', () => {
+            const cookieValue = JSON.stringify({});
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should return empty object for JSON array', () => {
+            const cookieValue = JSON.stringify(['value1', 'value2']);
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            // Warning is logged when parsed value is not an object
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                'Parsed shopper context cookie is not a Record<string, string> object',
+                ['value1', 'value2']
+            );
+        });
+
+        test('should return empty object for JSON null', () => {
+            const cookieValue = JSON.stringify(null);
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            // Warning is logged when parsed value is null (not an object)
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                'Parsed shopper context cookie is not a Record<string, string> object',
+                null
+            );
+        });
+
+        test('should return empty object for JSON string primitive', () => {
+            const cookieValue = JSON.stringify('just a string');
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            // Warning is logged when parsed value is a primitive (not an object)
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                'Parsed shopper context cookie is not a Record<string, string> object',
+                'just a string'
+            );
+        });
+
+        test('should handle invalid JSON and return empty object', () => {
+            const cookieValue = 'not valid json{';
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                'Failed to parse shopper context cookie:',
+                expect.stringContaining('JSON')
+            );
+        });
+
+        test('should handle malformed JSON with unclosed brace', () => {
+            const cookieValue = '{"key": "value"';
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).toHaveBeenCalled();
+        });
+
+        test('should handle malformed JSON with trailing comma', () => {
+            const cookieValue = '{"key": "value",}';
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).toHaveBeenCalled();
+        });
+
+        test('should handle JSON with single quotes (invalid)', () => {
+            const cookieValue = "{'key': 'value'}";
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            expect(consoleWarnSpy).toHaveBeenCalled();
+        });
+
+        test('should parse JSON object with string values', () => {
+            const cookieValue = JSON.stringify({ sourceCode: 'email', deviceType: 'mobile' });
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({ sourceCode: 'email', deviceType: 'mobile' });
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should parse JSON object with empty string values', () => {
+            const cookieValue = JSON.stringify({ key1: '', key2: 'value' });
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({ key1: '', key2: 'value' });
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should handle JSON object with number values (converted to string)', () => {
+            const cookieValue = JSON.stringify({ key1: 123, key2: 'value' });
+            const result = safeParseCookie(cookieValue);
+            // Note: The function returns Record<string, string>, but JSON.parse preserves number types
+            // TypeScript will allow this, but runtime values are numbers
+            expect(result).toEqual({ key1: 123, key2: 'value' });
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should handle JSON object with special characters', () => {
+            const cookieValue = JSON.stringify({ key: 'value with spaces', key2: 'value-with-dashes' });
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({ key: 'value with spaces', key2: 'value-with-dashes' });
+            expect(consoleWarnSpy).not.toHaveBeenCalled();
+        });
+
+        test('should handle empty array string', () => {
+            const cookieValue = JSON.stringify([]);
+            const result = safeParseCookie(cookieValue);
+            expect(result).toEqual({});
+            // Warning is logged when parsed value is an array (not an object)
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                'Parsed shopper context cookie is not a Record<string, string> object',
+                []
+            );
+        });
+    });
+
     describe('isPageDesignerMode', () => {
-        test('should return true for EDIT mode', () => {
+        let isDesignModeActive: ReturnType<typeof vi.fn>;
+        let isPreviewModeActive: ReturnType<typeof vi.fn>;
+
+        beforeEach(async () => {
+            const modeModule = await import('@salesforce/storefront-next-runtime/design/mode');
+            isDesignModeActive = vi.mocked(modeModule.isDesignModeActive);
+            isPreviewModeActive = vi.mocked(modeModule.isPreviewModeActive);
+
+            // Default: no modes active
+            isDesignModeActive.mockReturnValue(false);
+            isPreviewModeActive.mockReturnValue(false);
+        });
+
+        test('should return true when design mode is active', () => {
+            isDesignModeActive.mockReturnValue(true);
+            isPreviewModeActive.mockReturnValue(false);
+
             const url = new URL('https://example.com?mode=EDIT');
             expect(isPageDesignerMode(url)).toBe(true);
         });
 
-        test('should return true for PREVIEW mode', () => {
+        test('should return true when preview mode is active', () => {
+            isDesignModeActive.mockReturnValue(false);
+            isPreviewModeActive.mockReturnValue(true);
+
             const url = new URL('https://example.com?mode=PREVIEW');
             expect(isPageDesignerMode(url)).toBe(true);
         });
 
-        test('should return false for other modes', () => {
-            const url = new URL('https://example.com?mode=VIEW');
-            expect(isPageDesignerMode(url)).toBe(false);
+        test('should return true when both modes are active', () => {
+            isDesignModeActive.mockReturnValue(true);
+            isPreviewModeActive.mockReturnValue(true);
+
+            const url = new URL('https://example.com');
+            expect(isPageDesignerMode(url)).toBe(true);
         });
 
-        test('should return false when mode parameter is missing', () => {
+        test('should return false when neither mode is active', () => {
+            isDesignModeActive.mockReturnValue(false);
+            isPreviewModeActive.mockReturnValue(false);
+
             const url = new URL('https://example.com');
             expect(isPageDesignerMode(url)).toBe(false);
         });
 
-        test('should return false for case-sensitive mode values', () => {
-            const url = new URL('https://example.com?mode=edit');
-            expect(isPageDesignerMode(url)).toBe(false);
+        test('should pass the URL to mode detection functions', () => {
+            const url = new URL('https://example.com?mode=EDIT');
+            isPageDesignerMode(url);
+
+            expect(isDesignModeActive).toHaveBeenCalledWith(url);
+            expect(isPreviewModeActive).toHaveBeenCalledWith(url);
         });
     });
 
@@ -235,130 +449,249 @@ describe('shopper-context-utils', () => {
         });
     });
 
-    describe('computeEffectiveShopperContext', () => {
+    describe('extractQualifiersFromInput', () => {
+        test('should extract sourceCode from src key into sourceCodeQualifiers', () => {
+            const input = { src: 'email' };
+            const result = extractQualifiersFromInput(input);
+            expect(result).toEqual({
+                qualifiers: {},
+                sourceCodeQualifiers: { sourceCode: 'email' },
+            });
+        });
+
+        test('should ignore unknown keys', () => {
+            const input = { unknown: 'value', src: 'email' };
+            const result = extractQualifiersFromInput(input);
+            expect(result).toEqual({
+                qualifiers: {},
+                sourceCodeQualifiers: { sourceCode: 'email' },
+            });
+        });
+
+        test('should return empty objects when no matching keys', () => {
+            const input = { foo: 'bar' };
+            const result = extractQualifiersFromInput(input);
+            expect(result).toEqual({
+                qualifiers: {},
+                sourceCodeQualifiers: {},
+            });
+        });
+
+        test('should return empty objects when input is empty', () => {
+            const input = {};
+            const result = extractQualifiersFromInput(input);
+            expect(result).toEqual({
+                qualifiers: {},
+                sourceCodeQualifiers: {},
+            });
+        });
+
+        test('should include empty src value (filtering happens in buildShopperContextBody)', () => {
+            const input = { src: '' };
+            const result = extractQualifiersFromInput(input);
+            // Empty values are included here; filtering happens in buildShopperContextBody
+            expect(result).toEqual({
+                qualifiers: {},
+                sourceCodeQualifiers: { sourceCode: '' },
+            });
+        });
+
+        test('should preserve whitespace in src value', () => {
+            const input = { src: '   ' };
+            const result = extractQualifiersFromInput(input);
+            // Unlike URLSearchParams, Object.entries preserves whitespace
+            expect(result).toEqual({
+                qualifiers: {},
+                sourceCodeQualifiers: { sourceCode: '   ' },
+            });
+        });
+
+        test('should extract custom qualifiers into qualifiers', () => {
+            const input = { device: 'mobile' };
+            const result = extractQualifiersFromInput(input);
+            // device maps to deviceType in qualifiers (apiFieldName is used)
+            expect(result.qualifiers.deviceType).toBe('mobile');
+            expect(result.sourceCodeQualifiers).toEqual({});
+        });
+
+        test('should extract assignment qualifiers into qualifiers', () => {
+            const input = { store: 'store123' };
+            const result = extractQualifiersFromInput(input);
+            expect(result.qualifiers.store).toBe('store123');
+            expect(result.sourceCodeQualifiers).toEqual({});
+        });
+
+        test('should extract coupon codes into qualifiers', () => {
+            const input = { couponCodes: 'code1' };
+            const result = extractQualifiersFromInput(input);
+            expect(result.qualifiers.couponCodes).toBe('code1');
+            expect(result.sourceCodeQualifiers).toEqual({});
+        });
+
+        test('should handle multiple coupon codes as comma-separated string', () => {
+            // If input already has comma-separated values, they're preserved
+            const input = { couponCodes: 'code1,code2,code3' };
+            const result = extractQualifiersFromInput(input);
+            expect(result.qualifiers.couponCodes).toBe('code1,code2,code3');
+            expect(result.sourceCodeQualifiers).toEqual({});
+        });
+
+        test('should handle multiple qualifiers', () => {
+            const input = { device: 'mobile', src: 'email' };
+            const result = extractQualifiersFromInput(input);
+            expect(result.qualifiers.deviceType).toBe('mobile');
+            expect(result.sourceCodeQualifiers.sourceCode).toBe('email');
+        });
+
+        test('should skip empty keys', () => {
+            const input = { '': 'value', src: 'email' };
+            const result = extractQualifiersFromInput(input);
+            // Empty key should be skipped, but src should still be processed
+            expect(result).toEqual({
+                qualifiers: {},
+                sourceCodeQualifiers: { sourceCode: 'email' },
+            });
+        });
+
+        test('should fallback to paramName when apiFieldName is missing', () => {
+            const originalMapping = (SHOPPER_CONTEXT_SEARCH_PARAMS as any).testParam;
+
+            (SHOPPER_CONTEXT_SEARCH_PARAMS as any).testParam = {
+                paramName: 'testParam',
+            };
+
+            try {
+                const input = { testParam: 'testValue' };
+                const result = extractQualifiersFromInput(input);
+
+                expect(result.qualifiers.testParam).toBe('testValue');
+                expect(result.sourceCodeQualifiers).toEqual({});
+            } finally {
+                if (originalMapping) {
+                    (SHOPPER_CONTEXT_SEARCH_PARAMS as any).testParam = originalMapping;
+                } else {
+                    delete (SHOPPER_CONTEXT_SEARCH_PARAMS as any).testParam;
+                }
+            }
+        });
+
+        test('should handle all qualifier types together', () => {
+            const input = {
+                src: 'email',
+                device: 'mobile',
+                store: 'store123',
+                couponCodes: 'code1,code2',
+            };
+            const result = extractQualifiersFromInput(input);
+            expect(result).toEqual({
+                qualifiers: {
+                    deviceType: 'mobile',
+                    store: 'store123',
+                    couponCodes: 'code1,code2',
+                },
+                sourceCodeQualifiers: {
+                    sourceCode: 'email',
+                },
+            });
+        });
+
+        test('should handle numeric string values', () => {
+            const input = { store: '123' };
+            const result = extractQualifiersFromInput(input);
+            expect(result.qualifiers.store).toBe('123');
+        });
+
+        test('should handle special characters in values', () => {
+            const input = { src: 'email-promo-123', device: 'mobile-web' };
+            const result = extractQualifiersFromInput(input);
+            expect(result.sourceCodeQualifiers.sourceCode).toBe('email-promo-123');
+            expect(result.qualifiers.deviceType).toBe('mobile-web');
+        });
+
+        test('should handle empty string values', () => {
+            const input = { device: '', store: 'store123' };
+            const result = extractQualifiersFromInput(input);
+            // Empty values are included
+            expect(result.qualifiers.deviceType).toBe('');
+            expect(result.qualifiers.store).toBe('store123');
+        });
+
+        test('should handle values with spaces', () => {
+            const input = { src: 'email promo', device: 'mobile device' };
+            const result = extractQualifiersFromInput(input);
+            expect(result.sourceCodeQualifiers.sourceCode).toBe('email promo');
+            expect(result.qualifiers.deviceType).toBe('mobile device');
+        });
+    });
+
+    describe('computeEffectiveSourceCodeContext', () => {
         test('should update sourceCode from newSourceCodeContext when present', () => {
-            const newShopperContext = {};
             const newSourceCodeContext = { sourceCode: 'new-source' };
-            const currentShopperContext = {};
             const currentSourceCodeContext = { sourceCode: 'old-source' };
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveSourceCodeContext(newSourceCodeContext, currentSourceCodeContext);
 
-            expect(result.effectiveShopperContext).toEqual({});
-            expect(result.effectiveSourceCodeContext.sourceCode).toBe('new-source');
+            expect(result.sourceCode).toBe('new-source');
         });
 
         test('should preserve current sourceCode when not in newSourceCodeContext (undefined)', () => {
-            const newShopperContext = {};
             const newSourceCodeContext = {};
-            const currentShopperContext = {};
             const currentSourceCodeContext = { sourceCode: 'persisted-source' };
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveSourceCodeContext(newSourceCodeContext, currentSourceCodeContext);
 
-            expect(result.effectiveShopperContext).toEqual({});
-            expect(result.effectiveSourceCodeContext.sourceCode).toBe('persisted-source');
+            expect(result.sourceCode).toBe('persisted-source');
         });
 
         test('should allow null to overwrite current sourceCode', () => {
-            const newShopperContext = {};
             const newSourceCodeContext = { sourceCode: null as any };
-            const currentShopperContext = {};
             const currentSourceCodeContext = { sourceCode: 'persisted-source' };
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveSourceCodeContext(newSourceCodeContext, currentSourceCodeContext);
 
-            expect(result.effectiveShopperContext).toEqual({});
-            expect(result.effectiveSourceCodeContext.sourceCode).toBeNull();
+            expect(result.sourceCode).toBeNull();
         });
 
-        test('should add qualifiers from newShopperContext to effectiveShopperContext', () => {
-            const newShopperContext = { otherKey: 'value', deviceType: 'mobile' };
+        test('should handle empty contexts', () => {
             const newSourceCodeContext = {};
-            const currentShopperContext = { existingKey: 'existing' };
             const currentSourceCodeContext = {};
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveSourceCodeContext(newSourceCodeContext, currentSourceCodeContext);
 
-            expect(result.effectiveShopperContext).toEqual({
+            expect(result).toEqual({});
+        });
+    });
+
+    describe('computeEffectiveShopperContext', () => {
+        test('should add qualifiers from newShopperContext to effectiveShopperContext', () => {
+            const newShopperContext = { otherKey: 'value', deviceType: 'mobile' };
+            const currentShopperContext = { existingKey: 'existing' };
+
+            const result = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
+
+            expect(result).toEqual({
                 existingKey: 'existing',
                 otherKey: 'value',
                 deviceType: 'mobile',
             });
-            expect(result.effectiveSourceCodeContext).toEqual({});
         });
 
         test('should handle empty contexts', () => {
             const newShopperContext = {};
-            const newSourceCodeContext = {};
             const currentShopperContext = {};
-            const currentSourceCodeContext = {};
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
 
-            expect(result.effectiveShopperContext).toEqual({});
-            expect(result.effectiveSourceCodeContext).toEqual({});
-        });
-
-        test('should merge newShopperContext and newSourceCodeContext correctly', () => {
-            const newShopperContext = { otherKey: 'value' };
-            const newSourceCodeContext = { sourceCode: 'new-source' };
-            const currentShopperContext = { existingKey: 'existing' };
-            const currentSourceCodeContext = { sourceCode: 'old-source' };
-
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
-
-            expect(result.effectiveShopperContext).toEqual({
-                existingKey: 'existing',
-                otherKey: 'value',
-            });
-            expect(result.effectiveSourceCodeContext.sourceCode).toBe('new-source');
+            expect(result).toEqual({});
         });
 
         test('should handle customQualifiers in context', () => {
             const newShopperContext = { deviceType: 'mobile', category: 'customQualifiers' };
-            const newSourceCodeContext = {};
             const currentShopperContext = { operatingSystem: 'Android' };
-            const currentSourceCodeContext = {};
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
 
-            expect(result.effectiveShopperContext).toEqual({
+            expect(result).toEqual({
                 operatingSystem: 'Android',
                 deviceType: 'mobile',
                 category: 'customQualifiers',
@@ -367,38 +700,36 @@ describe('shopper-context-utils', () => {
 
         test('should overwrite existing qualifiers with new values', () => {
             const newShopperContext = { deviceType: 'tablet' };
-            const newSourceCodeContext = {};
             const currentShopperContext = { deviceType: 'mobile' };
-            const currentSourceCodeContext = {};
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
 
-            expect(result.effectiveShopperContext).toEqual({
+            expect(result).toEqual({
                 deviceType: 'tablet',
             });
         });
 
         test('should handle empty string values in newShopperContext', () => {
             const newShopperContext = { deviceType: '' };
-            const newSourceCodeContext = {};
             const currentShopperContext = { deviceType: 'mobile' };
-            const currentSourceCodeContext = {};
 
-            const result = computeEffectiveShopperContext(
-                newShopperContext,
-                newSourceCodeContext,
-                currentShopperContext,
-                currentSourceCodeContext
-            );
+            const result = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
 
             // Empty string should overwrite existing value
-            expect(result.effectiveShopperContext).toEqual({
+            expect(result).toEqual({
                 deviceType: '',
+            });
+        });
+
+        test('should preserve existing qualifiers when not in newShopperContext', () => {
+            const newShopperContext = {};
+            const currentShopperContext = { existingKey: 'existing', deviceType: 'mobile' };
+
+            const result = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
+
+            expect(result).toEqual({
+                existingKey: 'existing',
+                deviceType: 'mobile',
             });
         });
     });
@@ -623,6 +954,273 @@ describe('shopper-context-utils', () => {
                     deviceType: 'mobile',
                 },
             });
+        });
+    });
+
+    describe('updateShopperContext', () => {
+        let mockContext: RouterContextProvider;
+        let mockGetCookie: ReturnType<typeof vi.fn>;
+        let mockSetNamespacedCookie: ReturnType<typeof vi.fn>;
+        let mockCreateShopperContext: ReturnType<typeof vi.fn>;
+        let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+
+        beforeEach(async () => {
+            const { getCookie } = await import('@/lib/cookies.client');
+            const { setNamespacedCookie } = await import('@/lib/cookies.client');
+            const { createShopperContext } = await import('@/lib/api/shopper-context');
+
+            mockGetCookie = vi.mocked(getCookie);
+            mockSetNamespacedCookie = vi.mocked(setNamespacedCookie);
+            mockCreateShopperContext = vi.mocked(createShopperContext);
+
+            mockContext = {
+                get: vi.fn(),
+            } as any;
+
+            vi.mocked(getConfig).mockReturnValue({
+                features: {
+                    shopperContext: {
+                        dwsourcecodeCookieSuffix: 'test-site',
+                    },
+                },
+            } as any);
+
+            consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+            mockGetCookie.mockReturnValue('');
+            mockSetNamespacedCookie.mockReturnValue(undefined);
+            mockCreateShopperContext.mockResolvedValue(undefined);
+        });
+
+        afterEach(() => {
+            vi.clearAllMocks();
+            consoleErrorSpy.mockRestore();
+        });
+
+        test('should update shopper context with new qualifiers', async () => {
+            const newShopperContext = { deviceType: 'mobile' };
+            const newSourceCodeContext = {};
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
+            expect(mockCreateShopperContext).toHaveBeenCalledWith(
+                mockContext,
+                'test-usid',
+                expect.objectContaining({
+                    customQualifiers: {
+                        deviceType: 'mobile',
+                    },
+                })
+            );
+
+            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
+            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
+                `${SHOPPER_CONTEXT_COOKIE_NAME_BASE}-test-usid`,
+                JSON.stringify({ deviceType: 'mobile' }),
+                expect.objectContaining({
+                    expires: expect.any(Date),
+                })
+            );
+        });
+
+        test('should update source code context', async () => {
+            const newShopperContext = {};
+            const newSourceCodeContext = { sourceCode: 'email' };
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
+            expect(mockCreateShopperContext).toHaveBeenCalledWith(
+                mockContext,
+                'test-usid',
+                expect.objectContaining({
+                    sourceCode: 'email',
+                })
+            );
+
+            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
+            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
+                `${SOURCE_CODE_COOKIE_NAME_BASE}_test-site`,
+                JSON.stringify({ sourceCode: 'email' }),
+                expect.objectContaining({
+                    expires: expect.any(Date),
+                })
+            );
+        });
+
+        test('should update both shopper context and source code context', async () => {
+            const newShopperContext = { deviceType: 'mobile' };
+            const newSourceCodeContext = { sourceCode: 'email' };
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
+            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(2);
+        });
+
+        test('should merge new context with existing cookie context', async () => {
+            const existingContext = JSON.stringify({ existingKey: 'existing' });
+            const existingSourceCode = JSON.stringify({ sourceCode: 'old-source' });
+
+            mockGetCookie
+                .mockReturnValueOnce(existingContext) // shopper context cookie
+                .mockReturnValueOnce(existingSourceCode); // source code cookie
+
+            const newShopperContext = { deviceType: 'mobile' };
+            const newSourceCodeContext = { sourceCode: 'new-source' };
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
+                `${SHOPPER_CONTEXT_COOKIE_NAME_BASE}-test-usid`,
+                JSON.stringify({
+                    existingKey: 'existing',
+                    deviceType: 'mobile',
+                }),
+                expect.any(Object)
+            );
+
+            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
+                `${SOURCE_CODE_COOKIE_NAME_BASE}_test-site`,
+                JSON.stringify({ sourceCode: 'new-source' }),
+                expect.any(Object)
+            );
+        });
+
+        test('should not call API when both contexts are empty', async () => {
+            const newShopperContext = {};
+            const newSourceCodeContext = {};
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            expect(mockCreateShopperContext).not.toHaveBeenCalled();
+            expect(mockSetNamespacedCookie).not.toHaveBeenCalled();
+        });
+
+        test('should handle cookie setting errors gracefully', async () => {
+            const newShopperContext = { deviceType: 'mobile' };
+            const newSourceCodeContext = {};
+
+            mockSetNamespacedCookie.mockImplementation(() => {
+                throw new Error('Cookie setting failed');
+            });
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            // Should still call API even if cookie setting fails
+            expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                'Failed to set shopper context cookie at client side:',
+                'Cookie setting failed'
+            );
+        });
+
+        test('should propagate API errors', async () => {
+            const newShopperContext = { deviceType: 'mobile' };
+            const newSourceCodeContext = {};
+
+            mockCreateShopperContext.mockRejectedValue(new Error('API error'));
+
+            await expect(
+                updateShopperContext({
+                    context: mockContext,
+                    usid: 'test-usid',
+                    newShopperContext,
+                    newSourceCodeContext,
+                })
+            ).rejects.toThrow('API error');
+
+            // Cookies should not be set if API fails (API call happens before cookie setting)
+            expect(mockSetNamespacedCookie).not.toHaveBeenCalled();
+        });
+
+        test('should handle empty cookie values', async () => {
+            mockGetCookie.mockReturnValue('');
+
+            const newShopperContext = { deviceType: 'mobile' };
+            const newSourceCodeContext = {};
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
+            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
+        });
+
+        test('should handle invalid JSON in cookies', async () => {
+            mockGetCookie
+                .mockReturnValueOnce('invalid json') // shopper context cookie
+                .mockReturnValueOnce(''); // source code cookie
+
+            const newShopperContext = { deviceType: 'mobile' };
+            const newSourceCodeContext = {};
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            // Should still work with empty context from invalid JSON
+            expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
+            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
+        });
+
+        test('should overwrite existing qualifiers with new values', async () => {
+            const existingContext = JSON.stringify({ deviceType: 'old-device' });
+            mockGetCookie.mockReturnValueOnce(existingContext).mockReturnValueOnce('');
+
+            const newShopperContext = { deviceType: 'new-device' };
+            const newSourceCodeContext = {};
+
+            await updateShopperContext({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext,
+                newSourceCodeContext,
+            });
+
+            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
+                `${SHOPPER_CONTEXT_COOKIE_NAME_BASE}-test-usid`,
+                JSON.stringify({ deviceType: 'new-device' }),
+                expect.any(Object)
+            );
         });
     });
 });

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { type ReactElement, useRef } from 'react';
 import { Form, Link } from 'react-router';
 import { Input } from '@/components/ui/input';
@@ -23,7 +38,7 @@ export default function StandardLoginForm({
     const { t } = useTranslation('login');
 
     return (
-        <Form method="post" action="/login" className="space-y-6" ref={formRef}>
+        <Form method="post" className="space-y-6" ref={formRef}>
             {error && (
                 <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded">
                     {error}

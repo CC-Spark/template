@@ -1,7 +1,17 @@
 /**
- * Configuration Utility Tests
+ * Copyright 2026 Salesforce, Inc.
  *
- * Tests utility functions used in configuration.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -620,6 +630,80 @@ describe('mergeEnvConfig - Conflict Detection', () => {
         expect(warning).toContain('PUBLIC__app__site ← overridden by → PUBLIC__app__site__features');
         expect(warning).toContain(
             'PUBLIC__app__site__features ← overridden by → PUBLIC__app__site__features__socialLogin__enabled'
+        );
+    });
+});
+
+describe('mergeEnvConfig - Protected Paths', () => {
+    const baseConfig = {
+        app: {
+            engagement: {
+                adapters: {
+                    einstein: {
+                        enabled: true,
+                        eventToggles: {
+                            view_page: true,
+                        },
+                    },
+                },
+                analytics: {
+                    pageViewsBlocklist: ['/action'],
+                },
+            },
+            site: {
+                locale: 'en-US',
+            },
+        },
+    };
+
+    it('should throw error when trying to override engagement config', () => {
+        const env = {
+            PUBLIC__app__engagement__adapters__einstein__enabled: 'false',
+        };
+
+        expect(() => mergeEnvConfig(env, baseConfig)).toThrow('attempts to override protected config path');
+    });
+
+    it('should throw error for any path under app__engagement', () => {
+        const testCases = [
+            'PUBLIC__app__engagement__adapters__einstein__eventToggles__view_page',
+            'PUBLIC__app__engagement__analytics__pageViewsBlocklist',
+            'PUBLIC__APP__ENGAGEMENT__ADAPTERS__EINSTEIN__ENABLED', // Case insensitive
+        ];
+
+        for (const varName of testCases) {
+            const env = { [varName]: 'some-value' };
+            expect(() => mergeEnvConfig(env, baseConfig)).toThrow(
+                'engagement configuration cannot be overridden via environment variables'
+            );
+        }
+    });
+
+    it('should throw error when trying to override entire engagement block', () => {
+        const env = {
+            PUBLIC__app__engagement: '{"adapters":{}}',
+        };
+
+        expect(() => mergeEnvConfig(env, baseConfig)).toThrow('attempts to override protected config path');
+    });
+
+    it('should allow overriding non-engagement paths', () => {
+        const env = {
+            PUBLIC__app__site__locale: 'fr-FR',
+        };
+
+        // Should not throw
+        const result = mergeEnvConfig(env, baseConfig);
+        expect(result.app.site.locale).toBe('fr-FR');
+    });
+
+    it('should provide helpful error message for protected paths', () => {
+        const env = {
+            PUBLIC__app__engagement__adapters__einstein__enabled: 'false',
+        };
+
+        expect(() => mergeEnvConfig(env, baseConfig)).toThrow(
+            'Update config.server.ts directly to change engagement settings'
         );
     });
 });

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { AnalyticsEvent, AnalyticsUser } from '@salesforce/storefront-next-runtime/events';
 import type { EngagementAdapter, EngagementAdapterConfig } from '@/lib/adapters';
 import type { ShopperProducts, ShopperBasketsV2, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
@@ -57,6 +72,8 @@ const einteinEventToEndpointMap: Record<AnalyticsEvent['eventType'], string> = {
     cart_item_add: 'addToCart',
     checkout_start: 'beginCheckout',
     checkout_step: 'checkoutStep',
+    view_search_suggestion: 'viewSearchSuggestion',
+    click_search_suggestion: 'clickSearchSuggestion',
 };
 
 export type EinsteinActivity = {
@@ -276,7 +293,21 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
         case 'view_page':
             return {
                 ...baseActivity,
-                currentPage: event.path,
+                currentLocation: event.path,
+            };
+
+        case 'view_search_suggestion':
+            return {
+                ...baseActivity,
+                searchText: event.searchInputText,
+                suggestions: event.suggestions,
+            };
+
+        case 'click_search_suggestion':
+            return {
+                ...baseActivity,
+                searchText: event.searchInputText,
+                suggestion: event.suggestion,
             };
 
         default:
@@ -320,13 +351,15 @@ function getSiteIdentifier(config: EinsteinConfig): string {
  * This is the unified function for all product mapping to Einstein format.
  * Use this instead of inline mapping to ensure consistency.
  */
-function transformProductToEinsteinProduct(product: Product): EinsteinProduct {
+function transformProductToEinsteinProduct(
+    product: Product | ShopperSearch.schemas['ProductSearchHit']
+): EinsteinProduct {
     // Check if it's a ShopperSearch ProductSearchHit
     if ('hitType' in product || 'productId' in product) {
         // ProductSearchHit format - use productId for both id and sku
         return {
-            id: product.productId,
-            sku: product.productId,
+            id: product.productId as string,
+            sku: product.productId as string,
         };
     }
 

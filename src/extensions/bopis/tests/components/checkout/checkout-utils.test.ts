@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { CHECKOUT_STEPS } from '@/components/checkout/utils/checkout-context-types';
 import { computeStepFromBasket, getCompletedSteps } from '@/components/checkout/utils/checkout-utils';
@@ -5,9 +20,23 @@ import { createMockBasketWithPickupItems } from '@/extensions/bopis/tests/__mock
 import { isStorePickup } from '@/extensions/bopis/lib/basket-utils';
 import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 
-// Mock the isStorePickup function
+// Mock the BOPIS functions
 vi.mock('@/extensions/bopis/lib/basket-utils', () => ({
     isStorePickup: vi.fn(),
+}));
+
+const mockGetPickupShipmentDistribution = vi.fn(() => ({
+    hasPickupItems: false,
+    hasDeliveryItems: true,
+    enableMultiAddress: false,
+    hasMultipleDeliveryAddresses: false,
+    hasUnaddressedDeliveryItems: false,
+    hasEmptyShipments: false,
+    isDeliveryProductItem: () => false as const,
+    deliveryShipments: [],
+}));
+vi.mock('@/extensions/bopis/lib/checkout-distribution', () => ({
+    getPickupShipmentDistribution: () => mockGetPickupShipmentDistribution(),
 }));
 
 describe('Checkout Utils - BOPIS/Store Pickup Scenarios', () => {
@@ -16,10 +45,20 @@ describe('Checkout Utils - BOPIS/Store Pickup Scenarios', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockedIsStorePickup.mockReturnValue(false); // Default to non-pickup
+        mockGetPickupShipmentDistribution.mockReturnValue({
+            hasPickupItems: false,
+            hasDeliveryItems: true,
+            enableMultiAddress: false,
+            hasMultipleDeliveryAddresses: false,
+            hasUnaddressedDeliveryItems: false,
+            hasEmptyShipments: false,
+            isDeliveryProductItem: () => false as const,
+            deliveryShipments: [],
+        });
     });
 
     describe('computeStepFromBasket - Store Pickup', () => {
-        test('skips shipping address and method step for store pickup orders with email', () => {
+        test('goes to PAYMENT step for store pickup orders with email but no payment', () => {
             const basketWithPickup = createMockBasketWithPickupItems(
                 [{ productId: 'product-1', inventoryId: 'store-inv-1', storeId: 'store-1' }],
                 {
@@ -28,14 +67,23 @@ describe('Checkout Utils - BOPIS/Store Pickup Scenarios', () => {
             );
 
             mockedIsStorePickup.mockReturnValue(true);
+            const pickupDistribution = {
+                hasPickupItems: true,
+                hasDeliveryItems: false,
+                enableMultiAddress: false,
+                hasMultipleDeliveryAddresses: false,
+                hasUnaddressedDeliveryItems: false,
+                hasEmptyShipments: false,
+                isDeliveryProductItem: () => false as const,
+                deliveryShipments: [],
+            };
+            mockGetPickupShipmentDistribution.mockReturnValue(pickupDistribution);
 
-            // Even though there's no traditional shipping address filled by customer,
-            // it should skip to payment because it's store pickup
-            const result = computeStepFromBasket(basketWithPickup, false);
+            const result = computeStepFromBasket(basketWithPickup, pickupDistribution);
             expect(result).toBe(CHECKOUT_STEPS.PAYMENT);
         });
 
-        test('goes to review order when store pickup has email and payment', () => {
+        test('goes to REVIEW_ORDER when store pickup has email and payment', () => {
             const basketWithPickup = createMockBasketWithPickupItems(
                 [{ productId: 'product-1', inventoryId: 'store-inv-1', storeId: 'store-1' }],
                 {
@@ -55,8 +103,19 @@ describe('Checkout Utils - BOPIS/Store Pickup Scenarios', () => {
             );
 
             mockedIsStorePickup.mockReturnValue(true);
+            const pickupDistribution = {
+                hasPickupItems: true,
+                hasDeliveryItems: false,
+                enableMultiAddress: false,
+                hasMultipleDeliveryAddresses: false,
+                hasUnaddressedDeliveryItems: false,
+                hasEmptyShipments: false,
+                isDeliveryProductItem: () => false as const,
+                deliveryShipments: [],
+            };
+            mockGetPickupShipmentDistribution.mockReturnValue(pickupDistribution);
 
-            const result = computeStepFromBasket(basketWithPickup, false);
+            const result = computeStepFromBasket(basketWithPickup, pickupDistribution);
             expect(result).toBe(CHECKOUT_STEPS.REVIEW_ORDER);
         });
 
@@ -69,8 +128,18 @@ describe('Checkout Utils - BOPIS/Store Pickup Scenarios', () => {
             );
 
             mockedIsStorePickup.mockReturnValue(true);
+            const pickupDistribution = {
+                hasPickupItems: true,
+                hasDeliveryItems: false,
+                enableMultiAddress: false,
+                hasMultipleDeliveryAddresses: false,
+                hasUnaddressedDeliveryItems: false,
+                hasEmptyShipments: false,
+                isDeliveryProductItem: () => false as const,
+                deliveryShipments: [],
+            };
 
-            const result = computeStepFromBasket(basketWithPickup, false);
+            const result = computeStepFromBasket(basketWithPickup, pickupDistribution);
             expect(result).toBe(CHECKOUT_STEPS.CONTACT_INFO);
         });
     });
@@ -87,8 +156,18 @@ describe('Checkout Utils - BOPIS/Store Pickup Scenarios', () => {
             // Even though the basket has a shipping address (store address),
             // it shouldn't be considered a completed step for store pickup
             mockedIsStorePickup.mockReturnValue(true);
+            const pickupDistribution = {
+                hasPickupItems: true,
+                hasDeliveryItems: false,
+                enableMultiAddress: false,
+                hasMultipleDeliveryAddresses: false,
+                hasUnaddressedDeliveryItems: false,
+                hasEmptyShipments: false,
+                isDeliveryProductItem: () => false as const,
+                deliveryShipments: [],
+            };
 
-            const result = getCompletedSteps(basketWithPickup, CHECKOUT_STEPS.PAYMENT);
+            const result = getCompletedSteps(basketWithPickup, pickupDistribution, CHECKOUT_STEPS.PAYMENT);
             expect(result).toContain(CHECKOUT_STEPS.CONTACT_INFO);
             expect(result).not.toContain(CHECKOUT_STEPS.SHIPPING_ADDRESS);
             expect(result).not.toContain(CHECKOUT_STEPS.SHIPPING_OPTIONS);

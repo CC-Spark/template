@@ -33,6 +33,7 @@
             "header/user-actions",
             "home/features",
             "home/help",
+            "home/hero",
             "home/popular-categories/index",
             "home/popular-category/index",
             "home/skeleton",
@@ -90,6 +91,7 @@
             "forgot-password-form/index",
             "grid/index",
             "hero-carousel/index",
+            "hero-carousel/skeleton",
             "hero/index",
             "icons/amex-icon",
             "icons/discover-icon",
@@ -159,6 +161,8 @@
             "spinner/index",
             "swatch-group/swatch",
             "swatch-group/swatch-group",
+            "theme-switcher/components/theme-switcher/index",
+            "theme-switcher/components/footer/index",
             "toast/toaster-theme",
             "toggle-card/index",
             "tracking-consent-banner/index",
@@ -191,6 +195,33 @@
             "ui/skeleton",
             "ui/tooltip",
             "with-suspense/index"
+        ]
+    },
+    "team-spark": {
+        "slack": "@cc-spark",
+        "components": [
+            "bopis/components/cart-pickup/index",
+            "bopis/components/checkout/checkout-pickup",
+            "bopis/components/checkout/checkout-pickup-with-data",
+            "bopis/components/delivery-options/cart-delivery-option",
+            "bopis/components/delivery-options/delivery-options",
+            "bopis/components/delivery-options/pickup-or-delivery",
+            "bopis/components/delivery-options/pickup-or-delivery-dropdown",
+            "bopis/components/refine-inventory/index",
+            "multiship/components/checkout/add-address-dialog",
+            "multiship/components/checkout/shipping-multi-address",
+            "multiship/components/checkout/shipping-multi-address-with-data",
+            "multiship/components/checkout/shipping-multi-options",
+            "store-locator/components/footer/index",
+            "store-locator/components/header/store-locator-badge",
+            "store-locator/components/header/store-locator-sheet",
+            "store-locator/components/store-locator/address",
+            "store-locator/components/store-locator/details",
+            "store-locator/components/store-locator/form",
+            "store-locator/components/store-locator/index",
+            "store-locator/components/store-locator/list",
+            "store-locator/components/store-locator/list-skeleton",
+            "store-locator/components/store-locator/text-separator"
         ]
     }
 }

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { RouterContextProvider } from 'react-router';
 import type { SessionData as AuthData } from '@/lib/api/types';
@@ -114,6 +129,7 @@ describe('auth middleware (client)', () => {
             'cc-at_test-site': '',
             'usid_test-site': '',
             'customerId_test-site': '',
+            'encUserId_test-site': '',
             'cc-idp-at_test-site': '',
         });
     });
@@ -721,6 +737,7 @@ describe('auth middleware (client)', () => {
                 access_token_expiry: Date.now() + 1000,
                 usid: 'test_usid',
                 customer_id: 'test_customer',
+                enc_user_id: 'test_enc_user_id',
                 idp_access_token: 'test_idp',
                 userType: 'guest',
                 trackingConsent: TrackingConsent.Declined,
@@ -733,6 +750,7 @@ describe('auth middleware (client)', () => {
             expect(storage.get('access_token_expiry')).toBe(authData.access_token_expiry);
             expect(storage.get('usid')).toBe('test_usid');
             expect(storage.get('customer_id')).toBe('test_customer');
+            expect(storage.get('enc_user_id')).toBe('test_enc_user_id');
             expect(storage.get('idp_access_token')).toBe('test_idp');
             expect(storage.get('userType')).toBe('guest');
             expect(storage.get('trackingConsent')).toBe(TrackingConsent.Declined);
@@ -957,9 +975,11 @@ describe('auth middleware (client)', () => {
             expect(removeCookie).toHaveBeenCalledWith('cc-at');
             expect(removeCookie).toHaveBeenCalledWith('usid');
             expect(removeCookie).toHaveBeenCalledWith('customerId');
+            expect(removeCookie).toHaveBeenCalledWith('encUserId');
             expect(removeCookie).toHaveBeenCalledWith('cc-idp-at');
             expect(removeCookie).toHaveBeenCalledWith('dw_dnt');
-            expect(removeCookie).toHaveBeenCalledTimes(7);
+            expect(removeCookie).toHaveBeenCalledWith('dwsid');
+            expect(removeCookie).toHaveBeenCalledTimes(9);
 
             // Verify guest login API was called correctly
             expect(fetch).toHaveBeenCalledWith('/resource/auth/login-guest', {

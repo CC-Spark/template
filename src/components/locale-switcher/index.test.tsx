@@ -1,11 +1,38 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 import i18next from 'i18next';
+import { ConfigProvider } from '@/config';
+import LocaleSwitcher from './index';
 
 const { t } = getTranslation();
+
+// Mock config with i18n settings
+const mockConfig = {
+    i18n: {
+        fallbackLng: 'en-US',
+        supportedLngs: ['en-US', 'it-IT'],
+    },
+} as any;
 
 const mockFetcherSubmit = vi.fn();
 const mockFetcher = {
@@ -22,20 +49,8 @@ const mockFetcher = {
     load: vi.fn(),
 };
 
-// Mock useFetcher at the module level
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetcher: () => mockFetcher,
-    };
-});
-
-// Import the component after the mock is set up
-const { default: LocaleSwitcher } = await import('./index');
-
 // Helper function to render component with router context
-const renderWithRouter = ({ initialLanguage = 'en' }: { initialLanguage?: string } = {}) => {
+const renderWithRouter = ({ initialLanguage = 'en-US' }: { initialLanguage?: string } = {}) => {
     // Set the initial language in i18next
     void i18next.changeLanguage(initialLanguage);
 
@@ -43,7 +58,11 @@ const renderWithRouter = ({ initialLanguage = 'en' }: { initialLanguage?: string
         [
             {
                 path: '/',
-                element: <LocaleSwitcher />,
+                element: (
+                    <ConfigProvider config={mockConfig}>
+                        <LocaleSwitcher />
+                    </ConfigProvider>
+                ),
             },
         ],
         { initialEntries: ['/'] }
@@ -56,7 +75,13 @@ describe('LocaleSwitcher', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         // Reset to English before each test
-        void i18next.changeLanguage('en');
+        void i18next.changeLanguage('en-US');
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockReturnValue(mockFetcher as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     test('renders a language selector with proper accessibility label', () => {
@@ -68,62 +93,62 @@ describe('LocaleSwitcher', () => {
         expect(selector).toBeInTheDocument();
     });
 
-    test('displays English and Spanish language options', () => {
+    test('displays English and Italian language options', () => {
         renderWithRouter();
 
-        expect(screen.getByRole('option', { name: t('localeSwitcher:english') })).toBeInTheDocument();
-        expect(screen.getByRole('option', { name: t('localeSwitcher:spanish') })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: t('localeSwitcher:locales.en-US') })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: t('localeSwitcher:locales.it-IT') })).toBeInTheDocument();
     });
 
     test('shows current language as selected when initialized with English', () => {
-        renderWithRouter({ initialLanguage: 'en' });
+        renderWithRouter({ initialLanguage: 'en-US' });
 
         const selector = screen.getByRole('combobox');
-        expect(selector).toHaveValue('en');
+        expect(selector).toHaveValue('en-US');
     });
 
-    test('shows current language as selected when initialized with Spanish', () => {
-        renderWithRouter({ initialLanguage: 'es' });
+    test('shows current language as selected when initialized with Italian', () => {
+        renderWithRouter({ initialLanguage: 'it-IT' });
 
         const selector = screen.getByRole('combobox');
-        expect(selector).toHaveValue('es');
+        expect(selector).toHaveValue('it-IT');
     });
 
     test('changes displayed language when user selects a new language', async () => {
         const user = userEvent.setup();
-        renderWithRouter({ initialLanguage: 'en' });
+        renderWithRouter({ initialLanguage: 'en-US' });
 
         const selector = screen.getByRole('combobox');
-        expect(selector).toHaveValue('en');
+        expect(selector).toHaveValue('en-US');
 
-        // Change to Spanish
-        await user.selectOptions(selector, 'es');
+        // Change to Italian
+        await user.selectOptions(selector, 'it-IT');
 
         // Verify the language changed in i18next
         await waitFor(() => {
-            expect(i18next.language).toBe('es');
+            expect(i18next.language).toBe('it-IT');
         });
 
         // Verify the selector shows the new value
-        expect(selector).toHaveValue('es');
+        expect(selector).toHaveValue('it-IT');
     });
 
-    test('changes from Spanish to English when user selects English', async () => {
+    test('changes from Italian to English when user selects English', async () => {
         const user = userEvent.setup();
-        renderWithRouter({ initialLanguage: 'es' });
+        renderWithRouter({ initialLanguage: 'it-IT' });
 
         const selector = screen.getByRole('combobox');
-        expect(selector).toHaveValue('es');
+        expect(selector).toHaveValue('it-IT');
 
         // Change to English
-        await user.selectOptions(selector, 'en');
+        await user.selectOptions(selector, 'en-US');
 
         // Verify the language changed in i18next
         await waitFor(() => {
-            expect(i18next.language).toBe('en');
+            expect(i18next.language).toBe('en-US');
         });
 
-        expect(selector).toHaveValue('en');
+        expect(selector).toHaveValue('en-US');
     });
 
     test('submits locale change to server action', async () => {
@@ -131,7 +156,7 @@ describe('LocaleSwitcher', () => {
         renderWithRouter();
 
         const selector = screen.getByRole('combobox');
-        await user.selectOptions(selector, 'es');
+        await user.selectOptions(selector, 'it-IT');
 
         // Wait for the submit to be called
         await waitFor(() => {
@@ -143,7 +168,7 @@ describe('LocaleSwitcher', () => {
         const formData = submitCall[0] as FormData;
         const options = submitCall[1];
 
-        expect(formData.get('locale')).toBe('es');
+        expect(formData.get('locale')).toBe('it-IT');
         expect(options).toEqual({
             method: 'POST',
             action: '/action/set-locale',
@@ -153,15 +178,15 @@ describe('LocaleSwitcher', () => {
     test('has correct English option value', () => {
         renderWithRouter();
 
-        const englishOption = screen.getByRole('option', { name: t('localeSwitcher:english') });
-        expect(englishOption).toHaveValue('en');
+        const englishOption = screen.getByRole('option', { name: t('localeSwitcher:locales.en-US') });
+        expect(englishOption).toHaveValue('en-US');
     });
 
-    test('has correct Spanish option value', () => {
+    test('has correct Italian option value', () => {
         renderWithRouter();
 
-        const spanishOption = screen.getByRole('option', { name: t('localeSwitcher:spanish') });
-        expect(spanishOption).toHaveValue('es');
+        const italianOption = screen.getByRole('option', { name: t('localeSwitcher:locales.it-IT') });
+        expect(italianOption).toHaveValue('it-IT');
     });
 
     test('language selector is keyboard accessible', async () => {
@@ -175,11 +200,11 @@ describe('LocaleSwitcher', () => {
         expect(selector).toHaveFocus();
 
         // For native select elements, we can use selectOptions even when focused
-        await user.selectOptions(selector, 'es');
+        await user.selectOptions(selector, 'it-IT');
 
         // The selection should change
         await waitFor(() => {
-            expect(selector).toHaveValue('es');
+            expect(selector).toHaveValue('it-IT');
         });
     });
 
@@ -189,22 +214,22 @@ describe('LocaleSwitcher', () => {
 
         const selector = screen.getByRole('combobox');
 
-        // Change to Spanish
-        await user.selectOptions(selector, 'es');
+        // Change to Italian
+        await user.selectOptions(selector, 'it-IT');
         await waitFor(() => {
-            expect(selector).toHaveValue('es');
+            expect(selector).toHaveValue('it-IT');
         });
 
         // Change back to English
-        await user.selectOptions(selector, 'en');
+        await user.selectOptions(selector, 'en-US');
         await waitFor(() => {
-            expect(selector).toHaveValue('en');
+            expect(selector).toHaveValue('en-US');
         });
 
-        // Change to Spanish again
-        await user.selectOptions(selector, 'es');
+        // Change to Italian again
+        await user.selectOptions(selector, 'it-IT');
         await waitFor(() => {
-            expect(selector).toHaveValue('es');
+            expect(selector).toHaveValue('it-IT');
         });
 
         // Component should still be rendered and functional
@@ -216,17 +241,30 @@ describe('LocaleSwitcher', () => {
         const { rerender } = renderWithRouter();
 
         const selector = screen.getByRole('combobox');
-        await user.selectOptions(selector, 'es');
+        await user.selectOptions(selector, 'it-IT');
 
         await waitFor(() => {
-            expect(selector).toHaveValue('es');
+            expect(selector).toHaveValue('it-IT');
         });
 
         // Re-render the component
-        rerender(<RouterProvider router={createMemoryRouter([{ path: '/', element: <LocaleSwitcher /> }])} />);
+        rerender(
+            <RouterProvider
+                router={createMemoryRouter([
+                    {
+                        path: '/',
+                        element: (
+                            <ConfigProvider config={mockConfig}>
+                                <LocaleSwitcher />
+                            </ConfigProvider>
+                        ),
+                    },
+                ])}
+            />
+        );
 
         // The language should persist
         const updatedSelector = screen.getByRole('combobox');
-        expect(updatedSelector).toHaveValue('es');
+        expect(updatedSelector).toHaveValue('it-IT');
     });
 });

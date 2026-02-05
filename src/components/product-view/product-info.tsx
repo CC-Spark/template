@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { type ReactElement } from 'react';
@@ -11,6 +20,7 @@ import ProductQuantityPicker from '@/components/product-quantity-picker';
 import { SwatchGroup, Swatch } from '@/components/swatch-group';
 import { useVariationAttributes } from '@/hooks/product/use-variation-attributes';
 import { useProductView } from '@/providers/product-view';
+import { useCurrency } from '@/providers/currency';
 import ProductPrice from '../product-price';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import ProductFeatures from './product-features';
@@ -23,6 +33,7 @@ import DeliveryOptions from '@/extensions/bopis/components/delivery-options/deli
 
 type ProductInfoBaseProps = {
     product: ShopperProducts.schemas['Product'];
+    hideVariantSelection?: boolean;
 };
 type ProductInfoUncontrolledProps = ProductInfoBaseProps & {
     /** Mode for swatch interaction: 'uncontrolled' uses URL navigation */
@@ -58,6 +69,7 @@ export default function ProductInfo({
     swatchMode = 'uncontrolled',
     onAttributeChange,
     variationValues,
+    hideVariantSelection = false,
 }: ProductInfoProps): ReactElement {
     const isProductASet = isProductSet(product);
     const isProductABundle = isProductBundle(product);
@@ -65,11 +77,14 @@ export default function ProductInfo({
     const variationAttributes = useVariationAttributes({ product });
     // Get current variant for UI display
     const currentVariant = useCurrentVariant({ product });
+    // Get currency from context (automatically derived from locale)
+    const currency = useCurrency();
     // Get shared state from context
     const {
         quantity,
         isOutOfStock,
         stockLevel,
+        maxQuantity,
         setQuantity,
         mode,
         // @sfdc-extension-line SFDC_EXT_BOPIS
@@ -94,7 +109,7 @@ export default function ProductInfo({
                     type="unit"
                     product={product}
                     quantity={quantity}
-                    currency="USD"
+                    currency={currency}
                     labelForA11y={product?.name}
                     currentPriceProps={{
                         className: 'text-xl font-bold text-foreground',
@@ -107,7 +122,12 @@ export default function ProductInfo({
 
             {/* Swatch Groups for Product Variations */}
             {variationAttributes.map(({ id, name, selectedValue, values }) => {
-                const swatches = values.map((value) => {
+                // When hideVariantSelection is true, only show the selected swatch (read-only)
+                const swatchesToShow = hideVariantSelection
+                    ? values.filter((v) => v.value === selectedValue?.value)
+                    : values;
+
+                const swatches = swatchesToShow.map((value) => {
                     const { href, name: valueName, image, value: swatchValue, orderable } = value;
                     const content = image ? (
                         <div
@@ -123,6 +143,7 @@ export default function ProductInfo({
                         <Swatch
                             key={swatchValue}
                             href={swatchMode === 'uncontrolled' ? href : undefined}
+                            // Disable when not orderable (out of stock)
                             disabled={!orderable}
                             value={swatchValue}
                             name={valueName}
@@ -138,23 +159,17 @@ export default function ProductInfo({
                         displayName={selectedValue?.name || ''}
                         label={name}
                         handleChange={
-                            swatchMode === 'controlled' ? (value) => onAttributeChange?.(id, value) : undefined
+                            // Disable handleChange when hideVariantSelection is true
+                            hideVariantSelection
+                                ? undefined
+                                : swatchMode === 'controlled'
+                                  ? (value) => onAttributeChange?.(id, value)
+                                  : undefined
                         }>
                         {swatches}
                     </SwatchGroup>
                 );
             })}
-
-            {/* Quantity Selector - Only for non-set/bundle products and not when opened from cart page */}
-            {!isProductASet && !isProductABundle && mode !== 'edit' && (
-                <ProductQuantityPicker
-                    value={quantity.toString()}
-                    onChange={setQuantity}
-                    stockLevel={stockLevel}
-                    isOutOfStock={isOutOfStock}
-                    productName={product.name}
-                />
-            )}
 
             {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
             {/* Delivery Options - For individual products */}
@@ -168,6 +183,18 @@ export default function ProductInfo({
                 />
             )}
             {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
+
+            {/* Quantity Selector - Only for non-set/bundle products and not when opened from cart page */}
+            {!isProductASet && !isProductABundle && mode !== 'edit' && (
+                <ProductQuantityPicker
+                    value={quantity.toString()}
+                    onChange={setQuantity}
+                    stockLevel={stockLevel}
+                    isOutOfStock={isOutOfStock}
+                    productName={product.name}
+                    maxQuantity={maxQuantity}
+                />
+            )}
 
             {/* Product Features - Only shown if longDescription is different from shortDescription */}
             {product.longDescription && product.longDescription !== product.shortDescription && (

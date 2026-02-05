@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -139,10 +154,10 @@ describe('Payment Integration Tests', () => {
             render(<Payment {...createDefaultProps()} />);
 
             const expiryInput = screen.getByRole('textbox', { name: /expiry date/i });
-            await user.type(expiryInput, '1225');
+            await user.type(expiryInput, '1227');
 
             await waitFor(() => {
-                expect(expiryInput).toHaveValue('12/25');
+                expect(expiryInput).toHaveValue('12/27');
             });
         });
 
@@ -225,7 +240,7 @@ describe('Payment Integration Tests', () => {
                             maskedNumber: '**** **** **** 1234',
                             holder: 'John Doe',
                             expirationMonth: 12,
-                            expirationYear: 2025,
+                            expirationYear: 2027,
                         },
                         preferred: true,
                     },
@@ -289,7 +304,7 @@ describe('Payment Integration Tests', () => {
             // Fill in all required fields
             await user.type(screen.getByPlaceholderText('1234 5678 9012 3456'), '4111111111111111');
             await user.type(screen.getByRole('textbox', { name: /cardholder name/i }), 'John Doe');
-            await user.type(screen.getByRole('textbox', { name: /expiry date/i }), '1225');
+            await user.type(screen.getByRole('textbox', { name: /expiry date/i }), '1227');
             await user.type(screen.getByRole('textbox', { name: /cvv/i }), '123');
 
             const submitButton = screen.getByRole('button', { name: /continue/i });

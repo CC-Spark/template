@@ -1,6 +1,22 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type { Json } from '+types/lang';
+import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -112,11 +128,43 @@ export function extractStatusCode(error: unknown): string | undefined {
 }
 
 /**
+
+ * TODO: This method replaces the extractResponseError for the new scapi client. We may want to rename this once we remove extractResponseError
+ * Extracts error message from different error types
+ * @param error - The error to extract message from
+ * @returns A user-friendly error message
+ */
+export function getErrorMessage(error: unknown): string {
+    if (error instanceof ApiError) {
+        // Try to parse rawBody JSON string first
+        if (error.rawBody) {
+            try {
+                const parsedBody = JSON.parse(error.rawBody);
+                if (parsedBody.message) {
+                    return parsedBody.message;
+                }
+            } catch {
+                // Failed to parse, fall through to other options
+            }
+        }
+        // Fall back to body.detail or statusText
+        return error.body?.detail || error.statusText || 'An error occurred';
+    }
+
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return 'An error occurred';
+}
+
+/**
  * Returns the application's origin.
  *
  * This function is isomorphic, it can be used on the client and server.
  *
- * On the server, it will return the origin derived from the EXTERNAL_DOMAIN_NAME (from process.env)
+ * On the server, it will return the origin derived from the EXTERNAL_DOMAIN_NAME (from process.env).
+ *
  * On the client, it will return the window.location.origin
  */
 export const getAppOrigin = () => {
@@ -145,7 +193,7 @@ export const isAbsoluteURL = (url: string): boolean => /^([a-z][a-z\d+\-.]*:)?\/
 /**
  * Check if code is running on the server side
  */
-export const isServer = typeof window === 'undefined';
+export const isServer = () => typeof window === 'undefined';
 
 /**
  * Retrieves an item from session storage and parses it as JSON
@@ -153,7 +201,7 @@ export const isServer = typeof window === 'undefined';
  * @returns The parsed JSON value or undefined if not found or on server
  */
 export const getSessionJSONItem = <T = unknown>(key: string): T | undefined => {
-    if (isServer) {
+    if (isServer()) {
         return undefined;
     }
     try {
@@ -173,7 +221,7 @@ export const getSessionJSONItem = <T = unknown>(key: string): T | undefined => {
  * @param value - The value to stringify and store
  */
 export const setSessionJSONItem = <T = unknown>(key: string, value: T): void => {
-    if (isServer) {
+    if (isServer()) {
         return;
     }
     try {
@@ -184,7 +232,7 @@ export const setSessionJSONItem = <T = unknown>(key: string, value: T): void => 
 };
 
 export const clearSessionJSONItem = (key: string): void => {
-    if (isServer) {
+    if (isServer()) {
         return;
     }
     try {

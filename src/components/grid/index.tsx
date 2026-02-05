@@ -1,10 +1,26 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { type ComponentPropsWithoutRef, type CSSProperties, type ReactNode, forwardRef } from 'react';
+import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
 import { cn } from '@/lib/utils';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
-import { RegionDefinition, getRegionDefinition } from '@/lib/decorators';
+import { RegionDefinition } from '@/lib/decorators';
 import { Region } from '@/components/region';
-import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 
 // Based on Radix UI Themes Grid component API
 // Reference: https://www.radix-ui.com/themes/docs/components/grid
@@ -46,10 +62,11 @@ interface GridProps extends Omit<ComponentPropsWithoutRef<'div'>, 'children'> {
     children?: ReactNode;
 
     // Page Designer props (need to be extracted to avoid passing to DOM)
-    page?: Promise<ShopperExperience.schemas['Page']>;
-    componentData?: Promise<Record<string, Promise<unknown>>>;
-    designMetadata?: unknown;
     regionId?: string;
+    page?: ShopperExperience.schemas['Page'];
+    component?: ShopperExperience.schemas['Component'];
+    componentData?: Record<string, Promise<unknown>>;
+    designMetadata?: ComponentDesignMetadata;
     data?: unknown;
 }
 
@@ -84,10 +101,11 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
             py,
             style,
             children,
-            page,
+            regionId: _regionId,
+            page: _page,
+            component,
             componentData,
             designMetadata: _designMetadata,
-            regionId: _regionId,
             data: _data,
             ...props
         },
@@ -126,13 +144,13 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 
         return (
             <ComponentElement ref={ref} className={classes} style={gridStyles} data-slot="grid" {...props}>
-                {page ? (
+                {/* TODO: Refactor <Region/> properties `page` and `componentData` to not expect promises anymore */}
+                {component ? (
                     <Region
-                        page={page}
                         regionId="main"
-                        metadata={getRegionDefinition(GridMetadata, 'main')}
-                        componentData={componentData}
-                        fallback={children}
+                        page={Promise.resolve(component)}
+                        componentData={componentData ? Promise.resolve(componentData) : undefined}
+                        errorElement={children}
                     />
                 ) : (
                     children

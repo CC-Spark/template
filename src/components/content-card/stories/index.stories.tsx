@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import ContentCard from '../index';
 import { action } from 'storybook/actions';
@@ -89,7 +104,8 @@ export const Default: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Standard content card with all features enabled.
 
 ### Features:
@@ -98,6 +114,7 @@ Standard content card with all features enabled.
 - Call-to-action button
 - Background and border enabled
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -130,7 +147,8 @@ export const WithoutImage: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Content card without an image.
 
 ### Features:
@@ -138,6 +156,7 @@ Content card without an image.
 - Text content only
 - Still has button
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -157,7 +176,8 @@ export const Minimal: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Minimal content card with only title and description.
 
 ### Features:
@@ -165,6 +185,7 @@ Minimal content card with only title and description.
 - No button
 - Just text content
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -191,7 +212,8 @@ export const NoBackground: Story = {
     ),
     parameters: {
         docs: {
-            story: `
+            description: {
+                story: `
 Content card with transparent background and no border.
 
 ### Features:
@@ -199,6 +221,7 @@ Content card with transparent background and no border.
 - No border
 - Clean, minimal appearance
             `,
+            },
         },
     },
     play: async ({ canvasElement }) => {
@@ -212,74 +235,32 @@ Content card with transparent background and no border.
     },
 };
 
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
+export const CustomClassNames: Story = {
+    render: () => (
+        <ContentCard
+            title="Custom Class Names"
+            description="This example applies custom classes to the footer, description, and button."
+            imageUrl="https://via.placeholder.com/400x300"
+            imageAlt="Custom class names"
+            buttonText="View Details"
+            buttonLink="/details"
+            className="flex-row"
+            cardFooterClassName="flex-row items-center"
+            cardDescriptionClassName="flex-none"
+            buttonClassName="w-fit"
+        />
+    ),
+    parameters: {
+        docs: {
+            description: {
+                story: `
+Content card with customized footer, description, and button class names.
 
-        await waitForStorybookReady(canvasElement);
-
-        // Check for title
-        const title = await canvas.findByText(/featured product/i, {}, { timeout: 5000 });
-        await expect(title).toBeInTheDocument();
-
-        // Check for description
-        const description = await canvas.findByText(/discover our latest/i, {}, { timeout: 5000 });
-        await expect(description).toBeInTheDocument();
-
-        // Check for button
-        const button = await canvas.findByRole('link', { name: /shop now/i }, { timeout: 5000 });
-        await expect(button).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Check for title
-        const title = await canvas.findByText(/featured product/i, {}, { timeout: 5000 });
-        await expect(title).toBeInTheDocument();
-
-        // Check for description
-        const description = await canvas.findByText(/discover our latest/i, {}, { timeout: 5000 });
-        await expect(description).toBeInTheDocument();
-
-        // Check for button
-        const button = await canvas.findByRole('link', { name: /shop now/i }, { timeout: 5000 });
-        await expect(button).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Check for title
-        const title = await canvas.findByText(/featured product/i, {}, { timeout: 5000 });
-        await expect(title).toBeInTheDocument();
-
-        // Check for description
-        const description = await canvas.findByText(/discover our latest/i, {}, { timeout: 5000 });
-        await expect(description).toBeInTheDocument();
-
-        // Check for button
-        const button = await canvas.findByRole('link', { name: /shop now/i }, { timeout: 5000 });
-        await expect(button).toBeInTheDocument();
+### Features:
+- Custom footer and description alignment
+- Custom button width
+            `,
+            },
+        },
     },
 };

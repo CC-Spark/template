@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useRef, useEffect } from 'react';
 import { useAuth } from '@/providers/auth';
 import type { SessionData } from '@/lib/api/types';
@@ -63,6 +78,7 @@ async function trackEvent<TEventType extends AnalyticsEvent['eventType']>(
         ...eventData,
         payload: {
             userType: auth.userType ?? 'guest',
+            encUserId: auth.enc_user_id ?? undefined,
             usid: auth.usid,
         },
     } as Parameters<typeof createEvent<TEventType>>[1]);
@@ -121,6 +137,8 @@ export const useAnalytics = () => {
             trackViewCategory: () => {},
             trackClickProductInCategory: () => {},
             trackClickProductInSearch: () => {},
+            trackViewSearchSuggestions: () => {},
+            trackClickSearchSuggestion: () => {},
         };
         /* eslint-enable @typescript-eslint/no-empty-function */
     }
@@ -239,6 +257,26 @@ export const useAnalytics = () => {
         });
     };
 
+    /**
+     * Track view of search suggestions
+     */
+    const trackViewSearchSuggestions = async (data: { searchInputText: string; suggestions: Array<string> }) => {
+        return trackEvent(authPromiseRef.current, appConfig, trackingConsent, 'view_search_suggestion', {
+            searchInputText: data.searchInputText,
+            suggestions: data.suggestions,
+        });
+    };
+
+    /**
+     * Track click on a search suggestion
+     */
+    const trackClickSearchSuggestion = async (data: { searchInputText: string; suggestion: string }) => {
+        return trackEvent(authPromiseRef.current, appConfig, trackingConsent, 'click_search_suggestion', {
+            searchInputText: data.searchInputText,
+            suggestion: data.suggestion,
+        });
+    };
+
     return {
         trackViewPage,
         trackViewProduct,
@@ -249,5 +287,7 @@ export const useAnalytics = () => {
         trackViewCategory,
         trackClickProductInCategory,
         trackClickProductInSearch,
+        trackViewSearchSuggestions,
+        trackClickSearchSuggestion,
     };
 };

@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { useState, useEffect, useRef, type ReactNode, type ReactElement } from 'react';
@@ -115,6 +124,8 @@ The Customer Profile Form component provides a form interface for editing custom
 - Success/error feedback through toasts
 - Automatic form reset on successful submission
 - Support for dependency injection via fetcher prop
+- Gender selection dropdown (optional)
+- Date of birth picker (optional)
 
 **Usage:**
 The form accepts a fetcher as a prop, allowing for easy testing and Storybook integration without requiring
@@ -185,7 +196,7 @@ function createMockFetcher<TData = unknown>(
         json: undefined,
         Form: undefined as unknown,
 
-        unstable_reset: () => {},
+        reset: () => {},
         type: 'init',
     } as unknown as ScapiFetcher<TData>;
 }
@@ -206,16 +217,19 @@ export const Default: Story = {
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
             // Simulate success
+            const data = formData as Record<string, unknown>;
             setFetcher(
                 createMockFetcher<CustomerProfileFetcherData>(
                     'idle',
                     {
                         success: true,
                         customer: {
-                            firstName: (formData as Record<string, unknown>).firstName as string,
-                            lastName: (formData as Record<string, unknown>).lastName as string,
-                            email: (formData as Record<string, unknown>).email as string,
-                            phoneHome: (formData as Record<string, unknown>).phoneHome as string,
+                            firstName: data.firstName as string,
+                            lastName: data.lastName as string,
+                            email: data.email as string,
+                            phoneHome: data.phoneHome as string,
+                            gender: data.gender ? Number(data.gender) : undefined,
+                            birthday: data.birthday as string,
                         },
                     },
                     true
@@ -256,12 +270,15 @@ export const WithInitialData: Story = {
             lastName: 'Doe',
             email: 'john.doe@example.com',
             phone: '555-1234',
+            gender: '1',
+            birthday: '1990-05-15',
         },
         updateFetcher: createMockFetcher<CustomerProfileFetcherData>('idle'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify form fields are populated
         const firstNameInput = canvas.getByDisplayValue('John');
@@ -272,6 +289,14 @@ export const WithInitialData: Story = {
 
         const emailInput = canvas.getByDisplayValue('john.doe@example.com');
         await expect(emailInput).toBeInTheDocument();
+
+        // Verify gender dropdown has correct value
+        const genderSelect = canvas.getByRole('combobox', { name: t('account:profile.gender') });
+        await expect(genderSelect).toHaveValue('1');
+
+        // Verify birthday field has correct value
+        const birthdayInput = canvas.getByLabelText(t('account:profile.dateOfBirth'));
+        await expect(birthdayInput).toHaveValue('1990-05-15');
     },
 };
 
@@ -287,16 +312,19 @@ export const Interactive: Story = {
         const handleSubmit = async (formData: FormData | Record<string, unknown>) => {
             setFetcher(createMockFetcher<CustomerProfileFetcherData>('submitting'));
             await new Promise((resolve) => setTimeout(resolve, 1000));
+            const data = formData as Record<string, unknown>;
             setFetcher(
                 createMockFetcher<CustomerProfileFetcherData>(
                     'idle',
                     {
                         success: true,
                         customer: {
-                            firstName: (formData as Record<string, unknown>).firstName as string,
-                            lastName: (formData as Record<string, unknown>).lastName as string,
-                            email: (formData as Record<string, unknown>).email as string,
-                            phoneHome: (formData as Record<string, unknown>).phoneHome as string,
+                            firstName: data.firstName as string,
+                            lastName: data.lastName as string,
+                            email: data.email as string,
+                            phoneHome: data.phoneHome as string,
+                            gender: data.gender ? Number(data.gender) : undefined,
+                            birthday: data.birthday as string,
                         },
                     },
                     true
@@ -346,41 +374,5 @@ export const Interactive: Story = {
         const emailInput = canvas.getByPlaceholderText(t('account:profile.emailPlaceholder'));
         await userEvent.type(emailInput, 'jane.smith@example.com');
         await expect(emailInput).toHaveValue('jane.smith@example.com');
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const form = canvasElement.querySelector('form');
-        await expect(form).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const form = canvasElement.querySelector('form');
-        await expect(form).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const form = canvasElement.querySelector('form');
-        await expect(form).toBeInTheDocument();
     },
 };

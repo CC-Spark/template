@@ -1,17 +1,26 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 // React Router
-import type { ClientActionFunctionArgs } from 'react-router';
+import type { ActionFunctionArgs } from 'react-router';
 
 // Commerce SDK
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 
 // Middlewares
-import { getBasket, updateBasket } from '@/middlewares/basket.client';
+import { ensureBasketId, updateBasketResource } from '@/middlewares/basket.server';
 
 // API
 import { createApiClients } from '@/lib/api-clients';
@@ -27,7 +36,7 @@ import { getTranslation } from '@/lib/i18next';
 // Constants
 
 /**
- * Client action for updating multiple items in a bundle
+ * Server action for updating multiple items in a bundle
  *
  * This action handles updating a bundle and its child products in the basket.
  * It can update:
@@ -58,14 +67,14 @@ import { getTranslation } from '@/lib/i18next';
  * @throws Error if items data is invalid or missing
  * @throws Error if no basket is found in the session
  */
-export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<BasketActionResponse> {
+export async function action({ request, context }: ActionFunctionArgs): Promise<BasketActionResponse> {
     const { t } = getTranslation();
 
     if (request.method !== 'PATCH') {
         throw new Response(t('errors:methodNotAllowed'), { status: 405 });
     }
 
-    const { basketId } = getBasket(context);
+    const basketId = await ensureBasketId(context);
     if (!basketId) {
         return createBasketErrorResponse(t('errors:noBasketFound'));
     }
@@ -103,7 +112,7 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         });
 
         // Update the basket cache to reflect the changes
-        updateBasket(context, updatedBasket);
+        updateBasketResource(context, updatedBasket);
 
         return createBasketSuccessResponse(updatedBasket);
     } catch (error) {

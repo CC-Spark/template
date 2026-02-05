@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { z } from 'zod';
 
 /**
@@ -18,6 +33,11 @@ export const cartItemUpdateSchema = z.object({
             return parsed;
         })
         .pipe(z.number().min(1, 'Quantity must be at least 1')),
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    deliveryOption: z.enum(['delivery', 'pickup']).optional(),
+    storeId: z.string().optional(),
+    inventoryId: z.string().optional(),
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
 });
 
 /**
@@ -30,6 +50,53 @@ export const parseCartItemUpdateFromFormData = (formData: FormData) => {
         itemId: formData.get('itemId')?.toString() || '',
         productId: formData.get('productId')?.toString() || undefined,
         quantity: formData.get('quantity')?.toString() || '',
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        deliveryOption: formData.get('deliveryOption')?.toString() || undefined,
+        storeId: formData.get('storeId')?.toString() || undefined,
+        inventoryId: formData.get('inventoryId')?.toString() || undefined,
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
+    };
+};
+
+/**
+ * Schema for bonus product add form data
+ * Used when adding bonus products to cart - supports multiple slots and items
+ */
+export const bonusProductAddSchema = z.object({
+    bonusItems: z
+        .string()
+        .min(1, 'bonusItems is required')
+        .transform((val) => {
+            try {
+                return JSON.parse(val);
+            } catch {
+                throw new Error('Invalid bonusItems JSON');
+            }
+        })
+        .pipe(
+            z
+                .array(
+                    z.object({
+                        productId: z.string().min(1, 'Each bonus item must have a productId'),
+                        quantity: z.number().min(1, 'Each bonus item must have a valid quantity'),
+                        bonusDiscountLineItemId: z
+                            .string()
+                            .min(1, 'Each bonus item must have a bonusDiscountLineItemId'),
+                        promotionId: z.string().min(1, 'Each bonus item must have a promotionId'),
+                    })
+                )
+                .min(1, 'bonusItems must be a non-empty array')
+        ),
+});
+
+/**
+ * Parses FormData into bonus product add data object
+ * @param formData - FormData from bonus product add form submission
+ * @returns Parsed bonus product add data
+ */
+export const parseBonusProductAddFromFormData = (formData: FormData) => {
+    return {
+        bonusItems: formData.get('bonusItems')?.toString() || '',
     };
 };
 
@@ -58,4 +125,5 @@ export const parsePickupStoreUpdateFromFormData = (formData: FormData) => {
 
 // Type exports
 export type CartItemUpdateData = z.infer<typeof cartItemUpdateSchema>;
+export type BonusProductAddData = z.infer<typeof bonusProductAddSchema>;
 export type PickupStoreUpdateData = z.infer<typeof pickupStoreUpdateSchema>;

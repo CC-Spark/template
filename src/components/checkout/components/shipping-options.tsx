@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { type FormEvent, useEffect, useMemo, useRef } from 'react';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +24,8 @@ import { getDefaultShippingMethod } from '@/lib/customer-profile-utils';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { CheckoutActionData } from '../types';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import CheckoutErrorBanner from './checkout-error-banner';
+import { getCheckoutDisplayError } from './checkout-display-error';
 import { useTranslation } from 'react-i18next';
 
 interface ShippingMethod {
@@ -69,6 +86,7 @@ export default function ShippingOptions({
         selectedMethod,
         shippingMethods?.defaultShippingMethodId
     );
+    const shippingOptionsError = getCheckoutDisplayError(actionData, 'shippingOptions');
 
     // Track if we've already auto-submitted to prevent infinite loops
     const hasAutoSubmitted = useRef(false);
@@ -134,11 +152,7 @@ export default function ShippingOptions({
             isLoading={isLoading}>
             <ToggleCardEdit>
                 <form method="post" className="space-y-6" onSubmit={handleSubmit}>
-                    {actionData?.formError && actionData.step === 'shippingOptions' && (
-                        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold">
-                            {actionData.formError}
-                        </div>
-                    )}
+                    {shippingOptionsError && <CheckoutErrorBanner message={shippingOptionsError} />}
 
                     <div className="space-y-4">
                         <label className="text-sm font-medium text-foreground">{t('shippingOptions.title')}</label>

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import CartBadge from '../cart-badge';
 import { action } from 'storybook/actions';
@@ -6,7 +21,9 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import BasketProvider from '@/providers/basket';
 import emptyBasket from '@/components/__mocks__/empty-basket';
+import emptyBasketSnapshot from '@/components/__mocks__/empty-basket-snapshot';
 import { basketWithOneItem } from '@/components/__mocks__/basket-with-dress';
+import basketWithOneItemSnapshot from '@/components/__mocks__/basket-with-dress-snapshot';
 
 function CartBadgeStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -73,7 +90,7 @@ type Story = StoryObj<typeof CartBadge>;
 
 export const Empty: Story = {
     render: () => (
-        <BasketProvider value={emptyBasket}>
+        <BasketProvider basket={emptyBasket} snapshot={emptyBasketSnapshot}>
             <CartBadge />
         </BasketProvider>
     ),
@@ -112,7 +129,7 @@ Cart badge with empty cart.
 
 export const WithItems: Story = {
     render: () => (
-        <BasketProvider value={basketWithOneItem}>
+        <BasketProvider basket={basketWithOneItem} snapshot={basketWithOneItemSnapshot}>
             <CartBadge />
         </BasketProvider>
     ),
@@ -151,7 +168,7 @@ Cart badge with items in cart.
 
 export const Interactive: Story = {
     render: () => (
-        <BasketProvider value={basketWithOneItem}>
+        <BasketProvider basket={basketWithOneItem} snapshot={basketWithOneItemSnapshot}>
             <CartBadge />
         </BasketProvider>
     ),
@@ -187,77 +204,5 @@ Interactive cart badge for testing user interactions.
         if (cartSheet) {
             await expect(cartSheet).toBeInTheDocument();
         }
-    },
-};
-
-export const Mobile: Story = {
-    ...Empty,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Check for cart button
-        const cartButton = await canvas.findByRole('button', { name: /cart/i }, { timeout: 5000 });
-        await expect(cartButton).toBeInTheDocument();
-
-        // Check for shopping cart icon
-        const cartIcon = await canvas.findByTestId('shopping-cart-icon', {}, { timeout: 5000 });
-        await expect(cartIcon).toBeInTheDocument();
-
-        // Check for badge showing 0
-        const badge = await canvas.findByTestId('shopping-cart-badge', {}, { timeout: 5000 });
-        await expect(badge).toBeInTheDocument();
-        await expect(badge).toHaveTextContent('0');
-    },
-};
-
-export const Tablet: Story = {
-    ...Empty,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Check for cart button
-        const cartButton = await canvas.findByRole('button', { name: /cart/i }, { timeout: 5000 });
-        await expect(cartButton).toBeInTheDocument();
-
-        // Check for shopping cart icon
-        const cartIcon = await canvas.findByTestId('shopping-cart-icon', {}, { timeout: 5000 });
-        await expect(cartIcon).toBeInTheDocument();
-
-        // Check for badge showing 0
-        const badge = await canvas.findByTestId('shopping-cart-badge', {}, { timeout: 5000 });
-        await expect(badge).toBeInTheDocument();
-        await expect(badge).toHaveTextContent('0');
-    },
-};
-
-export const Desktop: Story = {
-    ...Empty,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Check for cart button
-        const cartButton = await canvas.findByRole('button', { name: /cart/i }, { timeout: 5000 });
-        await expect(cartButton).toBeInTheDocument();
-
-        // Check for shopping cart icon
-        const cartIcon = await canvas.findByTestId('shopping-cart-icon', {}, { timeout: 5000 });
-        await expect(cartIcon).toBeInTheDocument();
-
-        // Check for badge showing 0
-        const badge = await canvas.findByTestId('shopping-cart-badge', {}, { timeout: 5000 });
-        await expect(badge).toBeInTheDocument();
-        await expect(badge).toHaveTextContent('0');
     },
 };

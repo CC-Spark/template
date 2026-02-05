@@ -1,13 +1,24 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { createMemoryRouter, RouterProvider, useFetcher } from 'react-router';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import type {
     ShopperProducts,
     ShopperBasketsV2,
@@ -20,17 +31,12 @@ import BasketProvider from '@/providers/basket';
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetcher: vi.fn(() => ({
-            data: null,
-            state: 'idle',
-            submit: vi.fn(),
-        })),
-    };
-});
+// Mock useFetcher function
+const mockUseFetcher = vi.fn(() => ({
+    data: null,
+    state: 'idle',
+    submit: vi.fn(),
+}));
 
 vi.mock('@/components/toast', () => ({
     useToast: () => ({
@@ -97,7 +103,7 @@ const createTestProviders = (
 ) => (
     // @sfdc-extension-line SFDC_EXT_BOPIS
     <PickupProvider initialPickupStores={stores}>
-        <BasketProvider value={basket}>{children}</BasketProvider>
+        <BasketProvider {...(basket ? { basket } : {})}>{children}</BasketProvider>
         {/* @sfdc-extension-line SFDC_EXT_BOPIS */}
     </PickupProvider>
 );
@@ -142,6 +148,14 @@ const wrapper = ({ children, basket }: { children: React.ReactNode; basket?: Sho
 };
 
 describe('useProductActions', () => {
+    beforeEach(() => {
+        // Use vi.spyOn to mock useFetcher while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetcher').mockImplementation(mockUseFetcher as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
     const createStandardProduct = (): ShopperProducts.schemas['Product'] => ({
         id: 'standard-123',
         name: 'Standard Product',
@@ -319,7 +333,7 @@ describe('useProductActions', () => {
             const product = createBundleProduct();
             const mockSubmit = vi.fn();
 
-            vi.mocked(useFetcher).mockReturnValue({
+            mockUseFetcher.mockReturnValue({
                 data: null,
                 state: 'idle',
                 submit: mockSubmit,
@@ -357,7 +371,7 @@ describe('useProductActions', () => {
             const product = createBundleProduct();
             const mockSubmit = vi.fn();
 
-            vi.mocked(useFetcher).mockReturnValue({
+            mockUseFetcher.mockReturnValue({
                 data: null,
                 state: 'idle',
                 submit: mockSubmit,
@@ -393,7 +407,7 @@ describe('useProductActions', () => {
             const product = createBundleProduct();
             const mockSubmit = vi.fn();
 
-            vi.mocked(useFetcher).mockReturnValue({
+            mockUseFetcher.mockReturnValue({
                 data: null,
                 state: 'idle',
                 submit: mockSubmit,

@@ -16,7 +16,6 @@ import AuthProvider from '../src/providers/auth';
 import BasketProvider from '../src/providers/basket';
 import CheckoutOneClickProvider from '../src/components/checkout/utils/checkout-context';
 import ProductViewProvider from '../src/providers/product-view';
-// @sfdc-extension-line SFDC_EXT_STORE_LOCATOR
 import StoreLocatorProvider from '../src/extensions/store-locator/providers/store-locator';
 import { ConfigProvider } from '../src/config';
 import { mockConfig } from '../src/test-utils/config';
@@ -32,8 +31,8 @@ import resources from '../src/locales';
  * This ensures translations work properly in the Storybook UI
  */
 void i18next.use(initReactI18next).init({
-    lng: 'en',
-    fallbackLng: 'en',
+    lng: 'en-US',
+    fallbackLng: 'en-US',
     resources,
     interpolation: {
         escapeValue: false,
@@ -92,14 +91,24 @@ export const StorybookAuthProvider = ({ children }: PropsWithChildren) => (
  * Storybook BasketProvider wrapper with mock basket data
  */
 export const StorybookBasketProvider = ({ children }: PropsWithChildren) => (
-    <BasketProvider value={mockBasket}>{children}</BasketProvider>
+    <BasketProvider basket={mockBasket}>{children}</BasketProvider>
+);
+
+/**
+ * Storybook StoreLocatorProvider wrapper
+ * StoreLocatorProvider doesn't require any props - it initializes its own store from cookies
+ */
+export const StorybookStoreLocatorProvider = ({ children }: PropsWithChildren) => (
+    <StoreLocatorProvider>{children}</StoreLocatorProvider>
 );
 
 /**
  * Storybook CheckoutProvider wrapper with mock customer profile
  */
 export const StorybookCheckoutProvider = ({ children }: PropsWithChildren) => (
-    <CheckoutOneClickProvider customerProfile={undefined}>{children}</CheckoutOneClickProvider>
+    <CheckoutOneClickProvider customerProfile={undefined} shippingDefaultSet={Promise.resolve(undefined)}>
+        {children}
+    </CheckoutOneClickProvider>
 );
 
 /**
@@ -126,7 +135,6 @@ export const storybookProviders = [
     StorybookI18nextProvider,
     StorybookAuthProvider,
     StorybookBasketProvider,
+    StorybookStoreLocatorProvider,
     StorybookCheckoutProvider,
-    // @sfdc-extension-line SFDC_EXT_STORE_LOCATOR
-    StoreLocatorProvider,
 ] as const;

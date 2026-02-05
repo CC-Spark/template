@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { getTranslation } from '@/lib/i18next';
 
 const { t } = getTranslation();
@@ -10,6 +25,16 @@ import {
     resetMarketingCloudTokenCache,
 } from './reset-password';
 import { getAppOrigin, extractResponseError } from '@/lib/utils';
+
+// Hoist dependencies for use in vi.mock (avoids async imports which fail on Windows)
+const { createContext: reactCreateContext, actualReactRouter } = vi.hoisted(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const React = require('react');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const reactRouter = require('react-router');
+    return { createContext: React.createContext, actualReactRouter: reactRouter };
+});
+
 // Mock global fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -18,11 +43,10 @@ global.fetch = mockFetch;
 const mockRandomUUID = vi.fn();
 vi.stubGlobal('crypto', { randomUUID: mockRandomUUID });
 
-// Mock react-router
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
+vi.mock('react-router', () => {
     return {
-        ...actual,
+        ...actualReactRouter,
+        createContext: reactCreateContext,
         redirect: vi.fn(),
     };
 });
@@ -51,13 +75,11 @@ vi.mock('@/config', () => ({
                 siteId: 'RefArchGlobal',
             },
         },
-        site: {
-            features: {
-                resetPassword: {
-                    enabled: true,
-                    callbackUri: '/reset-password-callback',
-                    landingUri: '/reset-password-landing',
-                },
+        features: {
+            resetPassword: {
+                enabled: true,
+                callbackUri: '/reset-password-callback',
+                landingUri: '/reset-password-landing',
             },
         },
     })),

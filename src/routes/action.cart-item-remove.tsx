@@ -1,18 +1,27 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-import type { ClientActionFunctionArgs } from 'react-router';
+import type { ActionFunctionArgs } from 'react-router';
 import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
-import { getBasket, updateBasket } from '@/middlewares/basket.client';
+import { ensureBasketId, updateBasketResource } from '@/middlewares/basket.server';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getTranslation } from '@/lib/i18next';
 
 /**
- * Client action for removing an item from the shopping cart
+ * Server action for removing an item from the shopping cart
  *
  * This action handles the removal of a specific item from the user's shopping basket.
  * It performs the following operations:
@@ -47,7 +56,7 @@ import { getTranslation } from '@/lib/i18next';
  * </form>
  * ```
  */
-export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<{
+export async function action({ request, context }: ActionFunctionArgs): Promise<{
     success: boolean;
     basket?: ShopperBasketsV2.schemas['Basket'];
     error?: string;
@@ -58,7 +67,7 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         throw new Response(t('errors:methodNotAllowed'), { status: 405 });
     }
 
-    const { basketId } = getBasket(context);
+    const basketId = await ensureBasketId(context);
     if (!basketId) {
         return {
             success: false,
@@ -87,7 +96,7 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         });
 
         // Update the basket cache to reflect the changes
-        updateBasket(context, updatedBasket);
+        updateBasketResource(context, updatedBasket);
 
         return { success: true, basket: updatedBasket };
     } catch (error) {

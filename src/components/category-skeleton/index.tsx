@@ -1,28 +1,42 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 export function CategoryBreadcrumbsSkeleton() {
     return (
-        <div className="mb-4">
-            <nav aria-label="Breadcrumb" className="mb-6">
-                <div className="flex flex-wrap items-center text-sm">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="mx-1 h-3 w-3" />
-                    <Skeleton className="h-4 w-24" />
-                </div>
-            </nav>
-        </div>
+        <nav aria-label="Breadcrumb" className="mb-6">
+            <div className="flex flex-wrap items-center text-sm">
+                <Skeleton className="h-5 w-20" />
+                <Skeleton className="h-3 mx-1 w-3" />
+                <Skeleton className="h-5 w-24" />
+            </div>
+        </nav>
     );
 }
 
-export function CategoryHeaderSkeleton() {
+export function CategoryHeaderSkeleton({ className }: { className?: string }) {
     return (
         <>
-            <Skeleton className="h-9 w-64" />
+            <Skeleton className={cn('h-9 w-64', className)} />
             <div className="flex-shrink-0">
                 <div className="flex items-center space-x-2">
-                    <Skeleton className="h-4 w-12" />
-                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-5 w-12" />
+                    <Skeleton className="h-9 w-32" />
                 </div>
             </div>
         </>

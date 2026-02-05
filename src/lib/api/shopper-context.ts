@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { RouterContextProvider } from 'react-router';
 import { getConfig } from '@/config';
 import { createApiClients } from '@/lib/api-clients';
@@ -47,19 +62,32 @@ export async function createShopperContext(
         throw new Error('Body is required and must be a plain object');
     }
 
-    const config = getConfig(context);
-    const clients = createApiClients(context);
+    // Validate body is not empty (at least one field should be set)
+    if (Object.keys(body).length === 0) {
+        throw new Error('Body must contain at least one field');
+    }
 
-    await clients.shopperContext.createShopperContext({
-        params: {
-            path: {
-                organizationId: config.commerce.api.organizationId,
-                usid,
+    try {
+        const config = getConfig(context);
+        const clients = createApiClients(context);
+
+        await clients.shopperContext.createShopperContext({
+            params: {
+                path: {
+                    organizationId: config.commerce.api.organizationId,
+                    usid,
+                },
+                query: {
+                    siteId: config.commerce.api.siteId,
+                },
             },
-            query: {
-                siteId: config.commerce.api.siteId,
-            },
-        },
-        body,
-    });
+            body,
+        });
+    } catch (error) {
+        const wrappedError = new Error(
+            `An unexpected error occurred in createShopperContext: ${error instanceof Error ? error.message : String(error)}`
+        );
+        wrappedError.cause = error; // Preserve original error
+        throw wrappedError;
+    }
 }

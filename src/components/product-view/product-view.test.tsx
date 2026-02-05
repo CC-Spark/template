@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 // Testing libraries
@@ -19,28 +28,8 @@ import { masterProduct as mockProduct } from '@/components/__mocks__/master-vari
 import { standardProd } from '@/components/__mocks__/standard-product-2';
 import { bundleProd } from '@/components/__mocks__/bundle-product';
 import { setProduct } from '@/components/__mocks__/set-product';
-import { createConfigWrapper, mockBuildConfig } from '@/test-utils/config';
+import { mockBuildConfig } from '@/test-utils/config';
 import { createAppConfig } from '@/config/context';
-
-// Create a wrapper with default config
-const defaultConfigWrapper = createConfigWrapper({
-    app: {
-        site: {
-            locale: 'en-US',
-            currency: 'USD',
-            features: {
-                passwordlessLogin: {
-                    enabled: false,
-                    callbackUri: '/passwordless-login-callback',
-                    landingUri: '/passwordless-login-landing',
-                },
-                socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                guestCheckout: true,
-            },
-        },
-    },
-} as any);
 
 // Mock useToast
 const mockAddToast = vi.fn();
@@ -89,7 +78,7 @@ const renderProductView = (props: React.ComponentProps<typeof ProductView>, init
         }
     );
     return {
-        ...render(<RouterProvider router={router} />, { wrapper: defaultConfigWrapper }),
+        ...render(<RouterProvider router={router} />),
         router,
     };
 };
@@ -445,39 +434,9 @@ describe('ProductView', () => {
                 ...mockBuildConfig,
                 app: {
                     ...mockBuildConfig.app,
-                    site: {
-                        ...mockBuildConfig.app.site,
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            ...mockBuildConfig.app.site.features,
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                            guestCheckout: true,
-                        },
-                    },
-                },
-            } as any);
-            const customWrapper = createConfigWrapper({
-                app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                            guestCheckout: true,
-                        },
+                    features: {
+                        ...mockBuildConfig.app.features,
+                        socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
                     },
                 },
             } as any);
@@ -498,7 +457,7 @@ describe('ProductView', () => {
                     initialEntries: ['/product/test-product'],
                 }
             );
-            render(<RouterProvider router={router} />, { wrapper: customWrapper });
+            render(<RouterProvider router={router} />);
 
             const shareButton = screen.getByRole('button', { name: /share/i });
             await user.click(shareButton);
@@ -517,39 +476,9 @@ describe('ProductView', () => {
                 ...mockBuildConfig,
                 app: {
                     ...mockBuildConfig.app,
-                    site: {
-                        ...mockBuildConfig.app.site,
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            ...mockBuildConfig.app.site.features,
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: true, providers: ['Email'] },
-                            guestCheckout: true,
-                        },
-                    },
-                },
-            } as any);
-            const customWrapper = createConfigWrapper({
-                app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: true, providers: ['Email'] },
-                            guestCheckout: true,
-                        },
+                    features: {
+                        ...mockBuildConfig.app.features,
+                        socialShare: { enabled: true, providers: ['Email'] },
                     },
                 },
             } as any);
@@ -570,7 +499,7 @@ describe('ProductView', () => {
                     initialEntries: ['/product/test-product'],
                 }
             );
-            render(<RouterProvider router={router} />, { wrapper: customWrapper });
+            render(<RouterProvider router={router} />);
 
             const shareButton = screen.getByRole('button', { name: /share/i });
             await user.click(shareButton);

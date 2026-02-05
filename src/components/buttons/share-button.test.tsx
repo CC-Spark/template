@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { render, screen, waitFor } from '@testing-library/react';
@@ -65,19 +74,23 @@ describe('ShareButton', () => {
     // Create a wrapper with default config
     const defaultConfigWrapper = createConfigWrapper({
         app: {
-            site: {
-                locale: 'en-US',
-                currency: 'USD',
-                features: {
-                    passwordlessLogin: {
-                        enabled: false,
-                        callbackUri: '/passwordless-login-callback',
-                        landingUri: '/passwordless-login-landing',
-                    },
-                    socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                    socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                    guestCheckout: true,
+            features: {
+                passwordlessLogin: {
+                    enabled: false,
+                    callbackUri: '/passwordless-login-callback',
+                    landingUri: '/passwordless-login-landing',
                 },
+                socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
+                guestCheckout: true,
+            },
+            commerce: {
+                sites: [
+                    {
+                        defaultLocale: 'en-US',
+                        defaultCurrency: 'USD',
+                    },
+                ],
             },
         },
     } as any);
@@ -273,19 +286,23 @@ describe('ShareButton', () => {
         test('renders only enabled providers from config', async () => {
             const customWrapper = createConfigWrapper({
                 app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: true, providers: ['Twitter', 'Email'] },
-                            guestCheckout: true,
+                    features: {
+                        passwordlessLogin: {
+                            enabled: false,
+                            callbackUri: '/passwordless-login-callback',
+                            landingUri: '/passwordless-login-landing',
                         },
+                        socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                        socialShare: { enabled: true, providers: ['Twitter', 'Email'] },
+                        guestCheckout: true,
+                    },
+                    commerce: {
+                        sites: [
+                            {
+                                defaultLocale: 'en-US',
+                                defaultCurrency: 'USD',
+                            },
+                        ],
                     },
                 },
             } as any);
@@ -305,19 +322,23 @@ describe('ShareButton', () => {
         test('does not render social providers when socialShare is disabled', async () => {
             const customWrapper = createConfigWrapper({
                 app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
-                            guestCheckout: true,
+                    features: {
+                        passwordlessLogin: {
+                            enabled: false,
+                            callbackUri: '/passwordless-login-callback',
+                            landingUri: '/passwordless-login-landing',
                         },
+                        socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                        socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
+                        guestCheckout: true,
+                    },
+                    commerce: {
+                        sites: [
+                            {
+                                defaultLocale: 'en-US',
+                                defaultCurrency: 'USD',
+                            },
+                        ],
                     },
                 },
             } as any);
@@ -413,22 +434,26 @@ describe('ShareButton', () => {
         test('filters out invalid providers', async () => {
             const customWrapper = createConfigWrapper({
                 app: {
-                    site: {
-                        locale: 'en-US',
-                        currency: 'USD',
-                        features: {
-                            passwordlessLogin: {
-                                enabled: false,
-                                callbackUri: '/passwordless-login-callback',
-                                landingUri: '/passwordless-login-landing',
-                            },
-                            socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-                            socialShare: {
-                                enabled: true,
-                                providers: ['Twitter', 'Email', 'InvalidProvider' as 'Twitter'], // Cast to test filtering
-                            },
-                            guestCheckout: true,
+                    features: {
+                        passwordlessLogin: {
+                            enabled: false,
+                            callbackUri: '/passwordless-login-callback',
+                            landingUri: '/passwordless-login-landing',
                         },
+                        socialLogin: { enabled: true, callbackUri: '/social-callback', providers: ['Apple', 'Google'] },
+                        socialShare: {
+                            enabled: true,
+                            providers: ['Twitter', 'Email', 'InvalidProvider' as 'Twitter'], // Cast to test filtering
+                        },
+                        guestCheckout: true,
+                    },
+                    commerce: {
+                        sites: [
+                            {
+                                defaultLocale: 'en-US',
+                                defaultCurrency: 'USD',
+                            },
+                        ],
                     },
                 },
             } as any);

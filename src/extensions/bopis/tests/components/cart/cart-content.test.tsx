@@ -1,4 +1,18 @@
-// Testing libraries
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
@@ -17,6 +31,15 @@ import { usePickup } from '@/extensions/bopis/context/pickup-context';
 // Mock the pickup context
 vi.mock('@/extensions/bopis/context/pickup-context', () => ({
     usePickup: vi.fn(() => null),
+}));
+
+// Mock CartDeliveryOption component
+vi.mock('@/extensions/bopis/components/delivery-options/cart-delivery-option', () => ({
+    default: ({ product }: { product: any }) => (
+        <div data-testid={`cart-delivery-option-${product.itemId || product.productId}`}>
+            Delivery Option for {product.productId}
+        </div>
+    ),
 }));
 
 const renderCartContent = (props: React.ComponentProps<typeof CartContent>) => {
@@ -65,13 +88,11 @@ describe('CartContent', () => {
             id: 'store-1',
             name: 'Test Store',
             inventoryId: 'inventory-1',
-            address: {
-                address1: '123 Test St',
-                city: 'Test City',
-                stateCode: 'CA',
-                postalCode: '12345',
-                countryCode: 'US',
-            },
+            address1: '123 Test St',
+            city: 'Test City',
+            stateCode: 'CA',
+            postalCode: '12345',
+            countryCode: 'US',
         };
 
         const createPickupContext = (productIds: string[], store?: ShopperStores.schemas['Store']) => {
@@ -106,7 +127,7 @@ describe('CartContent', () => {
             expect(screen.getByTestId('sf-product-item-product-1')).toBeInTheDocument();
             expect(screen.getByTestId('sf-product-item-product-2')).toBeInTheDocument();
             // Pickup store info should not be rendered
-            expect(screen.queryByTestId('pickup-store-info-card')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('cart-pickup-card')).not.toBeInTheDocument();
         });
 
         test('renders pickup items grouped with store info when pickup items exist', () => {
@@ -120,17 +141,20 @@ describe('CartContent', () => {
                         shipmentId: 'shipment-1',
                         c_fromStoreId: 'store-1',
                     },
+                    {
+                        shipmentId: 'shipment-2',
+                    },
                 ],
                 productItems: [
                     { itemId: 'item-1', quantity: 2, productId: 'product-1', shipmentId: 'shipment-1' },
-                    { itemId: 'item-2', quantity: 1, productId: 'product-2' },
+                    { itemId: 'item-2', quantity: 1, productId: 'product-2', shipmentId: 'shipment-2' },
                 ],
             };
 
             renderCartContent({ basket: basketWithPickupShipment, productsByItemId: mockProductMap });
 
             // Pickup store info should be rendered
-            expect(screen.getByTestId('pickup-store-info-card')).toBeInTheDocument();
+            expect(screen.getByTestId('cart-pickup-card')).toBeInTheDocument();
             expect(screen.getByText(/Pick up in/i)).toBeInTheDocument();
             expect(screen.getByText('Test Store')).toBeInTheDocument();
 
@@ -151,11 +175,14 @@ describe('CartContent', () => {
                         shipmentId: 'shipment-1',
                         c_fromStoreId: 'store-1',
                     },
+                    {
+                        shipmentId: 'shipment-2',
+                    },
                 ],
                 productItems: [
                     { itemId: 'item-1', quantity: 2, productId: 'product-1', shipmentId: 'shipment-1' },
-                    { itemId: 'item-2', quantity: 1, productId: 'product-2' },
-                    { itemId: 'item-3', quantity: 1, productId: 'product-3' },
+                    { itemId: 'item-2', quantity: 1, productId: 'product-2', shipmentId: 'shipment-2' },
+                    { itemId: 'item-3', quantity: 1, productId: 'product-3', shipmentId: 'shipment-2' },
                 ],
             };
 
@@ -167,7 +194,7 @@ describe('CartContent', () => {
             renderCartContent({ basket: basketWithThreeItems, productsByItemId: productMapWithThree });
 
             // Pickup item (product-1) should be in pickup section
-            expect(screen.getByTestId('pickup-store-info-card')).toBeInTheDocument();
+            expect(screen.getByTestId('cart-pickup-card')).toBeInTheDocument();
             expect(screen.getByTestId('sf-product-item-product-1')).toBeInTheDocument();
 
             // Delivery items (product-2, product-3) should be in delivery section
@@ -182,7 +209,7 @@ describe('CartContent', () => {
             renderCartContent({ basket: mockBasket, productsByItemId: mockProductMap });
 
             // No pickup store info should be rendered (no store available)
-            expect(screen.queryByTestId('pickup-store-info-card')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('cart-pickup-card')).not.toBeInTheDocument();
             // Items should still be rendered as delivery items
             expect(screen.getByTestId('sf-product-item-product-1')).toBeInTheDocument();
             expect(screen.getByTestId('sf-product-item-product-2')).toBeInTheDocument();
@@ -194,9 +221,18 @@ describe('CartContent', () => {
 
             const basketWithMissingProductId = {
                 ...mockBasket,
+                shipments: [
+                    {
+                        shipmentId: 'shipment-1',
+                        c_fromStoreId: 'store-1',
+                    },
+                    {
+                        shipmentId: 'shipment-2',
+                    },
+                ],
                 productItems: [
-                    { itemId: 'item-1', quantity: 2, productId: 'product-1' },
-                    { itemId: 'item-2', quantity: 1 }, // No productId
+                    { itemId: 'item-1', quantity: 2, productId: 'product-1', shipmentId: 'shipment-1' },
+                    { itemId: 'item-2', quantity: 1, shipmentId: 'shipment-2' }, // No productId but has shipmentId
                 ],
             };
 
@@ -224,7 +260,72 @@ describe('CartContent', () => {
             expect(screen.getByTestId('sf-product-item-product-1')).toBeInTheDocument();
             expect(screen.getByTestId('sf-product-item-product-2')).toBeInTheDocument();
             // No pickup store info should be rendered
-            expect(screen.queryByTestId('pickup-store-info-card')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('cart-pickup-card')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Delivery actions integration', () => {
+        test('renders delivery option dropdown for each cart item', () => {
+            renderCartContent({ basket: mockBasket, productsByItemId: mockProductMap });
+
+            // Verify delivery option components are rendered for each item
+            expect(screen.getByTestId('cart-delivery-option-item-1')).toBeInTheDocument();
+            expect(screen.getByTestId('cart-delivery-option-item-2')).toBeInTheDocument();
+
+            // Verify they display the correct product IDs
+            expect(screen.getByText('Delivery Option for product-1')).toBeInTheDocument();
+            expect(screen.getByText('Delivery Option for product-2')).toBeInTheDocument();
+        });
+
+        test('renders delivery option for items without itemId using productId', () => {
+            const basketWithoutItemIds = {
+                ...mockBasket,
+                productItems: [
+                    { quantity: 2, productId: 'product-1' }, // No itemId
+                    { itemId: 'item-2', quantity: 1, productId: 'product-2' }, // Has itemId
+                ],
+            };
+
+            renderCartContent({ basket: basketWithoutItemIds, productsByItemId: mockProductMap });
+
+            // Should render for both items (one uses productId as key)
+            expect(screen.getByTestId('cart-delivery-option-product-1')).toBeInTheDocument();
+            expect(screen.getByTestId('cart-delivery-option-item-2')).toBeInTheDocument();
+        });
+
+        test('delivery actions receives correct product data', () => {
+            renderCartContent({ basket: mockBasket, productsByItemId: mockProductMap });
+
+            // Verify delivery option components are rendered with correct product IDs
+            // The mock component displays "Delivery Option for {productId}", so we can verify
+            // the product data was passed correctly by checking the displayed text
+            expect(screen.getByText('Delivery Option for product-1')).toBeInTheDocument();
+            expect(screen.getByText('Delivery Option for product-2')).toBeInTheDocument();
+        });
+
+        test('renders delivery option for both pickup and delivery items', () => {
+            const basketWithPickupShipment = {
+                ...mockBasket,
+                shipments: [
+                    {
+                        shipmentId: 'shipment-1',
+                        c_fromStoreId: 'store-1',
+                    },
+                    {
+                        shipmentId: 'shipment-2',
+                    },
+                ],
+                productItems: [
+                    { itemId: 'item-1', quantity: 2, productId: 'product-1', shipmentId: 'shipment-1' },
+                    { itemId: 'item-2', quantity: 1, productId: 'product-2', shipmentId: 'shipment-2' },
+                ],
+            };
+
+            renderCartContent({ basket: basketWithPickupShipment, productsByItemId: mockProductMap });
+
+            // Both items should have delivery option dropdowns
+            expect(screen.getByTestId('cart-delivery-option-item-1')).toBeInTheDocument();
+            expect(screen.getByTestId('cart-delivery-option-item-2')).toBeInTheDocument();
         });
     });
 });

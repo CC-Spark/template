@@ -2,6 +2,9 @@
 
 A production-ready React storefront template for Salesforce Commerce Cloud, built with React Server Components and React Router 7.
 
+> [!IMPORTANT]
+> Storefront Next is a pilot or beta service that is subject to the Beta Services Terms at [Agreements - Salesforce.com](https://www.salesforce.com/company/legal/agreements/) or a written Unified Pilot Agreement if executed by Customer, and applicable terms in the [Product Terms Directory](https://ptd.salesforce.com/). Use of this pilot or beta service is at the Customer's sole discretion.
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
@@ -138,11 +141,14 @@ src/
 
 ## Documentation
 
-- 📊 [Data Fetching](./README-DATA.md)
-- 🔐 [Authentication](./README-AUTH.md)
-- 🌍 [Internationalization](./README-I18N.md)
-- 🧪 [Testing](./README-TESTS.md)
-- 🔍 [ESLint](./README-ESLINT.md)
+- 📊 [Data Fetching](./docs/README-DATA.md)
+- 🔐 [Authentication](./docs/README-AUTH.md)
+- 🌍 [Internationalization](./docs/README-I18N.md)
+- 🧪 [Testing](./docs/README-TESTS.md)
+- 🔍 [ESLint](./docs/README-ESLINT.md)
+- ⚡ [Performance](./docs/README-PERFORMANCE.md)
+- 🔌 [Adapter Pattern](./docs/README-ADAPTER-PATTERN-GUIDE.md)
+- 📖 [Storybook Coverage](./docs/README-STORY-COVERAGE.md)
 
 ## Contributing
 

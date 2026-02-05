@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
@@ -631,92 +646,5 @@ This story highlights the security aspects of the password field:
         const submitButton = canvas.getByRole('button', { name: /sign in/i });
         await expect(submitButton).toBeInTheDocument();
         await expect(submitButton).not.toBeDisabled();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test form renders with all expected elements
-        const emailInput = canvas.getByLabelText(/email/i);
-        const passwordInput = canvas.getByLabelText(/password/i);
-        const submitButton = canvas.getByRole('button', { name: /sign in/i });
-        await expect(emailInput).toBeInTheDocument();
-        await expect(passwordInput).toBeInTheDocument();
-        await expect(submitButton).toBeInTheDocument();
-
-        // Test passwordless toggle link exists
-        const passwordlessLink = canvas.getByRole('link', { name: 'Login without password' });
-        await expect(passwordlessLink).toBeInTheDocument();
-
-        // Test navigation links
-        const forgotPasswordLink = canvas.getByRole('link', { name: 'Forgot your password?' });
-        const signUpLink = canvas.getByRole('link', { name: 'Sign up' });
-        await expect(forgotPasswordLink).toBeInTheDocument();
-        await expect(signUpLink).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test form renders with all expected elements
-        const emailInput = canvas.getByLabelText(/email/i);
-        const passwordInput = canvas.getByLabelText(/password/i);
-        const submitButton = canvas.getByRole('button', { name: /sign in/i });
-        await expect(emailInput).toBeInTheDocument();
-        await expect(passwordInput).toBeInTheDocument();
-        await expect(submitButton).toBeInTheDocument();
-
-        // Test passwordless toggle link exists
-        const passwordlessLink = canvas.getByRole('link', { name: 'Login without password' });
-        await expect(passwordlessLink).toBeInTheDocument();
-
-        // Test navigation links
-        const forgotPasswordLink = canvas.getByRole('link', { name: 'Forgot your password?' });
-        const signUpLink = canvas.getByRole('link', { name: 'Sign up' });
-        await expect(forgotPasswordLink).toBeInTheDocument();
-        await expect(signUpLink).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test form renders with all expected elements
-        const emailInput = canvas.getByLabelText(/email/i);
-        const passwordInput = canvas.getByLabelText(/password/i);
-        const submitButton = canvas.getByRole('button', { name: /sign in/i });
-        await expect(emailInput).toBeInTheDocument();
-        await expect(passwordInput).toBeInTheDocument();
-        await expect(submitButton).toBeInTheDocument();
-
-        // Test passwordless toggle link exists
-        const passwordlessLink = canvas.getByRole('link', { name: 'Login without password' });
-        await expect(passwordlessLink).toBeInTheDocument();
-
-        // Test navigation links
-        const forgotPasswordLink = canvas.getByRole('link', { name: 'Forgot your password?' });
-        const signUpLink = canvas.getByRole('link', { name: 'Sign up' });
-        await expect(forgotPasswordLink).toBeInTheDocument();
-        await expect(signUpLink).toBeInTheDocument();
     },
 };

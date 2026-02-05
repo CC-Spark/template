@@ -1,19 +1,31 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
-import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperBasketsV2, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import CurrentPrice from './current-price';
 import ListPrice from './list-price';
 import PromoCallout from './promo-callout';
 import { getPriceData } from './utils';
 
-type Product = ShopperProducts.schemas['Product'] | ShopperSearch.schemas['ProductSearchHit'];
+type Product =
+    | ShopperProducts.schemas['Product']
+    | (ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>)
+    | ShopperSearch.schemas['ProductSearchHit'];
 
 interface ProductPriceProps {
     labelForA11y?: string;
@@ -22,6 +34,7 @@ interface ProductPriceProps {
     quantity?: number;
     currentPriceProps?: Omit<ComponentProps<typeof CurrentPrice>, 'price' | 'currency' | 'labelForA11y'>;
     listPriceProps?: Omit<ComponentProps<typeof ListPrice>, 'price' | 'currency' | 'labelForA11y'>;
+    promoCalloutProps?: Omit<ComponentProps<typeof PromoCallout>, 'product'>;
     type?: 'unit' | 'total';
     className?: string;
 }
@@ -40,6 +53,7 @@ interface ProductPriceProps {
  * @param quantity - quantity to take into the account for price display
  * @param currentPriceProps - extra props to be passing to CurrentPrice component
  * @param listPriceProps - extra props to be passing to ListPrice component
+ * @param promoCalloutProps - extra props to be passing to PromoCallout component (className overrides default)
  * @param type - type of price to display. 'unit' for unit price, 'total' for total price (unit price * quantity).
  * @param labelForA11y - label to be used for a11y
  */
@@ -51,6 +65,7 @@ export default function ProductPrice({
     type = 'total',
     currentPriceProps = {},
     listPriceProps = {},
+    promoCalloutProps = {},
     className,
 }: ProductPriceProps) {
     const priceData = getPriceData(product, { quantity });
@@ -88,7 +103,11 @@ export default function ProductPrice({
         return (
             <>
                 <div className={cn('items-center gap-2', className)}>{renderCurrentPrice(true)}</div>
-                <PromoCallout product={product} className={className} />
+                <PromoCallout
+                    product={product}
+                    {...promoCalloutProps}
+                    className={cn(className, promoCalloutProps?.className)}
+                />
             </>
         );
     }
@@ -97,7 +116,11 @@ export default function ProductPrice({
         return (
             <>
                 <div className={cn('items-center gap-2', className)}>{renderPriceSet(isRange ?? false)}</div>
-                <PromoCallout product={product} className={className} />
+                <PromoCallout
+                    product={product}
+                    {...promoCalloutProps}
+                    className={cn(className, promoCalloutProps?.className)}
+                />
             </>
         );
     }
@@ -105,7 +128,11 @@ export default function ProductPrice({
     return (
         <>
             <div className={cn('items-center gap-2', className)}>{renderPriceSet(isRange ?? false)}</div>
-            <PromoCallout product={product} className={className} />
+            <PromoCallout
+                product={product}
+                {...promoCalloutProps}
+                className={cn(className, promoCalloutProps?.className)}
+            />
         </>
     );
 }

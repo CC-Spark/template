@@ -1,11 +1,28 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Typography } from '@/components/typography';
+import { getCountryName, getStateName } from '@/components/customer-address-form';
 import type { ShopperBasketsV2, ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 
 interface AddressDisplayProps {
     address: ShopperBasketsV2.schemas['OrderAddress'] | ShopperCustomers.schemas['CustomerAddress'];
+    showName?: boolean;
 }
 
-export default function AddressDisplay({ address }: AddressDisplayProps) {
+export default function AddressDisplay({ address, showName = true }: AddressDisplayProps) {
     if (!address) {
         return (
             <Typography variant="small" className="text-muted-foreground">
@@ -14,34 +31,36 @@ export default function AddressDisplay({ address }: AddressDisplayProps) {
         );
     }
 
+    // Build the location line: postalCode, city, state, country
+    const locationParts: string[] = [];
+    if (address.postalCode) locationParts.push(address.postalCode);
+    if (address.city) locationParts.push(address.city);
+    if (address.stateCode && address.countryCode) {
+        const stateName = getStateName(address.countryCode as 'US' | 'CA', address.stateCode);
+        locationParts.push(stateName || address.stateCode);
+    } else if (address.stateCode) {
+        locationParts.push(address.stateCode);
+    }
+    if (address.countryCode) {
+        const countryName = getCountryName(address.countryCode as 'US' | 'CA');
+        locationParts.push(countryName || address.countryCode);
+    }
+
+    const fullName = [address.firstName, address.lastName].filter(Boolean).join(' ');
+
     return (
         <div className="space-y-1">
-            <Typography variant="p">
-                {address.firstName} {address.lastName}
-            </Typography>
+            {showName && fullName && (
+                <Typography variant="p" className="font-medium">
+                    {fullName}
+                </Typography>
+            )}
             <Typography variant="small" className="text-muted-foreground">
                 {address.address1}
             </Typography>
-            {address.address2 && (
-                <Typography variant="small" className="text-muted-foreground">
-                    {address.address2}
-                </Typography>
-            )}
             <Typography variant="small" className="text-muted-foreground">
-                {address.city}
-                {address.stateCode && `, ${address.stateCode}`}
-                {address.postalCode && ` ${address.postalCode}`}
+                {locationParts.join(', ')}
             </Typography>
-            {address.countryCode && (
-                <Typography variant="small" className="text-muted-foreground">
-                    {address.countryCode}
-                </Typography>
-            )}
-            {address.phone && (
-                <Typography variant="small" className="text-muted-foreground">
-                    {address.phone}
-                </Typography>
-            )}
         </div>
     );
 }

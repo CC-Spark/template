@@ -1,11 +1,21 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { Typography } from '@/components/typography';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/lib/currency';
 
 interface ListPriceProps {
@@ -35,9 +45,14 @@ export default function ListPrice({
     currency,
     className,
 }: ListPriceProps) {
-    const listPriceText = formatCurrency(price, 'en-US', currency);
+    const { t, i18n } = useTranslation('product');
 
-    const ariaLabel = isRange ? `List price from ${listPriceText || ''}` : `List price: ${listPriceText || ''}`;
+    // Format currency using i18next's current language
+    const listPriceText = formatCurrency(price, i18n.language, currency);
+
+    const ariaLabel = isRange
+        ? t('price.listPriceFrom', { price: listPriceText })
+        : t('price.listPrice', { price: listPriceText });
 
     return (
         <>
@@ -50,7 +65,7 @@ export default function ListPrice({
             {/*For screen reader, we want to make sure the product name is announced before the price to avoid confusion*/}
             <span className="sr-only" aria-live="polite" aria-atomic={true}>
                 {labelForA11y}
-                {`List price: ${listPriceText || ''}`}
+                {t('price.listPrice', { price: listPriceText })}
             </span>
         </>
     );

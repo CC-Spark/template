@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { render, screen } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import ProductCarouselSkeleton from './skeleton';
@@ -35,6 +50,11 @@ vi.mock('@/components/ui/card', () => ({
     ),
     CardFooter: ({ children, className, ...props }: any) => (
         <div data-testid="card-footer" className={className} {...props}>
+            {children}
+        </div>
+    ),
+    CardHeader: ({ children, className, ...props }: any) => (
+        <div data-testid="card-header" className={className} {...props}>
             {children}
         </div>
     ),
@@ -116,12 +136,16 @@ describe('ProductCarouselSkeleton', () => {
             render(<ProductCarouselSkeleton itemCount={1} />);
 
             const card = screen.getByTestId('card');
-            const cardContent = screen.getByTestId('card-content');
+            const cardContents = screen.getAllByTestId('card-content');
             const cardFooter = screen.getByTestId('card-footer');
+            const cardHeader = screen.getByTestId('card-header');
 
             expect(card).toBeInTheDocument();
-            expect(cardContent).toBeInTheDocument();
+            expect(cardContents).toHaveLength(2);
+            expect(cardContents[0]).toBeInTheDocument();
+            expect(cardContents[1]).toBeInTheDocument();
             expect(cardFooter).toBeInTheDocument();
+            expect(cardHeader).toBeInTheDocument();
         });
     });
 

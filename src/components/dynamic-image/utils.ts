@@ -1,44 +1,59 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+import defaultTheme from 'tailwindcss/defaultTheme';
 
-// Tailwind CSS default breakpoints
-// TODO: Replace with theme breakpoints
+/**
+ * Supported target formats of Salesforce's Dynamic Imaging Service are: avif, gif, jp2, jpg, jpeg, jxr, png, and webp.
+ * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_image_transformation_service.htm&type=5}
+ * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_creating_image_transformation_urls.htm&type=5}
+ */
+type DynamicImageFormat = 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp';
+
+export const defaultImageFormats: Array<DynamicImageFormat> = ['webp'];
+
+const vwValue = /^[\d.]+vw$/;
+const pxValue = /^[\d.]+px$/;
+const emValue = /^[\d.]+em$/;
+const remValue = /^[\d.]+rem$/;
+const imageExtensions = /\.(avif|gif|jp2|jpe?g|png|tiff?|webp)(?=\?|$)/i;
+
+// Tailwind CSS default breakpoints (converted from rem to px)
 const defaultBreakpoints = {
     base: '0px',
-    sm: '640px',
-    md: '768px',
-    lg: '1024px',
-    xl: '1280px',
-    '2xl': '1536px',
+    ...Object.fromEntries(
+        Object.entries(defaultTheme.screens).map(([key, value]) => [
+            key,
+            remValue.test(value) ? `${parseFloat(value) * 16}px` : value,
+        ])
+    ),
 } as const;
 
 type Breakpoints = typeof defaultBreakpoints;
 type BreakpointKey = keyof Breakpoints;
 
-/**
- * @param {Object} breakpoints
- * @return {string[]} Breakpoint labels ordered from smallest. For example: ['base', 'sm', 'md', 'lg', 'xl', '2xl']
- */
 const getBreakpointLabels = (breakpoints: Record<string, string>): string[] =>
     Object.entries(breakpoints)
         .sort((a, b) => parseFloat(a[1]) - parseFloat(b[1]))
         .map(([key]) => key);
-
-const vwValue = /^\d+vw$/;
-const pxValue = /^\d+px$/;
-const emValue = /^\d+em$/;
 
 let themeBreakpoints = defaultBreakpoints;
 let breakpointLabels = getBreakpointLabels(themeBreakpoints);
 
 /**
  * Helper to create very specific `media` attributes for responsive preload purposes.
- * @param {number} breakpointIndex
- * @return {({min?: string, max?: string} | undefined)}
  * @see {@link https://web.dev/articles/preload-responsive-images#picture}
  */
 const obtainImageLinkMedia = (
@@ -73,7 +88,6 @@ const obtainImageLinkMedia = (
 const isObject = (o: any): o is Record<string, any> => o?.constructor === Object;
 
 /**
- * @param {Object} widths
  * @example
  * // returns the array [10, 10, 10, 50]
  * widthsAsArray({base: 10, lg: 50})
@@ -99,55 +113,84 @@ const widthsAsArray = (widths: Record<string, number | string>): (number | strin
         .filter((item): item is number | string => item !== undefined);
 };
 
-/**
- * @param {number} em
- * @param {number} [browserDefaultFontSize]
- */
 const emToPx = (em: number, browserDefaultFontSize = 16): number => Math.round(em * browserDefaultFontSize);
 
-/**
- * @param {number} vw
- * @param {string} breakpoint
- */
 const vwToPx = (vw: number, breakpoint: string): number => {
     const result = (vw / 100) * parseFloat(themeBreakpoints[breakpoint as BreakpointKey]);
     const breakpointsDefinedInPx = Object.values(themeBreakpoints).some((val) => pxValue.test(val));
 
     // Assumes theme's breakpoints are defined in either em or px
-    // See https://chakra-ui.com/docs/features/responsive-styles#customizing-breakpoints
     return breakpointsDefinedInPx ? result : emToPx(result);
 };
 
 /**
- * @param {string} dynamicSrc
- * @param {number} imageWidth
- * @return {string} Image url having the given width
+ * Replaces the image file extension in a URL with a configurable target format, e.g. `webp`.
+ * Handles URLs with query parameters correctly.
+ * If the format changes, appends the original extension as `sfrm` parameter.
  * @example
- * // returns https://example.com/image_720.jpg
- * getSrc('https://example.com/image[_{width}].jpg', 720)
+ * // returns 'https://example.com/image.webp?sw=460&q=60&sfrm=jpg'
+ * replaceImageFormat('https://example.com/image.jpg?sw=460&q=60')
  */
-export const getSrc = (dynamicSrc: string, imageWidth: number): string => {
-    // 1. remove the surrounding []
-    // 2. replace {...} with imageWidth
-    // 3. replace any existing sw= parameter with new width if needed
-
-    let result = dynamicSrc.replace(/\[([^\]]+)\]/g, '$1').replace(/\{[^}]+\}/g, imageWidth.toString());
-
-    // Handle URLs that already have sw= parameter
-    if (result.includes('sw=')) {
-        result = result.replace(/sw=\d+/, `sw=${imageWidth}`);
+export const replaceImageFormat = (
+    url: string,
+    targetFormat: 'webp' | 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' = 'webp'
+): string => {
+    const match = url.match(imageExtensions);
+    if (!match) {
+        return url;
     }
 
-    return result;
+    const originalExtension = match[1].toLowerCase();
+    if (originalExtension === targetFormat) {
+        return url;
+    }
+
+    const newUrl = url.replace(imageExtensions, `.${targetFormat}`);
+    const separator = newUrl.includes('?') ? '&' : '?';
+    return `${newUrl}${separator}sfrm=${originalExtension}`;
 };
 
 /**
- * @param {string} dynamicSrc
+ * @example
+ * // returns https://example.com/image_720.webp?sw=720&q=60&sfrm=jpg
+ * getSrc('https://example.com/image[_{width}].jpg', 720, 60)
+ */
+export const getSrc = (dynamicSrc: string, imageWidth: number, quality?: number): string => {
+    const getSep = (res: string): '?' | '&' => (res.includes('?') ? '&' : '?');
+    const hasUrlParam = (url: string, param: string) => new RegExp(`[?&]${param}=`).test(url);
+
+    // 1. Remove eventual surrounding brackets, i.e., []
+    // 2. Make sure that invalid edge cases, where the DIS instructions like `[?sw={width}]` are added to an already
+    // parameterized URL, are handled correctly
+    // 3. Replace eventual `{width}` placeholder with actual `imageWidth`
+    let result = dynamicSrc
+        .replace(/\[([?&]?)([^\]]+)]/g, (_match, _sep, content, offset, fullString) => {
+            const beforeMatch = fullString?.slice?.(0, offset);
+            return `${getSep(beforeMatch)}${content}`;
+        })
+        .replace(/\{[^}]+}/g, imageWidth.toString());
+
+    // Handle URLs that already have sw= parameter
+    if (hasUrlParam(result, 'sw')) {
+        result = result.replace(/([?&])sw=\d+/, `$1sw=${imageWidth}`);
+    } else {
+        result = `${result}${getSep(result)}sw=${imageWidth}`;
+    }
+
+    // Handle quality parameter - existing q= in URL takes priority
+    if (typeof quality === 'number' && Number.isInteger(quality) && !hasUrlParam(result, 'q')) {
+        result = `${result}${getSep(result)}q=${quality}`;
+    }
+
+    return replaceImageFormat(result);
+};
+
+/**
  * @example
  * // Returns 'https://example.com/image.jpg'
  * getSrcWithoutOptionalParams('https://example.com/image.jpg[?sw={width}]')
  */
-const getSrcWithoutOptionalParams = (dynamicSrc: string): string => dynamicSrc.replace(/\[[^\]]+\]/g, '');
+const getSrcWithoutOptionalParams = (dynamicSrc: string): string => dynamicSrc.replace(/\[[^\]]+]/g, '');
 
 const padArray = (arr: (number | string)[]): (number | string)[] => {
     const l1 = arr.length;
@@ -160,10 +203,6 @@ const padArray = (arr: (number | string)[]): (number | string)[] => {
     return arr;
 };
 
-/**
- * @param {string[]|number[]} widths
- * @return {number[]}
- */
 const convertToPxNumbers = (widths: (number | string)[]): number[] =>
     widths
         .map((width, i) => {
@@ -196,12 +235,14 @@ const convertToPxNumbers = (widths: (number | string)[]): number[] =>
         .filter((width): width is number => width !== undefined);
 
 type ImageLink = {
+    type: string;
     srcSet: string;
     sizes: string;
     media: { min?: string; max?: string };
 };
 
 type ConvertedImageLink = {
+    type: string;
     srcSet: string;
     sizes: string;
     media: string;
@@ -211,8 +252,6 @@ type ConvertedImageLink = {
  * Transforms an array of preload link objects by converting the raw `media`
  * property of each entry (with `min` and/or `max` values) into actual media
  * queries using `(min-width)` and/or `(max-width)`.
- * @param {{srcSet: string, sizes: string, media: {min?: string, max?: string}}[]} links
- * @return {{srcSet: string, sizes: string, media: string}[]}
  */
 const convertImageLinksMedia = (links: ImageLink[]): ConvertedImageLink[] =>
     links.map((link) => {
@@ -230,6 +269,7 @@ const convertImageLinksMedia = (links: ImageLink[]): ConvertedImageLink[] =>
     });
 
 type Source = {
+    type: string;
     srcSet: string;
     sizes: string;
     media: string;
@@ -240,14 +280,16 @@ type ResponsiveData = {
     links: ConvertedImageLink[];
 };
 
+const toMimeType = (format: DynamicImageFormat) => (format === 'jpg' ? 'image/jpeg' : `image/${format}`);
+
 /**
- * Determines the data required for the responsive `<source>` and `<link rel="preload">
+ * Determines the data required for the responsive `<source>` and `<link rel="preload" type="image/{format}">
  * portions/elements.
- * @param {string} src
- * @param {(number[]|string[])} widths
- * @returns {{sources: {srcSet: string, sizes: string, media: string}[], links: {srcSet: string, sizes: string, media: string}[]}}
  */
-const getResponsiveSourcesAndLinks = (src: string, widths: (number | string)[]): ResponsiveData => {
+const getResponsiveSourcesAndLinks = (
+    src: string,
+    { widths, formats, quality }: { widths: (number | string)[]; formats: Array<DynamicImageFormat>; quality?: number }
+): ResponsiveData => {
     // By default, unitless value is interpreted as px
     const sizesWidths = widths.map((width) => (typeof width === 'number' ? `${width}px` : width));
     const l = sizesWidths.length;
@@ -273,28 +315,35 @@ const getResponsiveSourcesAndLinks = (src: string, widths: (number | string)[]):
             // To support higher-density devices, request all images in 1x and 2x widths
             const width = sourcesWidths[idx >= sourcesLength ? sourcesLength - 1 : idx];
             const sizeData = _sizes[idx];
-            if (!sizeData || !width) return acc;
+            if (!sizeData || !width) {
+                return acc;
+            }
 
             const { sizes, media, mediaLink } = sizeData;
-            const lastSource = acc.sources[acc.sources.length - 1];
+            const firstSource = acc.sources[0];
             const lastLink = acc.links[acc.links.length - 1];
             const srcSet = [1, 2]
                 .map((factor) => {
                     const effectiveWidth = Math.round(width * factor);
                     const effectiveSize = Math.round(width * factor);
 
-                    return `${getSrc(src, effectiveSize)} ${effectiveWidth}w`;
+                    return `${getSrc(src, effectiveSize, quality)} ${effectiveWidth}w`;
                 })
                 .join(', ');
 
-            if (idx < sourcesLength && sizes && (lastSource?.sizes !== sizes || srcSet !== lastSource?.srcSet)) {
+            if (idx < sourcesLength && sizes && (firstSource?.sizes !== sizes || srcSet !== firstSource?.srcSet)) {
                 // Only store new `<source>` if we haven't already stored those values
-                acc.sources.push({ srcSet, sizes, media });
+                // Insert at beginning to achieve reversed `<source>` order
+                for (let i = formats.length - 1; i >= 0; i--) {
+                    acc.sources.unshift({ type: toMimeType(formats[i]), srcSet, sizes, media });
+                }
             }
 
             if (sizes && (lastLink?.sizes !== sizes || srcSet !== lastLink?.srcSet)) {
                 // Only store new `<link>` if we haven't already stored those values
-                acc.links.push({ srcSet, sizes, media: mediaLink || {} });
+                for (const format of formats) {
+                    acc.links.push({ type: toMimeType(format), srcSet, sizes, media: mediaLink || {} });
+                }
             } else if (lastLink && mediaLink) {
                 // If we have already stored those values, update the `max` portion of the related `<link>` data
                 if (mediaLink.max) {
@@ -305,10 +354,19 @@ const getResponsiveSourcesAndLinks = (src: string, widths: (number | string)[]):
         },
         { sources: [], links: [] }
     );
-    return { sources: sources.reverse(), links: convertImageLinksMedia(links) };
+    return { sources, links: convertImageLinksMedia(links) };
 };
 
-type GetResponsivePictureAttributesProps = {
+/**
+ * Resolve the attributes required to create a DIS-optimized `<picture>` component.
+ */
+export const getResponsivePictureAttributes = ({
+    src,
+    widths,
+    formats = defaultImageFormats,
+    breakpoints = defaultBreakpoints,
+    quality,
+}: {
     src: string;
     /**
      * Image widths relative to the breakpoints. Supports multiple formats:
@@ -318,29 +376,18 @@ type GetResponsivePictureAttributesProps = {
      * - Object with breakpoint keys and units: {base: '100vw', sm: '50vw', md: '500px'}
      */
     widths?: (number | string)[] | Record<string, number> | Record<string, string> | Record<string, number | string>;
+    formats?: Array<DynamicImageFormat>;
     breakpoints?: Record<string, string>;
-};
-
-type ResponsivePictureAttributes = {
+    /**
+     * Image quality (1-100). If the source URL already contains a `q` parameter,
+     * that value takes priority over this setting.
+     */
+    quality?: number;
+}): {
     sources: Source[];
     links: ConvertedImageLink[];
     src: string;
-};
-
-/**
- * Resolve the attributes required to create a DIS-optimized `<picture>` component.
- * @param {Object} props
- * @param {string} props.src - Dynamic src having an optional param that can vary with widths. For example: `image[_{width}].jpg` or `image.jpg[?sw={width}&q=60]`
- * @param {number[] | string[] | Record<string, number> | Record<string, string> | Record<string, number | string>} [props.widths] - Image widths relative to the breakpoints. Supports multiple formats: array of numbers (unitless, interpreted as px), array of strings with units (mixed px and vw), or object with breakpoint keys and values.
- * @param {Object} [props.breakpoints] - The current theme's breakpoints. If not given, Tailwind's default breakpoints will be used.
- * @return {Object} src, sizes, srcSet, media props for your image component
- * @see {@link DynamicImage}
- */
-export const getResponsivePictureAttributes = ({
-    src,
-    widths,
-    breakpoints = defaultBreakpoints,
-}: GetResponsivePictureAttributesProps): ResponsivePictureAttributes => {
+} => {
     if (!widths) {
         return {
             sources: [],
@@ -357,7 +404,11 @@ export const getResponsivePictureAttributes = ({
     const _widths = isObject(widths)
         ? widthsAsArray(widths as Record<string, number | string>)
         : (widths as (number | string)[]).slice(0);
-    const { sources, links } = getResponsiveSourcesAndLinks(src, _widths);
+    const { sources, links } = getResponsiveSourcesAndLinks(src, {
+        widths: _widths,
+        formats,
+        quality,
+    });
 
     return {
         sources,

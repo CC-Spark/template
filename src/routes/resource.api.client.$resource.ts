@@ -1,17 +1,26 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type {
-    ActionFunctionArgs,
-    ClientActionFunctionArgs,
-    ClientLoaderFunctionArgs,
-    LoaderFunctionArgs,
-} from 'react-router';
-import { decodeBase64Url } from '@/lib/url';
-import { extractResponseError } from '@/lib/utils';
-import { createApiClients } from '@/lib/api-clients';
-import type { Clients, OperationMethodsOnly } from '@salesforce/storefront-next-runtime/scapi';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-// Default empty array string for resource parameter fallback
-const DEFAULT_RESOURCE_ARRAY = '[]';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { decodeBase64Url } from '@/lib/url';
+import { extractResponseError, getErrorMessage } from '@/lib/utils';
+import { createApiClients } from '@/lib/api-clients';
+import { ApiError, type Clients, type OperationMethodsOnly } from '@salesforce/storefront-next-runtime/scapi';
+
+import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 
 /**
  * Type representing Commerce SDK client names (camelCase)
@@ -68,6 +77,9 @@ export interface ApiResponse<T = unknown> {
     data?: T;
 }
 
+// Default empty array string for resource parameter fallback
+const DEFAULT_RESOURCE_ARRAY = '[]';
+
 /**
  * Parses the resource parameter from the URL, handling null/undefined cases
  * @param resourceParam - The resource parameter from the URL params
@@ -85,7 +97,21 @@ function parseResourceParameter<T = [unknown, string, unknown[]]>(resourceParam:
     return resource as T;
 }
 
-async function load<
+/**
+ * A React Router server loader that's part of our Commerce SDK fetch API trinity. The trinity consists of this route's
+ * loaders, the `scapi` service, and the `useScapiFetcher` hook. The purpose of these three entities is to simplify and
+ * centralize the way to interact with the Commerce SDK methods right inside this loader function. This makes this
+ * route virtually the heart of the Commerce SDK access/interaction.
+ *
+ * The loader expects a Commerce SDK client's name, a method name and method parameters to be passed as route
+ * parameters. It then instantiates the targeted client, invokes the method and returns structured data.
+ * If an error occurs, it returns an ApiResponse with success: false and error message.
+ * @see {@link import('react-router').ClientLoaderFunction}
+ * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
+ * @see {@link import('@/lib/api-clients.ts').createApiClients}
+ */
+// eslint-disable-next-line custom/no-async-page-loader
+export async function loader<
     R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
     M extends CommerceSdkMethodName<C>,
@@ -126,11 +152,17 @@ async function load<
         };
     } catch (reason) {
         let errorMessage: string;
-        try {
-            const { responseMessage } = await extractResponseError(reason as Error);
-            errorMessage = responseMessage || 'Unknown error';
-        } catch {
-            errorMessage = reason instanceof Error ? reason.message : 'Unknown error';
+        // Use getErrorMessage for ApiError instances (new Commerce SDK format)
+        if (reason instanceof ApiError) {
+            errorMessage = getErrorMessage(reason);
+        } else {
+            // Fall back to extractResponseError for legacy ResponseError format
+            try {
+                const { responseMessage } = await extractResponseError(reason as Error);
+                errorMessage = responseMessage || 'Unknown error';
+            } catch {
+                errorMessage = reason instanceof Error ? reason.message : 'Unknown error';
+            }
         }
         return {
             success: false,
@@ -140,24 +172,27 @@ async function load<
 }
 
 /**
- * Shared function to handle Commerce SDK action requests (PUT, POST, DELETE, etc.).
- * This function provides a genericized implementation for handling various action operations
- * of the Commerce SDK, similar to the `load` function but for non-GET requests.
+ * A React Router server action that's part of our Commerce SDK fetch API trinity. The trinity consists of this route's
+ * loaders/actions, the `fetch` service, and the `useScapiFetcher` hook. The purpose of these three entities is to simplify and
+ * centralize the way to interact with the Commerce SDK methods right inside this action function. This makes this
+ * route virtually the heart of the Commerce SDK access/interaction.
  *
- * @template R - The return type of the Commerce SDK method
- * @template C - The Commerce SDK client key
- * @template M - The method name on the Commerce SDK client
- * @template P - The parameters for the Commerce SDK method
- * @param params - The route parameters containing the encoded resource information
- * @param context - The context object containing Commerce SDK configuration
- * @returns Promise resolving to ApiResponse with success/error/data structure
+ * The action expects a Commerce SDK client's name, a method name and method parameters to be passed as route
+ * parameters. It then instantiates the targeted client, invokes the method and returns structured data.
+ * If an error occurs, it returns an ApiResponse with success: false and error message.
+ *
+ * This action is specifically designed for non-GET requests (PUT, POST, DELETE, etc.) and uses the shared `act` function
+ * to handle the actual Commerce SDK method invocation.
+ * @see {@link import('react-router').ActionFunction}
+ * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
+ * @see {@link import('@/lib/api-clients').createApiClients}
  */
-async function act<
+export async function action<
     R extends CommerceSdkMethodReturnType<C, M>,
     C extends CommerceSdkKeyMap,
     M extends CommerceSdkMethodName<C>,
     P extends CommerceSdkMethodParameters<C, M>,
->({ params, context, request }: ActionFunctionArgs | ClientActionFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
+>({ params, context, request }: ActionFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
     let resource: [C, M, P];
     try {
         resource = parseResourceParameter<[C, M, P]>(params.resource);
@@ -173,12 +208,23 @@ async function act<
         const formData = await request.formData();
 
         // Convert FormData to a plain object for the body
-        // Note: FormData converts all values to strings, so we need to convert known boolean fields back
-        const bodyData: Record<string, FormDataEntryValue | boolean> = {};
+        // Note: FormData converts all values to strings, so we need to convert known fields back to their proper types
+        const bodyData: Record<string, FormDataEntryValue | boolean | number | null> = {};
         for (const [key, value] of formData.entries()) {
             // Convert known boolean fields from string to boolean
             if (key === 'preferred' && typeof value === 'string') {
                 bodyData[key] = value === 'true' || value === '1';
+            }
+            // Convert known numeric fields from string to number, or null to clear
+            else if (key === 'gender' && typeof value === 'string') {
+                // If empty string, send null to clear the field; otherwise convert to number
+                // If parsing fails (NaN), treat as null to avoid sending invalid data
+                if (value === '') {
+                    bodyData[key] = null;
+                } else {
+                    const parsed = parseInt(value, 10);
+                    bodyData[key] = isNaN(parsed) ? null : parsed;
+                }
             } else {
                 bodyData[key] = value;
             }
@@ -217,110 +263,21 @@ async function act<
         };
     } catch (reason) {
         let errorMessage: string;
-        try {
-            const { responseMessage } = await extractResponseError(reason as Error);
-            errorMessage = responseMessage || 'Unknown error';
-        } catch {
-            errorMessage = reason instanceof Error ? reason.message : 'Unknown error';
+        // Use getErrorMessage for ApiError instances (new Commerce SDK format)
+        if (reason instanceof ApiError) {
+            errorMessage = getErrorMessage(reason);
+        } else {
+            // Fall back to extractResponseError for legacy ResponseError format
+            try {
+                const { responseMessage } = await extractResponseError(reason as Error);
+                errorMessage = responseMessage || 'Unknown error';
+            } catch {
+                errorMessage = reason instanceof Error ? reason.message : 'Unknown error';
+            }
         }
         return {
             success: false,
             errors: [errorMessage],
         };
     }
-}
-
-/**
- * A React Router server loader that's part of our Commerce SDK fetch API trinity. The trinity consists of this route's
- * loaders, the `scapi` service, and the `useScapiFetcher` hook. The purpose of these three entities is to simplify and
- * centralize the way to interact with the Commerce SDK methods right inside this loader function. This makes this
- * route virtually the heart of the Commerce SDK access/interaction.
- *
- * The loader expects a Commerce SDK client's name, a method name and method parameters to be passed as route
- * parameters. It then instantiates the targeted client, invokes the method and returns structured data.
- * If an error occurs, it returns an ApiResponse with success: false and error message.
- * @see {@link import('react-router').ClientLoaderFunction}
- * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
- * @see {@link import('@/lib/api-clients.ts').createApiClients}
- */
-export function loader<
-    R extends CommerceSdkMethodReturnType<C, M>,
-    C extends CommerceSdkKeyMap,
-    M extends CommerceSdkMethodName<C>,
-    P extends CommerceSdkMethodParameters<C, M>,
->(args: LoaderFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
-    return load<R, C, M, P>(args);
-}
-
-/**
- * A React Router client loader that's part of our Commerce SDK fetch API trinity. The trinity consists of this route's
- * loaders, the `scapi` service, and the `useScapiFetcher` hook. The purpose of these three entities is to simplify and
- * centralize the way to interact with the Commerce SDK methods right inside this loader function. This makes this
- * route virtually the heart of the Commerce SDK access/interaction.
- *
- * The loader expects a Commerce SDK client's name, a method name and method parameters to be passed as route
- * parameters. It then instantiates the targeted client, invokes the method and returns structured data.
- * If an error occurs, it returns an ApiResponse with success: false and error message.
- * @see {@link import('react-router').ClientLoaderFunction}
- * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
- * @see {@link import('@/lib/api-clients.ts').createApiClients}
- */
-export function clientLoader<
-    R extends CommerceSdkMethodReturnType<C, M>,
-    C extends CommerceSdkKeyMap,
-    M extends CommerceSdkMethodName<C>,
-    P extends CommerceSdkMethodParameters<C, M>,
->(args: ClientLoaderFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
-    return load<R, C, M, P>(args);
-}
-
-/**
- * A React Router server action that's part of our Commerce SDK fetch API trinity. The trinity consists of this route's
- * loaders/actions, the `fetch` service, and the `useScapiFetcher` hook. The purpose of these three entities is to simplify and
- * centralize the way to interact with the Commerce SDK methods right inside this action function. This makes this
- * route virtually the heart of the Commerce SDK access/interaction.
- *
- * The action expects a Commerce SDK client's name, a method name and method parameters to be passed as route
- * parameters. It then instantiates the targeted client, invokes the method and returns structured data.
- * If an error occurs, it returns an ApiResponse with success: false and error message.
- *
- * This action is specifically designed for non-GET requests (PUT, POST, DELETE, etc.) and uses the shared `act` function
- * to handle the actual Commerce SDK method invocation.
- * @see {@link import('react-router').ActionFunction}
- * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
- * @see {@link import('@/lib/api-clients').createApiClients}
- */
-// eslint-disable-next-line custom/no-server-actions
-export function action<
-    R extends CommerceSdkMethodReturnType<C, M>,
-    C extends CommerceSdkKeyMap,
-    M extends CommerceSdkMethodName<C>,
-    P extends CommerceSdkMethodParameters<C, M>,
->(args: ActionFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
-    return act<R, C, M, P>(args);
-}
-
-/**
- * A React Router client action that's part of our Commerce SDK fetch API trinity. The trinity consists of this route's
- * loaders/actions, the `fetch` service, and the `useScapiFetcher` hook. The purpose of these three entities is to simplify and
- * centralize the way to interact with the Commerce SDK methods right inside this action function. This makes this
- * route virtually the heart of the Commerce SDK access/interaction.
- *
- * The action expects a Commerce SDK client's name, a method name and method parameters to be passed as route
- * parameters. It then instantiates the targeted client, invokes the method and returns structured data.
- * If an error occurs, it returns an ApiResponse with success: false and error message.
- *
- * This action is specifically designed for non-GET requests (PUT, POST, DELETE, etc.) and uses the shared `act` function
- * to handle the actual Commerce SDK method invocation.
- * @see {@link import('react-router').ClientActionFunction}
- * @see {@link import('@/hooks/use-scapi-fetcher.ts').useScapiFetcher}
- * @see {@link import('@/lib/api-clients.ts').createApiClients}
- */
-export function clientAction<
-    R extends CommerceSdkMethodReturnType<C, M>,
-    C extends CommerceSdkKeyMap,
-    M extends CommerceSdkMethodName<C>,
-    P extends CommerceSdkMethodParameters<C, M>,
->(args: ClientActionFunctionArgs): Promise<ApiResponse<Awaited<R>>> {
-    return act<R, C, M, P>(args);
 }

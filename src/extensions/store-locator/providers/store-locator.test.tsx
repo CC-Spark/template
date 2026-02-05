@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -70,9 +79,9 @@ describe('StoreLocatorProvider', () => {
             '@/extensions/store-locator/utils'
         );
 
-        createStoreLocatorStore.mockImplementation(mockCreateStoreLocatorStore);
-        getCookieFromDocumentAs.mockImplementation(mockGetSelectedStoreInfoFromDocument);
-        getSelectedStoreInfoCookieName.mockReturnValue('selectedStoreInfo_test');
+        vi.mocked(createStoreLocatorStore).mockImplementation(mockCreateStoreLocatorStore);
+        vi.mocked(getCookieFromDocumentAs).mockImplementation(mockGetSelectedStoreInfoFromDocument);
+        vi.mocked(getSelectedStoreInfoCookieName).mockReturnValue('selectedStoreInfo_test');
 
         mockCreateStoreLocatorStore.mockReturnValue(mockStore);
         mockGetSelectedStoreInfoFromDocument.mockReturnValue({
@@ -103,7 +112,7 @@ describe('StoreLocatorProvider', () => {
             inventoryId: 'test-inventory',
         };
 
-        getCookieFromDocumentAs.mockReturnValue(initialStoreInfo);
+        vi.mocked(getCookieFromDocumentAs).mockReturnValue(initialStoreInfo);
 
         render(
             <StoreLocatorProvider>
@@ -111,8 +120,8 @@ describe('StoreLocatorProvider', () => {
             </StoreLocatorProvider>
         );
 
-        expect(getCookieFromDocumentAs).toHaveBeenCalled();
-        expect(createStoreLocatorStore).toHaveBeenCalledWith({
+        expect(vi.mocked(getCookieFromDocumentAs)).toHaveBeenCalled();
+        expect(vi.mocked(createStoreLocatorStore)).toHaveBeenCalledWith({
             selectedStoreInfo: initialStoreInfo,
         });
     });
@@ -121,7 +130,7 @@ describe('StoreLocatorProvider', () => {
         const { createStoreLocatorStore } = await import('@/extensions/store-locator/stores/store-locator-store');
         const { getCookieFromDocumentAs } = await import('@/extensions/store-locator/utils');
 
-        getCookieFromDocumentAs.mockReturnValue(null);
+        vi.mocked(getCookieFromDocumentAs).mockReturnValue(null);
 
         render(
             <StoreLocatorProvider>
@@ -129,7 +138,7 @@ describe('StoreLocatorProvider', () => {
             </StoreLocatorProvider>
         );
 
-        expect(createStoreLocatorStore).toHaveBeenCalledWith({
+        expect(vi.mocked(createStoreLocatorStore)).toHaveBeenCalledWith({
             selectedStoreInfo: null,
         });
     });

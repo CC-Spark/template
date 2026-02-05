@@ -1,12 +1,23 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { getTranslation } from '@/lib/i18next';
@@ -29,17 +40,6 @@ const mockRemoveFetcher = {
 };
 
 let fetcherCallCount = 0;
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetcher: vi.fn(() => {
-            // First call returns addFetcher, second call returns removeFetcher
-            fetcherCallCount++;
-            return fetcherCallCount === 1 ? mockAddFetcher : mockRemoveFetcher;
-        }),
-    };
-});
 
 vi.mock('@/components/toast', () => ({
     useToast: () => ({
@@ -90,10 +90,25 @@ describe('useWishlist', () => {
         mockAddFetcher.state = 'idle';
         mockRemoveFetcher.data = null;
         mockRemoveFetcher.state = 'idle';
+        // Use vi.spyOn to mock useFetcher while keeping real router exports.
+        // We use spyOn instead of vi.mock because the hook is already imported,
+        // and this allows us to control fetcher behavior per-test.
+        vi.spyOn(ReactRouter, 'useFetcher').mockImplementation(() => {
+            fetcherCallCount++;
+            // useWishlist calls useFetcher twice per render: once for addFetcher, once for removeFetcher.
+            // We use modulo (% 2) instead of checking specific call counts (e.g., === 1) because:
+            // 1. React may re-render the component multiple times (due to state updates, effects, etc.)
+            // 2. Each re-render calls useFetcher twice again, so call counts grow: 1,2 -> 3,4 -> 5,6...
+            // 3. Modulo ensures odd calls (1st, 3rd, 5th...) always return addFetcher
+            //    and even calls (2nd, 4th, 6th...) always return removeFetcher
+            // This makes the mock resilient to React's rendering behavior.
+            if (fetcherCallCount % 2 === 1) return mockAddFetcher as any;
+            return mockRemoveFetcher as any;
+        });
     });
 
     afterEach(() => {
-        vi.clearAllMocks();
+        vi.restoreAllMocks();
     });
 
     test('should initialize with empty wishlist', () => {

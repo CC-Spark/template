@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use client';
 
 import { type ReactNode } from 'react';
@@ -78,13 +93,14 @@ export default function ProductCarousel({ products, title, className }: ProductC
                         align: 'start',
                     }}
                     aria-label={title ? `${title} carousel` : t('productCarousel')}>
-                    <CarouselContent className="items-stretch flex-nowrap">
+                    {/* Passing -ml-4 to the CarouselContent to prevent CLS issues during hydration */}
+                    <CarouselContent className="-ml-4 items-stretch flex-nowrap">
                         {products.map((product) => (
                             <CarouselItem
                                 key={product.productId}
-                                className="basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0">
-                                <div className="w-full max-w-full min-w-0">
-                                    <ProductTile product={product} className="h-auto" />
+                                className="basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex pl-0 min-w-0">
+                                <div className="w-full max-w-full min-w-0 flex">
+                                    <ProductTile product={product} className="h-full w-full" />
                                 </div>
                             </CarouselItem>
                         ))}
@@ -133,7 +149,7 @@ export default function ProductCarousel({ products, title, className }: ProductC
  * ```
  */
 export const ProductCarouselWithSuspense = withSuspense(ProductCarouselWithData, {
-    fallback: <ProductCarouselSkeleton />,
+    fallback: (props) => <ProductCarouselSkeleton {...props} />,
 });
 
 /**

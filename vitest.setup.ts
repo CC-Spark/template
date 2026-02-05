@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeAll, vi } from 'vitest';
@@ -5,6 +20,21 @@ import { mockConfig } from '@/test-utils/config';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import resources from '@/locales';
+
+// Mock static asset imports that fail on Windows due to absolute path resolution
+// Windows converts '/path' to 'file:///path' which is invalid (missing drive letter)
+vi.mock('/favicon.ico', () => ({ default: '/favicon.ico' }));
+vi.mock('/images/GoogleMaps_Logo_Gray_4x.png', () => ({ default: '/images/GoogleMaps_Logo_Gray_4x.png' }));
+vi.mock('/images/hero-cube.webp', () => ({ default: '/images/hero-cube.webp' }));
+
+// Clear engagement-related PUBLIC__ env vars before any modules load
+// The engagement config is protected from env var overrides, so these must be cleared
+// to prevent defineConfig from throwing during module initialization
+for (const key of Object.keys(process.env)) {
+    if (key.startsWith('PUBLIC__') && key.toLowerCase().includes('engagement')) {
+        delete process.env[key];
+    }
+}
 
 // Set window.__APP_CONFIG__ before any modules are imported
 // This ensures getConfig() works during module initialization in tests where it is used before the config provider is rendered.
@@ -16,8 +46,8 @@ import resources from '@/locales';
 beforeAll(() => {
     if (!i18next.isInitialized) {
         void i18next.use(initReactI18next).init({
-            lng: 'en',
-            fallbackLng: 'en',
+            lng: 'en-US',
+            fallbackLng: 'en-US',
             resources,
             interpolation: {
                 escapeValue: false,
@@ -42,7 +72,7 @@ vi.mock('@/middlewares/i18next', async () => {
                 // Navigate nested object using dot notation
                 const keys = keyPath.split('.');
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                let value: any = resources.en[ns as keyof typeof resources.en];
+                let value: any = resources['en-US'][ns as keyof (typeof resources)['en-US']];
                 for (const k of keys) {
                     if (value && typeof value === 'object') {
                         value = value[k];
@@ -59,13 +89,13 @@ vi.mock('@/middlewares/i18next', async () => {
             }
             return key;
         },
-        language: 'en',
+        language: 'en-US',
     };
 
     return {
         ...actual,
         getI18nextInstance: () => mockI18next,
-        getLocale: () => 'en',
+        getLocale: () => 'en-US',
     };
 });
 
@@ -74,32 +104,57 @@ afterEach(() => {
 });
 
 // Mock window.matchMedia for required components
+// Use a regular function instead of vi.fn() to prevent vi.restoreAllMocks() from clearing it
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation((query) => ({
+    value: (query: string) => ({
         matches: false,
         media: query,
         onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-    })),
+        addListener: () => {
+            // noop
+        },
+        removeListener: () => {
+            // noop
+        },
+        addEventListener: () => {
+            // noop
+        },
+        removeEventListener: () => {
+            // noop
+        },
+        dispatchEvent: () => true,
+    }),
 });
 
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-}));
+// Mock ResizeObserver - use class for Vitest 4 compatibility
+global.ResizeObserver = class ResizeObserver {
+    observe() {
+        // noop for test mock
+    }
+    unobserve() {
+        // noop for test mock
+    }
+    disconnect() {
+        // noop for test mock
+    }
+};
 
-// Mock IntersectionObserver for carousel components
-global.IntersectionObserver = vi.fn().mockImplementation((_callback) => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-    root: null,
-    rootMargin: '',
-    thresholds: [],
-}));
+// Mock IntersectionObserver for carousel components - use class for Vitest 4 compatibility
+global.IntersectionObserver = class IntersectionObserver {
+    root = null;
+    rootMargin = '';
+    thresholds: number[] = [];
+    observe() {
+        // noop for test mock
+    }
+    unobserve() {
+        // noop for test mock
+    }
+    disconnect() {
+        // noop for test mock
+    }
+    takeRecords(): IntersectionObserverEntry[] {
+        return [];
+    }
+};

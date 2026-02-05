@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
@@ -52,7 +67,7 @@ describe('DeliveryOptions', () => {
 
         // Mock useStoreLocator to return a selector function
         mockUseStoreLocator.mockImplementation((selector) => {
-            const mockStoreState = { selectedStoreInfo: null, open: mockOpenStoreLocator };
+            const mockStoreState = { selectedStoreInfo: null, open: mockOpenStoreLocator, isOpen: false };
             return selector(mockStoreState);
         });
     });
@@ -60,11 +75,10 @@ describe('DeliveryOptions', () => {
     it('renders with default props (no basketPickupStore)', () => {
         render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} />
+                <DeliveryOptions product={mockProduct} quantity={1} />
             </BrowserRouter>
         );
 
-        expect(screen.getByText('Delivery:')).toBeInTheDocument();
         expect(screen.getByTestId('delivery-option-select')).toBeInTheDocument();
         expect(screen.getByText('Free pickup in')).toBeInTheDocument();
         expect(screen.getByText('Select Store')).toBeInTheDocument();
@@ -77,14 +91,13 @@ describe('DeliveryOptions', () => {
             </BrowserRouter>
         );
 
-        expect(screen.getByText('Delivery:')).toBeInTheDocument();
         expect(screen.getByTestId('delivery-option-select')).toBeInTheDocument();
     });
 
     it('renders with custom className', () => {
         const { container } = render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} className="custom-class" />
+                <DeliveryOptions product={mockProduct} quantity={1} className="custom-class" />
             </BrowserRouter>
         );
 
@@ -107,7 +120,7 @@ describe('DeliveryOptions', () => {
 
         render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} />
+                <DeliveryOptions product={mockProduct} quantity={1} />
             </BrowserRouter>
         );
 
@@ -125,13 +138,13 @@ describe('DeliveryOptions', () => {
         });
 
         mockUseStoreLocator.mockImplementation((selector) => {
-            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator };
+            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator, isOpen: false };
             return selector(mockStoreState);
         });
 
         render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} />
+                <DeliveryOptions product={mockProduct} quantity={1} />
             </BrowserRouter>
         );
 
@@ -149,13 +162,13 @@ describe('DeliveryOptions', () => {
         });
 
         mockUseStoreLocator.mockImplementation((selector) => {
-            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator };
+            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator, isOpen: false };
             return selector(mockStoreState);
         });
 
         render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} />
+                <DeliveryOptions product={mockProduct} quantity={1} />
             </BrowserRouter>
         );
         expect(screen.getByText('Pickup unavailable at')).toBeInTheDocument();
@@ -174,7 +187,7 @@ describe('DeliveryOptions', () => {
         });
 
         mockUseStoreLocator.mockImplementation((selector) => {
-            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator };
+            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator, isOpen: false };
             return selector(mockStoreState);
         });
 
@@ -184,8 +197,9 @@ describe('DeliveryOptions', () => {
             </BrowserRouter>
         );
 
-        const pickupRadio = screen.getByLabelText('Free pickup in');
-        fireEvent.click(pickupRadio);
+        const pickupCard = screen.getByText('Free pickup in').closest('label');
+        expect(pickupCard).not.toBeNull();
+        fireEvent.click(pickupCard as HTMLElement);
 
         expect(mockHandleDeliveryOptionChange).toHaveBeenCalledWith('pickup');
     });
@@ -202,7 +216,7 @@ describe('DeliveryOptions', () => {
         });
 
         mockUseStoreLocator.mockImplementation((selector) => {
-            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator };
+            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator, isOpen: false };
             return selector(mockStoreState);
         });
 
@@ -212,8 +226,9 @@ describe('DeliveryOptions', () => {
             </BrowserRouter>
         );
 
-        const deliveryRadio = screen.getByLabelText('Ship to Address');
-        fireEvent.click(deliveryRadio);
+        const deliveryCard = screen.getByText('Deliver to').closest('label');
+        expect(deliveryCard).not.toBeNull();
+        fireEvent.click(deliveryCard as HTMLElement);
 
         expect(mockHandleDeliveryOptionChange).toHaveBeenCalledWith('delivery');
     });
@@ -230,18 +245,19 @@ describe('DeliveryOptions', () => {
         });
 
         mockUseStoreLocator.mockImplementation((selector) => {
-            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator };
+            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator, isOpen: false };
             return selector(mockStoreState);
         });
 
         render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} />
+                <DeliveryOptions product={mockProduct} quantity={1} />
             </BrowserRouter>
         );
 
-        const pickupRadio = screen.getByLabelText('Free pickup in');
-        fireEvent.click(pickupRadio);
+        const pickupCard = screen.getByText('Free pickup in').closest('label');
+        expect(pickupCard).not.toBeNull();
+        fireEvent.click(pickupCard as HTMLElement);
 
         expect(mockHandleDeliveryOptionChange).toHaveBeenCalledWith('pickup');
     });
@@ -269,8 +285,9 @@ describe('DeliveryOptions', () => {
             </BrowserRouter>
         );
 
-        const pickupRadio = screen.getByLabelText('Free pickup in');
-        fireEvent.click(pickupRadio);
+        const pickupCard = screen.getByText('Free pickup in').closest('label');
+        expect(pickupCard).not.toBeNull();
+        fireEvent.click(pickupCard as HTMLElement);
 
         expect(mockHandleDeliveryOptionChange).toHaveBeenCalledWith('pickup');
     });
@@ -278,7 +295,7 @@ describe('DeliveryOptions', () => {
     it('opens store locator when store selection button is clicked', () => {
         render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} />
+                <DeliveryOptions product={mockProduct} quantity={1} />
             </BrowserRouter>
         );
 
@@ -298,17 +315,17 @@ describe('DeliveryOptions', () => {
         });
 
         mockUseStoreLocator.mockImplementation((selector) => {
-            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator };
+            const mockStoreState = { selectedStoreInfo: mockStore, open: mockOpenStoreLocator, isOpen: false };
             return selector(mockStoreState);
         });
 
         render(
             <BrowserRouter>
-                <DeliveryOptions quantity={1} />
+                <DeliveryOptions product={mockProduct} quantity={1} />
             </BrowserRouter>
         );
 
-        const pickupRadio = screen.getByLabelText('Pickup unavailable at');
-        expect(pickupRadio).toBeDisabled();
+        const pickupRadio = screen.getByRole('radio', { name: /pickup unavailable at/i });
+        expect(pickupRadio).toHaveAttribute('disabled');
     });
 });

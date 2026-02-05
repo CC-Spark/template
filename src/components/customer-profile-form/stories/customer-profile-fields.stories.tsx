@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
@@ -126,7 +135,7 @@ function createMockFetcher<TData = unknown>(
         json: undefined,
         Form: undefined as unknown,
 
-        unstable_reset: () => {},
+        reset: () => {},
         type: 'init',
     } as unknown as ScapiFetcher<TData>;
 }
@@ -149,6 +158,8 @@ The Customer Profile Fields component renders the form fields for editing custom
 - First name and last name fields
 - Email field
 - Phone number field (optional)
+- Gender dropdown (optional) - Male/Female selection
+- Date of birth field (optional) - Date picker
 - Submit and cancel buttons
 - Form validation feedback
                 `,
@@ -191,13 +202,14 @@ export const Default: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
                 lastName: '',
                 email: '',
                 phone: '',
+                gender: '',
+                birthday: '',
             },
         });
 
@@ -233,6 +245,14 @@ export const Default: Story = {
         const phoneInput = canvas.getByPlaceholderText(t('account:profile.phonePlaceholder'));
         await expect(phoneInput).toBeInTheDocument();
 
+        // Verify gender dropdown is present
+        const genderSelect = canvas.getByRole('combobox', { name: t('account:profile.gender') });
+        await expect(genderSelect).toBeInTheDocument();
+
+        // Verify date of birth field is present
+        const birthdayInput = canvas.getByLabelText(t('account:profile.dateOfBirth'));
+        await expect(birthdayInput).toBeInTheDocument();
+
         // Verify submit button
         const submitButton = canvas.getByRole('button', { name: t('account:profile.saveButton') });
         await expect(submitButton).toBeInTheDocument();
@@ -247,13 +267,14 @@ export const WithInitialValues: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: 'John',
                 lastName: 'Doe',
                 email: 'john.doe@example.com',
                 phone: '555-1234',
+                gender: '1',
+                birthday: '1990-05-15',
             },
         });
 
@@ -274,6 +295,7 @@ export const WithInitialValues: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
+        const { t } = getTranslation();
 
         // Verify form fields are populated
         const firstNameInput = canvas.getByDisplayValue('John');
@@ -284,6 +306,14 @@ export const WithInitialValues: Story = {
 
         const emailInput = canvas.getByDisplayValue('john.doe@example.com');
         await expect(emailInput).toBeInTheDocument();
+
+        // Verify gender dropdown has correct value
+        const genderSelect = canvas.getByRole('combobox', { name: t('account:profile.gender') });
+        await expect(genderSelect).toHaveValue('1');
+
+        // Verify birthday field has correct value
+        const birthdayInput = canvas.getByLabelText(t('account:profile.dateOfBirth'));
+        await expect(birthdayInput).toHaveValue('1990-05-15');
     },
 };
 
@@ -295,13 +325,14 @@ export const WithCancelButton: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
                 lastName: '',
                 email: '',
                 phone: '',
+                gender: '',
+                birthday: '',
             },
         });
 
@@ -344,13 +375,14 @@ export const Submitting: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: 'John',
                 lastName: 'Doe',
                 email: 'john.doe@example.com',
                 phone: '555-1234',
+                gender: '1',
+                birthday: '1990-05-15',
             },
         });
 
@@ -392,13 +424,14 @@ export const Interactive: Story = {
         const { t } = getTranslation();
         const customerProfileFormSchema = createCustomerProfileFormSchema(t);
         const form = useForm<CustomerProfileFormData>({
-            // @ts-expect-error - zodResolver type mismatch with zod version
             resolver: zodResolver(customerProfileFormSchema),
             defaultValues: {
                 firstName: '',
                 lastName: '',
                 email: '',
                 phone: '',
+                gender: '',
+                birthday: '',
             },
         });
 
@@ -433,6 +466,17 @@ export const Interactive: Story = {
         const emailInput = canvas.getByPlaceholderText(t('account:profile.emailPlaceholder'));
         await userEvent.type(emailInput, 'jane.smith@example.com');
         await expect(emailInput).toHaveValue('jane.smith@example.com');
+
+        // Select gender
+        const genderSelect = canvas.getByRole('combobox', { name: t('account:profile.gender') });
+        await userEvent.selectOptions(genderSelect, '2');
+        await expect(genderSelect).toHaveValue('2');
+
+        // Enter birthday
+        const birthdayInput = canvas.getByLabelText(t('account:profile.dateOfBirth'));
+        await userEvent.clear(birthdayInput);
+        await userEvent.type(birthdayInput, '1995-08-20');
+        await expect(birthdayInput).toHaveValue('1995-08-20');
     },
 };
 
@@ -458,6 +502,14 @@ export const Mobile: Story = {
 
         const phoneInput = canvas.getByPlaceholderText(t('account:profile.phonePlaceholder'));
         await expect(phoneInput).toBeInTheDocument();
+
+        // Verify gender dropdown is present
+        const genderSelect = canvas.getByRole('combobox', { name: t('account:profile.gender') });
+        await expect(genderSelect).toBeInTheDocument();
+
+        // Verify date of birth field is present
+        const birthdayInput = canvas.getByLabelText(t('account:profile.dateOfBirth'));
+        await expect(birthdayInput).toBeInTheDocument();
 
         // Verify submit button
         const submitButton = canvas.getByRole('button', { name: t('account:profile.saveButton') });
@@ -488,6 +540,14 @@ export const Tablet: Story = {
         const phoneInput = canvas.getByPlaceholderText(t('account:profile.phonePlaceholder'));
         await expect(phoneInput).toBeInTheDocument();
 
+        // Verify gender dropdown is present
+        const genderSelect = canvas.getByRole('combobox', { name: t('account:profile.gender') });
+        await expect(genderSelect).toBeInTheDocument();
+
+        // Verify date of birth field is present
+        const birthdayInput = canvas.getByLabelText(t('account:profile.dateOfBirth'));
+        await expect(birthdayInput).toBeInTheDocument();
+
         // Verify submit button
         const submitButton = canvas.getByRole('button', { name: t('account:profile.saveButton') });
         await expect(submitButton).toBeInTheDocument();
@@ -516,6 +576,14 @@ export const Desktop: Story = {
 
         const phoneInput = canvas.getByPlaceholderText(t('account:profile.phonePlaceholder'));
         await expect(phoneInput).toBeInTheDocument();
+
+        // Verify gender dropdown is present
+        const genderSelect = canvas.getByRole('combobox', { name: t('account:profile.gender') });
+        await expect(genderSelect).toBeInTheDocument();
+
+        // Verify date of birth field is present
+        const birthdayInput = canvas.getByLabelText(t('account:profile.dateOfBirth'));
+        await expect(birthdayInput).toBeInTheDocument();
 
         // Verify submit button
         const submitButton = canvas.getByRole('button', { name: t('account:profile.saveButton') });

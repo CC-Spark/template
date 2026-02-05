@@ -1,6 +1,17 @@
-/*
- * Generic Recommenders Hook
- * Provides recommendation fetching capabilities using a pluggable adapter
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { useState, useCallback } from 'react';
@@ -9,6 +20,7 @@ import { useRecommendersAdapter } from '@/providers/recommenders';
 import { convertProductToProductSearchHit } from '@/lib/product-conversion';
 import { encodeBase64Url } from '@/lib/url';
 import { useAuth } from '@/providers/auth';
+import { useCurrency } from '@/providers/currency';
 
 /**
  * Union type for products from either Shopper Products API or Shopper Search API
@@ -142,6 +154,7 @@ function enrichRecommendationsWithProducts(
 export const useRecommenders = (isEnabled: boolean = true) => {
     const adapter = useRecommendersAdapter();
     const auth = useAuth();
+    const currency = useCurrency();
     const [isLoading, setIsLoading] = useState(false);
     const [recommendations, setRecommendations] = useState<Recommendation>({});
     const [error, setError] = useState<Error | null>(null);
@@ -170,39 +183,43 @@ export const useRecommenders = (isEnabled: boolean = true) => {
      * Fetch product details from SCAPI using the resource API
      * Uses the same encoding format as useScapiFetcher for consistency
      */
-    const fetchProducts = useCallback(async (ids: string[]): Promise<ShopperProducts.schemas['Product'][]> => {
-        if (!ids.length) {
-            return [];
-        }
-
-        try {
-            const client = 'shopperProducts';
-            const method = 'getProducts';
-            const options = {
-                params: {
-                    query: {
-                        ids,
-                        allImages: true,
-                    },
-                },
-            };
-            const parameters = JSON.stringify(options);
-            const resource = encodeBase64Url(`["${client}","${method}",${parameters}]`);
-            const url = `/resource/api/client/${resource}`;
-
-            const response = await fetch(url);
-
-            if (!response.ok) {
+    const fetchProducts = useCallback(
+        async (ids: string[]): Promise<ShopperProducts.schemas['Product'][]> => {
+            if (!ids.length) {
                 return [];
             }
 
-            const result = await response.json();
-            const products = result.data?.data || [];
-            return products;
-        } catch {
-            return [];
-        }
-    }, []);
+            try {
+                const client = 'shopperProducts';
+                const method = 'getProducts';
+                const options = {
+                    params: {
+                        query: {
+                            ids,
+                            allImages: true,
+                            ...(currency ? { currency } : {}),
+                        },
+                    },
+                };
+                const parameters = JSON.stringify(options);
+                const resource = encodeBase64Url(`["${client}","${method}",${parameters}]`);
+                const url = `/resource/api/client/${resource}`;
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    return [];
+                }
+
+                const result = await response.json();
+                const products = result.data?.data || [];
+                return products;
+            } catch {
+                return [];
+            }
+        },
+        [currency]
+    );
 
     const getRecommenders = useCallback(async () => {
         if (!isEnabled || !adapter) return {};

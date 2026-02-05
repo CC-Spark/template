@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach, afterAll } from 'vitest';
 import {
     lookupCustomerByEmail,
@@ -7,14 +22,17 @@ import {
     extractNameFromEmail,
     registerGuestUser,
 } from './customer';
-import { getAuth } from '@/middlewares/auth.client';
+import { getAuth } from '@/middlewares/auth.server';
 import { createApiClients } from '@/lib/api-clients';
+import { getTranslation } from '@/lib/i18next';
 import type { ActionFunctionArgs } from 'react-router';
+import { createTestContext } from '@/lib/test-utils';
 
-vi.mock('@/middlewares/auth.client');
+vi.mock('@/middlewares/auth.server');
 vi.mock('@/lib/api-clients');
 
-const mockContext = {} as ActionFunctionArgs['context'];
+const mockContext = createTestContext() as ActionFunctionArgs['context'];
+const { t } = getTranslation();
 
 describe('Customer API', () => {
     beforeEach(() => {
@@ -626,7 +644,7 @@ describe('Customer API', () => {
             expect(result.success).toBe(true);
             expect(result.password).toBeDefined();
             expect(result.autoLoggedIn).toBe(false);
-            expect(result.error).toBe('Account created successfully, but auto-login failed. Please log in manually.');
+            expect(result.error).toBe(t('errors:customer.autoLoginAfterRegistrationFailed'));
             expect(result.customerId).toBeUndefined();
         });
 
@@ -645,7 +663,7 @@ describe('Customer API', () => {
             const result = await registerGuestUser(mockContext, 'test@example.com');
 
             expect(result.success).toBe(false);
-            expect(result.error).toBe('Registration failed. Please try again.');
+            expect(result.error).toBe(t('errors:customer.registrationFailed'));
             expect(result.customerId).toBeUndefined();
             expect(result.password).toBeUndefined();
             expect(result.autoLoggedIn).toBeUndefined();

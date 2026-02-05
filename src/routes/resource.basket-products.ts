@@ -1,22 +1,39 @@
 /**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
  * Resource route to fetch full product details for basket items
  * Called by the mini cart to enrich basket items with images and variation data
  */
 
-import type { ClientLoaderFunctionArgs, LoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import { getBasket } from '@/middlewares/basket.client';
+import { getBasket } from '@/middlewares/basket.server';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
+import { currencyContext } from '@/lib/currency';
 
 /**
  * Fetches full product details for all items in the basket
  * Returns a mapping of productId to full product data
  */
-async function fetchBasketProducts(
-    context: LoaderFunctionArgs['context']
-): Promise<Record<string, ShopperProducts.schemas['Product']>> {
-    const basket = getBasket(context);
+// eslint-disable-next-line custom/no-async-page-loader
+export async function loader({
+    context,
+}: LoaderFunctionArgs): Promise<Record<string, ShopperProducts.schemas['Product']>> {
+    const basket = (await getBasket(context)).current;
 
     if (!basket?.productItems?.length) {
         return {};
@@ -32,6 +49,7 @@ async function fetchBasketProducts(
     try {
         const config = getConfig(context);
         const clients = createApiClients(context);
+        const currency = context.get(currencyContext) as string;
 
         // Fetch product details
         const { data: productsData } = await clients.shopperProducts.getProducts({
@@ -44,6 +62,7 @@ async function fetchBasketProducts(
                     ids: productIds,
                     allImages: true,
                     perPricebook: true,
+                    ...(currency ? { currency } : {}),
                 },
             },
         });
@@ -64,12 +83,4 @@ async function fetchBasketProducts(
         // Return empty object on error - mini cart will show basic data
         return {};
     }
-}
-
-export function loader({ context }: LoaderFunctionArgs) {
-    return fetchBasketProducts(context);
-}
-
-export function clientLoader({ context }: ClientLoaderFunctionArgs) {
-    return fetchBasketProducts(context);
 }

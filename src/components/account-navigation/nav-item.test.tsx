@@ -1,8 +1,22 @@
-// Testing libraries
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { User } from 'lucide-react';
+import { User, LogOut } from 'lucide-react';
 import { AccountNavItem } from './nav-item';
 
 const mockNavItem = {
@@ -75,6 +89,76 @@ describe('<AccountNavItem />', () => {
             const disabledElement = screen.getByRole('button', { name: 'Account Details' });
             expect(disabledElement).toBeInTheDocument();
             expect(disabledElement).toHaveClass('border');
+        });
+    });
+
+    describe('Logout form action', () => {
+        const logoutItem = {
+            path: '',
+            icon: LogOut,
+            label: 'Log Out',
+            action: '/logout',
+            method: 'post' as const,
+        };
+
+        test('renders logout button as form with correct action and method', () => {
+            const { container } = render(createTestWrapper(<AccountNavItem item={logoutItem} />));
+
+            const form = container.querySelector('form');
+            expect(form).toBeInTheDocument();
+            expect(form).toHaveAttribute('method', 'post');
+            expect(form).toHaveAttribute('action', '/logout');
+            expect(form).toHaveClass('w-full');
+        });
+
+        test('renders logout button with correct label and icon', () => {
+            render(createTestWrapper(<AccountNavItem item={logoutItem} />));
+
+            const button = screen.getByRole('button', { name: 'Log Out' });
+            expect(button).toBeInTheDocument();
+            expect(button).toHaveAttribute('type', 'submit');
+            expect(screen.getByTestId('Log Out-icon')).toBeInTheDocument();
+        });
+
+        test('logout button has correct styling classes', () => {
+            render(createTestWrapper(<AccountNavItem item={logoutItem} />));
+
+            const button = screen.getByRole('button', { name: 'Log Out' });
+            expect(button).toHaveClass('w-full', 'px-3', 'py-2', 'text-left');
+            expect(button).toHaveClass('text-muted-foreground');
+        });
+
+        test('logout button uses default POST method when method is not specified', () => {
+            const logoutItemWithoutMethod = {
+                ...logoutItem,
+                method: undefined,
+            };
+
+            const { container } = render(createTestWrapper(<AccountNavItem item={logoutItemWithoutMethod as any} />));
+
+            const form = container.querySelector('form');
+            expect(form).toHaveAttribute('method', 'post');
+        });
+
+        test('logout button renders with mobile classes when isMobile is true', () => {
+            render(createTestWrapper(<AccountNavItem item={logoutItem} isMobile={true} />));
+
+            const button = screen.getByRole('button', { name: 'Log Out' });
+            expect(button).toHaveClass('border');
+        });
+
+        test('logout button does not render as NavLink', () => {
+            render(createTestWrapper(<AccountNavItem item={logoutItem} />));
+
+            const links = screen.queryAllByRole('link');
+            expect(links).toHaveLength(0);
+        });
+
+        test('logout form button has hover styles', () => {
+            render(createTestWrapper(<AccountNavItem item={logoutItem} />));
+
+            const button = screen.getByRole('button', { name: 'Log Out' });
+            expect(button).toHaveClass('hover:text-foreground', 'hover:bg-muted/30');
         });
     });
 });

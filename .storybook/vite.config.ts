@@ -1,9 +1,25 @@
-import { defineConfig } from 'vite';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { transformPluginPlaceholderPlugin } from '@salesforce/storefront-next-dev';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -22,6 +38,8 @@ export default defineConfig({
         }), // Include React plugin for JSX processing with decorator support
         tailwindcss(), // Include Tailwind CSS plugin
         tsconfigPaths(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Plugin type mismatch with Vite plugin types
+        transformPluginPlaceholderPlugin() as any, // Transform plugin placeholders for extensibility
     ],
     resolve: {
         alias: {
@@ -52,7 +70,8 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'json', 'html', 'lcov', 'json-summary'], // `json-summary` and `json` are required for the CI
             reportsDirectory: './.storybook/coverage/coverage-vitest',
-            all: true,
+            // Note: 'all' option removed in Vitest 4.x - coverage now only includes files loaded during test run
+            // See: https://vitest.dev/guide/migration.html#removed-options-coverage-all-and-coverage-extensions
             include: ['src/**/*.{ts,tsx}'],
             exclude: [
                 'src/**/*.d.ts',

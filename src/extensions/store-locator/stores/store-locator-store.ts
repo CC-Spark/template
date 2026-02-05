@@ -1,10 +1,18 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-import { createStore } from 'zustand/vanilla';
 import Cookies from 'js-cookie';
 import { getCookieConfig } from '@/lib/cookie-utils';
 
@@ -119,13 +127,26 @@ const writeSelectedStoreInfoCookie = (info: SelectedStoreInfo | null) => {
 };
 
 /**
- * Create a Zustand store for the store locator feature.
+ * Store API interface for subscription-based state management.
+ * Compatible with React's useSyncExternalStore hook.
+ */
+export type StoreApi<T> = {
+    getState: () => T;
+    setState: (partial: Partial<T> | ((state: T) => Partial<T>)) => void;
+    subscribe: (listener: () => void) => () => void;
+};
+
+/**
+ * Create a vanilla store for the store locator feature.
  * Allows overriding parts of initial state via `init` for hydration and tests.
+ * Compatible with React's useSyncExternalStore for selector-based subscriptions.
  *
  * @param init - Partial initial state overrides
- * @returns Vanilla store instance for use with `useStore`
+ * @returns Store instance with getState, setState, and subscribe methods
  */
-export const createStoreLocatorStore = (init?: Partial<StoreLocatorState>) => {
+export const createStoreLocatorStore = (init?: Partial<StoreLocatorState>): StoreApi<StoreLocatorStore> => {
+    const listeners = new Set<() => void>();
+
     const initialState: StoreLocatorState = {
         isOpen: false,
         mode: 'input',
@@ -138,29 +159,48 @@ export const createStoreLocatorStore = (init?: Partial<StoreLocatorState>) => {
         ...init,
     };
 
-    return createStore<StoreLocatorStore>()((set) => ({
-        ...initialState,
-        open: () => set({ isOpen: true }),
-        close: () => set({ isOpen: false }),
+    const actions: StoreLocatorActions = {
+        open: () => store.setState({ isOpen: true }),
+        close: () => store.setState({ isOpen: false }),
         searchByForm: (params) =>
-            set(() => ({ mode: 'input', searchParams: params, shouldSearch: true, geoError: false })),
+            store.setState({ mode: 'input', searchParams: params, shouldSearch: true, geoError: false }),
         setDeviceCoordinates: (coords) =>
-            set(() => ({
+            store.setState({
                 mode: 'device',
                 deviceCoordinates: coords,
                 searchParams: null,
                 shouldSearch: true,
                 geoError: false,
-            })),
-        setGeoError: (value) => set(() => ({ geoError: value })),
-        setShouldSearch: (should) => set(() => ({ shouldSearch: should })),
-        setSelectedStoreInfo: (info) =>
-            set(() => {
-                const normalized = normalizeStoreInfo(info);
-                writeSelectedStoreInfoCookie(normalized);
-                return {
-                    selectedStoreInfo: normalized,
-                };
             }),
-    }));
+        setGeoError: (value) => store.setState({ geoError: value }),
+        setShouldSearch: (should) => store.setState({ shouldSearch: should }),
+        setSelectedStoreInfo: (info) => {
+            const normalized = normalizeStoreInfo(info);
+            writeSelectedStoreInfoCookie(normalized);
+            store.setState({ selectedStoreInfo: normalized });
+        },
+    };
+
+    let state: StoreLocatorStore = {
+        ...initialState,
+        ...actions,
+    };
+
+    const store: StoreApi<StoreLocatorStore> = {
+        getState: () => state,
+        setState: (partial) => {
+            const nextPartial = typeof partial === 'function' ? partial(state) : partial;
+            const nextState = { ...state, ...nextPartial };
+            if (!Object.is(state, nextState)) {
+                state = nextState;
+                listeners.forEach((listener) => listener());
+            }
+        },
+        subscribe: (listener) => {
+            listeners.add(listener);
+            return () => listeners.delete(listener);
+        },
+    };
+
+    return store;
 };

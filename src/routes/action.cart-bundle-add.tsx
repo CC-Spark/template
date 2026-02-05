@@ -1,15 +1,24 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 import { data, type ActionFunctionArgs } from 'react-router';
 import { ApiError, type ShopperBasketsV2, type ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
-import { getBasket, updateBasket } from '@/middlewares/basket.client';
+import { ensureBasketId, updateBasketResource } from '@/middlewares/basket.server';
 import { createApiClients } from '@/lib/api-clients';
 // @sfdc-extension-line SFDC_EXT_BOPIS
-import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
+import { findOrCreatePickupShipment } from '@/extensions/bopis/lib/api/shipment';
 import { getTranslation } from '@/lib/i18next';
 
 /**
@@ -34,8 +43,7 @@ async function addBundleToCart(
     error?: string;
 }> {
     const { t } = getTranslation();
-    const basket = getBasket(context);
-    const basketId = basket?.basketId;
+    const basketId = await ensureBasketId(context);
 
     if (!basketId) {
         // This state should never happen as it would indicate that the basket middleware is broken
@@ -46,6 +54,16 @@ async function addBundleToCart(
     }
 
     try {
+        const clients = createApiClients(context);
+        let shipmentId = 'me';
+
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        if (bundleItem.storeId && bundleItem.inventoryId) {
+            const pickupShipment = await findOrCreatePickupShipment(basket, context, bundleItem.storeId);
+            shipmentId = pickupShipment.shipmentId;
+        }
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
         // Extract productId and quantity from ProductSelectionValues structure for API call
         // Prefer variant.productId if variant exists, otherwise use product.id
         const bundledProductItems = childSelections.map((selection) => ({
@@ -54,7 +72,6 @@ async function addBundleToCart(
         }));
 
         // Add bundle to basket with bundled product items
-        const clients = createApiClients(context);
         const { data: initialBasket } = await clients.shopperBasketsV2.addItemToBasket({
             params: {
                 path: { basketId },
@@ -63,7 +80,8 @@ async function addBundleToCart(
                 {
                     productId: bundleItem.productId,
                     quantity: bundleItem.quantity,
-                    inventoryId: bundleItem.inventoryId,
+                    ...(bundleItem.inventoryId ? { inventoryId: bundleItem.inventoryId } : {}),
+                    shipmentId,
                     bundledProductItems,
                 },
             ],
@@ -96,6 +114,8 @@ async function addBundleToCart(
                         itemId: bundledItem.itemId,
                         productId: selectedProductId || bundledItem.productId,
                         quantity: matchingSelection?.quantity || bundledItem.quantity,
+                        ...(bundleItem.inventoryId ? { inventoryId: bundleItem.inventoryId } : {}),
+                        shipmentId,
                     };
                 });
 
@@ -116,13 +136,8 @@ async function addBundleToCart(
             }
         }
 
-        // @sfdc-extension-block-start SFDC_EXT_BOPIS
-        // Update shipment with store information based on selected delivery option
-        updatedBasket = await syncShipmentWithDeliveryOptionChange(context, updatedBasket, bundleItem);
-        // @sfdc-extension-block-end SFDC_EXT_BOPIS
-
         // Update the basket storage
-        updateBasket(context, updatedBasket);
+        updateBasketResource(context, updatedBasket);
 
         return {
             success: true,
@@ -143,9 +158,9 @@ async function addBundleToCart(
 }
 
 /**
- * Client action to add a product bundle to the cart.
+ * Server action to add a product bundle to the cart.
  */
-export async function clientAction({ request, context }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 
     if (request.method !== 'POST') {

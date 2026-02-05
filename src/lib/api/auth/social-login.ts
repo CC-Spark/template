@@ -1,7 +1,22 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from 'react-router';
-import { flashAuth, getAuth, updateAuth } from '@/middlewares/auth.server';
+import { getAuth, updateAuth } from '@/middlewares/auth.server';
 import { isTrackingConsentEnabled } from '@/middlewares/auth.utils';
-import { extractResponseError, getAppOrigin } from '@/lib/utils';
+import { getAppOrigin, getErrorMessage, isAbsoluteURL } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { getConfig } from '@/config';
 import { mergeBasket } from '@/lib/api/basket';
@@ -35,7 +50,11 @@ export const authorizeIDP = async (
         const clients = createApiClients(context);
 
         // SLAS will redirect to this URL after processing the social login
-        const redirectUri = parameters.redirectURI || `${getAppOrigin()}${config.commerce.api.callback}`;
+        // Use absolute URL if provided, otherwise construct from app origin
+        const callbackUri = config.commerce.api.callback;
+        const redirectUri =
+            parameters.redirectURI ||
+            (callbackUri && isAbsoluteURL(callbackUri) ? callbackUri : `${getAppOrigin()}${callbackUri || ''}`);
         const usid = parameters.usid || session.usid;
 
         const { url, codeVerifier } = await clients.auth.social.getAuthorizationUrl({
@@ -55,13 +74,9 @@ export const authorizeIDP = async (
             redirectUrl: url,
         };
     } catch (error) {
-        const { responseMessage } = await extractResponseError(error);
-
-        flashAuth(context, responseMessage);
-
         return {
             success: false,
-            error: responseMessage,
+            error: getErrorMessage(error),
         };
     }
 };
@@ -102,7 +117,8 @@ export const loginIDPUser = async (
             }
         }
 
-        const res = await clients.auth.social.exchangeCode({
+        // SDK automatically extracts dwsid from Set-Cookie header
+        const result = await clients.auth.social.exchangeCode({
             code,
             codeVerifier,
             redirectUri: parameters.redirectURI,
@@ -111,7 +127,8 @@ export const loginIDPUser = async (
         });
 
         // Update session with user tokens and info (similar to standard login)
-        updateAuth(context, res);
+        // result already includes dwsid extracted from response headers by SDK
+        updateAuth(context, result);
         updateAuth(context, (current) => {
             // Delete the code verifier once the user has logged in
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -126,13 +143,9 @@ export const loginIDPUser = async (
             success: true,
         };
     } catch (error) {
-        const { responseMessage } = await extractResponseError(error);
-
-        flashAuth(context, responseMessage);
-
         return {
             success: false,
-            error: responseMessage,
+            error: getErrorMessage(error),
         };
     }
 };
@@ -154,16 +167,20 @@ export async function handleSocialLoginLanding({ request, context }: LoaderFunct
         if (error) {
             // eslint-disable-next-line no-console
             console.error('[Social Login] Failed to login:', t('socialCallback:socialError'), error);
-            flashAuth(context, t('socialCallback:socialError'));
-            return redirect('/login');
+            const errorMessage = t('socialCallback:socialError');
+            return redirect(`/login?error=${encodeURIComponent(errorMessage)}`);
         }
 
         // Handle successful authorization with code
         if (code) {
+            // Construct redirect URI - use absolute URL if provided, otherwise build from app origin
+            const callbackUri = config.features.socialLogin.callbackUri;
+            const redirectURI = isAbsoluteURL(callbackUri) ? callbackUri : `${getAppOrigin()}${callbackUri}`;
+
             const result = await loginIDPUser(context, {
                 code,
                 usid: usid || undefined,
-                redirectURI: `${url.origin}${config.site.features.socialLogin.callbackUri}`,
+                redirectURI,
             });
 
             if (result.success) {
@@ -179,17 +196,22 @@ export async function handleSocialLoginLanding({ request, context }: LoaderFunct
                 // Redirect to redirectURL if provided, otherwise redirect to home
                 const redirectTo = redirectUrl ? decodeURIComponent(redirectUrl) : '/';
                 return redirect(redirectTo);
+            } else {
+                // eslint-disable-next-line no-console
+                console.error('[Social Login] Error during login:', result.error);
+                const errorMessage = t('errors:genericTryAgain');
+                return redirect(`/login?error=${encodeURIComponent(errorMessage)}`);
             }
+        } else {
+            // eslint-disable-next-line no-console
+            console.error('[Social Login] Error during login:', 'Missing Auth code.');
+            const errorMessage = t('errors:genericTryAgain');
+            return redirect(`/login?error=${encodeURIComponent(errorMessage)}`);
         }
-
-        // Login failed redirect to login as fallback
-        return redirect('/login');
     } catch (error) {
-        // Handle any errors during processing
-        const { responseMessage } = await extractResponseError(error);
-
-        // Use existing flashAuth pattern for error handling
-        flashAuth(context, responseMessage);
-        return redirect('/login');
+        // eslint-disable-next-line no-console
+        console.error('[Social Login] Error during login:', error);
+        const errorMessage = t('errors:genericTryAgain');
+        return redirect(`/login?error=${encodeURIComponent(errorMessage)}`);
     }
 }

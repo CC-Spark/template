@@ -1,5 +1,20 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { vi } from 'vitest';
-import { createTestContext } from '@/lib/test-utils';
+import { createTestContext, type TestContextConfig } from '@/lib/test-utils';
 import type { Config } from '@/config/schema';
 import type { DataStrategyResult, MiddlewareFunction, RouterContext } from 'react-router';
 
@@ -407,14 +422,22 @@ describe('Performance Metrics Middlewares', () => {
         });
 
         test('logs performance data when enabled', async () => {
-            // Enable performance metrics
-            mockConfig.app.performance.metrics.serverPerformanceMetricsEnabled = true;
-
             const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
             const mockNext = vi.fn().mockResolvedValue(new Response('test'));
             const mockRequest = { url: 'https://example.com/test' } as Request;
-            const mockContext = createTestContext();
+            // Enable performance metrics via appConfig override
+            const mockContext = createTestContext({
+                appConfig: {
+                    performance: {
+                        metrics: {
+                            serverPerformanceMetricsEnabled: true,
+                            clientPerformanceMetricsEnabled: false,
+                            serverTimingHeaderEnabled: false,
+                        },
+                    },
+                } as TestContextConfig['appConfig'],
+            });
 
             await performanceMetricsMiddlewareServer(
                 { request: mockRequest, context: mockContext, params: {} },
@@ -466,13 +489,21 @@ describe('Performance Metrics Middlewares', () => {
         });
 
         test('logs performance data when enabled', async () => {
-            // Enable performance metrics
-            mockConfig.app.performance.metrics.clientPerformanceMetricsEnabled = true;
-
             const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
             const mockNext = vi.fn().mockResolvedValue(undefined);
-            const mockContext = createTestContext();
+            // Enable performance metrics via appConfig override
+            const mockContext = createTestContext({
+                appConfig: {
+                    performance: {
+                        metrics: {
+                            serverPerformanceMetricsEnabled: false,
+                            clientPerformanceMetricsEnabled: true,
+                            serverTimingHeaderEnabled: false,
+                        },
+                    },
+                } as TestContextConfig['appConfig'],
+            });
 
             await performanceMetricsMiddlewareClient(
                 { context: mockContext, params: {}, request: {} as Request },
@@ -490,8 +521,16 @@ describe('Performance Metrics Middlewares', () => {
         });
 
         test('adjusts clientTotal mark using first-paint on initial navigation', async () => {
-            // Enable performance metrics
-            mockConfig.app.performance.metrics.clientPerformanceMetricsEnabled = true;
+            // Enable performance metrics via appConfig override
+            const appConfigOverride = {
+                performance: {
+                    metrics: {
+                        serverPerformanceMetricsEnabled: false,
+                        clientPerformanceMetricsEnabled: true,
+                        serverTimingHeaderEnabled: false,
+                    },
+                },
+            } as TestContextConfig['appConfig'];
 
             // Mock performance.entries to include a first-paint entry
             const mockFirstPaintTime = 1000;
@@ -517,7 +556,7 @@ describe('Performance Metrics Middlewares', () => {
                 );
 
             const firstNext = vi.fn().mockResolvedValue(undefined);
-            const firstContext = createTestContext();
+            const firstContext = createTestContext({ appConfig: appConfigOverride });
 
             await performanceMetricsMiddlewareClient(
                 { context: firstContext, params: {}, request: {} as Request },
@@ -556,7 +595,7 @@ describe('Performance Metrics Middlewares', () => {
 
             // Invoke the middleware a second time (without a full page reload)
             const secondNext = vi.fn().mockResolvedValue(undefined);
-            const secondContext = createTestContext();
+            const secondContext = createTestContext({ appConfig: appConfigOverride });
             await performanceMetricsMiddlewareClient(
                 { context: secondContext, params: {}, request: {} as Request },
                 secondNext

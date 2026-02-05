@@ -1,12 +1,40 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, waitFor } from '@testing-library/react';
 import { createTestContext } from '@/lib/test-utils';
 import { type PropsWithChildren } from 'react';
 import { createRoutesStub } from 'react-router';
-import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import type { SessionData } from '@/lib/api/types';
-import { clientLoader, default as App, ErrorBoundary, Layout, loader } from './root';
+import type AppComponent from './root';
+import type { ErrorBoundary as RootErrorBoundary, Layout as RootLayout, loader as RootLoader } from './root';
+
+let App: typeof AppComponent;
+let ErrorBoundary: typeof RootErrorBoundary;
+let Layout: typeof RootLayout;
+let loader: typeof RootLoader;
+const defaultSession: SessionData = {
+    access_token: 'test-token',
+    customer_id: 'test-customer',
+    userType: 'registered',
+};
 import { mockConfig } from '@/test-utils/config';
+// @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+import { isProxyPath } from '@/extensions/hybrid-proxy/config';
+// @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
 
 vi.mock('@/lib/i18next.client', async () => {
     const i18next = await import('i18next');
@@ -30,8 +58,8 @@ vi.mock('@/lib/i18next.client', async () => {
         .use(initReactI18next)
         .use(mockBackend)
         .init({
-            lng: 'en',
-            fallbackLng: 'en',
+            lng: 'en-US',
+            fallbackLng: 'en-US',
             ns: [], // Start with no namespaces loaded
             interpolation: {
                 escapeValue: false,
@@ -43,25 +71,6 @@ vi.mock('@/lib/i18next.client', async () => {
     };
 });
 
-vi.mock('@/lib/api/categories', () => ({
-    fetchCategory: vi.fn(),
-}));
-
-vi.mock('@/components/header', async () => ({
-    ...(await vi.importActual('@/components/header')),
-    default: ({ children }: PropsWithChildren) => <header data-testid="header">{children}</header>,
-}));
-
-vi.mock('@/components/footer', async () => ({
-    ...(await vi.importActual('@/components/footer')),
-    default: () => <footer data-testid="footer">Footer</footer>,
-}));
-
-vi.mock('@/components/navigation-menu-mega', async () => ({
-    ...(await vi.importActual('@/components/navigation-menu-mega')),
-    default: () => <nav data-testid="navigation-menu-mega">Navigation Menu</nav>,
-}));
-
 vi.mock('@/components/toast', async () => ({
     ...(await vi.importActual('@/components/toast')),
     ToasterTheme: () => <div data-testid="toaster">Toaster</div>,
@@ -72,12 +81,15 @@ vi.mock('@/components/tracking-consent-banner', async () => ({
     TrackingConsentBanner: () => <div data-testid="tracking-consent-banner">Tracking Consent Banner</div>,
 }));
 
-// @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
-vi.mock('@/extensions/store-locator/providers/store-locator', async () => ({
-    ...(await vi.importActual('@/extensions/store-locator/providers/store-locator')),
-    default: ({ children }: PropsWithChildren) => <div data-testid="store-locator-provider">{children}</div>,
+// @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+vi.mock('@/extensions/hybrid-proxy/navigation-interceptor', () => ({
+    HybridProxyNavigationInterceptor: () => <div data-testid="hybrid-proxy-interceptor">Hybrid Proxy Interceptor</div>,
 }));
-// @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
+
+vi.mock('@/extensions/hybrid-proxy/config', () => ({
+    isProxyPath: vi.fn(),
+}));
+// @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
 
 vi.mock('@/config', async () => {
     const actual = await vi.importActual('@/config');
@@ -104,15 +116,15 @@ vi.mock('@/providers/basket', async () => ({
     default: ({ children }: PropsWithChildren) => <div data-testid="basket-provider">{children}</div>,
 }));
 
-vi.mock('@/middlewares/auth.server', async () => ({
-    ...(await vi.importActual('@/middlewares/auth.server')),
-    default: vi.fn(),
-    getAuth: vi.fn(() => ({
-        access_token: 'test-token',
-        customer_id: 'test-customer',
-        userType: 'registered',
-    })),
-}));
+vi.mock('@salesforce/storefront-next-runtime/design/react/core', async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...(actual as object),
+        PageDesignerProvider: ({ children }: PropsWithChildren) => (
+            <div data-testid="page-designer-provider">{children}</div>
+        ),
+    };
+});
 
 vi.mock('@/middlewares/auth.client', async () => ({
     ...(await vi.importActual('@/middlewares/auth.client')),
@@ -124,13 +136,10 @@ vi.mock('@/middlewares/auth.client', async () => ({
     })),
 }));
 
-vi.mock('@/middlewares/basket.client', async () => ({
-    ...(await vi.importActual('@/middlewares/basket.client')),
+vi.mock('@/middlewares/basket.server', async () => ({
+    ...(await vi.importActual('@/middlewares/basket.server')),
     default: vi.fn(),
-    getBasket: vi.fn(() => ({
-        basketId: 'test-basket-id',
-        productItems: [],
-    })),
+    getBasket: vi.fn(() => Promise.resolve({ current: null, snapshot: null })),
 }));
 
 vi.mock('@/middlewares/i18next', async () => {
@@ -141,8 +150,8 @@ vi.mock('@/middlewares/i18next', async () => {
     // Create a test i18n instance for server-side
     const testInstance = i18next.default.createInstance();
     void testInstance.use(initReactI18next).init({
-        lng: 'en',
-        fallbackLng: 'en',
+        lng: 'en-US',
+        fallbackLng: 'en-US',
         resources: resources.default,
         interpolation: {
             escapeValue: false,
@@ -155,8 +164,45 @@ vi.mock('@/middlewares/i18next', async () => {
     };
 });
 
+beforeAll(async () => {
+    const rootModule = await import('./root');
+    App = rootModule.default;
+    ErrorBoundary = rootModule.ErrorBoundary;
+    Layout = rootModule.Layout;
+    loader = rootModule.loader;
+});
+
+function createLoaderContext(options: Parameters<typeof createTestContext>[0] = {}) {
+    const context = createTestContext(options);
+    const baseGet = context.get.bind(context);
+    const authFallback = new Map() as Map<string, unknown> & { ref?: SessionData };
+    const authSession =
+        options.authSession === null ? undefined : { ...defaultSession, ...(options.authSession ?? {}) };
+    authFallback.ref = authSession;
+
+    context.get = ((key) => {
+        try {
+            return baseGet(key);
+        } catch {
+            // If additional context keys need to be shimmed in tests, handle them here.
+            return authFallback;
+        }
+    }) as typeof context.get;
+
+    return context;
+}
+
 function ContentComponent() {
     return <div data-testid="content">Content</div>;
+}
+
+/**
+ * HydrateFallback is required when using createRoutesStub with components that have loaders.
+ * Without it, React Router throws "Cannot destructure property 'basename' of 'undefined'"
+ * during the hydration phase. This is a React Router v7 testing requirement.
+ */
+function HydrateFallback() {
+    return <div data-testid="hydrate-fallback">Loading...</div>;
 }
 
 function LayoutComponent() {
@@ -191,7 +237,7 @@ describe('root.tsx', () => {
 
             const html = document.querySelector('html');
             expect(html).toBeInTheDocument();
-            expect(html).toHaveAttribute('lang', 'en');
+            expect(html).toHaveAttribute('lang', 'en-US');
 
             const title = document.querySelector('title');
             expect(title).toBeInTheDocument();
@@ -209,6 +255,38 @@ describe('root.tsx', () => {
             const favicon = document.querySelector('link[rel="icon"]');
             expect(favicon).toBeInTheDocument();
             expect(favicon).toHaveAttribute('type', 'image/x-icon');
+        });
+
+        it('should render preconnect links from config', async () => {
+            // Mock useMatches to return appConfig in the root route data
+            const reactRouter = await import('react-router');
+            const useMatchesSpy = vi.spyOn(reactRouter, 'useMatches').mockReturnValue([
+                {
+                    id: 'root',
+                    pathname: '/',
+                    params: {},
+                    data: { appConfig: mockConfig },
+                    handle: undefined,
+                },
+            ] as any);
+
+            const Stub = createRoutesStub([
+                {
+                    id: 'root',
+                    path: '/',
+                    Component: LayoutComponent,
+                },
+            ]);
+
+            render(<Stub initialEntries={['/']} />);
+
+            await waitFor(() => {
+                const preconnectLinks = document.querySelectorAll('link[rel="preconnect"]');
+                expect(preconnectLinks.length).toBeGreaterThan(0);
+                expect(preconnectLinks[0]).toHaveAttribute('href', 'https://edge.disstg.commercecloud.salesforce.com');
+            });
+
+            useMatchesSpy.mockRestore();
         });
     });
 
@@ -340,27 +418,18 @@ describe('root.tsx', () => {
     });
 
     describe('App Component', () => {
+        // Note: Each test creates its own i18next instance because it must be passed to
+        // the loader's getI18next function. A shared beforeEach setup wouldn't work here
+        // since each test's route stub needs its own instance reference.
+
         it('should render html structure with provider components', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root Category',
-                categories: [
-                    { id: 'cat-1', name: 'Category 1' },
-                    { id: 'cat-2', name: 'Category 2' },
-                ],
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
-
-            // Create a mock i18next instance for testing
+            // Create i18next instance for this test's loader
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const testI18nInstance = i18next.default.createInstance();
             await testI18nInstance.use(initReactI18next).init({
-                lng: 'en',
-                fallbackLng: 'en',
+                lng: 'en-US',
+                fallbackLng: 'en-US',
                 resources: { en: { translation: {} } },
             });
 
@@ -369,9 +438,8 @@ describe('root.tsx', () => {
                     id: 'root',
                     path: '/',
                     Component: App,
+                    HydrateFallback,
                     loader: () => ({
-                        root: Promise.resolve(mockCategory),
-                        subs: Promise.resolve([mockCategory]),
                         auth: () => ({
                             access_token: 'test-token',
                             customer_id: 'test-customer',
@@ -379,7 +447,8 @@ describe('root.tsx', () => {
                         }),
                         basket: { basketId: 'test-basket', productItems: [] },
                         appConfig: mockConfig,
-                        locale: 'en',
+                        locale: 'en-US',
+                        currency: 'USD',
                         getI18next: () => testI18nInstance,
                     }),
                 },
@@ -388,33 +457,21 @@ describe('root.tsx', () => {
             const { getByTestId } = render(<Stub initialEntries={['/']} />);
 
             await waitFor(() => {
-                expect(getByTestId('header')).toBeInTheDocument();
-                expect(getByTestId('footer')).toBeInTheDocument();
-                expect(getByTestId('navigation-menu-mega')).toBeInTheDocument();
-                expect(getByTestId('config-provider')).toBeInTheDocument();
-                expect(getByTestId('auth-provider')).toBeInTheDocument();
-                expect(getByTestId('basket-provider')).toBeInTheDocument();
-                // @sfdc-extension-line SFDC_EXT_STORE_LOCATOR
-                expect(getByTestId('store-locator-provider')).toBeInTheDocument();
+                expect(getByTestId('page-designer-provider')).toBeInTheDocument(); // <-- part of the conditional App content
+                expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
+                expect(getByTestId('auth-provider')).toBeInTheDocument(); // <-- always there
+                expect(getByTestId('basket-provider')).toBeInTheDocument(); // <-- always there
             });
         });
 
         it.skip('should fall back to AuthContext default value when auth is undefined', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
             const { AuthContext } = await import('@/providers/auth');
-
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root Category',
-            };
 
             const mockInitialAuth: SessionData = {
                 access_token: 'initial-hydration-token',
                 customer_id: 'initial-customer',
                 userType: 'guest',
             };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
 
             // Simulate the context having a default value (in production, this comes from getAuthDataFromCookies())
             // In tests, we can wrap with a provider to override the default
@@ -430,8 +487,6 @@ describe('root.tsx', () => {
                     path: '/',
                     Component: TestApp,
                     loader: () => ({
-                        root: Promise.resolve(mockCategory),
-                        subs: Promise.resolve([mockCategory]),
                         auth: undefined, // No auth from loader, should fall back to context default
                         basket: { basketId: 'test-basket', productItems: [] },
                         appConfig: mockConfig,
@@ -447,25 +502,16 @@ describe('root.tsx', () => {
         });
 
         it('should use window.__APP_CONFIG__ when serverData.appConfig is not available', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-
-            const mockCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root Category',
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockCategory);
-
             // Set window.__APP_CONFIG__ as fallback
             (window as any).__APP_CONFIG__ = mockConfig;
 
-            // Create a mock i18next instance for testing
+            // Create i18next instance for this test's loader
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const testI18nInstance = i18next.default.createInstance();
             await testI18nInstance.use(initReactI18next).init({
-                lng: 'en',
-                fallbackLng: 'en',
+                lng: 'en-US',
+                fallbackLng: 'en-US',
                 resources: { en: { translation: {} } },
             });
 
@@ -474,16 +520,17 @@ describe('root.tsx', () => {
                     id: 'root',
                     path: '/',
                     Component: App,
+                    HydrateFallback,
                     loader: () => ({
-                        root: Promise.resolve(mockCategory),
-                        subs: Promise.resolve([mockCategory]),
-                        auth: () => ({
-                            access_token: 'test-token',
-                            customer_id: 'test-customer',
-                            userType: 'registered',
-                        }),
+                        auth: () =>
+                            ({
+                                access_token: 'test-token',
+                                customer_id: 'test-customer',
+                                userType: 'registered',
+                            }) as any,
                         basket: { basketId: 'test-basket', productItems: [] },
-                        locale: 'en',
+                        locale: 'en-US',
+                        currency: 'USD',
                         getI18next: () => testI18nInstance,
                         // appConfig not in loader data
                     }),
@@ -499,119 +546,143 @@ describe('root.tsx', () => {
             // Cleanup
             delete (window as any).__APP_CONFIG__;
         });
+
+        // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
+        describe('Hybrid Proxy Integration', () => {
+            it('should render normal app structure when not on proxy path', async () => {
+                vi.mocked(isProxyPath).mockReturnValue(false);
+
+                // Create a mock i18next instance for testing
+                const i18next = await import('i18next');
+                const { initReactI18next } = await import('react-i18next');
+                const testI18nInstance = i18next.default.createInstance();
+                await testI18nInstance.use(initReactI18next).init({
+                    lng: 'en-US',
+                    fallbackLng: 'en-US',
+                    resources: { 'en-US': { translation: {} } },
+                });
+
+                const Stub = createRoutesStub([
+                    {
+                        id: 'root',
+                        path: '/',
+                        Component: App,
+                        HydrateFallback,
+                        loader: () => ({
+                            auth: () =>
+                                ({
+                                    access_token: 'test-token',
+                                    customer_id: 'test-customer',
+                                    userType: 'registered',
+                                }) as any,
+                            basket: { basketId: 'test-basket', productItems: [] },
+                            appConfig: mockConfig,
+                            locale: 'en-US',
+                            currency: 'USD',
+                            getI18next: () => testI18nInstance,
+                        }),
+                    },
+                ]);
+
+                const { getByTestId, queryByTestId } = render(<Stub initialEntries={['/']} />);
+
+                await waitFor(() => {
+                    expect(getByTestId('page-designer-provider')).toBeInTheDocument(); // <-- part of the conditional App content
+                    expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
+                    expect(queryByTestId('hybrid-proxy-interceptor')).not.toBeInTheDocument();
+                });
+            });
+
+            it('should render interceptor and hide app structure when on proxy path', async () => {
+                vi.mocked(isProxyPath).mockReturnValue(true);
+
+                // Create a mock i18next instance for testing
+                const i18next = await import('i18next');
+                const { initReactI18next } = await import('react-i18next');
+                const testI18nInstance = i18next.default.createInstance();
+                await testI18nInstance.use(initReactI18next).init({
+                    lng: 'en-US',
+                    fallbackLng: 'en-US',
+                    resources: { 'en-US': { translation: {} } },
+                });
+
+                const Stub = createRoutesStub([
+                    {
+                        id: 'root',
+                        // The actual path doesn't matter here since we mock isProxyPath() to return true
+                        path: '/cart',
+                        Component: App,
+                        HydrateFallback,
+                        loader: () => ({
+                            auth: () =>
+                                ({
+                                    access_token: 'test-token',
+                                    customer_id: 'test-customer',
+                                    userType: 'registered',
+                                }) as any,
+                            basket: { basketId: 'test-basket', productItems: [] },
+                            appConfig: mockConfig,
+                            locale: 'en-US',
+                            currency: 'USD',
+                            getI18next: () => testI18nInstance,
+                        }),
+                    },
+                ]);
+
+                const { getByTestId, queryByTestId } = render(<Stub initialEntries={['/cart']} />);
+
+                await waitFor(() => {
+                    expect(getByTestId('hybrid-proxy-interceptor')).toBeInTheDocument();
+                    expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
+                    expect(queryByTestId('page-designer-provider')).not.toBeInTheDocument(); // <-- part of the conditional App content
+                });
+            });
+        });
+        // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
     });
 
     describe('loader function', () => {
-        it('should return category promises and auth function', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
+        it('should promises and auth function', async () => {
             const { i18nextContext } = await import('@/lib/i18next');
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
             const resources = await import('@/locales');
 
-            const mockRootCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root',
-                categories: [
-                    { id: 'cat-1', name: 'Category 1', onlineSubCategoriesCount: 2 },
-                    { id: 'cat-2', name: 'Category 2', onlineSubCategoriesCount: 0 },
-                ],
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValueOnce(mockRootCategory);
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'sub', name: 'Sub' });
-
             // Set up i18next context
             const testInstance = i18next.default.createInstance();
             void testInstance.use(initReactI18next).init({
-                lng: 'en',
-                fallbackLng: 'en',
+                lng: 'en-US',
+                fallbackLng: 'en-US',
                 resources: resources.default,
                 interpolation: {
                     escapeValue: false,
                 },
             });
 
-            const context = createTestContext();
+            const context = createLoaderContext();
             // Set up i18next context with bound functions
             context.set(i18nextContext, {
-                getLocale: () => 'en',
+                getLocale: () => 'en-US',
                 getI18nextInstance: () => testInstance,
             });
 
-            const result = loader({ context, request: new Request('http://localhost'), params: {} }) as any;
+            const result = loader({
+                context,
+                request: new Request('http://localhost'),
+                params: {},
+                unstable_pattern: '/',
+            }) as any;
 
-            expect(result).toHaveProperty('root');
-            expect(result).toHaveProperty('subs');
             expect(result).toHaveProperty('auth');
             expect(result).toHaveProperty('appConfig');
             expect(result).toHaveProperty('locale');
             expect(result).toHaveProperty('getI18next');
             expect(typeof result.auth).toBe('function');
             expect(typeof result.getI18next).toBe('function');
-            expect(result.locale).toBe('en');
-
-            // Verify fetchCategory was called correctly
-            expect(fetchCategory).toHaveBeenCalledWith(context, 'root', 1);
-
-            // Wait for root promise to resolve
-            const rootCategory = await result.root;
-            expect(rootCategory).toEqual(mockRootCategory);
-
-            // Verify sub categories are fetched
-            await result.subs;
-            expect(fetchCategory).toHaveBeenCalledWith(context, 'cat-1', 2);
-            expect(fetchCategory).not.toHaveBeenCalledWith(context, 'cat-2', 2);
+            expect(result.locale).toBe('en-US');
         });
 
-        it('should not fetch sub categories when onlineSubCategoriesCount is 0', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-            const { i18nextContext } = await import('@/lib/i18next');
-            const i18next = await import('i18next');
-            const { initReactI18next } = await import('react-i18next');
-            const resources = await import('@/locales');
-
-            const mockRootCategory: ShopperProducts.schemas['Category'] = {
-                id: 'root',
-                name: 'Root',
-                categories: [
-                    { id: 'cat-1', name: 'Category 1', onlineSubCategoriesCount: 0 },
-                    { id: 'cat-2', name: 'Category 2', onlineSubCategoriesCount: 0 },
-                ],
-            };
-
-            vi.mocked(fetchCategory).mockResolvedValue(mockRootCategory);
-
-            // Set up i18next context
-            const testInstance = i18next.default.createInstance();
-            void testInstance.use(initReactI18next).init({
-                lng: 'en',
-                fallbackLng: 'en',
-                resources: resources.default,
-                interpolation: {
-                    escapeValue: false,
-                },
-            });
-
-            const context = createTestContext();
-            // Set up i18next context with bound functions
-            context.set(i18nextContext, {
-                getLocale: () => 'en',
-                getI18nextInstance: () => testInstance,
-            });
-
-            const result = loader({ context, request: new Request('http://localhost'), params: {} }) as any;
-
-            await result.root;
-            const subs = await result.subs;
-
-            expect(subs).toEqual([]);
-            expect(fetchCategory).toHaveBeenCalledTimes(1);
-        });
-
-        it('should call getAuth to retrieve session data', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-            const { getAuth } = await import('@/middlewares/auth.server');
+        it('should return auth session data', async () => {
             const { i18nextContext } = await import('@/lib/i18next');
             const i18next = await import('i18next');
             const { initReactI18next } = await import('react-i18next');
@@ -623,90 +694,140 @@ describe('root.tsx', () => {
                 userType: 'registered',
             };
 
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'root', name: 'Root' });
-            vi.mocked(getAuth).mockReturnValue(mockSession);
-
             // Set up i18next context
             const testInstance = i18next.default.createInstance();
             void testInstance.use(initReactI18next).init({
-                lng: 'en',
-                fallbackLng: 'en',
+                lng: 'en-US',
+                fallbackLng: 'en-US',
                 resources: resources.default,
                 interpolation: {
                     escapeValue: false,
                 },
             });
 
-            const context = createTestContext();
+            const context = createLoaderContext({ authSession: mockSession });
             // Set up i18next context with bound functions
             context.set(i18nextContext, {
-                getLocale: () => 'en',
+                getLocale: () => 'en-US',
                 getI18nextInstance: () => testInstance,
             });
 
-            const result = loader({ context, request: new Request('http://localhost'), params: {} }) as any;
-
-            expect(getAuth).toHaveBeenCalledWith(context);
-            expect(result.auth()).toEqual(mockSession);
-            expect(result.appConfig).toBeDefined();
-            expect(result.locale).toBe('en');
-            expect(typeof result.getI18next).toBe('function');
-        });
-
-        it('should throw error when i18next data is not found in context', async () => {
-            const { fetchCategory } = await import('@/lib/api/categories');
-
-            vi.mocked(fetchCategory).mockResolvedValue({ id: 'root', name: 'Root' });
-
-            const context = createTestContext();
-            // Do not set i18next context to simulate missing middleware
-
-            expect(() => {
-                loader({ context, request: new Request('http://localhost'), params: {} });
-            }).toThrow('i18next data not found in context. Ensure i18next middleware runs before loaders.');
-        });
-    });
-
-    describe('clientLoader function', () => {
-        it('should return auth function and basket', async () => {
-            const { getAuth } = await import('@/middlewares/auth.client');
-            const { getBasket } = await import('@/middlewares/basket.client');
-
-            const mockSession: SessionData = {
-                access_token: 'test-token',
-                customer_id: 'test-customer',
-                userType: 'registered',
-            };
-
-            const mockBasket: ShopperBasketsV2.schemas['Basket'] = {
-                basketId: 'test-basket',
-                productItems: [],
-            };
-
-            vi.mocked(getAuth).mockReturnValue(mockSession);
-            vi.mocked(getBasket).mockReturnValue(mockBasket);
-
-            const context = createTestContext();
-            const result = clientLoader({
+            const result = loader({
                 context,
                 request: new Request('http://localhost'),
                 params: {},
-                serverLoader: vi.fn(),
+                unstable_pattern: '/',
             }) as any;
 
-            expect(result).toHaveProperty('auth');
-            expect(result).toHaveProperty('basket');
-            expect(typeof result.auth).toBe('function');
-            expect(typeof result.basket).toBe('object');
-
-            expect(getAuth).not.toHaveBeenCalled();
-            expect(getBasket).toHaveBeenCalledWith(context);
             expect(result.auth()).toEqual(mockSession);
-            expect(result.basket).toEqual(mockBasket);
+            expect(result.appConfig).toBeDefined();
+            expect(result.locale).toBe('en-US');
+            expect(typeof result.getI18next).toBe('function');
         });
 
-        it('should have hydrate property set to true', () => {
-            expect(clientLoader.hydrate).toBe(true);
+        it('should throw error when i18next data is not found in context', () => {
+            const context = createLoaderContext({ skipI18next: true });
+            // Do not set i18next context to simulate missing middleware
+
+            expect(() => {
+                loader({ context, request: new Request('http://localhost'), params: {}, unstable_pattern: '/' });
+            }).toThrow('i18next data not found in context. Ensure i18next middleware runs before loaders.');
+        });
+
+        it('should return pageDesignerMode as EDIT when mode=EDIT is in URL', async () => {
+            const { i18nextContext } = await import('@/lib/i18next');
+            const i18next = await import('i18next');
+            const { initReactI18next } = await import('react-i18next');
+            const resources = await import('@/locales');
+
+            const testInstance = i18next.default.createInstance();
+            void testInstance.use(initReactI18next).init({
+                lng: 'en',
+                fallbackLng: 'en',
+                resources: resources.default,
+                interpolation: {
+                    escapeValue: false,
+                },
+            });
+
+            const context = createLoaderContext();
+            context.set(i18nextContext, {
+                getLocale: () => 'en',
+                getI18nextInstance: () => testInstance,
+            });
+
+            const result = loader({
+                context,
+                request: new Request('http://localhost?mode=EDIT'),
+                params: {},
+                unstable_pattern: '/',
+            }) as any;
+
+            expect(result.pageDesignerMode).toBe('EDIT');
+        });
+
+        it('should return pageDesignerMode as PREVIEW when mode=PREVIEW is in URL', async () => {
+            const { i18nextContext } = await import('@/lib/i18next');
+            const i18next = await import('i18next');
+            const { initReactI18next } = await import('react-i18next');
+            const resources = await import('@/locales');
+
+            const testInstance = i18next.default.createInstance();
+            void testInstance.use(initReactI18next).init({
+                lng: 'en',
+                fallbackLng: 'en',
+                resources: resources.default,
+                interpolation: {
+                    escapeValue: false,
+                },
+            });
+
+            const context = createLoaderContext();
+            context.set(i18nextContext, {
+                getLocale: () => 'en',
+                getI18nextInstance: () => testInstance,
+            });
+
+            const result = loader({
+                context,
+                request: new Request('http://localhost?mode=PREVIEW'),
+                params: {},
+                unstable_pattern: '/',
+            }) as any;
+
+            expect(result.pageDesignerMode).toBe('PREVIEW');
+        });
+
+        it('should return pageDesignerMode as undefined when no mode parameter is in URL', async () => {
+            const { i18nextContext } = await import('@/lib/i18next');
+            const i18next = await import('i18next');
+            const { initReactI18next } = await import('react-i18next');
+            const resources = await import('@/locales');
+
+            const testInstance = i18next.default.createInstance();
+            void testInstance.use(initReactI18next).init({
+                lng: 'en',
+                fallbackLng: 'en',
+                resources: resources.default,
+                interpolation: {
+                    escapeValue: false,
+                },
+            });
+
+            const context = createLoaderContext();
+            context.set(i18nextContext, {
+                getLocale: () => 'en',
+                getI18nextInstance: () => testInstance,
+            });
+
+            const result = loader({
+                context,
+                request: new Request('http://localhost'),
+                params: {},
+                unstable_pattern: '/',
+            }) as any;
+
+            expect(result.pageDesignerMode).toBeUndefined();
         });
     });
 

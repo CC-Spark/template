@@ -1,21 +1,37 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { ComponentProps } from 'react';
 import type { ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
 import ContentCard from '@/components/content-card';
-import { Component, Loader } from '@/lib/decorators/component';
+import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { useTranslation } from 'react-i18next';
-import heroImage from '/images/hero-cube.png';
-import { loader } from './loaders';
+import heroImage from '/images/hero-cube.webp';
+import { loader as loaders } from './loaders';
 
 interface PopularCategoryProps extends ComponentProps<'div'> {
     // Category data from Page Designer (via loader) or programmatic use
     category?: ShopperProducts.schemas['Category'];
     // Page Designer props (passed by Component wrapper, must be extracted to avoid passing to DOM)
-    designMetadata?: ComponentDesignMetadata;
     regionId?: string;
-    componentData?: Promise<Record<string, Promise<unknown>>>;
-    page?: Promise<ShopperExperience.schemas['Page']>;
+    page?: ShopperExperience.schemas['Page'];
+    component?: ShopperExperience.schemas['Component'];
+    componentData?: Record<string, Promise<unknown>>;
+    designMetadata?: ComponentDesignMetadata;
     // Loader data - full category object fetched by loader
     data?: ShopperProducts.schemas['Category'];
 }
@@ -25,7 +41,6 @@ interface PopularCategoryProps extends ComponentProps<'div'> {
     name: 'Popular Category',
     description: 'Displays a single category card with image, title, description, and shop now button',
 })
-@Loader(loader)
 export class PopularCategoryMetadata {
     @AttributeDefinition({
         name: 'Category',
@@ -35,6 +50,9 @@ export class PopularCategoryMetadata {
     category?: string;
 }
 /* v8 ignore stop */
+
+/* eslint-disable-next-line react-refresh/only-export-components*/
+export const loader = loaders.server;
 
 /**
  * PopularCategory component that displays a single category as a content card
@@ -50,10 +68,11 @@ export class PopularCategoryMetadata {
 export default function PopularCategory({
     category,
     // Page Designer props - extracted to avoid passing to DOM
-    designMetadata: _designMetadata,
     regionId: _regionId,
-    componentData: _componentData,
     page: _page,
+    component: _component,
+    componentData: _componentData,
+    designMetadata: _designMetadata,
     // Loader data - full category object fetched by loader
     data,
     ...props

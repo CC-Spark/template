@@ -1,7 +1,27 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { Region } from './index';
 import type { RegionDefinitionConfig } from '@/lib/decorators';
+import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import {
+    useRegionContext,
+    PageDesignerPageMetadataProvider,
+} from '@salesforce/storefront-next-runtime/design/react/core';
 
 // Mock the Component wrapper
 vi.mock('./component', () => ({
@@ -20,9 +40,15 @@ vi.mock('./region-wrapper', () => ({
     },
 }));
 
+vi.mock('@salesforce/storefront-next-runtime/design/react/core', () => ({
+    useRegionContext: vi.fn(() => ({})),
+    PageDesignerPageMetadataProvider: vi.fn(({ children }: { children: React.ReactNode }) => <>{children}</>),
+}));
+
 describe('Region', () => {
     beforeEach(() => {
         capturedDesignMetadata = null;
+        vi.clearAllMocks();
     });
 
     const mockRegion = {
@@ -41,7 +67,7 @@ describe('Region', () => {
         ],
     };
 
-    const mockPage = {
+    const mockPage: ShopperExperience.schemas['Page'] = {
         id: 'test-page',
         typeId: 'testPage',
         regions: [mockRegion],
@@ -144,35 +170,60 @@ describe('Region', () => {
         consoleSpy.mockRestore();
     });
 
+    describe('page designer page metadata provider', () => {
+        describe('when there is no region context', () => {
+            beforeEach(() => {
+                vi.mocked(useRegionContext).mockReturnValue(null);
+            });
+
+            it('renders the page designer page metadata provider', async () => {
+                render(<Region page={Promise.resolve(mockPage)} regionId="test-region" />);
+
+                await waitFor(() => {
+                    expect(PageDesignerPageMetadataProvider).toHaveBeenCalled();
+                });
+            });
+        });
+
+        describe('when there is a region context', () => {
+            beforeEach(() => {
+                vi.mocked(useRegionContext).mockReturnValue({ regionId: 'test-region', componentIds: [] });
+            });
+            it('does not renders the page designer page metadata provider', async () => {
+                render(<Region page={Promise.resolve(mockPage)} regionId="test-region" />);
+
+                const result = waitFor(
+                    () => {
+                        expect(PageDesignerPageMetadataProvider).toHaveBeenCalled();
+                    },
+                    { timeout: 100 }
+                );
+
+                await expect(result).rejects.toThrow();
+            });
+        });
+    });
+
     describe('metadata handling', () => {
         const metadataTestCases = [
             {
                 description: 'passes both componentTypeInclusions and componentTypeExclusions when provided',
                 metadata: {
-                    id: 'test-mixed-region',
+                    id: 'test-region',
                     name: 'Test Mixed Region',
-                    componentTypeInclusions: ['commerce_layouts.carousel'],
-                    componentTypeExclusions: ['commerce_layouts.hero'],
-                } as RegionDefinitionConfig,
+                    componentTypeInclusions: [{ typeId: 'commerce_layouts.carousel' }],
+                    componentTypeExclusions: [{ typeId: 'commerce_layouts.hero' }],
+                } as ShopperExperience.schemas['RegionDefinition'],
                 expectedDesignMetadata: {
                     id: 'test-region',
                     componentTypeInclusions: ['commerce_layouts.carousel'],
                     componentTypeExclusions: ['commerce_layouts.hero'],
-                },
-            },
-            {
-                description: 'passes undefined for both when metadata is not provided',
-                metadata: undefined,
-                expectedDesignMetadata: {
-                    id: 'test-region',
-                    componentTypeInclusions: [],
-                    componentTypeExclusions: [],
                 },
             },
             {
                 description: 'passes undefined for both when metadata is empty object',
                 metadata: {
-                    id: 'test-empty-region',
+                    id: 'test-region',
                     name: 'Test Empty Region',
                 } as RegionDefinitionConfig,
                 expectedDesignMetadata: {
@@ -184,7 +235,7 @@ describe('Region', () => {
             {
                 description: 'handles empty arrays for componentTypeInclusions and componentTypeExclusions',
                 metadata: {
-                    id: 'test-empty-arrays-region',
+                    id: 'test-region',
                     name: 'Test Empty Arrays Region',
                     componentTypeInclusions: [],
                     componentTypeExclusions: [],
@@ -198,7 +249,17 @@ describe('Region', () => {
         ];
 
         it.each(metadataTestCases)('$description', async ({ metadata, expectedDesignMetadata }) => {
-            render(<Region page={Promise.resolve(mockPage)} regionId="test-region" metadata={metadata} />);
+            render(
+                <Region
+                    page={Promise.resolve({
+                        ...mockPage,
+                        designMetadata: {
+                            regionDefinitions: [metadata],
+                        },
+                    } as ShopperExperience.schemas['Page'])}
+                    regionId="test-region"
+                />
+            );
 
             // Wait for async rendering to complete
             await waitFor(() => {

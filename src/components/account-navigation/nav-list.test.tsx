@@ -1,21 +1,35 @@
-// Testing libraries
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { Heart, MapPin, Receipt, User } from 'lucide-react';
+import { Heart, MapPin, ShoppingBag, User } from 'lucide-react';
 import { AccountNavList } from './nav-list';
 
 const mockNavigationItems = [
     { path: '/account', icon: User, label: 'Account Details' },
     { path: '/account/wishlist', icon: Heart, label: 'Wishlist' },
-    { path: '/account/orders', icon: Receipt, label: 'Orders' },
+    { path: '/account/orders', icon: ShoppingBag, label: 'Orders' },
     { path: '/account/addresses', icon: MapPin, label: 'Addresses' },
 ];
 
 const mockDisabledNavigationItems = [
     { path: '/account', icon: User, label: 'Account Details' },
     { path: '/account/wishlist', icon: Heart, label: 'Wishlist' },
-    { path: '/account/orders', icon: Receipt, label: 'Orders' },
+    { path: '/account/orders', icon: ShoppingBag, label: 'Orders' },
     { path: '/account/addresses', icon: MapPin, label: 'Addresses', disabled: true },
 ];
 

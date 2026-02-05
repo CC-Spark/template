@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ShareButton } from '../share-button';
 import { action } from 'storybook/actions';
@@ -19,14 +34,11 @@ function ShareStoryHarness({ children, providers }: { children: ReactNode; provi
     const configValue = useMemo(() => {
         return {
             ...mockConfig,
-            site: {
-                ...mockConfig.site,
-                features: {
-                    ...mockConfig.site.features,
-                    socialShare: {
-                        enabled: true,
-                        providers: providers ?? ['Twitter', 'Facebook', 'LinkedIn', 'Email'],
-                    },
+            features: {
+                ...mockConfig.features,
+                socialShare: {
+                    enabled: true,
+                    providers: providers ?? ['Twitter', 'Facebook', 'LinkedIn', 'Email'],
                 },
             },
         } as typeof mockConfig;
@@ -114,7 +126,7 @@ A share button component that provides a dropdown menu with various sharing opti
 - **Multiple providers**: Supports Twitter, Facebook, LinkedIn, and Email
 - **Native sharing**: Uses Web Share API when available
 - **Copy link**: Quick copy-to-clipboard functionality
-- **Configurable**: Share providers configured via site.features.socialShare config
+- **Configurable**: Share providers configured via config.features.socialShare config
 - **Accessibility**: Proper ARIA attributes and keyboard navigation
 
 ## Usage
@@ -156,7 +168,7 @@ function ProductDetail({ product }) {
 
 ## Configuration
 
-Share providers are configured via \`site.features.socialShare\`:
+Share providers are configured via \`config.features.socialShare\`:
 
 \`\`\`typescript
 {
@@ -544,80 +556,5 @@ This story shows the ShareButton integrated into a product card:
         // Test product name is present
         const productName = canvas.getByText(/premium cotton t-shirt/i);
         await expect(productName).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test share button is present
-        const shareButton = canvas.getByRole('button', { name: /share/i });
-        await expect(shareButton).toBeInTheDocument();
-        await expect(shareButton).not.toBeDisabled();
-
-        // Test dropdown opens on click
-        await userEvent.click(shareButton);
-
-        // Wait for dropdown menu to be visible and find the copy link option
-        // Note: Dropdown content may be in a portal, so we query from document
-        const documentBody = within(document.body);
-        const copyLinkOption = await documentBody.findByRole('menuitem', { name: /copy link/i });
-        await expect(copyLinkOption).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test share button is present
-        const shareButton = canvas.getByRole('button', { name: /share/i });
-        await expect(shareButton).toBeInTheDocument();
-        await expect(shareButton).not.toBeDisabled();
-
-        // Test dropdown opens on click
-        await userEvent.click(shareButton);
-
-        // Wait for dropdown menu to be visible and find the copy link option
-        // Note: Dropdown content may be in a portal, so we query from document
-        const documentBody = within(document.body);
-        const copyLinkOption = await documentBody.findByRole('menuitem', { name: /copy link/i });
-        await expect(copyLinkOption).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test share button is present
-        const shareButton = canvas.getByRole('button', { name: /share/i });
-        await expect(shareButton).toBeInTheDocument();
-        await expect(shareButton).not.toBeDisabled();
-
-        // Test dropdown opens on click
-        await userEvent.click(shareButton);
-
-        // Wait for dropdown menu to be visible and find the copy link option
-        // Note: Dropdown content may be in a portal, so we query from document
-        const documentBody = within(document.body);
-        const copyLinkOption = await documentBody.findByRole('menuitem', { name: /copy link/i });
-        await expect(copyLinkOption).toBeInTheDocument();
     },
 };

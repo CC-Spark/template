@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
@@ -8,6 +23,12 @@ vi.mock('@/components/dynamic-image', () => ({
     DynamicImage: ({ src, alt, imageProps, loading }: any) => (
         <img src={src} alt={alt} loading={loading} {...imageProps} />
     ),
+}));
+
+vi.mock('@/hooks/use-analytics', () => ({
+    useAnalytics: () => ({
+        trackClickSearchSuggestion: vi.fn(),
+    }),
 }));
 
 const renderWithRouter = (ui: React.ReactElement) => {
@@ -62,7 +83,7 @@ describe('SearchSuggestionsPopup Component', () => {
         const images = container.querySelectorAll('img');
         expect(images).toHaveLength(3); // Only 3 products have images
 
-        expect(images[0]).toHaveAttribute('src', 'https://example.com/iphone15.jpg[?sw={width}&q=60]');
+        expect(images[0]).toHaveAttribute('src', 'https://example.com/iphone15.jpg[?sw={width}]');
         // Decorative images have empty alt text to avoid redundant-alt a11y violation
         expect(images[0]).toHaveAttribute('alt', '');
         expect(images[0]).toHaveAttribute('aria-hidden', 'true');

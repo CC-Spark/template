@@ -3,28 +3,27 @@
 exports[`CategorySkeleton stories snapshot > BreadcrumbsSkeleton story renders and matches snapshot 1`] = `
 <div>
   <div>
-    <div
-      class="mb-4"
+    <nav
+      aria-label="Breadcrumb"
+      class="mb-6"
     >
-      <nav
-        aria-label="Breadcrumb"
-        class="mb-6"
+      <div
+        class="flex flex-wrap items-center text-sm"
       >
         <div
-          class="flex flex-wrap items-center text-sm"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-4 w-20"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted mx-1 h-3 w-3"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-4 w-24"
-          />
-        </div>
-      </nav>
-    </div>
+          class="bg-accent animate-pulse rounded-md h-5 w-20"
+          data-slot="skeleton"
+        />
+        <div
+          class="bg-accent animate-pulse rounded-md h-3 mx-1 w-3"
+          data-slot="skeleton"
+        />
+        <div
+          class="bg-accent animate-pulse rounded-md h-5 w-24"
+          data-slot="skeleton"
+        />
+      </div>
+    </nav>
   </div>
 </div>
 `;
@@ -46,22 +45,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -74,13 +78,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -97,22 +104,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -125,13 +137,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -148,22 +163,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -176,13 +196,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -199,22 +222,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -227,13 +255,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -250,22 +281,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -278,13 +314,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -301,22 +340,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -329,13 +373,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -352,22 +399,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -380,13 +432,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -403,22 +458,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -431,13 +491,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -454,22 +517,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -482,13 +550,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -505,22 +576,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -533,13 +609,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -556,22 +635,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -584,13 +668,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -607,22 +694,27 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="group bg-accent/30"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse aspect-square w-full rounded-md"
+            data-slot="skeleton"
           />
           <div
             class="mt-2 flex space-x-1"
           >
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
             <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
+              class="bg-accent animate-pulse h-4 w-4 rounded-full"
+              data-slot="skeleton"
             />
           </div>
         </div>
@@ -635,13 +727,16 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
           class="block w-full"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-full mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-5 w-3/4 mb-2"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-6 w-20"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -654,663 +749,24 @@ exports[`CategorySkeleton stories snapshot > Default story renders and matches s
       class="flex items-center space-x-2"
     >
       <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
+        class="bg-accent animate-pulse rounded-md h-10 w-10"
+        data-slot="skeleton"
       />
       <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
+        class="bg-accent animate-pulse rounded-md h-10 w-10"
+        data-slot="skeleton"
       />
       <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
+        class="bg-accent animate-pulse rounded-md h-10 w-10"
+        data-slot="skeleton"
       />
       <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
+        class="bg-accent animate-pulse rounded-md h-10 w-10"
+        data-slot="skeleton"
       />
       <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-    </div>
-  </div>
-</div>
-`;
-
-exports[`CategorySkeleton stories snapshot > Desktop story renders and matches snapshot 1`] = `
-<div>
-  <div
-    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
-  >
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="mt-10 flex justify-center"
-  >
-    <div
-      class="flex items-center space-x-2"
-    >
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
+        class="bg-accent animate-pulse rounded-md h-10 w-10"
+        data-slot="skeleton"
       />
     </div>
   </div>
@@ -1321,7 +777,8 @@ exports[`CategorySkeleton stories snapshot > HeaderSkeleton story renders and ma
 <div>
   <div>
     <div
-      class="animate-pulse rounded-md bg-muted h-9 w-64"
+      class="bg-accent animate-pulse rounded-md h-9 w-64"
+      data-slot="skeleton"
     />
     <div
       class="flex-shrink-0"
@@ -1330,656 +787,14 @@ exports[`CategorySkeleton stories snapshot > HeaderSkeleton story renders and ma
         class="flex items-center space-x-2"
       >
         <div
-          class="animate-pulse rounded-md bg-muted h-4 w-12"
+          class="bg-accent animate-pulse rounded-md h-5 w-12"
+          data-slot="skeleton"
         />
         <div
-          class="animate-pulse rounded-md bg-muted h-10 w-32"
+          class="bg-accent animate-pulse rounded-md h-9 w-32"
+          data-slot="skeleton"
         />
       </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`CategorySkeleton stories snapshot > Mobile story renders and matches snapshot 1`] = `
-<div>
-  <div
-    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
-  >
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="mt-10 flex justify-center"
-  >
-    <div
-      class="flex items-center space-x-2"
-    >
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
     </div>
   </div>
 </div>
@@ -1995,40 +810,19 @@ exports[`CategorySkeleton stories snapshot > RefinementsSkeleton story renders a
         class="border rounded-md p-4"
       >
         <div
-          class="animate-pulse rounded-md bg-muted h-4 w-24 mb-2"
+          class="bg-accent animate-pulse rounded-md h-4 w-24 mb-2"
+          data-slot="skeleton"
         />
         <div
           class="flex flex-wrap gap-2"
         >
           <div
-            class="animate-pulse bg-muted h-6 w-16 rounded-full"
+            class="bg-accent animate-pulse h-6 w-16 rounded-full"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse bg-muted h-6 w-20 rounded-full"
-          />
-        </div>
-      </div>
-      <div
-        class="border rounded-md"
-      >
-        <div
-          class="p-4 border-b"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-32"
-          />
-        </div>
-        <div
-          class="p-4 space-y-2"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-4 w-full"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-4 w-3/4"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-4 w-1/2"
+            class="bg-accent animate-pulse h-6 w-20 rounded-full"
+            data-slot="skeleton"
           />
         </div>
       </div>
@@ -2039,667 +833,55 @@ exports[`CategorySkeleton stories snapshot > RefinementsSkeleton story renders a
           class="p-4 border-b"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-24"
+            class="bg-accent animate-pulse rounded-md h-5 w-32"
+            data-slot="skeleton"
           />
         </div>
         <div
           class="p-4 space-y-2"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-full"
+            class="bg-accent animate-pulse rounded-md h-4 w-full"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-5/6"
+            class="bg-accent animate-pulse rounded-md h-4 w-3/4"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-4 w-2/3"
+            class="bg-accent animate-pulse rounded-md h-4 w-1/2"
+            data-slot="skeleton"
           />
         </div>
       </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`CategorySkeleton stories snapshot > Tablet story renders and matches snapshot 1`] = `
-<div>
-  <div
-    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8"
-  >
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
       <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
+        class="border rounded-md"
       >
         <div
-          class="group bg-accent/30"
+          class="p-4 border-b"
         >
           <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
+            class="bg-accent animate-pulse rounded-md h-5 w-24"
+            data-slot="skeleton"
           />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
         </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
         <div
-          class="block w-full"
+          class="p-4 space-y-2"
         >
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
+            class="bg-accent animate-pulse rounded-md h-4 w-full"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
+            class="bg-accent animate-pulse rounded-md h-4 w-5/6"
+            data-slot="skeleton"
           />
           <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
+            class="bg-accent animate-pulse rounded-md h-4 w-2/3"
+            data-slot="skeleton"
           />
         </div>
       </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm ring-secondary/40 bg-muted/50"
-      data-slot="card"
-    >
-      <div
-        class="px-6 text-secondary border-destructive/30"
-        data-slot="card-content"
-      >
-        <div
-          class="group bg-accent/30"
-        >
-          <div
-            class="animate-pulse bg-muted aspect-square w-full rounded-md"
-          />
-          <div
-            class="mt-2 flex space-x-1"
-          >
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-            <div
-              class="animate-pulse bg-muted h-4 w-4 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        class="flex items-center px-6 [.border-t]:pt-6"
-        data-slot="card-footer"
-      >
-        <div
-          class="block w-full"
-        >
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-full mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-5 w-3/4 mb-2"
-          />
-          <div
-            class="animate-pulse rounded-md bg-muted h-6 w-20"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="mt-10 flex justify-center"
-  >
-    <div
-      class="flex items-center space-x-2"
-    >
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
-      <div
-        class="animate-pulse rounded-md bg-muted h-10 w-10"
-      />
     </div>
   </div>
 </div>

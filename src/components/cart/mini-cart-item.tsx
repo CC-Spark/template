@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 'use client';
@@ -16,9 +25,6 @@ import { Link } from 'react-router';
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
-// Components
-import { Badge } from '@/components/ui/badge';
-
 // Hooks
 import { useItemFetcher } from '@/hooks/use-item-fetcher';
 import { useCartQuantityUpdate } from '@/hooks/use-cart-quantity-update';
@@ -26,9 +32,10 @@ import { useConfig } from '@/config';
 import { useTranslation } from 'react-i18next';
 
 // Utils
-import { formatCurrency } from '@/lib/currency';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
 import { getDisplayVariationValues } from '@/lib/product-utils';
+import { useCurrency } from '@/providers/currency';
+import ProductPrice from '@/components/product-price';
 
 /**
  * Basket item data enriched with product details for mini cart display
@@ -44,12 +51,15 @@ type MiniCartItemProduct = ShopperBasketsV2.schemas['ProductItem'] &
  * @interface MiniCartItemProps
  * @property {MiniCartItemProduct} product - Combined basket item and product data
  * @property {function} [onRemove] - Optional callback when item is removed
+ * @property {ReactElement} [bonusProductSlot] - Optional bonus product selection card to display
  */
 interface MiniCartItemProps {
     /** Combined basket item and product data */
     product: MiniCartItemProduct;
     /** Optional callback when item is removed */
     onRemove?: () => void;
+    /** Optional bonus product selection card to display in right section */
+    bonusProductSlot?: ReactElement;
 }
 
 /**
@@ -81,11 +91,12 @@ interface MiniCartItemProps {
  * />
  * ```
  */
-export default function MiniCartItem({ product, onRemove }: MiniCartItemProps): ReactElement {
+export default function MiniCartItem({ product, onRemove, bonusProductSlot }: MiniCartItemProps): ReactElement {
     const config = useConfig();
     const { t: tMiniCart } = useTranslation('miniCart');
     const { t: tActionCard } = useTranslation('actionCard');
     const { t: tRemoveItem } = useTranslation('removeItem');
+    const currency = useCurrency();
 
     const fetcher = useItemFetcher({
         itemId: product.itemId || '',
@@ -110,14 +121,6 @@ export default function MiniCartItem({ product, onRemove }: MiniCartItemProps): 
         () => getDisplayVariationValues(product?.variationAttributes, product?.variationValues),
         [product?.variationAttributes, product?.variationValues]
     );
-
-    // Calculate pricing
-    const originalPrice = product.price || 0;
-    const salePrice = product.priceAfterItemDiscount || originalPrice;
-    const hasSavings = originalPrice > salePrice;
-
-    // Check for promotions
-    const hasPromotions = product?.priceAdjustments && product.priceAdjustments.length > 0;
 
     // State for custom quantity input mode
     const [isCustomInput, setIsCustomInput] = useState(false);
@@ -250,23 +253,20 @@ export default function MiniCartItem({ product, onRemove }: MiniCartItemProps): 
 
                     {/* Right side content */}
                     <div className="flex-shrink-0 text-right">
-                        {hasSavings ? (
-                            <>
-                                <div className="text-base text-muted-foreground line-through">
-                                    {formatCurrency(originalPrice)}
-                                </div>
-                                <div className="text-base font-semibold text-foreground">
-                                    {formatCurrency(salePrice)}
-                                </div>
-                                {hasPromotions && (
-                                    <Badge variant="default" className="mt-1 text-xs px-2 py-0.5">
-                                        {tMiniCart('promotionApplied')}
-                                    </Badge>
-                                )}
-                            </>
-                        ) : (
-                            <div className="text-base font-semibold text-foreground">{formatCurrency(salePrice)}</div>
-                        )}
+                        <ProductPrice
+                            product={product}
+                            currency={currency}
+                            quantity={1}
+                            type="unit"
+                            labelForA11y={product.productName}
+                            currentPriceProps={{
+                                className: 'text-base font-semibold text-foreground',
+                            }}
+                            listPriceProps={{
+                                className: 'text-base',
+                            }}
+                            className="flex flex-col items-end"
+                        />
                     </div>
                 </div>
 
@@ -335,9 +335,12 @@ export default function MiniCartItem({ product, onRemove }: MiniCartItemProps): 
                     )}
                 </div>
 
+                {/* Bonus Product Selection Card */}
+                {bonusProductSlot && <div className="mt-3">{bonusProductSlot}</div>}
+
                 <button
                     onClick={onRemove}
-                    className="text-sm text-primary hover:underline text-left"
+                    className="text-sm text-primary hover:underline text-left mt-2"
                     type="button"
                     aria-label={tMiniCart('removeItemAriaLabel')}>
                     {tRemoveItem('button')}

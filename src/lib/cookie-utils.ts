@@ -1,6 +1,22 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { getConfig } from '@/config/get-config';
 import type { RouterContextProvider } from 'react-router';
 import { COOKIE_TRACKING_CONSENT, COOKIE_DWSID } from '@/middlewares/auth.utils';
+import { modeDetectionContext } from '@/middlewares/mode-detection';
 
 /**
  * List of cookie names that should NOT be namespaced.
@@ -31,6 +47,7 @@ export interface CookieConfig {
     expires?: Date;
     maxAge?: number;
     httpOnly?: boolean;
+    partitioned?: boolean;
 }
 
 /**
@@ -114,11 +131,17 @@ export const getCookieConfig = <T extends object = CookieConfig>(
     cookieOptions?: T,
     context?: Readonly<RouterContextProvider>
 ): T & CookieConfig => {
+    const modeDetection = context?.get(modeDetectionContext);
+
     // 3. Start with defaults (lowest priority)
     const defaults: CookieConfig = {
         path: '/',
         sameSite: 'lax',
         secure: true,
+        ...(modeDetection?.isDesignMode && {
+            sameSite: 'none',
+            partitioned: true,
+        }),
     };
 
     // 2. Apply provided options (middle priority)
@@ -133,7 +156,9 @@ export const getCookieConfig = <T extends object = CookieConfig>(
     // Get config using getConfig() - handles both server (with context) and client (without)
     const config = getConfig(context);
 
-    const cookieDomain = config.site?.cookies?.domain;
+    // this will change when multi site implementation starts, for now we use first site in the list
+    const currentSite = config.commerce.sites[0];
+    const cookieDomain = currentSite?.cookies?.domain;
     if (cookieDomain) {
         cookieConfigOverrides.domain = cookieDomain;
     }

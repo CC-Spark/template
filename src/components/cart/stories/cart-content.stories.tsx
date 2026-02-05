@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
@@ -151,21 +166,12 @@ function ActionLogger({ children }: { children: ReactNode }): ReactElement {
             }
         };
 
-        const originalSetTimeout = window.setTimeout;
-        window.setTimeout = ((handler: TimerHandler, timeout?: number, ...args: unknown[]) => {
-            if (typeof timeout === 'number' && timeout >= 700) {
-                return 0 as unknown as number;
-            }
-            return originalSetTimeout(handler, timeout, ...args);
-        }) as typeof window.setTimeout;
-
         root.addEventListener('click', handleClick, true);
         root.addEventListener('submit', handleSubmit, true);
         root.addEventListener('change', handleChange, true);
         document.addEventListener('click', handleGlobalClick, true);
 
         return () => {
-            window.setTimeout = originalSetTimeout;
             root.removeEventListener('click', handleClick, true);
             root.removeEventListener('submit', handleSubmit, true);
             root.removeEventListener('change', handleChange, true);
@@ -560,7 +566,8 @@ export const LongProductNames: Story = {
                   ]
                 : [],
         },
-        productsByItemId: createProductMap(basketWithOneItem.productItems || [], dressProductDetails),
+        // Pass empty productsByItemId so basket item's productName is used (not overwritten by product details)
+        productsByItemId: {},
     },
     parameters: {
         docs: {
@@ -578,14 +585,14 @@ This verifies the component handles long product names gracefully.
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
 
         // Wait for and verify cart container is rendered
         const cartContainer = canvasElement.querySelector('[data-testid="sf-cart-container"]');
         await expect(cartContainer).toBeInTheDocument();
 
-        // Verify long product name is displayed
-        const longName = await canvas.findByText(/very long product name/i, {}, { timeout: 5000 });
-        await expect(longName).toBeInTheDocument();
+        // Verify long product name is displayed using textContent check
+        // (findByText can fail when text is split across elements)
+        const hasLongName = canvasElement.textContent?.toLowerCase().includes('very long product name');
+        await expect(hasLongName).toBe(true);
     },
 };

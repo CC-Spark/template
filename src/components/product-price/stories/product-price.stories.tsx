@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import ProductPrice from '../index';
 // @ts-expect-error mock file is JS
@@ -136,48 +151,65 @@ export const OnSale: Story = {
         await expect(listPrices.length).toBeGreaterThan(0);
     },
 };
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
+export const WithPromoCallout: Story = {
+    args: {
+        product: {
+            ...mockStandardProductOrderable.product,
+            price: 79.99,
+            tieredPrices: [
+                { price: 99.99, pricebook: 'list-prices', quantity: 1 },
+                { price: 79.99, pricebook: 'sale-prices', quantity: 1 },
+            ],
+            productPromotions: [
+                {
+                    promotionalPrice: 79.99,
+                    calloutMsg: 'Get 20% off of this item.',
+                },
+            ],
+        },
+        currency: 'USD',
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
-        // Use getAllByText to handle duplicates (visible + sr-only)
-        const prices = canvas.getAllByText(/\$99.99/);
-        await expect(prices.length).toBeGreaterThan(0);
-        await expect(prices[0]).toBeVisible();
+        // Check sale price is displayed
+        const salePrices = canvas.getAllByText(/\$79.99/);
+        await expect(salePrices.length).toBeGreaterThan(0);
+        // Check promo callout is displayed
+        const promoCallout = canvas.getByText(/Get 20% off/);
+        await expect(promoCallout).toBeVisible();
     },
 };
 
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
+export const WithCustomPromoCalloutStyling: Story = {
+    args: {
+        product: {
+            ...mockStandardProductOrderable.product,
+            price: 79.99,
+            tieredPrices: [
+                { price: 99.99, pricebook: 'list-prices', quantity: 1 },
+                { price: 79.99, pricebook: 'sale-prices', quantity: 1 },
+            ],
+            productPromotions: [
+                {
+                    promotionalPrice: 79.99,
+                    calloutMsg: 'Get 20% off of this item.',
+                },
+            ],
+        },
+        currency: 'USD',
+        promoCalloutProps: {
+            className: 'text-sm text-muted-foreground',
+        },
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
-        // Use getAllByText to handle duplicates (visible + sr-only)
-        const prices = canvas.getAllByText(/\$99.99/);
-        await expect(prices.length).toBeGreaterThan(0);
-        await expect(prices[0]).toBeVisible();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        // Use getAllByText to handle duplicates (visible + sr-only)
-        const prices = canvas.getAllByText(/\$99.99/);
-        await expect(prices.length).toBeGreaterThan(0);
-        await expect(prices[0]).toBeVisible();
+        // Check promo callout is displayed with custom styling
+        const promoCallout = canvas.getByText(/Get 20% off/);
+        await expect(promoCallout).toBeVisible();
+        // Verify the custom class is applied (checking parent container)
+        const promoContainer = promoCallout.closest('div');
+        await expect(promoContainer).toHaveClass('text-sm');
     },
 };

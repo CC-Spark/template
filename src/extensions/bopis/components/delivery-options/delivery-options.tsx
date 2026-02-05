@@ -1,19 +1,28 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 'use client';
 
-import { type ReactElement } from 'react';
-import { useTranslation } from 'react-i18next';
+import { type ReactElement, useState, lazy, Suspense } from 'react';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import PickupOrDelivery from './pickup-or-delivery';
 import { useDeliveryOptions } from '@/extensions/bopis/hooks/use-delivery-options';
 import { useStoreLocator } from '@/extensions/store-locator/providers/store-locator';
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
-import { Typography } from '@/components/typography';
+
+const ShippingCalculator = lazy(() => import('./shipping-calculator'));
 
 interface DeliveryOptionsProps {
     /** The product to check inventory for */
@@ -47,8 +56,6 @@ export default function DeliveryOptions({
     basketPickupStore,
     className,
 }: DeliveryOptionsProps): ReactElement | null {
-    const { t } = useTranslation('extBopis');
-
     // Get store locator state and actions
     const selectedStore = useStoreLocator((state) => state.selectedStoreInfo);
 
@@ -61,23 +68,38 @@ export default function DeliveryOptions({
     const { selectedDeliveryOption, isStoreOutOfStock, isSiteOutOfStock, handleDeliveryOptionChange } =
         useDeliveryOptions({ product, quantity, isInBasket, pickupStore });
 
+    // Shipping calculator state
+    const [deliveryDays, setDeliveryDays] = useState<number | undefined>(undefined);
+    const [calculatedZipCode, setCalculatedZipCode] = useState<string | undefined>(undefined);
+
+    const handleCalculate = (zipCode: string, days: number) => {
+        setCalculatedZipCode(zipCode);
+        setDeliveryDays(days);
+    };
+
     return (
         <div className={className}>
             <div className="space-y-4">
                 {/* Hide title and radio options when editing from cart */}
                 {!isInBasket && (
                     <>
-                        <Typography variant="h3" as="p" role="heading" aria-level={3} className="text-lg font-semibold">
-                            {t('deliveryOptions.title')}
-                        </Typography>
-
                         <PickupOrDelivery
                             value={selectedDeliveryOption}
                             onChange={handleDeliveryOptionChange}
                             isPickupDisabled={isStoreOutOfStock}
                             pickupStore={pickupStore}
                             isDeliveryDisabled={isSiteOutOfStock}
+                            deliveryZipCode={calculatedZipCode}
+                            deliveryDays={deliveryDays}
                         />
+
+                        {/* Shipping Estimates Calculator - Only show when delivery option is selected */}
+                        {/* Lazy loaded to reduce initial bundle size */}
+                        {selectedDeliveryOption === 'delivery' && (
+                            <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Loading...</div>}>
+                                <ShippingCalculator onCalculate={handleCalculate} />
+                            </Suspense>
+                        )}
                     </>
                 )}
             </div>

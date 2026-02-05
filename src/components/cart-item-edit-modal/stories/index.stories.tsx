@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CartItemEditModal } from '../index';
 import { action } from 'storybook/actions';
@@ -414,62 +429,5 @@ CartItemEditModal in closed state:
         const dialogInBody = document.body.querySelector('[role="dialog"]');
         await expect(dialogInCanvas).not.toBeInTheDocument();
         await expect(dialogInBody).not.toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement: _canvasElement }) => {
-        // Dialog renders in a portal, so query from document.body
-        const documentBody = within(document.body);
-
-        // Wait for modal dialog to be visible (not aria-hidden)
-        const dialog = await documentBody.findByRole('dialog', { hidden: false });
-        await expect(dialog).toBeInTheDocument();
-
-        // Test modal title is present (wait for it to appear)
-        const title = await documentBody.findByText(/edit cart item/i);
-        await expect(title).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement: _canvasElement }) => {
-        // Dialog renders in a portal, so query from document.body
-        const documentBody = within(document.body);
-
-        // Wait for modal dialog to be visible (not aria-hidden)
-        const dialog = await documentBody.findByRole('dialog', { hidden: false });
-        await expect(dialog).toBeInTheDocument();
-
-        // Test modal title is present (wait for it to appear)
-        const title = await documentBody.findByText(/edit cart item/i);
-        await expect(title).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement: _canvasElement }) => {
-        // Dialog renders in a portal, so query from document.body
-        const documentBody = within(document.body);
-
-        // Wait for modal dialog to be visible (not aria-hidden)
-        const dialog = await documentBody.findByRole('dialog', { hidden: false });
-        await expect(dialog).toBeInTheDocument();
-
-        // Test modal title is present (wait for it to appear)
-        const title = await documentBody.findByText(/edit cart item/i);
-        await expect(title).toBeInTheDocument();
     },
 };

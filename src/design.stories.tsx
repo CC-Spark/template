@@ -1,11 +1,29 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { StoryObj } from '@storybook/react-vite';
 import React from 'react';
-import { PageDesignerProvider, PageDesignerPage } from '@salesforce/storefront-next-runtime/design/react/core';
+import {
+    PageDesignerProvider,
+    PageDesignerPageMetadataProvider,
+} from '@salesforce/storefront-next-runtime/design/react/core';
 import {
     createReactComponentDesignDecorator,
     type ComponentDesignMetadata,
 } from '@salesforce/storefront-next-runtime/design/react';
-import { PageDesignerStyles } from '@/page-designer-styles';
+import { PageDesignerInit } from '@/page-designer-init';
 import { PageDesignerHostProvider } from '@/test-utils/page-designer-host-provider';
 import { RegionWrapper } from '@/components/region/region-wrapper';
 import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
@@ -394,7 +412,7 @@ function DesignLayerStory({
     description?: string;
 }) {
     return (
-        <PageDesignerPage page={pageData}>
+        <PageDesignerPageMetadataProvider page={pageData}>
             <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
                 <h1 style={{ marginBottom: '2rem', fontSize: '1.5rem', fontWeight: 'bold' }}>{title}</h1>
                 {description && <p style={{ marginBottom: '2rem', color: '#666' }}>{description}</p>}
@@ -427,7 +445,10 @@ function DesignLayerStory({
                                         <DecoratedPlaceholderComponent
                                             key={component.id}
                                             designMetadata={designMetadata}
-                                            title={component.data?.title || `Component ${component.id}`}
+                                            title={
+                                                (component.data?.title as string | undefined) ||
+                                                `Component ${component.id}`
+                                            }
                                             description={`Component ID: ${component.id} | Type: ${component.typeId}`}
                                             typeId={component.typeId}
                                         />
@@ -450,7 +471,7 @@ function DesignLayerStory({
                     </div>
                 ))}
             </div>
-        </PageDesignerPage>
+        </PageDesignerPageMetadataProvider>
     );
 }
 
@@ -488,7 +509,7 @@ function ModeDecorator({ Story, mode }: { Story: React.ComponentType; mode: Desi
 
     return (
         <PageDesignerProvider clientId="storybook-client" targetOrigin="*" clientLogger={clientLogger}>
-            <PageDesignerStyles />
+            <PageDesignerInit />
             <PageDesignerHostProvider expose={true} logEvents={true} />
             <Story />
         </PageDesignerProvider>

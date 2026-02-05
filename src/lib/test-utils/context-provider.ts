@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { RouterContextProvider } from 'react-router';
 import { authContext } from '@/middlewares/auth.utils';
 import { type PerformanceTimer, performanceTimerContext } from '@/middlewares/performance-metrics';
@@ -5,6 +20,10 @@ import type { SessionData } from '@/lib/api/types';
 import { appConfigContext } from '@/config';
 import type { Config } from '@/config/schema';
 import config from '@/config/server';
+import { i18nextContext } from '@/lib/i18next';
+import { currencyContext } from '@/lib/currency';
+import { createMaintenance, maintenanceContext } from '@/lib/maintenance';
+import i18next from 'i18next';
 
 /**
  * Configuration options for creating a test context provider
@@ -22,6 +41,12 @@ export interface TestContextConfig {
     rejectAuth?: boolean;
     /** Error to reject auth promise with */
     authError?: Error;
+    /** Override the locale (defaults to 'en-US') */
+    locale?: string;
+    /** Whether to skip setting up i18next context (for testing missing middleware scenarios) */
+    skipI18next?: boolean;
+    /** Override the currency (defaults to 'USD') */
+    currency?: string;
 }
 
 const ACCESS_TOKEN_VALIDITY_MS = 1800000; // 30 minutes
@@ -42,7 +67,7 @@ const DEFAULT_SESSION_DATA: SessionData = {
  * This helper eliminates the need to manually set up contexts in every test file.
  * All contexts are set with sensible defaults, and you can override specific values as needed.
  *
- * @param config - Optional configuration to override default values
+ * @param testConfig - Optional configuration to override default values
  * @returns A configured RouterContextProvider ready for testing
  *
  * @example
@@ -65,6 +90,16 @@ const DEFAULT_SESSION_DATA: SessionData = {
  * const context = createTestContext({
  *   authSession: null
  * });
+ *
+ * // Override locale
+ * const context = createTestContext({
+ *   locale: 'es-MX'
+ * });
+ *
+ * // Skip i18next context (for testing missing middleware)
+ * const context = createTestContext({
+ *   skipI18next: true
+ * });
  * ```
  */
 export function createTestContext(testConfig: TestContextConfig = {}): RouterContextProvider {
@@ -74,6 +109,9 @@ export function createTestContext(testConfig: TestContextConfig = {}): RouterCon
         appConfig,
         rejectAuth = false,
         authError = new Error('Auth failed'),
+        locale = 'en-US',
+        skipI18next = false,
+        currency = 'USD',
     } = testConfig;
 
     const contextProvider = new RouterContextProvider();
@@ -100,6 +138,21 @@ export function createTestContext(testConfig: TestContextConfig = {}): RouterCon
     // Set up app config context - merge with default config if overrides provided
     const mergedAppConfig = appConfig ? { ...config.app, ...appConfig } : config.app;
     contextProvider.set(appConfigContext, mergedAppConfig);
+
+    // Set up i18next context (unless explicitly skipped)
+    if (!skipI18next) {
+        contextProvider.set(i18nextContext, {
+            getLocale: () => locale,
+            getI18nextInstance: () => i18next,
+        });
+    }
+
+    // Set up currency context
+    contextProvider.set(currencyContext, currency);
+
+    // Set up maintenance context
+    const maintenance = createMaintenance();
+    contextProvider.set(maintenanceContext, maintenance);
 
     return contextProvider;
 }

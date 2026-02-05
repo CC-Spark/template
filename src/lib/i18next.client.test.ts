@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { initI18next } from './i18next.client';
 import i18next from 'i18next';
@@ -6,24 +21,24 @@ import i18next from 'i18next';
 vi.mock('@/config', () => ({
     getConfig: vi.fn(() => ({
         i18n: {
-            fallbackLng: 'en',
-            supportedLngs: ['es', 'en'], // Fallback language should be last
+            fallbackLng: 'en-US',
+            supportedLngs: ['en-US', 'it-IT'], // Fallback language should be last
         },
     })),
 }));
 
 // Mock translation modules for dynamic imports
-vi.mock('@/locales/en/index.ts', () => ({
+vi.mock('@/locales/en-US/index.ts', () => ({
     default: {
         translations: { hello: 'Hello', welcome: 'Welcome' },
         common: { yes: 'Yes', no: 'No' },
     },
 }));
 
-vi.mock('@/locales/es/index.ts', () => ({
+vi.mock('@/locales/it-IT/index.ts', () => ({
     default: {
-        translations: { hello: 'Hola', welcome: 'Bienvenido' },
-        common: { yes: 'Sí', no: 'No' },
+        translations: { hello: 'Ciao', welcome: 'Benvenuto' },
+        common: { yes: 'Sì', no: 'No' },
     },
 }));
 
@@ -66,7 +81,7 @@ describe('i18next.client', () => {
     describe('dynamic import backend behavior', () => {
         beforeEach(() => {
             // Initialize the test instance using initI18next
-            initI18next({ language: 'en', instance: testInstance });
+            initI18next({ language: 'en-US', instance: testInstance });
         });
 
         it('should load all namespaces for a language when a translation is requested', async () => {
@@ -74,28 +89,28 @@ describe('i18next.client', () => {
             await testInstance.loadNamespaces('translations');
 
             // Verify all namespaces for English are now in the store
-            expect(testInstance.store.data.en?.translations).toEqual({
+            expect(testInstance.store.data['en-US']?.translations).toEqual({
                 hello: 'Hello',
                 welcome: 'Welcome',
             });
-            expect(testInstance.store.data.en?.common).toEqual({
+            expect(testInstance.store.data['en-US']?.common).toEqual({
                 yes: 'Yes',
                 no: 'No',
             });
         });
 
         it('should load translations for different languages', async () => {
-            // Change language to Spanish
-            await testInstance.changeLanguage('es');
+            // Change language to Italian
+            await testInstance.changeLanguage('it-IT');
             await testInstance.loadNamespaces('translations');
 
-            // Verify Spanish translations are in the store
-            expect(testInstance.store.data.es?.translations).toEqual({
-                hello: 'Hola',
-                welcome: 'Bienvenido',
+            // Verify Italian translations are in the store
+            expect(testInstance.store.data['it-IT']?.translations).toEqual({
+                hello: 'Ciao',
+                welcome: 'Benvenuto',
             });
-            expect(testInstance.store.data.es?.common).toEqual({
-                yes: 'Sí',
+            expect(testInstance.store.data['it-IT']?.common).toEqual({
+                yes: 'Sì',
                 no: 'No',
             });
         });
@@ -105,7 +120,7 @@ describe('i18next.client', () => {
             await testInstance.loadNamespaces('nonexistent-namespace');
 
             // Verify empty or undefined data for the nonexistent namespace
-            const data = testInstance.store.data.en?.['nonexistent-namespace'];
+            const data = testInstance.store.data['en-US']?.['nonexistent-namespace'];
             expect(data).toEqual({});
         });
 
@@ -130,8 +145,8 @@ describe('i18next.client', () => {
             await testInstance.loadNamespaces(['translations', 'common']);
 
             // Verify both are in the store
-            expect(testInstance.store.data.en?.translations).toBeDefined();
-            expect(testInstance.store.data.en?.common).toBeDefined();
+            expect(testInstance.store.data['en-US']?.translations).toBeDefined();
+            expect(testInstance.store.data['en-US']?.common).toBeDefined();
         });
     });
 });

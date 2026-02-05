@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import Suggestions from './suggestions-list';
@@ -7,10 +22,16 @@ vi.mock('@/components/dynamic-image', () => ({
     DynamicImage: ({ src, alt, imageProps }: any) => <img src={src} alt={alt} {...imageProps} />,
 }));
 
+vi.mock('@/hooks/use-analytics', () => ({
+    useAnalytics: () => ({
+        trackClickSearchSuggestion: vi.fn(),
+    }),
+}));
+
 describe('Suggestions Component', () => {
     const mockSuggestions = [
-        { name: 'Electronics', link: '/category/electronics' },
-        { name: 'Clothing', link: '/category/clothing' },
+        { name: 'Electronics', link: '/category/electronics', type: 'category' },
+        { name: 'Clothing', link: '/category/clothing', type: 'category' },
     ];
 
     it('should render nothing when suggestions are empty, null, or undefined', () => {
@@ -35,8 +56,8 @@ describe('Suggestions Component', () => {
 
     it('should render images when provided and not render when missing', () => {
         const mixedSuggestions = [
-            { name: 'Product with image', link: '/product/1', image: 'https://example.com/img.jpg' },
-            { name: 'Category without image', link: '/category/1' },
+            { name: 'Product with image', link: '/product/1', type: 'product', image: 'https://example.com/img.jpg' },
+            { name: 'Category without image', link: '/category/1', type: 'category' },
         ];
 
         const { container } = render(<Suggestions suggestions={mixedSuggestions} />);

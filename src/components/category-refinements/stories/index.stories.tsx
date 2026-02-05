@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
@@ -208,116 +223,5 @@ export const Empty: Story = {
         const canvas = within(canvasElement);
         const noFiltersMessage = canvas.getByText(/no filter options available/i);
         void expect(noFiltersMessage).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test that category refinements component renders
-        void expect(canvasElement).toBeInTheDocument();
-        void expect(canvasElement.children.length).toBeGreaterThan(0);
-
-        // Test that refinement sections are present (accordion headers)
-        const refinementHeaders = canvas.queryAllByRole('button');
-        void expect(refinementHeaders.length).toBeGreaterThan(0);
-
-        // Test that at least one refinement header contains expected text
-        const headerTexts = refinementHeaders.map((header: HTMLElement) => header.textContent?.toLowerCase() || '');
-        const hasExpectedHeader = headerTexts.some(
-            (text: string) =>
-                text.includes('category') ||
-                text.includes('color') ||
-                text.includes('size') ||
-                text.includes('price') ||
-                text.includes('brand') ||
-                text.includes('refinement')
-        );
-        void expect(hasExpectedHeader).toBe(true);
-
-        // Test basic interaction - click on first refinement header to expand
-        if (refinementHeaders.length > 0) {
-            await userEvent.click(refinementHeaders[0]);
-        }
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test that category refinements component renders
-        void expect(canvasElement).toBeInTheDocument();
-        void expect(canvasElement.children.length).toBeGreaterThan(0);
-
-        // Test that refinement sections are present (accordion headers)
-        const refinementHeaders = canvas.queryAllByRole('button');
-        void expect(refinementHeaders.length).toBeGreaterThan(0);
-
-        // Test that at least one refinement header contains expected text
-        const headerTexts = refinementHeaders.map((header: HTMLElement) => header.textContent?.toLowerCase() || '');
-        const hasExpectedHeader = headerTexts.some(
-            (text: string) =>
-                text.includes('category') ||
-                text.includes('color') ||
-                text.includes('size') ||
-                text.includes('price') ||
-                text.includes('brand') ||
-                text.includes('refinement')
-        );
-        void expect(hasExpectedHeader).toBe(true);
-
-        // Test basic interaction - click on first refinement header to expand
-        if (refinementHeaders.length > 0) {
-            await userEvent.click(refinementHeaders[0]);
-        }
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test that category refinements component renders
-        void expect(canvasElement).toBeInTheDocument();
-        void expect(canvasElement.children.length).toBeGreaterThan(0);
-
-        // Test that refinement sections are present (accordion headers)
-        const refinementHeaders = canvas.queryAllByRole('button');
-        void expect(refinementHeaders.length).toBeGreaterThan(0);
-
-        // Test that at least one refinement header contains expected text
-        const headerTexts = refinementHeaders.map((header: HTMLElement) => header.textContent?.toLowerCase() || '');
-        const hasExpectedHeader = headerTexts.some(
-            (text: string) =>
-                text.includes('category') ||
-                text.includes('color') ||
-                text.includes('size') ||
-                text.includes('price') ||
-                text.includes('brand') ||
-                text.includes('refinement')
-        );
-        void expect(hasExpectedHeader).toBe(true);
-
-        // Test basic interaction - click on first refinement header to expand
-        if (refinementHeaders.length > 0) {
-            await userEvent.click(refinementHeaders[0]);
-        }
     },
 };

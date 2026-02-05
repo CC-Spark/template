@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -298,71 +307,5 @@ export const UnknownVisible: Story = {
         const canvas = within(canvasElement);
         const unknownText = canvas.getByText(/inventory unavailable/i);
         await expect(unknownText).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...InStock,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test that inventory message displays "In Stock" text
-        const inStockText = canvas.getByText(/in stock/i);
-        await expect(inStockText).toBeInTheDocument();
-
-        // Test that appropriate styling/color is applied (green for in stock)
-        const messageElement = inStockText.closest('[class*="text-"], [class*="bg-"]');
-        void expect(messageElement).toBeInTheDocument();
-
-        // Verify component renders correctly
-        void expect(canvasElement.firstChild).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...InStock,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test that inventory message displays "In Stock" text
-        const inStockText = canvas.getByText(/in stock/i);
-        await expect(inStockText).toBeInTheDocument();
-
-        // Test that appropriate styling/color is applied (green for in stock)
-        const messageElement = inStockText.closest('[class*="text-"], [class*="bg-"]');
-        void expect(messageElement).toBeInTheDocument();
-
-        // Verify component renders correctly
-        void expect(canvasElement.firstChild).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...InStock,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test that inventory message displays "In Stock" text
-        const inStockText = canvas.getByText(/in stock/i);
-        await expect(inStockText).toBeInTheDocument();
-
-        // Test that appropriate styling/color is applied (green for in stock)
-        const messageElement = inStockText.closest('[class*="text-"], [class*="bg-"]');
-        void expect(messageElement).toBeInTheDocument();
-
-        // Verify component renders correctly
-        void expect(canvasElement.firstChild).toBeInTheDocument();
     },
 };

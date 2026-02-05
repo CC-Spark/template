@@ -1,4 +1,20 @@
 /**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
  * Configuration Access Tests
  *
  * Tests both getConfig() (for loaders/utilities) and useConfig() (for React components).
@@ -32,11 +48,13 @@ describe('Config Access APIs', () => {
 
                 expect(config).toBeDefined();
                 expect(config.commerce.api.clientId).toBe('test-client');
-                expect(config.site.locale).toBe('en-US');
+                // TODO: fix when multi site implementation starts
+                expect(config.commerce.sites[0].defaultLocale).toBe('en-US');
             });
 
             it('should throw error if context provided but config not set', () => {
                 const context = createTestContext();
+                // @ts-expect-error: mock error for context
                 context.set(appConfigContext, undefined);
 
                 expect(() => getConfig(context)).toThrow('Configuration not available in router context');
@@ -51,7 +69,8 @@ describe('Config Access APIs', () => {
 
                 expect(config).toBeDefined();
                 expect(config.commerce.api.clientId).toBe('test-client');
-                expect(config.site.locale).toBe('en-US');
+                // TODO: fix when multi site implementation starts
+                expect(config.commerce.sites[0].defaultLocale).toBe('en-US');
             });
 
             it('should throw error when window.__APP_CONFIG__ not available', () => {
@@ -91,7 +110,7 @@ describe('Config Access APIs', () => {
 
             expect(result.current).toBeDefined();
             expect(result.current.commerce.api.clientId).toBe('test-client');
-            expect(result.current.site.locale).toBe('en-US');
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-US');
             expect(result.current).toEqual(mockConfig);
         });
 
@@ -116,15 +135,15 @@ describe('Config Access APIs', () => {
             const config = result.current;
 
             expect(config.commerce).toBeDefined();
-            expect(config.site).toBeDefined();
+            expect(config.commerce.sites[0]).toBeDefined();
             expect(config.pages).toBeDefined();
             expect(config.global).toBeDefined();
             expect(config.performance).toBeDefined();
             expect(config.development).toBeDefined();
             expect(config.global.branding).toBeDefined();
-            expect(config.site.features.socialShare).toBeDefined();
-            expect(config.site.features.socialShare.enabled).toBeDefined();
-            expect(config.site.features.socialShare.providers).toBeDefined();
+            expect(config.features.socialShare).toBeDefined();
+            expect(config.features.socialShare.enabled).toBeDefined();
+            expect(config.features.socialShare.providers).toBeDefined();
         });
 
         it('should not include runtime build settings in app config', () => {

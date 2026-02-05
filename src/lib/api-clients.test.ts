@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RouterContextProvider } from 'react-router';
 import { createApiClients } from './api-clients';
@@ -28,6 +43,16 @@ vi.mock('@/config', async (importOriginal) => {
                     siteId: 'test-site-id',
                     callback: '/callback',
                 },
+                sites: [
+                    {
+                        defaultCurrency: 'USD',
+                        supportedLocales: [
+                            { id: 'en-US', preferredCurrency: 'USD' },
+                            { id: 'es-MX', preferredCurrency: 'MXN' },
+                        ],
+                        supportedCurrencies: ['USD', 'MXN'],
+                    },
+                ],
             },
         })),
     };
@@ -90,6 +115,16 @@ describe('createApiClients', () => {
                     siteId: 'test-site-id',
                     callback: '/callback',
                 },
+                sites: [
+                    {
+                        defaultCurrency: 'USD',
+                        supportedLocales: [
+                            { id: 'en-US', preferredCurrency: 'USD' },
+                            { id: 'es-MX', preferredCurrency: 'MXN' },
+                        ],
+                        supportedCurrencies: ['USD', 'MXN'],
+                    },
+                ],
             },
         });
         mockCreateCommerceApiClients.mockReturnValue(mockClients);
@@ -123,7 +158,9 @@ describe('createApiClients', () => {
         it('should add authentication middleware', () => {
             createApiClients(mockContextProvider);
 
-            expect(mockUse).toHaveBeenCalledTimes(1);
+            // Four middlewares in use: correlation, auth, identifying headers, and maintenance
+            // 3 with the middleware disabled
+            expect(mockUse).toHaveBeenCalledTimes(3);
             expect(mockUse).toHaveBeenCalledWith(
                 expect.objectContaining({
                     onRequest: expect.any(Function),
@@ -154,6 +191,13 @@ describe('createApiClients', () => {
                             shortCode: 'kv7kzm78',
                             proxy: '/custom/api/path',
                         },
+                        sites: [
+                            {
+                                defaultCurrency: 'USD',
+                                supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                                supportedCurrencies: ['USD'],
+                            },
+                        ],
                     },
                 });
 
@@ -173,6 +217,13 @@ describe('createApiClients', () => {
                             shortCode: 'kv7kzm78',
                             proxy: '',
                         },
+                        sites: [
+                            {
+                                defaultCurrency: 'USD',
+                                supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                                supportedCurrencies: ['USD'],
+                            },
+                        ],
                     },
                 });
 
@@ -213,6 +264,13 @@ describe('createApiClients', () => {
                                 shortCode: 'custom123',
                                 proxy: '/mobify/proxy/api',
                             },
+                            sites: [
+                                {
+                                    defaultCurrency: 'USD',
+                                    supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                                    supportedCurrencies: ['USD'],
+                                },
+                            ],
                         },
                     });
 
@@ -250,7 +308,8 @@ describe('createApiClients', () => {
 
         beforeEach(() => {
             createApiClients(mockContextProvider);
-            authMiddleware = mockUse.mock.calls[0][0];
+            // authMiddleware is at index 1 (correlationMiddleware is at index 0)
+            authMiddleware = mockUse.mock.calls[1][0];
         });
 
         it('should have onRequest method', () => {
@@ -274,6 +333,24 @@ describe('createApiClients', () => {
                 const result = await authMiddleware.onRequest({ request: mockRequest });
 
                 expect(result.headers.get('Authorization')).toBe('Bearer test-access-token-123');
+            });
+
+            it('should add dwsid header when present in session', async () => {
+                const mockRequest = new Request('https://api.example.com/test');
+                const mockSession: SessionData = {
+                    access_token: 'test-access-token-123',
+                    customer_id: 'test-customer',
+                    userType: 'registered',
+                    dwsid: 'test-dwsid-value',
+                };
+
+                mockContextProvider.set(authContext, {
+                    ref: Promise.resolve(mockSession),
+                });
+
+                const result = await authMiddleware.onRequest({ request: mockRequest });
+
+                expect(result.headers.get('sfdc_dwsid')).toBe('test-dwsid-value');
             });
 
             it('should retrieve auth session from context', async () => {
@@ -324,6 +401,7 @@ describe('createApiClients', () => {
                     access_token: 'test-token',
                     customer_id: 'test-customer',
                     userType: 'registered',
+                    dwsid: 'session-id-123',
                 };
 
                 mockContextProvider.set(authContext, {
@@ -335,6 +413,7 @@ describe('createApiClients', () => {
                 expect(result.headers.get('Content-Type')).toBe('application/json');
                 expect(result.headers.get('X-Custom-Header')).toBe('custom-value');
                 expect(result.headers.get('Authorization')).toBe('Bearer test-token');
+                expect(result.headers.get('sfdc_dwsid')).toBe('session-id-123');
             });
 
             it('should handle auth promise rejection', async () => {
@@ -366,6 +445,28 @@ describe('createApiClients', () => {
 
                 expect(result).toBeInstanceOf(Request);
                 expect(result.url).toBe(mockRequest.url);
+            });
+
+            it('should skip adding headers for SLAS auth endpoints', async () => {
+                const mockRequest = new Request(
+                    'https://api.example.com/shopper/auth/v1/organizations/test/oauth2/token'
+                );
+                const mockSession: SessionData = {
+                    access_token: 'test-token',
+                    customer_id: 'test-customer',
+                    userType: 'registered',
+                    dwsid: 'test-dwsid',
+                };
+
+                mockContextProvider.set(authContext, {
+                    ref: Promise.resolve(mockSession),
+                });
+
+                const result = await authMiddleware.onRequest({ request: mockRequest });
+
+                // Headers should not be added for SLAS auth endpoints
+                expect(result.headers.get('Authorization')).toBeNull();
+                expect(result.headers.get('sfdc_dwsid')).toBeNull();
             });
         });
     });

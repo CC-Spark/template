@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -7,23 +22,14 @@ const { t } = getTranslation();
 import { SocialLoginButtons } from './social-login-buttons';
 import { mockConfig } from '@/test-utils/config';
 
-// Mock the useConfig hook
-let mockSiteConfig = {
-    ...mockConfig.site,
-    features: {
-        ...mockConfig.site.features,
-        socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
-    },
-};
+// Mock the useConfig hook - use vi.hoisted to ensure it's available during mock setup
+const mockUseConfig = vi.hoisted(() => vi.fn());
 
 vi.mock('@/config', async () => {
     const actual = await vi.importActual('@/config');
     return {
         ...actual,
-        useConfig: () => ({
-            ...mockConfig,
-            site: mockSiteConfig,
-        }),
+        useConfig: mockUseConfig,
     };
 });
 
@@ -46,14 +52,14 @@ const renderWithRouter = (component: React.ReactElement) => {
 describe('SocialLoginButtons', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Reset to default providers
-        mockSiteConfig = {
-            ...mockConfig.site,
+        // Set default mock return value
+        mockUseConfig.mockReturnValue({
+            ...mockConfig,
             features: {
-                ...mockConfig.site.features,
+                ...mockConfig.features,
                 socialLogin: { enabled: true, providers: ['Apple', 'Google'] },
             },
-        };
+        });
     });
 
     test('renders social login buttons for configured providers', () => {
@@ -64,7 +70,13 @@ describe('SocialLoginButtons', () => {
     });
 
     test('renders null when no social providers are configured', () => {
-        mockSiteConfig.features.socialLogin.providers = [];
+        mockUseConfig.mockReturnValue({
+            ...mockConfig,
+            features: {
+                ...mockConfig.features,
+                socialLogin: { enabled: true, providers: [] },
+            },
+        });
 
         const { container } = renderWithRouter(<SocialLoginButtons />);
 
@@ -72,7 +84,13 @@ describe('SocialLoginButtons', () => {
     });
 
     test('renders correct number of buttons for configured providers', () => {
-        mockSiteConfig.features.socialLogin.providers = ['Apple', 'Google', 'Facebook'];
+        mockUseConfig.mockReturnValue({
+            ...mockConfig,
+            features: {
+                ...mockConfig.features,
+                socialLogin: { enabled: true, providers: ['Apple', 'Google', 'Facebook'] },
+            },
+        });
 
         renderWithRouter(<SocialLoginButtons />);
 
@@ -95,7 +113,13 @@ describe('SocialLoginButtons', () => {
     });
 
     test('renders default icon for unknown provider', () => {
-        mockSiteConfig.features.socialLogin.providers = ['UnknownProvider'];
+        mockUseConfig.mockReturnValue({
+            ...mockConfig,
+            features: {
+                ...mockConfig.features,
+                socialLogin: { enabled: true, providers: ['UnknownProvider'] },
+            },
+        });
 
         renderWithRouter(<SocialLoginButtons />);
 
@@ -153,7 +177,13 @@ describe('SocialLoginButtons', () => {
     });
 
     test('renders only unique providers when duplicates exist', () => {
-        mockSiteConfig.features.socialLogin.providers = ['Apple', 'Apple', 'Google'];
+        mockUseConfig.mockReturnValue({
+            ...mockConfig,
+            features: {
+                ...mockConfig.features,
+                socialLogin: { enabled: true, providers: ['Apple', 'Apple', 'Google'] },
+            },
+        });
 
         const { container } = renderWithRouter(<SocialLoginButtons />);
 

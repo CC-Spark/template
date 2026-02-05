@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { renderHook, act } from '@testing-library/react';
@@ -784,5 +793,201 @@ describe('useQuantityPicker', () => {
             // When value is already at minimum (0), decrement should not call onChange
             expect(mockOnChange).not.toHaveBeenCalled();
         });
+    });
+});
+
+describe('Quantity Picker Max Constraint', () => {
+    const mockOnChange = vi.fn();
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    test('should disable increment button when at max', () => {
+        const { result } = renderHook(() =>
+            useQuantityPicker({
+                value: '3',
+                onChange: mockOnChange,
+                max: 3,
+            })
+        );
+
+        expect(result.current.isIncrementDisabled).toBe(true);
+    });
+
+    test('should enable increment when below max', () => {
+        const { result } = renderHook(() =>
+            useQuantityPicker({
+                value: '2',
+                onChange: mockOnChange,
+                max: 5,
+            })
+        );
+
+        expect(result.current.isIncrementDisabled).toBe(false);
+    });
+
+    test('should clamp value on blur when exceeding max', () => {
+        const { result } = renderHook(() =>
+            useQuantityPicker({
+                value: '10',
+                onChange: mockOnChange,
+                max: 3,
+            })
+        );
+
+        act(() => {
+            result.current.handleInputBlur({
+                target: { value: '10' },
+            } as React.FocusEvent<HTMLInputElement>);
+        });
+
+        expect(mockOnChange).toHaveBeenCalledWith('3', 3);
+    });
+
+    test('should allow typing max value exactly', () => {
+        const { result } = renderHook(() =>
+            useQuantityPicker({
+                value: '5',
+                onChange: mockOnChange,
+                max: 5,
+            })
+        );
+
+        act(() => {
+            result.current.handleInputBlur({
+                target: { value: '5' },
+            } as React.FocusEvent<HTMLInputElement>);
+        });
+
+        expect(result.current.isIncrementDisabled).toBe(true);
+    });
+
+    test('should keep increment disabled when at max after incrementing', () => {
+        const { result, rerender } = renderHook(
+            ({ value }) =>
+                useQuantityPicker({
+                    value,
+                    onChange: mockOnChange,
+                    max: 3,
+                }),
+            { initialProps: { value: '2' } }
+        );
+
+        expect(result.current.isIncrementDisabled).toBe(false);
+
+        act(() => {
+            result.current.handleIncrement();
+        });
+
+        expect(mockOnChange).toHaveBeenCalledWith('3', 3);
+
+        rerender({ value: '3' });
+
+        expect(result.current.isIncrementDisabled).toBe(true);
+    });
+
+    test('should NOT clamp when onBlur handler is provided', () => {
+        const mockOnBlur = vi.fn();
+        const { result } = renderHook(() =>
+            useQuantityPicker({
+                value: '10',
+                onChange: mockOnChange,
+                max: 3,
+                onBlur: mockOnBlur,
+            })
+        );
+
+        act(() => {
+            result.current.handleInputBlur({
+                target: { value: '10' },
+            } as React.FocusEvent<HTMLInputElement>);
+        });
+
+        expect(mockOnBlur).toHaveBeenCalled();
+        expect(mockOnChange).not.toHaveBeenCalled();
+    });
+
+    test('should constrain increment to max', () => {
+        const { result, rerender } = renderHook(
+            ({ value }) =>
+                useQuantityPicker({
+                    value,
+                    onChange: mockOnChange,
+                    max: 3,
+                }),
+            { initialProps: { value: '2' } }
+        );
+
+        act(() => {
+            result.current.handleIncrement();
+        });
+
+        expect(mockOnChange).toHaveBeenCalledWith('3', 3);
+
+        rerender({ value: '3' });
+        mockOnChange.mockClear();
+
+        act(() => {
+            result.current.handleIncrement();
+        });
+
+        expect(mockOnChange).not.toHaveBeenCalled();
+    });
+
+    test('should handle max of undefined (no limit)', () => {
+        const { result } = renderHook(() =>
+            useQuantityPicker({
+                value: '100',
+                onChange: mockOnChange,
+                max: undefined,
+            })
+        );
+
+        expect(result.current.isIncrementDisabled).toBe(false);
+
+        act(() => {
+            result.current.handleIncrement();
+        });
+
+        expect(mockOnChange).toHaveBeenCalledWith('101', 101);
+    });
+
+    test('should clamp between min and max on blur', () => {
+        const { result } = renderHook(() =>
+            useQuantityPicker({
+                value: '0',
+                onChange: mockOnChange,
+                min: 1,
+                max: 5,
+            })
+        );
+
+        act(() => {
+            result.current.handleInputBlur({
+                target: { value: '0' },
+            } as React.FocusEvent<HTMLInputElement>);
+        });
+
+        expect(mockOnChange).toHaveBeenCalledWith('1', 1);
+
+        mockOnChange.mockClear();
+
+        const { result: result2 } = renderHook(() =>
+            useQuantityPicker({
+                value: '10',
+                onChange: mockOnChange,
+                min: 1,
+                max: 5,
+            })
+        );
+
+        act(() => {
+            result2.current.handleInputBlur({
+                target: { value: '10' },
+            } as React.FocusEvent<HTMLInputElement>);
+        });
+
+        expect(mockOnChange).toHaveBeenCalledWith('5', 5);
     });
 });

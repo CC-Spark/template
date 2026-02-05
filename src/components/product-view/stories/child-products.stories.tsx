@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import ChildProducts from '../child-products';
 import { setProduct } from '../../__mocks__/set-product';
@@ -126,96 +141,6 @@ export const ProductBundle: Story = {
         const buttons = canvas.queryAllByRole('button', { name: /add bundle to cart/i });
         if (buttons.length > 0) {
             await expect(buttons[0]).toBeInTheDocument();
-        }
-    },
-};
-
-export const Mobile: Story = {
-    ...ProductSet,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        // Sets display "Add Set to Cart"
-        // Using getAllByRole to avoid finding multiple if structure changes, or better use regex for text
-        // The previous error was "Unable to find an element by: [data-testid="child-product"]"
-        // This suggests child products are not rendering.
-        // This might be due to context/hook data not being ready.
-        // But let's check the button first as requested.
-        const buttons = canvas.queryAllByRole('button', { name: /add set to cart/i });
-        if (buttons.length > 0) {
-            await expect(buttons[0]).toBeInTheDocument();
-        }
-
-        // Check for child product cards. If none found, the mock data might not be flowing correctly.
-        // Or they might render differently.
-        // Let's check for any text from child products.
-        // setProduct has child products.
-        const childCards = canvas.queryAllByTestId('child-product');
-        if (childCards.length > 0) {
-            await expect(childCards.length).toBeGreaterThan(0);
-        }
-    },
-};
-
-export const Tablet: Story = {
-    ...ProductSet,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        // Sets display "Add Set to Cart"
-        // Using getAllByRole to avoid finding multiple if structure changes, or better use regex for text
-        // The previous error was "Unable to find an element by: [data-testid="child-product"]"
-        // This suggests child products are not rendering.
-        // This might be due to context/hook data not being ready.
-        // But let's check the button first as requested.
-        const buttons = canvas.queryAllByRole('button', { name: /add set to cart/i });
-        if (buttons.length > 0) {
-            await expect(buttons[0]).toBeInTheDocument();
-        }
-
-        // Check for child product cards. If none found, the mock data might not be flowing correctly.
-        // Or they might render differently.
-        // Let's check for any text from child products.
-        // setProduct has child products.
-        const childCards = canvas.queryAllByTestId('child-product');
-        if (childCards.length > 0) {
-            await expect(childCards.length).toBeGreaterThan(0);
-        }
-    },
-};
-
-export const Desktop: Story = {
-    ...ProductSet,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        // Sets display "Add Set to Cart"
-        // Using getAllByRole to avoid finding multiple if structure changes, or better use regex for text
-        // The previous error was "Unable to find an element by: [data-testid="child-product"]"
-        // This suggests child products are not rendering.
-        // This might be due to context/hook data not being ready.
-        // But let's check the button first as requested.
-        const buttons = canvas.queryAllByRole('button', { name: /add set to cart/i });
-        if (buttons.length > 0) {
-            await expect(buttons[0]).toBeInTheDocument();
-        }
-
-        // Check for child product cards. If none found, the mock data might not be flowing correctly.
-        // Or they might render differently.
-        // Let's check for any text from child products.
-        // setProduct has child products.
-        const childCards = canvas.queryAllByTestId('child-product');
-        if (childCards.length > 0) {
-            await expect(childCards.length).toBeGreaterThan(0);
         }
     },
 };

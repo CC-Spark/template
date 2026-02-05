@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useRecommenders, type RecommendersAdapter, type Recommendation, type Product } from './use-recommenders';
@@ -8,6 +23,20 @@ global.fetch = vi.fn();
 // Mock the useRecommendersAdapter hook
 vi.mock('@/providers/recommenders', () => ({
     useRecommendersAdapter: vi.fn(),
+}));
+
+// Mock the currency provider
+vi.mock('@/providers/currency', () => ({
+    useCurrency: vi.fn().mockReturnValue('USD'),
+}));
+
+// Mock the auth provider
+vi.mock('@/providers/auth', () => ({
+    useAuth: vi.fn().mockReturnValue({
+        usid: 'test-usid-123',
+        userType: 'guest',
+        customer_id: null,
+    }),
 }));
 
 describe('useRecommenders', () => {
@@ -122,9 +151,11 @@ describe('useRecommenders', () => {
                 await result.current.getRecommendations('test-recommender');
             });
 
-            // Now passes user parameters ({}) even when args is undefined
+            // Now passes user parameters (cookieId) even when args is undefined
             // eslint-disable-next-line @typescript-eslint/unbound-method
-            expect(mockAdapter.getRecommendations).toHaveBeenCalledWith('test-recommender', undefined, {});
+            expect(mockAdapter.getRecommendations).toHaveBeenCalledWith('test-recommender', undefined, {
+                cookieId: 'test-usid-123',
+            });
             // Fetch now uses encoded resource URL format with GET method (no second argument)
             expect(mockFetch).toHaveBeenCalledWith(expect.stringMatching(/^\/resource\/api\/client\/.+$/));
 
@@ -160,7 +191,10 @@ describe('useRecommenders', () => {
             });
 
             // eslint-disable-next-line @typescript-eslint/unbound-method
-            expect(mockAdapter.getRecommendations).toHaveBeenCalledWith('test-recommender', products, args);
+            expect(mockAdapter.getRecommendations).toHaveBeenCalledWith('test-recommender', products, {
+                ...args,
+                cookieId: 'test-usid-123',
+            });
         });
 
         it('should not fetch when disabled', async () => {
@@ -235,9 +269,11 @@ describe('useRecommenders', () => {
                 await result.current.getZoneRecommendations('test-zone');
             });
 
-            // Now passes user parameters ({}) even when args is undefined
+            // Now passes user parameters (cookieId) even when args is undefined
             // eslint-disable-next-line @typescript-eslint/unbound-method
-            expect(mockAdapter.getZoneRecommendations).toHaveBeenCalledWith('test-zone', undefined, {});
+            expect(mockAdapter.getZoneRecommendations).toHaveBeenCalledWith('test-zone', undefined, {
+                cookieId: 'test-usid-123',
+            });
 
             await waitFor(() => {
                 expect(result.current.isLoading).toBe(false);
@@ -256,7 +292,10 @@ describe('useRecommenders', () => {
             });
 
             // eslint-disable-next-line @typescript-eslint/unbound-method
-            expect(mockAdapter.getZoneRecommendations).toHaveBeenCalledWith('test-zone', products, args);
+            expect(mockAdapter.getZoneRecommendations).toHaveBeenCalledWith('test-zone', products, {
+                ...args,
+                cookieId: 'test-usid-123',
+            });
         });
 
         it('should not fetch when disabled', async () => {

@@ -1,17 +1,28 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 import { data, type ActionFunctionArgs } from 'react-router';
 import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
-import { getBasket, updateBasket } from '@/middlewares/basket.client';
+import { ensureBasketId, updateBasketResource } from '@/middlewares/basket.server';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-// @sfdc-extension-line SFDC_EXT_BOPIS
-import { syncShipmentWithDeliveryOptionChange } from '@/extensions/bopis/lib/basket-utils';
 import { getTranslation } from '@/lib/i18next';
+// @sfdc-extension-block-start SFDC_EXT_BOPIS
+import { findOrCreatePickupShipment } from '@/extensions/bopis/lib/api/shipment';
+import { assertAllProductItemsPickup } from '@/extensions/bopis/lib/product-utils';
+// @sfdc-extension-block-end SFDC_EXT_BOPIS
 
 async function addMultipleItemsToCart(
     context: ActionFunctionArgs['context'],
@@ -26,8 +37,7 @@ async function addMultipleItemsToCart(
     error?: string;
 }> {
     const { t } = getTranslation();
-    const basket = getBasket(context);
-    const basketId = basket?.basketId;
+    const basketId = await ensureBasketId(context);
 
     if (!basketId) {
         // This state should never happen as it would indicate that the basket middleware is broken
@@ -38,8 +48,19 @@ async function addMultipleItemsToCart(
     }
 
     try {
-        // Add all items to basket in a single API call
         const clients = createApiClients(context);
+        let shipmentId = 'me';
+
+        // @sfdc-extension-block-start SFDC_EXT_BOPIS
+        const firstItem = productItems[0];
+        if (firstItem.storeId && firstItem.inventoryId) {
+            assertAllProductItemsPickup(productItems);
+            const pickupShipment = await findOrCreatePickupShipment(basket, context, firstItem.storeId);
+            shipmentId = pickupShipment.shipmentId;
+        }
+        // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
+        // Add all items to basket in a single API call
         const { data: updatedBasket } = await clients.shopperBasketsV2.addItemToBasket({
             params: {
                 path: { basketId },
@@ -47,26 +68,17 @@ async function addMultipleItemsToCart(
             body: productItems.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
-                inventoryId: item.inventoryId,
+                ...(item.inventoryId ? { inventoryId: item.inventoryId } : {}),
+                shipmentId,
             })),
         });
 
-        let finalBasket = updatedBasket;
-
-        // @sfdc-extension-block-start SFDC_EXT_BOPIS
-        // Find the first item with both storeId and inventoryId (pickup item)
-        const pickupItem = productItems.find((item) => item.storeId && item.inventoryId);
-
-        // Update shipment with store information based on selected delivery option
-        finalBasket = await syncShipmentWithDeliveryOptionChange(context, finalBasket, pickupItem);
-        // @sfdc-extension-block-end SFDC_EXT_BOPIS
-
         // Update the basket storage
-        updateBasket(context, finalBasket);
+        updateBasketResource(context, updatedBasket);
 
         return {
             success: true,
-            basket: finalBasket,
+            basket: updatedBasket,
         };
     } catch (error) {
         if (error instanceof ApiError) {
@@ -84,9 +96,9 @@ async function addMultipleItemsToCart(
 }
 
 /**
- * Client action to add multiple items to the cart (for product sets).
+ * Server action to add multiple items to the cart (for product sets).
  */
-export async function clientAction({ request, context }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 
     if (request.method !== 'POST') {

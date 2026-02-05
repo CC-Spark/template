@@ -1,10 +1,26 @@
-// Testing libraries
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // React Router
-import { createMemoryRouter, RouterProvider, useFetchers } from 'react-router';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider, type useFetchers } from 'react-router';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
@@ -13,20 +29,16 @@ import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@sale
 import ProductItem from './index';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
+import { CurrencyProvider } from '@/providers/currency';
+
+// Utils
+import { formatCurrency } from '@/lib/currency';
 
 // Mock data
 import { bundleProd as mockedBundleProduct } from '../__mocks__/bundle-product';
 
-// Mock useFetchers
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useFetchers: vi.fn(),
-    };
-});
-
-const mockUseFetchers = vi.mocked(useFetchers);
+// Mock useFetchers will be set up via vi.spyOn in beforeEach
+const mockUseFetchers = vi.fn();
 
 // Helper function to create mock fetchers
 const createMockFetcher = (key: string, state: 'idle' | 'submitting' | 'loading') =>
@@ -44,7 +56,11 @@ const renderWithRouter = (component: React.ReactElement) => {
         [
             {
                 path: '/cart',
-                element: <ConfigProvider config={mockConfig}>{component}</ConfigProvider>,
+                element: (
+                    <ConfigProvider config={mockConfig}>
+                        <CurrencyProvider value="USD">{component}</CurrencyProvider>
+                    </ConfigProvider>
+                ),
             },
         ],
         { initialEntries: ['/cart'] }
@@ -60,9 +76,9 @@ describe('ProductItem', () => {
         productId: 'test-product-id',
         productName: 'Test Product',
         name: 'Test Product',
-        price: 39.99,
-        priceAfterItemDiscount: 29.99,
-        pricePerUnit: 29.99,
+        basePrice: 29.99, // per-unit list price
+        price: 59.98, // total: 29.99 × 2
+        priceAfterItemDiscount: 59.98, // total after discount
         quantity: 2,
         variationValues: {
             color: 'red',
@@ -105,8 +121,14 @@ describe('ProductItem', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // Use vi.spyOn to mock useFetchers while keeping real router exports
+        vi.spyOn(ReactRouter, 'useFetchers').mockImplementation(mockUseFetchers);
         // Default mock: no active fetchers
         mockUseFetchers.mockReturnValue([]);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('ProductItem', () => {
@@ -133,13 +155,13 @@ describe('ProductItem', () => {
             const quantityPicker = screen.getByDisplayValue('2');
             expect(quantityPicker).toBeInTheDocument();
 
-            // Price appears in both mobile and desktop views
-            const priceElements = screen.getAllByText('$29.99');
+            // Per-unit price with "each" label appears in both mobile and desktop views
+            const eachPriceElements = screen.getAllByText('$29.99 each');
             //Since we are using Tailwind css classes to show/hide (md:hidden),
             // JSDOM does not compute these classes into proper css properties
             // we can only assert if these two exists in DOM, but can't check the visibility
             // it can only visible on proper browser (or E2E tests)
-            expect(priceElements).toHaveLength(2); // Mobile and desktop
+            expect(eachPriceElements).toHaveLength(2); // Mobile and desktop
         });
 
         test('does not render quantity text in default variant', () => {
@@ -403,6 +425,7 @@ describe('ProductItem', () => {
         test('handles missing price (defaults to 0)', () => {
             const productWithoutPrice = {
                 ...mockProduct,
+                basePrice: undefined,
                 price: undefined,
                 priceAfterItemDiscount: undefined,
             };
@@ -476,29 +499,30 @@ describe('ProductItem', () => {
         test('uses priceAfterItemDiscount when available', () => {
             const productWithDiscountPrice = {
                 ...mockProduct,
-                price: 39.99,
-                priceAfterItemDiscount: 29.99,
+                basePrice: 39.99,
+                price: 79.98, // total: 39.99 × 2
+                priceAfterItemDiscount: 59.98, // discounted total: 29.99 × 2
             };
 
             renderWithRouter(<ProductItem productItem={productWithDiscountPrice} />);
 
-            // Component uses priceAfterItemDiscount directly
-            const priceElements = screen.getAllByText('$29.99');
+            // Component uses priceAfterItemDiscount for "each" calculation: 59.98 / 2 = $29.99
+            const priceElements = screen.getAllByText('$29.99 each');
             expect(priceElements).toHaveLength(2); // Mobile and desktop price elements
         });
 
         test('handles missing priceAfterItemDiscount gracefully', () => {
             const productWithoutDiscountPrice = {
                 ...mockProduct,
-                price: 39.99,
+                basePrice: 39.99,
+                price: 79.98, // total: 39.99 × 2
                 priceAfterItemDiscount: undefined,
             };
 
             renderWithRouter(<ProductItem productItem={productWithoutDiscountPrice} />);
 
-            // Component should handle undefined priceAfterItemDiscount gracefully
-            // This might show $0.00 or handle it in some other way
-            const priceElements = screen.getAllByText('$0.00');
+            // Falls back to price for "each" calculation: 79.98 / 2 = $39.99
+            const priceElements = screen.getAllByText('$39.99 each');
             expect(priceElements).toHaveLength(2); // Mobile and desktop price elements
         });
     });
@@ -592,6 +616,8 @@ describe('ProductItem', () => {
         test('handles missing promotions gracefully', () => {
             const productWithPromotions = {
                 ...mockProduct,
+                price: 79.98, // total: 39.99 × 2
+                priceAfterItemDiscount: 59.98, // discounted total (different from price to show PromoPopover)
                 priceAdjustments: [{ promotionId: 'promo-1', itemText: '20% discount applied' }],
             };
 
@@ -662,7 +688,7 @@ describe('ProductItem', () => {
         });
     });
 
-    describe('Bonus Products', () => {
+    describe('Auto Bonus Products', () => {
         test('identifies bonus product correctly when bonusProductLineItem is true', () => {
             const bonusProduct = {
                 ...mockProduct,
@@ -688,23 +714,48 @@ describe('ProductItem', () => {
             expect(screen.queryByText('Bonus Product')).not.toBeInTheDocument();
         });
 
-        test('shows strikethrough original price for bonus product', () => {
+        test('shows strikethrough original total price for bonus product', () => {
             const bonusProduct = {
                 ...mockProduct,
                 bonusProductLineItem: true,
-                price: 39.99,
-                pricePerUnit: 39.99,
+                basePrice: 39.99,
+                price: 39.99, // qty 1 × 39.99
+                priceAfterItemDiscount: 0, // Bonus product is free
+                quantity: 1,
             };
 
             renderWithRouter(<ProductItem productItem={bonusProduct} />);
 
-            // Should show original price with strikethrough
-            const originalPriceElements = screen.getAllByText('$39.99');
+            // Should show original price (39.99) with strikethrough, not total
+            // Note: The component uses `price` directly, not `pricePerUnit * quantity`
+            const originalPriceElements = screen.getAllByText(formatCurrency(bonusProduct.price));
             expect(originalPriceElements.length).toBeGreaterThanOrEqual(1);
 
             // Check that at least one has line-through class
             const hasLineThrough = originalPriceElements.some((el) => el.className.includes('line-through'));
             expect(hasLineThrough).toBe(true);
+
+            // Should show $0.00 as the actual price
+            const zeroPriceElements = screen.getAllByText('$0.00');
+            expect(zeroPriceElements.length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('handles bonus product with zero original price', () => {
+            const bonusProduct = {
+                ...mockProduct,
+                bonusProductLineItem: true,
+                price: 0,
+                pricePerUnit: 0,
+                quantity: 1,
+            };
+
+            renderWithRouter(<ProductItem productItem={bonusProduct} />);
+
+            // Verify component renders without errors when price is 0
+            expect(screen.getByRole('img', { name: /product image/i })).toBeInTheDocument();
+            expect(screen.getByRole('link', { name: /test product/i })).toBeInTheDocument();
+            // Check that the bonus badge is shown
+            expect(screen.getByText('Bonus Product')).toBeInTheDocument();
         });
 
         test('disables quantity picker for bonus product', () => {
@@ -741,8 +792,9 @@ describe('ProductItem', () => {
                 ...mockProduct,
                 bonusProductLineItem: true,
                 bonusDiscountLineItemId: 'bonus-discount-123',
-                price: 49.99,
-                pricePerUnit: 49.99,
+                basePrice: 49.99,
+                price: 49.99, // qty 1 × 49.99
+                priceAfterItemDiscount: 0, // Bonus product is free
                 quantity: 1,
                 productName: 'Free Bonus Tie',
             };
@@ -757,8 +809,9 @@ describe('ProductItem', () => {
             const zeroPriceElements = screen.getAllByText('$0.00');
             expect(zeroPriceElements.length).toBeGreaterThanOrEqual(1);
 
-            // Check for original price (appears in both mobile and desktop views)
-            const originalPriceElements = screen.getAllByText('$49.99');
+            // Check for original price (49.99) with strikethrough
+            // Note: Component uses `price` directly, not `pricePerUnit * quantity`
+            const originalPriceElements = screen.getAllByText(formatCurrency(completeBonusProduct.price));
             expect(originalPriceElements.length).toBeGreaterThanOrEqual(1);
         });
 
@@ -780,6 +833,255 @@ describe('ProductItem', () => {
             expect(screen.queryByTestId('mobile-primary-action')).not.toBeInTheDocument();
             expect(screen.queryByTestId('primary-action')).not.toBeInTheDocument();
             expect(screen.queryByTestId(`remove-item-${mockProduct.itemId}`)).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Choice-Based Bonus Products', () => {
+        const mockBonusDiscountLineItems: ShopperBasketsV2.schemas['BonusDiscountLineItem'][] = [
+            {
+                id: 'bonus-discount-choice-1',
+                promotionId: 'promo-choice-1',
+                maxBonusItems: 3,
+                bonusProducts: [
+                    {
+                        productId: 'bonus-product-1',
+                        productName: 'Choice Bonus Product 1',
+                    },
+                    {
+                        productId: 'bonus-product-2',
+                        productName: 'Choice Bonus Product 2',
+                    },
+                ],
+            },
+        ];
+
+        const choiceBonusProduct = {
+            ...mockProduct,
+            bonusProductLineItem: true,
+            bonusDiscountLineItemId: 'bonus-discount-choice-1',
+            productId: 'bonus-product-1',
+            productName: 'Choice Bonus Product 1',
+        };
+
+        test('identifies choice-based bonus product correctly', () => {
+            renderWithRouter(
+                <ProductItem productItem={choiceBonusProduct} bonusDiscountLineItems={mockBonusDiscountLineItems} />
+            );
+
+            // Should show bonus product badge
+            expect(screen.getByText('Bonus Product')).toBeInTheDocument();
+        });
+
+        test('shows Remove button but hides Edit button for choice-based bonus product', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    primaryAction={mockPrimaryAction}
+                    secondaryActions={mockSecondaryActions}
+                />
+            );
+
+            // Choice-based bonus products should show primary action and Remove button
+            expect(screen.getByTestId('primary-action')).toBeInTheDocument();
+            expect(screen.getByTestId(`remove-item-${choiceBonusProduct.itemId}`)).toBeInTheDocument();
+
+            // Edit button should be hidden for choice-based bonus products
+            expect(screen.queryByTestId(`edit-item-${choiceBonusProduct.itemId}`)).not.toBeInTheDocument();
+        });
+
+        test('enables quantity picker for choice-based bonus product', () => {
+            renderWithRouter(
+                <ProductItem productItem={choiceBonusProduct} bonusDiscountLineItems={mockBonusDiscountLineItems} />
+            );
+
+            // Quantity picker should be enabled (not disabled)
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).not.toBeDisabled();
+        });
+
+        test('applies max quantity limit to choice-based bonus product', () => {
+            const choiceBonusProductQuantity1 = {
+                ...choiceBonusProduct,
+                quantity: 1,
+            };
+
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProductQuantity1}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    maxBonusQuantity={2}
+                />
+            );
+
+            // Quantity picker should have max attribute set
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).toHaveAttribute('max', '2');
+        });
+
+        test('distinguishes between choice-based and auto bonus products', () => {
+            // Auto bonus product (no bonusProducts array in bonusDiscountLineItem)
+            const autoBonusDiscountLineItems: ShopperBasketsV2.schemas['BonusDiscountLineItem'][] = [
+                {
+                    id: 'bonus-discount-auto-1',
+                    promotionId: 'promo-auto-1',
+                    maxBonusItems: 1,
+                    // No bonusProducts array = auto bonus
+                },
+            ];
+
+            const autoBonusProduct = {
+                ...mockProduct,
+                bonusProductLineItem: true,
+                bonusDiscountLineItemId: 'bonus-discount-auto-1',
+                productId: 'auto-bonus-product',
+                productName: 'Auto Bonus Product',
+            };
+
+            renderWithRouter(
+                <ProductItem
+                    productItem={autoBonusProduct}
+                    bonusDiscountLineItems={autoBonusDiscountLineItems}
+                    primaryAction={mockPrimaryAction}
+                    secondaryActions={mockSecondaryActions}
+                />
+            );
+
+            // Auto bonus products should hide actions
+            expect(screen.queryByTestId('primary-action')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('secondary-action')).not.toBeInTheDocument();
+
+            // Auto bonus products should have disabled quantity picker
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).toBeDisabled();
+        });
+
+        test('handles choice-based bonus product without maxBonusQuantity prop', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    // maxBonusQuantity not provided
+                />
+            );
+
+            // Should still render correctly without max
+            expect(screen.getByText('Bonus Product')).toBeInTheDocument();
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).not.toBeDisabled();
+            // Max attribute should not be set if not provided
+            expect(quantityInput).not.toHaveAttribute('max');
+        });
+
+        test('handles choice-based bonus product with zero max quantity', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    maxBonusQuantity={0}
+                />
+            );
+
+            // Max should be set to 0
+            const quantityInput = screen.getByRole('spinbutton');
+            expect(quantityInput).toHaveAttribute('max', '0');
+        });
+
+        test('shows Remove button for choice-based bonus product', () => {
+            renderWithRouter(
+                <ProductItem
+                    productItem={choiceBonusProduct}
+                    bonusDiscountLineItems={mockBonusDiscountLineItems}
+                    secondaryActions={mockSecondaryActions}
+                />
+            );
+
+            // Remove button should be shown for choice-based bonus products
+            expect(screen.getByTestId(`remove-item-${choiceBonusProduct.itemId}`)).toBeInTheDocument();
+        });
+    });
+
+    describe('Total price and per-unit display', () => {
+        test('displays total price and "each" label when quantity is greater than 1', () => {
+            const productWithQuantity = {
+                ...mockProduct,
+                basePrice: 44.0,
+                price: 88.0, // total: 44 × 2
+                priceAfterItemDiscount: 88.0, // total after discount: 44 × 2
+                quantity: 2,
+            };
+
+            renderWithRouter(<ProductItem productItem={productWithQuantity} />);
+
+            // Should display "each" label for per-unit price when qty > 1
+            const eachElements = screen.getAllByText(/each/);
+            expect(eachElements.length).toBeGreaterThanOrEqual(1);
+
+            // Per-unit price should be displayed (total / quantity = 88 / 2 = $44.00)
+            const perUnitPriceElements = screen.getAllByText('$44.00 each');
+            expect(perUnitPriceElements.length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('does not display "each" label when quantity is 1', () => {
+            const productWithSingleQuantity = {
+                ...mockProduct,
+                basePrice: 44.0,
+                price: 44.0,
+                priceAfterItemDiscount: 44.0,
+                quantity: 1,
+            };
+
+            renderWithRouter(<ProductItem productItem={productWithSingleQuantity} />);
+
+            // Should NOT display "each" label when qty = 1
+            expect(screen.queryByText(/each/)).not.toBeInTheDocument();
+        });
+
+        test('calculates per-unit price correctly from total', () => {
+            const productWithDiscount = {
+                ...mockProduct,
+                basePrice: 29.99,
+                price: 89.97, // total: 29.99 × 3
+                priceAfterItemDiscount: 59.97, // discounted total: 19.99 × 3
+                quantity: 3,
+            };
+
+            renderWithRouter(<ProductItem productItem={productWithDiscount} />);
+
+            // Per-unit price = 59.97 / 3 = $19.99
+            const perUnitPriceElements = screen.getAllByText('$19.99 each');
+            expect(perUnitPriceElements.length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('handles undefined quantity by defaulting to 1 (no "each" label)', () => {
+            const productWithUndefinedQuantity = {
+                ...mockProduct,
+                basePrice: 44.0,
+                price: 44.0,
+                priceAfterItemDiscount: 44.0,
+                quantity: undefined,
+            };
+
+            renderWithRouter(<ProductItem productItem={productWithUndefinedQuantity} />);
+
+            // Should NOT display "each" label when qty defaults to 1
+            expect(screen.queryByText(/each/)).not.toBeInTheDocument();
+        });
+
+        test('uses price when priceAfterItemDiscount is undefined for "each" calculation', () => {
+            const productWithoutDiscount = {
+                ...mockProduct,
+                basePrice: 25.0,
+                price: 50.0, // total: 25 × 2
+                priceAfterItemDiscount: undefined,
+                quantity: 2,
+            };
+
+            renderWithRouter(<ProductItem productItem={productWithoutDiscount} />);
+
+            // Per-unit price = price / quantity = 50 / 2 = $25.00
+            const perUnitPriceElements = screen.getAllByText('$25.00 each');
+            expect(perUnitPriceElements.length).toBeGreaterThanOrEqual(1);
         });
     });
 

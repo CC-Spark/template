@@ -1,8 +1,23 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import MiniCartItem from '../mini-cart-item';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
-import { expect, within, userEvent } from 'storybook/test';
+import { expect, within, userEvent, waitFor } from 'storybook/test';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
@@ -134,8 +149,9 @@ const mockProduct = {
     productId: 'prod-1',
     productName: 'Product Name',
     quantity: 1,
-    price: 20.0,
-    priceAfterItemDiscount: 15.0,
+    basePrice: 20.0, // List price (original price before discount)
+    price: 20.0, // Unit price
+    priceAfterItemDiscount: 15.0, // Final price after discount (for quantity 1, this is the discounted unit price)
     variationValues: {
         color: 'Grey',
         size: 'XL',
@@ -197,10 +213,14 @@ Product with sale pricing showing savings. Demonstrates:
         await expect(sizeAttr).toBeInTheDocument();
 
         // Verify pricing is displayed
-        const originalPrice = await canvas.findByText('$20.00');
-        await expect(originalPrice).toBeInTheDocument();
-        const salePrice = await canvas.findByText('$15.00');
-        await expect(salePrice).toBeInTheDocument();
+        // ProductPrice renders prices in Typography components, so we check the container text content
+        await waitFor(() => {
+            const priceContainer = canvasElement.querySelector('[data-testid="mini-cart-item"]');
+            expect(priceContainer).toBeInTheDocument();
+            const priceText = priceContainer?.textContent || '';
+            expect(priceText).toContain('$20.00'); // List price (strikethrough)
+            expect(priceText).toContain('$15.00'); // Current price
+        });
 
         // Verify quantity selector
         const quantityLabel = await canvas.findByText('Quantity:');
@@ -244,8 +264,13 @@ Product at regular price with no savings. Shows:
         await expect(productName).toBeInTheDocument();
 
         // Verify only sale price is shown (no strikethrough)
-        const salePrice = await canvas.findByText('$15.00');
-        await expect(salePrice).toBeInTheDocument();
+        // ProductPrice renders prices in Typography components, so we check the container text content
+        await waitFor(() => {
+            const priceContainer = canvasElement.querySelector('[data-testid="mini-cart-item"]');
+            expect(priceContainer).toBeInTheDocument();
+            const priceText = priceContainer?.textContent || '';
+            expect(priceText).toContain('$15.00'); // Current price
+        });
 
         // Verify no savings badge
         const savingsBadge = canvas.queryByText(/Saved/);
@@ -309,8 +334,11 @@ Product with long name showing text truncation. Shows:
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
 
-        // Wait for long product name to be displayed (use findBy to wait for async loading)
-        const longName = await canvas.findByText(/this is a very long product name/i);
+        // Wait for long product name to be displayed
+        // Use getByRole to find the heading element specifically, avoiding screen reader text
+        const longName = await canvas.findByRole('heading', {
+            name: /this is a very long product name/i,
+        });
         await expect(longName).toBeInTheDocument();
     },
 };

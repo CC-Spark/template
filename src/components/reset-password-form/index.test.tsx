@@ -1,25 +1,40 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { ResetPasswordForm } from './index';
 import { isPasswordValid } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
 
 const { t } = getTranslation();
 
-// Mock react-router
+// Mock navigation state
 const mockNavigation = {
     state: 'idle' as 'idle' | 'submitting' | 'loading',
 };
 
-vi.mock('react-router', async (importOriginal) => {
-    const actual = (await importOriginal()) as any;
-    return {
-        ...actual,
-        Form: ({ children, ...props }: any) => <form {...props}>{children}</form>,
-        useNavigation: () => mockNavigation,
-    };
-});
+// Helper to render with router context
+function renderWithRouter(ui: React.ReactElement) {
+    const router = createMemoryRouter([{ path: '/', element: ui }], { initialEntries: ['/'] });
+    return render(<RouterProvider router={router} />);
+}
 
 // Mock the utils module for password validation
 vi.mock('@/lib/utils', async () => {
@@ -49,11 +64,17 @@ describe('ResetPasswordForm', () => {
         mockNavigation.state = 'idle';
         // Set default mock for password validation
         vi.mocked(isPasswordValid).mockReturnValue(false);
+        // Use vi.spyOn for useNavigation hook
+        vi.spyOn(ReactRouter, 'useNavigation').mockReturnValue(mockNavigation as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('rendering', () => {
         test('renders form with all required elements', () => {
-            const { container } = render(<ResetPasswordForm {...defaultProps} />);
+            const { container } = renderWithRouter(<ResetPasswordForm {...defaultProps} />);
 
             // Email display (disabled)
             const emailInput = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
@@ -91,7 +112,7 @@ describe('ResetPasswordForm', () => {
 
         test('renders error message when error prop is provided', () => {
             const errorMessage = 'Invalid reset token';
-            render(<ResetPasswordForm {...defaultProps} error={errorMessage} />);
+            renderWithRouter(<ResetPasswordForm {...defaultProps} error={errorMessage} />);
 
             expect(screen.getByText(errorMessage)).toBeInTheDocument();
             expect(screen.getByText(errorMessage).closest('div')).toHaveClass('bg-destructive/10');
@@ -101,7 +122,7 @@ describe('ResetPasswordForm', () => {
     describe('password field interactions', () => {
         test('accepts user input in password fields', async () => {
             const user = userEvent.setup();
-            render(<ResetPasswordForm {...defaultProps} />);
+            renderWithRouter(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
                 t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
@@ -119,7 +140,7 @@ describe('ResetPasswordForm', () => {
 
         test('handles password mismatch validation', async () => {
             const user = userEvent.setup();
-            render(<ResetPasswordForm {...defaultProps} />);
+            renderWithRouter(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
                 t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
@@ -148,7 +169,7 @@ describe('ResetPasswordForm', () => {
     describe('password requirements', () => {
         test('passes password value to PasswordRequirements component', async () => {
             const user = userEvent.setup();
-            render(<ResetPasswordForm {...defaultProps} />);
+            renderWithRouter(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
                 t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
@@ -167,11 +188,11 @@ describe('ResetPasswordForm', () => {
     describe('form submission', () => {
         test('validates form and controls submit button state', async () => {
             const user = userEvent.setup();
-            const { container } = render(<ResetPasswordForm {...defaultProps} />);
+            const { container } = renderWithRouter(<ResetPasswordForm {...defaultProps} />);
 
-            // Form should have POST method
+            // Form should have POST method (React Router Form renders lowercase)
             const form = container.querySelector('form');
-            expect(form).toHaveAttribute('method', 'POST');
+            expect(form?.getAttribute('method')?.toLowerCase()).toBe('post');
 
             // Submit button should be disabled when form is invalid
             let submitButton = screen.getByRole('button', { name: t('resetPassword:resetPasswordButton') });
@@ -201,7 +222,7 @@ describe('ResetPasswordForm', () => {
 
     describe('accessibility', () => {
         test('form fields have proper accessibility attributes', () => {
-            render(<ResetPasswordForm {...defaultProps} />);
+            renderWithRouter(<ResetPasswordForm {...defaultProps} />);
 
             const passwordInput = screen.getByLabelText(
                 t('resetPassword:newPasswordLabel') || t('signup:form.passwordLabel')
@@ -226,28 +247,30 @@ describe('ResetPasswordForm', () => {
     });
 
     describe('edge cases', () => {
-        test('handles empty and special values gracefully', () => {
-            // Empty token
-            const { container, rerender } = render(<ResetPasswordForm {...defaultProps} token="" />);
+        test('handles empty token', () => {
+            const { container } = renderWithRouter(<ResetPasswordForm {...defaultProps} token="" />);
             const tokenInput = container.querySelector('input[name="token"]');
             expect(tokenInput).toHaveValue('');
+        });
 
-            // Empty email
-            rerender(<ResetPasswordForm {...defaultProps} email="" />);
-            let emailDisplay = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
+        test('handles empty email', () => {
+            const { container } = renderWithRouter(<ResetPasswordForm {...defaultProps} email="" />);
+            const emailDisplay = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
             expect(emailDisplay).toHaveValue('');
             const emailHidden = container.querySelector('input[name="email"]');
             expect(emailHidden).toHaveValue('');
+        });
 
-            // Special characters in email
+        test('handles special characters in email', () => {
             const specialEmail = 'test+user@example.com';
-            rerender(<ResetPasswordForm {...defaultProps} email={specialEmail} />);
-            emailDisplay = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
+            renderWithRouter(<ResetPasswordForm {...defaultProps} email={specialEmail} />);
+            const emailDisplay = screen.getByLabelText(t('resetPassword:emailLabel') || t('signup:form.emailLabel'));
             expect(emailDisplay).toHaveValue(specialEmail);
+        });
 
-            // Long error message
+        test('handles long error message', () => {
             const longError = 'A'.repeat(500);
-            rerender(<ResetPasswordForm {...defaultProps} error={longError} />);
+            renderWithRouter(<ResetPasswordForm {...defaultProps} error={longError} />);
             expect(screen.getByText(longError)).toBeInTheDocument();
         });
     });
@@ -255,7 +278,7 @@ describe('ResetPasswordForm', () => {
     describe('UI strings fallbacks', () => {
         test('uses fallback strings when resetPassword strings are not available', () => {
             // This tests that the component can fall back to signup strings
-            render(<ResetPasswordForm {...defaultProps} />);
+            renderWithRouter(<ResetPasswordForm {...defaultProps} />);
 
             // The component should still render even if some strings are missing
             expect(screen.getByRole('button')).toBeInTheDocument();

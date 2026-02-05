@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -11,6 +26,41 @@ vi.mock('@/hooks/use-customer-lookup', () => ({
 }));
 vi.mock('@/hooks/checkout/use-customer-profile', () => ({
     useCustomerProfile: vi.fn(() => null),
+}));
+
+const mockUseCheckoutContext = vi.fn();
+
+const defaultSteps = {
+    CONTACT_INFO: 0,
+    PICKUP: 1,
+    SHIPPING_ADDRESS: 2,
+    SHIPPING_OPTIONS: 3,
+    PAYMENT: 4,
+    REVIEW_ORDER: 5,
+} as const;
+
+const buildCheckoutContext = (overrides?: Record<string, unknown>) => ({
+    step: 0,
+    computedStep: 0,
+    editingStep: null,
+    STEPS: defaultSteps,
+    customerProfile: undefined,
+    shippingDefaultSet: Promise.resolve(undefined),
+    shipmentDistribution: {
+        hasUnaddressedDeliveryItems: false,
+        hasEmptyShipments: false,
+        deliveryShipments: [],
+    },
+    savedAddresses: [],
+    setSavedAddresses: vi.fn(),
+    goToNextStep: vi.fn(),
+    goToStep: vi.fn(),
+    exitEditMode: vi.fn(),
+    ...(overrides || {}),
+});
+
+vi.mock('@/hooks/use-checkout', () => ({
+    useCheckoutContext: () => mockUseCheckoutContext(),
 }));
 
 const mockGetContactInfoFromCustomer = vi.fn((_customerProfile?: unknown) => ({}));
@@ -58,6 +108,8 @@ describe('ContactInfo Integration Tests', () => {
             { dialingCode: '+1', countryName: 'United States' },
             { dialingCode: '+44', countryName: 'United Kingdom' },
         ]);
+        mockUseCheckoutContext.mockReturnValue(buildCheckoutContext());
+
         const basketModule = await import('@/providers/basket');
         const profileModule = await import('@/hooks/checkout/use-customer-profile');
         const lookupModule = await import('@/hooks/use-customer-lookup');

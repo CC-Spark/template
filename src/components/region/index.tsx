@@ -1,18 +1,34 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Suspense, type ReactNode } from 'react';
 import { Await } from 'react-router';
 import { Component } from './component';
 import { RegionWrapper } from './region-wrapper';
-import type { RegionDefinitionConfig } from '@/lib/decorators';
 import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
-import { PageDesignerPage } from '@salesforce/storefront-next-runtime/design/react/core';
+import {
+    PageDesignerPageMetadataProvider,
+    useRegionContext,
+} from '@salesforce/storefront-next-runtime/design/react/core';
 
 interface RegionProps extends React.HTMLAttributes<HTMLDivElement> {
-    page: Promise<ShopperExperience.schemas['Page']>;
+    page: Promise<ShopperExperience.schemas['Page'] | ShopperExperience.schemas['Component']>;
     regionId: string;
     componentData?: Promise<Record<string, Promise<unknown>>>;
-    metadata?: RegionDefinitionConfig;
-    fallback?: ReactNode;
-    suspenseFallback?: ReactNode;
+    fallbackElement?: ReactNode;
+    errorElement?: ReactNode;
 }
 
 /**
@@ -37,61 +53,60 @@ interface RegionProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 
 export function Region(props: RegionProps) {
-    const {
-        page,
-        regionId,
-        className = '',
-        componentData,
-        metadata,
-        fallback,
-        suspenseFallback = <div />,
-        ...rest
-    } = props;
+    const { page, regionId, className = '', componentData, errorElement, fallbackElement = <div />, ...rest } = props;
+    const regionContext = useRegionContext();
 
     return (
-        <Suspense fallback={suspenseFallback}>
-            <Await resolve={page} errorElement={fallback}>
-                {(resolvedPage) => {
-                    // Find the region within the page
-                    const region = resolvedPage.regions?.find((r) => r.id === regionId);
+        <Suspense fallback={fallbackElement}>
+            <Await resolve={componentData ?? Promise.resolve(undefined)} errorElement={errorElement}>
+                {(resolvedComponentData) => (
+                    <Await resolve={page} errorElement={errorElement}>
+                        {(resolvedPage) => {
+                            // Find the region within the page
+                            const region = resolvedPage?.regions?.find((r) => r.id === regionId);
+                            const metadata = resolvedPage?.designMetadata?.regionDefinitions?.find(
+                                (r) => r.id === regionId
+                            );
 
-                    // If region not found, return fallback
-                    if (!region) {
-                        return fallback ?? null;
-                    }
+                            // If region not found, return fallback
+                            if (!region) {
+                                return errorElement ?? null;
+                            }
 
-                    return (
-                        <>
-                            <PageDesignerPage page={resolvedPage} />
-                            <RegionWrapper
-                                region={region}
-                                className={className}
-                                designMetadata={{
-                                    id: region.id,
-                                    componentTypeExclusions: metadata?.componentTypeExclusions ?? [],
-                                    componentTypeInclusions: metadata?.componentTypeInclusions ?? [],
-                                }}
-                                {...rest}>
-                                {region.components?.map(
-                                    (component) =>
-                                        component.id && (
-                                            <Component
-                                                key={component.id}
-                                                component={component}
-                                                componentData={componentData}
-                                                regionId={region.id}
-                                                page={Promise.resolve({
-                                                    id: component.id,
-                                                    typeId: component.typeId,
-                                                    regions: component.regions || [],
-                                                } as ShopperExperience.schemas['Page'])}
-                                            />
-                                        )
-                                )}
-                            </RegionWrapper>
-                        </>
-                    );
-                }}
+                            return (
+                                <>
+                                    {/* Only register page metadata if we are at the root of the page
+                                The provider will dedupe strictly equal object */}
+                                    {!regionContext && <PageDesignerPageMetadataProvider page={resolvedPage} />}
+                                    <RegionWrapper
+                                        region={region}
+                                        className={className}
+                                        designMetadata={{
+                                            id: region.id,
+                                            componentTypeExclusions:
+                                                metadata?.componentTypeExclusions?.map((c) => c.typeId) ?? [],
+                                            componentTypeInclusions:
+                                                metadata?.componentTypeInclusions?.map((c) => c.typeId) ?? [],
+                                        }}
+                                        {...rest}>
+                                        {region.components?.map(
+                                            (component) =>
+                                                component.id && (
+                                                    <Component
+                                                        key={component.id}
+                                                        page={resolvedPage}
+                                                        component={component}
+                                                        componentData={resolvedComponentData}
+                                                        regionId={region.id}
+                                                    />
+                                                )
+                                        )}
+                                    </RegionWrapper>
+                                </>
+                            );
+                        }}
+                    </Await>
+                )}
             </Await>
         </Suspense>
     );

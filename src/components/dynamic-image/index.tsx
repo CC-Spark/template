@@ -1,13 +1,22 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-import { useMemo, useEffect } from 'react';
-import { preload } from 'react-dom';
-import { cn } from '@/lib/utils';
-import { getResponsivePictureAttributes } from './utils';
+import { type ElementType, type ImgHTMLAttributes, useMemo } from 'react';
+import { useConfig } from '@/config';
+import { cn, isServer } from '@/lib/utils';
+import { defaultImageFormats, getResponsivePictureAttributes, replaceImageFormat } from './utils';
 
 interface DynamicImageProps {
     src: string;
@@ -20,18 +29,18 @@ interface DynamicImageProps {
      * - Object with breakpoint keys and units: {base: '100vw', sm: '50vw', md: '500px'}
      */
     widths?: (number | string)[] | Record<string, number> | Record<string, string> | Record<string, number | string>;
-    imageProps?: React.ImgHTMLAttributes<HTMLImageElement>;
-    as?: React.ElementType;
+    imageProps?: ImgHTMLAttributes<HTMLImageElement>;
+    as?: ElementType;
     className?: string;
-    loading?: 'lazy' | 'eager';
-    priority?: 'high' | 'low';
+    loading?: HTMLImageElement['loading'];
+    priority?: HTMLImageElement['fetchPriority'];
 }
 
 /**
  * Responsive image component optimized to work with the Dynamic Imaging Service.
  * Via this component it's easy to create a `<picture>` element with related
  * theme-aware `<source>` elements and responsive preloading for high-priority
- * images using React 19's preload function.
+ * images using React 19's `preload` function.
  * @example Widths without a unit defined as array (interpreted as px values)
  * <DynamicImage
  *   src="http://example.com/image.jpg[?sw={width}&q=60]"
@@ -61,6 +70,7 @@ interface DynamicImageProps {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/picture}
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images}
  * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_image_transformation_service.htm&type=5}
+ * @see {@link https://react.dev/reference/react-dom/preload}
  */
 const DynamicImage = ({
     src,
@@ -69,60 +79,73 @@ const DynamicImage = ({
     imageProps = {},
     as: Component = 'img',
     className,
-    loading = 'lazy',
-    priority = 'low',
+    loading,
+    priority,
     ...rest
 }: DynamicImageProps) => {
+    const {
+        images: {
+            quality: defaultQuality = 70,
+            formats: defaultFormats = defaultImageFormats,
+            fallbackFormat: defaultFallbackFormat = 'jpg',
+        } = {},
+    } = useConfig();
     const responsiveImageProps = useMemo(() => {
         return getResponsivePictureAttributes({
             src,
             widths,
+            quality: defaultQuality,
+            formats: defaultFormats,
         });
-    }, [src, widths]);
+    }, [src, widths, defaultQuality, defaultFormats]);
 
     const effectiveImageProps = {
         ...imageProps,
-        loading: priority === 'high' ? 'eager' : loading,
-        fetchPriority: priority,
+        loading: loading ?? (priority === 'high' ? 'eager' : 'lazy'),
+        fetchPriority: priority ?? 'auto',
         alt,
-        src: responsiveImageProps.src,
+        src: replaceImageFormat(responsiveImageProps.src, defaultFallbackFormat),
     };
 
-    // Preload image sources using React 19's preload function
-    useEffect(() => {
-        if (priority === 'high') {
-            responsiveImageProps.links.forEach((link) => {
-                preload(link.srcSet, {
-                    as: 'image' as const,
-                    fetchPriority: priority as 'high' | 'low' | 'auto',
-                    media: link.media,
-                    imageSizes: link.sizes,
-                    imageSrcSet: link.srcSet,
-                });
-            });
-
-            // Also preload the fallback image with basic attributes
-            preload(responsiveImageProps.src, {
-                as: 'image' as const,
-                fetchPriority: priority as 'high' | 'low' | 'auto',
-            });
-        }
-    }, [responsiveImageProps.sources, responsiveImageProps.src, responsiveImageProps.links, priority]);
+    // Preload links rendered only on the server for SSR support.
+    // This avoids hydration mismatches and prevents useless preloads in pure CSR scenarios.
+    // React 19 automatically hoists <link> elements to <head>.
+    const preloadLinks =
+        priority === 'high' && isServer() ? (
+            <>
+                {responsiveImageProps.links.map(({ type, media, sizes, srcSet }, idx) => (
+                    <link
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={`preload-${idx}`}
+                        rel="preload"
+                        as="image"
+                        fetchPriority="high"
+                        type={type}
+                        media={media}
+                        imageSizes={sizes}
+                        imageSrcSet={srcSet}
+                    />
+                ))}
+            </>
+        ) : null;
 
     return (
-        <div className={cn(className)} {...rest}>
-            {responsiveImageProps.sources.length > 0 ? (
-                <picture>
-                    {responsiveImageProps.sources.map(({ srcSet, sizes, media }, idx) => (
-                        // eslint-disable-next-line react/no-array-index-key
-                        <source key={idx} {...(media && { media })} sizes={sizes} srcSet={srcSet} />
-                    ))}
+        <>
+            {preloadLinks}
+            <div className={cn(className)} {...rest}>
+                {responsiveImageProps.sources.length > 0 ? (
+                    <picture>
+                        {responsiveImageProps.sources.map(({ type, srcSet, sizes, media }, idx) => (
+                            // eslint-disable-next-line react/no-array-index-key
+                            <source key={idx} type={type} {...(media && { media })} sizes={sizes} srcSet={srcSet} />
+                        ))}
+                        <Component {...effectiveImageProps} />
+                    </picture>
+                ) : (
                     <Component {...effectiveImageProps} />
-                </picture>
-            ) : (
-                <Component {...effectiveImageProps} />
-            )}
-        </div>
+                )}
+            </div>
+        </>
     );
 };
 

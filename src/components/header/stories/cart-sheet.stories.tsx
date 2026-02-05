@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import CartSheet from '../cart-sheet';
 import { action } from 'storybook/actions';
@@ -6,7 +21,9 @@ import { expect, within, userEvent } from 'storybook/test';
 import { Button } from '@/components/ui/button';
 import BasketProvider from '@/providers/basket';
 import emptyBasket from '@/components/__mocks__/empty-basket';
+import emptyBasketSnapshot from '@/components/__mocks__/empty-basket-snapshot';
 import { basketWithOneItem } from '@/components/__mocks__/basket-with-dress';
+import basketWithOneItemSnapshot from '@/components/__mocks__/basket-with-dress-snapshot';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
 
@@ -123,7 +140,7 @@ type Story = StoryObj<typeof CartSheet>;
 export const Empty: Story = {
     decorators: [
         (Story) => (
-            <BasketProvider value={emptyBasket}>
+            <BasketProvider basket={emptyBasket} snapshot={emptyBasketSnapshot}>
                 <Story />
             </BasketProvider>
         ),
@@ -165,7 +182,7 @@ Cart sheet with empty cart.
 export const WithItems: Story = {
     decorators: [
         (Story) => (
-            <BasketProvider value={basketWithOneItem}>
+            <BasketProvider basket={basketWithOneItem} snapshot={basketWithOneItemSnapshot}>
                 <Story />
             </BasketProvider>
         ),
@@ -215,7 +232,7 @@ Cart sheet with items in cart.
 export const Interactive: Story = {
     decorators: [
         (Story) => (
-            <BasketProvider value={basketWithOneItem}>
+            <BasketProvider basket={basketWithOneItem} snapshot={basketWithOneItemSnapshot}>
                 <Story />
             </BasketProvider>
         ),
@@ -284,7 +301,7 @@ export const WithViewCartButton: Story = {
             };
             return (
                 <ConfigProvider config={configWithViewCart}>
-                    <BasketProvider value={basketWithOneItem}>
+                    <BasketProvider basket={basketWithOneItem} snapshot={basketWithOneItemSnapshot}>
                         <Story />
                     </BasketProvider>
                 </ConfigProvider>
@@ -323,71 +340,5 @@ Cart sheet with View Cart button enabled via configuration.
         const viewCartButton = await documentBody.findByRole('link', { name: /view cart/i }, { timeout: 5000 });
         await expect(viewCartButton).toBeInTheDocument();
         await expect(viewCartButton).toHaveAttribute('href', '/cart');
-    },
-};
-
-export const Mobile: Story = {
-    ...Empty,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement: _canvasElement }) => {
-        // Cart sheet renders in a portal, so check document.body
-        const documentBody = within(document.body);
-
-        // Wait a bit for the sheet to open
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Check for cart sheet dialog
-        const cartSheet = await documentBody.findByRole('dialog', { hidden: false }, { timeout: 5000 });
-        await expect(cartSheet).toBeInTheDocument();
-
-        // Check for empty cart message (consistent with Empty story)
-        const emptyMessage = await documentBody.findByText(/your cart is empty/i, {}, { timeout: 5000 });
-        await expect(emptyMessage).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Empty,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement: _canvasElement }) => {
-        // Cart sheet renders in a portal, so check document.body
-        const documentBody = within(document.body);
-
-        // Wait a bit for the sheet to open
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Check for cart sheet dialog
-        const cartSheet = await documentBody.findByRole('dialog', { hidden: false }, { timeout: 5000 });
-        await expect(cartSheet).toBeInTheDocument();
-
-        // Check for empty cart message (consistent with Empty story)
-        const emptyMessage = await documentBody.findByText(/your cart is empty/i, {}, { timeout: 5000 });
-        await expect(emptyMessage).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Empty,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement: _canvasElement }) => {
-        // Cart sheet renders in a portal, so check document.body
-        const documentBody = within(document.body);
-
-        // Wait a bit for the sheet to open
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Check for cart sheet dialog
-        const cartSheet = await documentBody.findByRole('dialog', { hidden: false }, { timeout: 5000 });
-        await expect(cartSheet).toBeInTheDocument();
-
-        // Check for empty cart message (consistent with Empty story)
-        const emptyMessage = await documentBody.findByText(/your cart is empty/i, {}, { timeout: 5000 });
-        await expect(emptyMessage).toBeInTheDocument();
     },
 };

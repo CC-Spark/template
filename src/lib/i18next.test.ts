@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getTranslation, i18nextContext } from './i18next';
 import { createTestContext } from '@/lib/test-utils/context-provider';
@@ -44,7 +59,7 @@ describe('i18next', () => {
             });
 
             it('should throw error when i18next data is not found in context', () => {
-                const context = createTestContext();
+                const context = createTestContext({ skipI18next: true });
                 // Don't set i18next data in context to simulate missing middleware
 
                 // Test behavior: throws meaningful error when middleware hasn't run

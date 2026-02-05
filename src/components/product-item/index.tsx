@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use client';
 
 // React
@@ -17,25 +32,21 @@ import { Spinner } from '@/components/spinner';
 import { Typography } from '@/components/typography';
 import CartQuantityPicker from '@/components/cart/cart-quantity-picker';
 import BundledProductItems from './bundled-product-items';
+import ProductPrice from '../product-price';
 // TODO: uncomment after integrate gift basket api
 // import { Checkbox } from '@/components/ui/checkbox';
 // import { Label } from '@/components/ui/label';
 
 // Hooks
 import { useItemFetcherLoading } from '@/hooks/use-item-fetcher';
+import { useCurrency } from '@/providers/currency';
 
 // Utils
 import { formatCurrency } from '@/lib/currency';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
-import { createProductUrl, getDisplayVariationValues } from '@/lib/product-utils';
+import { createProductUrl, getDisplayVariationValues, type EnrichedProductItem } from '@/lib/product-utils';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-
-// Constants
-/**
- * Basket item data enriched with product details
- */
-type Item = ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>;
 
 /**
  * ProductItemVariantImage component that renders product images with fallback
@@ -45,11 +56,11 @@ type Item = ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.sc
  * @param props.className - Optional CSS class name
  * @returns JSX element with product image or placeholder
  */
-function ProductItemVariantImage({
+export function ProductItemVariantImage({
     productItem,
     className = '',
 }: {
-    productItem: Item;
+    productItem: EnrichedProductItem;
     className?: string;
     width?: string;
 }): ReactElement {
@@ -94,7 +105,7 @@ function ProductItemVariantImage({
  * @param props.product - Product data containing name and ID information
  * @returns JSX element with product name link
  */
-function ProductItemVariantName({ productItem }: { productItem: Item }): ReactElement {
+function ProductItemVariantName({ productItem }: { productItem: EnrichedProductItem }): ReactElement {
     const { t: tCart } = useTranslation('cart');
     const { t: tProduct } = useTranslation('product');
     if (!productItem) {
@@ -133,16 +144,17 @@ function ProductItemVariantName({ productItem }: { productItem: Item }): ReactEl
  * @param props.promotions - Promotions data by ID
  * @returns JSX element with variation attributes or fallback
  */
-function ProductItemVariantAttributes({
+export function ProductItemVariantAttributes({
     productItem,
     displayVariant = 'default',
     promotions,
 }: {
-    productItem: Item;
+    productItem: EnrichedProductItem;
     displayVariant?: 'default' | 'summary';
     promotions?: Record<string, ShopperPromotions.schemas['Promotion']>;
 }): ReactElement {
-    const { t } = useTranslation('cart');
+    const { t, i18n } = useTranslation('cart');
+    const currency = useCurrency();
     // Memoize expensive calculations
     const displayVariationValues = useMemo(
         () => getDisplayVariationValues(productItem?.variationAttributes, productItem?.variationValues),
@@ -159,7 +171,7 @@ function ProductItemVariantAttributes({
 
     const hasPromotions = productPromotions.length > 0;
     const hasItemDiscount =
-        productItem.priceAfterItemDiscount &&
+        productItem.priceAfterItemDiscount !== undefined &&
         productItem.priceAfterItemDiscount > 0 &&
         productItem.priceAfterItemDiscount !== productItem.price;
     const isBonusProduct = Boolean(productItem?.bonusProductLineItem);
@@ -189,10 +201,11 @@ function ProductItemVariantAttributes({
                     <span className="text-sm text-muted-foreground">
                         {t('attributes.promotions')}{' '}
                         <span className="text-success font-medium">
-                            {/*TODO: adjust this after we have i18n set up*/}
                             {hasItemDiscount &&
                                 formatCurrency(
-                                    productItem?.priceAdjustments?.reduce((acc, adj) => acc + (adj.price ?? 0), 0) ?? 0
+                                    productItem?.priceAdjustments?.reduce((acc, adj) => acc + (adj.price ?? 0), 0) ?? 0,
+                                    i18n.language,
+                                    currency
                                 )}
                         </span>
                     </span>
@@ -218,77 +231,6 @@ function ProductItemVariantAttributes({
 }
 
 /**
- * ProductItemVariantPrice component that displays product pricing information
- *
- * @param props - Component props
- * @param props.product - Product data containing price information
- * @param props.baseDirection - Layout direction for price display
- * @param props.isBonusProduct - Whether this is a bonus product (shows $0.00 with strikethrough original)
- * @returns JSX element with formatted price information
- */
-function ProductItemVariantPrice({
-    productItem,
-    baseDirection = 'column',
-}: {
-    productItem: Item;
-    baseDirection?: 'row' | 'column';
-}): ReactElement {
-    if (!productItem) {
-        return <div className="text-xl font-medium">{formatCurrency(0)}</div>;
-    }
-
-    const price = productItem?.priceAfterItemDiscount ?? 0;
-    const pricePerUnit = Number(productItem?.pricePerUnit);
-    const isBonusProduct = Boolean(productItem?.bonusProductLineItem);
-
-    // For bonus products, show strikethrough original price and $0.00
-    if (isBonusProduct) {
-        if (baseDirection === 'row') {
-            return (
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        {pricePerUnit > 0 && (
-                            <div className="text-md text-muted-foreground line-through">
-                                {formatCurrency(pricePerUnit)}
-                            </div>
-                        )}
-                        <div className="text-xl font-medium">{formatCurrency(0)}</div>
-                    </div>
-                </div>
-            );
-        }
-        return (
-            <div className="space-y-1">
-                {pricePerUnit > 0 && (
-                    <div className="text-md text-muted-foreground line-through">{formatCurrency(pricePerUnit)}</div>
-                )}
-                <div className="text-xl font-medium">{formatCurrency(0)}</div>
-            </div>
-        );
-    }
-
-    // Regular product pricing
-    if (baseDirection === 'row') {
-        return (
-            <div className="flex items-center justify-between pr-4">
-                <div className="text-xl font-medium">{formatCurrency(price)}</div>
-                {pricePerUnit && pricePerUnit !== price && (
-                    <div className="text-md text-muted-foreground">{formatCurrency(pricePerUnit)} each</div>
-                )}
-            </div>
-        );
-    }
-    return (
-        <div className="space-y-1 text-right pr-2">
-            <div className="text-xl font-medium">{formatCurrency(price)}</div>
-            {pricePerUnit && pricePerUnit !== price && (
-                <div className="text-md text-muted-foreground">{formatCurrency(pricePerUnit)} each</div>
-            )}
-        </div>
-    );
-}
-
-/**
  * Props for the ProductItem component
  *
  * @interface ProductItemProps
@@ -299,11 +241,14 @@ function ProductItemVariantPrice({
  * @property {function} [secondaryActions] - Render prop function to create secondary actions
  */
 interface ProductItemProps {
-    productItem: Item | undefined;
+    productItem: EnrichedProductItem | undefined;
     displayVariant?: 'default' | 'summary';
     promotions?: Record<string, ShopperPromotions.schemas['Promotion']>;
-    primaryAction?: (productItem: Item) => ReactElement | undefined;
-    secondaryActions?: (productItem: Item) => ReactElement | undefined;
+    primaryAction?: (productItem: EnrichedProductItem) => ReactElement | undefined;
+    secondaryActions?: (productItem: EnrichedProductItem) => ReactElement | undefined;
+    deliveryActions?: (productItem: EnrichedProductItem) => ReactElement | undefined;
+    bonusDiscountLineItems?: ShopperBasketsV2.schemas['BonusDiscountLineItem'][];
+    maxBonusQuantity?: number;
 }
 
 /**
@@ -328,18 +273,35 @@ function ProductItem({
     promotions,
     primaryAction,
     secondaryActions,
+    deliveryActions,
+    bonusDiscountLineItems,
+    maxBonusQuantity,
 }: ProductItemProps): ReactElement {
     // Track loading state for all fetchers related to this item
     const isItemFetcherLoading = useItemFetcherLoading(productItem?.itemId);
-
-    // Guard against undefined or null product
-    if (!productItem || typeof productItem !== 'object') {
-        return <div data-testid="product-item-error">Product data not available</div>;
-    }
+    // Get currency from context (automatically derived from locale)
+    const currency = useCurrency();
+    const { i18n } = useTranslation();
 
     // Check if this is a bonus product
     const isBonusProduct = Boolean(productItem?.bonusProductLineItem);
-    const baseDirection = isBonusProduct ? 'row' : 'column';
+
+    // Determine if this is a choice-based bonus product by checking bonusDiscountLineItems
+    // Must be called before any early returns (React Hooks rules)
+    const isChoiceBasedBonusProduct = useMemo(() => {
+        if (!productItem || !isBonusProduct || !productItem.bonusDiscountLineItemId || !bonusDiscountLineItems) {
+            return false;
+        }
+        const matchingLineItem = bonusDiscountLineItems.find((item) => item.id === productItem.bonusDiscountLineItemId);
+        // Choice-based bonus products have a bonusProducts array in the discount line item
+        return Boolean(matchingLineItem?.bonusProducts && matchingLineItem.bonusProducts.length > 0);
+    }, [productItem, isBonusProduct, bonusDiscountLineItems]);
+
+    const isAutoBonusProduct = isBonusProduct && !isChoiceBasedBonusProduct;
+
+    if (!productItem || typeof productItem !== 'object') {
+        return <div data-testid="product-item-error">Product data not available</div>;
+    }
 
     // Summary variant - compact display for product summary
     if (displayVariant === 'summary') {
@@ -360,8 +322,19 @@ function ProductItem({
                         displayVariant={displayVariant}
                         promotions={promotions}
                     />
-                    {/*TODO: Replace this with ProductPrice*/}
-                    <ProductItemVariantPrice productItem={productItem} baseDirection="row" />
+                    <ProductPrice
+                        type="unit"
+                        product={productItem as ShopperProducts.schemas['Product']}
+                        currency={currency}
+                        labelForA11y={productItem?.productName}
+                        currentPriceProps={{
+                            className: 'text-card-foreground text-right font-semibold text-sm leading-none relative',
+                        }}
+                        listPriceProps={{
+                            className: 'text-muted-foreground text-right text-sm leading-none relative',
+                        }}
+                        className="text-sm"
+                    />
                 </div>
             </div>
         );
@@ -395,36 +368,93 @@ function ProductItem({
                                         {productItem?.shortDescription}
                                     </Typography>
 
-                                    {!isBonusProduct && (
-                                        <div className="min-w-0">
-                                            {primaryAction && (
-                                                <div data-testid="mobile-primary-action">
-                                                    {primaryAction(productItem)}
-                                                </div>
-                                            )}
-                                            {secondaryActions && secondaryActions(productItem)}
+                                    <div className="min-w-0">
+                                        {!isAutoBonusProduct && primaryAction && (
+                                            <div data-testid="mobile-primary-action">{primaryAction(productItem)}</div>
+                                        )}
+                                        {!isAutoBonusProduct && secondaryActions && secondaryActions(productItem)}
+                                    </div>
+                                </div>
+                                <div className="text-right md:hidden" data-testid="mobile-product-price">
+                                    <div className="font-semibold text-base">
+                                        <ProductPrice
+                                            type="total"
+                                            product={productItem as ShopperProducts.schemas['Product']}
+                                            quantity={productItem.quantity ?? 1}
+                                            currency={currency}
+                                            labelForA11y={productItem?.productName}
+                                            className="text-card-foreground text-right font-semibold text-sm leading-none relative"
+                                            currentPriceProps={{
+                                                className:
+                                                    'text-card-foreground text-right font-semibold text-sm leading-none relative',
+                                            }}
+                                            listPriceProps={{
+                                                className:
+                                                    'text-muted-foreground text-right text-xs leading-none relative',
+                                            }}
+                                            promoCalloutProps={{
+                                                className: 'text-sm text-muted-foreground',
+                                            }}
+                                        />
+                                    </div>
+                                    {(productItem.quantity ?? 1) > 1 && (
+                                        <div className="text-muted-foreground text-sm">
+                                            {formatCurrency(
+                                                (productItem.priceAfterItemDiscount ?? productItem.price ?? 0) /
+                                                    (productItem.quantity ?? 1),
+                                                i18n.language,
+                                                currency
+                                            )}{' '}
+                                            each
                                         </div>
                                     )}
                                 </div>
-                                <div className="text-right md:hidden" data-testid="mobile-product-price">
-                                    {/*TODO: Replace this with ProductPrice*/}
-                                    <ProductItemVariantPrice productItem={productItem} />
-                                </div>
 
                                 <div className="grid gap-4 justify-items-end flex-shrink-0">
+                                    {/* Delivery Actions */}
+                                    {deliveryActions?.(productItem)}
+
                                     {/* Quantity Display/Selector */}
                                     <CartQuantityPicker
                                         value={String(productItem.quantity)}
                                         itemId={productItem.itemId || ''}
                                         stockLevel={productItem.inventory?.ats}
-                                        disabled={isBonusProduct}
+                                        max={isBonusProduct ? maxBonusQuantity : undefined}
+                                        disabled={isAutoBonusProduct}
                                     />
                                     <div className="self-end">
                                         <div className="text-right hidden md:block" data-testid="desktop-product-price">
-                                            <ProductItemVariantPrice
-                                                productItem={productItem}
-                                                baseDirection={baseDirection}
-                                            />
+                                            <div className="font-semibold text-base">
+                                                <ProductPrice
+                                                    type="total"
+                                                    product={productItem as ShopperProducts.schemas['Product']}
+                                                    quantity={productItem.quantity ?? 1}
+                                                    currency={currency}
+                                                    labelForA11y={productItem?.productName}
+                                                    currentPriceProps={{
+                                                        className:
+                                                            'text-card-foreground text-lg text-right font-semibold leading-none relative',
+                                                    }}
+                                                    listPriceProps={{
+                                                        className:
+                                                            'text-muted-foreground text-right text-sm leading-none relative',
+                                                    }}
+                                                    promoCalloutProps={{
+                                                        className: 'text-sm text-muted-foreground',
+                                                    }}
+                                                />
+                                            </div>
+                                            {(productItem.quantity ?? 1) > 1 && (
+                                                <div className="text-muted-foreground text-sm">
+                                                    {formatCurrency(
+                                                        (productItem.priceAfterItemDiscount ?? productItem.price ?? 0) /
+                                                            (productItem.quantity ?? 1),
+                                                        i18n.language,
+                                                        currency
+                                                    )}{' '}
+                                                    each
+                                                </div>
+                                            )}
                                         </div>
                                         {/*Comment out since this is not integrated with api yet*/}
                                         {/*<div className="text-sm flex items-center gap-3">*/}
@@ -441,9 +471,9 @@ function ProductItem({
                             </div>
 
                             {/* Inventory Message */}
-                            {productItem?.showInventoryMessage && (
+                            {Boolean(productItem?.showInventoryMessage) && (
                                 <div className="text-destructive font-semibold text-sm break-words">
-                                    {productItem?.inventoryMessage}
+                                    {productItem?.inventoryMessage as string}
                                 </div>
                             )}
                         </div>

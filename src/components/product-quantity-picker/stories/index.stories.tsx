@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
@@ -418,44 +433,5 @@ export const Interactive: Story = {
         // In test environment with mocked onChange, we can't test actual interactions
         // that would change state, but we can verify the component renders correctly
         void expect(canvasElement).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        // Basic test - just verify component renders
-        void expect(canvasElement).toBeInTheDocument();
-        void expect(canvasElement.children.length).toBeGreaterThan(0);
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        // Basic test - just verify component renders
-        void expect(canvasElement).toBeInTheDocument();
-        void expect(canvasElement.children.length).toBeGreaterThan(0);
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        // Basic test - just verify component renders
-        void expect(canvasElement).toBeInTheDocument();
-        void expect(canvasElement.children.length).toBeGreaterThan(0);
     },
 };

@@ -1,6 +1,20 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import ProductTile from '../index';
-// @ts-expect-error mock file is JS
 import {
     mockProductSearchItem,
     mockMasterProductHitWithMultipleVariants,
@@ -82,8 +96,8 @@ export const Default: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
-        // Check for price (handle duplicates)
-        const prices = canvas.getAllByText(/\$299.99/);
+        // Check for price - master products show lowest variant price including promotions ($143.99)
+        const prices = canvas.getAllByText(/\$143\.99/);
         await expect(prices.length).toBeGreaterThan(0);
         // Check for image
         const image = canvas.getByRole('img');
@@ -95,18 +109,29 @@ export const WithBadges: Story = {
     args: {
         product: {
             ...mockProductSearchItem,
-            c_isNew: true,
-            c_isSale: true,
-            c_isSpecial: true,
+            // Badges are detected from representedProduct properties or promotions array
+            representedProduct: {
+                ...mockProductSearchItem.representedProduct,
+                c_isSale: true,
+                c_isNew: true,
+            },
+            // promotions array also triggers the Sale badge
+            promotions: [
+                {
+                    promotionId: 'promo-sale',
+                    calloutMsg: 'Get 20% off of this tie.',
+                },
+            ],
         },
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Only assert if we found something, otherwise the test might be flaky due to config
-        // But we should check that at least the product name is there
+        // Verify product name is displayed
         await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+        // Verify Sale badge is displayed (from promotions or representedProduct.c_isSale)
+        await expect(canvas.getByText('Sale')).toBeInTheDocument();
     },
 };
 
@@ -136,59 +161,5 @@ export const CustomAction: Story = {
         const canvas = within(canvasElement);
         await expect(canvas.getByText('Custom Action')).toBeInTheDocument();
         await expect(canvas.queryByText('More Options')).not.toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
-        // Check for price (handle duplicates)
-        const prices = canvas.getAllByText(/\$299.99/);
-        await expect(prices.length).toBeGreaterThan(0);
-        // Check for image
-        const image = canvas.getByRole('img');
-        await expect(image).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
-        // Check for price (handle duplicates)
-        const prices = canvas.getAllByText(/\$299.99/);
-        await expect(prices.length).toBeGreaterThan(0);
-        // Check for image
-        const image = canvas.getByRole('img');
-        await expect(image).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
-        // Check for price (handle duplicates)
-        const prices = canvas.getAllByText(/\$299.99/);
-        await expect(prices.length).toBeGreaterThan(0);
-        // Check for image
-        const image = canvas.getByRole('img');
-        await expect(image).toBeInTheDocument();
     },
 };

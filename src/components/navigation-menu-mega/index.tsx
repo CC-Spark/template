@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { ComponentPropsWithoutRef } from 'react';
 import { NavLink } from 'react-router';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
@@ -9,11 +24,14 @@ const disHostName = 'edge.disstg.commercecloud.salesforce.com';
 const imageCache = new WeakMap<ShopperProducts.schemas['Category'], string | undefined>();
 
 function hasBanner(category?: ShopperProducts.schemas['Category']): category is ShopperProducts.schemas['Category'] {
-    return category?.c_headerMenuBanner?.length > 0;
+    return typeof category?.c_headerMenuBanner === 'string' && category?.c_headerMenuBanner?.length > 0;
 }
 
 function isVertical(category?: ShopperProducts.schemas['Category']): category is ShopperProducts.schemas['Category'] {
-    return category?.c_headerMenuOrientation?.toLowerCase() === 'vertical';
+    return (
+        typeof category?.c_headerMenuOrientation === 'string' &&
+        category?.c_headerMenuOrientation?.toLowerCase() === 'vertical'
+    );
 }
 
 function getImageHref(category: ShopperProducts.schemas['Category'], config: AppConfig): string | undefined {
@@ -22,7 +40,7 @@ function getImageHref(category: ShopperProducts.schemas['Category'], config: App
         const organizationId = config.commerce.api.organizationId;
         const realmId = organizationId.split('_').slice(-2).join('_');
         const disHost = `https://${disHostName}/dw/image/v2/${realmId}`;
-        const asset = category.c_headerMenuBanner?.trim?.() || '';
+        const asset = (typeof category.c_headerMenuBanner === 'string' && category.c_headerMenuBanner?.trim?.()) || '';
         const parser = new DOMParser();
         const doc = parser.parseFromString(asset, 'text/html');
         const img = doc.querySelector('img');
@@ -87,7 +105,7 @@ export default function CategoryNavigationMenuMega({
     };
 
     return (
-        <div className="hidden lg:block">
+        <div className="hidden lg:block h-10">
             <WithCategoryNavigationMenu resolve={resolve} defer={defer}>
                 {({ categories }) => (
                     <CategoryNavigationMenu

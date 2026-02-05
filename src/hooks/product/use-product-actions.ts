@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 'use client';
@@ -14,16 +23,16 @@ import type { ShopperProducts, ShopperBasketsV2 } from '@salesforce/storefront-n
 import { useToast } from '@/components/toast';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { usePickup } from '@/extensions/bopis/context/pickup-context';
-import { getStoreIdForBasketItem, isSelectedDeliveryOptionValid } from '@/extensions/bopis/lib/basket-utils';
+import { getStoreIdForBasketItem } from '@/extensions/bopis/lib/basket-utils';
+import { isSelectedDeliveryOptionValid } from '@/extensions/bopis/lib/product-actions';
 import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
-import { useBasket } from '@/providers/basket';
+import { useBasket, useBasketUpdater } from '@/providers/basket';
 import { useItemFetcher } from '@/hooks/use-item-fetcher';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import { useAnalytics } from '../use-analytics';
 import { getEffectiveStockLevel, getEffectiveInventory, isInStock as isProductInStock } from '@/lib/inventory-utils';
-
 interface ProductSelectionValues {
     product: ShopperProducts.schemas['Product'];
     variant?: ShopperProducts.schemas['Variant'];
@@ -36,6 +45,7 @@ interface UseProductActionsProps {
     /** Current variant (null/undefined if no variant selected) - optional, defaults to undefined */
     currentVariant?: ShopperProducts.schemas['Variant'] | null | undefined;
     initialQuantity?: number;
+    maxQuantity?: number; // Max quantity allowed (for bonus products, etc.)
     itemId?: string; // Cart item ID for update operations
 }
 
@@ -79,6 +89,7 @@ export function useProductActions({
     isChildProduct: _isChildProduct = false,
     currentVariant,
     initialQuantity,
+    maxQuantity,
     itemId,
 }: UseProductActionsProps) {
     const { t } = useTranslation();
@@ -157,6 +168,9 @@ export function useProductActions({
         storeInventoryId,
     ]);
 
+    // Used basket data in sync when this fetcher targets shopperBasketsV2 and succeeds.
+    const updateBasket = useBasketUpdater();
+
     const isInStock = useMemo(() => {
         return isProductInStock({
             product,
@@ -220,7 +234,11 @@ export function useProductActions({
     // Can add to cart validation - defaults to false, only true when explicitly allowed
     const canAddToCart = useMemo(() => {
         // Quantity must be valid
-        const hasValidQuantity = quantity > 0 && quantity <= actualStockLevel;
+        // For bonus products with maxQuantity, use that instead of actualStockLevel
+        const maxAllowed = maxQuantity !== undefined ? maxQuantity : actualStockLevel;
+        // actualStockLevel is always a number (defaults to 0 if no inventory)
+        const hasValidQuantity = quantity > 0 && maxAllowed >= 0 && quantity <= maxAllowed;
+
         if (!hasValidQuantity) return false;
 
         // item must be in stock for order
@@ -259,6 +277,7 @@ export function useProductActions({
         return false;
     }, [
         quantity,
+        maxQuantity,
         actualStockLevel,
         currentVariant,
         isInStock,
@@ -275,6 +294,9 @@ export function useProductActions({
             return;
         }
         if (cartFetcher.data?.success && cartFetcher.data.basket) {
+            const basketData = cartFetcher.data?.basket as unknown as ShopperBasketsV2.schemas['Basket'];
+            updateBasket(basketData);
+
             setIsAddingToOrUpdatingCart(false);
             // Only show toast for add to cart action, not edit cart
             if (!itemId) {
@@ -439,7 +461,7 @@ export function useProductActions({
         const price = productToAdd?.price;
 
         // @sfdc-extension-block-start SFDC_EXT_BOPIS
-        const pickupInfo = pickupContext?.pickupBasketItems?.get(itemProductId);
+        const pickupInfo = pickupContext?.pickupBasketItems?.get(itemProductId ?? '');
         const storeId = pickupInfo?.storeId ?? null;
 
         // Validate pickup/delivery compatibility with existing basket items
@@ -918,6 +940,8 @@ export function useProductActions({
         isAddingToWishlist,
         /** Current quantity selected for the product */
         quantity,
+        /** Maximum quantity allowed (for bonus products, etc.) */
+        maxQuantity,
 
         // Validation and inventory
         /** Determines if the product can be added to cart based on validation criteria */

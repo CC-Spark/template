@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {
     createContext as createRouterContext,
     type DataStrategyResult,
@@ -23,8 +38,10 @@ import {
     COOKIE_ACCESS_TOKEN,
     COOKIE_USID,
     COOKIE_CUSTOMER_ID,
+    COOKIE_ENC_USER_ID,
     COOKIE_IDP_ACCESS_TOKEN,
     COOKIE_TRACKING_CONSENT,
+    COOKIE_DWSID,
     // Note: COOKIE_CODE_VERIFIER is NOT imported - it's httpOnly and server-only
 } from '@/middlewares/auth.utils';
 import { PERFORMANCE_MARKS, performanceTimerContext } from '@/middlewares/performance-metrics';
@@ -81,7 +98,9 @@ export function getAuthDataFromCookies(): Partial<AuthStorageData> | undefined {
     const accessToken = allCookies[getCookieNameWithSiteId(COOKIE_ACCESS_TOKEN)] || '';
     const usid = allCookies[getCookieNameWithSiteId(COOKIE_USID)] || '';
     const customerId = allCookies[getCookieNameWithSiteId(COOKIE_CUSTOMER_ID)] || '';
+    const encUserId = allCookies[getCookieNameWithSiteId(COOKIE_ENC_USER_ID)] || '';
     const idpAccessToken = allCookies[getCookieNameWithSiteId(COOKIE_IDP_ACCESS_TOKEN)] || '';
+    const dwsid = allCookies[getCookieNameWithSiteId(COOKIE_DWSID)] || '';
     // Read tracking consent cookie directly as TrackingConsent enum (values match)
     const trackingConsentCookieValue = allCookies[getCookieNameWithSiteId(COOKIE_TRACKING_CONSENT)] || null;
     let trackingConsent: TrackingConsent | undefined =
@@ -118,8 +137,10 @@ export function getAuthDataFromCookies(): Partial<AuthStorageData> | undefined {
         refresh_token: refreshToken || undefined,
         usid: usid || undefined,
         customer_id: customerId || undefined,
+        enc_user_id: encUserId || undefined,
         userType,
         idp_access_token: idpAccessToken || undefined,
+        dwsid: dwsid || undefined,
     };
 
     // Inject access_token_expiry from JWT (source of truth) for fast runtime checks
@@ -137,14 +158,14 @@ export function getAuthDataFromCookies(): Partial<AuthStorageData> | undefined {
         //   3. Server renders HTML with trackingConsent=undefined
         //   4. Server → Response with Set-Cookie: dw_dnt=; Max-Age=0 (deletion)
         //   5. ⚠️  BUT during hydration, client reads cookies BEFORE processing Set-Cookie header
-        //   6. Client sees old invalid cookie (dw_dnt=0) in bootstrapAuth
+        //   6. Client sees old invalid cookie (dw_dnt=0) in getBootstrapSession
         //   7. Without client validation → Hydration mismatch! Server rendered with undefined, client has '0'
         //
         // The Set-Cookie header only takes effect AFTER the response is fully processed,
         // but hydration happens DURING response processing. Client-side validation ensures
         // getAuthDataFromCookies() returns the same result as server middleware.
         //
-        // TODO: When revisiting auth architecture, consider moving bootstrapAuth from module-level
+        // TODO: When revisiting auth architecture, consider moving getBootstrapSession from module-level
         // constant to a function that reads cookies during render, or explore other strategies
         // to eliminate this timing issue entirely.
         //
@@ -321,8 +342,10 @@ export const populateAuthStorage = (
     if (authData.access_token_expiry) storage.set('access_token_expiry', authData.access_token_expiry);
     if (authData.usid) storage.set('usid', authData.usid);
     if (authData.customer_id) storage.set('customer_id', authData.customer_id);
+    if (authData.enc_user_id) storage.set('enc_user_id', authData.enc_user_id);
     if (authData.idp_access_token) storage.set('idp_access_token', authData.idp_access_token);
     if (authData.userType) storage.set('userType', authData.userType);
+    if (authData.dwsid) storage.set('dwsid', authData.dwsid);
     // Always set tracking consent value (even if undefined) to reflect cookie state
     // This ensures deleted cookies are reflected in storage
     if (authData.trackingConsent !== undefined) {
@@ -562,14 +585,21 @@ export const clearInvalidSessionAndRestoreGuest = async (context: Readonly<Route
         throw new Error('clearInvalidSessionAndRestoreGuest must be used within the Commerce API middleware');
     }
 
-    // These cookies are invalid since the customer_id doesn't exist in Commerce Cloud
-    removeCookie(COOKIE_REFRESH_TOKEN_GUEST);
-    removeCookie(COOKIE_REFRESH_TOKEN_REGISTERED);
-    removeCookie(COOKIE_ACCESS_TOKEN);
-    removeCookie(COOKIE_USID);
-    removeCookie(COOKIE_CUSTOMER_ID);
-    removeCookie(COOKIE_IDP_ACCESS_TOKEN);
-    removeCookie(COOKIE_TRACKING_CONSENT);
+    const cookiesToRemove = [
+        COOKIE_REFRESH_TOKEN_GUEST,
+        COOKIE_REFRESH_TOKEN_REGISTERED,
+        COOKIE_ACCESS_TOKEN,
+        COOKIE_USID,
+        COOKIE_CUSTOMER_ID,
+        COOKIE_ENC_USER_ID,
+        COOKIE_IDP_ACCESS_TOKEN,
+        COOKIE_TRACKING_CONSENT,
+        COOKIE_DWSID,
+    ];
+
+    cookiesToRemove.forEach((cookie) => {
+        removeCookie(cookie);
+    });
 
     // Clear react-router auth storage context and cache
     clearStorage(storage);

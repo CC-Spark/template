@@ -1,10 +1,25 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {
     createContext,
     type MiddlewareFunction,
     type RouterContextProvider,
     type ActionFunctionArgs,
 } from 'react-router';
-import type { TokenResponse } from '@salesforce/storefront-next-runtime/scapi';
+import type { AuthResponse } from '@salesforce/storefront-next-runtime/scapi';
 import type { SessionData as AuthData } from '@/lib/api/types';
 import { clearStorage, type StorageErrorData, unpackStorage } from '@/lib/middleware';
 import {
@@ -20,9 +35,11 @@ import {
     COOKIE_ACCESS_TOKEN,
     COOKIE_USID,
     COOKIE_CUSTOMER_ID,
+    COOKIE_ENC_USER_ID,
     COOKIE_IDP_ACCESS_TOKEN,
     COOKIE_CODE_VERIFIER,
     COOKIE_TRACKING_CONSENT,
+    COOKIE_DWSID,
 } from '@/middlewares/auth.utils';
 import { getAppOrigin, isAbsoluteURL } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
@@ -34,13 +51,14 @@ import { getTranslation } from '@/lib/i18next';
 import { TrackingConsent, trackingConsentToBoolean } from '@/types/tracking-consent';
 
 /**
- * Refresh access token using refresh token
+ * Refresh access token using refresh token.
+ * Returns AuthResponse which includes dwsid (automatically extracted from Set-Cookie header by SDK).
  */
 export async function refreshAccessToken(
     context: Readonly<RouterContextProvider>,
     refreshToken: string,
     options?: { trackingConsent?: TrackingConsent }
-): Promise<TokenResponse> {
+): Promise<AuthResponse> {
     const clients = createApiClients(context);
     const performanceTimer = context.get(performanceTimerContext);
     performanceTimer?.mark(PERFORMANCE_MARKS.authRefreshAccessToken, 'start');
@@ -57,24 +75,25 @@ export async function refreshAccessToken(
         }
     }
 
-    return await clients.auth
-        .refreshToken({
+    try {
+        return await clients.auth.refreshToken({
             refreshToken,
             // Convert TrackingConsent enum to boolean for SLAS API
             ...(trackingConsent !== undefined && { dnt: trackingConsentToBoolean(trackingConsent) }),
-        })
-        .finally(() => {
-            performanceTimer?.mark(PERFORMANCE_MARKS.authRefreshAccessToken, 'end');
         });
+    } finally {
+        performanceTimer?.mark(PERFORMANCE_MARKS.authRefreshAccessToken, 'end');
+    }
 }
 
 /**
- * Login as guest user
+ * Login as guest user.
+ * Returns AuthResponse which includes dwsid (automatically extracted from Set-Cookie header by SDK).
  */
 export async function loginGuestUser(
     context: Readonly<RouterContextProvider>,
     options?: { usid?: string }
-): Promise<TokenResponse> {
+): Promise<AuthResponse> {
     const clients = createApiClients(context);
     const performanceTimer = context.get(performanceTimerContext);
     const appConfig = getConfig(context);
@@ -84,20 +103,23 @@ export async function loginGuestUser(
         : PERFORMANCE_MARKS.authLoginGuestUser;
     performanceTimer?.mark(performanceName, 'start');
 
-    return await clients.auth.loginAsGuest({ usid: options?.usid }).finally(() => {
+    try {
+        return await clients.auth.loginAsGuest({ usid: options?.usid });
+    } finally {
         performanceTimer?.mark(performanceName, 'end');
-    });
+    }
 }
 
 /**
- * Login as registered user with email and password
+ * Login as registered user with email and password.
+ * Returns AuthResponse which includes dwsid (automatically extracted from Set-Cookie header by SDK).
  */
 export async function loginRegisteredUser(
     context: Readonly<RouterContextProvider>,
     email: string,
     password: string,
     _options?: { customParameters?: Record<string, unknown> }
-): Promise<TokenResponse> {
+): Promise<AuthResponse> {
     const clients = createApiClients(context);
     const performanceTimer = context.get(performanceTimerContext);
     const { usid } = getAuth(context);
@@ -117,17 +139,17 @@ export async function loginRegisteredUser(
 
     performanceTimer?.mark(PERFORMANCE_MARKS.authLoginRegisteredUser, 'start');
 
-    return await clients.auth
-        .loginWithCredentials({
+    try {
+        return await clients.auth.loginWithCredentials({
             username: email,
             password,
             usid: usid ? String(usid) : undefined,
             // Convert TrackingConsent enum to boolean for SLAS API
             ...(trackingConsent !== undefined && { dnt: trackingConsentToBoolean(trackingConsent) }),
-        })
-        .finally(() => {
-            performanceTimer?.mark(PERFORMANCE_MARKS.authLoginRegisteredUser, 'end');
         });
+    } finally {
+        performanceTimer?.mark(PERFORMANCE_MARKS.authLoginRegisteredUser, 'end');
+    }
 }
 
 /**
@@ -149,7 +171,7 @@ export async function authorizePasswordless(
     const userId = parameters.userid;
 
     const appConfig = getConfig(context);
-    const passwordlessCallback = appConfig.site.features.passwordlessLogin.callbackUri;
+    const passwordlessCallback = appConfig.features.passwordlessLogin.callbackUri;
 
     const passwordlessLoginCallbackUri = isAbsoluteURL(passwordlessCallback)
         ? passwordlessCallback
@@ -158,7 +180,7 @@ export async function authorizePasswordless(
     const callbackUri = parameters.callbackUri || passwordlessLoginCallbackUri;
 
     const finalCallbackUri = parameters.redirectPath
-        ? `${callbackUri}?redirectUrl=${parameters.redirectPath}`
+        ? `${callbackUri}?redirectUrl=${encodeURIComponent(parameters.redirectPath)}`
         : callbackUri;
 
     const usid = session.usid;
@@ -190,7 +212,7 @@ export async function getPasswordResetToken(
 
     const clients = createApiClients(context);
     const appConfig = getConfig(context);
-    const resetPasswordCallbackUri = appConfig.site.features.resetPassword.callbackUri;
+    const resetPasswordCallbackUri = appConfig.features.resetPassword.callbackUri;
     const callbackUri = isAbsoluteURL(resetPasswordCallbackUri)
         ? resetPasswordCallbackUri
         : `${getAppOrigin()}${resetPasswordCallbackUri}`;
@@ -221,22 +243,25 @@ export async function resetPasswordWithToken(
 
     const clients = createApiClients(context);
 
-    return await clients.auth.password
-        .reset({
+    try {
+        return await clients.auth.password.reset({
             userId: parameters.email,
             token: parameters.token,
             newPassword: parameters.newPassword,
-        })
-        .finally(() => {
-            performanceTimer?.mark(PERFORMANCE_MARKS.authResetPasswordWithToken, 'end');
         });
+    } finally {
+        performanceTimer?.mark(PERFORMANCE_MARKS.authResetPasswordWithToken, 'end');
+    }
 }
 
 /**
- * Get passwordless access token using the token from magic link
- * Takes context and creates SLAS client internally, following auth.server.ts patterns
+ * Get passwordless access token using the token from magic link.
+ * Returns AuthResponse which includes dwsid (automatically extracted from Set-Cookie header by SDK).
  */
-export async function getPasswordLessAccessToken(context: Readonly<RouterContextProvider>, pwdlessLoginToken: string) {
+export async function getPasswordLessAccessToken(
+    context: Readonly<RouterContextProvider>,
+    pwdlessLoginToken: string
+): Promise<AuthResponse> {
     const clients = createApiClients(context);
     const performanceTimer = context.get(performanceTimerContext);
     const session = getAuth(context);
@@ -258,15 +283,15 @@ export async function getPasswordLessAccessToken(context: Readonly<RouterContext
         }
     }
 
-    return await clients.auth.passwordless
-        .exchangeToken({
+    try {
+        return await clients.auth.passwordless.exchangeToken({
             pwdlessLoginToken,
             usid: usid ? String(usid) : undefined,
             ...(dnt !== undefined && { dnt }),
-        })
-        .finally(() => {
-            performanceTimer?.mark(PERFORMANCE_MARKS.authGetPasswordLessAccessToken, 'end');
         });
+    } finally {
+        performanceTimer?.mark(PERFORMANCE_MARKS.authGetPasswordLessAccessToken, 'end');
+    }
 }
 
 /**
@@ -390,8 +415,10 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     const accessToken = getAuthCookie(COOKIE_ACCESS_TOKEN);
     const usid = getAuthCookie(COOKIE_USID);
     const customerId = getAuthCookie(COOKIE_CUSTOMER_ID);
+    const encUserId = getAuthCookie(COOKIE_ENC_USER_ID);
     const idpAccessToken = getAuthCookie(COOKIE_IDP_ACCESS_TOKEN);
     const codeVerifier = getAuthCookie(COOKIE_CODE_VERIFIER);
+    const dwsid = getAuthCookie(COOKIE_DWSID);
     // Read tracking consent cookie directly as TrackingConsent enum (values match)
     const trackingConsentCookieValue = getAuthCookie(COOKIE_TRACKING_CONSENT);
     let trackingConsent: TrackingConsent | undefined =
@@ -409,7 +436,9 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     const accessTokenCookie = createCookie<string>(COOKIE_ACCESS_TOKEN, cookieConfig, context);
     const usidCookie = createCookie<string>(COOKIE_USID, cookieConfig, context);
     const customerIdCookie = createCookie<string>(COOKIE_CUSTOMER_ID, cookieConfig, context);
+    const encUserIdCookie = createCookie<string>(COOKIE_ENC_USER_ID, cookieConfig, context);
     const idpAccessTokenCookie = createCookie<string>(COOKIE_IDP_ACCESS_TOKEN, cookieConfig, context);
+    const dwsidCookie = createCookie<string>(COOKIE_DWSID, cookieConfig, context);
     // Code verifier cookie is httpOnly for security (OAuth2 PKCE flow, server-only)
     const codeVerifierCookie = createCookie<string>(
         COOKIE_CODE_VERIFIER,
@@ -470,10 +499,13 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     }
     if (usid) authData.usid = usid;
     if (customerId) authData.customer_id = customerId;
+    if (encUserId) authData.enc_user_id = encUserId;
     // Add IDP access token for social login (if present)
     if (idpAccessToken) authData.idp_access_token = idpAccessToken;
     // Add code verifier for OAuth2 PKCE flow (if present)
     if (codeVerifier) authData.codeVerifier = codeVerifier;
+    // Add dwsid for hybrid storefronts (if present)
+    if (dwsid) authData.dwsid = dwsid;
     // Add tracking consent value from cookie (if present and valid)
     // Note: trackingConsent may be undefined if it doesn't match token, which will cause cookie deletion
     if (trackingConsent !== undefined) authData.trackingConsent = trackingConsent;
@@ -543,7 +575,9 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         response.headers.append('Set-Cookie', await accessTokenCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await usidCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await customerIdCookie.serialize('', deleteCookieConfig));
+        response.headers.append('Set-Cookie', await encUserIdCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await idpAccessTokenCookie.serialize('', deleteCookieConfig));
+        response.headers.append('Set-Cookie', await dwsidCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await codeVerifierCookie.serialize('', deleteHttpOnlyCookieConfig));
         response.headers.append('Set-Cookie', await trackingConsentCookie.serialize('', deleteCookieConfig));
     } else if (authStorage.has('isUpdated')) {
@@ -651,6 +685,23 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
             );
         }
 
+        // Set encUserId cookie with refresh token expiry (same as refresh token)
+        const encUserIdValue = authStorage.get('enc_user_id');
+        if (encUserIdValue && typeof encUserIdValue === 'string' && refreshTokenExpiryValue) {
+            response.headers.append(
+                'Set-Cookie',
+                await encUserIdCookie.serialize(
+                    encUserIdValue,
+                    getCookieConfig(
+                        {
+                            expires: new Date(refreshTokenExpiryValue),
+                        },
+                        context
+                    )
+                )
+            );
+        }
+
         // Set IDP access token cookie with access token expiry (for social login)
         const idpAccessTokenValue = authStorage.get('idp_access_token');
         const idpAccessTokenExpiryValue = authStorage.get('idp_access_token_expiry') as number | undefined;
@@ -666,6 +717,16 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
                         context
                     )
                 )
+            );
+        }
+
+        // Set dwsid cookie as session cookie (for hybrid storefronts)
+        // No explicit expiry - cookie is deleted when browser closes
+        const dwsidValue = authStorage.get('dwsid');
+        if (dwsidValue && typeof dwsidValue === 'string') {
+            response.headers.append(
+                'Set-Cookie',
+                await dwsidCookie.serialize(dwsidValue, getCookieConfig({}, context))
             );
         }
 
@@ -757,7 +818,7 @@ export const getAuth = (context: Readonly<RouterContextProvider>): AuthData & St
 
 export const updateAuth = (
     context: Readonly<RouterContextProvider>,
-    updater: TokenResponse | ((data: AuthData & StorageErrorData) => AuthData & StorageErrorData)
+    updater: AuthResponse | ((data: AuthData & StorageErrorData) => AuthData & StorageErrorData)
 ) => {
     const storage = context.get(authStorageContext);
     const cache = context.get(authCacheContext);
@@ -807,6 +868,42 @@ export const flashAuth = (context: Readonly<RouterContextProvider>, message?: st
 
     // Set the error message
     storage.set('error', message ?? '');
+};
+
+/**
+ * Clear invalid session and restore a fresh guest session.
+ * This is useful when a customer is deleted or session is corrupted.
+ * Cookies are deleted via the 'isDestroyed' flag, which triggers
+ * the middleware's response section to send Set-Cookie deletion headers.
+ */
+export const clearInvalidSessionAndRestoreGuest = async (context: Readonly<RouterContextProvider>): Promise<void> => {
+    const { t } = getTranslation();
+    const storage = context.get(authStorageContext);
+    const cache = context.get(authCacheContext);
+    const promiseCache = context.get(authContext);
+
+    if (!storage || !cache || !promiseCache) {
+        throw new Error('clearInvalidSessionAndRestoreGuest must be used within auth middleware');
+    }
+
+    // Clear in-memory storage and cache
+    clearStorage(storage);
+    cache.ref = undefined;
+
+    try {
+        // Get new guest session (no usid - start completely fresh)
+        const tokenResponse = await loginGuestUser(context, { usid: undefined });
+        await updateStorageAndCache(context, storage, cache, tokenResponse, 'guest');
+        promiseCache.ref = createAuthPromise(context, cache.ref);
+
+        // Mark for destruction - triggers cookie deletion in response section
+        storage.set('isDestroyed', true);
+    } catch (error) {
+        // If guest login fails, still mark for destruction and set error
+        storage.set('isDestroyed', true);
+        storage.set('error', t('errors:guestAccessTokenFailed'));
+        throw error;
+    }
 };
 
 export default authMiddleware;

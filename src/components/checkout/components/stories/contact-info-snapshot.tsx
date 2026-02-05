@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { vi, expect, test, describe, afterEach } from 'vitest';
 
 type MockFormProps = React.PropsWithChildren<Record<string, unknown>>;
@@ -33,7 +48,7 @@ vi.mock('react-router', () => ({
     },
 }));
 vi.mock('react-router-dom', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<object>();
     return {
         ...actual,
         useFetcher: () => fetcherMock,
@@ -74,6 +89,32 @@ vi.mock('@/hooks/checkout/use-customer-profile', () => ({
             lastName: 'Doe',
         },
         isLoading: false,
+    }),
+}));
+
+vi.mock('@/hooks/use-checkout', () => ({
+    useCheckoutContext: () => ({
+        step: 1,
+        computedStep: 1,
+        STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, REVIEW_ORDER: 5 },
+        goToStep: vi.fn(),
+        goToNextStep: vi.fn(),
+        exitEditMode: vi.fn(),
+        editingStep: null,
+        customerProfile: undefined,
+        shippingDefaultSet: Promise.resolve(undefined),
+        shipmentDistribution: {
+            hasUnaddressedDeliveryItems: false,
+            hasEmptyShipments: false,
+            deliveryShipments: [],
+            hasDeliveryItems: true,
+            hasPickupItems: false,
+            enableMultiAddress: false,
+            hasMultipleDeliveryAddresses: false,
+            isDeliveryProductItem: () => true,
+        },
+        savedAddresses: [],
+        setSavedAddresses: vi.fn(),
     }),
 }));
 

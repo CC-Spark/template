@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { type FC, Suspense } from 'react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -35,7 +50,6 @@ describe('Component', () => {
     test('shows custom fallback while pending, then renders Dynamic with resolved data and metadata', async () => {
         const Fallback = () => <div data-testid="inner-fallback" />;
         (registry.getFallback as any).mockReturnValue(Fallback);
-        (registry.getMetadata as any).mockReturnValue({ typeId: 'hero', name: 'Hero' });
 
         let lastProps: Record<string, unknown> | undefined;
         const Dynamic: FC<any> = (p) => {
@@ -48,6 +62,7 @@ describe('Component', () => {
             id: 'c1',
             typeId: 'hero',
             data: { foo: 1 } as any,
+            designMetadata: { name: 'Hero' },
             localized: true,
             visible: true,
         };
@@ -56,9 +71,9 @@ describe('Component', () => {
 
         render(
             <Component
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                page={{} as ShopperExperience.schemas['Page']}
                 component={component}
-                componentData={Promise.resolve(map)}
+                componentData={map}
                 className="cls"
                 regionId="main-region"
             />
@@ -88,7 +103,6 @@ describe('Component', () => {
 
     test('renders immediately with data=undefined when no componentData is given', async () => {
         (registry.getFallback as any).mockReturnValue(undefined);
-        (registry.getMetadata as any).mockReturnValue({ typeId: 'hero', name: 'H2' });
 
         let lastProps: Record<string, unknown> | undefined;
         const Dynamic: FC<any> = (p) => {
@@ -97,14 +111,14 @@ describe('Component', () => {
         };
         (registry.getComponent as any).mockReturnValue(Dynamic);
 
-        const component: ShopperExperience.schemas['Component'] = { id: 'c2', typeId: 'hero' };
+        const component: ShopperExperience.schemas['Component'] = {
+            id: 'c2',
+            typeId: 'hero',
+            designMetadata: { name: 'H2' },
+        };
 
         render(
-            <Component
-                component={component}
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
-                regionId="main-region"
-            />
+            <Component component={component} page={{} as ShopperExperience.schemas['Page']} regionId="main-region" />
         );
 
         expect(await screen.findByTestId('dyn-no-data')).toBeInTheDocument();
@@ -120,7 +134,6 @@ describe('Component', () => {
 
     test('uses default <div/> fallback when no custom fallback is registered', async () => {
         (registry.getFallback as any).mockReturnValue(undefined);
-        (registry.getMetadata as any).mockReturnValue(undefined);
 
         const Dynamic: FC = () => <div data-testid="dyn-default" />;
         (registry.getComponent as any).mockReturnValue(Dynamic);
@@ -132,8 +145,8 @@ describe('Component', () => {
         const { container } = render(
             <Component
                 component={component}
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
-                componentData={Promise.resolve(map)}
+                page={{} as ShopperExperience.schemas['Page']}
+                componentData={map}
                 regionId="main-region"
             />
         );
@@ -150,7 +163,6 @@ describe('Component', () => {
         (registry.getComponent as any).mockReturnValue(undefined);
         const preloadGate = deferred<void>();
         (registry.preload as any).mockReturnValue(preloadGate.promise);
-        (registry.getMetadata as any).mockReturnValue({ name: 'Post' });
 
         const DynamicAfter: FC<any> = () => <div data-testid="dyn-after-preload" />;
 
@@ -160,7 +172,7 @@ describe('Component', () => {
             <Suspense fallback={<div data-testid="outer-fallback" />}>
                 <Component
                     component={component}
-                    page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
+                    page={{} as ShopperExperience.schemas['Page']}
                     regionId="main-region"
                 />
             </Suspense>
@@ -179,7 +191,6 @@ describe('Component', () => {
 
     test('selects the correct promise from the data map using component.id', async () => {
         (registry.getFallback as any).mockReturnValue(undefined);
-        (registry.getMetadata as any).mockReturnValue({ name: 'Meta' });
 
         let seenData: unknown;
         const Dynamic: FC<any> = (p) => {
@@ -196,8 +207,8 @@ describe('Component', () => {
         render(
             <Component
                 component={compB}
-                page={Promise.resolve({} as ShopperExperience.schemas['Page'])}
-                componentData={Promise.resolve(map)}
+                page={{} as ShopperExperience.schemas['Page']}
+                componentData={map}
                 regionId="main-region"
             />
         );

@@ -1,5 +1,17 @@
 /**
- * Configuration utility functions
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
@@ -108,31 +120,56 @@ export const pathToObject = (
 /**
  * Parse environment variable value with optimistic JSON parsing
  * Tries to parse as JSON first, falls back to string if invalid
+ * Supports multi-line formatted JSON by normalizing whitespace before parsing
  *
  * @param varValue - The environment variable value
  * @param varName - Optional variable name for better error messages
  * @returns The parsed value (JSON type if valid JSON, otherwise string)
  *
  * @example
+ * // Primitives
  * parseEnvValue('42') // → 42 (number)
  * parseEnvValue('true') // → true (boolean)
- * parseEnvValue('["Apple","Google"]') // → ['Apple', 'Google'] (array)
  * parseEnvValue('hello') // → 'hello' (string)
+ *
+ * @example
+ * // Single-line JSON
+ * parseEnvValue('["Apple","Google"]') // → ['Apple', 'Google'] (array)
+ * parseEnvValue('{"key":"value"}') // → {key: 'value'} (object)
+ *
+ * @example
+ * // Multi-line formatted JSON (whitespace normalized automatically)
+ * parseEnvValue('[
+ *   {"id": "en-US"},
+ *   {"id": "fr-FR"}
+ * ]') // → [{id: 'en-US'}, {id: 'fr-FR'}] (array)
  */
 const parseEnvValue = (varValue: string, varName?: string): unknown => {
     // Optimistic JSON parsing - try to parse as JSON, fall back to string
     try {
         return JSON.parse(varValue);
     } catch {
-        // In development, warn about values that look like JSON but failed to parse
-        if (process.env.NODE_ENV === 'development' && (varValue.startsWith('{') || varValue.startsWith('['))) {
-            const preview = varValue.length > 50 ? `${varValue.substring(0, 50)}...` : varValue;
-            const varInfo = varName ? ` in "${varName}"` : '';
-            // eslint-disable-next-line no-console
-            console.warn(
-                `[Config Warning] Value${varInfo} looks like JSON but failed to parse: "${preview}". ` +
-                    `Using as string instead. Check for syntax errors if this was meant to be JSON.`
-            );
+        // For JSON-like values, try normalizing whitespace before parsing
+        // This allows multi-line formatted JSON in .env files
+        const trimmed = varValue.trim();
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            try {
+                // Normalize whitespace: replace newlines and multiple spaces with single space
+                // This preserves JSON structure while removing formatting
+                const normalized = varValue.replace(/\s+/g, ' ').trim();
+                return JSON.parse(normalized);
+            } catch {
+                // Still failed after normalization
+                if (process.env.NODE_ENV === 'development') {
+                    const preview = varValue.length > 50 ? `${varValue.substring(0, 50)}...` : varValue;
+                    const varInfo = varName ? ` in "${varName}"` : '';
+                    // eslint-disable-next-line no-console
+                    console.warn(
+                        `[Config Warning] Value${varInfo} looks like JSON but failed to parse: "${preview}". ` +
+                            `Using as string instead. Check for syntax errors if this was meant to be JSON.`
+                    );
+                }
+            }
         }
         // If it's not valid JSON, return as string
         return varValue;
@@ -258,9 +295,24 @@ export const mergeEnvConfig = (
             );
         }
 
+        // Protected paths that cannot be overridden by environment variables
+        // The engagement config must be set in config.server.ts for build-time validation
+        const PROTECTED_PATHS = ['app__engagement'];
+        const normalizedPath = path.toLowerCase();
+        const isProtected = PROTECTED_PATHS.some(
+            (protectedPath) => normalizedPath === protectedPath || normalizedPath.startsWith(`${protectedPath}__`)
+        );
+
+        if (isProtected) {
+            throw new Error(
+                `Environment variable "${varName}" attempts to override protected config path "${path}".\n\n` +
+                    `The engagement configuration cannot be overridden via environment variables. ` +
+                    `Update config.server.ts directly to change engagement settings.`
+            );
+        }
+
         // Validate path exists in base config (strict mode)
         if (baseConfig && validPaths.length > 0) {
-            const normalizedPath = path.toLowerCase();
             if (!validPaths.includes(normalizedPath)) {
                 throw new Error(
                     `Invalid environment variable "${varName}": Config path "${path}" does not exist in config.server.ts.\n\n` +

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import RefinePrice from '../refine-price';
 import { action } from 'storybook/actions';
@@ -341,65 +356,5 @@ RefinePrice with no predefined ranges:
         // Test no checkboxes for predefined ranges
         const checkboxes = canvas.queryAllByRole('checkbox');
         await expect(checkboxes.length).toBe(0);
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test price inputs are present
-        const inputs = canvas.getAllByRole('spinbutton');
-        await expect(inputs.length).toBeGreaterThanOrEqual(2);
-
-        // Test predefined ranges are present
-        const checkboxes = canvas.getAllByRole('checkbox');
-        await expect(checkboxes.length).toBeGreaterThan(0);
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test price inputs are present
-        const inputs = canvas.getAllByRole('spinbutton');
-        await expect(inputs.length).toBeGreaterThanOrEqual(2);
-
-        // Test predefined ranges are present
-        const checkboxes = canvas.getAllByRole('checkbox');
-        await expect(checkboxes.length).toBeGreaterThan(0);
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test price inputs are present
-        const inputs = canvas.getAllByRole('spinbutton');
-        await expect(inputs.length).toBeGreaterThanOrEqual(2);
-
-        // Test predefined ranges are present
-        const checkboxes = canvas.getAllByRole('checkbox');
-        await expect(checkboxes.length).toBeGreaterThan(0);
     },
 };

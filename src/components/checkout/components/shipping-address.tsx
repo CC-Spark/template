@@ -1,17 +1,34 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { useMemo, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Typography } from '@/components/typography';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { useBasket } from '@/providers/basket';
 import { createShippingAddressSchema, type ShippingAddressData } from '@/lib/checkout-schemas';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import { getShippingAddressFromCustomer } from '@/lib/customer-profile-utils';
 import { isAddressEmpty } from '@/components/checkout/utils/checkout-addresses';
+import { AddressFormFields } from '@/components/address-form-fields';
 import type { CheckoutActionData } from '../types';
+import CheckoutErrorBanner from './checkout-error-banner';
+import { getCheckoutDisplayError } from './checkout-display-error';
 import { useTranslation } from 'react-i18next';
 
 interface ShippingAddressProps {
@@ -22,6 +39,10 @@ interface ShippingAddressProps {
     isCompleted: boolean;
     isEditing: boolean;
     onEdit: () => void;
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    enableMultiAddress: boolean;
+    handleToggleShippingAddressMode: () => void;
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
 }
 
 export default function ShippingAddress({
@@ -31,10 +52,16 @@ export default function ShippingAddress({
     isCompleted: _isCompleted,
     isEditing,
     onEdit,
+    // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+    enableMultiAddress,
+    handleToggleShippingAddressMode,
+    // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
 }: ShippingAddressProps) {
     const cart = useBasket();
     const customerProfile = useCustomerProfile();
     const { t } = useTranslation('checkout');
+    // @sfdc-extension-line SFDC_EXT_MULTISHIP
+    const { t: tMultiship } = useTranslation('extMultiship');
 
     const shippingAddress = cart?.shipments?.[0]?.shippingAddress;
 
@@ -50,6 +77,7 @@ export default function ShippingAddress({
         customerShippingAddress.phone ||
         '') as string;
     const schema = useMemo(() => createShippingAddressSchema(t), [t]);
+    const shippingFormError = getCheckoutDisplayError(actionData, 'shippingAddress');
 
     const form = useForm<ShippingAddressData>({
         resolver: zodResolver(schema),
@@ -90,195 +118,24 @@ export default function ShippingAddress({
             editing={isEditing}
             onEdit={onEdit}
             editLabel={t('common.edit')}
+            // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
+            editAction={enableMultiAddress ? tMultiship('checkout.deliverToMultipleAddresses') : undefined}
+            onEditActionClick={enableMultiAddress ? handleToggleShippingAddressMode : undefined}
+            // @sfdc-extension-block-end SFDC_EXT_MULTISHIP
             isLoading={isLoading}>
             <ToggleCardEdit>
                 <Form {...form}>
                     <form onSubmit={(e) => void form.handleSubmit(handleFormSubmit)(e)} className="space-y-6">
+                        {shippingFormError && <CheckoutErrorBanner message={shippingFormError} />}
                         {actionData?.fieldErrors && (
                             <div className="space-y-2">
                                 {Object.entries(actionData.fieldErrors).map(([field, error]) => (
-                                    <div
-                                        key={field}
-                                        className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded text-xl font-bold">
-                                        {error}
-                                    </div>
+                                    <CheckoutErrorBanner key={field} message={error} />
                                 ))}
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="firstName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {t('shippingAddress.firstNameLabel')}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder={t('shippingAddress.firstNamePlaceholder')}
-                                                autoComplete="given-name"
-                                                autoFocus={isEditing}
-                                                className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage className="text-xl font-bold" />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="lastName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {t('shippingAddress.lastNameLabel')}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder={t('shippingAddress.lastNamePlaceholder')}
-                                                autoComplete="family-name"
-                                                className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage className="text-xl font-bold" />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <FormField
-                            control={form.control}
-                            name="address1"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                        {t('shippingAddress.addressLabel')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder={t('shippingAddress.addressPlaceholder')}
-                                            autoComplete="address-line1"
-                                            className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="address2"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                        {t('shippingAddress.address2Label')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder={t('shippingAddress.address2Placeholder')}
-                                            autoComplete="address-line2"
-                                            className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <div className="grid grid-cols-3 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="city"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {t('shippingAddress.cityLabel')}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder={t('shippingAddress.cityPlaceholder')}
-                                                autoComplete="address-level2"
-                                                className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage className="text-xl font-bold" />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="stateCode"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {t('shippingAddress.stateLabel')}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder={t('shippingAddress.statePlaceholder')}
-                                                autoComplete="address-level1"
-                                                className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage className="text-xl font-bold" />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="postalCode"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                            {t('shippingAddress.zipLabel')}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder={t('shippingAddress.zipPlaceholder')}
-                                                autoComplete="postal-code"
-                                                className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage className="text-xl font-bold" />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-base font-medium text-foreground data-[error=true]:text-xl data-[error=true]:font-bold">
-                                        {t('shippingAddress.phoneLabel')}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="tel"
-                                            placeholder={t('shippingAddress.phonePlaceholder')}
-                                            autoComplete="tel"
-                                            className="h-12 text-base border-2 focus:border-primary transition-colors"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <AddressFormFields form={form} showPhone={true} autoFocus={isEditing} countryCode="US" />
 
                         <div className="flex justify-end pt-4">
                             <Button

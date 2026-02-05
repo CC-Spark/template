@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { loader } from './loaders';
 import { fetchCategory } from '@/lib/api/categories';
@@ -34,10 +49,9 @@ describe('PopularCategory loader', () => {
             id: 'component-1',
             typeId: 'odyssey_base.popularCategory',
             data: {
-                category: 'newarrivals',
+                category: 'newarrivals' as never,
             },
             regions: [],
-            visible: true,
         };
 
         const result = await loader.server({
@@ -49,86 +63,55 @@ describe('PopularCategory loader', () => {
         expect(result).toEqual(mockCategory);
     });
 
-    test('throws error when categoryId is missing', async () => {
+    test('throws error when categoryId is missing', () => {
         const componentData: ShopperExperience.schemas['Component'] = {
             id: 'component-1',
             typeId: 'odyssey_base.popularCategory',
             data: {},
             regions: [],
-            visible: true,
         };
 
-        await expect(
-            loader.server({
+        expect(() => {
+            void loader.server({
                 componentData,
                 context: mockContext,
-            })
-        ).rejects.toThrow('Category ID is required for PopularCategory component');
+            });
+        }).toThrow('Category ID is required for PopularCategory component');
     });
 
-    test('throws error when categoryId is not a string', async () => {
+    test('throws error when categoryId is not a string', () => {
         const componentData: ShopperExperience.schemas['Component'] = {
             id: 'component-1',
             typeId: 'odyssey_base.popularCategory',
             data: {
-                category: 123 as any,
+                category: 123 as never,
             },
             regions: [],
-            visible: true,
         };
 
-        await expect(
-            loader.server({
+        expect(() => {
+            void loader.server({
                 componentData,
                 context: mockContext,
-            })
-        ).rejects.toThrow('Category ID is required for PopularCategory component');
+            });
+        }).toThrow('Category ID is required for PopularCategory component');
     });
 
-    test('throws error when categoryId is empty string', async () => {
+    test('throws error when categoryId is empty string', () => {
         const componentData: ShopperExperience.schemas['Component'] = {
             id: 'component-1',
             typeId: 'odyssey_base.popularCategory',
             data: {
-                category: '',
+                category: '' as never,
             },
             regions: [],
-            visible: true,
         };
 
-        await expect(
-            loader.server({
+        expect(() => {
+            void loader.server({
                 componentData,
                 context: mockContext,
-            })
-        ).rejects.toThrow('Category ID is required for PopularCategory component');
-    });
-
-    test('client loader works the same as server loader', async () => {
-        const mockCategory: ShopperProducts.schemas['Category'] = {
-            id: 'womens',
-            name: 'Womens',
-            pageDescription: 'Test description',
-        };
-
-        mockFetchCategory.mockResolvedValue(mockCategory);
-
-        const componentData: ShopperExperience.schemas['Component'] = {
-            id: 'component-1',
-            typeId: 'odyssey_base.popularCategory',
-            data: {
-                category: 'womens',
-            },
-            regions: [],
-            visible: true,
-        };
-
-        const result = await loader.client({
-            componentData,
-            context: mockContext,
-        });
-
-        expect(mockFetchCategory).toHaveBeenCalledWith(mockContext, 'womens', 0);
-        expect(result).toEqual(mockCategory);
+            });
+        }).toThrow('Category ID is required for PopularCategory component');
     });
 });

@@ -1,12 +1,39 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
+import { CurrencyProvider } from '@/providers/currency';
 import MiniCartItem from './mini-cart-item';
 
-// Helper function to render with Router context
-const renderWithRouter = (ui: React.ReactElement) => {
-    return render(<MemoryRouter>{ui}</MemoryRouter>);
+// Helper function to render with Router and Currency context
+const renderWithRouter = (ui: React.ReactElement, currency: string = 'USD') => {
+    const router = createMemoryRouter(
+        [
+            {
+                path: '/',
+                element: <CurrencyProvider value={currency}>{ui}</CurrencyProvider>,
+            },
+        ],
+        {
+            initialEntries: ['/'],
+        }
+    );
+    return render(<RouterProvider router={router} />);
 };
 
 // Mock the hooks
@@ -40,6 +67,7 @@ const mockProduct = {
     productId: 'prod-1',
     productName: 'Test Product',
     quantity: 1,
+    basePrice: 20.0,
     price: 20.0,
     priceAfterItemDiscount: 15.0,
     variationValues: {
@@ -96,6 +124,7 @@ describe('MiniCartItem', () => {
     it('renders pricing without savings when prices are equal', () => {
         const productWithoutSavings = {
             ...mockProduct,
+            basePrice: 15.0,
             price: 15.0,
             priceAfterItemDiscount: 15.0,
         };

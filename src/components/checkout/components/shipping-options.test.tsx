@@ -1,8 +1,24 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ShippingOptions from './shipping-options';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { getTranslation } from '@/lib/i18next';
 
 // Use real hooks for integration tests
 vi.mock('@/providers/basket', () => ({ useBasket: vi.fn() }));
@@ -69,6 +85,7 @@ const createDefaultProps = (overrides = {}) => ({
 });
 
 describe('ShippingOptions Integration Tests', () => {
+    const { t } = getTranslation();
     let useBasket: ReturnType<typeof vi.fn>;
     let useCustomerProfile: ReturnType<typeof vi.fn>;
 
@@ -643,7 +660,7 @@ describe('ShippingOptions Integration Tests', () => {
             render(<ShippingOptions {...createDefaultProps({ shippingMethods: emptyMethods })} />);
 
             // Check for the descriptive message (more specific)
-            expect(screen.getByText(/ensure your shipping address is complete/i)).toBeInTheDocument();
+            expect(screen.getByText(t('checkout:shippingOptions.noMethodsAvailableHelp'))).toBeInTheDocument();
 
             // Check that multiple instances of "No shipping methods available" exist (in message and button)
             const elements = screen.getAllByText(/No shipping methods available/i);

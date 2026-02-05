@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use client';
 
 import { type ComponentProps, createContext, type ReactNode, type Ref, useContext, useMemo, useRef } from 'react';
@@ -21,9 +36,11 @@ export type ToggleCardProps = ComponentProps<'div'> & {
     disableEdit?: boolean;
     onEdit?: () => void;
     editLabel?: ReactNode;
+    editVariant?: 'link' | 'outline';
     editAction?: string;
     onEditActionClick?: () => void;
     isLoading?: boolean;
+    showHeaderSeparator?: boolean;
     children?: ReactNode;
 };
 
@@ -36,9 +53,11 @@ export function ToggleCard({
     disableEdit = false,
     onEdit,
     editLabel,
+    editVariant = 'link',
     editAction,
     isLoading = false,
     onEditActionClick,
+    showHeaderSeparator = false,
     children,
     className,
     ...props
@@ -56,7 +75,8 @@ export function ToggleCard({
                 data-testid={id ? `sf-toggle-card-${id}` : undefined}
                 aria-disabled={disabled && !editing ? true : undefined}
                 {...props}>
-                <CardHeader className={!description ? 'grid-rows-1 items-center' : undefined}>
+                <CardHeader
+                    className={`${!description ? 'grid-rows-1 items-center' : ''} ${showHeaderSeparator ? 'border-b border-muted-foreground/20 pb-4' : ''}`}>
                     <CardTitle
                         ref={titleRef as unknown as Ref<HTMLDivElement>}
                         tabIndex={0}
@@ -68,8 +88,8 @@ export function ToggleCard({
                     <CardAction className={!description ? 'row-span-1 self-center' : undefined}>
                         {!editing && !disabled && onEdit && !disableEdit ? (
                             <Button
-                                className="cursor-pointer font-bold"
-                                variant="link"
+                                className={`cursor-pointer ${editVariant === 'link' ? 'font-bold' : ''}`}
+                                variant={editVariant}
                                 size="sm"
                                 onClick={() => {
                                     if (onEdit) {
@@ -83,8 +103,8 @@ export function ToggleCard({
 
                         {editing && editAction && onEditActionClick ? (
                             <Button
-                                className="cursor-pointer font-bold"
-                                variant="link"
+                                className={`cursor-pointer ${editVariant === 'link' ? 'font-bold' : ''}`}
+                                variant={editVariant}
                                 size="sm"
                                 onClick={onEditActionClick}
                                 aria-label={editAction}>

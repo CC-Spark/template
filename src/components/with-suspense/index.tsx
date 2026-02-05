@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Suspense, use, type ReactNode, type ComponentType } from 'react';
 
 /**
@@ -45,12 +60,12 @@ import { Suspense, use, type ReactNode, type ComponentType } from 'react';
  * ```
  */
 export default function withSuspense<TProps extends Record<string, unknown> = Record<string, unknown>>(
-    Component: ComponentType<TProps>,
+    Component: ComponentType<Omit<TProps, 'resolve'>>,
     config: {
-        /** Fallback component to show while loading */
-        fallback?: ReactNode;
+        /** Fallback component to show while loading. Can be a ReactNode or a function that receives props */
+        fallback?: ReactNode | ((props: Omit<TProps, 'resolve'>) => ReactNode);
         /** Promise to resolve and pass as 'data' prop to the wrapped component */
-        resolve?: Promise<unknown>;
+        resolve?: Promise<unknown> | ((props: TProps) => Promise<unknown>);
     } = {}
 ) {
     const { fallback = <div>Loading...</div>, resolve: configResolve } = config;
@@ -61,9 +76,19 @@ export default function withSuspense<TProps extends Record<string, unknown> = Re
         // Use prop resolve if provided, otherwise fall back to config resolve
         const resolve = propResolve || configResolve;
 
+        // Resolve fallback - if it's a function, call it with props
+        const resolvedFallback = typeof fallback === 'function' ? fallback(otherProps as TProps) : fallback;
+
+        // Resolve `resolve` promise - if it's a function, call it with props
+        const resolvedResolve = typeof resolve === 'function' ? resolve(props as TProps) : resolve;
+
         return (
-            <Suspense fallback={fallback}>
-                <ComponentWithData Component={Component} resolve={resolve} props={otherProps as TProps} />
+            <Suspense fallback={resolvedFallback}>
+                <ComponentWithData
+                    Component={Component}
+                    resolve={resolvedResolve}
+                    props={otherProps as Omit<TProps, 'resolve'>}
+                />
             </Suspense>
         );
     };

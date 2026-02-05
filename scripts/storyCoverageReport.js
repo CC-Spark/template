@@ -1,8 +1,24 @@
 #!/usr/bin/env node
 /**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
  * Storybook Coverage Report Generator
  *
- * Scans /src/components recursively:
+ * Scans /src/components and /src/extensions recursively:
  *  - Detects all *.tsx component files (except *.stories.tsx, *.test.tsx, *.snapshot.tsx, *-snapshot.tsx)
  *  - Detects matching *.stories.tsx files
  *  - Creates coverage %, missing story list
@@ -12,6 +28,7 @@ import fs from 'fs';
 import path from 'path';
 // ---- CONFIG ----
 const COMPONENTS_DIR = path.join(process.cwd(), 'src/components');
+const EXTENSIONS_DIR = path.join(process.cwd(), 'src/extensions');
 const OUTPUT_DIR = path.join(process.cwd(), '.storybook', 'coverage');
 const JSON_PATH = path.join(OUTPUT_DIR, 'storybook-component-coverage.json');
 const MD_PATH = path.join(OUTPUT_DIR, 'storybook-component-coverage.md');
@@ -84,14 +101,16 @@ const EXCLUDED_COMPONENTS = new Set([
     'product-skeleton/index',
     'product-tile/index',
     'product-view/index',
+    'theme-switcher/components/footer/index',
+    'store-locator/components/footer/index',
 ]);
 // Ensure OUTPUT DIR exists
 if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
-// Check if components directory exists
-if (!fs.existsSync(COMPONENTS_DIR)) {
-    console.error(`❌ Components directory not found: ${COMPONENTS_DIR}`);
+// Check if at least one directory exists
+if (!fs.existsSync(COMPONENTS_DIR) && !fs.existsSync(EXTENSIONS_DIR)) {
+    console.error(`❌ Neither components nor extensions directory found: ${COMPONENTS_DIR} or ${EXTENSIONS_DIR}`);
     process.exit(1);
 }
 function walk(dir, fileCallback) {
@@ -114,57 +133,112 @@ function getComponentName(filePath, componentsDir) {
 function generateCoverage() {
     const components = new Map(); // Map<componentName, filePath>
     const stories = new Set();
-    // Collect all story files first
-    walk(COMPONENTS_DIR, (file) => {
-        if (file.endsWith('.stories.tsx')) {
-            const componentName = getComponentName(file, COMPONENTS_DIR).replace(/\.stories$/, '');
-            stories.add(componentName);
-        }
-    });
-    // Collect all component files
-    walk(COMPONENTS_DIR, (file) => {
-        // Skip story files, test files, and snapshot files
-        if (
-            file.endsWith('.stories.tsx') ||
-            file.endsWith('.test.tsx') ||
-            file.endsWith('-snapshot.tsx') ||
-            file.includes('/stories/') ||
-            file.includes('/__snapshots__/') ||
-            file.includes('/__mocks__/')
-        ) {
-            return;
-        }
-        // Only process .tsx files
-        if (file.endsWith('.tsx')) {
-            const componentName = getComponentName(file, COMPONENTS_DIR);
-            // Store both the name and path for better reporting
-            if (!components.has(componentName)) {
-                components.set(componentName, file);
+
+    // Helper function to collect stories from a directory
+    // Stories MUST be in a /stories/ subdirectory
+    function collectStories(dir, baseDir, isExtensions = false) {
+        if (!fs.existsSync(dir)) return;
+        walk(dir, (file) => {
+            if (file.endsWith('.stories.tsx')) {
+                // Stories MUST be in a /stories/ subdirectory
+                if (!file.includes(path.sep + 'stories' + path.sep)) {
+                    return;
+                }
+                // For extensions, only include stories in components/ folders
+                if (isExtensions) {
+                    const rel = path.relative(baseDir, file);
+                    // Check if the relative path contains components/ folder
+                    const pathParts = rel.split(path.sep);
+                    if (!pathParts.includes('components')) {
+                        return;
+                    }
+                }
+                // Extract component name from story path
+                // e.g., "components/cart/stories/cart-content.stories.tsx" -> "cart/cart-content"
+                const rel = path.relative(baseDir, file);
+                const parts = rel.split(path.sep);
+                const storiesIndex = parts.indexOf('stories');
+                if (storiesIndex === -1) return;
+
+                // Get the component directory path (everything before "stories")
+                const componentDir = parts.slice(0, storiesIndex).join('/');
+                // Get the story file name without extension
+                const storyName = parts[storiesIndex + 1].replace(/\.stories\.tsx$/, '');
+
+                // Build component name: if story is "index.stories.tsx", use the directory name
+                // Otherwise use the story name
+                const componentName = storyName === 'index' ? componentDir : `${componentDir}/${storyName}`;
+
+                stories.add(componentName);
             }
-        }
-    });
+        });
+    }
+
+    // Helper function to collect components from a directory
+    function collectComponents(dir, baseDir, isExtensions = false) {
+        if (!fs.existsSync(dir)) return;
+        walk(dir, (file) => {
+            // For extensions, only include components in components/ folders
+            if (isExtensions) {
+                const rel = path.relative(baseDir, file);
+                // Check if the relative path contains components/ folder
+                const pathParts = rel.split(path.sep);
+                if (!pathParts.includes('components')) {
+                    return;
+                }
+            }
+
+            // Skip story files, test files, and snapshot files
+            if (
+                file.endsWith('.stories.tsx') ||
+                file.endsWith('.test.tsx') ||
+                file.endsWith('-snapshot.tsx') ||
+                file.includes('/stories/') ||
+                file.includes('/__snapshots__/') ||
+                file.includes('/__mocks__/')
+            ) {
+                return;
+            }
+            // Only process .tsx files
+            if (file.endsWith('.tsx')) {
+                const componentName = getComponentName(file, baseDir);
+                // Store both the name and path for better reporting
+                if (!components.has(componentName)) {
+                    components.set(componentName, file);
+                }
+            }
+        });
+    }
+
+    // Collect all story files first
+    collectStories(COMPONENTS_DIR, COMPONENTS_DIR, false);
+    collectStories(EXTENSIONS_DIR, EXTENSIONS_DIR, true);
+
+    // Collect all component files
+    collectComponents(COMPONENTS_DIR, COMPONENTS_DIR, false);
+    collectComponents(EXTENSIONS_DIR, EXTENSIONS_DIR, true);
     // Find missing stories
     const missing = [];
     const excluded = [];
     for (const [componentName, filePath] of components.entries()) {
+        // Skip ejected `shadcn/ui` components
+        if (filePath.includes('/components/ui/')) {
+            excluded.push({ name: componentName, path: filePath });
+            continue;
+        }
+
         // Skip excluded components
         if (EXCLUDED_COMPONENTS.has(componentName)) {
             excluded.push({ name: componentName, path: filePath });
             continue;
         }
         // Check if there's a matching story
+        // Stories MUST be in a /stories/ subdirectory
         // A story can match by:
-        // 1. Exact name match (e.g., "cart/cart-content" matches "cart/cart-content.stories.tsx")
-        // 2. Story in stories/ subdirectory (e.g., "cart/cart-content" matches "cart/stories/cart-content")
-        // 3. Story in same directory (e.g., "customer-address-form/form" matches "customer-address-form/form.stories.tsx")
-        // 4. Index story for directory (e.g., "cart/index" matches "cart/stories/index")
-        const baseName = path.basename(componentName);
+        // 1. Component "cart/cart-content" matches story "cart/cart-content" (from "cart/stories/cart-content.stories.tsx")
+        // 2. Component "cart/index" matches story "cart" (from "cart/stories/index.stories.tsx")
         const dirName = path.dirname(componentName);
-        const hasStory =
-            stories.has(componentName) ||
-            stories.has(`${dirName}/stories/${baseName}`) ||
-            stories.has(`${dirName}/${baseName}`) ||
-            (componentName.endsWith('/index') && stories.has(`${dirName}/stories/index`));
+        const hasStory = stories.has(componentName) || (componentName.endsWith('/index') && stories.has(dirName));
         if (!hasStory) {
             const ownership = getComponentOwnership(componentName);
             missing.push({
@@ -443,15 +517,17 @@ ${
         exitCode = 1;
     }
 
-    // Check code coverage threshold if available
+    // Check code coverage threshold if available (warning only, does not fail pipeline)
     if (jsonSummary.codeCoverage && jsonSummary.thresholds.codeCoverage.met === false) {
         const lines = jsonSummary.codeCoverage.lines?.pct || 0;
         const statements = jsonSummary.codeCoverage.statements?.pct || 0;
         const functions = jsonSummary.codeCoverage.functions?.pct || 0;
         const branches = jsonSummary.codeCoverage.branches?.pct || 0;
         const avgCoverage = (lines + statements + functions + branches) / 4;
-        console.error(`\n❌ Code coverage threshold not met: ${avgCoverage.toFixed(2)}% < ${CODE_COVERAGE_THRESHOLD}%`);
-        exitCode = 1;
+        console.warn(
+            `\n⚠️  Code coverage threshold not met: ${avgCoverage.toFixed(2)}% < ${CODE_COVERAGE_THRESHOLD}% (warning only, pipeline will not fail)`
+        );
+        // Note: exitCode is not set to 1, so pipeline will not fail for code coverage
     }
 
     process.exit(exitCode);

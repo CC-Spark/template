@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import type React from 'react';
@@ -210,7 +219,6 @@ describe('ProductCarousel', () => {
                     'md:basis-1/4',
                     'py-1',
                     'flex',
-                    'justify-center',
                     'pl-0',
                     'min-w-0'
                 );
@@ -246,7 +254,7 @@ describe('ProductCarousel', () => {
             renderComponent(<ProductCarousel products={mockProducts} />);
 
             const productTile = screen.getByTestId('product-tile-test-product-1');
-            expect(productTile).toHaveClass('h-auto');
+            expect(productTile).toHaveClass('h-full', 'w-full');
             expect(screen.getByText('Test Product 1')).toBeInTheDocument();
             expect(screen.getByText('$29.99')).toBeInTheDocument();
         });

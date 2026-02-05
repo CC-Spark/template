@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { useState, useEffect, useRef, type ReactNode, type ReactElement } from 'react';
@@ -186,7 +195,7 @@ function createMockFetcher<TData = unknown>(
         json: undefined,
         Form: undefined as unknown,
 
-        unstable_reset: () => {},
+        reset: () => {},
         type: 'init',
     } as unknown as ScapiFetcher<TData>;
 }
@@ -332,41 +341,5 @@ export const Interactive: Story = {
         );
         await userEvent.type(confirmPasswordInput, 'NewPassword123!');
         await expect(confirmPasswordInput).toHaveValue('NewPassword123!');
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const form = canvasElement.querySelector('form');
-        await expect(form).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const form = canvasElement.querySelector('form');
-        await expect(form).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const form = canvasElement.querySelector('form');
-        await expect(form).toBeInTheDocument();
     },
 };

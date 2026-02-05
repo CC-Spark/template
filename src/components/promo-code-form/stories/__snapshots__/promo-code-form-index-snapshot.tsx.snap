@@ -27,7 +27,7 @@ exports[`PromoCodeFormIndex stories snapshot > Default story renders and matches
             <button
               aria-controls="radix-_r_1_"
               aria-expanded="false"
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
               data-orientation="vertical"
               data-radix-collection-item=""
               data-slot="accordion-trigger"
@@ -104,7 +104,7 @@ exports[`PromoCodeFormIndex stories snapshot > DesktopView story renders and mat
             <button
               aria-controls="radix-_r_b_"
               aria-expanded="false"
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
               data-orientation="vertical"
               data-radix-collection-item=""
               data-slot="accordion-trigger"
@@ -181,7 +181,7 @@ exports[`PromoCodeFormIndex stories snapshot > MobileView story renders and matc
             <button
               aria-controls="radix-_r_7_"
               aria-expanded="false"
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
               data-orientation="vertical"
               data-radix-collection-item=""
               data-slot="accordion-trigger"
@@ -258,7 +258,7 @@ exports[`PromoCodeFormIndex stories snapshot > TabletView story renders and matc
             <button
               aria-controls="radix-_r_9_"
               aria-expanded="false"
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
               data-orientation="vertical"
               data-radix-collection-item=""
               data-slot="accordion-trigger"
@@ -335,7 +335,7 @@ exports[`PromoCodeFormIndex stories snapshot > WithCustomBasketId story renders 
             <button
               aria-controls="radix-_r_5_"
               aria-expanded="false"
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
               data-orientation="vertical"
               data-radix-collection-item=""
               data-slot="accordion-trigger"
@@ -412,7 +412,7 @@ exports[`PromoCodeFormIndex stories snapshot > WithoutBasketId story renders and
             <button
               aria-controls="radix-_r_3_"
               aria-expanded="false"
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180 py-2"
               data-orientation="vertical"
               data-radix-collection-item=""
               data-slot="accordion-trigger"

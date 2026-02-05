@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -47,9 +56,11 @@ describe('context-provider-utils', () => {
         });
 
         it('has correct site configuration', () => {
-            expect(mockBuildConfig.app.site.locale).toBe('en-US');
-            expect(mockBuildConfig.app.site.currency).toBe('USD');
-            expect(mockBuildConfig.app.site.features.guestCheckout).toBe(true);
+            // config now allows multi site set up. Here we check the first site in the least
+            // it is required to have at least on proper site config in the array
+            expect(mockBuildConfig.app.commerce.sites[0].defaultLocale).toBe('en-US');
+            expect(mockBuildConfig.app.commerce.sites[0].defaultCurrency).toBe('USD');
+            expect(mockBuildConfig.app.features.guestCheckout).toBe(true);
         });
 
         it('has correct global configuration', () => {
@@ -58,10 +69,30 @@ describe('context-provider-utils', () => {
             expect(mockBuildConfig.app.global.badges).toHaveLength(2);
         });
 
+        it('has correct images configuration', () => {
+            expect(mockBuildConfig.app.images).toEqual({
+                quality: 80,
+                formats: ['webp'],
+                fallbackFormat: 'jpg',
+            });
+        });
+
+        it('has correct links configuration', () => {
+            expect(mockBuildConfig.app.links).toEqual({
+                preconnect: ['https://edge.disstg.commercecloud.salesforce.com'],
+            });
+        });
+
         it('has correct performance configuration', () => {
-            expect(mockBuildConfig.app.performance.images.quality).toBe(80);
-            expect(mockBuildConfig.app.performance.images.formats).toEqual(['webp', 'jpeg']);
-            expect(mockBuildConfig.app.performance.images.lazyLoading).toBe(true);
+            expect(mockBuildConfig.app.performance.caching).toEqual({
+                apiCacheTtl: 300,
+                staticAssetCacheTtl: 31536000,
+            });
+            expect(mockBuildConfig.app.performance.metrics).toEqual({
+                serverPerformanceMetricsEnabled: false,
+                serverTimingHeaderEnabled: false,
+                clientPerformanceMetricsEnabled: false,
+            });
         });
 
         it('has correct development configuration', () => {
@@ -92,14 +123,41 @@ describe('context-provider-utils', () => {
             const TestComponent = () => React.createElement('div', { 'data-testid': 'test-component' }, 'Test');
             const ConfigWrapper = createConfigWrapper({
                 app: {
-                    site: {
-                        locale: 'fr-FR',
-                        currency: 'EUR',
-                        features: {
-                            passwordlessLogin: true,
-                            socialLogin: { enabled: false, providers: [] },
-                            guestCheckout: false,
+                    ...mockBuildConfig.app,
+                    features: {
+                        passwordlessLogin: {
+                            enabled: true,
+                            callbackUri: '/callback',
+                            landingUri: '/account',
                         },
+                        resetPassword: {
+                            callbackUri: '/reset-callback',
+                            landingUri: '/reset-landing',
+                        },
+                        socialLogin: { enabled: false, callbackUri: '/callback', providers: [] },
+                        socialShare: { enabled: false, providers: [] },
+                        guestCheckout: false,
+                        shopperContext: { enabled: false },
+                        googleCloudAPI: { apiKey: '' },
+                    },
+                    commerce: {
+                        ...mockBuildConfig.app.commerce,
+                        defaultSiteId: 'RefArch',
+                        sites: [
+                            {
+                                id: 'RefArch',
+                                cookies: {
+                                    domain: undefined,
+                                },
+                                defaultLocale: 'fr-FR',
+                                defaultCurrency: 'EUR',
+                                supportedLocales: [
+                                    { id: 'en-US', preferredCurrency: 'USD' },
+                                    { id: 'fr-FR', preferredCurrency: 'EUR' },
+                                ],
+                                supportedCurrencies: ['EUR', 'USD'],
+                            },
+                        ],
                     },
                 },
             });
@@ -110,21 +168,70 @@ describe('context-provider-utils', () => {
             expect(configProvider).toBeInTheDocument();
 
             const configData = JSON.parse(configProvider?.getAttribute('data-config') || '{}');
-            expect(configData.app.site.locale).toBe('fr-FR');
-            expect(configData.app.site.currency).toBe('EUR');
-            expect(configData.app.site.features.passwordlessLogin).toBe(true);
-            expect(configData.app.site.features.socialLogin.enabled).toBe(false);
-            expect(configData.app.site.features.guestCheckout).toBe(false);
+            expect(configData.app.commerce.sites[0].defaultLocale).toBe('fr-FR');
+            expect(configData.app.commerce.sites[0].defaultCurrency).toBe('EUR');
+            expect(configData.app.features.passwordlessLogin.enabled).toBe(true);
+            expect(configData.app.features.socialLogin.enabled).toBe(false);
+            expect(configData.app.features.guestCheckout).toBe(false);
         });
 
         it('merges overrides with base config', () => {
             const TestComponent = () => React.createElement('div', { 'data-testid': 'test-component' }, 'Test');
             const ConfigWrapper = createConfigWrapper({
                 app: {
+                    ...mockBuildConfig.app,
                     global: {
                         branding: {
                             name: 'Custom Store',
                             logoAlt: 'Custom Logo',
+                        },
+                        productListing: {
+                            productsPerPage: 24,
+                            enableInfiniteScroll: false,
+                            sortOptions: ['relevance'],
+                            enableQuickView: true,
+                            defaultProductTileImgAspectRatio: 1,
+                        },
+                        carousel: {
+                            defaultItemCount: 4,
+                        },
+                        paginatedProductCarousel: {
+                            defaultLimit: 4,
+                        },
+                        badges: [],
+                        skeleton: {
+                            thumbnails: 4,
+                            colorVariants: 3,
+                            sizeVariants: 3,
+                            accordionSections: 3,
+                            defaultItemCount: 4,
+                        },
+                        recommendations: {
+                            search_limit: {
+                                youMightLike: 5,
+                                completeLook: 5,
+                                recentlyViewed: 5,
+                            },
+                            types: {
+                                'you-may-also-like': {
+                                    enabled: false,
+                                    priority: 1,
+                                    sort: 'relevance',
+                                    titleKey: 'recommendations.youMayAlsoLike',
+                                },
+                                'complete-the-look': {
+                                    enabled: false,
+                                    priority: 2,
+                                    sort: 'relevance',
+                                    titleKey: 'recommendations.completeTheLook',
+                                },
+                                'recently-viewed': {
+                                    enabled: false,
+                                    priority: 3,
+                                    sort: 'relevance',
+                                    titleKey: 'recommendations.recentlyViewed',
+                                },
+                            },
                         },
                     },
                 },
@@ -141,7 +248,7 @@ describe('context-provider-utils', () => {
 
             // Non-overridden values should remain
             expect(configData.metadata.projectName).toBe('Test Project');
-            expect(configData.app.site.locale).toBe('en-US');
+            expect(configData.app.commerce.sites[0].defaultLocale).toBe('en-US');
             expect(configData.app.commerce.api.clientId).toBe('test-client');
         });
 
@@ -149,8 +256,11 @@ describe('context-provider-utils', () => {
             const TestComponent = () => React.createElement('div', { 'data-testid': 'test-component' }, 'Test');
             const ConfigWrapper = createConfigWrapper({
                 app: {
+                    ...mockBuildConfig.app,
                     pages: {
+                        ...mockBuildConfig.app.pages,
                         cart: {
+                            ...mockBuildConfig.app.pages.cart,
                             quantityUpdateDebounce: 1000,
                             enableRemoveConfirmation: false,
                         },

@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
@@ -10,6 +19,8 @@ import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next
 /**
  * Converts a ShopperProducts.schemas['Product'] to ShopperSearch.schemas['ProductSearchHit'] format
  * This allows ProductTile and ProductGrid components to work with Product objects from wishlist
+ *
+ * @param product - The product to convert
  */
 export function convertProductToProductSearchHit(
     product: ShopperProducts.schemas['Product']
@@ -17,14 +28,16 @@ export function convertProductToProductSearchHit(
     // Get the first image group's first image for the main image
     const firstImageGroup = product.imageGroups?.[0];
     const firstImage = firstImageGroup?.images?.[0];
-
-    const productId = product.id || product.productId || '';
+    const productId = (product.id || product.productId || '') as string;
+    const productName = (product.name || product.productName || '') as string;
     const productPrice = product.price ?? product.priceMax ?? 0;
     const converted: ShopperSearch.schemas['ProductSearchHit'] = {
         productId,
-        productName: product.name || product.productName || '',
+        productName,
         price: productPrice,
-        currency: product.currency || 'USD',
+        // TODO: apply current site defaultCurrency as the fallback value in case others are undefined.
+        // This needs multi site implementation
+        currency: product.currency,
         image: firstImage
             ? {
                   disBaseLink: firstImage.disBaseLink || firstImage.link || '',
@@ -36,7 +49,7 @@ export function convertProductToProductSearchHit(
         variationAttributes: product.variationAttributes,
         variants: product.variationAttributes
             ? product.variationAttributes.map((attr) => ({
-                  productId: productId || '',
+                  productId,
                   variationValues: attr.values?.reduce(
                       (acc, val) => {
                           if (attr.id && val.value) {
@@ -48,7 +61,8 @@ export function convertProductToProductSearchHit(
                   ),
               }))
             : undefined,
-        inStock: product.inventory?.available !== undefined ? product.inventory.available > 0 : true,
+        inStock:
+            product.inventory?.ats !== undefined ? product.inventory.ats > 0 : (product.inventory?.orderable ?? true),
         // Additional properties that ProductSearchHit might have
         promotions: [],
         customProperties: product.customProperties,

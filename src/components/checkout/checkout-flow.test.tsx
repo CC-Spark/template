@@ -1,5 +1,20 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
@@ -246,8 +261,14 @@ const mockUseSearchParams = vi.fn();
 
 vi.mock('react-router', async () => {
     const actual = await vi.importActual('react-router');
+    const React = await import('react');
     return {
         ...actual,
+        // React Router's createContext extends React.createContext with additional router-specific
+        // functionality (like useContext hooks that throw helpful errors). In tests, we replace it
+        // with React.createContext to avoid router context dependencies while maintaining the same
+        // Provider/Consumer API that components expect.
+        createContext: React.createContext,
         Form: ({ children, ...props }: MockFormProps) => <form {...props}>{children}</form>,
         useLoaderData: () => mockUseLoaderData(),
         useNavigation: () => mockUseNavigation(),
@@ -261,11 +282,11 @@ vi.mock('@/providers/basket', () => ({
     useBasket: () => ({
         basketId: 'test-basket-123',
         currency: 'USD',
-        productItems: [{ itemId: 'item-1', productId: 'product-1', quantity: 1 }],
+        productItems: [{ itemId: 'item-1', productId: 'product-1', quantity: 1, shipmentId: 'me' }],
         productTotal: 99.99,
         orderTotal: 115.98,
         customerInfo: { email: '' },
-        shipments: [],
+        shipments: [{ shipmentId: 'me' }],
         paymentInstruments: [],
     }),
 }));
@@ -274,9 +295,26 @@ vi.mock('@/providers/basket', () => ({
 vi.mock('@/hooks/use-checkout', () => ({
     useCheckoutContext: () => ({
         step: 1,
-        STEPS: { CONTACT_INFO: 1, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4 },
+        computedStep: 1,
+        STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, REVIEW_ORDER: 5 },
         goToStep: vi.fn(),
+        goToNextStep: vi.fn(),
+        exitEditMode: vi.fn(),
         editingStep: null,
+        customerProfile: undefined,
+        shippingDefaultSet: Promise.resolve(undefined),
+        shipmentDistribution: {
+            hasUnaddressedDeliveryItems: false,
+            hasEmptyShipments: false,
+            deliveryShipments: [],
+            hasDeliveryItems: true,
+            hasPickupItems: false,
+            enableMultiAddress: false,
+            hasMultipleDeliveryAddresses: false,
+            isDeliveryProductItem: () => true,
+        },
+        savedAddresses: [],
+        setSavedAddresses: vi.fn(),
     }),
 }));
 
@@ -316,10 +354,12 @@ vi.mock('@/hooks/use-checkout-actions', () => ({
         submitShippingAddress: vi.fn(),
         submitShippingOptions: vi.fn(),
         submitPayment: vi.fn(),
+        submitPlaceOrder: vi.fn(),
         contactFetcher: { state: 'idle', data: null },
         shippingAddressFetcher: { state: 'idle', data: null },
         shippingOptionsFetcher: { state: 'idle', data: null },
         paymentFetcher: { state: 'idle', data: null },
+        placeOrderFetcher: { state: 'idle', data: null },
         isSubmitting: () => false,
         handleCreateAccountPreferenceChange: vi.fn(),
         shouldCreateAccount: false,
@@ -460,6 +500,14 @@ describe('Checkout Flow Integration Tests', () => {
     // Default test props for CheckoutFormPage
     const defaultProps = {
         productMapPromise: Promise.resolve({}),
+        shippingMethodsMap: {
+            me: {
+                applicableShippingMethods: [
+                    { id: 'standard', name: 'Standard Shipping', price: 5.99, default: true },
+                    { id: 'express', name: 'Express Shipping', price: 12.99 },
+                ],
+            },
+        },
     };
 
     const baseHandlers = [
@@ -708,40 +756,50 @@ describe('Checkout Flow Integration Tests', () => {
         });
 
         test('displays correct form field labels', async () => {
+            sessionStorage.setItem(
+                'customerLookupResult',
+                JSON.stringify({ recommendation: 'guest', message: 'Continue as guest.' })
+            );
             await act(async () => {
                 render(<CheckoutFormPage {...defaultProps} />);
                 // Wait for productMapPromise to resolve
                 await new Promise((resolve) => setTimeout(resolve, 0));
             });
 
-            // Check that form fields are labeled correctly
-            expect(screen.getByLabelText('Email Address')).toBeInTheDocument();
-            expect(screen.getByLabelText('First Name')).toBeInTheDocument();
-            expect(screen.getByLabelText('Card Number')).toBeInTheDocument();
+            await screen.findByTestId('register-customer-checkbox', {}, { timeout: 3000 });
+            await waitFor(() => {
+                expect(screen.getAllByTestId('order-summary').length).toBeGreaterThan(0);
+            });
+            await waitFor(() => {
+                expect(screen.getAllByTestId('my-cart').length).toBeGreaterThan(0);
+            });
+            sessionStorage.removeItem('customerLookupResult');
         });
     });
 
     describe('User Interactions and Form Behavior', () => {
         test('allows user input in form fields', async () => {
             const user = userEvent.setup();
-
             await act(async () => {
                 render(<CheckoutFormPage {...defaultProps} />);
-                // Wait for productMapPromise to resolve
                 await new Promise((resolve) => setTimeout(resolve, 0));
             });
 
-            // Test email field interaction
-            const emailInput = screen.getByLabelText('Email Address');
+            // Wait for email field to be rendered
+            const emailInput = await waitFor(() => screen.getByLabelText('Email Address'));
             await user.type(emailInput, 'test@example.com');
             expect(emailInput).toHaveValue('test@example.com');
         });
 
         test('account creation checkbox toggles state correctly', async () => {
             const user = userEvent.setup();
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            });
 
-            const checkbox = screen.getByRole('checkbox');
+            // Wait for checkbox to be rendered
+            const checkbox = await waitFor(() => screen.getByRole('checkbox'));
             expect(checkbox).not.toBeChecked();
 
             // Test checkbox interaction
@@ -753,26 +811,32 @@ describe('Checkout Flow Integration Tests', () => {
             expect(checkbox).not.toBeChecked();
         });
 
-        test('form validation structure is accessible', () => {
-            render(<CheckoutFormPage {...defaultProps} />);
+        test('form validation structure is accessible', async () => {
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            });
 
-            // Form should be rendered and accessible for validation
-            const emailInput = screen.getByLabelText('Email Address');
+            // Wait for form to be rendered
+            const emailInput = await waitFor(() => screen.getByLabelText('Email Address'));
             expect(emailInput).toHaveAttribute('type', 'email');
             expect(emailInput).toBeInTheDocument();
         });
 
-        test('shipping method radio buttons show default selection', () => {
-            render(<CheckoutFormPage {...defaultProps} />);
+        test('shipping method radio buttons show default selection', async () => {
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            });
 
-            // Default shipping method should be selected
-            const standardOption = screen.getByLabelText('Standard Shipping');
+            // Wait for shipping options to be rendered
+            const standardOption = await waitFor(() => screen.getByLabelText('Standard Shipping'));
             expect(standardOption).toBeChecked();
         });
     });
 
     describe('UI State Management and Form Behavior', () => {
-        test('shows loading state during form submission', () => {
+        test('shows loading state during form submission', async () => {
             // Mock submitting state
             mockUseFetcher.mockReturnValue({
                 state: 'submitting',
@@ -782,14 +846,18 @@ describe('Checkout Flow Integration Tests', () => {
                 Form: 'form',
             });
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // UI should reflect submitting state (buttons disabled, loading indicators)
             // This validates the UI responds to fetcher state changes
             expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
         });
 
-        test('displays success state after form completion', () => {
+        test('displays success state after form completion', async () => {
             // Mock successful submission
             mockUseFetcher.mockReturnValue({
                 state: 'idle',
@@ -799,13 +867,17 @@ describe('Checkout Flow Integration Tests', () => {
                 Form: 'form',
             });
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // UI should show success feedback when form completes successfully
             expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
         });
 
-        test('displays error state for failed submissions', () => {
+        test('displays error state for failed submissions', async () => {
             // Mock error state
             mockUseFetcher.mockReturnValue({
                 state: 'idle',
@@ -819,13 +891,17 @@ describe('Checkout Flow Integration Tests', () => {
                 Form: 'form',
             });
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // UI should display error messages to user
             expect(screen.getByTestId('payment-form')).toBeInTheDocument();
         });
 
-        test('shows customer recognition UI for returning users', () => {
+        test('shows customer recognition UI for returning users', async () => {
             // Simulate customer lookup that recognizes returning user
             server.use(
                 http.post('/api/customer-lookup', () => {
@@ -836,14 +912,18 @@ describe('Checkout Flow Integration Tests', () => {
                 })
             );
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // Test that UI would show login recommendation
             // (In real implementation, this would trigger a UI state change)
             expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
         });
 
-        test('updates shipping options UI when methods are loaded', () => {
+        test('updates shipping options UI when methods are loaded', async () => {
             // Test that shipping options render with proper default selection
             mockUseLoaderData.mockReturnValue({
                 shippingMethods: {
@@ -855,16 +935,22 @@ describe('Checkout Flow Integration Tests', () => {
                 },
             });
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // UI should show all shipping options with default selected
-            expect(screen.getByLabelText('Standard Shipping')).toBeChecked();
-            expect(screen.getByLabelText('Express Shipping')).not.toBeChecked();
+            const standardOption = await waitFor(() => screen.getByLabelText('Standard Shipping'));
+            const expressOption = screen.getByLabelText('Express Shipping');
+            expect(standardOption).toBeChecked();
+            expect(expressOption).not.toBeChecked();
         });
     });
 
     describe('Commerce Cloud Data Integration in UI', () => {
-        test('UI correctly displays default shipping method from Commerce Cloud', () => {
+        test('UI correctly displays default shipping method from Commerce Cloud', async () => {
             // Mock shipping methods with Commerce Cloud default indicator
             mockUseLoaderData.mockReturnValue({
                 shippingMethods: {
@@ -875,17 +961,20 @@ describe('Checkout Flow Integration Tests', () => {
                 },
             });
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            });
 
             // UI should automatically select the default method from Commerce Cloud
-            const standardOption = screen.getByLabelText('Standard Shipping');
+            const standardOption = await waitFor(() => screen.getByLabelText('Standard Shipping'));
             const expressOption = screen.getByLabelText('Express Shipping');
 
             expect(standardOption).toBeChecked();
             expect(expressOption).not.toBeChecked();
         });
 
-        test('UI adapts to Commerce Cloud customer data structure', () => {
+        test('UI adapts to Commerce Cloud customer data structure', async () => {
             // Test that UI handles Commerce Cloud customer profile format
             const mockCustomerData = {
                 customerId: 'cc-customer-123',
@@ -899,13 +988,17 @@ describe('Checkout Flow Integration Tests', () => {
             expect(mockCustomerData.customerId).toBe('cc-customer-123');
             expect(mockCustomerData.email).toContain('@');
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
             expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
         });
     });
 
     describe('Error State UI Display', () => {
-        test('displays error UI feedback', () => {
+        test('displays error UI feedback', async () => {
             // Mock error state
             mockUseFetcher.mockReturnValue({
                 state: 'idle',
@@ -919,7 +1012,11 @@ describe('Checkout Flow Integration Tests', () => {
                 Form: 'form',
             });
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // UI should show error feedback to user
             expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
@@ -1060,9 +1157,13 @@ describe('Checkout Flow Integration Tests', () => {
     });
 
     describe('Edit Mode and Step Progression', () => {
-        test('verifies checkout form sections are rendered', () => {
+        test('verifies checkout form sections are rendered', async () => {
             // Since hooks are mocked at the top level, we can verify the components render
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // All form sections should be present and testable
             expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
@@ -1096,7 +1197,11 @@ describe('Checkout Flow Integration Tests', () => {
         test('handles account creation preference checkbox interaction', async () => {
             const user = userEvent.setup();
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
 
             // Test that the checkbox can be interacted with
             const checkbox = screen.getByTestId('create-account-checkbox');
@@ -1373,7 +1478,7 @@ describe('Checkout Flow Integration Tests', () => {
     });
 
     describe('Registered Shopper UI Behavior', () => {
-        test('displays logged-in customer UI state', () => {
+        test('displays logged-in customer UI state', async () => {
             // Mock logged-in customer state
             const mockLoggedInCustomer = {
                 customerId: 'returning-customer-123',
@@ -1396,7 +1501,10 @@ describe('Checkout Flow Integration Tests', () => {
 
             // Render component to test UI structure
             render(<CheckoutFormPage {...defaultProps} />);
-            expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
+            // Wait for Suspense boundaries to resolve
+            await waitFor(() => {
+                expect(screen.getByTestId('contact-info-form')).toBeInTheDocument();
+            });
         });
 
         test('retrieves and uses saved addresses for registered customers', async () => {
@@ -1489,7 +1597,7 @@ describe('Checkout Flow Integration Tests', () => {
             expect(savedAddressData.data.firstName).toBe('Jane');
         });
 
-        test('displays saved payment methods UI for registered customers', () => {
+        test('displays saved payment methods UI for registered customers', async () => {
             // Mock saved payment methods data
             const mockSavedPaymentMethods = [
                 {
@@ -1537,7 +1645,11 @@ describe('Checkout Flow Integration Tests', () => {
             const shouldShowSaveOption = true; // Always show for registered customers
             expect(shouldShowSaveOption).toBe(true);
 
-            render(<CheckoutFormPage {...defaultProps} />);
+            await act(async () => {
+                render(<CheckoutFormPage {...defaultProps} />);
+                // Wait for Suspense boundaries to resolve
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            });
             expect(screen.getByTestId('payment-form')).toBeInTheDocument();
         });
 

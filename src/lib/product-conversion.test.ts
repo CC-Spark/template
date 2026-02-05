@@ -1,5 +1,17 @@
 /**
- * Unit tests for product-conversion.ts
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -62,7 +74,8 @@ describe('convertProductToProductSearchHit', () => {
             price: 19.99,
             currency: 'USD',
             inventory: {
-                available: 0,
+                id: 'inventory-1',
+                ats: 0,
             },
         };
 
@@ -102,6 +115,7 @@ describe('convertProductToProductSearchHit', () => {
 
     it('should use productId as fallback when id is missing', () => {
         const product: ShopperProducts.schemas['Product'] = {
+            id: '',
             productId: 'fallback-product-id',
             name: 'Product Without ID',
             price: 15.99,
@@ -124,18 +138,6 @@ describe('convertProductToProductSearchHit', () => {
         const result = convertProductToProductSearchHit(product);
 
         expect(result.price).toBe(99.99);
-    });
-
-    it('should default currency to USD when missing', () => {
-        const product: ShopperProducts.schemas['Product'] = {
-            id: 'test-product',
-            name: 'Product Without Currency',
-            price: 25.99,
-        };
-
-        const result = convertProductToProductSearchHit(product);
-
-        expect(result.currency).toBe('USD');
     });
 
     it('should handle product with custom properties', () => {
@@ -173,6 +175,7 @@ describe('convertProductToProductSearchHit', () => {
 
     it('should default to empty string when both id and productId are missing', () => {
         const product: ShopperProducts.schemas['Product'] = {
+            id: '',
             name: 'Product Without IDs',
             price: 15.99,
             currency: 'USD',
@@ -278,6 +281,7 @@ describe('convertProductToProductSearchHit', () => {
             currency: 'USD',
             variationAttributes: [
                 {
+                    id: '',
                     name: 'Color',
                     values: [{ value: 'red', name: 'Red' }],
                 },
@@ -300,7 +304,7 @@ describe('convertProductToProductSearchHit', () => {
                 {
                     id: 'color',
                     name: 'Color',
-                    values: [{ name: 'Red' }],
+                    values: [{ value: '', name: 'Red' }],
                 },
             ],
         };
@@ -311,13 +315,15 @@ describe('convertProductToProductSearchHit', () => {
         expect(result.variants?.[0].variationValues).toEqual({});
     });
 
-    it('should handle inventory with available undefined', () => {
+    it('should handle inventory with ats undefined', () => {
         const product: ShopperProducts.schemas['Product'] = {
             id: 'test-product',
-            name: 'Product With Inventory No Available',
+            name: 'Product With Inventory No ATS',
             price: 25.99,
             currency: 'USD',
-            inventory: {},
+            inventory: {
+                id: 'inventory-1',
+            },
         };
 
         const result = convertProductToProductSearchHit(product);
@@ -325,14 +331,15 @@ describe('convertProductToProductSearchHit', () => {
         expect(result.inStock).toBe(true);
     });
 
-    it('should handle inventory with available greater than 0', () => {
+    it('should handle inventory with ats greater than 0', () => {
         const product: ShopperProducts.schemas['Product'] = {
             id: 'test-product',
             name: 'Product In Stock',
             price: 25.99,
             currency: 'USD',
             inventory: {
-                available: 10,
+                id: 'inventory-1',
+                ats: 10,
             },
         };
 

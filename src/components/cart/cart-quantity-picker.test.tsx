@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -19,6 +34,13 @@ const mockSetShowRemoveConfirmation = vi.fn();
 
 vi.mock('@/hooks/use-cart-quantity-update', () => ({
     useCartQuantityUpdate: vi.fn(),
+}));
+
+vi.mock('@/hooks/use-item-fetcher', () => ({
+    useItemFetcher: vi.fn(() => ({
+        state: 'idle',
+        submit: vi.fn(),
+    })),
 }));
 
 describe('CartQuantityPicker', () => {
@@ -299,6 +321,84 @@ describe('CartQuantityPicker', () => {
 
             const quantityInput = screen.getByDisplayValue('2');
             expect(quantityInput).not.toBeDisabled();
+        });
+
+        test('hides stock validation error when disabled is true', () => {
+            vi.mocked(useCartQuantityUpdate).mockReturnValue({
+                quantity: 5,
+                stockValidationError: 'Only 3 left in stock',
+                showRemoveConfirmation: false,
+                handleQuantityChange: mockHandleQuantityChange,
+                handleQuantityBlur: mockHandleQuantityBlur,
+                handleKeepItem: mockHandleKeepItem,
+                handleRemoveItem: mockHandleRemoveItem,
+                setShowRemoveConfirmation: mockSetShowRemoveConfirmation,
+            });
+
+            const props = { ...defaultProps, disabled: true };
+            renderComponent(props as any);
+
+            // Stock validation error should not be displayed when disabled
+            expect(screen.queryByText('Only 3 left in stock')).not.toBeInTheDocument();
+        });
+
+        test('shows stock validation error when disabled is false', () => {
+            vi.mocked(useCartQuantityUpdate).mockReturnValue({
+                quantity: 5,
+                stockValidationError: 'Only 3 left in stock',
+                showRemoveConfirmation: false,
+                handleQuantityChange: mockHandleQuantityChange,
+                handleQuantityBlur: mockHandleQuantityBlur,
+                handleKeepItem: mockHandleKeepItem,
+                handleRemoveItem: mockHandleRemoveItem,
+                setShowRemoveConfirmation: mockSetShowRemoveConfirmation,
+            });
+
+            renderComponent(defaultProps);
+
+            // Stock validation error should be displayed when not disabled
+            expect(screen.getByText('Only 3 left in stock')).toBeInTheDocument();
+        });
+    });
+
+    describe('Max Quantity Limit', () => {
+        test('should pass max prop to QuantityPicker', () => {
+            const props = { ...defaultProps, max: 5 };
+            renderComponent(props as any);
+
+            const quantityInput = screen.getByDisplayValue('2');
+            expect(quantityInput).toHaveAttribute('max', '5');
+        });
+
+        test('should set max attribute on input element', () => {
+            const props = { ...defaultProps, max: 10 };
+            renderComponent(props as any);
+
+            const quantityInput = screen.getByDisplayValue('2');
+            expect(quantityInput).toHaveAttribute('max', '10');
+        });
+
+        test('should handle max limit for choice-based bonus products', () => {
+            const props = { ...defaultProps, max: 3 };
+            renderComponent(props as any);
+
+            const quantityInput = screen.getByDisplayValue('2');
+            expect(quantityInput).toHaveAttribute('max', '3');
+        });
+
+        test('should handle zero max value', () => {
+            const props = { ...defaultProps, max: 0 };
+            renderComponent(props as any);
+
+            const quantityInput = screen.getByDisplayValue('2');
+            expect(quantityInput).toHaveAttribute('max', '0');
+        });
+
+        test('should not set max attribute when max prop is undefined', () => {
+            renderComponent(defaultProps);
+
+            const quantityInput = screen.getByDisplayValue('2');
+            expect(quantityInput).not.toHaveAttribute('max');
         });
     });
 });

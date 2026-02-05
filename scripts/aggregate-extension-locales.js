@@ -1,5 +1,20 @@
 #!/usr/bin/env node
 
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { readdir, writeFile, mkdir } from 'fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,16 +23,43 @@ import { existsSync } from 'node:fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(__filename, '..');
 
-const SRC_DIR = join(__dirname, '..', 'src');
-const EXTENSIONS_DIR = join(SRC_DIR, 'extensions');
-const OUTPUT_DIR = join(EXTENSIONS_DIR, 'locales');
+/**
+ * Apache License 2.0 header text for file headers
+ * Inlined here to avoid path resolution issues in standalone projects
+ */
+const APACHE_LICENSE_HEADER = [
+    `Copyright ${new Date().getFullYear()} Salesforce, Inc.`,
+    '',
+    'Licensed under the Apache License, Version 2.0 (the "License");',
+    'you may not use this file except in compliance with the License.',
+    'You may obtain a copy of the License at',
+    '',
+    '    http://www.apache.org/licenses/LICENSE-2.0',
+    '',
+    'Unless required by applicable law or agreed to in writing, software',
+    'distributed under the License is distributed on an "AS IS" BASIS,',
+    'WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
+    'See the License for the specific language governing permissions and',
+    'limitations under the License.',
+].join('\n');
+
+// Default directories - can be overridden for testing
+export const getDefaultDirs = () => ({
+    SRC_DIR: join(__dirname, '..', 'src'),
+    get EXTENSIONS_DIR() {
+        return join(this.SRC_DIR, 'extensions');
+    },
+    get OUTPUT_DIR() {
+        return join(this.EXTENSIONS_DIR, 'locales');
+    },
+});
 
 /**
  * Convert kebab-case to PascalCase
  * @param {string} str - The kebab-case string
  * @returns {string} The PascalCase string
  */
-function toPascalCase(str) {
+export function toPascalCase(str) {
     return str
         .split('-')
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -29,18 +71,42 @@ function toPascalCase(str) {
  * @param {string} str - The kebab-case string
  * @returns {string} The camelCase string
  */
-function toCamelCase(str) {
+export function toCamelCase(str) {
     const pascal = toPascalCase(str);
     return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }
 
 /**
- * Scan extensions directory to find all available locales
+ * Scan main app and extensions directories to find all available locales.
+ * @param {object} dirs - Directory paths configuration
+ * @param {string} dirs.SRC_DIR - Source directory path
+ * @param {string} dirs.EXTENSIONS_DIR - Extensions directory path
  * @returns {Promise<Set<string>>} Set of locale codes
  */
-async function discoverLocales() {
+export async function discoverLocales(dirs) {
+    const { SRC_DIR, EXTENSIONS_DIR } = dirs;
     const locales = new Set();
 
+    // 1. Discover locales from main app
+    const mainLocalesPath = join(SRC_DIR, 'locales');
+    if (existsSync(mainLocalesPath)) {
+        try {
+            const mainLocaleEntries = await readdir(mainLocalesPath, { withFileTypes: true });
+            for (const entry of mainLocaleEntries) {
+                if (entry.isDirectory() && entry.name !== 'index.ts') {
+                    locales.add(entry.name);
+                }
+            }
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                console.log('📁 No main app locales directory found.');
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    // 2. Discover locales from extensions
     try {
         const extensions = await readdir(EXTENSIONS_DIR, { withFileTypes: true });
 
@@ -60,31 +126,32 @@ async function discoverLocales() {
         }
     } catch (error) {
         if (error.code === 'ENOENT') {
-            console.log('📁 No extensions directory found. Skipping locale generation.');
-            return locales;
+            console.log('📁 No extensions directory found.');
+        } else {
+            throw error;
         }
-        throw error;
     }
 
     return locales;
 }
 
 /**
- * Find all extensions that have translations for a given locale
+ * Find all extensions (NOT main app) that have translations for a given locale
  * @param {string} locale - The locale code (e.g., 'en', 'es')
+ * @param {string} extensionsDir - Extensions directory path
  * @returns {Promise<Array<{name: string, path: string}>>} Array of extension info
  */
-async function findExtensionsWithLocale(locale) {
+export async function findExtensionsWithLocale(locale, extensionsDir) {
     const extensions = [];
 
     try {
-        const extensionEntries = await readdir(EXTENSIONS_DIR, { withFileTypes: true });
+        const extensionEntries = await readdir(extensionsDir, { withFileTypes: true });
 
         for (const entry of extensionEntries) {
             if (!entry.isDirectory()) continue;
             if (entry.name === 'locales') continue; // Skip the output directory
 
-            const translationPath = join(EXTENSIONS_DIR, entry.name, 'locales', locale, 'translations.json');
+            const translationPath = join(extensionsDir, entry.name, 'locales', locale, 'translations.json');
 
             if (existsSync(translationPath)) {
                 extensions.push({
@@ -104,12 +171,18 @@ async function findExtensionsWithLocale(locale) {
 }
 
 /**
- * Generate the locale index file content
+ * Generate the locale index file content for extension translations only
  * @param {Array<{name: string, path: string}>} extensions - Array of extension info
  * @returns {string} The generated TypeScript content
  */
-function generateLocaleFile(extensions) {
-    const header = `// NOTE: This file is auto-generated. Do not edit manually.
+export function generateLocaleFile(extensions) {
+    // Format license header as multi-line comment block
+    const licenseLines = APACHE_LICENSE_HEADER.split('\n');
+    const licenseHeader = '/**\n' + licenseLines.map((line) => (line ? ` * ${line}` : ' *')).join('\n') + '\n */';
+
+    const header = `${licenseHeader}
+
+// NOTE: This file is auto-generated. Do not edit manually.
 // Run 'pnpm locales:aggregate-extensions' to regenerate this file.
 
 `;
@@ -143,26 +216,38 @@ ${exports}
 }
 
 /**
- * Main function to generate all locale files
+ * Main function to generate aggregation files for extension translations only.
+ * Main app translations in /src/locales/ are NOT aggregated by this script.
+ * @param {object} [options] - Configuration options
+ * @param {object} [options.dirs] - Directory paths (defaults to getDefaultDirs())
+ * @param {boolean} [options.silent] - Suppress console output (for testing)
  */
-async function main() {
-    try {
-        console.log('🔍 Scanning extensions for translation files...');
+export async function aggregateExtensionLocales(options = {}) {
+    const { dirs = getDefaultDirs(), silent = false } = options;
+    const { OUTPUT_DIR, EXTENSIONS_DIR } = dirs;
 
-        const locales = await discoverLocales();
+    const log = (...args) => {
+        if (!silent) console.log(...args);
+    };
+
+    try {
+        log('🔍 Scanning for extension translation files...');
+
+        const locales = await discoverLocales(dirs);
 
         if (locales.size === 0) {
-            console.log('📝 No locales found in extensions. Nothing to generate.');
-            return;
+            log('📝 No locales found in extensions. Nothing to generate.');
+            return { generated: 0, locales: [] };
         }
 
-        console.log(`📝 Found ${locales.size} locale(s): ${Array.from(locales).join(', ')}`);
+        log(`📝 Found ${locales.size} locale(s): ${Array.from(locales).join(', ')}`);
 
         // Ensure output directory exists
         await mkdir(OUTPUT_DIR, { recursive: true });
 
+        const results = [];
         for (const locale of locales) {
-            const extensions = await findExtensionsWithLocale(locale);
+            const extensions = await findExtensionsWithLocale(locale, EXTENSIONS_DIR);
             const content = generateLocaleFile(extensions);
 
             const outputPath = join(OUTPUT_DIR, locale);
@@ -171,14 +256,30 @@ async function main() {
             const filePath = join(outputPath, 'index.ts');
             await writeFile(filePath, content, 'utf8');
 
-            console.log(`✅ Generated: src/extensions/locales/${locale}/index.ts (${extensions.length} extension(s))`);
+            log(`✅ Generated: src/extensions/locales/${locale}/index.ts (${extensions.length} extension(s))`);
+            results.push({ locale, extensionCount: extensions.length, filePath });
         }
 
-        console.log('✨ Extension locale generation complete!');
+        log('✨ Extension locale generation complete!');
+        return { generated: results.length, locales: results };
     } catch (error) {
-        console.error('❌ Error generating extension locales:', error);
+        if (!silent) console.error('❌ Error generating extension locales:', error);
+        throw error;
+    }
+}
+
+/**
+ * CLI entry point
+ */
+async function main() {
+    try {
+        await aggregateExtensionLocales();
+    } catch {
         process.exit(1);
     }
 }
 
-main();
+// Only run main if this file is executed directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+    main();
+}

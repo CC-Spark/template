@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 'use client';
 
@@ -13,7 +22,7 @@ import { useStoreLocatorForm } from '@/extensions/store-locator/hooks/use-store-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { SelectNative } from '@/components/ui/select-native';
+import { NativeSelect } from '@/components/ui/native-select';
 import { TextSeparator } from './text-separator';
 
 /**
@@ -68,19 +77,21 @@ export default function StoreLocatorForm(): ReactElement {
                                 <FormItem className="flex flex-col gap-1">
                                     <FormLabel className="sr-only">{t('storeLocator.form.countryLabel')}</FormLabel>
                                     <FormControl>
-                                        <SelectNative
-                                            aria-label={t('storeLocator.form.countryLabel')}
-                                            value={field.value}
-                                            onChange={(e) => field.onChange(e.target.value)}>
-                                            <option value="" disabled>
-                                                {t('storeLocator.form.selectCountry')}
-                                            </option>
-                                            {countryOptions.map((c) => (
-                                                <option key={c.countryCode} value={c.countryCode}>
-                                                    {c.countryName}
+                                        <div className="w-full [&_[data-slot='native-select-wrapper']]:w-full">
+                                            <NativeSelect
+                                                aria-label={t('storeLocator.form.countryLabel')}
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(e.target.value)}>
+                                                <option value="" disabled>
+                                                    {t('storeLocator.form.selectCountry')}
                                                 </option>
-                                            ))}
-                                        </SelectNative>
+                                                {countryOptions.map((c) => (
+                                                    <option key={c.countryCode} value={c.countryCode}>
+                                                        {c.countryName}
+                                                    </option>
+                                                ))}
+                                            </NativeSelect>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

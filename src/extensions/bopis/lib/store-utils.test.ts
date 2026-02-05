@@ -1,12 +1,21 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { describe, test, expect } from 'vitest';
-import { getStoreName, getPickupStoreFromMap, isPickupAddressSet } from './store-utils';
+import { getStoreName, getPickupStoreFromMap, orderAddressFromStoreAddress, isPickupAddressSet } from './store-utils';
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
 import type { ShopperBasketsV2, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 
@@ -90,6 +99,181 @@ describe('store-utils', () => {
         });
     });
 
+    describe('orderAddressFromStoreAddress', () => {
+        test('should convert complete store address to order address', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-123',
+                name: 'Downtown Store',
+                address1: '123 Main St',
+                address2: 'Suite 100',
+                city: 'San Francisco',
+                stateCode: 'CA',
+                postalCode: '94102',
+                countryCode: 'US',
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result).toEqual({
+                firstName: 'Downtown Store',
+                lastName: 'Pickup',
+                address1: '123 Main St',
+                address2: 'Suite 100',
+                city: 'San Francisco',
+                stateCode: 'CA',
+                postalCode: '94102',
+                countryCode: 'US',
+            });
+        });
+
+        test('should use empty string for firstName when store name is undefined', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-456',
+                address1: '456 Oak Ave',
+                city: 'Portland',
+                stateCode: 'OR',
+                postalCode: '97201',
+                countryCode: 'US',
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result.firstName).toBe('');
+            expect(result.lastName).toBe('Pickup');
+        });
+
+        test('should use empty string for firstName when store name is null', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-789',
+                name: null as any,
+                address1: '789 Elm St',
+                city: 'Seattle',
+                stateCode: 'WA',
+                postalCode: '98101',
+                countryCode: 'US',
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result.firstName).toBe('');
+        });
+
+        test('should handle store with minimal address fields', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-minimal',
+                address1: '999 Test Ln',
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result).toEqual({
+                firstName: '',
+                lastName: 'Pickup',
+                address1: '999 Test Ln',
+                address2: '',
+                city: '',
+                stateCode: '',
+                postalCode: '',
+                countryCode: '',
+            });
+        });
+
+        test('should handle store with null address fields', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-null',
+                name: 'Test Store',
+                address1: null as any,
+                address2: null as any,
+                city: null as any,
+                stateCode: null as any,
+                postalCode: null as any,
+                countryCode: null as any,
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result).toEqual({
+                firstName: 'Test Store',
+                lastName: 'Pickup',
+                address1: '',
+                address2: '',
+                city: '',
+                stateCode: '',
+                postalCode: '',
+                countryCode: '',
+            });
+        });
+
+        test('should handle store with undefined address fields', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-undefined',
+                name: 'Another Store',
+                address1: undefined as any,
+                address2: undefined as any,
+                city: undefined as any,
+                stateCode: undefined as any,
+                postalCode: undefined as any,
+                countryCode: undefined as any,
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result).toEqual({
+                firstName: 'Another Store',
+                lastName: 'Pickup',
+                address1: '',
+                address2: '',
+                city: '',
+                stateCode: '',
+                postalCode: '',
+                countryCode: '',
+            });
+        });
+
+        test('should preserve address2 when provided', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-with-address2',
+                name: 'Building Store',
+                address1: '100 Business Blvd',
+                address2: 'Floor 5, Suite 500',
+                city: 'Austin',
+                stateCode: 'TX',
+                postalCode: '78701',
+                countryCode: 'US',
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result.address2).toBe('Floor 5, Suite 500');
+        });
+
+        test('should handle empty string address fields', () => {
+            const store: ShopperStores.schemas['Store'] = {
+                id: 'store-empty',
+                name: '',
+                address1: '',
+                address2: '',
+                city: '',
+                stateCode: '',
+                postalCode: '',
+                countryCode: '',
+            };
+
+            const result = orderAddressFromStoreAddress(store);
+
+            expect(result).toEqual({
+                firstName: '',
+                lastName: 'Pickup',
+                address1: '',
+                address2: '',
+                city: '',
+                stateCode: '',
+                postalCode: '',
+                countryCode: '',
+            });
+        });
+    });
+
     describe('isPickupAddressSet', () => {
         const mockStoreAddress: ShopperStores.schemas['Store'] = {
             id: 'store-123',
@@ -101,6 +285,8 @@ describe('store-utils', () => {
         };
 
         const mockShippingAddress: ShopperBasketsV2.schemas['OrderAddress'] = {
+            firstName: '', // Must match empty string from orderAddressFromStoreAddress when store.name is undefined
+            lastName: 'Pickup', // Must match the translation value from orderAddressFromStoreAddress
             address1: '123 Main St',
             city: 'San Francisco',
             stateCode: 'CA',
@@ -201,6 +387,8 @@ describe('store-utils', () => {
 
         test('should normalize undefined values to empty strings and compare correctly', () => {
             const addressWithUndefined: ShopperBasketsV2.schemas['OrderAddress'] = {
+                firstName: undefined as any,
+                lastName: 'Pickup', // Must match the translation value from orderAddressFromStoreAddress
                 address1: undefined as any,
                 city: undefined as any,
                 stateCode: undefined as any,
@@ -210,6 +398,7 @@ describe('store-utils', () => {
 
             const storeWithUndefined: ShopperStores.schemas['Store'] = {
                 id: 'store-123',
+                name: undefined as any, // becomes firstName
                 address1: undefined as any,
                 city: undefined as any,
                 stateCode: undefined as any,
@@ -224,6 +413,8 @@ describe('store-utils', () => {
 
         test('should normalize null values to empty strings and compare correctly', () => {
             const addressWithNull: ShopperBasketsV2.schemas['OrderAddress'] = {
+                firstName: null as any,
+                lastName: 'Pickup', // Must match the translation value from orderAddressFromStoreAddress
                 address1: null as any,
                 city: null as any,
                 stateCode: null as any,
@@ -233,6 +424,7 @@ describe('store-utils', () => {
 
             const storeWithNull: ShopperStores.schemas['Store'] = {
                 id: 'store-123',
+                name: null as any, // becomes firstName
                 address1: null as any,
                 city: null as any,
                 stateCode: null as any,

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { vi, expect, test, describe, afterEach } from 'vitest';
 import type React from 'react';
 
@@ -36,11 +51,36 @@ vi.mock('react-router', () => ({
 let mockBasketValue: unknown = undefined;
 
 vi.mock('@/providers/basket', () => ({
-    default: ({ children, value }: { children: React.ReactNode; value: unknown }) => {
-        mockBasketValue = value;
+    default: ({
+        children,
+        value,
+        basket,
+        snapshot,
+    }: {
+        children: React.ReactNode;
+        value?: unknown;
+        basket?: unknown;
+        snapshot?: unknown;
+    }) => {
+        if (value !== undefined) {
+            mockBasketValue = value;
+        } else {
+            mockBasketValue = { current: basket, snapshot };
+        }
         return <div>{children}</div>;
     },
-    useBasket: () => mockBasketValue,
+    useBasket: () => {
+        if (mockBasketValue && typeof mockBasketValue === 'object' && 'current' in mockBasketValue) {
+            return (mockBasketValue as { current?: unknown }).current;
+        }
+        return mockBasketValue;
+    },
+    useBasketSnapshot: () => {
+        if (mockBasketValue && typeof mockBasketValue === 'object' && 'snapshot' in mockBasketValue) {
+            return (mockBasketValue as { snapshot?: unknown }).snapshot;
+        }
+        return undefined;
+    },
 }));
 
 import { composeStories } from '@storybook/react-vite';

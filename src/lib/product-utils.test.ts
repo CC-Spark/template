@@ -1,16 +1,54 @@
 /**
- * Unit tests for product-utils.ts
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-import { describe, it, expect } from 'vitest';
-import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import {
     getDisplayVariationValues,
     createProductUrl,
     getImagesForColor,
     isProductBundle,
     isStandardProduct,
+    isRuleBasedPromotion,
+    requiresVariantSelection,
+    getPrimaryProductImageUrl,
+    getEnrichedProducts,
 } from './product-utils';
+
+// Mock image group utility
+vi.mock('@/lib/image-groups-utils', () => ({
+    findImageGroupBy: vi.fn((imageGroups, options) => {
+        if (!imageGroups?.length) return undefined;
+        // If no variation attributes specified, return undefined (so all imageGroups are used)
+        if (!options.selectedVariationAttributes || Object.keys(options.selectedVariationAttributes).length === 0) {
+            return undefined;
+        }
+        // Return first group with matching viewType that has variationAttributes
+        return imageGroups.find(
+            (group: any) =>
+                group.viewType === options.viewType &&
+                group.variationAttributes?.length > 0 &&
+                group.variationAttributes.some(
+                    (attr: any) =>
+                        options.selectedVariationAttributes?.[attr.id] &&
+                        attr.values?.some((val: any) => val.value === options.selectedVariationAttributes?.[attr.id])
+                )
+        );
+    }),
+}));
 
 describe('product-utils', () => {
     describe('getDisplayVariationValues', () => {
@@ -407,6 +445,602 @@ describe('product-utils', () => {
         it('isStandardProduct returns false when product.type.item is falsy', () => {
             const product = { id: 'p5', type: { master: true } } as unknown as ShopperProducts.schemas['Product'];
             expect(isStandardProduct(product)).toBe(false);
+        });
+    });
+
+    describe('isRuleBasedPromotion', () => {
+        it('should return true when promotionId exists and bonusProducts is empty array', () => {
+            const item: ShopperBasketsV2.schemas['BonusDiscountLineItem'] = {
+                promotionId: 'promo-123',
+                bonusProducts: [],
+            };
+            expect(isRuleBasedPromotion(item)).toBe(true);
+        });
+
+        it('should return true when promotionId exists and bonusProducts is undefined', () => {
+            const item: ShopperBasketsV2.schemas['BonusDiscountLineItem'] = {
+                promotionId: 'promo-123',
+            };
+            expect(isRuleBasedPromotion(item)).toBe(true);
+        });
+
+        it('should return false when bonusProducts has items', () => {
+            const item: ShopperBasketsV2.schemas['BonusDiscountLineItem'] = {
+                promotionId: 'promo-123',
+                bonusProducts: [{ productId: 'prod-1' }],
+            };
+            expect(isRuleBasedPromotion(item)).toBe(false);
+        });
+
+        it('should return false when item is null', () => {
+            expect(isRuleBasedPromotion(null)).toBe(false);
+        });
+
+        it('should return false when item is undefined', () => {
+            expect(isRuleBasedPromotion(undefined)).toBe(false);
+        });
+
+        it('should return false when promotionId is missing', () => {
+            const item: ShopperBasketsV2.schemas['BonusDiscountLineItem'] = {
+                bonusProducts: [],
+            };
+            expect(isRuleBasedPromotion(item)).toBe(false);
+        });
+    });
+
+    describe('requiresVariantSelection', () => {
+        it('returns true for products with variants array', () => {
+            const product = {
+                id: 'master-product',
+                variants: [{ productId: 'variant-1' }, { productId: 'variant-2' }],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(requiresVariantSelection(product)).toBe(true);
+        });
+
+        it('returns true for products with multiple selectable variation attribute values', () => {
+            const product = {
+                id: 'product-with-variations',
+                variationAttributes: [
+                    {
+                        id: 'color',
+                        name: 'Color',
+                        values: [
+                            { value: 'red', name: 'Red' },
+                            { value: 'blue', name: 'Blue' },
+                        ],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(requiresVariantSelection(product)).toBe(true);
+        });
+
+        it('returns false for products with single variation attribute value', () => {
+            const product = {
+                id: 'single-variant',
+                variationAttributes: [
+                    {
+                        id: 'color',
+                        name: 'Color',
+                        values: [{ value: 'red', name: 'Red' }],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(requiresVariantSelection(product)).toBe(false);
+        });
+
+        it('returns false for standard products without variants', () => {
+            const product = {
+                id: 'standard-product',
+                type: { item: true },
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(requiresVariantSelection(product)).toBe(false);
+        });
+
+        it('returns false for products with empty variants array', () => {
+            const product = {
+                id: 'empty-variants',
+                variants: [],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(requiresVariantSelection(product)).toBe(false);
+        });
+
+        it('returns false for variant products even with sibling variants array', () => {
+            const product = {
+                id: '793775370033M',
+                type: { variant: true },
+                variants: [
+                    { productId: '793775370033M', variationValues: { color: 'TURQUSI' } },
+                    { productId: '793775362380M', variationValues: { color: 'REDSI' } },
+                ],
+                variationAttributes: [
+                    {
+                        id: 'color',
+                        name: 'Color',
+                        values: [
+                            { value: 'TURQUSI', name: 'Turquoise' },
+                            { value: 'REDSI', name: 'Red' },
+                        ],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            // This is a variant product (not a master), so it should not require variant selection
+            // even though it has a variants array containing sibling variants
+            expect(requiresVariantSelection(product)).toBe(false);
+        });
+    });
+
+    describe('getPrimaryProductImageUrl', () => {
+        it('returns large image URL when available', () => {
+            const product = {
+                id: 'product-with-images',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [
+                            { disBaseLink: 'https://cdn.example.com/large.jpg', link: 'https://example.com/large.jpg' },
+                        ],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(getPrimaryProductImageUrl(product)).toBe('https://cdn.example.com/large.jpg');
+        });
+
+        it('prefers disBaseLink over link', () => {
+            const product = {
+                id: 'product',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [
+                            { disBaseLink: 'https://cdn.example.com/image.jpg', link: 'https://example.com/image.jpg' },
+                        ],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(getPrimaryProductImageUrl(product)).toBe('https://cdn.example.com/image.jpg');
+        });
+
+        it('falls back to link when disBaseLink is not available', () => {
+            const product = {
+                id: 'product',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [{ link: 'https://example.com/image.jpg' }],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(getPrimaryProductImageUrl(product)).toBe('https://example.com/image.jpg');
+        });
+
+        it('falls back to first available image when large view type not found', () => {
+            const product = {
+                id: 'product',
+                imageGroups: [
+                    {
+                        viewType: 'swatch',
+                        images: [{ link: 'https://example.com/swatch.jpg' }],
+                    },
+                    {
+                        viewType: 'medium',
+                        images: [{ link: 'https://example.com/medium.jpg' }],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            // Falls back to first image group
+            expect(getPrimaryProductImageUrl(product)).toBe('https://example.com/swatch.jpg');
+        });
+
+        it('returns undefined when no images available', () => {
+            const product = {
+                id: 'product-no-images',
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(getPrimaryProductImageUrl(product)).toBeUndefined();
+        });
+
+        it('returns undefined when imageGroups is empty', () => {
+            const product = {
+                id: 'product',
+                imageGroups: [],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(getPrimaryProductImageUrl(product)).toBeUndefined();
+        });
+
+        it('allows custom viewType parameter', () => {
+            const product = {
+                id: 'product',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [{ link: 'https://example.com/large.jpg' }],
+                    },
+                    {
+                        viewType: 'small',
+                        images: [{ link: 'https://example.com/small.jpg' }],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            expect(getPrimaryProductImageUrl(product, 'small')).toBe('https://example.com/small.jpg');
+        });
+
+        it('returns variant-specific image when variationValues provided', () => {
+            const product = {
+                id: 'product-with-color-variants',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [{ link: 'https://example.com/default.jpg' }],
+                    },
+                    {
+                        viewType: 'large',
+                        variationAttributes: [
+                            {
+                                id: 'color',
+                                values: [{ value: 'red' }],
+                            },
+                        ],
+                        images: [{ disBaseLink: 'https://example.com/red.jpg' }],
+                    },
+                    {
+                        viewType: 'large',
+                        variationAttributes: [
+                            {
+                                id: 'color',
+                                values: [{ value: 'blue' }],
+                            },
+                        ],
+                        images: [{ disBaseLink: 'https://example.com/blue.jpg' }],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            // Should return red variant image
+            expect(getPrimaryProductImageUrl(product, 'large', { color: 'red' })).toBe('https://example.com/red.jpg');
+
+            // Should return blue variant image
+            expect(getPrimaryProductImageUrl(product, 'large', { color: 'blue' })).toBe('https://example.com/blue.jpg');
+        });
+
+        it('falls back to default image when variationValues do not match any image group', () => {
+            const product = {
+                id: 'product-with-color-variants',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [{ link: 'https://example.com/default.jpg' }],
+                    },
+                    {
+                        viewType: 'large',
+                        variationAttributes: [
+                            {
+                                id: 'color',
+                                values: [{ value: 'red' }],
+                            },
+                        ],
+                        images: [{ disBaseLink: 'https://example.com/red.jpg' }],
+                    },
+                ],
+            } as unknown as ShopperProducts.schemas['Product'];
+
+            // Request a color that doesn't exist - should fall back to default large image
+            expect(getPrimaryProductImageUrl(product, 'large', { color: 'green' })).toBe(
+                'https://example.com/default.jpg'
+            );
+        });
+    });
+
+    describe('getEnrichedProducts', () => {
+        const mockProductItems: ShopperBasketsV2.schemas['ProductItem'][] = [
+            {
+                itemId: 'item-1',
+                productId: 'product-1',
+                productName: 'Test Product 1',
+                quantity: 2,
+                price: 50,
+                priceAfterItemDiscount: 45,
+                variationValues: { color: 'red', size: 'M' },
+            },
+            {
+                itemId: 'item-2',
+                productId: 'product-2',
+                productName: 'Test Product 2',
+                quantity: 1,
+                price: 100,
+                priceAfterItemDiscount: 100,
+            },
+            {
+                itemId: 'item-3',
+                productId: 'product-3',
+                productName: 'Test Product 3',
+                quantity: 1,
+                price: 75,
+            },
+        ];
+
+        const mockProductMap: Record<string, ShopperProducts.schemas['Product']> = {
+            'product-1': {
+                id: 'product-1',
+                name: 'Full Product 1',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [{ link: 'https://example.com/large1.jpg', alt: 'Large image 1' }],
+                    },
+                    {
+                        viewType: 'small',
+                        variationAttributes: [
+                            {
+                                id: 'color',
+                                values: [{ value: 'red' }],
+                            },
+                        ],
+                        images: [{ link: 'https://example.com/small-red.jpg', alt: 'Small red image' }],
+                    },
+                ],
+                variationAttributes: [
+                    { id: 'color', name: 'Color', values: [{ value: 'red', name: 'Red' }] },
+                    { id: 'size', name: 'Size', values: [{ value: 'M', name: 'Medium' }] },
+                ],
+                variationValues: { color: 'red', size: 'M' },
+            },
+            'product-2': {
+                id: 'product-2',
+                name: 'Full Product 2',
+                imageGroups: [
+                    {
+                        viewType: 'large',
+                        images: [{ link: 'https://example.com/large2.jpg', alt: 'Large image 2' }],
+                    },
+                    {
+                        viewType: 'small',
+                        images: [{ link: 'https://example.com/small2.jpg', alt: 'Small image 2' }],
+                    },
+                ],
+            },
+        };
+
+        beforeEach(() => {
+            vi.clearAllMocks();
+        });
+
+        afterEach(() => {
+            vi.clearAllMocks();
+        });
+
+        it('should return empty array when productItems is undefined', () => {
+            const result = getEnrichedProducts(mockProductMap, undefined);
+
+            expect(result).toEqual([]);
+        });
+
+        it('should return empty array when productItems is empty', () => {
+            const result = getEnrichedProducts(mockProductMap, []);
+
+            expect(result).toEqual([]);
+        });
+
+        it('should return productItems when productMap is undefined', () => {
+            const result = getEnrichedProducts(undefined, mockProductItems);
+
+            expect(result).toEqual(mockProductItems);
+        });
+
+        it('should return productItems when productMap is empty', () => {
+            const result = getEnrichedProducts({}, mockProductItems);
+
+            expect(result).toEqual(mockProductItems);
+        });
+
+        it('should merge basket items with product data', () => {
+            const result = getEnrichedProducts(mockProductMap, mockProductItems);
+
+            expect(result.length).toBe(3);
+
+            // Check that the first item is enriched with product data
+            const firstItem = result[0];
+            expect(firstItem.itemId).toBe('item-1');
+            expect(firstItem.productId).toBe('product-1');
+            expect(firstItem.name).toBe('Full Product 1');
+            expect(firstItem.variationAttributes).toBeDefined();
+            expect(firstItem.variationAttributes).toEqual(mockProductMap['product-1'].variationAttributes);
+        });
+
+        it('should preserve basket-specific data when merging', () => {
+            const result = getEnrichedProducts(mockProductMap, mockProductItems);
+
+            const firstItem = result[0];
+            // Basket-specific data should be preserved
+            expect(firstItem.itemId).toBe('item-1');
+            expect(firstItem.quantity).toBe(2);
+            expect(firstItem.price).toBe(50);
+            expect(firstItem.priceAfterItemDiscount).toBe(45);
+        });
+
+        it('should return basic item when product data is not found', () => {
+            const result = getEnrichedProducts(mockProductMap, mockProductItems);
+
+            // Third item (product-3) should still be the basic basket item
+            const thirdItem = result[2];
+            expect(thirdItem.itemId).toBe('item-3');
+            expect(thirdItem.productName).toBe('Test Product 3');
+            expect(thirdItem.quantity).toBe(1);
+            expect(thirdItem.price).toBe(75);
+        });
+
+        it('should return basic item when productId is missing', () => {
+            const itemsWithoutProductId: ShopperBasketsV2.schemas['ProductItem'][] = [
+                {
+                    itemId: 'item-1',
+                    // productId is missing
+                    productName: 'Test Product',
+                    quantity: 1,
+                    price: 50,
+                },
+            ];
+
+            const result = getEnrichedProducts(mockProductMap, itemsWithoutProductId);
+
+            expect(result.length).toBe(1);
+            expect(result[0].itemId).toBe('item-1');
+            expect(result[0].productName).toBe('Test Product');
+        });
+
+        it('should use item variationValues when available', () => {
+            const result = getEnrichedProducts(mockProductMap, mockProductItems);
+
+            const firstItem = result[0];
+            // Item's variationValues should be preserved
+            expect(firstItem.variationValues).toEqual({ color: 'red', size: 'M' });
+        });
+
+        it('should use product variationValues when item has none', () => {
+            const itemsWithoutVariationValues: ShopperBasketsV2.schemas['ProductItem'][] = [
+                {
+                    itemId: 'item-1',
+                    productId: 'product-1',
+                    productName: 'Test Product 1',
+                    quantity: 1,
+                    price: 50,
+                    // variationValues is missing
+                },
+            ];
+
+            const result = getEnrichedProducts(mockProductMap, itemsWithoutVariationValues);
+
+            const firstItem = result[0];
+            // Should use product's variationValues
+            expect(firstItem.variationValues).toEqual(mockProductMap['product-1'].variationValues);
+        });
+
+        it('should set variationAttributes from product data', () => {
+            const result = getEnrichedProducts(mockProductMap, mockProductItems);
+
+            const firstItem = result[0];
+            expect(firstItem.variationAttributes).toEqual(mockProductMap['product-1'].variationAttributes);
+        });
+
+        it('should use matched image group when variation matches', () => {
+            const result = getEnrichedProducts(mockProductMap, mockProductItems);
+
+            const firstItem = result[0];
+            // Should have imageGroups array with the matched small image group
+            expect(firstItem.imageGroups).toBeDefined();
+            expect(Array.isArray(firstItem.imageGroups)).toBe(true);
+            if (firstItem.imageGroups && firstItem.imageGroups.length > 0) {
+                expect(firstItem.imageGroups[0].viewType).toBe('small');
+            }
+        });
+
+        it('should use all product imageGroups when no variation match found', () => {
+            const result = getEnrichedProducts(mockProductMap, mockProductItems);
+
+            const secondItem = result[1];
+            // Should have all imageGroups from product
+            expect(secondItem.imageGroups).toBeDefined();
+            expect(secondItem.imageGroups).toEqual(mockProductMap['product-2'].imageGroups);
+        });
+
+        it('should handle items with no matching product in map', () => {
+            const itemsWithUnknownProduct: ShopperBasketsV2.schemas['ProductItem'][] = [
+                {
+                    itemId: 'item-unknown',
+                    productId: 'unknown-product',
+                    productName: 'Unknown Product',
+                    quantity: 1,
+                    price: 50,
+                },
+            ];
+
+            const result = getEnrichedProducts(mockProductMap, itemsWithUnknownProduct);
+
+            expect(result.length).toBe(1);
+            expect(result[0].itemId).toBe('item-unknown');
+            expect(result[0].productName).toBe('Unknown Product');
+            // Should not have product data merged
+            expect(result[0].name).toBeUndefined();
+        });
+
+        it('should handle product with no imageGroups', () => {
+            const productMapWithoutImages: Record<string, ShopperProducts.schemas['Product']> = {
+                'product-1': {
+                    id: 'product-1',
+                    name: 'Product Without Images',
+                    // imageGroups is missing
+                },
+            };
+
+            const items: ShopperBasketsV2.schemas['ProductItem'][] = [
+                {
+                    itemId: 'item-1',
+                    productId: 'product-1',
+                    productName: 'Test Product',
+                    quantity: 1,
+                    price: 50,
+                },
+            ];
+
+            const result = getEnrichedProducts(productMapWithoutImages, items);
+
+            expect(result.length).toBe(1);
+            expect(result[0].name).toBe('Product Without Images');
+        });
+
+        it('should handle product with empty imageGroups array', () => {
+            const productMapWithEmptyImages: Record<string, ShopperProducts.schemas['Product']> = {
+                'product-1': {
+                    id: 'product-1',
+                    name: 'Product With Empty Images',
+                    imageGroups: [],
+                },
+            };
+
+            const items: ShopperBasketsV2.schemas['ProductItem'][] = [
+                {
+                    itemId: 'item-1',
+                    productId: 'product-1',
+                    productName: 'Test Product',
+                    quantity: 1,
+                    price: 50,
+                },
+            ];
+
+            const result = getEnrichedProducts(productMapWithEmptyImages, items);
+
+            expect(result.length).toBe(1);
+            expect(result[0].imageGroups).toEqual([]);
+        });
+
+        it('should preserve bonus product properties', () => {
+            const itemsWithBonus: ShopperBasketsV2.schemas['ProductItem'][] = [
+                {
+                    itemId: 'item-1',
+                    productId: 'product-1',
+                    productName: 'Bonus Product',
+                    quantity: 1,
+                    price: 0,
+                    bonusProductLineItem: true,
+                    bonusDiscountLineItemId: 'bonus-discount-1',
+                },
+            ];
+
+            const result = getEnrichedProducts(mockProductMap, itemsWithBonus);
+
+            expect(result.length).toBe(1);
+            expect(result[0].bonusProductLineItem).toBe(true);
+            expect(result[0].bonusDiscountLineItemId).toBe('bonus-discount-1');
         });
     });
 });

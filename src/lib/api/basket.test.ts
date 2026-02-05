@@ -1,10 +1,39 @@
-import { describe, test, expect, vi } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { getBasketCurrency } from './basket';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { getConfig } from '@/config';
+import type { RouterContextProvider } from 'react-router';
+
+vi.mock('@/config');
 
 describe('getBasketCurrency', () => {
-    afterEach(() => {
-        vi.unstubAllEnvs();
+    const mockContext = {} as Readonly<RouterContextProvider>;
+
+    beforeEach(() => {
+        vi.mocked(getConfig).mockReturnValue({
+            commerce: {
+                sites: [
+                    {
+                        defaultCurrency: 'USD',
+                    },
+                ],
+            },
+        } as any);
     });
 
     test('should return basket currency when available', () => {
@@ -13,39 +42,46 @@ describe('getBasketCurrency', () => {
             currency: 'EUR',
         };
 
-        const result = getBasketCurrency(basket);
+        const result = getBasketCurrency(mockContext, basket);
 
         expect(result).toBe('EUR');
     });
 
     test('should return site currency when basket has no currency', () => {
-        vi.stubEnv('PUBLIC__app__site__currency', 'EUR');
+        vi.mocked(getConfig).mockReturnValue({
+            commerce: {
+                sites: [
+                    {
+                        defaultCurrency: 'EUR',
+                    },
+                ],
+            },
+        } as any);
 
         const basket: Partial<ShopperBasketsV2.schemas['Basket']> = {
             basketId: 'test-basket',
             // currency is undefined
         };
 
-        const result = getBasketCurrency(basket);
+        const result = getBasketCurrency(mockContext, basket);
 
         expect(result).toBe('EUR');
     });
 
-    test('should return USD fallback when basket and site have no currency', () => {
-        vi.stubEnv('PUBLIC__app__site__currency', '');
-
+    test('should return USD fallback when basket has no currency', () => {
+        // Uses default config from beforeEach (USD)
         const basket: Partial<ShopperBasketsV2.schemas['Basket']> = {
             basketId: 'test-basket',
             // currency is undefined
         };
 
-        const result = getBasketCurrency(basket);
+        const result = getBasketCurrency(mockContext, basket);
 
         expect(result).toBe('USD');
     });
 
     test('should return USD fallback when basket is undefined', () => {
-        const result = getBasketCurrency(undefined);
+        const result = getBasketCurrency(mockContext, undefined);
 
         expect(result).toBe('USD');
     });
@@ -56,7 +92,7 @@ describe('getBasketCurrency', () => {
             currency: '',
         };
 
-        const result = getBasketCurrency(basket);
+        const result = getBasketCurrency(mockContext, basket);
 
         expect(result).toBe('USD');
     });
@@ -70,7 +106,7 @@ describe('getBasketCurrency', () => {
                 currency,
             };
 
-            const result = getBasketCurrency(basket);
+            const result = getBasketCurrency(mockContext, basket);
 
             expect(result).toBe(currency);
         });

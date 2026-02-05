@@ -1,6 +1,21 @@
-// Testing libraries
-import { describe, test, expect, vi } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 
 const { t } = getTranslation();
@@ -8,24 +23,17 @@ const { t } = getTranslation();
 // Components
 import CartEmpty from './cart-empty';
 
-// Utils
-// Mock the Link component from react-router
-vi.mock('react-router', async (importOriginal) => {
-    const actual = await importOriginal();
-    return {
-        ...actual,
-        Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; [key: string]: unknown }) => (
-            <a href={to} {...props}>
-                {children}
-            </a>
-        ),
-    };
-});
+// Use createMemoryRouter (data mode) instead of MemoryRouter (declarative mode)
+// since the app uses React Router's framework mode which shares core APIs with data mode
+const renderWithRouter = (ui: React.ReactElement) => {
+    const router = createMemoryRouter([{ path: '/', element: ui }], { initialEntries: ['/'] });
+    return render(<RouterProvider router={router} />);
+};
 
 describe('CartEmpty', () => {
     describe('Basic Rendering', () => {
         test('renders empty cart with all required elements', () => {
-            render(<CartEmpty />);
+            renderWithRouter(<CartEmpty />);
 
             // Check for container with correct test id
             const container = screen.getByTestId('sf-cart-empty');
@@ -45,7 +53,7 @@ describe('CartEmpty', () => {
 
     describe('User Registration States', () => {
         test('renders guest message and sign in button for unregistered users', () => {
-            render(<CartEmpty isRegistered={false} />);
+            renderWithRouter(<CartEmpty isRegistered={false} />);
 
             expect(screen.getByText(t('cart:empty.guestMessage'))).toBeInTheDocument();
             expect(screen.getByText(t('cart:empty.signIn'))).toBeInTheDocument();
@@ -56,7 +64,7 @@ describe('CartEmpty', () => {
         });
 
         test('renders registered message and hides sign in button for registered users', () => {
-            render(<CartEmpty isRegistered={true} />);
+            renderWithRouter(<CartEmpty isRegistered={true} />);
 
             expect(screen.getByText(t('cart:empty.registeredMessage'))).toBeInTheDocument();
             expect(screen.queryByText(t('cart:empty.signIn'))).not.toBeInTheDocument();
@@ -69,14 +77,14 @@ describe('CartEmpty', () => {
 
     describe('Action Buttons', () => {
         test('continue shopping button links to home page', () => {
-            render(<CartEmpty />);
+            renderWithRouter(<CartEmpty />);
 
             const continueShoppingLink = screen.getByText(t('cart:empty.continueShopping')).closest('a');
             expect(continueShoppingLink).toHaveAttribute('href', '/');
         });
 
         test('sign in button links to account page with user icon for guest users', () => {
-            render(<CartEmpty isRegistered={false} />);
+            renderWithRouter(<CartEmpty isRegistered={false} />);
 
             const signInLink = screen.getByText(t('cart:empty.signIn')).closest('a');
             expect(signInLink).toHaveAttribute('href', '/account');

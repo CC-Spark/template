@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use client';
 
 // React & Router
@@ -9,11 +24,11 @@ import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 
 // Libs & Utils
 import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/lib/currency';
 import { createProductUrl, getDecoratedVariationAttributes } from '@/lib/product-utils';
 import { getProductBadges } from '@/lib/product-badges';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '@/config';
+import { useCurrency } from '@/providers/currency';
 
 // Components
 import { Button } from '@/components/ui/button';
@@ -21,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { ProductImageContainer } from '@/components/product-image';
 import { SwatchGroup, Swatch } from '@/components/swatch-group';
+import ProductPrice from '../product-price';
 
 interface ProductTileProps extends ComponentProps<'div'> {
     product: ShopperSearch.schemas['ProductSearchHit'];
@@ -70,6 +86,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
         const navigate = useNavigate();
         const config = useConfig();
         const { t } = useTranslation('product');
+        const currency = useCurrency();
         const { hasBadges, badges } = getProductBadges({
             product,
             badgeDetails: config.global.badges,
@@ -129,11 +146,11 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
             <Card
                 ref={ref}
                 className={cn(
-                    'group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md',
+                    'group border rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col-reverse justify-end h-full shadow-sm gap-0 py-0 transition-all duration-200 hover:shadow-md',
                     className
                 )}
                 {...props}>
-                <CardFooter className="px-6 pb-6 pt-6">
+                <CardFooter className="px-6 pb-6 pt-6 flex-1 flex flex-col justify-end">
                     {footerAction !== undefined ? (
                         footerAction
                     ) : (
@@ -143,9 +160,24 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                     )}
                 </CardFooter>
 
-                <CardContent className="px-6 pb-0 pt-0 flex flex-row gap-1.5 items-start justify-start self-stretch relative h-24">
-                    <div className="flex flex-col gap-1.5 items-start justify-start relative flex-1 min-w-0 h-full">
-                        {/* Fixed height for product title - exactly 2 lines */}
+                <CardContent>
+                    <ProductPrice
+                        type="unit"
+                        product={product}
+                        currency={currency}
+                        labelForA11y={product?.productName}
+                        currentPriceProps={{
+                            className: 'text-card-foreground text-right font-semibold text-sm leading-none relative',
+                        }}
+                        listPriceProps={{
+                            className: 'text-muted-foreground text-right text-sm leading-none relative',
+                        }}
+                        className="text-sm mt-2"
+                    />
+                </CardContent>
+
+                <CardContent className="px-6 pb-0 pt-0 flex flex-row gap-1.5 items-start justify-start self-stretch relative h-16">
+                    <div className="flex flex-col gap-1 items-start justify-start relative flex-1 min-w-0 h-full">
                         <div className="h-10 flex items-start">
                             <Link
                                 to={createProductUrl(product.productId)}
@@ -159,7 +191,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                         </div>
 
                         {/* Fixed height for variant selector area */}
-                        <div className="h-8 flex items-center">
+                        <div className="h-8 flex items-end">
                             {/* Attribute Swatch Group - Configurable */}
                             {variationAttributes
                                 ?.filter(({ id }) => PRODUCT_TILE_SELECTABLE_ATTRIBUTE_ID === id)
@@ -246,22 +278,18 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                                 ))}
                             </div>
                         )}
-
-                        <div className="text-card-foreground text-right font-semibold text-base leading-none relative">
-                            {formatCurrency(product.price || 0)}
-                        </div>
                     </div>
                 </CardContent>
 
-                <CardHeader className="py-8 px-6 flex flex-col gap-4 items-center justify-center flex-1">
-                    <div className="bg-background rounded-xl overflow-hidden flex items-center justify-center">
+                <CardHeader className="py-8 px-6 flex flex-col gap-4 items-center justify-center">
+                    <div className="bg-background rounded-xl overflow-hidden flex items-center justify-center w-full">
                         <ProductImageContainer
                             product={product}
                             selectedColorValue={
                                 PRODUCT_TILE_SELECTABLE_ATTRIBUTE_ID === 'color' ? selectedAttributeValue : null
                             }
                             imgAspectRatio={effectiveImgAspectRatio}
-                            className="w-full !aspect-auto [&_img]:!object-contain [&_img]:!h-auto [&_img]:!max-w-full [&_img]:!mx-auto"
+                            className="w-full aspect-square [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
                             handleProductClick={handleProductClick}
                         />
                     </div>

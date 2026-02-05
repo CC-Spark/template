@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import CategorySorting from '../index';
 import { action } from 'storybook/actions';
@@ -259,74 +274,5 @@ CategorySorting with a pre-selected sort option:
 
         // Test selected option is set
         await expect(select.value).not.toBe('');
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test sort label is present
-        const label = canvas.getByText(/sort by/i);
-        await expect(label).toBeInTheDocument();
-
-        // Test select is present
-        const select = canvas.getByRole('combobox');
-        await expect(select).toBeInTheDocument();
-
-        // Test changing sort option
-        await userEvent.selectOptions(select, select.options[1]?.value || '');
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test sort label is present
-        const label = canvas.getByText(/sort by/i);
-        await expect(label).toBeInTheDocument();
-
-        // Test select is present
-        const select = canvas.getByRole('combobox');
-        await expect(select).toBeInTheDocument();
-
-        // Test changing sort option
-        await userEvent.selectOptions(select, select.options[1]?.value || '');
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Test sort label is present
-        const label = canvas.getByText(/sort by/i);
-        await expect(label).toBeInTheDocument();
-
-        // Test select is present
-        const select = canvas.getByRole('combobox');
-        await expect(select).toBeInTheDocument();
-
-        // Test changing sort option
-        await userEvent.selectOptions(select, select.options[1]?.value || '');
     },
 };

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from 'storybook/test';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
@@ -283,20 +298,20 @@ function MockCheckoutFormPage({
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {t('checkout:shippingAddress.firstNameLabel')}
+                                                    {t('checkout:addressForm.firstNameLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={t('checkout:shippingAddress.firstNamePlaceholder')}
+                                                    placeholder={t('checkout:addressForm.firstNamePlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.firstName || ''}
                                                     disabled={isLoading}
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {t('checkout:shippingAddress.lastNameLabel')}
+                                                    {t('checkout:addressForm.lastNameLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={t('checkout:shippingAddress.lastNamePlaceholder')}
+                                                    placeholder={t('checkout:addressForm.lastNamePlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.lastName || ''}
                                                     disabled={isLoading}
                                                 />
@@ -305,10 +320,10 @@ function MockCheckoutFormPage({
 
                                         <div>
                                             <label className="block text-sm font-medium text-foreground mb-2">
-                                                {t('checkout:shippingAddress.addressLabel')}
+                                                {t('checkout:addressForm.addressLabel')}
                                             </label>
                                             <Input
-                                                placeholder={t('checkout:shippingAddress.addressPlaceholder')}
+                                                placeholder={t('checkout:addressForm.addressPlaceholder')}
                                                 defaultValue={cart.shipments?.[0]?.shippingAddress?.address1 || ''}
                                                 disabled={isLoading}
                                             />
@@ -316,10 +331,10 @@ function MockCheckoutFormPage({
 
                                         <div>
                                             <label className="block text-sm font-medium text-foreground mb-2">
-                                                {t('checkout:shippingAddress.address2Label')}
+                                                {t('checkout:addressForm.address2Label')}
                                             </label>
                                             <Input
-                                                placeholder={t('checkout:shippingAddress.address2Placeholder')}
+                                                placeholder={t('checkout:addressForm.address2Placeholder')}
                                                 defaultValue={cart.shipments?.[0]?.shippingAddress?.address2 || ''}
                                                 disabled={isLoading}
                                             />
@@ -328,30 +343,30 @@ function MockCheckoutFormPage({
                                         <div className="grid grid-cols-3 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {t('checkout:shippingAddress.cityLabel')}
+                                                    {t('checkout:addressForm.cityLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={t('checkout:shippingAddress.cityPlaceholder')}
+                                                    placeholder={t('checkout:addressForm.cityPlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.city || ''}
                                                     disabled={isLoading}
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {t('checkout:shippingAddress.stateLabel')}
+                                                    {t('checkout:addressForm.stateLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={t('checkout:shippingAddress.statePlaceholder')}
+                                                    placeholder={t('checkout:addressForm.statePlaceholder')}
                                                     defaultValue={cart.shipments?.[0]?.shippingAddress?.stateCode || ''}
                                                     disabled={isLoading}
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                                    {t('checkout:shippingAddress.zipLabel')}
+                                                    {t('checkout:addressForm.zipLabel')}
                                                 </label>
                                                 <Input
-                                                    placeholder={t('checkout:shippingAddress.zipPlaceholder')}
+                                                    placeholder={t('checkout:addressForm.zipPlaceholder')}
                                                     defaultValue={
                                                         cart.shipments?.[0]?.shippingAddress?.postalCode || ''
                                                     }
@@ -362,11 +377,11 @@ function MockCheckoutFormPage({
 
                                         <div>
                                             <label className="block text-sm font-medium text-foreground mb-2">
-                                                {t('checkout:shippingAddress.phoneLabel')}
+                                                {t('checkout:addressForm.phoneLabel')}
                                             </label>
                                             <Input
                                                 type="tel"
-                                                placeholder={t('checkout:shippingAddress.phonePlaceholder')}
+                                                placeholder={t('checkout:addressForm.phonePlaceholder')}
                                                 defaultValue={cart.shipments?.[0]?.shippingAddress?.phone || ''}
                                                 disabled={isLoading}
                                             />

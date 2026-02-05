@@ -1,3 +1,19 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* c8 ignore start */
 /* istanbul ignore file */
 // This file is excluded from coverage as it primarily handles React Hook Form integration,
@@ -73,6 +89,7 @@ export const CustomerAddressForm = ({
     onSuccess,
     onError,
     onCancel,
+    isFirstAddress = false,
 }: CustomerAddressFormProps) => {
     const { t } = useTranslation('account');
     const schema = useMemo(() => createCustomerAddressFormSchema(t), [t]);
@@ -166,20 +183,37 @@ export const CustomerAddressForm = ({
      * @param data - The validated form data containing address information
      */
     const handleSubmit = form.handleSubmit((data) => {
+        // Auto-generate addressId if not provided (for new addresses)
+        // Use existing addressId for edits, or generate from name for new addresses
+        const addressId = data.addressId || `${data.firstName}_${data.lastName}_${Date.now()}`.replace(/\s+/g, '_');
+
+        // If this is the first address and it's a new address (no initialData), set preferred to true
+        const shouldSetPreferred = isFirstAddress && !initialData;
+
         // Prepare address data in the format expected by Commerce SDK
-        const addressData = {
-            addressId: data.addressId,
+        // Only include optional fields if they have values to prevent "undefined" string serialization
+        const addressData: Record<string, string | boolean> = {
+            addressId,
             firstName: data.firstName,
             lastName: data.lastName,
-            phone: data.phone || undefined,
             countryCode: data.countryCode,
             address1: data.address1,
-            address2: data.address2 || undefined,
             city: data.city,
-            stateCode: data.stateCode || undefined,
             postalCode: data.postalCode,
-            preferred: Boolean(data.preferred),
+            preferred: shouldSetPreferred ? true : Boolean(data.preferred),
         };
+
+        // Only include optional fields if they have truthy values
+        // This prevents undefined values from being serialized as "undefined" strings in FormData
+        if (data.phone) {
+            addressData.phone = data.phone;
+        }
+        if (data.address2) {
+            addressData.address2 = data.address2;
+        }
+        if (data.stateCode) {
+            addressData.stateCode = data.stateCode;
+        }
 
         // Submit the update request - response will be handled by parent component's fetcher effect
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -200,7 +234,7 @@ export const CustomerAddressForm = ({
     const isSubmitting = updateFetcher.state === FETCHER_STATES.SUBMITTING;
 
     return (
-        <div className="w-full relative p-4">
+        <div className="w-full relative">
             <Form {...form}>
                 <form onSubmit={(e) => void handleSubmit(e)} data-testid="customer-address-form">
                     {inlineSuccessMessage && (
@@ -214,14 +248,11 @@ export const CustomerAddressForm = ({
                         </div>
                     )}
                     <CustomerAddressFields form={form} />
+                    {/* Separator */}
+                    <hr className="border-border mt-4" />
+
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-2">
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground px-6">
-                            {isSubmitting ? t('addressForm.savingButton') : t('addressForm.saveButton')}
-                        </Button>
+                    <div className="flex gap-3 pt-4 justify-end">
                         {onCancel && (
                             <Button
                                 type="button"
@@ -232,6 +263,12 @@ export const CustomerAddressForm = ({
                                 {t('addressForm.cancelButton')}
                             </Button>
                         )}
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground px-6">
+                            {isSubmitting ? t('addressForm.savingButton') : t('addressForm.saveButton')}
+                        </Button>
                     </div>
                 </form>
             </Form>

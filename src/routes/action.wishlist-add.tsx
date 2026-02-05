@@ -1,16 +1,26 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 import { type ActionFunctionArgs, data } from 'react-router';
 import { type ShopperCustomers, ApiError } from '@salesforce/storefront-next-runtime/scapi';
-import { getAuth } from '@/middlewares/auth.client';
+import { getAuth } from '@/middlewares/auth.server';
 import { extractStatusCode } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-import { isRegisteredCustomer } from '@/lib/api/customer';
+import { isRegisteredCustomer } from '@/lib/api/customer.server';
 import { getTranslation } from '@/lib/i18next';
+import { getWishlist } from '@/lib/api/wishlist';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
@@ -32,18 +42,27 @@ async function getOrCreateWishlist(
     const clients = createApiClients(context);
 
     try {
-        // Try to get the default wishlist (product list type 'wish_list')
-        const { data: productLists } = await clients.shopperCustomers.getCustomerProductLists({
-            params: {
-                path: { customerId },
-            },
-        });
-
-        // Find the default wishlist
-        const wishlist = productLists?.data?.find((list) => list.type === 'wish_list');
+        // Try to get the default wishlist using getWishlist
+        const { wishlist, id: listId } = await getWishlist(context, customerId);
 
         if (wishlist) {
-            return wishlist;
+            // Commerce Cloud may take time to index wishlists. If the wishlist exists but
+            // doesn't have a listId yet, wait and retry once to handle indexing delays.
+            // This ensures the function contract: always return a wishlist with valid listId.
+            if (listId) {
+                return wishlist; // Has valid listId
+            }
+
+            // Retry logic: wait and fetch again (Commerce Cloud indexing delay)
+            await new Promise((resolve) => setTimeout(resolve, WISHLIST_RETRY_DELAY_MS));
+
+            const { wishlist: retryWishlist, id: retryListId } = await getWishlist(context, customerId);
+
+            if (retryWishlist && retryListId) {
+                return retryWishlist;
+            }
+
+            throw new Error(t('account:wishlist.unableToRetrieveId'));
         }
 
         // Create a new wishlist if it doesn't exist
@@ -64,16 +83,8 @@ async function getOrCreateWishlist(
         // This is necessary because Commerce Cloud may not return listId in the create response
         await new Promise((resolve) => setTimeout(resolve, WISHLIST_CREATION_DELAY_MS));
 
-        // Fetch the newly created wishlist
-        const { data: productListsResponse } = await clients.shopperCustomers.getCustomerProductLists({
-            params: {
-                path: { customerId },
-            },
-        });
-
-        const createdWishlist = productListsResponse?.data?.find((list) => list.type === 'wish_list');
-        // Commerce SDK might return 'id' instead of 'listId' - check both
-        const createdListId = createdWishlist?.listId || createdWishlist?.id;
+        // Fetch the newly created wishlist using getWishlist
+        const { wishlist: createdWishlist, id: createdListId } = await getWishlist(context, customerId);
 
         if (!createdWishlist || !createdListId) {
             throw new Error(t('account:wishlist.failedToCreate'));
@@ -107,6 +118,7 @@ async function addToWishlist(
     alreadyInWishlist?: boolean;
 }> {
     const { t } = getTranslation();
+
     // Check if user is authenticated as registered customer
     if (!isRegisteredCustomer(context)) {
         return {
@@ -128,247 +140,50 @@ async function addToWishlist(
         const clients = createApiClients(context);
 
         // Get or create the wishlist
+        // getOrCreateWishlist guarantees a valid listId or throws an error
         const wishlist = await getOrCreateWishlist(context, customerId);
 
         // Commerce SDK might return 'id' instead of 'listId' - use 'id' if 'listId' is not available
-        const listId = wishlist?.listId || wishlist?.id;
+        // @ts-expect-error - listId may exist at runtime but is not in type definitions
+        const listId = wishlist.listId || wishlist.id;
 
-        // Ensure we have a valid listId
-        if (!wishlist || !listId) {
-            // Try one more time to get the wishlist after a longer delay
-            try {
-                await new Promise((resolve) => setTimeout(resolve, WISHLIST_RETRY_DELAY_MS));
-                const { data: retryProductLists } = await clients.shopperCustomers.getCustomerProductLists({
-                    params: {
-                        path: { customerId },
-                    },
-                });
-                const retryWishlist = retryProductLists?.data?.find((list) => list.type === 'wish_list');
-                const retryListId = retryWishlist?.id;
-
-                if (retryWishlist && retryListId) {
-                    // Use the retry wishlist instead
-                    const { data: fullWishlist } = await clients.shopperCustomers.getCustomerProductList({
-                        params: {
-                            path: {
-                                customerId,
-                                listId: retryListId,
-                            },
-                        },
-                    });
-
-                    const existingItem = fullWishlist.customerProductListItems?.find(
-                        (item: CustomerProductListItem) => item.productId === productId
-                    );
-                    if (existingItem) {
-                        return {
-                            success: true,
-                            productList: fullWishlist,
-                            alreadyInWishlist: true,
-                        };
-                    }
-
-                    // Add the product to the wishlist using createCustomerProductListItem
-                    try {
-                        await clients.shopperCustomers.createCustomerProductListItem({
-                            params: {
-                                path: {
-                                    customerId,
-                                    listId: retryListId,
-                                },
-                            },
-                            body: {
-                                productId,
-                                quantity: 1,
-                                type: 'product',
-                                public: false, // Required by API
-                                priority: 1, // Required by API
-                            },
-                        });
-                    } catch (createError) {
-                        let responseMessage: string | undefined;
-                        let status_code: string | undefined;
-
-                        if (createError instanceof ApiError) {
-                            responseMessage = createError.body?.message || createError.message;
-                            status_code = String(createError.status);
-                        } else {
-                            responseMessage = createError instanceof Error ? createError.message : String(createError);
-                            status_code = extractStatusCode(createError);
-                        }
-
-                        // Check if duplicate - if so, return success with alreadyInWishlist
-                        if (
-                            status_code === '400' &&
-                            (responseMessage?.toLowerCase().includes('already') ||
-                                responseMessage?.toLowerCase().includes('duplicate'))
-                        ) {
-                            const { data: duplicateCheckWishlist } =
-                                await clients.shopperCustomers.getCustomerProductList({
-                                    params: {
-                                        path: {
-                                            customerId,
-                                            listId: retryListId,
-                                        },
-                                    },
-                                });
-                            return {
-                                success: true,
-                                productList: duplicateCheckWishlist,
-                                alreadyInWishlist: true,
-                            };
-                        }
-                        throw createError;
-                    }
-
-                    // Fetch the updated wishlist to return it
-                    const { data: updatedList } = await clients.shopperCustomers.getCustomerProductList({
-                        params: {
-                            path: {
-                                customerId,
-                                listId: retryListId,
-                            },
-                        },
-                    });
-
-                    return {
-                        success: true,
-                        productList: updatedList,
-                        alreadyInWishlist: false,
-                    };
-                }
-            } catch {
-                // Retry failed, fall through to error
-            }
-
+        // Check if product is already in the wishlist using items from getOrCreateWishlist
+        // The wishlist object already contains all items - no additional API call needed
+        // @ts-expect-error - customerProductListItems may exist at runtime but is not in type definitions
+        const wishlistItems = wishlist.customerProductListItems || wishlist.items || [];
+        const existingItem = wishlistItems.find((item: CustomerProductListItem) => item.productId === productId);
+        if (existingItem) {
             return {
-                success: false,
-                error: t('account:wishlist.unableToRetrieveId'),
+                success: true, // Still success, just informational
+                productList: wishlist,
+                alreadyInWishlist: true,
             };
         }
 
-        // Check if product is already in the wishlist
-        const { data: fullWishlist } = await clients.shopperCustomers.getCustomerProductList({
+        // Add the product to the wishlist using createCustomerProductListItem
+        await clients.shopperCustomers.createCustomerProductListItem({
             params: {
                 path: {
                     customerId,
                     listId,
                 },
             },
+            body: {
+                productId,
+                quantity: 1,
+                type: 'product',
+                public: false, // Required by API
+                priority: 1, // Required by API
+            },
         });
 
-        const existingItem = fullWishlist.customerProductListItems?.find(
-            (item: CustomerProductListItem) => item.productId === productId
-        );
-        if (existingItem) {
-            return {
-                success: true, // Still success, just informational
-                productList: fullWishlist,
-                alreadyInWishlist: true,
-            };
-        }
-
-        // Add the product to the wishlist using createCustomerProductListItem
-        let updatedList: CustomerProductList | undefined;
-
-        try {
-            await clients.shopperCustomers.createCustomerProductListItem({
-                params: {
-                    path: {
-                        customerId,
-                        listId,
-                    },
-                },
-                body: {
-                    productId,
-                    quantity: 1,
-                    type: 'product',
-                    public: false, // Required by API
-                    priority: 1, // Required by API
-                },
-            });
-
-            // After successful creation, check if there are now duplicates
-            // (Commerce API might allow duplicates without throwing an error)
-            const { data: refetchedList } = await clients.shopperCustomers.getCustomerProductList({
-                params: {
-                    path: {
-                        customerId,
-                        listId,
-                    },
-                },
-            });
-            updatedList = refetchedList;
-
-            // Check if there are multiple items with the same productId
-            const itemsWithSameProductId =
-                updatedList.customerProductListItems?.filter(
-                    (item: CustomerProductListItem) => item.productId === productId
-                ) || [];
-
-            if (itemsWithSameProductId.length > 1) {
-                // Product was already in wishlist, now we have a duplicate
-                return {
-                    success: true,
-                    productList: updatedList,
-                    alreadyInWishlist: true,
-                };
-            }
-        } catch (createError) {
-            let responseMessage: string | undefined;
-            let status_code: string | undefined;
-
-            if (createError instanceof ApiError) {
-                responseMessage = createError.body?.message || createError.message;
-                status_code = String(createError.status);
-            } else {
-                responseMessage = createError instanceof Error ? createError.message : String(createError);
-                status_code = extractStatusCode(createError);
-            }
-
-            // Check if it's a duplicate error
-            if (
-                status_code === '400' &&
-                (responseMessage?.toLowerCase().includes('already') ||
-                    responseMessage?.toLowerCase().includes('duplicate') ||
-                    responseMessage?.toLowerCase().includes('exists'))
-            ) {
-                // Product already in wishlist - return success with alreadyInWishlist flag
-                const { data: duplicateWishlist } = await clients.shopperCustomers.getCustomerProductList({
-                    params: {
-                        path: {
-                            customerId,
-                            listId,
-                        },
-                    },
-                });
-                return {
-                    success: true,
-                    productList: duplicateWishlist,
-                    alreadyInWishlist: true,
-                };
-            }
-
-            throw createError;
-        }
-
-        // If we reach here and didn't return earlier, the item was added successfully (no duplicate)
-        // Fetch the updated wishlist to return it (already fetched in the try block above)
-        if (!updatedList) {
-            const { data: fetchedList } = await clients.shopperCustomers.getCustomerProductList({
-                params: {
-                    path: {
-                        customerId,
-                        listId,
-                    },
-                },
-            });
-            updatedList = fetchedList;
-        }
+        // Fetch the updated wishlist using getWishlist
+        // Since we just successfully added to it, the wishlist must exist
+        const { wishlist: updatedList } = await getWishlist(context, customerId, listId);
 
         return {
             success: true,
-            productList: updatedList,
+            productList: updatedList ?? undefined,
             alreadyInWishlist: false,
         };
     } catch (error) {
@@ -376,7 +191,7 @@ async function addToWishlist(
         let status_code: string | undefined;
 
         if (error instanceof ApiError) {
-            responseMessage = error.body?.message || error.message;
+            responseMessage = (error.body?.message as string | undefined) || error.message;
             status_code = String(error.status);
         } else {
             responseMessage = error instanceof Error ? error.message : String(error);
@@ -391,40 +206,6 @@ async function addToWishlist(
             };
         }
 
-        // Check if error is due to duplicate item (common API patterns)
-        const isDuplicateError =
-            status_code === '400' &&
-            (responseMessage?.toLowerCase().includes('already exists') ||
-                responseMessage?.toLowerCase().includes('duplicate') ||
-                responseMessage?.toLowerCase().includes('already in'));
-
-        if (isDuplicateError && session.customer_id) {
-            // Try to get the current wishlist to return it
-            try {
-                const customerId = session.customer_id;
-                const clients = createApiClients(context);
-                const wishlist = await getOrCreateWishlist(context, customerId);
-                const listId = wishlist.listId || wishlist.id;
-                if (listId) {
-                    const { data: duplicateCheckList } = await clients.shopperCustomers.getCustomerProductList({
-                        params: {
-                            path: {
-                                customerId,
-                                listId,
-                            },
-                        },
-                    });
-                    return {
-                        success: true,
-                        productList: duplicateCheckList,
-                        alreadyInWishlist: true,
-                    };
-                }
-            } catch {
-                // Fall through to error case
-            }
-        }
-
         return {
             success: false,
             error: responseMessage || t('product:failedToAddToWishlist'),
@@ -433,9 +214,9 @@ async function addToWishlist(
 }
 
 /**
- * Client action to add a product to the wishlist
+ * Server action to add a product to the wishlist
  */
-export async function clientAction({ request, context }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 
     if (request.method !== 'POST') {
@@ -464,7 +245,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         let status_code: string | undefined;
 
         if (error instanceof ApiError) {
-            responseMessage = error.body?.message || error.message;
+            responseMessage = (error.body?.message as string | undefined) || error.message;
             status_code = String(error.status);
         } else {
             responseMessage = error instanceof Error ? error.message : String(error);

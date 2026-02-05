@@ -1,19 +1,39 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { createApiClients } from '@/lib/api-clients';
 import type { RouterContextProvider } from 'react-router';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
+import { getConfig } from '@/config';
 
 /**
  * Get the appropriate currency for basket calculations
  * Priority: basket.currency > site default > USD fallback
  */
-export function getBasketCurrency(basket: ShopperBasketsV2.schemas['Basket'] | undefined): string {
+export function getBasketCurrency(
+    context: Readonly<RouterContextProvider>,
+    basket: ShopperBasketsV2.schemas['Basket'] | undefined
+): string {
     // 1. Use basket's current currency if available
     if (basket?.currency) {
         return basket.currency;
     }
+    const appConfig = getConfig(context);
 
-    // 2. Use site configuration currency or 3. Fallback to USD for backward compatibility
-    return import.meta.env.PUBLIC__app__site__currency || 'USD';
+    // fallback value
+    return appConfig.commerce.sites[0].defaultCurrency;
 }
 
 /**
@@ -93,17 +113,20 @@ export async function calculateBasket(
  * - Handles case where registered user has no active basket (creates one)
  * - Automatically finds the guest basket using the session's usid
  *
+ * Note: As of ShopperBasketsV2 API v2.3.0, mergeBasket may return 204 (No Content) if neither shopper had an active basket.
+ * In this case, we return undefined and defer basket creation until an item is added.
+ *
  * @param context - Router context for authentication
- * @returns The merged basket
+ * @returns The merged basket, or undefined if neither shopper had a basket
  */
 export async function mergeBasket(
     context: Readonly<RouterContextProvider>
-): Promise<ShopperBasketsV2.schemas['Basket']> {
+): Promise<ShopperBasketsV2.schemas['Basket'] | undefined> {
     const clients = createApiClients(context);
     const { data: basket } = await clients.shopperBasketsV2.transferBasket({
         params: {
             query: {
-                overrideExisting: true,
+                merge: true,
             },
         },
     });

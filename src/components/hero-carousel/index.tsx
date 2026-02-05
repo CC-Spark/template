@@ -1,13 +1,30 @@
-import React, { type ReactElement, useState, useEffect, useMemo, useCallback, use } from 'react';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import React, { type ReactElement, useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
+import withSuspense from '@/components/with-suspense';
+import HeroCarouselSkeleton from './skeleton';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
-import heroImage from '/images/hero-cube.png';
+import heroImage from '/images/hero-cube.webp';
 
 @Component('heroCarousel', {
     name: 'Hero Carousel',
@@ -96,28 +113,29 @@ interface HeroCarouselProps {
     autoPlayInterval?: number;
     showDots?: boolean;
     showNavigation?: boolean;
-    /** Page data containing regions from Page Designer */
-    page?: Promise<ShopperExperience.schemas['Page']>;
+    /** Component data containing regions from Page Designer */
+    component?: ShopperExperience.schemas['Component'];
 }
 
-export default function HeroCarousel({
+export function HeroCarouselPlain({
     slides: propSlides = heroSlides,
     autoPlay = true,
     image,
     autoPlayInterval = 5000,
     showDots = true,
     showNavigation = true,
-    page: pagePromise,
+    component,
 }: HeroCarouselProps): ReactElement {
-    // Unwrap page promise if provided
-    const page = pagePromise ? use(pagePromise) : undefined;
-
     // Convert page designer heroes to slides format
-    const slidesFromPage = useMemo(() => {
-        if (!page?.regions) return [];
+    const slidesFromComponent = useMemo(() => {
+        if (!Array.isArray(component?.regions)) {
+            return [];
+        }
 
-        const slidesRegion = page.regions.find((r) => r.id === 'slides');
-        if (!slidesRegion?.components) return [];
+        const slidesRegion = component.regions.find((r) => r.id === 'slides');
+        if (!Array.isArray(slidesRegion?.components)) {
+            return [];
+        }
 
         return slidesRegion.components
             .filter((comp) => comp.id && comp.typeId)
@@ -134,10 +152,10 @@ export default function HeroCarousel({
                     ctaLink: data?.ctaLink as string | undefined,
                 };
             });
-    }, [page]);
+    }, [component]);
 
-    // Use page data slides if available, otherwise use prop slides
-    const slides = slidesFromPage.length > 0 ? slidesFromPage : propSlides;
+    // Use component data slides if available, otherwise use prop slides
+    const slides = slidesFromComponent.length ? slidesFromComponent : propSlides;
     const [currentSlide, setCurrentSlide] = useState(0);
     const [api, setApi] = useState<CarouselApi | null>(null);
     const [isPaused, setIsPaused] = useState(false);
@@ -220,7 +238,7 @@ export default function HeroCarousel({
 
     const emptyState = useMemo(
         () => (
-            <div className="relative w-full max-h-[70vh] flex items-center justify-center bg-muted">
+            <div className="relative w-full h-[100vh] md:h-[85vh] flex items-center justify-center bg-muted">
                 <p className="text-muted-foreground text-lg">No slides available</p>
             </div>
         ),
@@ -233,7 +251,7 @@ export default function HeroCarousel({
 
     return (
         <div
-            className="relative w-full max-h-[70vh]"
+            className="relative w-full h-[100vh] md:h-[85vh] overflow-hidden"
             role="region"
             aria-label={`Hero carousel with ${slides.length} slides`}
             onFocus={handleFocus}
@@ -245,13 +263,15 @@ export default function HeroCarousel({
             <Carousel
                 setApi={setApi}
                 opts={{
-                    align: 'start',
+                    align: 'center',
                     loop: true,
+                    containScroll: 'trimSnaps',
                 }}
                 className="w-full h-full">
-                <CarouselContent className="-ml-0 h-full">
+                {/* Passing -ml-4 to the CarouselContent to prevent CLS issues during hydration */}
+                <CarouselContent>
                     {slides.map((slide) => (
-                        <CarouselItem key={slide.id} className="pl-0 h-full">
+                        <CarouselItem key={slide.id}>
                             <HeroSlideContent slide={image ? { ...slide, imageUrl: image.url } : slide} />
                         </CarouselItem>
                     ))}
@@ -276,7 +296,7 @@ export default function HeroCarousel({
             )}
 
             {showNavigation && slides.length > 1 && (
-                <div className="absolute bottom-6 right-6 z-20 hidden md:flex items-center space-x-2">
+                <div className="absolute bottom-6 right-6 z-30 flex gap-2">
                     <NavigationButton
                         direction="prev"
                         onClick={() => api?.scrollPrev()}
@@ -315,10 +335,8 @@ const DotButton = React.memo(
     }): ReactElement => (
         <button
             onClick={() => onClick(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                isActive
-                    ? 'bg-white dark:bg-black scale-125'
-                    : 'bg-white/50 dark:bg-black/50 hover:bg-white/75 dark:hover:bg-black/75'
+            className={`transition-all duration-300 ${
+                isActive ? 'w-8 h-2 bg-foreground' : 'w-2 h-2 bg-foreground/50 hover:bg-foreground/75'
             }`}
             role="tab"
             aria-selected={isActive}
@@ -351,9 +369,9 @@ const NavigationButton = React.memo(
             <button
                 onClick={onClick}
                 disabled={disabled}
-                className="w-10 h-10 rounded-full bg-background border border-border hover:bg-accent flex items-center justify-center transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-3 bg-foreground/10 hover:bg-foreground/20 backdrop-blur-sm transition-all focus:outline-none focus:ring-2 focus:ring-foreground/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={`${label} slide (${currentSlide} of ${totalSlides})`}>
-                <Icon className="h-4 w-4 text-foreground" />
+                <Icon className="w-6 h-6 text-foreground" strokeWidth={2} />
             </button>
         );
     }
@@ -363,33 +381,34 @@ NavigationButton.displayName = 'NavigationButton';
 
 const HeroSlideContent = React.memo(
     ({ slide }: { slide: HeroSlide }): ReactElement => (
-        <div className="relative w-full h-full min-h-[300px] max-h-[70vh] overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden">
             <img
                 src={slide.imageUrl}
                 alt={slide.imageAlt}
                 fetchPriority="high"
-                className="w-full h-full min-h-[300px] object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
             />
 
-            {/* Dark overlay for better text contrast */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent z-[5]" />
-
-            <div className="absolute inset-0 z-10 flex items-center">
+            <div className="absolute inset-0 z-10 flex items-center justify-center">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-2xl" data-theme="light">
+                    <div className="max-w-2xl mx-auto text-center" data-theme="light">
                         <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 md:mb-6 leading-none tracking-tight">
                             {slide.title}
                         </h1>
 
                         {slide.subtitle && (
-                            <p className="text-sm sm:text-base md:text-lg lg:text-xl font-normal text-white/90 mb-4 sm:mb-6 md:mb-8 leading-none tracking-wide drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                            <p className="text-sm sm:text-base md:text-lg lg:text-xl font-normal text-muted-foreground mb-4 sm:mb-6 md:mb-8 leading-none tracking-wide">
                                 {slide.subtitle}
                             </p>
                         )}
 
-                        <Button asChild className="text-sm sm:text-base md:text-lg lg:text-xl p-3 sm:p-4 md:p-5 lg:p-6">
-                            <Link to={slide.ctaLink || '#'}>{slide.ctaText || 'Learn More'}</Link>
-                        </Button>
+                        <div className="flex justify-center">
+                            <Button
+                                asChild
+                                className="text-sm sm:text-base md:text-lg lg:text-xl p-3 sm:p-4 md:p-5 lg:p-6">
+                                <Link to={slide.ctaLink || '#'}>{slide.ctaText || 'Learn More'}</Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -398,3 +417,47 @@ const HeroSlideContent = React.memo(
 );
 
 HeroSlideContent.displayName = 'HeroSlideContent';
+
+/**
+ * HeroCarouselWithSuspense component provides a HeroCarousel wrapped with a Suspense boundary.
+ *
+ * This component automatically shows the HeroCarouselSkeleton as a fallback while the
+ * HeroCarousel is loading, providing better user experience during data fetching.
+ *
+ * When used with a `resolve` prop, the resolved data should be an object containing
+ * slides data that will be passed as props to the HeroCarousel component.
+ *
+ * @example
+ * ```tsx
+ * // Basic usage with Suspense boundary
+ * <HeroCarouselWithSuspense
+ *   slides={heroSlides}
+ *   autoPlay={true}
+ *   showDots={true}
+ * />
+ *
+ * // Usage with promise resolution as a prop
+ * <HeroCarouselWithSuspense
+ *   resolve={heroDataPromise}
+ *   autoPlay={true}
+ * />
+ *
+ * // Usage in a page with streaming
+ * function HomePage() {
+ *   return (
+ *     <div>
+ *       <HeroCarouselWithSuspense resolve={heroDataPromise} />
+ *       <ProductCarouselWithSuspense resolve={productsPromise} />
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
+const HeroCarousel = withSuspense(HeroCarouselPlain, {
+    fallback: (props) => <HeroCarouselSkeleton {...props} />,
+});
+
+export default HeroCarousel;
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { HeroCarouselSkeleton, HeroCarouselSkeleton as fallback };

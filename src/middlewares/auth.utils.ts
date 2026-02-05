@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { createContext, type RouterContextProvider } from 'react-router';
 import type { ShopperLogin } from '@salesforce/storefront-next-runtime/scapi';
 import type { SessionData as AuthData } from '@/lib/api/types';
@@ -22,6 +37,7 @@ export const COOKIE_REFRESH_TOKEN_REGISTERED = 'cc-nx'; // Registered user refre
 export const COOKIE_ACCESS_TOKEN = 'cc-at'; // Access token
 export const COOKIE_USID = 'usid'; // User session ID
 export const COOKIE_CUSTOMER_ID = 'customerId'; // Customer ID
+export const COOKIE_ENC_USER_ID = 'encUserId'; // Encoded user ID
 export const COOKIE_IDP_ACCESS_TOKEN = 'cc-idp-at'; // IDP access token (for social login)
 export const COOKIE_CODE_VERIFIER = 'cc-cv'; // OAuth2 PKCE code verifier (server-only, short-lived)
 export const COOKIE_TRACKING_CONSENT = 'dw_dnt'; // Tracking consent preference (cookie value matches TrackingConsent enum)
@@ -123,7 +139,8 @@ export const updateAuthStorageDataByTokenResponse = (
     storage: Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>,
     tokenResponse: ShopperLogin.schemas['TokenResponse'],
     userType?: 'guest' | 'registered',
-    appConfig?: AppConfig
+    appConfig?: AppConfig,
+    dwsid?: string
 ): void => {
     const now = Date.now();
 
@@ -147,6 +164,11 @@ export const updateAuthStorageDataByTokenResponse = (
         storage.set('customer_id', tokenResponse.customer_id);
     }
 
+    // Store customer encoded user id if available (for registered users)
+    if (tokenResponse?.enc_user_id) {
+        storage.set('enc_user_id', tokenResponse.enc_user_id);
+    }
+
     // Store user session identifier if available
     if (tokenResponse?.usid) {
         storage.set('usid', tokenResponse.usid);
@@ -163,6 +185,11 @@ export const updateAuthStorageDataByTokenResponse = (
             storage.set('idp_access_token_expiry', idpAccessTokenExpiry);
         }
     }
+
+    // Store dwsid if available (from Set-Cookie response header, for hybrid storefronts)
+    if (dwsid) {
+        storage.set('dwsid', dwsid);
+    }
 };
 
 /**
@@ -173,7 +200,7 @@ export const updateAuthStorageDataByTokenResponse = (
 export const updateAuthStorageData = (
     storage: Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>,
     updater:
-        | ShopperLogin.schemas['TokenResponse']
+        | (ShopperLogin.schemas['TokenResponse'] & { dwsid?: string })
         | ((data: AuthData & StorageErrorData) => AuthData & StorageErrorData),
     appConfig?: AppConfig
 ) => {
@@ -196,8 +223,9 @@ export const updateAuthStorageData = (
             updateStorageObject(storage, updated);
         }
     } else {
-        // Update storage data using a `TokenResponse`
-        updateAuthStorageDataByTokenResponse(storage, updater, undefined, appConfig);
+        // Update storage data using a `TokenResponse` (may include dwsid from response headers)
+        const { dwsid, ...tokenResponse } = updater;
+        updateAuthStorageDataByTokenResponse(storage, tokenResponse, undefined, appConfig, dwsid);
     }
 
     // Restore tracking consent from cookie if it existed (cookie is source of truth, not token)
@@ -218,13 +246,14 @@ export const updateStorageAndCache = async (
     context: Readonly<RouterContextProvider>,
     storage: Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>,
     cache: { ref: AuthData | undefined },
-    tokenResponse: ShopperLogin.schemas['TokenResponse'],
+    tokenResponse: ShopperLogin.schemas['TokenResponse'] & { dwsid?: string },
     userType: 'guest' | 'registered'
 ): Promise<void> => {
     const promiseCache = context.get(authContext);
     const appConfig = getConfig(context);
     promiseCache.ref = Promise.resolve(tokenResponse).then((response) => {
-        updateAuthStorageDataByTokenResponse(storage, response, userType, appConfig);
+        const { dwsid, ...tokenData } = response;
+        updateAuthStorageDataByTokenResponse(storage, tokenData, userType, appConfig, dwsid);
         cache.ref = unpackStorage<AuthData>(storage);
         storage.set('userType', userType);
         storage.set('isUpdated', true);

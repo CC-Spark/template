@@ -1,13 +1,28 @@
-import type { ClientActionFunctionArgs } from 'react-router';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import type { ActionFunctionArgs } from 'react-router';
 import { ApiError, type ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
-import { getBasket, updateBasket } from '@/middlewares/basket.client';
+import { ensureBasketId, updateBasketResource } from '@/middlewares/basket.server';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { createPromoCodeFormSchema } from '@/components/promo-code-form';
 import { getTranslation } from '@/lib/i18next';
 
 /**
- * Client action for adding a promo code to the shopping basket.
+ * Server action for adding a promo code to the shopping basket.
  *
  * This action handles POST requests to apply a promo code to the current user's basket.
  * It validates the promo code input, retrieves the current basket from the session,
@@ -30,7 +45,7 @@ import { getTranslation } from '@/lib/i18next';
  * </form>
  * ```
  */
-export async function clientAction({ request, context }: ClientActionFunctionArgs): Promise<{
+export async function action({ request, context }: ActionFunctionArgs): Promise<{
     success: boolean;
     basket?: ShopperBasketsV2.schemas['Basket'];
     error?: string;
@@ -41,7 +56,7 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         throw new Response(t('errors:methodNotAllowed'), { status: 405 });
     }
 
-    const { basketId } = getBasket(context);
+    const basketId = await ensureBasketId(context);
     if (!basketId) {
         return {
             success: false,
@@ -75,7 +90,7 @@ export async function clientAction({ request, context }: ClientActionFunctionArg
         });
 
         // Update the basket cache to reflect the changes
-        updateBasket(context, updatedBasket);
+        updateBasketResource(context, updatedBasket);
 
         return { success: true, basket: updatedBasket };
     } catch (error) {

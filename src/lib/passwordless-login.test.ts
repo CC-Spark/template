@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { redirect } from 'react-router';
 import { decodeJwt, createRemoteJWKSet, jwtVerify } from 'jose';
@@ -6,10 +21,19 @@ import {
     handlePasswordlessLanding,
     resetMarketingCloudTokenCache,
 } from './passwordless-login';
-import { updateAuth, flashAuth, getPasswordLessAccessToken } from '@/middlewares/auth.server';
+import { updateAuth, getPasswordLessAccessToken } from '@/middlewares/auth.server';
 import { mergeBasket } from '@/lib/api/basket';
-import { getAppOrigin, extractResponseError } from '@/lib/utils';
+import { getAppOrigin, getErrorMessage } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
+
+// Hoist dependencies for use in vi.mock (avoids async imports which fail on Windows)
+const { createContext: reactCreateContext, actualReactRouter } = vi.hoisted(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const React = require('react');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const reactRouter = require('react-router');
+    return { createContext: React.createContext, actualReactRouter: reactRouter };
+});
 
 const { t } = getTranslation();
 // Mock global fetch
@@ -20,11 +44,10 @@ global.fetch = mockFetch;
 const mockRandomUUID = vi.fn();
 vi.stubGlobal('crypto', { randomUUID: mockRandomUUID });
 
-// Mock react-router
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
+vi.mock('react-router', () => {
     return {
-        ...actual,
+        ...actualReactRouter,
+        createContext: reactCreateContext,
         redirect: vi.fn(),
     };
 });
@@ -39,7 +62,6 @@ vi.mock('jose', () => ({
 // Mock auth middleware
 vi.mock('@/middlewares/auth.server', () => ({
     updateAuth: vi.fn(),
-    flashAuth: vi.fn(),
     getPasswordLessAccessToken: vi.fn(),
 }));
 
@@ -51,7 +73,7 @@ vi.mock('@/lib/api/basket', () => ({
 // Mock utility functions
 vi.mock('@/lib/utils', () => ({
     getAppOrigin: vi.fn(),
-    extractResponseError: vi.fn(),
+    getErrorMessage: vi.fn(),
 }));
 
 // Mock config module
@@ -64,14 +86,22 @@ vi.mock('@/config', () => ({
                 shortCode: 'kv7kzm78',
                 siteId: 'RefArchGlobal',
             },
-        },
-        site: {
-            features: {
-                passwordlessLogin: {
-                    enabled: true,
-                    callbackUri: '/passwordless-login-callback',
-                    landingUri: '/passwordless-login-landing',
+            sites: [
+                {
+                    defaultSiteId: 'RefArchGlobal',
+                    defaultLocale: 'en-US',
+                    defaultCurrency: 'USD',
+                    supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                    supportedCurrencies: ['USD'],
+                    cookies: {},
                 },
+            ],
+        },
+        features: {
+            passwordlessLogin: {
+                enabled: true,
+                callbackUri: '/passwordless-login-callback',
+                landingUri: '/passwordless-login-landing',
             },
         },
     })),
@@ -90,10 +120,9 @@ const mockCreateRemoteJWKSet = vi.mocked(createRemoteJWKSet);
 const mockJwtVerify = vi.mocked(jwtVerify);
 const mockGetPasswordLessAccessToken = vi.mocked(getPasswordLessAccessToken);
 const mockUpdateAuth = vi.mocked(updateAuth);
-const mockFlashAuth = vi.mocked(flashAuth);
 const mockMergeBasket = vi.mocked(mergeBasket);
 const mockGetAppOrigin = vi.mocked(getAppOrigin);
-const mockExtractResponseError = vi.mocked(extractResponseError);
+const mockGetErrorMessage = vi.mocked(getErrorMessage);
 
 const createMockHeaders = (slasCallbackToken?: string) => ({
     get: vi.fn((header: string) => {
@@ -121,13 +150,13 @@ describe('passwordless-login', () => {
         mockGetAppOrigin.mockReturnValue('https://example.com');
         mockRandomUUID.mockReturnValue('123456781234123412341234567');
 
-        // Mock extractResponseError to return the error message - for debugging let's see actual errors
-        mockExtractResponseError.mockImplementation((error) =>
-            Promise.resolve({
-                responseMessage: error instanceof Error ? error.message : String(error),
-                status_code: '500',
-            })
-        );
+        // Mock getErrorMessage to return error message string
+        mockGetErrorMessage.mockImplementation((error) => {
+            if (error instanceof Error) {
+                return error.message;
+            }
+            return String(error);
+        });
     });
 
     afterEach(() => {
@@ -176,6 +205,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result).toEqual({
@@ -243,6 +273,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result.success).toBe(true);
@@ -272,6 +303,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result).toEqual({
@@ -301,6 +333,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result).toEqual({
@@ -329,6 +362,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(result.success).toBe(false);
@@ -365,6 +399,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(mockGetPasswordLessAccessToken).toHaveBeenCalledWith(mockContext, 'valid-token');
@@ -401,6 +436,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(mockRedirect).toHaveBeenCalledWith('/dashboard');
@@ -436,6 +472,7 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
                 expect(consoleSpy).toHaveBeenCalledWith(
@@ -461,10 +498,12 @@ describe('passwordless-login', () => {
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
-                expect(mockFlashAuth).toHaveBeenCalledWith(mockContext, t('errors:passwordless.missingToken'));
-                expect(mockRedirect).toHaveBeenCalledWith('/login');
+                // Should redirect with error in URL parameter
+                const errorMessage = t('errors:passwordless.missingToken');
+                expect(mockRedirect).toHaveBeenCalledWith(`/login?error=${encodeURIComponent(errorMessage)}`);
                 expect(result).toBe('redirect-response');
             });
 
@@ -475,21 +514,24 @@ describe('passwordless-login', () => {
 
                 const mockError = new Error('Invalid token');
                 mockGetPasswordLessAccessToken.mockRejectedValue(mockError);
-                mockExtractResponseError.mockResolvedValue({
-                    responseMessage: 'Invalid token',
-                    status_code: '400',
-                });
                 mockRedirect.mockReturnValue('redirect-response' as any);
+
+                // Mock console.error to avoid test output noise
+                const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
                 const result = await handlePasswordlessLanding({
                     request: mockRequest,
                     context: mockContext,
                     params: {},
+                    unstable_pattern: {} as any,
                 });
 
-                expect(mockFlashAuth).toHaveBeenCalledWith(mockContext, 'Invalid token');
-                expect(mockRedirect).toHaveBeenCalledWith('/login');
+                // Should redirect with error in URL parameter
+                const errorMessage = t('errors:genericTryAgain');
+                expect(mockRedirect).toHaveBeenCalledWith(`/login?error=${encodeURIComponent(errorMessage)}`);
                 expect(result).toBe('redirect-response');
+
+                consoleSpy.mockRestore();
             });
         });
     });

@@ -1,12 +1,25 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
 import type { ShopperBasketsV2, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
+import type { RouterContextProvider } from 'react-router';
+import { isAddressEqual } from '@/extensions/multiship/lib/address-utils';
+import { getTranslation } from '@/lib/i18next';
+
 /**
  * Gets a display-friendly store name, falling back to the store ID if name is not available.
  *
@@ -45,11 +58,27 @@ export function getPickupStoreFromMap(
 }
 
 /**
- * Normalizes a string value to an empty string
- * @param {string | undefined | null} value - The value to normalize
- * @returns {string} The normalized value
+ * Converts a Store address to an OrderAddress
+ * @param store - The store to convert
+ * @param context - Optional router context for server-side translations
+ * @returns OrderAddress object with store address details
  */
-const normalize = (value: string | undefined | null) => (!value ? '' : value);
+export function orderAddressFromStoreAddress(
+    store: ShopperStores.schemas['Store'],
+    context?: Readonly<RouterContextProvider>
+): ShopperBasketsV2.schemas['OrderAddress'] {
+    const { t } = getTranslation(context);
+    return {
+        firstName: store.name ?? '',
+        lastName: t('extBopis:storePickup.pickupLastName'),
+        address1: store.address1 ?? '',
+        address2: store.address2 ?? '',
+        city: store.city ?? '',
+        stateCode: store.stateCode ?? '',
+        postalCode: store.postalCode ?? '',
+        countryCode: store.countryCode ?? '',
+    };
+}
 
 /**
  * Compares a shipping address to a store address for equality
@@ -57,19 +86,16 @@ const normalize = (value: string | undefined | null) => (!value ? '' : value);
  *
  * @param shippingAddress - Shipping address to compare
  * @param storeAddress - Store address to compare
+ * @param context - Optional router context for server-side translations
  * @returns true if shipping address matches store address, false otherwise
  */
 export function isPickupAddressSet(
     shippingAddress?: ShopperBasketsV2.schemas['OrderAddress'] | null,
-    storeAddress?: ShopperStores.schemas['Store'] | null
+    storeAddress?: ShopperStores.schemas['Store'] | null,
+    context?: Readonly<RouterContextProvider>
 ): boolean {
     if (!shippingAddress || !storeAddress) return false;
 
-    return (
-        normalize(shippingAddress.address1) === normalize(storeAddress.address1) &&
-        normalize(shippingAddress.city) === normalize(storeAddress.city) &&
-        normalize(shippingAddress.stateCode) === normalize(storeAddress.stateCode) &&
-        normalize(shippingAddress.postalCode) === normalize(storeAddress.postalCode) &&
-        normalize(shippingAddress.countryCode) === normalize(storeAddress.countryCode)
-    );
+    const storeAsOrderAddress = orderAddressFromStoreAddress(storeAddress, context);
+    return isAddressEqual(shippingAddress, storeAsOrderAddress);
 }

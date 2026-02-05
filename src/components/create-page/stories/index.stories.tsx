@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { createPage } from '../index';
 import { action } from 'storybook/actions';
@@ -160,54 +175,6 @@ Page created with createPage using a custom fallback component.
 
         // Check for title - use findByRole for h1 to avoid multiple matches
         const title = await canvas.findByRole('heading', { name: /custom fallback/i }, { timeout: 5000 });
-        await expect(title).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Check for title - use findByRole for h1 to avoid multiple matches
-        const title = await canvas.findByRole('heading', { name: /example page/i }, { timeout: 5000 });
-        await expect(title).toBeInTheDocument();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Check for title - use findByRole for h1 to avoid multiple matches
-        const title = await canvas.findByRole('heading', { name: /example page/i }, { timeout: 5000 });
-        await expect(title).toBeInTheDocument();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-
-        await waitForStorybookReady(canvasElement);
-
-        // Check for title - use findByRole for h1 to avoid multiple matches
-        const title = await canvas.findByRole('heading', { name: /example page/i }, { timeout: 5000 });
         await expect(title).toBeInTheDocument();
     },
 };

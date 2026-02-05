@@ -24,8 +24,14 @@ pnpm test-storybook:snapshot:update
 # Run Interaction tests
 pnpm test-storybook:interaction
 
+# Run Interaction tests against static build
+pnpm test-storybook:static:interaction
+
 # Run A11y tests
 pnpm test-storybook:a11y
+
+# Run A11y tests against static build
+pnpm test-storybook:static:a11y
 ```
 
 **Storybook URL:** http://localhost:6006
@@ -38,8 +44,10 @@ pnpm test-storybook:a11y
 | `pnpm build-storybook` | Build static Storybook for production deployment |
 | `pnpm test-storybook:snapshot` | Run snapshot tests |
 | `pnpm test-storybook:snapshot:update` | Update Snapshot files locally and run tests |
-| `pnpm test-storybook:interaction` | Run Interaction tests |
-| `pnpm test-storybook:a11y` | Run A11y tests | 
+| `pnpm test-storybook:interaction` | Run Interaction tests against live Storybook server |
+| `pnpm test-storybook:static:interaction` | Run Interaction tests against static Storybook build |
+| `pnpm test-storybook:a11y` | Run A11y tests against live Storybook server |
+| `pnpm test-storybook:static:a11y` | Run A11y tests against static Storybook build | 
 
 ## Features & Addons
 
@@ -49,6 +57,9 @@ This Storybook setup includes the following addons:
 - **@storybook/addon-a11y** - Accessibility testing and validation
 - **@storybook/addon-vitest** - Integration with Vitest for component testing
 - **@chromatic-com/storybook** - Visual testing and review (optional)
+- **Viewport Toolbar** - Built-in toolbar for testing different screen sizes (Mobile, Tablet, Desktop)
+
+> **Note**: We use Storybook's built-in viewport toolbar instead of creating separate viewport stories. Use the viewport selector in the Storybook toolbar to test components at different screen sizes.
 
 ## Project Structure
 
@@ -171,6 +182,7 @@ export const Basic: Story = {
 4. **Controls**: Use `argTypes` to make components interactive
 5. **Variants**: Create stories for different states (loading, error, success)
 6. **Accessibility**: Test with the a11y addon
+7. **Viewport Testing**: Use Storybook's built-in viewport toolbar instead of creating separate Mobile/Tablet/Desktop stories
 
 ### Mock Components for Storybook
 

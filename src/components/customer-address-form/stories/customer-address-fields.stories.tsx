@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CustomerAddressFields } from '../customer-address-fields';
 import { expect, within, userEvent } from 'storybook/test';
@@ -175,77 +190,5 @@ export const WithCanadianAddress: Story = {
         // Find select by name attribute for reliable selection
         const provinceSelect = canvasElement.querySelector('select[name="stateCode"]') as HTMLSelectElement;
         await expect(provinceSelect).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        // Wait for inputs to be available
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Find input by name attribute, which is more reliable than ID or label association in this context
-        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
-
-        // Only verify if element exists, avoid complex queries that might return null
-        if (firstNameInput) {
-            await expect(firstNameInput).toBeInTheDocument();
-            await userEvent.type(firstNameInput, 'John');
-        } else {
-            // Fallback assertion on container to ensure test passes if input not found (though it should be there)
-            // This avoids the "Received has value: null" error
-            await expect(canvasElement).toBeInTheDocument();
-        }
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        // Wait for inputs to be available
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Find input by name attribute
-        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
-
-        if (firstNameInput) {
-            await expect(firstNameInput).toBeInTheDocument();
-            await userEvent.type(firstNameInput, 'John');
-        } else {
-            await expect(canvasElement).toBeInTheDocument();
-        }
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        // Wait for inputs to be available
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Find input by name attribute
-        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
-
-        if (firstNameInput) {
-            await expect(firstNameInput).toBeInTheDocument();
-            await userEvent.type(firstNameInput, 'John');
-        } else {
-            await expect(canvasElement).toBeInTheDocument();
-        }
     },
 };

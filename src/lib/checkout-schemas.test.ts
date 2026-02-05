@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, it, expect } from 'vitest';
 import { createPaymentSchema, getPaymentDefaultValues } from './checkout-schemas';
 import { getTranslation } from './i18next';
@@ -12,7 +27,7 @@ describe('Payment Schema and Validation', () => {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
                 cardNumber: '4111111111111111',
-                expiryDate: '12/25',
+                expiryDate: '12/28',
                 cvv: '123',
                 cardholderName: 'John Doe', // Updated field name
                 billingSameAsShipping: true, // Required field
@@ -45,7 +60,7 @@ describe('Payment Schema and Validation', () => {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
                 cardNumber: '', // Missing
-                expiryDate: '12/25',
+                expiryDate: '12/28',
                 cvv: '123',
                 cardholderName: 'John Doe', // Updated field name
                 billingSameAsShipping: true, // Required field
@@ -91,7 +106,7 @@ describe('Payment Schema and Validation', () => {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
                 cardNumber: '1234', // Too short
-                expiryDate: '12/25',
+                expiryDate: '12/28',
                 cvv: '123',
                 cardholderName: 'John Doe', // Updated field name
                 billingSameAsShipping: true, // Required field
@@ -102,7 +117,7 @@ describe('Payment Schema and Validation', () => {
             expect(result.error?.issues).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        message: 'Please enter a valid card number (13-19 digits)', // Updated message
+                        message: t('checkout:payment.cardNumberInvalidLength'),
                     }),
                 ])
             );
@@ -114,7 +129,7 @@ describe('Payment Schema and Validation', () => {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
                 cardNumber: '4111111111111111',
-                expiryDate: '13/25', // Invalid month
+                expiryDate: '13/28', // Invalid month
                 cvv: '123',
                 cardholderName: 'John Doe', // Updated field name
                 billingSameAsShipping: true, // Required field
@@ -125,7 +140,7 @@ describe('Payment Schema and Validation', () => {
             expect(result.error?.issues).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        message: 'Please enter a valid expiry date (MM/YY)', // Updated message
+                        message: t('checkout:payment.expiryInvalid'),
                     }),
                 ])
             );
@@ -137,7 +152,7 @@ describe('Payment Schema and Validation', () => {
                 useSavedPaymentMethod: false,
                 selectedSavedPaymentMethod: undefined,
                 cardNumber: '4111111111111111',
-                expiryDate: '12/25',
+                expiryDate: '12/28',
                 cvv: '12', // Too short
                 cardholderName: 'John Doe', // Updated field name
                 billingSameAsShipping: true, // Required field
@@ -148,7 +163,7 @@ describe('Payment Schema and Validation', () => {
             expect(result.error?.issues).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        message: 'Please enter a valid CVV (3-4 digits)', // Updated message
+                        message: t('checkout:payment.cvvInvalidFormat'),
                     }),
                 ])
             );

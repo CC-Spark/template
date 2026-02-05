@@ -1,13 +1,22 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { describe, it, expect } from 'vitest';
 import type { ShopperOrders } from '@salesforce/storefront-next-runtime/scapi';
-import { getOrderPickupShipment, getStoreIdsFromOrder } from './order-utils';
+import { getOrderPickupShipment, getOrderDeliveryShipments, getStoreIdsFromOrder } from './order-utils';
 
 describe('getOrderPickupShipment', () => {
     it('returns undefined when order is undefined', () => {
@@ -83,6 +92,103 @@ describe('getOrderPickupShipment', () => {
         };
         const result = getOrderPickupShipment(order);
         expect(result).toEqual(pickupShipment);
+    });
+});
+
+describe('getOrderDeliveryShipments', () => {
+    it('returns empty array when order is undefined', () => {
+        const result = getOrderDeliveryShipments(undefined);
+        expect(result).toEqual([]);
+    });
+
+    it('returns empty array when order is null', () => {
+        const result = getOrderDeliveryShipments(null);
+        expect(result).toEqual([]);
+    });
+
+    it('returns empty array when order has no shipments', () => {
+        const order: ShopperOrders.schemas['Order'] = {
+            orderNo: 'order-1',
+        };
+        const result = getOrderDeliveryShipments(order);
+        expect(result).toEqual([]);
+    });
+
+    it('returns empty array when order has empty shipments array', () => {
+        const order: ShopperOrders.schemas['Order'] = {
+            orderNo: 'order-1',
+            shipments: [],
+        };
+        const result = getOrderDeliveryShipments(order);
+        expect(result).toEqual([]);
+    });
+
+    it('returns all shipments when no shipments have c_fromStoreId', () => {
+        const delivery1: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-1',
+        };
+        const delivery2: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-2',
+        };
+        const order: ShopperOrders.schemas['Order'] = {
+            orderNo: 'order-1',
+            shipments: [delivery1, delivery2],
+        };
+        const result = getOrderDeliveryShipments(order);
+        expect(result).toEqual([delivery1, delivery2]);
+    });
+
+    it('returns empty array when all shipments are pickup shipments', () => {
+        const pickup1: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-1',
+            c_fromStoreId: 'store-123',
+        };
+        const pickup2: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-2',
+            c_fromStoreId: 'store-456',
+        };
+        const order: ShopperOrders.schemas['Order'] = {
+            orderNo: 'order-1',
+            shipments: [pickup1, pickup2],
+        };
+        const result = getOrderDeliveryShipments(order);
+        expect(result).toEqual([]);
+    });
+
+    it('returns only delivery shipments in original order for mixed shipments', () => {
+        const delivery1: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-delivery-1',
+        };
+        const pickup1: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-pickup-1',
+            c_fromStoreId: 'store-123',
+        };
+        const delivery2: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-delivery-2',
+        };
+        const order: ShopperOrders.schemas['Order'] = {
+            orderNo: 'order-1',
+            shipments: [delivery1, pickup1, delivery2],
+        };
+        const result = getOrderDeliveryShipments(order);
+        expect(result).toEqual([delivery1, delivery2]);
+    });
+
+    it('treats empty string c_fromStoreId as delivery (falsy)', () => {
+        const deliveryLikePickup: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-1',
+            c_fromStoreId: '',
+        };
+        const pickup: ShopperOrders.schemas['Shipment'] = {
+            shipmentId: 'shipment-2',
+            c_fromStoreId: 'store-123',
+        };
+        const order: ShopperOrders.schemas['Order'] = {
+            orderNo: 'order-1',
+            shipments: [deliveryLikePickup, pickup],
+        };
+        const result = getOrderDeliveryShipments(order);
+        expect(result).toEqual([deliveryLikePickup]);
     });
 });
 

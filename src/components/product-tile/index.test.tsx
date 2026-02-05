@@ -1,6 +1,23 @@
-import { vi, test, describe, expect, beforeEach } from 'vitest';
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 
@@ -8,18 +25,35 @@ const { t } = getTranslation();
 import { ProductTile } from './index';
 import { type ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { ConfigWrapper } from '@/test-utils/config';
+import { CurrencyProvider } from '@/providers/currency';
 
 vi.mock('@/lib/product-utils', () => ({
     createProductUrl: vi.fn(() => '/product/test-product'),
     getDecoratedVariationAttributes: vi.fn(() => [
         {
-            id: 'size',
-            name: 'Size',
+            id: 'color',
+            name: 'Colour',
             values: [
-                { value: '', name: '' }, // Empty size value - edge case
-                { value: 'small', name: 'Small' },
-                { value: 'medium', name: 'Medium' },
-                { value: 'large', name: 'Large' },
+                {
+                    value: 'navy',
+                    name: 'Navy',
+                    swatch: { link: 'https://example.com/navy.jpg', disBaseLink: 'https://example.com/navy.jpg' },
+                },
+                {
+                    value: 'red',
+                    name: 'Red',
+                    swatch: { link: 'https://example.com/red.jpg', disBaseLink: 'https://example.com/red.jpg' },
+                },
+                {
+                    value: 'blue',
+                    name: 'Blue',
+                    swatch: { link: 'https://example.com/blue.jpg', disBaseLink: 'https://example.com/blue.jpg' },
+                },
+                {
+                    value: 'black',
+                    name: 'Black',
+                    swatch: { link: 'https://example.com/black.jpg', disBaseLink: 'https://example.com/black.jpg' },
+                },
             ],
         },
     ]),
@@ -37,13 +71,6 @@ vi.mock('@/lib/product-badges', () => ({
 }));
 
 const mockNavigate = vi.fn();
-vi.mock('react-router', async () => {
-    const actual = await vi.importActual('react-router');
-    return {
-        ...actual,
-        useNavigate: () => mockNavigate,
-    };
-});
 
 const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
     productId: 'test-product',
@@ -51,12 +78,12 @@ const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
     price: 99.99,
     variationAttributes: [
         {
-            id: 'size',
+            id: 'color',
             values: [
-                { value: '', name: '' }, // Empty size value - edge case
-                { value: 'small', name: 'Small' },
-                { value: 'medium', name: 'Medium' },
-                { value: 'large', name: 'Large' },
+                { value: 'navy', name: 'Navy' },
+                { value: 'red', name: 'Red' },
+                { value: 'blue', name: 'Blue' },
+                { value: 'black', name: 'Black' },
             ],
         },
     ],
@@ -65,16 +92,16 @@ const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
             viewType: 'swatch',
             images: [
                 {
-                    alt: 'Default swatch',
-                    link: 'https://example.com/swatch1.jpg',
-                    disBaseLink: 'https://example.com/swatch1.jpg',
-                    variationAttributes: [{ id: 'size', values: [{ value: '' }] }],
+                    alt: 'Navy swatch',
+                    link: 'https://example.com/navy.jpg',
+                    disBaseLink: 'https://example.com/navy.jpg',
+                    variationAttributes: [{ id: 'color', values: [{ value: 'navy' }] }],
                 },
                 {
-                    alt: 'Small swatch',
-                    link: 'https://example.com/swatch2.jpg',
-                    disBaseLink: 'https://example.com/swatch2.jpg',
-                    variationAttributes: [{ id: 'size', values: [{ value: 'small' }] }],
+                    alt: 'Red swatch',
+                    link: 'https://example.com/red.jpg',
+                    disBaseLink: 'https://example.com/red.jpg',
+                    variationAttributes: [{ id: 'color', values: [{ value: 'red' }] }],
                 },
             ],
         },
@@ -91,7 +118,9 @@ const renderComponent = (props = {}) => {
                 path: '/test',
                 element: (
                     <ConfigWrapper>
-                        <ProductTile product={mockProduct} {...props} />
+                        <CurrencyProvider value="USD">
+                            <ProductTile product={mockProduct} {...props} />
+                        </CurrencyProvider>
                     </ConfigWrapper>
                 ),
             },
@@ -113,6 +142,12 @@ const renderComponent = (props = {}) => {
 describe('ProductTile', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        // Use vi.spyOn to mock useNavigate while keeping real router exports
+        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(mockNavigate);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     test('renders product information correctly', () => {
@@ -239,58 +274,69 @@ describe('ProductTile', () => {
     });
 });
 
-describe('ProductTile Styling and Layout', () => {
-    test('applies text truncation to product name', () => {
-        renderComponent();
-
-        const productName = screen.getByText('Test Product');
-        expect(productName).toHaveClass('line-clamp-2');
+describe('ProductTile UI Variants', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(mockNavigate);
     });
 
-    test('applies correct styling to product name container', () => {
-        renderComponent();
-
-        const productName = screen.getByText('Test Product');
-        const nameContainer = productName.closest('div');
-        expect(nameContainer).toHaveClass('h-10');
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
-    test('applies correct styling to price display', () => {
+    test('renders color swatches with circular shape', () => {
         renderComponent();
 
-        const price = screen.getByText('$99.99');
-        expect(price).toHaveClass('text-card-foreground', 'text-right', 'font-semibold', 'text-base', 'leading-none');
+        // Color swatches should be rendered as circles
+        const swatchGroup = screen.getByRole('radiogroup', { name: 'Colour' });
+        expect(swatchGroup).toBeInTheDocument();
     });
 
-    test('applies correct styling to badges', () => {
+    test('displays more swatches indicator (+) when exceeding maxSwatches', () => {
+        // With 4 colors and maxSwatches=2, should show +2 indicator
+        renderComponent({ maxSwatches: 2 });
+
+        const plusIndicator = screen.getByTitle('+2');
+        expect(plusIndicator).toBeInTheDocument();
+    });
+
+    test('does not show more indicator when swatches fit within maxSwatches', () => {
+        // With maxSwatches=4 and 4 colors, no indicator needed
+        renderComponent({ maxSwatches: 4 });
+
+        const plusIndicator = screen.queryByTitle(/^\+\d+$/);
+        expect(plusIndicator).not.toBeInTheDocument();
+    });
+
+    test('renders Sale badge when product has sale badge', () => {
         renderComponent();
 
-        const badges = screen.getAllByText(/Sale|New/);
-        badges.forEach((badge) => {
-            expect(badge).toHaveClass('text-xs', 'leading-3', 'font-medium');
+        expect(screen.getByText('Sale')).toBeInTheDocument();
+    });
+
+    test('renders multiple badges when product has multiple badges', () => {
+        renderComponent();
+
+        expect(screen.getByText('Sale')).toBeInTheDocument();
+        expect(screen.getByText('New')).toBeInTheDocument();
+    });
+
+    test('renders custom footer action when provided', () => {
+        const customFooter = <button>Add to Cart</button>;
+        renderComponent({ footerAction: customFooter });
+
+        expect(screen.getByRole('button', { name: 'Add to Cart' })).toBeInTheDocument();
+        expect(screen.queryByText(/more options/i)).not.toBeInTheDocument();
+    });
+
+    test('disables swatch interaction in read-only mode for wishlist', () => {
+        renderComponent({
+            disableSwatchInteraction: true,
+            selectedVariantColorValue: 'navy',
         });
-    });
 
-    test('applies correct styling to more options button', () => {
-        renderComponent();
-
-        const button = screen.getByRole('button', { name: /more options/i });
-        expect(button).toHaveClass('w-full', 'text-sm', 'font-normal');
-    });
-
-    test('applies correct image container styling', () => {
-        renderComponent();
-
-        // Check that the image container has the correct styling by looking for the image link
-        const imageLink = screen.getByLabelText('View Test Product');
-        expect(imageLink).toHaveClass('block', 'w-full', 'h-full');
-    });
-
-    test('applies correct swatch group styling', () => {
-        renderComponent();
-
-        // Check that swatches are rendered (they should be present in the component)
-        const swatches = screen.getAllByRole('button');
-        expect(swatches.length).toBeGreaterThan(0);
+        // In disabled mode with a selected variant, only the selected variant's swatch should be shown
+        const swatches = screen.getAllByRole('radio');
+        expect(swatches).toHaveLength(1);
     });
 });

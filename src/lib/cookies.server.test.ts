@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createCookie, parseAllCookies } from './cookies.server';
 import { getCookieNameWithSiteId, getCookieConfig } from './cookie-utils';
@@ -234,6 +249,34 @@ describe('cookies.server', () => {
                 expect(result).toContain('SameSite=None');
             });
 
+            it('should add Partitioned attribute', async () => {
+                vi.mocked(getCookieConfig).mockReturnValue({
+                    path: '/',
+                    sameSite: 'none',
+                    secure: true,
+                    partitioned: true,
+                });
+
+                const cookie = createCookie('token', {});
+                const result = await cookie.serialize('value');
+
+                expect(result).toContain('Partitioned');
+            });
+
+            it('should not add Partitioned attribute when false', async () => {
+                vi.mocked(getCookieConfig).mockReturnValue({
+                    path: '/',
+                    sameSite: 'lax',
+                    secure: true,
+                    partitioned: false,
+                });
+
+                const cookie = createCookie('token', {});
+                const result = await cookie.serialize('value');
+
+                expect(result).not.toContain('Partitioned');
+            });
+
             it('should merge defaultConfig with serialize config', async () => {
                 const defaultConfig = { httpOnly: true, path: '/api' };
                 const serializeConfig = { maxAge: 3600 };
@@ -308,6 +351,7 @@ describe('cookies.server', () => {
                     expires: expiryDate,
                     maxAge: 3600,
                     httpOnly: true,
+                    partitioned: true,
                 });
 
                 const cookie = createCookie('token', {});
@@ -321,6 +365,7 @@ describe('cookies.server', () => {
                 expect(result).toContain('HttpOnly');
                 expect(result).toContain('Secure');
                 expect(result).toContain('SameSite=Strict');
+                expect(result).toContain('Partitioned');
             });
 
             it('should format Set-Cookie header correctly', async () => {

@@ -1,28 +1,39 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { getTranslation } from '@/lib/i18next';
 
 const { t } = getTranslation();
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
+import * as ReactRouter from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import StandardLoginForm from './standard-login-form';
-// Mock react-router
+
+// Mock navigation state
 const mockNavigation = {
     state: 'idle' as 'idle' | 'submitting' | 'loading',
 };
 
-vi.mock('react-router', async (importOriginal) => {
-    const actual = (await importOriginal()) as any;
-    return {
-        ...actual,
-        Form: ({ children, ...props }: any) => <form {...props}>{children}</form>,
-        Link: ({ children, to, ...props }: any) => (
-            <a href={to} {...props}>
-                {children}
-            </a>
-        ),
-        useNavigation: () => mockNavigation,
-    };
-});
+// Helper to render with router context
+function renderWithRouter(ui: React.ReactElement) {
+    const router = createMemoryRouter([{ path: '/', element: ui }], { initialEntries: ['/'] });
+    return render(<RouterProvider router={router} />);
+}
 
 describe('StandardLoginForm', () => {
     const defaultProps = {
@@ -32,11 +43,17 @@ describe('StandardLoginForm', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockNavigation.state = 'idle';
+        // Use vi.spyOn for useNavigation hook
+        vi.spyOn(ReactRouter, 'useNavigation').mockReturnValue(mockNavigation as any);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
     });
 
     describe('rendering', () => {
         test('renders form with all required elements', () => {
-            const { container } = render(<StandardLoginForm {...defaultProps} />);
+            const { container } = renderWithRouter(<StandardLoginForm {...defaultProps} />);
 
             // Email field
             const emailInput = screen.getByLabelText(t('login:emailLabel'));
@@ -94,7 +111,7 @@ describe('StandardLoginForm', () => {
 
         test('renders error message when error prop is provided', () => {
             const errorMessage = 'Invalid credentials';
-            render(<StandardLoginForm {...defaultProps} error={errorMessage} />);
+            renderWithRouter(<StandardLoginForm {...defaultProps} error={errorMessage} />);
 
             const errorElement = screen.getByText(errorMessage);
             expect(errorElement).toBeInTheDocument();
@@ -110,7 +127,7 @@ describe('StandardLoginForm', () => {
     describe('form field interactions', () => {
         test('accepts user input in email and password fields', async () => {
             const user = userEvent.setup();
-            render(<StandardLoginForm {...defaultProps} />);
+            renderWithRouter(<StandardLoginForm {...defaultProps} />);
 
             const emailInput = screen.getByLabelText(t('login:emailLabel'));
             const passwordInput = screen.getByLabelText(t('login:passwordLabel'));
@@ -132,31 +149,31 @@ describe('StandardLoginForm', () => {
     });
 
     describe('passwordless mode toggle', () => {
-        test('conditionally renders passwordless login link', () => {
-            // With passwordless enabled
-            const { rerender } = render(<StandardLoginForm isPasswordlessEnabled={true} />);
-            let passwordlessLink: HTMLElement | null = screen.getByRole('link', {
+        test('renders passwordless login link when enabled', () => {
+            renderWithRouter(<StandardLoginForm isPasswordlessEnabled={true} />);
+            const passwordlessLink = screen.getByRole('link', {
                 name: t('login:loginWithoutPassword'),
             });
             expect(passwordlessLink).toBeInTheDocument();
             expect(passwordlessLink).toHaveAttribute('href', '/login?mode=passwordless');
+        });
 
-            // Without passwordless enabled
-            rerender(<StandardLoginForm isPasswordlessEnabled={false} />);
-            passwordlessLink = screen.queryByRole('link', { name: t('login:loginWithoutPassword') });
+        test('does not render passwordless login link when disabled', () => {
+            renderWithRouter(<StandardLoginForm isPasswordlessEnabled={false} />);
+            const passwordlessLink = screen.queryByRole('link', { name: t('login:loginWithoutPassword') });
             expect(passwordlessLink).not.toBeInTheDocument();
         });
     });
 
     describe('edge cases', () => {
-        test('handles error prop variations', () => {
-            // Long error message
+        test('handles long error message', () => {
             const longError = 'A'.repeat(200);
-            const { rerender } = render(<StandardLoginForm {...defaultProps} error={longError} />);
+            renderWithRouter(<StandardLoginForm {...defaultProps} error={longError} />);
             expect(screen.getByText(longError)).toBeInTheDocument();
+        });
 
-            // Undefined error
-            rerender(<StandardLoginForm {...defaultProps} error={undefined} />);
+        test('handles undefined error', () => {
+            renderWithRouter(<StandardLoginForm {...defaultProps} error={undefined} />);
             expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
     });

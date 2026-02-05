@@ -1,5 +1,17 @@
 /**
- * Tests for configuration test utilities
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -14,14 +26,14 @@ describe('Config Test Utils', () => {
 
             expect(result.current).toBeDefined();
             expect(result.current.commerce.api.clientId).toBe('test-client');
-            expect(result.current.site.locale).toBe('en-US');
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-US');
         });
 
         it('should provide access to all config sections', () => {
             const { result } = renderHook(() => useConfig(), { wrapper: ConfigWrapper });
 
             expect(result.current.commerce).toBeDefined();
-            expect(result.current.site).toBeDefined();
+            expect(result.current.commerce.sites).toBeDefined();
             expect(result.current.global).toBeDefined();
             expect(result.current.pages).toBeDefined();
             expect(result.current.performance).toBeDefined();
@@ -35,7 +47,7 @@ describe('Config Test Utils', () => {
             const { result } = renderHook(() => useConfig(), { wrapper: CustomWrapper });
 
             expect(result.current.commerce.api.clientId).toBe('test-client');
-            expect(result.current.site.locale).toBe('en-US');
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-US');
         });
 
         it('should merge overrides with base config', () => {
@@ -55,25 +67,30 @@ describe('Config Test Utils', () => {
             const { result } = renderHook(() => useConfig(), { wrapper: CustomWrapper });
 
             expect(result.current.commerce.api.clientId).toBe('custom-client');
-            expect(result.current.site.locale).toBe('en-US'); // Original value preserved
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-US'); // Original value preserved
         });
 
         it('should allow overriding site configuration', () => {
             const CustomWrapper = createConfigWrapper({
                 app: {
                     ...mockBuildConfig.app,
-                    site: {
-                        ...mockBuildConfig.app.site,
-                        locale: 'fr-FR',
-                        currency: 'EUR',
+                    commerce: {
+                        ...mockBuildConfig.app.commerce,
+                        sites: [
+                            {
+                                ...mockBuildConfig.app.commerce.sites[0],
+                                defaultLocale: 'fr-FR',
+                                defaultCurrency: 'EUR',
+                            },
+                        ],
                     },
                 },
             });
 
             const { result } = renderHook(() => useConfig(), { wrapper: CustomWrapper });
 
-            expect(result.current.site.locale).toBe('fr-FR');
-            expect(result.current.site.currency).toBe('EUR');
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('fr-FR');
+            expect(result.current.commerce.sites[0].defaultCurrency).toBe('EUR');
         });
 
         it('should allow overriding global configuration', () => {
@@ -100,7 +117,7 @@ describe('Config Test Utils', () => {
         it('should be a valid AppConfig object', () => {
             expect(mockConfig).toBeDefined();
             expect(mockConfig.commerce).toBeDefined();
-            expect(mockConfig.site).toBeDefined();
+            expect(mockConfig.commerce.sites[0]).toBeDefined();
             expect(mockConfig.global).toBeDefined();
         });
 
@@ -108,8 +125,8 @@ describe('Config Test Utils', () => {
             expect(mockConfig.commerce.api.clientId).toBe('test-client');
             expect(mockConfig.commerce.api.organizationId).toBe('test-org');
             expect(mockConfig.commerce.api.siteId).toBe('test-site');
-            expect(mockConfig.site.locale).toBe('en-US');
-            expect(mockConfig.site.currency).toBe('USD');
+            expect(mockConfig.commerce.sites[0].defaultLocale).toBe('en-US');
+            expect(mockConfig.commerce.sites[0].defaultCurrency).toBe('USD');
         });
     });
 
@@ -122,14 +139,15 @@ describe('Config Test Utils', () => {
 
         it('should include runtime section', () => {
             expect(mockBuildConfig.runtime).toBeDefined();
-            expect(mockBuildConfig.runtime.ssrParameters.ssrFunctionNodeVersion).toBe('22.x');
+            expect(mockBuildConfig.runtime?.ssrParameters).toBeDefined();
+            expect(mockBuildConfig.runtime?.ssrParameters?.ssrFunctionNodeVersion).toBe('24.x');
         });
 
         it('should include app section with all subsections', () => {
             expect(mockBuildConfig.app).toBeDefined();
             expect(mockBuildConfig.app.pages).toBeDefined();
             expect(mockBuildConfig.app.commerce).toBeDefined();
-            expect(mockBuildConfig.app.site).toBeDefined();
+            expect(mockBuildConfig.app.commerce.sites[0]).toBeDefined();
             expect(mockBuildConfig.app.global).toBeDefined();
             expect(mockBuildConfig.app.performance).toBeDefined();
             expect(mockBuildConfig.app.development).toBeDefined();

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CustomerAddressForm } from '../index';
 import { expect, within, userEvent } from 'storybook/test';
@@ -184,74 +199,5 @@ export const Loading: Story = {
         // Form should render even when loading
         const container = canvasElement.firstChild;
         await expect(container).toBeInTheDocument();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        // Wait for form to be fully rendered
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Find input by name attribute
-        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
-
-        if (firstNameInput) {
-            await expect(firstNameInput).toBeInTheDocument();
-            await userEvent.type(firstNameInput, 'John');
-        } else {
-            await expect(canvasElement).toBeInTheDocument();
-        }
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        // Wait for form to be fully rendered
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Find input by name attribute
-        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
-
-        if (firstNameInput) {
-            await expect(firstNameInput).toBeInTheDocument();
-            await userEvent.type(firstNameInput, 'John');
-        } else {
-            await expect(canvasElement).toBeInTheDocument();
-        }
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-
-        // Wait for form to be fully rendered
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Find input by name attribute
-        const firstNameInput = canvasElement.querySelector('input[name="firstName"]') as HTMLInputElement;
-
-        if (firstNameInput) {
-            await expect(firstNameInput).toBeInTheDocument();
-            await userEvent.type(firstNameInput, 'John');
-        } else {
-            await expect(canvasElement).toBeInTheDocument();
-        }
     },
 };

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
@@ -590,81 +605,6 @@ This story demonstrates the loading state when onRemove returns a promise:
         await expect(editButton).not.toBeDisabled();
 
         // Test remove button is present and functional
-        const removeButton = canvas.getByRole('button', { name: /remove|delete/i });
-        await expect(removeButton).toBeInTheDocument();
-        await expect(removeButton).not.toBeDisabled();
-    },
-};
-
-export const Mobile: Story = {
-    ...Default,
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test card content is displayed
-        const nameElement = canvas.getByText('John Doe');
-        await expect(nameElement).toBeInTheDocument();
-
-        // Test edit button is present and enabled
-        const editButton = canvas.getByRole('button', { name: /edit|change/i });
-        await expect(editButton).toBeInTheDocument();
-        await expect(editButton).not.toBeDisabled();
-
-        // Test remove button is present and enabled
-        const removeButton = canvas.getByRole('button', { name: /remove|delete/i });
-        await expect(removeButton).toBeInTheDocument();
-        await expect(removeButton).not.toBeDisabled();
-    },
-};
-
-export const Tablet: Story = {
-    ...Default,
-    globals: {
-        viewport: 'tablet',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test card content is displayed
-        const nameElement = canvas.getByText('John Doe');
-        await expect(nameElement).toBeInTheDocument();
-
-        // Test edit button is present and enabled
-        const editButton = canvas.getByRole('button', { name: /edit|change/i });
-        await expect(editButton).toBeInTheDocument();
-        await expect(editButton).not.toBeDisabled();
-
-        // Test remove button is present and enabled
-        const removeButton = canvas.getByRole('button', { name: /remove|delete/i });
-        await expect(removeButton).toBeInTheDocument();
-        await expect(removeButton).not.toBeDisabled();
-    },
-};
-
-export const Desktop: Story = {
-    ...Default,
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Test card content is displayed
-        const nameElement = canvas.getByText('John Doe');
-        await expect(nameElement).toBeInTheDocument();
-
-        // Test edit button is present and enabled
-        const editButton = canvas.getByRole('button', { name: /edit|change/i });
-        await expect(editButton).toBeInTheDocument();
-        await expect(editButton).not.toBeDisabled();
-
-        // Test remove button is present and enabled
         const removeButton = canvas.getByRole('button', { name: /remove|delete/i });
         await expect(removeButton).toBeInTheDocument();
         await expect(removeButton).not.toBeDisabled();

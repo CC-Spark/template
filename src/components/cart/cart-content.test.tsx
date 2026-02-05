@@ -1,4 +1,18 @@
-// Testing libraries
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { getTranslation } from '@/lib/i18next';
@@ -220,6 +234,72 @@ describe('CartContent', () => {
         test('parent product shows CartItemEditButton', () => {
             renderWith({ 'item-1': { id: 'p1', type: { master: true } } } as any);
             expect(editBtn()).toBeInTheDocument();
+        });
+
+        test('choice-based bonus product does not show CartItemEditButton', () => {
+            const basket = {
+                basketId: 'b1',
+                productItems: [
+                    {
+                        itemId: 'item-1',
+                        quantity: 1,
+                        productId: 'p1',
+                        bonusProductLineItem: true,
+                        bonusDiscountLineItemId: 'bonus-discount-choice-1',
+                    },
+                ],
+                bonusDiscountLineItems: [
+                    {
+                        id: 'bonus-discount-choice-1',
+                        promotionId: 'promo-choice-1',
+                        maxBonusItems: 3,
+                        bonusProducts: [{ productId: 'p1', productName: 'Choice Bonus Product 1' }],
+                    },
+                ],
+            };
+
+            renderCartContent({
+                basket: basket as any,
+                productsByItemId: { 'item-1': { id: 'p1', variants: [{} as any] } } as any,
+                bonusProductsById: { p1: { id: 'p1', name: 'Choice Bonus Product 1' } } as any,
+            });
+
+            // Edit button should be hidden for choice-based bonus products
+            expect(editBtn()).not.toBeInTheDocument();
+
+            // Remove button should still be shown
+            expect(screen.getByTestId('remove-item-item-1')).toBeInTheDocument();
+        });
+
+        test('auto bonus product does not show CartItemEditButton', () => {
+            const basket = {
+                basketId: 'b1',
+                productItems: [
+                    {
+                        itemId: 'item-1',
+                        quantity: 1,
+                        productId: 'p1',
+                        bonusProductLineItem: true,
+                        bonusDiscountLineItemId: 'bonus-discount-auto-1',
+                    },
+                ],
+                bonusDiscountLineItems: [
+                    {
+                        id: 'bonus-discount-auto-1',
+                        promotionId: 'promo-auto-1',
+                        maxBonusItems: 1,
+                        // No bonusProducts array = auto bonus
+                    },
+                ],
+            };
+
+            renderCartContent({
+                basket: basket as any,
+                productsByItemId: { 'item-1': { id: 'p1', variants: [{} as any] } } as any,
+            });
+
+            // Edit button should be hidden for auto bonus products
+            expect(editBtn()).not.toBeInTheDocument();
         });
     });
 });

@@ -1,6 +1,21 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { redirect, type ActionFunctionArgs } from 'react-router';
-import { getBasket, updateBasket, destroyBasket } from '@/middlewares/basket.client';
-import { getAuth } from '@/middlewares/auth.client';
+import { getBasket, updateBasketResource, destroyBasket } from '@/middlewares/basket.server';
+import { getAuth } from '@/middlewares/auth.server';
 import { createApiClients } from '@/lib/api-clients';
 import {
     calculateBasket,
@@ -19,8 +34,13 @@ import {
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
 import { createErrorResponse } from '@/lib/error-handler';
 import { getTranslation } from '@/lib/i18next';
+// @sfdc-extension-line SFDC_EXT_MULTISHIP
+import { resolveEmptyShipments } from '@/extensions/multiship/lib/api/basket';
 
-export async function clientAction({ request, context }: ActionFunctionArgs) {
+/**
+ * Server action for placing an order.
+ */
+export async function action({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 
     try {
@@ -29,7 +49,8 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         const shouldCreateAccount = formData.get('shouldCreateAccount') === 'true';
 
         // Get current basket
-        const basket = getBasket(context);
+        const basketResource = await getBasket(context);
+        const basket = basketResource.current;
 
         if (!basket || !basket.basketId) {
             return Response.json(
@@ -54,26 +75,45 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             );
         }
 
-        if (!basket.shipments?.[0]?.shippingAddress) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('errors:api.shippingAddressRequired'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+        // Build a map of shipmentId -> item count for efficient lookups
+        const shipmentItemCounts = new Map<string, number>();
+        if (basket.productItems) {
+            basket.productItems.forEach((item) => {
+                if (item.shipmentId) {
+                    shipmentItemCounts.set(item.shipmentId, (shipmentItemCounts.get(item.shipmentId) || 0) + 1);
+                }
+            });
         }
 
-        if (!basket.shipments?.[0]?.shippingMethod) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('errors:checkout.shippingMethodNotAvailable'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+        // Filter to get only non-empty shipments (shipments with at least one item assigned)
+        const nonEmptyShipments = (basket.shipments || []).filter((shipment) => {
+            if (!shipment.shipmentId) return false;
+            return (shipmentItemCounts.get(shipment.shipmentId) || 0) > 0;
+        });
+
+        // Check that all non-empty shipments have shipping address and method
+        for (const shipment of nonEmptyShipments) {
+            if (!shipment.shippingAddress) {
+                return Response.json(
+                    {
+                        success: false,
+                        error: t('errors:api.shippingAddressRequired'),
+                        step: 'placeOrder',
+                    },
+                    { status: 400 }
+                );
+            }
+
+            if (!shipment.shippingMethod) {
+                return Response.json(
+                    {
+                        success: false,
+                        error: t('errors:checkout.shippingMethodRequired'),
+                        step: 'placeOrder',
+                    },
+                    { status: 400 }
+                );
+            }
         }
 
         if (!basket.paymentInstruments?.[0]) {
@@ -124,7 +164,7 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
                                 paymentInstruments: updatedBasket.paymentInstruments || finalBasket.paymentInstruments,
                                 billingAddress: finalBasket.billingAddress,
                             };
-                            updateBasket(context, preservedBasket);
+                            updateBasketResource(context, preservedBasket);
                         } else {
                             return Response.json(
                                 {
@@ -168,10 +208,9 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         }
 
         // Get the updated basket after potential payment application
-        const updatedBasket = getBasket(context);
+        const updatedBasket = (await getBasket(context)).current;
 
-        // Ensure billing address is set (SFCC requirement)
-        if (!updatedBasket.billingAddress) {
+        if (!updatedBasket?.billingAddress) {
             return Response.json(
                 {
                     success: false,
@@ -182,11 +221,12 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
             );
         }
 
-        // Calculate basket totals before creating order (SFCC requirement)
-        // Use the updated basket's currency or appropriate fallback
+        // @sfdc-extension-line SFDC_EXT_MULTISHIP
+        await resolveEmptyShipments(context, updatedBasket);
+
         const currency = getBasketCurrency(context, updatedBasket);
 
-        if (!updatedBasket.basketId) {
+        if (!updatedBasket?.basketId) {
             return Response.json(
                 {
                     success: false,
@@ -200,9 +240,8 @@ export async function clientAction({ request, context }: ActionFunctionArgs) {
         const calculatedBasket = await calculateBasket(context, updatedBasket.basketId, currency);
 
         // Update local basket state with calculated totals
-        updateBasket(context, calculatedBasket);
+        updateBasketResource(context, calculatedBasket);
 
-        // Create the order
         const clients = createApiClients(context);
 
         const { data: order } = await clients.shopperOrders.createOrder({

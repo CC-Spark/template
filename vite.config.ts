@@ -1,11 +1,26 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /// <reference types="vitest" />
+
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { defineConfig, perEnvironmentPlugin, loadEnv } from 'vite';
 import { configDefaults, coverageConfigDefaults } from 'vitest/config';
 import coverageConfigThresholds from './vitest.thresholds';
-import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import devtoolsJson from 'vite-plugin-devtools-json';
@@ -68,11 +83,19 @@ export default defineConfig(({ mode }) => {
             __TEST__: `${mode === 'test'}`,
         },
         plugins: [
-            mode !== 'test' && reactRouter(),
+            // Dynamically import to avoid ESM/CJS cycle with @react-router/dev in test mode
+            mode !== 'test' && import('@react-router/dev/vite').then(({ reactRouter }) => reactRouter()),
             tailwindcss(),
             tsconfigPaths(),
             devtoolsJson(),
-            storefrontNextPlugin({ readableChunkNames: enableReadableChunkNames }),
+            storefrontNextPlugin({
+                readableChunkNames: enableReadableChunkNames,
+                staticRegistry: {
+                    componentPath: 'src/components',
+                    registryPath: 'src/lib/static-registry.ts',
+                    verbose: mode !== 'production' && mode !== 'test',
+                },
+            }),
             perEnvironmentPlugin('bundlesize', (env) => {
                 if (!enableBundlesizeCheck) {
                     return;
@@ -133,6 +156,7 @@ export default defineConfig(({ mode }) => {
                     'src/test-utils/*',
                     'src/lib/test-utils/*',
                     'src/**/__tests__/*',
+                    'src/lib/static-registry.ts',
                 ],
                 reportOnFailure: true,
                 thresholds: coverageConfigThresholds,

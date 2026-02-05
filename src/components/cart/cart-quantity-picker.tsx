@@ -1,8 +1,17 @@
-/*
- * Copyright (c) 2025, Salesforce, Inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 'use client';
@@ -35,6 +44,8 @@ interface CartQuantityPickerProps {
     debounceDelay?: number;
     /** Stock level for validation */
     stockLevel?: number;
+    /** Maximum quantity allowed (for bonus products, etc.) */
+    max?: number;
     /** Disable quantity picker (e.g., for bonus products) */
     disabled?: boolean;
 }
@@ -55,6 +66,7 @@ export default function CartQuantityPicker({
     className,
     debounceDelay,
     stockLevel,
+    max,
     disabled = false,
 }: CartQuantityPickerProps): ReactElement {
     const config = useConfig();
@@ -96,6 +108,7 @@ export default function CartQuantityPicker({
                 onBlur={handleQuantityBlur}
                 onChange={handleQuantityChange}
                 disabled={isLoading || disabled}
+                max={max}
             />
             {/* Stock validation error message */}
             {!disabled && stockValidationError && (

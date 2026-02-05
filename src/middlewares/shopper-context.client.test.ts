@@ -1,26 +1,41 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import type { RouterContextProvider } from 'react-router';
 import shopperContextMiddleware from './shopper-context.client';
 import { createTestContext } from '@/lib/test-utils';
-import { createShopperContext } from '@/lib/api/shopper-context';
 import { getAuth } from './auth.client';
-import { getCookie, setNamespacedCookie } from '@/lib/cookies.client';
-
-vi.mock('@/lib/api/shopper-context', () => ({
-    createShopperContext: vi.fn(),
-}));
+import { updateShopperContext, extractQualifiersFromUrl, isPageDesignerMode } from '@/lib/shopper-context-utils';
 
 vi.mock('./auth.client', () => ({
     getAuth: vi.fn(),
 }));
 
-vi.mock('@/lib/cookies.client', () => ({
-    getCookie: vi.fn(),
-    setNamespacedCookie: vi.fn(),
-}));
+vi.mock('@/lib/shopper-context-utils', async (importOriginal) => {
+    const actual = (await importOriginal()) as any;
+    return {
+        ...actual,
+        updateShopperContext: vi.fn(),
+        extractQualifiersFromUrl: vi.fn(),
+        isPageDesignerMode: vi.fn(),
+    };
+});
 
 vi.mock('@/config', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = (await importOriginal()) as any;
     return {
         ...actual,
         getConfig: vi.fn().mockReturnValue({
@@ -29,12 +44,10 @@ vi.mock('@/config', async (importOriginal) => {
                     siteId: 'test-site',
                 },
             },
-            site: {
-                features: {
-                    shopperContext: {
-                        enabled: true,
-                        dwsourcecodeCookieSuffix: 'test-site',
-                    },
+            features: {
+                shopperContext: {
+                    enabled: true,
+                    dwsourcecodeCookieSuffix: 'test-site',
                 },
             },
         }),
@@ -67,9 +80,12 @@ describe('shopper-context.client', () => {
         mockNext = vi.fn().mockResolvedValue(undefined);
 
         vi.mocked(getAuth).mockReturnValue({ usid: 'test-usid' } as any);
-        vi.mocked(getCookie).mockReturnValue('');
-        vi.mocked(setNamespacedCookie).mockReturnValue(undefined);
-        vi.mocked(createShopperContext).mockResolvedValue(undefined);
+        vi.mocked(updateShopperContext).mockResolvedValue(undefined);
+        vi.mocked(isPageDesignerMode).mockReturnValue(false);
+        vi.mocked(extractQualifiersFromUrl).mockReturnValue({
+            qualifiers: {},
+            sourceCodeQualifiers: {},
+        });
     });
 
     afterEach(() => {
@@ -86,12 +102,10 @@ describe('shopper-context.client', () => {
                         siteId: 'test-site',
                     },
                 },
-                site: {
-                    features: {
-                        shopperContext: {
-                            enabled: false,
-                            dwsourcecodeCookieSuffix: 'test-site',
-                        },
+                features: {
+                    shopperContext: {
+                        enabled: false,
+                        dwsourcecodeCookieSuffix: 'test-site',
                     },
                 },
             } as any);
@@ -103,7 +117,7 @@ describe('shopper-context.client', () => {
                 );
 
                 expect(mockNext).toHaveBeenCalledOnce();
-                expect(createShopperContext).not.toHaveBeenCalled();
+                expect(updateShopperContext).not.toHaveBeenCalled();
             } finally {
                 // Restore original mock
                 vi.mocked(configModule.getConfig).mockReturnValue({
@@ -112,12 +126,10 @@ describe('shopper-context.client', () => {
                             siteId: 'test-site',
                         },
                     },
-                    site: {
-                        features: {
-                            shopperContext: {
-                                enabled: true,
-                                dwsourcecodeCookieSuffix: 'test-site',
-                            },
+                    features: {
+                        shopperContext: {
+                            enabled: true,
+                            dwsourcecodeCookieSuffix: 'test-site',
                         },
                     },
                 } as any);
@@ -125,6 +137,7 @@ describe('shopper-context.client', () => {
         });
 
         test('should call next() when Page Designer mode is active', async () => {
+            vi.mocked(isPageDesignerMode).mockReturnValue(true);
             mockWindow.location.href = 'https://example.com?mode=EDIT';
 
             await shopperContextMiddleware(
@@ -133,7 +146,7 @@ describe('shopper-context.client', () => {
             );
 
             expect(mockNext).toHaveBeenCalledOnce();
-            expect(createShopperContext).not.toHaveBeenCalled();
+            expect(updateShopperContext).not.toHaveBeenCalled();
         });
 
         test('should call next() when no USID is available', async () => {
@@ -145,96 +158,14 @@ describe('shopper-context.client', () => {
             );
 
             expect(mockNext).toHaveBeenCalledOnce();
-            expect(createShopperContext).not.toHaveBeenCalled();
+            expect(updateShopperContext).not.toHaveBeenCalled();
         });
 
-        test('should process shopper context when conditions are met', async () => {
+        test('should call updateShopperContext when conditions are met', async () => {
             mockWindow.location.href = 'https://example.com?src=email';
-            vi.mocked(getCookie).mockReturnValue('');
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            expect(mockNext).toHaveBeenCalledOnce();
-            expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', { sourceCode: 'email' });
-        });
-    });
-
-    describe('cookie handling', () => {
-        test('should read existing cookies', async () => {
-            const existingContext = { sourceCode: 'email' };
-            vi.mocked(getCookie)
-                .mockReturnValueOnce('') // context cookie
-                .mockReturnValueOnce(existingContext.sourceCode); // sourceCode cookie
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            expect(getCookie).toHaveBeenCalledWith('storefront-next-context-test-usid');
-            expect(getCookie).toHaveBeenCalledWith('dwsourcecode_test-site');
-        });
-
-        test('should set cookies when context changes', async () => {
-            mockWindow.location.href = 'https://example.com?src=email';
-            vi.mocked(getCookie).mockReturnValue('');
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            expect(setNamespacedCookie).toHaveBeenCalledWith(
-                'dwsourcecode_test-site',
-                JSON.stringify({ sourceCode: 'email' }),
-                expect.objectContaining({ expires: expect.any(Date) })
-            );
-            expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', { sourceCode: 'email' });
-        });
-
-        test('should not set cookies when context has not changed', async () => {
-            mockWindow.location.href = 'https://example.com'; // No URL params
-            vi.mocked(getCookie)
-                .mockReturnValueOnce('') // storefront-next-context
-                .mockReturnValueOnce(''); // dwsourcecode
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            // setNamespacedCookie should not be called if context hasn't changed
-            expect(mockNext).toHaveBeenCalledOnce();
-            expect(createShopperContext).not.toHaveBeenCalled();
-            expect(setNamespacedCookie).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('error handling', () => {
-        test('should not fail request when createShopperContext throws', async () => {
-            const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            vi.mocked(createShopperContext).mockRejectedValue(new Error('API Error'));
-            mockWindow.location.href = 'https://example.com?src=email';
-            vi.mocked(getCookie).mockReturnValue({});
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            expect(mockNext).toHaveBeenCalledOnce();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('Shopper context middleware error:', expect.any(Error));
-
-            consoleErrorSpy.mockRestore();
-        });
-
-        test('should continue processing even if cookie operations fail', async () => {
-            const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            vi.mocked(getCookie).mockImplementation(() => {
-                throw new Error('Cookie read error');
+            vi.mocked(extractQualifiersFromUrl).mockReturnValue({
+                qualifiers: {},
+                sourceCodeQualifiers: { sourceCode: 'email' },
             });
 
             await shopperContextMiddleware(
@@ -243,170 +174,39 @@ describe('shopper-context.client', () => {
             );
 
             expect(mockNext).toHaveBeenCalledOnce();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('Shopper context middleware error:', expect.any(Error));
+            expect(updateShopperContext).toHaveBeenCalledWith({
+                context: mockContext,
+                usid: 'test-usid',
+                newShopperContext: {},
+                newSourceCodeContext: { sourceCode: 'email' },
+            });
+        });
+    });
+
+    describe('error handling', () => {
+        test('should catch and log errors from updateShopperContext', async () => {
+            const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            vi.mocked(updateShopperContext).mockRejectedValue(new Error('Update error'));
+            mockWindow.location.href = 'https://example.com?src=email';
+            vi.mocked(extractQualifiersFromUrl).mockReturnValue({
+                qualifiers: {},
+                sourceCodeQualifiers: { sourceCode: 'email' },
+            });
+
+            await shopperContextMiddleware(
+                { context: mockContext, params: {}, request: new Request('https://example.com') },
+                mockNext
+            );
+
+            expect(mockNext).toHaveBeenCalledOnce();
+            // Error is caught and logged with structured object
+            expect(consoleErrorSpy).toHaveBeenCalledWith('Shopper context client middleware error:', {
+                error: 'Update error',
+                usid: 'test-usid',
+                url: 'https://example.com?src=email',
+            });
 
             consoleErrorSpy.mockRestore();
-        });
-    });
-
-    describe('URL parameter extraction', () => {
-        test('should extract qualifiers from window.location.href', async () => {
-            mockWindow.location.href = 'https://example.com?src=email';
-            vi.mocked(getCookie).mockReturnValue('');
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', { sourceCode: 'email' });
-        });
-
-        test('should handle URLs without query parameters', async () => {
-            mockWindow.location.href = 'https://example.com';
-            vi.mocked(getCookie).mockReturnValue('');
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            expect(createShopperContext).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('sourceCode handling', () => {
-        test('should update sourceCode when present in URL', async () => {
-            mockWindow.location.href = 'https://example.com?src=email';
-            vi.mocked(getCookie).mockReturnValue('');
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', { sourceCode: 'email' });
-            // Verify sourceCode cookie was set
-            expect(setNamespacedCookie).toHaveBeenCalledWith(
-                'dwsourcecode_test-site',
-                JSON.stringify({ sourceCode: 'email' }),
-                expect.objectContaining({ expires: expect.any(Date) })
-            );
-        });
-
-        test('should not call API when no new qualifiers in URL', async () => {
-            // Set up: no existing context cookie, but sourceCode cookie has value
-            mockWindow.location.href = 'https://example.com'; // No URL params
-            vi.mocked(getCookie)
-                .mockReturnValueOnce('') // storefront-next-context is empty
-                .mockReturnValueOnce(''); // dwsourcecode is empty
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            // No new qualifiers, so API should not be called
-            expect(createShopperContext).not.toHaveBeenCalled();
-            expect(setNamespacedCookie).not.toHaveBeenCalled();
-        });
-
-        test('should restore sourceCode from dwsourcecode cookie when storefront-next-context is empty/expired', async () => {
-            // Scenario: context cookie is empty/expired, but sourceCode cookie has value
-            // This tests the restoration logic through the full middleware flow
-            mockWindow.location.href = 'https://example.com'; // No URL params
-            vi.mocked(getCookie)
-                .mockReturnValueOnce('') // storefront-next-context is empty
-                .mockReturnValueOnce(''); // dwsourcecode is empty
-
-            await shopperContextMiddleware(
-                { context: mockContext, params: {}, request: new Request('https://example.com') },
-                mockNext
-            );
-
-            // Should compute effective context but not call API since no new qualifiers
-            expect(mockNext).toHaveBeenCalledOnce();
-            // No new qualifiers, so API should not be called
-            expect(createShopperContext).not.toHaveBeenCalled();
-            expect(setNamespacedCookie).not.toHaveBeenCalled();
-        });
-
-        test('should set context cookie when hasNewContext is true', async () => {
-            // Mock extractQualifiersFromUrl to return qualifiers (not sourceCode) to trigger hasNewContext path
-            const shopperContextUtils = await import('@/lib/shopper-context-utils');
-            const extractQualifiersFromUrlSpy = vi
-                .spyOn(shopperContextUtils, 'extractQualifiersFromUrl')
-                .mockReturnValue({
-                    qualifiers: { deviceType: 'mobile' },
-                    sourceCodeQualifiers: {},
-                });
-
-            try {
-                mockWindow.location.href = 'https://example.com?deviceType=mobile';
-                vi.mocked(getCookie).mockReturnValue('');
-
-                await shopperContextMiddleware(
-                    { context: mockContext, params: {}, request: new Request('https://example.com') },
-                    mockNext
-                );
-
-                // Verify context cookie was set (not sourceCode cookie)
-                const contextCookieName = 'storefront-next-context-test-usid';
-                expect(setNamespacedCookie).toHaveBeenCalledWith(
-                    contextCookieName,
-                    JSON.stringify({ deviceType: 'mobile' }),
-                    expect.objectContaining({ expires: expect.any(Date) })
-                );
-                expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', {
-                    customQualifiers: {
-                        deviceType: 'mobile',
-                    },
-                });
-            } finally {
-                extractQualifiersFromUrlSpy.mockRestore();
-            }
-        });
-
-        test('should set both sourceCode and context cookies when both are present', async () => {
-            // Mock extractQualifiersFromUrl to return both sourceCode and qualifiers
-            const shopperContextUtils = await import('@/lib/shopper-context-utils');
-            const extractQualifiersFromUrlSpy = vi
-                .spyOn(shopperContextUtils, 'extractQualifiersFromUrl')
-                .mockReturnValue({
-                    qualifiers: { deviceType: 'mobile' },
-                    sourceCodeQualifiers: { sourceCode: 'email' },
-                });
-
-            try {
-                mockWindow.location.href = 'https://example.com?src=email&deviceType=mobile';
-                vi.mocked(getCookie).mockReturnValue('');
-
-                await shopperContextMiddleware(
-                    { context: mockContext, params: {}, request: new Request('https://example.com') },
-                    mockNext
-                );
-
-                // Verify both cookies were set
-                expect(setNamespacedCookie).toHaveBeenCalledWith(
-                    'dwsourcecode_test-site',
-                    JSON.stringify({ sourceCode: 'email' }),
-                    expect.objectContaining({ expires: expect.any(Date) })
-                );
-                const contextCookieName = 'storefront-next-context-test-usid';
-                expect(setNamespacedCookie).toHaveBeenCalledWith(
-                    contextCookieName,
-                    JSON.stringify({ deviceType: 'mobile' }),
-                    expect.objectContaining({ expires: expect.any(Date) })
-                );
-                expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', {
-                    sourceCode: 'email',
-                    customQualifiers: {
-                        deviceType: 'mobile',
-                    },
-                });
-            } finally {
-                extractQualifiersFromUrlSpy.mockRestore();
-            }
         });
     });
 });
