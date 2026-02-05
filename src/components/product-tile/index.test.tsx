@@ -29,6 +29,18 @@ import { CurrencyProvider } from '@/providers/currency';
 
 vi.mock('@/lib/product-utils', () => ({
     createProductUrl: vi.fn(() => '/product/test-product'),
+    getImagesForColor: vi.fn(() => [
+        {
+            link: 'https://example.com/default1.jpg',
+            disBaseLink: 'https://example.com/default1.jpg',
+            alt: 'Default Image 1',
+        },
+        {
+            link: 'https://example.com/default2.jpg',
+            disBaseLink: 'https://example.com/default2.jpg',
+            alt: 'Default Image 2',
+        },
+    ]),
     getDecoratedVariationAttributes: vi.fn(() => [
         {
             id: 'color',
@@ -95,13 +107,11 @@ const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
                     alt: 'Navy swatch',
                     link: 'https://example.com/navy.jpg',
                     disBaseLink: 'https://example.com/navy.jpg',
-                    variationAttributes: [{ id: 'color', values: [{ value: 'navy' }] }],
                 },
                 {
                     alt: 'Red swatch',
                     link: 'https://example.com/red.jpg',
                     disBaseLink: 'https://example.com/red.jpg',
-                    variationAttributes: [{ id: 'color', values: [{ value: 'red' }] }],
                 },
             ],
         },

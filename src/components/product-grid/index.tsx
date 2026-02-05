@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ReactElement } from 'react';
+import { type ReactElement, useCallback } from 'react';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import DynamicImageProvider from '@/providers/dynamic-image';
 import { ProductTile } from '@/components/product-tile';
 
 interface ProductGridProps {
@@ -22,8 +23,20 @@ interface ProductGridProps {
     handleProductClick?: (product: ShopperSearch.schemas['ProductSearchHit']) => void;
 }
 export default function ProductGrid({ products, handleProductClick }: ProductGridProps): ReactElement {
+    // Initialize the `<DynamicImageProvider/>` behavior for the scope of this grid.
+    // Out-of-the-box we make sure that the first product image that's downstream to be displayed inside a
+    // `<DynamicImage/>` component, should be loaded with priority.
+    const addSource = useCallback((src: string, urls: Set<string>) => {
+        if (!urls.size) {
+            urls.add(src);
+            return true;
+        }
+        return false;
+    }, []);
+    const hasSource = useCallback((src: string, urls: Set<string>) => urls.has(src), []);
+
     return (
-        <>
+        <DynamicImageProvider value={{ addSource, hasSource }}>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8">
                 {products.map((product) => (
                     <ProductTile key={product.productId} product={product} handleProductClick={handleProductClick} />
@@ -36,6 +49,6 @@ export default function ProductGrid({ products, handleProductClick }: ProductGri
                     <p className="text-lg text-muted-foreground">No products found.</p>
                 </div>
             )}
-        </>
+        </DynamicImageProvider>
     );
 }
