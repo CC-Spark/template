@@ -22,6 +22,7 @@ import type {
     ProductDescriptionData,
     ReturnsAndWarrantyData,
     ReviewsData,
+    ShippingEstimate,
     SizeGuideData,
     TechSpecsData,
     UsageInstructionsData,
@@ -106,4 +107,9 @@ export interface ProductContentAdapter {
      * Get Write a Review form config for PDP (submit review modal). Excludes name and email.
      */
     getWriteReviewForm?(productId?: string): Promise<WriteReviewFormData>;
+
+    /**
+     * Get shipping estimates for a product to a destination zipcode
+     */
+    getShippingEstimates?(productId?: string, zipcode?: string): Promise<ShippingEstimate>;
 }

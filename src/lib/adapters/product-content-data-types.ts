@@ -287,4 +287,17 @@ export interface WriteReviewFormData {
     submitLabel: string;
 }
 
-// --- Future: add types for shipping estimates, etc. ---
+// --- Shipping Estimates ---
+
+/**
+ * Shipping estimate for PDP delivery calculator.
+ * Returns estimated delivery date, cost, and days for a specific zipcode.
+ */
+export interface ShippingEstimate {
+    /** Estimated delivery date in ISO format (YYYY-MM-DD) */
+    delivery_date: string;
+    /** Shipping cost in dollars (0 = free shipping) */
+    cost: number;
+    /** Estimated delivery days from now */
+    days: number;
+}

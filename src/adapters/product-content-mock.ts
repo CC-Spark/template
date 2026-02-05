@@ -23,6 +23,7 @@ import type {
     ProductDescriptionData,
     ReturnsAndWarrantyData,
     ReviewsData,
+    ShippingEstimate,
     SizeGuideData,
     TechSpecsData,
     UsageInstructionsData,
@@ -439,6 +440,45 @@ export function createProductContentMockAdapter(config: ProductContentMockAdapte
         getWriteReviewForm: async (_productId?: string): Promise<WriteReviewFormData> => {
             await simulateDelay(mockDelay);
             return MOCK_WRITE_REVIEW_FORM_DATA;
+        },
+        /**
+         * Get shipping estimates for a product to a destination
+         *
+         * Mock implementation returns 3-5 day delivery estimates based on zipcode.
+         *
+         * Features:
+         * - Simulated network delay (configurable)
+         * - Deterministic delivery estimates based on zipcode
+         * - Error simulation for testing (zipcode 99999 always fails)
+         */
+        getShippingEstimates: async (_productId?: string, zipcode?: string): Promise<ShippingEstimate> => {
+            await simulateDelay(mockDelay);
+
+            if (!zipcode) {
+                throw new Error('ZIP code is required');
+            }
+
+            // Simulate error for specific zipcode (99999)
+            if (zipcode === '99999') {
+                throw new Error('Delivery not available to this zipcode');
+            }
+
+            // Calculate 3-5 days based on zipcode (deterministic for consistent testing)
+            const seed = parseInt(zipcode.slice(-2)) || 1;
+            const days = (seed % 3) + 3; // 3-5 days
+            const date = new Date();
+            date.setDate(date.getDate() + days);
+
+            // Calculate cost based on zipcode (some are free, some have cost)
+            // If last digit is even, free shipping; if odd, $5.99
+            const lastDigit = parseInt(zipcode.slice(-1)) || 0;
+            const cost = lastDigit % 2 === 0 ? 0 : 5.99;
+
+            return {
+                delivery_date: date.toISOString().split('T')[0],
+                cost,
+                days,
+            };
         },
     };
 }
