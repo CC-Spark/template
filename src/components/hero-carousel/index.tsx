@@ -267,11 +267,11 @@ export function HeroCarouselPlain({
                     loop: true,
                     containScroll: 'trimSnaps',
                 }}
-                className="w-full h-full">
+                className="w-full h-full [&_[data-slot=carousel-content]]:h-full [&_[data-slot=carousel-item]]:h-full">
                 {/* Passing -ml-4 to the CarouselContent to prevent CLS issues during hydration */}
-                <CarouselContent>
+                <CarouselContent className="h-full">
                     {slides.map((slide) => (
-                        <CarouselItem key={slide.id}>
+                        <CarouselItem key={slide.id} className="h-full">
                             <HeroSlideContent slide={image ? { ...slide, imageUrl: image.url } : slide} />
                         </CarouselItem>
                     ))}

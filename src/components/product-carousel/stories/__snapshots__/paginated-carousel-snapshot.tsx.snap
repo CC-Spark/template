@@ -21,15 +21,15 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
       role="region"
     >
       <div
-        class="overflow-hidden h-full"
+        class="overflow-hidden"
         data-slot="carousel-content"
       >
         <div
-          class="flex h-full -ml-4 items-stretch flex-nowrap"
+          class="flex -ml-4 items-stretch flex-nowrap"
         >
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -202,7 +202,7 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -375,7 +375,7 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -548,7 +548,7 @@ exports[`PaginatedProductCarousel stories snapshot > AllLoaded story renders and
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -813,15 +813,15 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
       role="region"
     >
       <div
-        class="overflow-hidden h-full"
+        class="overflow-hidden"
         data-slot="carousel-content"
       >
         <div
-          class="flex h-full -ml-4 items-stretch flex-nowrap"
+          class="flex -ml-4 items-stretch flex-nowrap"
         >
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -994,7 +994,7 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -1167,7 +1167,7 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -1340,7 +1340,7 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -1513,7 +1513,7 @@ exports[`PaginatedProductCarousel stories snapshot > Default story renders and m
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0"
+            class="min-w-0 shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -1619,15 +1619,15 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
       role="region"
     >
       <div
-        class="overflow-hidden h-full"
+        class="overflow-hidden"
         data-slot="carousel-content"
       >
         <div
-          class="flex h-full -ml-4 items-stretch flex-nowrap"
+          class="flex -ml-4 items-stretch flex-nowrap"
         >
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -1800,7 +1800,7 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -1973,7 +1973,7 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -2146,7 +2146,7 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
           </div>
           <div
             aria-roledescription="slide"
-            class="shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
+            class="shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0 min-w-0"
             data-slot="carousel-item"
             role="group"
           >
@@ -2319,7 +2319,7 @@ exports[`PaginatedProductCarousel stories snapshot > LoadingState story renders 
           </div>
           <div
             aria-roledescription="slide"
-            class="min-w-0 shrink-0 grow-0 h-full basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0"
+            class="min-w-0 shrink-0 grow-0 basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex justify-center pl-0"
             data-slot="carousel-item"
             role="group"
           >
