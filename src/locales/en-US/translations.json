@@ -261,6 +261,10 @@
             "completeTheLook": "Complete the look",
             "recentlyViewed": "Recently viewed"
         },
+        "rating": {
+            "starContainerAriaLabel": "{{rating}} out of {{total}} stars, {{count}} reviews",
+            "viewAllReviews": "View all reviews"
+        },
         "from": "from",
         "outOfStock": "Out of stock for {{productName}}",
         "onlyLeft": "Only {{stockLevel}} left for {{productName}}!",

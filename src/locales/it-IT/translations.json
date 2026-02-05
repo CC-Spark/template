@@ -250,6 +250,10 @@
             "completeTheLook": "Completa il look",
             "recentlyViewed": "Visualizzati di recente"
         },
+        "rating": {
+            "starContainerAriaLabel": "{{rating}} su {{total}} stelle, {{count}} recensioni",
+            "viewAllReviews": "Visualizza tutte le recensioni"
+        },
         "from": "da",
         "outOfStock": "Esaurito per {{productName}}",
         "onlyLeft": "Ne rimangono solo {{stockLevel}} per {{productName}}!",
