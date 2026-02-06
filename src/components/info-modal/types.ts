@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { type ReactNode } from 'react';
-
 /**
  * Payment schedule data for installment payment modal
  */
@@ -55,30 +53,26 @@ export interface ModalLink {
     openInNewTab?: boolean;
 }
 
-/**
- * Structured data for different modal types
- */
-export interface InfoModalData {
-    /** Modal type - determines rendering logic */
-    type?: 'payment-schedule' | 'generic';
-    /** Modal title */
+/** Shared fields for modal header */
+interface InfoModalDataBase {
     title?: string;
-    /** Modal description/subtitle */
     description?: string;
-
-    // Payment schedule-specific data
-    /** Payment schedule for payment plans */
-    paymentSchedule?: PaymentSchedule;
-    /** Steps for "How it works" section */
-    steps?: StepInfo[];
-    /** Disclaimer text */
-    disclaimer?: string;
-    /** Footer links */
-    links?: ModalLink[];
-
-    /** Generic content (ReactNode) - used when type is 'generic' or no specific type data */
-    content?: ReactNode;
 }
+
+/** Data for payment schedule modal (e.g. Pay in 4) */
+export interface PaymentScheduleModalData extends InfoModalDataBase {
+    type: 'payment-schedule';
+    paymentSchedule?: PaymentSchedule;
+    steps?: StepInfo[];
+    disclaimer?: string;
+    links?: ModalLink[];
+}
+
+/**
+ * Structured data for the info modal. Add new modal types by defining a new variant
+ * (e.g. SizeGuideModalData) and extending this union.
+ */
+export type InfoModalData = PaymentScheduleModalData;
 
 export interface InfoModalProps {
     open: boolean;

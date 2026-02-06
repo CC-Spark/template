@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from 'storybook/test';
+import { waitForStorybookReady } from '@storybook/test-utils';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { PaymentScheduleModalContent } from '../../payment-schedule-modal-content';
 import type { PaymentSchedule, StepInfo, ModalLink } from '../../../types';
@@ -119,6 +121,14 @@ export const Default: Story = {
         ],
         currency: 'USD',
     },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText('Payment Schedule')).toBeInTheDocument();
+        await expect(canvas.getByText('How it works')).toBeInTheDocument();
+        await expect(canvas.getByText('Subject to credit approval. Terms apply.')).toBeInTheDocument();
+        await expect(canvas.getByText('Learn more')).toBeInTheDocument();
+    },
 };
 
 export const PaymentScheduleOnly: Story = {
@@ -135,6 +145,12 @@ export const PaymentScheduleOnly: Story = {
         },
         currency: 'USD',
     },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText('Payment Schedule')).toBeInTheDocument();
+        await expect(canvas.getByText('Today')).toBeInTheDocument();
+    },
 };
 
 export const StepsOnly: Story = {
@@ -146,6 +162,12 @@ export const StepsOnly: Story = {
         ],
         currency: 'USD',
     },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText('How it works')).toBeInTheDocument();
+        await expect(canvas.getByText('Select payment method at checkout')).toBeInTheDocument();
+    },
 };
 
 export const WithLinks: Story = {
@@ -155,5 +177,11 @@ export const WithLinks: Story = {
             { text: 'Terms and conditions', url: '/terms', openInNewTab: true },
         ],
         currency: 'USD',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText('Learn more about payment plans')).toBeInTheDocument();
+        await expect(canvas.getByText('Terms and conditions')).toBeInTheDocument();
     },
 };

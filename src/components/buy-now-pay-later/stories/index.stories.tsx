@@ -134,6 +134,8 @@ export const Default: Story = {
 export const WithModalInteraction: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
+        // Preload the lazy InfoModal chunk so it is ready when "Learn more" is clicked
+        await import('@/components/info-modal');
         const canvas = within(canvasElement);
 
         // Find and click the "Learn more" button
@@ -142,10 +144,11 @@ export const WithModalInteraction: Story = {
 
         await userEvent.click(learnMoreButton);
 
-        // Verify modal opens (check for dialog in document body)
+        // Verify modal opens (dialog in document body via portal)
         const documentBody = within(document.body);
-        await expect(documentBody.getByRole('dialog')).toBeInTheDocument();
+        const dialog = await documentBody.findByRole('dialog', {}, { timeout: 5000 });
+        await expect(dialog).toBeInTheDocument();
         await expect(documentBody.getByText('Information')).toBeInTheDocument();
-        await expect(documentBody.getByText('No data available.')).toBeInTheDocument();
+        await expect(within(dialog).getByText('No data available.')).toBeInTheDocument();
     },
 };
