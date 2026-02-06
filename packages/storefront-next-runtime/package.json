@@ -2,7 +2,6 @@
   "name": "@salesforce/storefront-next-runtime",
   "version": "0.2.0-dev",
   "description": "Runtime agnostic libraries for SFCC Storefront Next",
-  "private": true,
   "type": "module",
   "exports": {
     "./design": {
@@ -75,7 +74,7 @@
     "runtime"
   ],
   "author": "cc-pwa-kit@salesforce.com",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "openapi-fetch": "0.15.0"
   },
@@ -104,6 +103,6 @@
     "node": ">=24.0.0"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   }
 }

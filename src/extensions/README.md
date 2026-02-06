@@ -134,7 +134,7 @@ For complete documentation on i18n, including usage patterns, best practices, an
 ## Generating Installation/Uninstallation Instructions
 If you’re building an extension for customer distribution, you can generate installation and uninstallation instructions that both humans and LLMs can follow to complete the install/uninstall steps.
 ```
-npx @salesforce/sfnext create-instructions -d /path/to/this/project -c /path/to/src/extensions/config.json -e SFDC_EXT_STORE_LOCATOR -p https://github.com/your/template.git -f /path/to/src/extensions/your-extension
+npx @salesforce/storefront-next-dev create-instructions -d /path/to/this/project -c /path/to/src/extensions/config.json -e SFDC_EXT_STORE_LOCATOR -p https://github.com/your/template.git -f /path/to/src/extensions/your-extension
 ```
  Complete options:
 

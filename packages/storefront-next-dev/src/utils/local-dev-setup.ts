@@ -26,7 +26,7 @@
  *    with file-linked packages
  *
  * Usage:
- *   npx storefront-next-dev prepare-local -d ./my-storefront -s /path/to/monorepo/packages
+ *   npx @salesforce/storefront-next-dev prepare-local -d ./my-storefront -s /path/to/monorepo/packages
  */
 
 import path from 'path';

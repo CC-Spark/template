@@ -1,6 +1,9 @@
 # @salesforce/storefront-next-dev
 
-Vite plugin and deployment tools for Salesforce Odyssey integration with React Router v7 and React Server Components.
+Vite plugin and deployment tools for Storefront Next integration with React Router v7 and React Server Components.
+
+> [!IMPORTANT]
+> Storefront Next is a pilot or beta service that is subject to the Beta Services Terms at [Agreements - Salesforce.com](https://www.salesforce.com/company/legal/agreements/) or a written Unified Pilot Agreement if executed by Customer, and applicable terms in the [Product Terms Directory](https://ptd.salesforce.com/). Use of this pilot or beta service is at the Customer's sole discretion.
 
 ## Features
 
@@ -30,7 +33,7 @@ Vite plugin and deployment tools for Salesforce Odyssey integration with React R
 ## Installation
 
 ```bash
-npm install @salesforce/storefront-next-dev
+pnpm add @salesforce/storefront-next-dev
 ```
 
 ## Usage
@@ -41,11 +44,11 @@ Add the plugin to your `vite.config.ts`:
 
 ```typescript
 import { defineConfig } from 'vite';
-import odysseyPlugin from '@salesforce/storefront-next-dev';
+import storefrontNextPlugin from '@salesforce/storefront-next-dev';
 
 export default defineConfig({
     plugins: [
-        odysseyPlugin({
+        storefrontNextPlugin({
             readableChunkNames: false, // optional
         }),
     ],
@@ -70,49 +73,49 @@ export default {
 #### Create storefront
 ```bash
 # Create storefront
-sfnext create-storefront
+pnpm dlx @salesforce/storefront-next-dev create-storefront
 ```
 
 #### Push bundle
 
 ```bash
 # Push bundle
-sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment
+pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment
 
 # Push bundle and wait for deployment
-sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment --wait
+pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment --wait
 
 # Push with custom message
-sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment --message "Release v1.2.3"
+pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment --message "Release v1.2.3"
 
 # Push without deployment (upload only)
-sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id
+pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id
 
 # With custom build directory
-sfnext push --project-directory /path/to/your/project --build-directory /custom/build/path --project-slug mrt-project-id --target mrt-target-environment
+pnpm sfnext push --project-directory /path/to/your/project --build-directory /custom/build/path --project-slug mrt-project-id --target mrt-target-environment
 ```
 
 #### Generate extension instructions
 
 ```bash
 # Generate extension instructions
-sfnext create-instructions --project-directory /path/to/your/project --extension-config /path/to/extension/config/file --extension SFDC_EXT_STORE_LOCATOR --template-repo https://github.com/SalesforceCommerceCloud/storefront-next-template.git --branch main --files /path/to/your/new/extension/files --output-dir /path/to/instruction/files
+pnpm sfnext create-instructions --project-directory /path/to/your/project --extension-config /path/to/extension/config/file --extension SFDC_EXT_STORE_LOCATOR --template-repo https://github.com/SalesforceCommerceCloud/storefront-next-template.git --branch main --files /path/to/your/new/extension/files --output-dir /path/to/instruction/files
 ```
 
 #### Cartridge generation and deployment instructions
 
 ```bash
 # Generate cartridge metadata for your site
-sfnext generate-cartridge --project-directory /path/to/your/project
+pnpm sfnext generate-cartridge --project-directory /path/to/your/project
 
 # Deploy generated metadata to Commerce Cloud (uses dw.json for all settings)
-sfnext deploy-cartridge --project-directory /path/to/your/project
+pnpm sfnext deploy-cartridge --project-directory /path/to/your/project
 
 # Deploy cartridge to Commerce Cloud (uses dw.json for all settings)
-sfnext deploy-cartridge my-cartridge.zip
+pnpm sfnext deploy-cartridge my-cartridge.zip
 
 # Deploy with both custom instance and version
-sfnext deploy-cartridge my-cartridge.zip -i yourCommerceInstance -v custom-version
+pnpm sfnext deploy-cartridge my-cartridge.zip -i yourCommerceInstance -v custom-version
 ```
 
 
@@ -120,7 +123,7 @@ sfnext deploy-cartridge my-cartridge.zip -i yourCommerceInstance -v custom-versi
 
 #### Push bundle
 
-Run `sfnext push --help` to see all available options:
+Run `pnpm sfnext push --help` to see all available options:
 
 - `-b, --build-directory <dir>`: Build directory to push (default: auto-detected)
 - `-m, --message <message>`: Bundle message (default: git branch:commit)
@@ -134,28 +137,28 @@ Run `sfnext push --help` to see all available options:
 
 #### Manage extensions
 
-Run `sfnext extensions list` to view the list of installed extensions
+Run `pnpm sfnext extensions list` to view the list of installed extensions
 - `-d, --project-directory`: Target project directory (default: current directory)
 
-Run `sfnext extensions install` to install a new extension
+Run `pnpm sfnext extensions install` to install a new extension
 - `-d, --project-directory`: Target project directory (default: current directory)
 - `-e, --extension`: Extension marker value (e.g. SFDC_EXT_STORE_LOCATOR)
 - `-s, --source-git-url`: Git URL of the source template project (default: "https://github.com/SalesforceCommerceCloud/storefront-next-template.git")
 - `-v, --verbose`: Verbose mode
 
-Run `sfnex extensions remove` to remove existing extensions
+Run `pnpm sfnext extensions remove` to remove existing extensions
 - `-d, --project-directory`: Target project directory (default: current directory)
 - `-e, --extensions`: Comma-separated list of extension marker values (e.g. SFDC_EXT_STORE_LOCATOR,SFDC_EXT_INTERNAL_THEME_SWITCHER)
 - `-v, --verbose`: Verbose mode
 
-Run `sfnext extensions create` to create a new extension scaffolding
+Run `pnpm sfnext extensions create` to create a new extension scaffolding
 - `-p, --project-directory`: Target project directory (default: current directory)
 - `-n, --name`: New extension name (e.g., Store Locator)
 - `-d, --description`: Description for the extension
 
 #### Generate extension instructions
 
-Run `sfnext create-instructions --help` to see all available options:
+Run `pnpm sfnext create-instructions --help` to see all available options:
 
 - `-d, --project-directory <dir>`: Project directory
 - `-c, --extension-config <config>`: Extension config JSON file location
@@ -164,23 +167,6 @@ Run `sfnext create-instructions --help` to see all available options:
 - `-b, --branch <branch>`: PWA repo branch (default: main)
 - `-f, --files <files...>`: Specific files to include (relative to project directory)
 - `-o, --output-dir <dir>`: Output directory (default: ./instructions)
-
-### Programmatic Usage
-
-```typescript
-import { push, type PushOptions } from '@salesforce/storefront-next-dev/push';
-
-// With explicit options type
-const options: PushOptions = {
-    projectDirectory: '/path/to/your/project',
-    target: 'mrt-target-environment',
-    projectSlug: 'mrt-project-id',
-    wait: true,
-    message: 'Automated deployment',
-};
-
-await push(options);
-```
 
 ## Configuration
 
@@ -267,7 +253,7 @@ export const GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH = true; // Set to true to
 **Prerequisites:**
 - A valid `dw.json` file must be present in the storefront-next-dev package directory with Commerce Cloud credentials (see "Deploy Cartridge Command Authentication" section above)
 
-When enabled, before each `sfnext push` command:
+When enabled, before each `pnpm sfnext push` command:
 1. Cartridge metadata will be automatically generated from decorated components
 2. The cartridge will be automatically deployed to Commerce Cloud
 3. The MRT push will proceed as normal
@@ -276,7 +262,7 @@ If generation or deployment fails:
 - A warning is displayed with manual command suggestions
 - The MRT push still succeeds (cartridge errors don't block deployments)
 
-You can still run `sfnext generate-cartridge` and `sfnext deploy-cartridge` manually at any time.
+You can still run `pnpm sfnext generate-cartridge` and `pnpm sfnext deploy-cartridge` manually at any time.
 
 > **Note:** This feature is designed for development workflows where you want to keep Page Designer metadata in sync with your deployments. For production CI/CD pipelines, consider running `sfnext generate-cartridge` and `sfnext deploy-cartridge` as separate, explicit steps for better control and error handling.
 
@@ -314,4 +300,3 @@ For optimal tree-shaking, use subpath exports:
 - `@salesforce/storefront-next-dev` - Vite plugin (default export)
 - `@salesforce/storefront-next-dev/react-router-preset` - React Router preset
 - `@salesforce/storefront-next-dev/react-router/Scripts` - React Router Scripts component
-- `@salesforce/storefront-next-dev/push` - Programmatic push API (tree-shakes CLI dependencies)

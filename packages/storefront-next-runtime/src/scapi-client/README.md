@@ -38,7 +38,7 @@ The SCAPI client includes a built-in `auth` namespace that provides a unified, t
 To enable authentication, provide the required auth parameters when creating the clients:
 
 ```typescript
-import { createCommerceApiClients } from '@salesforce/storefront-next-runtime/scapi-client';
+import { createCommerceApiClients } from '@salesforce/storefront-next-runtime/scapi';
 
 const clients = createCommerceApiClients({
   // Standard parameters
