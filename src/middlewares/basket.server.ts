@@ -379,6 +379,20 @@ export const getBasket = async (
 };
 
 /**
+ * Returns the cached basket snapshot for the current request.
+ *
+ * This provides a synchronous way to access the most recent basket state
+ * without triggering any additional fetch or async work.
+ *
+ * @param context - Router context containing the basket resource.
+ * @returns The current basket snapshot, or null when unavailable.
+ */
+export const getBasketSnapshot = (context: Readonly<RouterContextProvider>): BasketSnapshot | null => {
+    const basketResource = context.get(basketResourceContext);
+    return basketResource?.snapshot ?? null;
+};
+
+/**
  * Resolve the basket id from snapshot or by fetching the basket if needed.
  *
  * @param context - React Router request context

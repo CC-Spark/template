@@ -39,6 +39,9 @@ const meta: Meta<typeof CartEmptySkeleton> = {
     title: 'SKELETON/CartEmptySkeleton',
     component: CartEmptySkeleton,
     tags: ['autodocs', 'interaction'],
+    args: {
+        productItemCount: 1,
+    },
     parameters: {
         layout: 'fullscreen',
         docs: {
@@ -48,15 +51,10 @@ Skeleton component for the empty cart state. Provides loading placeholders that 
 
 ## Features
 
-- **Icon Placeholder**: Circular skeleton for the shopping cart icon
-- **Message Placeholders**: Skeletons for title and description text
-- **Button Placeholders**: Conditional button skeletons based on user registration state
-- **Responsive Design**: Matches the responsive layout of CartEmpty
-
-## User States
-
-- **Guest Users (isRegistered=false)**: Shows two button skeletons (Continue Shopping + Sign In)
-- **Registered Users (isRegistered=true)**: Shows only one button skeleton (Continue Shopping)
+- **Header Placeholder**: Skeleton for the cart page title
+- **Item Skeletons**: Product image, details, and quantity controls
+- **Summary Skeletons**: Order summary with promo and totals
+- **Responsive Design**: Matches the cart layout across breakpoints
 
 ## Usage
 
@@ -66,12 +64,20 @@ Used as a loading fallback when the cart page is hydrating and the cart is empty
         },
     },
     argTypes: {
-        isRegistered: {
+        _isRegistered: {
             control: 'boolean',
-            description: 'Whether the user is registered/logged in. Affects the number of button skeletons shown.',
+            description: 'Whether the user is registered/logged in.',
             table: {
                 type: { summary: 'boolean' },
                 defaultValue: { summary: 'false' },
+            },
+        },
+        productItemCount: {
+            control: 'number',
+            description: 'Number of item skeletons to render.',
+            table: {
+                type: { summary: 'number' },
+                defaultValue: { summary: '1' },
             },
         },
     },
@@ -89,7 +95,8 @@ type Story = StoryObj<typeof CartEmptySkeleton>;
 
 export const Default: Story = {
     args: {
-        isRegistered: false,
+        _isRegistered: false,
+        productItemCount: 1,
     },
     parameters: {
         docs: {
@@ -97,9 +104,9 @@ export const Default: Story = {
                 story: `
 Default skeleton state for guest users. Shows:
 
-- Icon placeholder in muted circle
-- Title and message text placeholders
-- Two button placeholders (Continue Shopping + Sign In)
+- Cart page title placeholder
+- Product item skeletons with image and controls
+- Order summary skeleton layout
 
 This is the loading state shown before the actual empty cart content loads.
                 `,
@@ -115,7 +122,8 @@ This is the loading state shown before the actual empty cart content loads.
 
 export const GuestUser: Story = {
     args: {
-        isRegistered: false,
+        _isRegistered: false,
+        productItemCount: 1,
     },
     parameters: {
         docs: {
@@ -123,28 +131,36 @@ export const GuestUser: Story = {
                 story: `
 Skeleton state for guest users. Demonstrates:
 
-- Two button placeholders matching the guest user CartEmpty layout
-- Sign-in button placeholder encouraging account creation
-- Full loading state before guest-specific content appears
+- Cart page title placeholder
+- Product item skeletons with image and controls
+- Order summary skeleton layout
                 `,
             },
         },
     },
-    play: async ({ canvasElement }) => {
+    play: async ({ canvasElement, args }) => {
         await waitForStorybookReady(canvasElement);
         const container = canvasElement.querySelector('[data-testid="sf-cart-empty-skeleton"]');
         await expect(container).toBeInTheDocument();
 
-        // Verify two button skeletons are present
-        const buttonContainer = canvasElement.querySelector('.space-y-3');
-        const buttonSkeletons = buttonContainer?.querySelectorAll('.h-9');
-        await expect(buttonSkeletons?.length).toBe(2);
+        if (args.productItemCount && args.productItemCount > 0) {
+            const titleSkeleton = canvasElement.querySelector('.h-8.w-48');
+            await expect(titleSkeleton).toBeInTheDocument();
+            const imageSkeleton = canvasElement.querySelector('.aspect-square');
+            await expect(imageSkeleton).toBeInTheDocument();
+            const summaryTitle = canvasElement.querySelector('.h-6.w-28');
+            await expect(summaryTitle).toBeInTheDocument();
+        } else {
+            const emptyCard = canvasElement.querySelector('.max-w-md.mx-auto');
+            await expect(emptyCard).toBeInTheDocument();
+        }
     },
 };
 
 export const RegisteredUser: Story = {
     args: {
-        isRegistered: true,
+        _isRegistered: true,
+        productItemCount: 1,
     },
     parameters: {
         docs: {
@@ -152,28 +168,36 @@ export const RegisteredUser: Story = {
                 story: `
 Skeleton state for registered/logged-in users. Shows:
 
-- Only one button placeholder (Continue Shopping)
-- No sign-in button placeholder since user is already authenticated
-- Cleaner, simpler skeleton matching the registered user CartEmpty layout
+- Cart page title placeholder
+- Product item skeletons with image and controls
+- Order summary skeleton layout
                 `,
             },
         },
     },
-    play: async ({ canvasElement }) => {
+    play: async ({ canvasElement, args }) => {
         await waitForStorybookReady(canvasElement);
         const container = canvasElement.querySelector('[data-testid="sf-cart-empty-skeleton"]');
         await expect(container).toBeInTheDocument();
 
-        // Verify only one button skeleton is present
-        const buttonContainer = canvasElement.querySelector('.space-y-3');
-        const buttonSkeletons = buttonContainer?.querySelectorAll('.h-9');
-        await expect(buttonSkeletons?.length).toBe(1);
+        if (args.productItemCount && args.productItemCount > 0) {
+            const titleSkeleton = canvasElement.querySelector('.h-8.w-48');
+            await expect(titleSkeleton).toBeInTheDocument();
+            const imageSkeleton = canvasElement.querySelector('.aspect-square');
+            await expect(imageSkeleton).toBeInTheDocument();
+            const promoButton = canvasElement.querySelector('.h-9.w-full');
+            await expect(promoButton).toBeInTheDocument();
+        } else {
+            const emptyCard = canvasElement.querySelector('.max-w-md.mx-auto');
+            await expect(emptyCard).toBeInTheDocument();
+        }
     },
 };
 
 export const MobileView: Story = {
     args: {
-        isRegistered: false,
+        _isRegistered: false,
+        productItemCount: 1,
     },
     parameters: {
         docs: {
@@ -200,7 +224,8 @@ Skeleton state on mobile devices. Demonstrates:
 
 export const TabletView: Story = {
     args: {
-        isRegistered: false,
+        _isRegistered: false,
+        productItemCount: 1,
     },
     parameters: {
         docs: {
@@ -227,7 +252,8 @@ Skeleton state on tablet devices. Shows:
 
 export const DesktopView: Story = {
     args: {
-        isRegistered: false,
+        _isRegistered: false,
+        productItemCount: 1,
     },
     parameters: {
         docs: {

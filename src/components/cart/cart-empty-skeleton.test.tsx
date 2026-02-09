@@ -26,93 +26,43 @@ describe('CartEmptySkeleton', () => {
         });
     });
 
-    describe('User Registration States', () => {
-        test('should render two button skeletons for guest users (isRegistered=false)', () => {
-            const { container } = render(<CartEmptySkeleton isRegistered={false} />);
-
-            // Find the action buttons container (space-y-3)
-            const buttonContainer = container.querySelector('.space-y-3');
-            expect(buttonContainer).toBeInTheDocument();
-
-            // Should have 2 button skeletons for guest users
-            const buttonSkeletons = buttonContainer?.querySelectorAll('.h-9');
-            expect(buttonSkeletons).toHaveLength(2);
-        });
-
-        test('should render only one button skeleton for registered users (isRegistered=true)', () => {
-            const { container } = render(<CartEmptySkeleton isRegistered={true} />);
-
-            // Find the action buttons container (space-y-3)
-            const buttonContainer = container.querySelector('.space-y-3');
-            expect(buttonContainer).toBeInTheDocument();
-
-            // Should have only 1 button skeleton for registered users
-            const buttonSkeletons = buttonContainer?.querySelectorAll('.h-9');
-            expect(buttonSkeletons).toHaveLength(1);
-        });
-    });
-
     describe('Skeleton Structure', () => {
-        test('should render icon skeleton', () => {
+        test('should render empty cart skeleton when item count is undefined', () => {
             const { container } = render(<CartEmptySkeleton />);
-
-            // Icon container with rounded-full class
-            const iconContainer = container.querySelector('.w-16.h-16.rounded-full');
-            expect(iconContainer).toBeInTheDocument();
-
-            // Icon skeleton inside
-            const iconSkeleton = iconContainer?.querySelector('.w-8.h-8');
+            const card = container.querySelector('.max-w-md.mx-auto');
+            const iconSkeleton = container.querySelector('.h-8.w-8');
+            expect(card).toBeInTheDocument();
             expect(iconSkeleton).toBeInTheDocument();
         });
 
-        test('should render message skeletons', () => {
-            const { container } = render(<CartEmptySkeleton />);
-
-            // Message container
-            const messageContainer = container.querySelector('.space-y-2');
-            expect(messageContainer).toBeInTheDocument();
-
-            // Title skeleton (h-7)
-            const titleSkeleton = messageContainer?.querySelector('.h-7');
-            expect(titleSkeleton).toBeInTheDocument();
-
-            // Message skeletons (h-5)
-            const messageSkeletons = messageContainer?.querySelectorAll('.h-5');
-            expect(messageSkeletons).toHaveLength(2);
+        test('should render empty cart skeleton when item count is 0', () => {
+            const { container } = render(<CartEmptySkeleton productItemCount={0} />);
+            const buttonSkeletons = container.querySelectorAll('.h-9.w-full');
+            expect(buttonSkeletons.length).toBeGreaterThanOrEqual(2);
         });
 
-        test('should render card container', () => {
-            const { container } = render(<CartEmptySkeleton />);
-
-            // Card should be present
-            const card = container.querySelector('.max-w-md');
-            expect(card).toBeInTheDocument();
+        test('should render itemized skeletons when item count is greater than 0', () => {
+            const { container } = render(<CartEmptySkeleton productItemCount={1} />);
+            const titleSkeleton = container.querySelector('.h-8.w-48');
+            expect(titleSkeleton).toBeInTheDocument();
+            const imageSkeleton = container.querySelector('.aspect-square');
+            expect(imageSkeleton).toBeInTheDocument();
+            const priceSkeleton = container.querySelector('[class*="w-[8.5rem]"]');
+            expect(priceSkeleton).toBeInTheDocument();
+            const summaryTitle = container.querySelector('.h-6.w-28');
+            expect(summaryTitle).toBeInTheDocument();
         });
     });
 
     describe('Consistent State', () => {
         test('should render consistently across multiple renders', () => {
-            const { rerender } = render(<CartEmptySkeleton />);
+            const { rerender } = render(<CartEmptySkeleton productItemCount={1} />);
 
             expect(screen.getByTestId('sf-cart-empty-skeleton')).toBeInTheDocument();
 
-            rerender(<CartEmptySkeleton />);
+            rerender(<CartEmptySkeleton productItemCount={1} />);
 
             expect(screen.getByTestId('sf-cart-empty-skeleton')).toBeInTheDocument();
-        });
-
-        test('should toggle button count when isRegistered changes', () => {
-            const { container, rerender } = render(<CartEmptySkeleton isRegistered={false} />);
-
-            let buttonContainer = container.querySelector('.space-y-3');
-            let buttonSkeletons = buttonContainer?.querySelectorAll('.h-9');
-            expect(buttonSkeletons).toHaveLength(2);
-
-            rerender(<CartEmptySkeleton isRegistered={true} />);
-
-            buttonContainer = container.querySelector('.space-y-3');
-            buttonSkeletons = buttonContainer?.querySelectorAll('.h-9');
-            expect(buttonSkeletons).toHaveLength(1);
         });
     });
 });
