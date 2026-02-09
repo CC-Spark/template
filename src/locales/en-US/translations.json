@@ -753,7 +753,24 @@
                 "amount": "Amount",
                 "actions": "Actions"
             },
-            "viewDetails": "View Details"
+            "viewDetails": "View Details",
+            "orderDetailsTitle": "Order",
+            "orderDetailsPageTitle": "Order Details",
+            "status": {
+                "new": "New",
+                "inTransit": "In Transit",
+                "delivered": "Delivered"
+            },
+            "shipmentNumber": "Shipment {{n}}",
+            "itemsOrdered": "Items Ordered",
+            "orderSummary": "Order Summary",
+            "backToOrderHistory": "Back to Order History",
+            "orderNotFound": "Order Not Found",
+            "orderNotFoundDescription": "We couldn't find the order you're looking for.",
+            "buyAgain": "Buy Again",
+            "emptyItemsFallback": "No items.",
+            "productPlaceholderInitial": "Item",
+            "quantityLabel": "Qty: {{count}}"
         },
         "addresses": {
             "subtitle": "Manage your shipping addresses",

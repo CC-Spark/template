@@ -714,7 +714,33 @@
             "mustLoginToRemove": "Deve essere connesso per rimuovere articoli dalla Sua lista desideri"
         },
         "orders": {
-            "empty": "Nessun ordine trovato. Inizi a fare shopping per vedere lo storico dei Suoi ordini!"
+            "empty": "Nessun ordine trovato. Inizi a fare shopping per vedere lo storico dei Suoi ordini!",
+            "subtitle": "Visualizza e monitora i Suoi ordini",
+            "tableHeaders": {
+                "orderNumber": "Numero ordine",
+                "status": "Stato",
+                "method": "Metodo",
+                "amount": "Importo",
+                "actions": "Azioni"
+            },
+            "viewDetails": "Dettagli",
+            "orderDetailsTitle": "Ordine",
+            "orderDetailsPageTitle": "Dettaglio ordine",
+            "status": {
+                "new": "Nuovo",
+                "inTransit": "In transito",
+                "delivered": "Consegnato"
+            },
+            "shipmentNumber": "Spedizione {{n}}",
+            "orderSummary": "Riepilogo ordine",
+            "itemsOrdered": "Articoli ordinati",
+            "backToOrderHistory": "Torna allo storico ordini",
+            "orderNotFound": "Ordine non trovato",
+            "orderNotFoundDescription": "Impossibile trovare l'ordine richiesto.",
+            "buyAgain": "Acquista di nuovo",
+            "emptyItemsFallback": "Nessun articolo.",
+            "productPlaceholderInitial": "Articolo",
+            "quantityLabel": "Qtà: {{count}}"
         },
         "addresses": {
             "empty": "Nessun indirizzo salvato. Aggiunga un indirizzo per rendere il checkout più veloce!",
