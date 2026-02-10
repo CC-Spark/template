@@ -16,7 +16,7 @@
 'use client';
 
 // React & Router
-import { forwardRef, type ComponentProps, useState, useCallback, useMemo, useEffect } from 'react';
+import { forwardRef, type ComponentProps, useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 // Types
@@ -31,12 +31,14 @@ import { useConfig } from '@/config';
 import { useCurrency } from '@/providers/currency';
 
 // Components
+import { ProductTileSwatchesSkeleton } from '@/components/category-skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { ProductImageContainer } from '@/components/product-image';
-import { SwatchGroup, Swatch } from '@/components/swatch-group';
-import ProductPrice from '../product-price';
+import ProductPrice from '@/components/product-price';
+
+const LazySwatches = lazy(() => import('./swatches'));
 
 interface ProductTileProps extends ComponentProps<'div'> {
     product: ShopperSearch.schemas['ProductSearchHit'];
@@ -51,17 +53,6 @@ interface ProductTileProps extends ComponentProps<'div'> {
     /** Image aspect ratio (width/height). If provided, calculates height based on viewport width. Defaults to 1 (square) */
     imgAspectRatio?: number;
 }
-
-// Simple component to display the "+X more" indicator for additional swatches
-const MoreSwatchesIndicator = ({ count }: { count: number }) => (
-    <div
-        className="relative shrink-0 rounded-full border-2 border-border bg-background flex items-center justify-center cursor-pointer w-7 h-7"
-        title={`+${count}`}>
-        <svg className="text-muted-foreground w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-    </div>
-);
 
 // Configure which attribute to show swatches for and how many to display
 // Change these constants to adapt to different customer needs
@@ -117,6 +108,9 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
             }
         }, [selectedVariantColorValue]);
         const variationAttributes = useMemo(() => getDecoratedVariationAttributes(product), [product]);
+        const swatchesVariationAttributes = variationAttributes.filter(
+            ({ id }) => PRODUCT_TILE_SELECTABLE_ATTRIBUTE_ID === id
+        );
 
         const handleAttributeChange = useCallback((attributeValue: string) => {
             setSelectedAttributeValue(attributeValue);
@@ -192,76 +186,20 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
 
                         {/* Fixed height for variant selector area */}
                         <div className="h-8 flex items-end">
-                            {/* Attribute Swatch Group - Configurable */}
-                            {variationAttributes
-                                ?.filter(({ id }) => PRODUCT_TILE_SELECTABLE_ATTRIBUTE_ID === id)
-                                ?.map(({ id, name, values }) => {
-                                    // For variant products in wishlist: filter to show only the selected variant's swatch
-                                    // For master products: show all swatches and allow interaction
-                                    const isVariantProduct = disableSwatchInteraction && selectedVariantColorValue;
-                                    const swatchesToShow = isVariantProduct
-                                        ? values?.filter((v) => v.value === selectedVariantColorValue) || []
-                                        : values?.slice(0, maxSwatches) || [];
-
-                                    // Only disable interaction for variant products (when selectedVariantColorValue is provided)
-                                    // Master products should allow interaction for preview
-                                    const shouldDisableInteraction = isVariantProduct;
-
-                                    return (
-                                        <SwatchGroup
-                                            key={id}
-                                            ariaLabel={name}
-                                            value={selectedAttributeValue || ''}
-                                            handleChange={shouldDisableInteraction ? undefined : handleAttributeChange}>
-                                            {swatchesToShow.map(({ name: valueName, swatch, value }) => {
-                                                // For color attributes, show swatch image/color; for others, show text
-                                                const content =
-                                                    swatch && id === 'color' ? (
-                                                        <div
-                                                            className="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
-                                                            style={{
-                                                                backgroundColor: valueName?.toLowerCase(),
-                                                                backgroundImage: `url(${swatch?.disBaseLink || swatch.link})`,
-                                                            }}
-                                                            aria-label={valueName}
-                                                        />
-                                                    ) : (
-                                                        <span className="text-xs font-medium truncate">
-                                                            {valueName}
-                                                        </span>
-                                                    );
-
-                                                return (
-                                                    <Swatch
-                                                        key={value}
-                                                        value={value}
-                                                        name={valueName}
-                                                        shape={id === 'color' ? 'circle' : 'square'}
-                                                        size="md"
-                                                        selected={selectedAttributeValue === value}
-                                                        disabled={false}
-                                                        handleSelect={
-                                                            shouldDisableInteraction
-                                                                ? undefined
-                                                                : (attributeValue: string | null) => {
-                                                                      if (attributeValue !== null) {
-                                                                          handleAttributeChange(attributeValue);
-                                                                      }
-                                                                  }
-                                                        }
-                                                        isFocusable={!shouldDisableInteraction}
-                                                        mode={shouldDisableInteraction ? undefined : swatchMode}>
-                                                        {content}
-                                                    </Swatch>
-                                                );
-                                            })}
-                                            {/* Only show "more" indicator if not filtering to single variant and there are more swatches */}
-                                            {!isVariantProduct && values && values.length > maxSwatches && (
-                                                <MoreSwatchesIndicator count={values.length - maxSwatches} />
-                                            )}
-                                        </SwatchGroup>
-                                    );
-                                })}
+                            {/* Attribute Swatch Group - Lazy loaded to reduce hydration cost */}
+                            {swatchesVariationAttributes.length > 0 && (
+                                <Suspense fallback={<ProductTileSwatchesSkeleton count={maxSwatches} />}>
+                                    <LazySwatches
+                                        variationAttributes={swatchesVariationAttributes}
+                                        maxSwatches={maxSwatches}
+                                        selectedAttributeValue={selectedAttributeValue}
+                                        handleAttributeChange={handleAttributeChange}
+                                        disableSwatchInteraction={disableSwatchInteraction}
+                                        selectedVariantColorValue={selectedVariantColorValue}
+                                        swatchMode={swatchMode}
+                                    />
+                                </Suspense>
+                            )}
                         </div>
                     </div>
 
