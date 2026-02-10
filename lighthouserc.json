@@ -10,7 +10,23 @@
                 "http://localhost:3001/category/womens-clothing-tops",
                 "http://localhost:3001/product/25591227M?color=JJ9DFXX",
                 "http://localhost:3001/cart"
-            ]
+            ],
+            "settings": {
+                "formFactor": "mobile",
+                "screenEmulation": {
+                    "mobile": true,
+                    "width": 360,
+                    "height": 780,
+                    "deviceScaleFactor": 3,
+                    "disabled": false
+                },
+                "throttling": {
+                    "rttMs": 100,
+                    "cpuSlowdownMultiplier": 3.5,
+                    "downloadThroughputKbps": 9000,
+                    "uploadThroughputKbps": 3000
+                }
+            }
         },
         "assert": {
             "assertMatrix": [

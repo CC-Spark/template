@@ -41,7 +41,7 @@ import { createApiClients } from '@/lib/api-clients';
 import { currencyContext } from '@/lib/currency';
 
 // Components
-import CartEmptySkeleton from '@/components/cart/cart-empty-skeleton';
+import CartSkeleton from '@/components/cart/cart-skeleton';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import { getInventoryIdsFromPickupShipments } from '@/extensions/bopis/lib/basket-utils';
 import { fetchStoresForBasket } from '@/extensions/bopis/lib/api/stores';
@@ -356,7 +356,7 @@ export default function Cart(): ReactElement {
     return (
         <Suspense
             fallback={
-                <CartEmptySkeleton _isRegistered={false} productItemCount={pageData.basketSnapshot?.itemsCount ?? 0} />
+                <CartSkeleton isRegistered={false} productItemCount={pageData.basketSnapshot?.itemsCount ?? 0} />
             }>
             {finalContent}
         </Suspense>

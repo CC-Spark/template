@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use client';
-
 // React & Router
 import { forwardRef, type ComponentProps, useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 
 // Types
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
@@ -25,10 +23,7 @@ import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 // Libs & Utils
 import { cn } from '@/lib/utils';
 import { createProductUrl, getDecoratedVariationAttributes } from '@/lib/product-utils';
-import { getProductBadges } from '@/lib/product-badges';
-import { useTranslation } from 'react-i18next';
-import { useConfig } from '@/config';
-import { useCurrency } from '@/providers/currency';
+import { useProductTileContext } from './context';
 
 // Components
 import { ProductTileSwatchesSkeleton } from '@/components/category-skeleton';
@@ -74,15 +69,8 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
         },
         ref
     ) => {
-        const navigate = useNavigate();
-        const config = useConfig();
-        const { t } = useTranslation('product');
-        const currency = useCurrency();
-        const { hasBadges, badges } = getProductBadges({
-            product,
-            badgeDetails: config.global.badges,
-            maxBadges: 2,
-        });
+        const { navigate, config, t, currency, swatchMode, getBadges } = useProductTileContext();
+        const { hasBadges, badges } = useMemo(() => getBadges(product), [getBadges, product]);
 
         // Use config default if imgAspectRatio is not provided
         const effectiveImgAspectRatio = imgAspectRatio ?? config.global.productListing.defaultProductTileImgAspectRatio;
@@ -126,15 +114,6 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
             );
             void navigate(productUrl);
         }, [navigate, product, selectedAttributeValue, handleProductClick]);
-
-        // Detect if we're on desktop (≥1024px) to determine swatch interaction mode
-        const swatchMode = useMemo(() => {
-            if (typeof window === 'undefined') {
-                return 'click'; // Default to click on server
-            }
-            const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-            return isDesktop ? 'hover' : 'click';
-        }, []);
 
         return (
             <Card
@@ -240,4 +219,6 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
 ProductTile.displayName = 'ProductTile';
 
 export { ProductTile };
+// eslint-disable-next-line react-refresh/only-export-components
+export { ProductTileProvider, useProductTileContext } from './context';
 export default ProductTile;

@@ -16,7 +16,7 @@
 import { type ReactElement, lazy, Suspense, useCallback, useMemo } from 'react';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import DynamicImageProvider from '@/providers/dynamic-image';
-import { ProductTile } from '@/components/product-tile';
+import { ProductTile, ProductTileProvider } from '@/components/product-tile';
 import { ProductTileSkeleton } from '@/components/category-skeleton';
 
 interface ProductGridProps {
@@ -46,6 +46,11 @@ const NonCriticalGrid = lazy(() =>
     })
 );
 
+/**
+ * ProductGrid wraps all tiles in a shared context provider to reduce hydration overhead.
+ * Instead of each tile initializing its own hooks (navigate, config, translation, currency),
+ * the provider initializes them once and shares them via context.
+ */
 export default function ProductGrid({ products, critical, handleProductClick }: ProductGridProps): ReactElement {
     // Initialize the `<DynamicImageProvider/>` behavior for the scope of this grid.
     // Out-of-the-box we make sure that the first product image that's downstream to be displayed inside a
@@ -70,27 +75,33 @@ export default function ProductGrid({ products, critical, handleProductClick }: 
     }, [products, critical]);
 
     return (
-        <DynamicImageProvider value={{ addSource, hasSource }}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8">
-                {criticalData.map((product) => (
-                    <ProductTile key={product.productId} product={product} handleProductClick={handleProductClick} />
-                ))}
-                {nonCriticalData.length > 0 && (
-                    <Suspense
-                        fallback={nonCriticalData.map((product) => (
-                            <ProductTileSkeleton key={product.productId} />
-                        ))}>
-                        <NonCriticalGrid products={nonCriticalData} handleProductClick={handleProductClick} />
-                    </Suspense>
-                )}
-            </div>
-
-            {/* Show a message when no products are found */}
-            {products.length === 0 && (
-                <div className="text-center py-12">
-                    <p className="text-lg text-muted-foreground">No products found.</p>
+        <ProductTileProvider>
+            <DynamicImageProvider value={{ addSource, hasSource }}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8">
+                    {criticalData.map((product) => (
+                        <ProductTile
+                            key={product.productId}
+                            product={product}
+                            handleProductClick={handleProductClick}
+                        />
+                    ))}
+                    {nonCriticalData.length > 0 && (
+                        <Suspense
+                            fallback={nonCriticalData.map((product) => (
+                                <ProductTileSkeleton key={product.productId} />
+                            ))}>
+                            <NonCriticalGrid products={nonCriticalData} handleProductClick={handleProductClick} />
+                        </Suspense>
+                    )}
                 </div>
-            )}
-        </DynamicImageProvider>
+
+                {/* Show a message when no products are found */}
+                {products.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-lg text-muted-foreground">No products found.</p>
+                    </div>
+                )}
+            </DynamicImageProvider>
+        </ProductTileProvider>
     );
 }

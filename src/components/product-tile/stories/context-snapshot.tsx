@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { vi, expect, test, describe, afterEach } from 'vitest';
 import { composeStories } from '@storybook/react-vite';
-
-import * as CartEmptySkeletonStories from './cart-empty-skeleton.stories';
-import { expect, test, describe, afterEach } from 'vitest';
+import * as ContextStories from './context.stories';
 import { render, cleanup } from '@testing-library/react';
 
-const composed = composeStories(CartEmptySkeletonStories);
+vi.mock('react-router', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('react-router')>();
+    return {
+        ...actual,
+        useNavigate: () => vi.fn(),
+        useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+        useResolvedPath: () => ({ pathname: '/', search: '', hash: '' }),
+        useHref: () => '/',
+    };
+});
+
+const composed = composeStories(ContextStories);
 
 afterEach(() => {
     cleanup();
 });
 
-describe('CartEmptySkeleton stories snapshot', () => {
+describe('ProductTileContext stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
         test(`${storyName} story renders and matches snapshot`, () => {
             const { container } = render(<Story />);
