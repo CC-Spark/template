@@ -13,7 +13,205 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import defaultTheme from 'tailwindcss/defaultTheme';
+import type { AppConfig } from '@/config/context';
+
+// Pre-compiled regex patterns for better performance (compiled once at module load)
+/** Matches DIS path and captures the realm: /dw/image/v2/REALM_ID/... */
+const DIS_PATH_REALM_REGEX = /\/dw\/image\/v\d+\/([^/]+)/i;
+/** Matches DIS path prefix and captures the remaining path */
+const DIS_PATH_STRIP_REGEX = /\/dw\/image\/v\d+\/[^/]+(\/.*)/i;
+/** Matches DynamicImage placeholder syntax: [?sw={width}], [_{width}], etc. */
+const PLACEHOLDER_REGEX = /\[[^\]]*\]/g;
+/** Matches file extension at end of path: .jpg, .png, etc. */
+const FILE_EXTENSION_REGEX = /\.([^.]+)$/;
+/** Tests if URL contains DIS path structure */
+const IS_DIS_URL_REGEX = /\/dw\/image\/v\d+\//i;
+/** Matches dashes for realm conversion (zzrf-001 -> ZZRF_001) */
+const DASH_REGEX = /-/g;
+/** Tests if URL contains sfrm query parameter (must be preceded by ? or &) */
+const HAS_SFRM_PARAM_REGEX = /[?&]sfrm=/;
+/** Tests if URL contains quality (q) query parameter (must be preceded by ? or &) */
+const HAS_QUALITY_PARAM_REGEX = /[?&]q=/;
+
+export type Image = {
+    disBaseLink?: string;
+    link?: string;
+    [key: string]: unknown;
+};
+
+export type DisImageOptions = {
+    disHost?: string;
+    format?: 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp';
+    width?: number;
+    quality?: number;
+    sourceFormat?: string;
+};
+
+export type ImageUrlParams = {
+    /** The source image URL to transform */
+    src?: string | undefined;
+    /** Optional DIS transformation options (format, width, quality) */
+    options?: DisImageOptions;
+    /** App config containing DIS host and quality settings */
+    config?: AppConfig;
+    /** Image object */
+    image?: Image;
+};
+
+function getRealmFromUrl(url: URL): string | undefined {
+    // Only extract realm from SFCC Commerce Cloud URLs
+    // Example host: zzrf-001.dx.commercecloud.salesforce.com -> realm ZZRF_001
+    const isSfccHost =
+        url.hostname.endsWith('.commercecloud.salesforce.com') || url.hostname.endsWith('.demandware.net');
+    if (!isSfccHost) {
+        return undefined;
+    }
+
+    const subdomain = url.hostname.split('.')?.[0];
+    if (!subdomain) {
+        return undefined;
+    }
+    const realm = subdomain.replace(DASH_REGEX, '_').toUpperCase();
+    return realm || undefined;
+}
+
+function getRealm(url: URL): string | undefined {
+    const realmFromPath = url.pathname.match(DIS_PATH_REALM_REGEX)?.[1];
+    if (realmFromPath) {
+        return realmFromPath.toUpperCase();
+    }
+    return getRealmFromUrl(url);
+}
+
+function stripDisPath(pathname: string): string {
+    const disPathMatch = pathname.match(DIS_PATH_STRIP_REGEX);
+    return disPathMatch?.[1] || pathname;
+}
+
+/**
+ * Utility helper to convert B2C Commerce static asset URLs into Dynamic Imaging Service (DIS) URLs.
+ *
+ * Example:
+ * https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-storefront-catalog-m-non-en/default/dwa6379acf/images/slot/landing/cat-landing-slotbanner-mens.jpg
+ * becomes
+ * https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-storefront-catalog-m-non-en/default/dwa6379acf/images/slot/landing/cat-landing-slotbanner-mens.webp?sfrm=jpg
+ *
+ * @see {@link https://help.salesforce.com/s/articleView?id=cc.b2c_image_transformation_service.htm&type=5}
+ */
+export function toDisImageUrl({ src, options = {}, config }: ImageUrlParams): string | undefined {
+    if (!src) {
+        return undefined;
+    }
+
+    try {
+        // Extract and preserve any DynamicImage placeholder syntax (e.g., [?sw={width}])
+        // These will be appended to the final URL for DynamicImage to process
+        const placeholders = src.match(PLACEHOLDER_REGEX) || [];
+        const cleanUrl = src.replace(PLACEHOLDER_REGEX, '');
+        const url = new URL(cleanUrl);
+        const disHost = options.disHost || config?.images?.host;
+        if (!disHost) {
+            return undefined;
+        }
+        const realm = getRealm(url);
+        if (!realm) {
+            return undefined;
+        }
+
+        // Remove any existing DIS prefix so we don't duplicate /dw/image/v2/{realm}
+        const normalizedPathname = stripDisPath(url.pathname);
+
+        // Derive formats
+        const extMatch = normalizedPathname.match(FILE_EXTENSION_REGEX);
+        const sourceFormat = options.sourceFormat || extMatch?.[1]?.toLowerCase() || 'jpg';
+        const targetFormat = options.format || 'webp';
+
+        // Replace the extension with target format
+        const disPath = normalizedPathname.replace(FILE_EXTENSION_REGEX, `.${targetFormat}`);
+
+        // Build query params
+        const search = new URLSearchParams(url.search);
+        search.set('sfrm', sourceFormat);
+        if (options.width) {
+            search.set('sw', String(options.width));
+        }
+        const quality = options.quality ?? config?.images?.quality;
+        search.set('q', String(quality));
+
+        const query = search.toString();
+        const baseUrl = `${disHost}/dw/image/v2/${realm}${disPath}${query ? `?${query}` : ''}`;
+        // Append preserved placeholders for DynamicImage to process
+        return placeholders.length > 0 ? `${baseUrl}${placeholders.join('')}` : baseUrl;
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * Converts an image URL to an optimized format, with graceful fallback.
+ *
+ * Unlike `toDisImageUrl` which returns `undefined` for non-SFCC URLs,
+ * this function returns the original URL as a fallback, making it safer
+ * for use with images that may or may not be from SFCC.
+ *
+ * @param params - Object containing src, options, and config
+ * @param params.src - The image URL to transform
+ * @param params.options - Optional DIS transformation options (format, width, quality)
+ * @param params.config - App config containing DIS host and quality settings
+ * @returns Transformed DIS URL, or original URL if transformation not possible
+ *
+ * @example
+ * // SFCC URL - transforms to DIS WebP
+ * toImageUrl({ src: 'https://zzrf-001.dx.commercecloud.salesforce.com/.../image.jpg', config })
+ * // → 'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/.../image.webp?sfrm=jpg&q=70'
+ *
+ * // Already DIS URL - ensures WebP format
+ * toImageUrl({ src: 'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/.../image.jpg', config })
+ * // → 'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/.../image.webp?sfrm=jpg'
+ *
+ * // Non-SFCC URL - returns original (fallback)
+ * toImageUrl({ src: 'https://example.com/image.jpg', config })
+ * // → 'https://example.com/image.jpg'
+ */
+export function toImageUrl({ src, options = {}, config, image }: ImageUrlParams): string | undefined {
+    const imageUrl = src || image?.disBaseLink || image?.link;
+
+    if (!imageUrl) {
+        return undefined;
+    }
+
+    try {
+        // Extract and preserve any DynamicImage placeholder syntax (e.g., [?sw={width}])
+        const placeholders = imageUrl.match(PLACEHOLDER_REGEX) || [];
+        const cleanUrl = imageUrl.replace(PLACEHOLDER_REGEX, '');
+
+        // If already a DIS URL, ensure correct format and add quality if not present
+        const isDisUrl = IS_DIS_URL_REGEX.test(cleanUrl);
+        if (isDisUrl) {
+            const targetFormat = options.format || 'webp';
+            let transformedUrl = replaceImageFormat(cleanUrl, targetFormat);
+
+            // Add quality parameter if not already present
+            const quality = options.quality ?? config?.images?.quality;
+            if (quality && !HAS_QUALITY_PARAM_REGEX.test(transformedUrl)) {
+                const separator = transformedUrl.includes('?') ? '&' : '?';
+                transformedUrl = `${transformedUrl}${separator}q=${quality}`;
+            }
+
+            return placeholders.length > 0 ? `${transformedUrl}${placeholders.join('')}` : transformedUrl;
+        }
+
+        // Try to convert to DIS URL
+        const disUrl = toDisImageUrl({ src: imageUrl, options, config });
+        // If conversion succeeded, return DIS URL; otherwise return original URL as fallback
+        return disUrl ?? imageUrl;
+    } catch {
+        // On any error, return the original URL
+        return imageUrl;
+    }
+}
 
 /**
  * Supported target formats of Salesforce's Dynamic Imaging Service are: avif, gif, jp2, jpg, jpeg, jxr, png, and webp.
@@ -135,6 +333,11 @@ export const replaceImageFormat = (
     url: string,
     targetFormat: 'webp' | 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' = 'webp'
 ): string => {
+    // If URL already has sfrm parameter, it's already been transformed - return as-is
+    if (HAS_SFRM_PARAM_REGEX.test(url)) {
+        return url;
+    }
+
     const match = url.match(imageExtensions);
     if (!match) {
         return url;

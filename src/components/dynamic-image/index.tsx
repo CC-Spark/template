@@ -16,7 +16,7 @@
 import { type ElementType, type ImgHTMLAttributes, useMemo } from 'react';
 import { useConfig } from '@/config';
 import { cn, isServer } from '@/lib/utils';
-import { defaultImageFormats, getResponsivePictureAttributes, replaceImageFormat } from './utils';
+import { defaultImageFormats, getResponsivePictureAttributes, replaceImageFormat } from '@/lib/dynamic-image';
 import { useDynamicImageContext } from '@/providers/dynamic-image';
 
 interface DynamicImageProps {

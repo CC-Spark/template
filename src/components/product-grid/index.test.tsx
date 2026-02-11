@@ -19,7 +19,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { type ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { ConfigWrapper } from '@/test-utils/config';
+import { ConfigWrapper, mockConfig } from '@/test-utils/config';
 import { CurrencyProvider } from '@/providers/currency';
 import ProductGrid from './index';
 
@@ -87,6 +87,10 @@ vi.mock('@/lib/product-badges', () => ({
         hasBadges: false,
         badges: [],
     })),
+}));
+
+vi.mock('@/config/get-config', () => ({
+    useConfig: () => mockConfig,
 }));
 
 const createMockProduct = (id: string, name: string): ShopperSearch.schemas['ProductSearchHit'] => ({

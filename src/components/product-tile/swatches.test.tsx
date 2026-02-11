@@ -19,6 +19,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import type { DecoratedVariationAttribute } from '@/lib/product-utils';
 import Swatches from './swatches';
+import { ConfigWrapper } from '@/test-utils/config';
 
 const mockColorAttributes: DecoratedVariationAttribute[] = [
     {
@@ -74,7 +75,11 @@ const renderSwatches = (props = {}) => {
         ],
         { initialEntries: ['/test'] }
     );
-    return render(<RouterProvider router={router} />);
+    return render(
+        <ConfigWrapper>
+            <RouterProvider router={router} />
+        </ConfigWrapper>
+    );
 };
 
 describe('Swatches', () => {

@@ -16,7 +16,10 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import PopularCategory from './index';
+import { ConfigProvider } from '@/config/context';
+import { mockConfig } from '@/test-utils/config';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+import type { ReactNode } from 'react';
 
 // Mock decorators (minimal mocking to avoid testing them)
 vi.mock('@/lib/decorators/component', async (importOriginal) => {
@@ -67,6 +70,10 @@ vi.mock('react-i18next', () => ({
     }),
 }));
 
+const wrapper = ({ children }: { children: ReactNode }) => (
+    <ConfigProvider config={mockConfig}>{children}</ConfigProvider>
+);
+
 const mockCategory: ShopperProducts.schemas['Category'] = {
     id: 'newarrivals',
     name: 'New Arrivals',
@@ -76,7 +83,7 @@ const mockCategory: ShopperProducts.schemas['Category'] = {
 };
 
 const renderComponent = (component: React.ReactElement) => {
-    return render(component);
+    return render(component, { wrapper });
 };
 
 describe('PopularCategory', () => {

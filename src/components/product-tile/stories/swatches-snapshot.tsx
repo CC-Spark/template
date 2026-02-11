@@ -18,6 +18,7 @@ import { composeStories } from '@storybook/react-vite';
 import * as SwatchesStories from './swatches.stories';
 import { expect, test, describe, afterEach, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
+import { ConfigWrapper } from '@/test-utils/config';
 
 vi.mock('react-router', () => ({
     NavLink: ({ to, children, ...props }: { to: string; children: React.ReactNode; [key: string]: unknown }) => (
@@ -36,7 +37,7 @@ afterEach(() => {
 describe('Swatches stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
         test(`${storyName} story renders and matches snapshot`, () => {
-            const { container } = render(<Story />);
+            const { container } = render(<Story />, { wrapper: ConfigWrapper });
             expect(container.firstChild).toMatchSnapshot();
         });
     }

@@ -15,6 +15,8 @@
  */
 import type { DecoratedVariationAttribute } from '@/lib/product-utils';
 import { SwatchGroup, Swatch } from '@/components/swatch-group';
+import { toImageUrl } from '@/lib/dynamic-image';
+import { useConfig } from '@/config';
 
 // Simple component to display the "+X more" indicator for additional swatches
 const MoreSwatchesIndicator = ({ count }: { count: number }) => (
@@ -44,6 +46,7 @@ const Swatches = ({
     selectedVariantColorValue?: string | null;
     swatchMode: 'hover' | 'click';
 }) => {
+    const config = useConfig();
     return (
         <>
             {variationAttributes?.map(({ id, name, values }) => {
@@ -72,7 +75,7 @@ const Swatches = ({
                                         className="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
                                         style={{
                                             backgroundColor: valueName?.toLowerCase(),
-                                            backgroundImage: `url(${swatch?.disBaseLink || swatch.link})`,
+                                            backgroundImage: `url(${toImageUrl({ image: swatch, config })})`,
                                         }}
                                         aria-label={valueName}
                                     />
