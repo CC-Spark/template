@@ -33,7 +33,7 @@ vi.mock('@/middlewares/auth.server', () => ({
     getAuth: () => mockGetAuth(),
 }));
 
-vi.mock('@/lib/api/customer.server', () => ({
+vi.mock('@/lib/api/customer', () => ({
     isRegisteredCustomer: () => mockIsRegisteredCustomer(),
 }));
 

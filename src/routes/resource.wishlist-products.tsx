@@ -16,7 +16,7 @@
 import { type LoaderFunctionArgs } from 'react-router';
 import type { ShopperCustomers, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { getAuth } from '@/middlewares/auth.server';
-import { isRegisteredCustomer } from '@/lib/api/customer.server';
+import { isRegisteredCustomer } from '@/lib/api/customer';
 import { convertProductToProductSearchHit } from '@/lib/product-conversion';
 import { fetchProductsForWishlist, getWishlist } from '@/lib/api/wishlist';
 import { getConfig } from '@/config';
