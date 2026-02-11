@@ -93,6 +93,15 @@ describe('OrderDetails', () => {
         expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(t('account:orders.orderSummary'));
     });
 
+    test('renders OrderSummary with subtotal and order total from order', () => {
+        renderOrderDetails();
+        const orderSummary = document.querySelector('[data-testid="sf-order-summary"]');
+        expect(orderSummary).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.subtotal'))).toBeInTheDocument();
+        expect(screen.getByText(t('cart:summary.orderTotal'))).toBeInTheDocument();
+        expect(screen.getByText(/71\.38/)).toBeInTheDocument();
+    });
+
     test('renders Shipment 1 with recipient name (Shipment 1 → Name)', () => {
         renderOrderDetails();
         const shipmentLabel = t('account:orders.shipmentNumber', { n: '1' });
@@ -107,6 +116,30 @@ describe('OrderDetails', () => {
             );
         });
         expect(shipmentHeaderParagraph).toBeInTheDocument();
+    });
+
+    test('renders recipient name from fullName when firstName and lastName are absent', () => {
+        const orderWithFullNameOnly = {
+            ...mockOrderDetailsOrder,
+            shipments: [
+                {
+                    shipmentId: 'me',
+                    shippingAddress: {
+                        fullName: 'Acme Corp',
+                        address1: '1 Main St',
+                        city: 'Seattle',
+                        countryCode: 'US',
+                        postalCode: '98101',
+                        stateCode: 'WA',
+                    },
+                },
+            ],
+            productItems: mockOrderDetailsOrder.productItems,
+        };
+        renderOrderDetails(orderWithFullNameOnly as ShopperOrders.schemas['Order']);
+        const shipmentSection = document.querySelector('[data-shipment-id="me"]');
+        expect(shipmentSection).toHaveTextContent('Acme Corp');
+        expect(shipmentSection).toHaveTextContent('→');
     });
 
     test('renders product name from order items', () => {
@@ -133,8 +166,8 @@ describe('OrderDetails', () => {
         expect(screen.getByText(t('account:orders.shipmentNumber', { n: '1' }))).toBeInTheDocument();
         expect(screen.getByText('First Product')).toBeInTheDocument();
         expect(screen.getByText('Second Product')).toBeInTheDocument();
-        expect(screen.getByText('$61.99')).toBeInTheDocument();
-        expect(screen.getByText('$29.99')).toBeInTheDocument();
+        expect(screen.getAllByText('$61.99')).toHaveLength(2); // item + order summary
+        expect(screen.getAllByText('$29.99')).toHaveLength(1); // item only
         expect(screen.getAllByRole('listitem')).toHaveLength(2);
     });
 
@@ -184,8 +217,8 @@ describe('OrderDetails', () => {
         renderOrderDetails(orderWithMultipleShipments as ShopperOrders.schemas['Order']);
         expect(screen.getByText(t('account:orders.shipmentNumber', { n: '1' }))).toBeInTheDocument();
         expect(screen.getByText(t('account:orders.shipmentNumber', { n: '2' }))).toBeInTheDocument();
-        expect(screen.getByText(/Alice Smith/)).toBeInTheDocument();
-        expect(screen.getByText(/Bob Jones/)).toBeInTheDocument();
+        expect(screen.getAllByText(/Alice Smith/)).toHaveLength(2); // header + shipping address
+        expect(screen.getAllByText(/Bob Jones/)).toHaveLength(2); // header + shipping address
         expect(screen.getByText('Product for Alice')).toBeInTheDocument();
         expect(screen.getByText('Product for Bob')).toBeInTheDocument();
         const section1 = document.querySelector('[data-shipment-id="ship-a"]');
@@ -194,5 +227,36 @@ describe('OrderDetails', () => {
         expect(section1).not.toHaveTextContent('Product for Bob');
         expect(section2).toHaveTextContent('Product for Bob');
         expect(section2).not.toHaveTextContent('Product for Alice');
+    });
+
+    test('renders tracking number and shipping address per shipment when present', () => {
+        renderOrderDetails();
+        expect(screen.getByText(t('account:orders.trackingNumber'))).toBeInTheDocument();
+        expect(screen.getByText('1234567890')).toBeInTheDocument();
+        expect(document.querySelector('[data-card="tracking-number"]')).toBeInTheDocument();
+
+        expect(screen.getByText(t('account:orders.shippingAddress'))).toBeInTheDocument();
+        expect(document.querySelector('[data-card="shipping-address"]')).toBeInTheDocument();
+        expect(screen.getAllByText(/John Snow/).length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByText(/2030 Market street 8th st/)).toBeInTheDocument();
+        expect(screen.getByText(/Seattle,\s*WA\s*98121/)).toBeInTheDocument();
+        expect(screen.getByText('Ground')).toBeInTheDocument();
+    });
+
+    test('omits tracking card when trackingNumber is null; omits shipping address card when shippingAddress is missing', () => {
+        const orderWithoutTrackingOrAddress = {
+            ...mockOrderDetailsOrder,
+            shipments: [
+                {
+                    ...mockOrderDetailsOrder.shipments?.[0],
+                    trackingNumber: null,
+                    shippingAddress: null,
+                    shippingMethod: null,
+                },
+            ],
+        };
+        renderOrderDetails(orderWithoutTrackingOrAddress as unknown as ShopperOrders.schemas['Order']);
+        expect(document.querySelector('[data-card="tracking-number"]')).not.toBeInTheDocument();
+        expect(document.querySelector('[data-card="shipping-address"]')).not.toBeInTheDocument();
     });
 });

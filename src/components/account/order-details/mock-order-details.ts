@@ -117,6 +117,7 @@ export const mockOrderDetailsOrder = {
             shipmentId: 'me',
             shipmentNo: '00002503',
             shipmentTotal: 71.38,
+            trackingNumber: '1234567890',
             shippingAddress: {
                 address1: '2030 Market street 8th st',
                 city: 'Seattle',

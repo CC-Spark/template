@@ -816,7 +816,9 @@
             "buyAgain": "Buy Again",
             "emptyItemsFallback": "No items.",
             "productPlaceholderInitial": "Item",
-            "quantityLabel": "Qty: {{count}}"
+            "quantityLabel": "Qty: {{count}}",
+            "trackingNumber": "Tracking Number",
+            "shippingAddress": "Shipping Address"
         },
         "addresses": {
             "subtitle": "Manage your shipping addresses",

@@ -20,7 +20,10 @@ import { ShoppingCart, Lock } from 'lucide-react';
 import { Link } from 'react-router';
 
 // Commerce SDK
-import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperBasketsV2, ShopperOrders, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+
+/** Basket or Order – OrderSummary displays totals for both (e.g. cart and order details). */
+export type OrderSummaryBasket = ShopperBasketsV2.schemas['Basket'] | ShopperOrders.schemas['Order'];
 
 // Components
 import { Typography } from '@/components/typography';
@@ -43,7 +46,7 @@ import { UITarget } from '@/targets/ui-target';
  * Props for the OrderSummary component
  *
  * @interface OrderSummaryProps
- * @property {ShopperBasketsV2.schemas['Basket']} basket - The shopping basket containing items and totals
+ * @property {OrderSummaryBasket} basket - The basket or order containing items and totals (cart or order details)
  * @property {boolean} [showPromoCodeForm] - Whether to display the promo code form
  * @property {boolean} [showCartItems] - Whether to display the cart items accordion
  * @property {boolean} [showHeading] - Whether to display the "Order Summary" heading
@@ -55,9 +58,12 @@ import { UITarget } from '@/targets/ui-target';
  *   If not provided, the component will navigate to '/cart' using the default navigation behavior.
  *   This is useful for custom actions like closing a cart sheet before navigation.
  * @property {boolean} [showCheckoutAction] - Whether to display the checkout button and payment icons
+ *
+ * Note : OrderSummary accepts both Basket and Order, make sure you pass other props accordingly.
+ * Eg If you pass Order as basket, make sure you pass showPromoCodeForm, showCartItems as false etc.
  */
 interface OrderSummaryProps {
-    basket: ShopperBasketsV2.schemas['Basket'];
+    basket: OrderSummaryBasket;
     showPromoCodeForm?: boolean;
     showCartItems?: boolean;
     showHeading?: boolean;
@@ -174,7 +180,9 @@ export default function OrderSummary({
     const { t, i18n } = useTranslation('cart');
     const currency = useCurrency();
 
-    if (!basket?.basketId && !basket?.orderNo) {
+    const hasBasketId = 'basketId' in basket && basket.basketId;
+    const hasOrderNo = 'orderNo' in basket && basket.orderNo;
+    if (!hasBasketId && !hasOrderNo) {
         return <div>{t('summary.noBasketData')}</div>;
     }
 

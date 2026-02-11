@@ -786,7 +786,9 @@
             "buyAgain": "Acquista di nuovo",
             "emptyItemsFallback": "Nessun articolo.",
             "productPlaceholderInitial": "Articolo",
-            "quantityLabel": "Qtà: {{count}}"
+            "quantityLabel": "Qtà: {{count}}",
+            "trackingNumber": "Numero di tracking",
+            "shippingAddress": "Indirizzo di spedizione"
         },
         "addresses": {
             "empty": "Nessun indirizzo salvato. Aggiunga un indirizzo per rendere il checkout più veloce!",

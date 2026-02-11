@@ -162,32 +162,89 @@ exports[`OrderDetails stories snapshot > Default story renders and matches snaps
                     </li>
                   </ul>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div
-            class="mt-6 border-t border-muted-foreground/20 pt-4"
-          >
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 gap-3"
-            >
-              <div
-                class="text-card-foreground flex flex-col gap-6 border shadow-sm rounded-none min-h-[4rem] p-0 bg-card"
-                data-slot="card"
-              >
                 <div
-                  class="p-3"
-                  data-slot="card-content"
-                />
-              </div>
-              <div
-                class="text-card-foreground flex flex-col gap-6 border shadow-sm rounded-none min-h-[4rem] p-0 bg-card"
-                data-slot="card"
-              >
-                <div
-                  class="p-3"
-                  data-slot="card-content"
-                />
+                  class="mt-2 border-t border-muted-foreground/20 pt-4 px-3 pb-3 mx-3"
+                >
+                  <div
+                    class="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                  >
+                    <div
+                      class="text-card-foreground flex flex-col gap-6 border shadow-sm rounded-none min-h-[4rem] p-0 bg-card"
+                      data-card="tracking-number"
+                      data-slot="card"
+                    >
+                      <div
+                        class="p-3"
+                        data-slot="card-content"
+                      >
+                        <p
+                          class="text-xs font-semibold text-muted-foreground"
+                        >
+                          Tracking Number
+                        </p>
+                        <p
+                          class="mt-2 text-sm font-medium text-foreground break-all"
+                        >
+                          1234567890
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      class="text-card-foreground flex flex-col gap-6 border shadow-sm rounded-none min-h-[4rem] p-0 bg-card"
+                      data-card="shipping-address"
+                      data-slot="card"
+                    >
+                      <div
+                        class="p-3"
+                        data-slot="card-content"
+                      >
+                        <p
+                          class="text-xs font-semibold text-muted-foreground"
+                        >
+                          Shipping Address
+                        </p>
+                        <div
+                          class="mt-2"
+                        >
+                          <div
+                            class="space-y-2"
+                          >
+                            <p
+                              class="text-sm font-medium leading-none text-left text-muted-foreground"
+                            >
+                              John
+                               
+                              Snow
+                            </p>
+                            <p
+                              class="text-sm font-medium leading-none text-left text-muted-foreground"
+                            >
+                              2030 Market street 8th st
+                            </p>
+                            <p
+                              class="text-sm font-medium leading-none text-left text-muted-foreground"
+                            >
+                              Seattle
+                              , WA
+                               
+                              98121
+                            </p>
+                            <p
+                              class="text-sm font-medium leading-none text-left text-muted-foreground"
+                            >
+                              (987) 654-3210
+                            </p>
+                          </div>
+                        </div>
+                        <p
+                          class="mt-2 text-sm text-muted-foreground"
+                        >
+                          Ground
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -201,13 +258,87 @@ exports[`OrderDetails stories snapshot > Default story renders and matches snaps
             Order Summary
           </h3>
           <div
-            class="bg-card text-card-foreground flex flex-col gap-6 border py-6 shadow-sm rounded-none"
+            class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
             data-slot="card"
           >
             <div
-              class="px-6"
+              class="p-6"
               data-slot="card-content"
-            />
+            >
+              <div
+                class="space-y-5"
+                data-testid="sf-order-summary"
+              >
+                <div
+                  aria-labelledby="order-summary-heading"
+                  class="space-y-4"
+                  role="region"
+                >
+                  <div
+                    class="space-y-4 text-sm"
+                  >
+                    <div
+                      class="flex justify-between items-center"
+                    >
+                      <span>
+                        Subtotal
+                      </span>
+                      <span>
+                        $61.99
+                      </span>
+                    </div>
+                    <div
+                      class="flex justify-between items-center"
+                    >
+                      <div
+                        class="flex items-center"
+                      >
+                        <span>
+                          Shipping
+                        </span>
+                      </div>
+                      <span>
+                        $5.99
+                      </span>
+                    </div>
+                    <div
+                      class="flex justify-between items-center"
+                    >
+                      <span>
+                        Tax
+                      </span>
+                      <span>
+                        $3.40
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    class="space-y-4 w-full text-sm"
+                  >
+                    <div
+                      class="flex w-full justify-between items-center"
+                    >
+                      <span
+                        class="font-bold"
+                      >
+                        Order Total
+                      </span>
+                      <span
+                        class="font-bold"
+                      >
+                        $71.38
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px w-full"
+                    data-orientation="horizontal"
+                    data-slot="separator"
+                    role="none"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

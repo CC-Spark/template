@@ -19,8 +19,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import type { ShopperOrders } from '@salesforce/storefront-next-runtime/scapi';
 import OrderItemsList, { type ProductDataById } from '@/components/account/order-details/order-items-list';
+import OrderSummary from '@/components/order-summary';
+import ShippingAddressDisplay from '@/components/checkout/components/shipping-address-display';
 
 const BACK_LINK_PREFIX = '< ';
+
 const SHIPMENT_RECIPIENT_SEPARATOR = ' → ';
 
 export type { ProductDataById };
@@ -133,29 +136,56 @@ export function OrderDetails({ order, productsById }: OrderDetailsProps): ReactE
                                                 <div className="p-3">
                                                     <OrderItemsList items={items} productsById={productsById} />
                                                 </div>
+                                                {/* Tracking Number and Shipping Address for this shipment */}
+                                                <div className="mt-2 border-t border-muted-foreground/20 pt-4 px-3 pb-3 mx-3">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {shipment.trackingNumber != null && (
+                                                            <Card
+                                                                className="rounded-none min-h-[4rem] p-0 bg-card"
+                                                                data-card="tracking-number">
+                                                                <CardContent className="p-3">
+                                                                    <p className="text-xs font-semibold text-muted-foreground">
+                                                                        {t('orders.trackingNumber')}
+                                                                    </p>
+                                                                    <p className="mt-2 text-sm font-medium text-foreground break-all">
+                                                                        {shipment.trackingNumber}
+                                                                    </p>
+                                                                </CardContent>
+                                                            </Card>
+                                                        )}
+                                                        {shipment.shippingAddress && (
+                                                            <Card
+                                                                className="rounded-none min-h-[4rem] p-0 bg-card"
+                                                                data-card="shipping-address">
+                                                                <CardContent className="p-3">
+                                                                    <p className="text-xs font-semibold text-muted-foreground">
+                                                                        {t('orders.shippingAddress')}
+                                                                    </p>
+                                                                    <div className="mt-2">
+                                                                        <ShippingAddressDisplay
+                                                                            address={shipment.shippingAddress}
+                                                                        />
+                                                                    </div>
+                                                                    {shipment.shippingMethod?.name && (
+                                                                        <p className="mt-2 text-sm text-muted-foreground">
+                                                                            {shipment.shippingMethod.name}
+                                                                        </p>
+                                                                    )}
+                                                                </CardContent>
+                                                            </Card>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         );
                                     })}
                                 </CardContent>
                             </Card>
-                            {/* Shipping Details */}
-                            <div className="mt-6 border-t border-muted-foreground/20 pt-4">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <Card className="rounded-none min-h-[4rem] p-0 bg-card">
-                                        <CardContent className="p-3" />
-                                    </Card>
-                                    <Card className="rounded-none min-h-[4rem] p-0 bg-card">
-                                        <CardContent className="p-3" />
-                                    </Card>
-                                </div>
-                            </div>
                         </div>
-                        {/* Order Summary */}
+                        {/* Order Summary – OrderSummary accepts both Basket and Order for totals */}
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold">{t('orders.orderSummary')}</h3>
-                            <Card className="rounded-none">
-                                <CardContent>{/* Summary content placeholder */}</CardContent>
-                            </Card>
+                            <OrderSummary basket={order} showCartItems={false} showHeading={false} />
                         </div>
                     </div>
                 </CardContent>
