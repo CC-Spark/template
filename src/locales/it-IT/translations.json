@@ -688,10 +688,12 @@
         "title": "Dettagli account",
         "myAccount": "Il mio account",
         "navigation": {
+            "overview": "Panoramica",
             "accountDetails": "Dettagli account",
             "wishlist": "Lista desideri",
             "orderHistory": "Storico ordini",
             "addresses": "Indirizzi",
+            "paymentMethods": "Metodi di pagamento",
             "storePreferences": "Preferenze negozio",
             "logOut": "Esci"
         },
@@ -834,6 +836,33 @@
             "validation": {
                 "stateRequired": "Stato/Provincia è obbligatorio"
             }
+        },
+        "paymentMethods": {
+            "pageSubtitle": "Gestisca i Suoi metodi di pagamento, carte regalo e credito del negozio",
+            "subtitle": "Gestisca i Suoi metodi di pagamento salvati",
+            "noSavedPaymentMethods": "Nessun metodo di pagamento salvato",
+            "empty": "Aggiunga un metodo di pagamento per rendere il checkout più veloce!",
+            "addPaymentMethod": "Aggiungi metodo di pagamento",
+            "setDefault": "Imposta come predefinito",
+            "remove": "Rimuovi",
+            "default": "Predefinito",
+            "expires": "Scadenza",
+            "addPaymentMethodTitle": "Aggiungi metodo di pagamento",
+            "creditCard": "Carta di credito",
+            "nameOnCard": "Nome sulla carta*",
+            "cardNumberPlaceholder": "Numero carta*",
+            "expiryPlaceholder": "mm/aa*",
+            "cvvPlaceholder": "CVV*",
+            "saveAsDefault": "Salva come pagamento predefinito",
+            "billingAddress": "Indirizzo di fatturazione*",
+            "selectAddress": "Seleziona un indirizzo",
+            "addNewAddress": "Aggiungi nuovo indirizzo",
+            "cancel": "Annulla",
+            "save": "Salva",
+            "removePaymentMethod": "Rimuovi metodo di pagamento",
+            "removeConfirmation": "È sicuro di voler rimuovere questo metodo di pagamento?",
+            "paymentMethod": "Metodo di pagamento",
+            "defaultRemovalWarning": "Questo è il Suo metodo di pagamento predefinito. La rimozione imposterà automaticamente un altro metodo di pagamento come predefinito, se disponibile."
         },
         "profile": {
             "title": "Il mio profilo",
