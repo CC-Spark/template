@@ -31,10 +31,13 @@ export type {
     StepInfo,
     PaymentScheduleModalData,
     WriteReviewModalData,
+    RatingDistributionData,
+    StarRatingDistributionModalData,
 } from './types';
 
 import { PaymentScheduleModalContent } from './renderers/payment-schedule-modal-content';
 import { WriteReviewModalContent } from './renderers/write-review-modal-content';
+import { StarRatingDistributionModalContent } from './renderers/star-rating-distribution-modal-content';
 
 /** Escapes a string for safe use inside a RegExp. */
 function escapeRegex(s: string): string {
@@ -46,6 +49,13 @@ function getCurrencySymbolForRegex(currencyCode: string): string {
     const map: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', JPY: '¥', CAD: '$', AUD: '$' };
     return map[currencyCode?.toUpperCase()] ?? '$';
 }
+
+/** Modal width classes by modal type. */
+const MODAL_WIDTH_CLASSES = {
+    'write-review': 'max-w-lg sm:max-w-lg',
+    'star-rating-distribution': 'w-[304px] max-w-[304px] sm:w-[304px] sm:max-w-[304px]',
+    'payment-schedule': 'max-w-2xl sm:max-w-2xl',
+} as const;
 
 /**
  * InfoModal is a generic, reusable modal component that displays informational content.
@@ -66,6 +76,7 @@ function getCurrencySymbolForRegex(currencyCode: string): string {
 export default function InfoModal({ open, onOpenChange, data, className }: InfoModalProps): ReactElement {
     const currency = useCurrency() || 'USD';
     const { t } = useTranslation('infoModal');
+    const { t: tProduct } = useTranslation('product');
 
     if (!data) {
         return (
@@ -82,14 +93,13 @@ export default function InfoModal({ open, onOpenChange, data, className }: InfoM
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent
-                className={cn(
-                    data.type === 'write-review' ? 'max-w-lg sm:max-w-lg' : 'max-w-2xl sm:max-w-2xl',
-                    'gap-0 p-0 border-0',
-                    className
-                )}>
+            <DialogContent className={cn(MODAL_WIDTH_CLASSES[data.type], 'gap-0 p-0 border-0', className)}>
                 <DialogDescription className="sr-only">
-                    {data.type === 'payment-schedule' ? t('paymentScheduleDescription') : t('writeReviewDescription')}
+                    {data.type === 'payment-schedule'
+                        ? t('paymentScheduleDescription')
+                        : data.type === 'write-review'
+                          ? t('writeReviewDescription')
+                          : t('starRatingDistributionDescription')}
                 </DialogDescription>
                 {data.type === 'payment-schedule' && (
                     <>
@@ -156,6 +166,29 @@ export default function InfoModal({ open, onOpenChange, data, className }: InfoM
                                 onClose={() => onOpenChange(false)}
                                 formConfig={data.formConfig}
                             />
+                        </div>
+                    </>
+                )}
+                {data.type === 'star-rating-distribution' && (
+                    <>
+                        <DialogHeader className="px-6 pt-4 pb-0 pr-12 flex-row items-center justify-between">
+                            <DialogTitle className="text-sm font-medium text-foreground" aria-hidden="true">
+                                {data.title ||
+                                    tProduct('rating.ratingOutOfTotal', {
+                                        rating: Number(data.rating.toFixed(1)).toString(),
+                                        total: 5,
+                                    })}
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="overflow-y-auto max-h-[calc(90vh-180px)]">
+                            <div className="p-6">
+                                <StarRatingDistributionModalContent
+                                    rating={data.rating}
+                                    reviewCount={data.reviewCount}
+                                    distributions={data.distributions}
+                                    onSeeReviewsClick={data.onSeeReviewsClick}
+                                />
+                            </div>
                         </div>
                     </>
                 )}

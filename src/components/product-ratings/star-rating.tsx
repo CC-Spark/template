@@ -143,10 +143,10 @@ export const StarRating = forwardRef<HTMLDivElement, StarRatingProps>(
             ratingLabelFormat = 'full',
             ratingLabelTemplate,
             showRatingLink = false,
-            ratingLinkTemplate = '{rating} ({count})',
+            ratingLinkTemplate,
             onRatingLinkClick,
             showReviewCountLabel = false,
-            reviewCountLabelTemplate = 'Based on {count} reviews',
+            reviewCountLabelTemplate,
             starSize = 'sm',
             ratingLabelClassName = 'text-lg font-semibold text-black',
             reviewCountLabelClassName = 'text-xs text-gray-500 mt-2 mb-4',
@@ -162,6 +162,7 @@ export const StarRating = forwardRef<HTMLDivElement, StarRatingProps>(
 
         // Clamp rating between 0 and 5
         const clampedRating = Math.min(Math.max(rating, 0), 5);
+        const formattedRating = formatRating(clampedRating);
 
         // Star size classes
         const starSizeClasses = {
@@ -170,22 +171,32 @@ export const StarRating = forwardRef<HTMLDivElement, StarRatingProps>(
             lg: 'w-6 h-6',
         };
 
-        // Generate rating label
-        const defaultRatingLabelTemplate = ratingLabelFormat === 'full' ? '{rating} out of 5' : '{rating}';
-        const ratingLabel = formatString(ratingLabelTemplate || defaultRatingLabelTemplate, {
-            rating: formatRating(clampedRating),
-        });
+        // Generate rating label (with type assertion to prevent TS compiler crash)
+        const ratingLabel = ratingLabelTemplate
+            ? formatString(ratingLabelTemplate, { rating: formattedRating })
+            : ratingLabelFormat === 'full'
+              ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (t as any)('product:rating.ratingOutOfTotal', { rating: formattedRating, total: totalStars })
+              : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (t as any)('product:rating.ratingValue', { rating: formattedRating });
 
-        // Generate rating link text
-        const ratingLinkText = formatString(ratingLinkTemplate, {
-            rating: formatRating(clampedRating),
-            count: reviewCount,
-        });
+        // Generate rating link text (with type assertion to prevent TS compiler crash)
+        const ratingLinkText = ratingLinkTemplate
+            ? formatString(ratingLinkTemplate, {
+                  rating: formattedRating,
+                  count: reviewCount,
+              })
+            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (t as any)('product:rating.ratingWithCount', {
+                  rating: formattedRating,
+                  count: reviewCount,
+              });
 
-        // Generate review count label
-        const reviewCountLabel = formatString(reviewCountLabelTemplate, {
-            count: reviewCount,
-        });
+        // Generate review count label (with type assertion to prevent TS compiler crash)
+        const reviewCountLabel = reviewCountLabelTemplate
+            ? formatString(reviewCountLabelTemplate, { count: reviewCount })
+            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (t as any)('product:rating.basedOnReviews', { count: reviewCount });
 
         // Generate aria-labels for accessibility using i18next translations
         const starContainerAriaLabel = starContainerAriaLabelTemplate
@@ -194,20 +205,21 @@ export const StarRating = forwardRef<HTMLDivElement, StarRatingProps>(
                   total: totalStars,
                   count: reviewCount,
               })
-            : t('product:rating.starContainerAriaLabel', {
+            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (t as any)('product:rating.starContainerAriaLabel', {
                   rating: formatRating(clampedRating),
                   total: totalStars,
                   count: reviewCount,
               });
 
         // For rating link aria-label: use explicit template, fall back to visual text if customized, then i18n default
-        const defaultRatingLinkTemplate = '{rating} ({count})';
-        const isCustomRatingLinkTemplate = ratingLinkTemplate !== defaultRatingLinkTemplate;
+        const isCustomRatingLinkTemplate = ratingLinkTemplate !== undefined;
         const ratingLinkAriaLabel = ratingLinkAriaLabelTemplate
             ? ratingLinkAriaLabelTemplate
             : isCustomRatingLinkTemplate
               ? ratingLinkText
-              : t('product:rating.viewAllReviews');
+              : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (t as any)('product:rating.viewAllReviews');
 
         return (
             <div ref={ref} className={cn('flex flex-col gap-1', className)} {...props}>

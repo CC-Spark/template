@@ -26,6 +26,10 @@ vi.mock('react-i18next', () => ({
             // Mock translations for testing
             const translations: Record<string, string> = {
                 'product:rating.starContainerAriaLabel': '{{rating}} out of {{total}} stars, {{count}} reviews',
+                'product:rating.ratingOutOfTotal': '{{rating}} out of {{total}}',
+                'product:rating.ratingValue': '{{rating}}',
+                'product:rating.basedOnReviews': 'Based on {{count}} reviews',
+                'product:rating.ratingWithCount': '{{rating}} ({{count}})',
                 'product:rating.viewAllReviews': 'View all reviews',
             };
             const template = translations[key] || key;

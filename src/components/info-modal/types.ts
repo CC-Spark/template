@@ -64,11 +64,32 @@ export interface WriteReviewModalData extends InfoModalDataBase {
     formConfig?: WriteReviewFormData;
 }
 
+/** Rating distribution data for a single star rating */
+export interface RatingDistributionData {
+    /** Star rating (1-5) */
+    rating: number;
+    /** Number of reviews for this rating */
+    count: number;
+}
+
+/** Data for star rating distribution modal */
+export interface StarRatingDistributionModalData extends InfoModalDataBase {
+    type: 'star-rating-distribution';
+    /** Overall rating value (0-5) */
+    rating: number;
+    /** Total number of reviews */
+    reviewCount: number;
+    /** Array of rating distribution data for 1-5 stars */
+    distributions: RatingDistributionData[];
+    /** Optional callback when "See customer reviews" button is clicked */
+    onSeeReviewsClick?: () => void;
+}
+
 /**
  * Structured data for the info modal. Add new modal types by defining a new variant
  * (e.g. SizeGuideModalData) and extending this union.
  */
-export type InfoModalData = PaymentScheduleModalData | WriteReviewModalData;
+export type InfoModalData = PaymentScheduleModalData | WriteReviewModalData | StarRatingDistributionModalData;
 
 export interface InfoModalProps {
     open: boolean;

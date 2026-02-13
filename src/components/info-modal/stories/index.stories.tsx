@@ -84,16 +84,18 @@ const meta: Meta<typeof InfoModalWrapper> = {
 The InfoModal is a generic, reusable modal component that displays informational content.
 
 **Features:**
-- Supports payment-schedule modal type (e.g. Pay in 4)
+- Supports multiple modal types (payment-schedule, write-review, star-rating-distribution)
 - Accepts structured data from adapters
 - Handles all rendering logic internally
 - Themeable and accessible
 
-**Modal Type:**
+**Modal Types:**
 - **Payment Schedule**: Displays title, description, payment schedule timeline, "How it works" steps, disclaimer, and Close button
+- **Write Review**: Displays a form for submitting product reviews
+- **Star Rating Distribution**: Displays star rating and distribution of ratings across 1-5 stars
 
 **Usage:**
-The modal accepts structured data with type 'payment-schedule' and transforms it into the payment schedule UI.
+The modal accepts structured data with a specific type and transforms it into the appropriate UI.
                 `,
             },
         },
@@ -230,5 +232,115 @@ export const PaymentScheduleOnly: Story = {
         await expect(documentBody.getByRole('dialog')).toBeInTheDocument();
         await expect(documentBody.getByText('Pay in 4')).toBeInTheDocument();
         await expect(documentBody.getByText('Payment Schedule')).toBeInTheDocument();
+    },
+};
+
+export const StarRatingDistributionType: Story = {
+    args: {
+        data: {
+            type: 'star-rating-distribution',
+            title: '4.8 out of 5',
+            rating: 4.8,
+            reviewCount: 200,
+            distributions: [
+                { rating: 5, count: 120 },
+                { rating: 4, count: 50 },
+                { rating: 3, count: 20 },
+                { rating: 2, count: 8 },
+                { rating: 1, count: 2 },
+            ],
+            onSeeReviewsClick: action('see reviews clicked'),
+        },
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: `
+Star rating distribution modal displaying rating overview and distribution breakdown.
+
+### Features:
+- Modal width: 19rem (304px) to accommodate w-64 (256px) content + padding
+- Content area: w-64 (256px)
+- Star rating with right label and review count
+- Distribution bars showing rating breakdown
+- "See customer reviews" link button (follows project pattern: text-primary hover:underline)
+- X button to close (top right)
+                `,
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const openButton = canvas.getByRole('button', { name: /open modal/i });
+        await userEvent.click(openButton);
+
+        const documentBody = within(document.body);
+        const dialog = await documentBody.findByRole('dialog', {}, { timeout: 5000 });
+        const inDialog = within(dialog);
+
+        // Check modal title (same as right label in star rating)
+        // Note: Text appears twice (DialogTitle with aria-hidden and StarRating label)
+        const ratingTexts = inDialog.getAllByText('4.8 out of 5');
+        await expect(ratingTexts.length).toBeGreaterThanOrEqual(1);
+
+        // Check that star rating component is rendered
+        await expect(inDialog.getByText('Based on 200 reviews')).toBeInTheDocument();
+
+        // Check that stars are rendered
+        const stars = dialog.querySelectorAll('svg');
+        await expect(stars.length).toBeGreaterThan(5);
+    },
+};
+
+export const StarRatingDistributionHighlyRated: Story = {
+    args: {
+        data: {
+            type: 'star-rating-distribution',
+            rating: 4.9,
+            reviewCount: 200,
+            distributions: [
+                { rating: 5, count: 180 },
+                { rating: 4, count: 15 },
+                { rating: 3, count: 3 },
+                { rating: 2, count: 1 },
+                { rating: 1, count: 1 },
+            ],
+            onSeeReviewsClick: action('see reviews clicked'),
+        },
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: `
+Highly rated product with most reviews being 5-star. Demonstrates how the modal handles excellent ratings with heavily skewed distribution.
+
+### Features:
+- 4.9 rating with 90% 5-star reviews
+- Distribution bars show clear visual hierarchy
+- Modal title defaults to rating label when not explicitly provided
+                `,
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const openButton = canvas.getByRole('button', { name: /open modal/i });
+        await userEvent.click(openButton);
+
+        const documentBody = within(document.body);
+        const dialog = await documentBody.findByRole('dialog', {}, { timeout: 5000 });
+        const inDialog = within(dialog);
+
+        // Check modal title defaults to rating label when title is not provided
+        // Note: Text appears twice (DialogTitle with aria-hidden and StarRating label)
+        const ratingTexts = inDialog.getAllByText('4.9 out of 5');
+        await expect(ratingTexts.length).toBeGreaterThanOrEqual(1);
+
+        // Check that star rating is displayed
+        await expect(inDialog.getByText('Based on 200 reviews')).toBeInTheDocument();
     },
 };

@@ -70,6 +70,12 @@ beforeAll(() => {
             resources,
             interpolation: {
                 escapeValue: false,
+                format: (value, format) => {
+                    if (format === 'number' && typeof value === 'number') {
+                        return value.toLocaleString('en-US');
+                    }
+                    return value;
+                },
             },
         });
     }
@@ -101,8 +107,16 @@ vi.mock('@/middlewares/i18next', async () => {
                 }
 
                 if (typeof value === 'string' && options) {
-                    // Simple interpolation for {{variable}} syntax
-                    return value.replace(/\{\{(\w+)\}\}/g, (_, prop) => options[prop] || `{{${prop}}}`);
+                    // Simple interpolation for {{variable}} and {{variable, number}} syntax
+                    return value.replace(/\{\{(\w+)(?:,\s*number)?\}\}/g, (_, prop) => {
+                        const val = options[prop];
+                        if (val === undefined) return `{{${prop}}}`;
+                        // Format numbers with locale-specific thousands separators
+                        if (typeof val === 'number') {
+                            return val.toLocaleString('en-US');
+                        }
+                        return val;
+                    });
                 }
                 return value || key;
             }
