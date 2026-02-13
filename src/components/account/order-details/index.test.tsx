@@ -19,17 +19,20 @@ import { MemoryRouter } from 'react-router';
 import { OrderDetails } from './index';
 import { getTranslation } from '@/lib/i18next';
 import { ConfigWrapper } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import type { ShopperOrders } from '@salesforce/storefront-next-runtime/scapi';
 import { mockOrderDetailsOrder, mockOrderDetailsProductsById } from './mock-order-details';
 
 const { t } = getTranslation();
 
-/** Wraps OrderDetails with required router + config context (Link, ProductImage). */
+/** Wraps OrderDetails with required router + config + currency context. */
 function OrderDetailsWithProviders({ order = mockOrderDetailsOrder }: { order?: ShopperOrders.schemas['Order'] }) {
     return (
         <MemoryRouter>
             <ConfigWrapper>
-                <OrderDetails order={order} productsById={mockOrderDetailsProductsById} />
+                <CurrencyWrapper>
+                    <OrderDetails order={order} productsById={mockOrderDetailsProductsById} />
+                </CurrencyWrapper>
             </ConfigWrapper>
         </MemoryRouter>
     );
@@ -85,7 +88,7 @@ describe('OrderDetails', () => {
 
     test('renders Items Ordered heading', () => {
         renderOrderDetails();
-        expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(t('account:orders.itemsOrdered'));
+        expect(screen.getByRole('heading', { level: 2, name: t('account:orders.itemsOrdered') })).toBeInTheDocument();
     });
 
     test('renders Order Summary heading', () => {
@@ -155,6 +158,8 @@ describe('OrderDetails', () => {
             productId: 'prod-2',
             productName: 'Second Product',
             quantity: 2,
+            basePrice: 29.99,
+            price: 29.99,
             priceAfterItemDiscount: 29.99,
             shipmentId: 'me',
         };
@@ -166,8 +171,9 @@ describe('OrderDetails', () => {
         expect(screen.getByText(t('account:orders.shipmentNumber', { n: '1' }))).toBeInTheDocument();
         expect(screen.getByText('First Product')).toBeInTheDocument();
         expect(screen.getByText('Second Product')).toBeInTheDocument();
-        expect(screen.getAllByText('$61.99')).toHaveLength(2); // item + order summary
-        expect(screen.getAllByText('$29.99')).toHaveLength(1); // item only
+        // ProductPrice shows the price on screen (visible) and again in a hidden span for screen readers (sr-only), so the first item’s price appears twice in the DOM
+        expect(screen.getAllByText('$61.99')).toHaveLength(2);
+        expect(screen.getAllByText('$29.99')).toHaveLength(1);
         expect(screen.getAllByRole('listitem')).toHaveLength(2);
     });
 

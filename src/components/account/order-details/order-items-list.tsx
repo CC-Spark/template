@@ -17,10 +17,15 @@ import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/typography';
-import ProductImage from '@/components/product-image/product-image';
-import { formatCurrency } from '@/lib/currency';
-import { getDisplayVariationValues } from '@/lib/product-utils';
+import {
+    ProductItemVariantImage,
+    ProductItemVariantName,
+    ProductItemVariantAttributes,
+} from '@/components/product-item';
+import ProductPrice from '@/components/product-price';
+import { useCurrency } from '@/providers/currency';
 import { useTranslation } from 'react-i18next';
+import type { EnrichedProductItem } from '@/lib/product-utils';
 import type { ShopperOrders, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
 type OrderItem = ShopperOrders.schemas['ProductItem'];
@@ -37,7 +42,8 @@ export type OrderItemsListProps = {
  * Matches PWA-Kit order details line-item pattern (product row with image, details, price, reorder).
  */
 export function OrderItemsList({ items, productsById }: OrderItemsListProps): ReactElement {
-    const { t, i18n } = useTranslation('account');
+    const { t } = useTranslation('account');
+    const currency = useCurrency();
 
     if (items.length === 0) {
         return (
@@ -53,59 +59,34 @@ export function OrderItemsList({ items, productsById }: OrderItemsListProps): Re
                 const productData = item.productId ? productsById[item.productId] : undefined;
                 const productKey = item.itemId ?? `${item.productId}-${index}`;
                 const productName = item.productName;
-                const img = productData?.image as { disBaseLink?: string; link?: string } | undefined;
-                const imageSrc = img?.disBaseLink ?? img?.link;
-                const variationValues =
-                    productData && productData.variationAttributes
-                        ? Object.entries(
-                              getDisplayVariationValues(
-                                  productData.variationAttributes,
-                                  (productData.variationValues ?? {}) as Record<string, string>
-                              )
-                          )
-                        : [];
-                const productUrl = item.productId ? `/product/${item.productId}` : undefined;
-
+                const enrichedItem: EnrichedProductItem = { ...productData, ...item } as EnrichedProductItem;
                 return (
                     <li key={productKey}>
                         <div className="flex flex-col gap-4 rounded-none border border-muted-foreground/20 bg-card p-4 sm:flex-row sm:items-center">
-                            {/* was border-gray-200 bg-white */}
-                            {/* TODO: Use ProductItemVariantImage from @/components/product-item */}
-                            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-none bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground">
-                                {imageSrc ? (
-                                    <ProductImage
-                                        src={imageSrc}
-                                        alt={productName ?? ''}
-                                        className="h-full w-full object-cover"
-                                        loading="lazy"
-                                    />
-                                ) : (
-                                    (productName?.[0] ?? t('orders.productPlaceholderInitial'))
-                                )}
-                            </div>
+                            <ProductItemVariantImage productItem={enrichedItem} className="h-24 w-24 rounded-none" />
                             <div className="min-w-0 flex-1 space-y-1">
-                                {/* TODO: Use ProductItemVariantName from @/components/product-item */}
-                                <p className="text-sm font-semibold">{productName}</p>
-                                {/* TODO: Use ProductItemVariantAttributes from @/components/product-item */}
-                                {variationValues.map(([label, value]) => (
-                                    <p key={`${productKey}-${label}`} className="text-xs text-muted-foreground">
-                                        {label}: {value}
-                                    </p>
-                                ))}
+                                <ProductItemVariantName productItem={enrichedItem} />
+                                <ProductItemVariantAttributes productItem={enrichedItem} />
                                 <p className="text-xs text-muted-foreground">
                                     {t('orders.quantityLabel', { count: item.quantity ?? 1 })}
                                 </p>
                             </div>
                             <div className="flex shrink-0 flex-col items-end gap-1 sm:self-start">
-                                {/* TODO: Replace with a common ProductPrice component */}
-                                {formatCurrency(Number(item.priceAfterItemDiscount ?? 0), i18n.language, 'USD')}
-                                {productUrl && (
+                                {currency ? (
+                                    <ProductPrice
+                                        product={item}
+                                        currency={currency}
+                                        quantity={item.quantity ?? 1}
+                                        labelForA11y={productName}
+                                    />
+                                ) : null}
+                                {item.productId && (
                                     <Button
                                         asChild
                                         variant="default"
                                         size="sm"
                                         className="rounded-none bg-foreground text-background hover:bg-foreground/90 text-xs">
-                                        <Link to={productUrl}>{t('orders.buyAgain')}</Link>
+                                        <Link to={`/product/${item.productId}`}>{t('orders.buyAgain')}</Link>
                                     </Button>
                                 )}
                             </div>

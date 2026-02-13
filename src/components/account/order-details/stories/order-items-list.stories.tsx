@@ -16,6 +16,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter } from 'react-router';
 import { OrderItemsList } from '../order-items-list';
+import { ConfigWrapper } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 const meta: Meta<typeof OrderItemsList> = {
     title: 'ACCOUNT/Order Details/Order Items List',
@@ -33,7 +35,11 @@ const meta: Meta<typeof OrderItemsList> = {
     decorators: [
         (Story) => (
             <MemoryRouter>
-                <Story />
+                <ConfigWrapper>
+                    <CurrencyWrapper>
+                        <Story />
+                    </CurrencyWrapper>
+                </ConfigWrapper>
             </MemoryRouter>
         ),
     ],
@@ -52,6 +58,8 @@ const defaultItems = [
         productId: '701643108633M',
         productName: 'Sweater',
         quantity: 3,
+        basePrice: 61.99,
+        price: 61.99,
         priceAfterItemDiscount: 61.99,
         shipmentId: 'me',
     },
@@ -61,6 +69,17 @@ const defaultProductsById = {
     '701643108633M': {
         id: '701643108633M',
         name: 'Sweater',
+        imageGroups: [
+            {
+                viewType: 'small',
+                images: [
+                    {
+                        link: 'https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dw97734cd6/images/large/PG.33330DAN84Q.CHARCWL.PZ.jpg',
+                        alt: 'Sweater',
+                    },
+                ],
+            },
+        ],
         variationAttributes: [
             { id: 'size', name: 'Size', values: [{ value: 'M', name: 'M' }] },
             { id: 'color', name: 'Color', values: [{ value: 'NAVY', name: 'Navy' }] },
@@ -91,6 +110,8 @@ export const MultipleItems: Story = {
                 productId: 'prod-1',
                 productName: 'Product One',
                 quantity: 1,
+                basePrice: 10,
+                price: 10,
                 priceAfterItemDiscount: 10,
                 shipmentId: 'me',
             },
@@ -99,6 +120,8 @@ export const MultipleItems: Story = {
                 productId: 'prod-2',
                 productName: 'Product Two',
                 quantity: 1,
+                basePrice: 20,
+                price: 20,
                 priceAfterItemDiscount: 20,
                 shipmentId: 'me',
             },

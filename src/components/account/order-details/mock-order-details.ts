@@ -172,10 +172,17 @@ export const mockOrderDetailsProductsById: MockProductDataById = {
     '701643108633M': {
         id: '701643108633M',
         name: 'First Product',
-        image: {
-            link: 'https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dw97734cd6/images/large/PG.33330DAN84Q.CHARCWL.PZ.jpg',
-            alt: 'First Product',
-        },
+        imageGroups: [
+            {
+                viewType: 'small',
+                images: [
+                    {
+                        link: 'https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dw97734cd6/images/large/PG.33330DAN84Q.CHARCWL.PZ.jpg',
+                        alt: 'First Product',
+                    },
+                ],
+            },
+        ],
         variationAttributes: [
             {
                 id: 'size',

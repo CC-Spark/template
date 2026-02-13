@@ -110,7 +110,7 @@ export function ProductItemVariantImage({
  * @param props.product - Product data containing name and ID information
  * @returns JSX element with product name link
  */
-function ProductItemVariantName({ productItem }: { productItem: EnrichedProductItem }): ReactElement {
+export function ProductItemVariantName({ productItem }: { productItem: EnrichedProductItem }): ReactElement {
     const { t: tCart } = useTranslation('cart');
     const { t: tProduct } = useTranslation('product');
     if (!productItem) {

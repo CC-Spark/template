@@ -17,6 +17,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter } from 'react-router';
 import { OrderDetails } from '../index';
 import { ConfigWrapper } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { mockOrderDetailsOrder, mockOrderDetailsProductsById } from '../mock-order-details';
 
 const meta: Meta<typeof OrderDetails> = {
@@ -34,9 +35,11 @@ const meta: Meta<typeof OrderDetails> = {
     decorators: [
         (Story) => (
             <ConfigWrapper>
-                <MemoryRouter>
-                    <Story />
-                </MemoryRouter>
+                <CurrencyWrapper>
+                    <MemoryRouter>
+                        <Story />
+                    </MemoryRouter>
+                </CurrencyWrapper>
             </ConfigWrapper>
         ),
     ],

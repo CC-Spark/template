@@ -18,6 +18,8 @@ import { describe, test, expect } from 'vitest';
 import { MemoryRouter } from 'react-router';
 import { OrderItemsList } from './order-items-list';
 import { getTranslation } from '@/lib/i18next';
+import { ConfigWrapper } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 const { t } = getTranslation();
 
@@ -25,7 +27,11 @@ describe('OrderItemsList', () => {
     const renderOrderItemsList = (items: any[], productsById: Record<string, any> = {}) =>
         render(
             <MemoryRouter>
-                <OrderItemsList items={items} productsById={productsById} />
+                <ConfigWrapper>
+                    <CurrencyWrapper>
+                        <OrderItemsList items={items} productsById={productsById} />
+                    </CurrencyWrapper>
+                </ConfigWrapper>
             </MemoryRouter>
         );
 
@@ -41,6 +47,8 @@ describe('OrderItemsList', () => {
                 productId: '701643108633M',
                 productName: 'Sweater',
                 quantity: 3,
+                basePrice: 61.99,
+                price: 61.99,
                 priceAfterItemDiscount: 61.99,
                 shipmentId: 'me',
             },
@@ -76,6 +84,8 @@ describe('OrderItemsList', () => {
                 productId: 'prod-1',
                 productName: 'Product One',
                 quantity: 1,
+                basePrice: 10,
+                price: 10,
                 priceAfterItemDiscount: 10,
                 shipmentId: 'me',
             },
@@ -84,6 +94,8 @@ describe('OrderItemsList', () => {
                 productId: 'prod-2',
                 productName: 'Product Two',
                 quantity: 1,
+                basePrice: 20,
+                price: 20,
                 priceAfterItemDiscount: 20,
                 shipmentId: 'me',
             },
@@ -93,5 +105,100 @@ describe('OrderItemsList', () => {
         expect(screen.getByText('Product Two')).toBeInTheDocument();
         expect(screen.getByText('$10.00')).toBeInTheDocument();
         expect(screen.getByText('$20.00')).toBeInTheDocument();
+
+        const list = screen.getByRole('list');
+        expect(list).toBeInTheDocument();
+        expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    });
+
+    test('does not render Buy Again link when item has no productId', () => {
+        const items = [
+            {
+                itemId: 'item-1',
+                productName: 'Standalone Item',
+                quantity: 1,
+                basePrice: 15,
+                price: 15,
+                priceAfterItemDiscount: 15,
+                shipmentId: 'me',
+            },
+        ];
+        renderOrderItemsList(items, {});
+        expect(screen.getByText('Standalone Item')).toBeInTheDocument();
+        expect(screen.getByText('$15.00')).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: t('account:orders.buyAgain') })).not.toBeInTheDocument();
+    });
+
+    test('uses quantity 1 in label when item quantity is undefined', () => {
+        const items = [
+            {
+                itemId: 'item-1',
+                productId: 'prod-1',
+                productName: 'Product',
+                basePrice: 9.99,
+                price: 9.99,
+                priceAfterItemDiscount: 9.99,
+                shipmentId: 'me',
+            },
+        ];
+        renderOrderItemsList(items, {});
+        expect(screen.getByText(t('account:orders.quantityLabel', { count: 1 }))).toBeInTheDocument();
+    });
+
+    test('does not render price when currency is not available', () => {
+        render(
+            <MemoryRouter>
+                <ConfigWrapper>
+                    <OrderItemsList
+                        items={[
+                            {
+                                itemId: 'item-1',
+                                productId: 'prod-1',
+                                productName: 'Product',
+                                quantity: 1,
+                                basePrice: 25,
+                                price: 25,
+                                priceAfterItemDiscount: 25,
+                                shipmentId: 'me',
+                            },
+                        ]}
+                        productsById={{}}
+                    />
+                </ConfigWrapper>
+            </MemoryRouter>
+        );
+        expect(screen.getByText('Product')).toBeInTheDocument();
+        expect(screen.queryByText('$25.00')).not.toBeInTheDocument();
+    });
+
+    test('renders product image when product has imageGroups', () => {
+        const items = [
+            {
+                itemId: 'item-1',
+                productId: 'prod-1',
+                productName: 'Product With Image',
+                quantity: 1,
+                basePrice: 50,
+                price: 50,
+                priceAfterItemDiscount: 50,
+                shipmentId: 'me',
+            },
+        ];
+        const productsById = {
+            'prod-1': {
+                id: 'prod-1',
+                name: 'Product With Image',
+                imageGroups: [
+                    {
+                        viewType: 'small',
+                        images: [{ link: 'https://example.com/img.jpg', alt: 'Product With Image' }],
+                    },
+                ],
+            },
+        };
+        renderOrderItemsList(items, productsById);
+        const img = screen.getByRole('img', { name: 'Product With Image' });
+        expect(img).toBeInTheDocument();
+        expect(img).toHaveAttribute('src', expect.stringContaining('example.com/img.jpg'));
     });
 });
