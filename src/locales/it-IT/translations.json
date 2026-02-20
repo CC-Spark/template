@@ -824,7 +824,7 @@
         }
     },
     "home": {
-        "hero": {
+        "hero-foundations": {
             "slide1": {
                 "title": "Lo Store React Starter per alte prestazioni",
                 "subtitle": "Scopra la nostra ultima collezione di prodotti",
@@ -842,6 +842,32 @@
                 "subtitle": "Riceva i Suoi ordini rapidamente e in sicurezza",
                 "ctaText": "Scopra di più",
                 "imageAlt": "Cubo bianco minimalista su sfondo pulito"
+            }
+        },
+        "hero-market-street": {
+            "slide1": {
+                "title": "La Nuova Stagione",
+                "subtitle": "Una nuova collezione plasmata da contrasto, proporzioni e attitudine moderna. Vi presentiamo i pezzi chiave per la stagione a venire.",
+                "ctaText": "Scopra La Collezione",
+                "imageAlt": "Pantaloni, giacche e borse da donna"
+            },
+            "slide2": {
+                "title": "Il Guardaroba Moderno",
+                "subtitle": "Pezzi di tendenza e strati raffinati progettati per le serate fuori, i momenti tardivi e tutto ciò che sta nel mezzo.",
+                "ctaText": "Acquista La Selezione",
+                "imageAlt": "Abito di lino bianco da donna"
+            },
+            "slide3": {
+                "title": "Dopo Le Ore",
+                "subtitle": "Pezzi di tendenza e strati raffinati progettati per le serate fuori, i momenti tardivi e tutto ciò che sta nel mezzo.",
+                "ctaText": "Esplora La Collezione",
+                "imageAlt": "Completo nero da donna"
+            },
+            "slide4": {
+                "title": "Nuove Prospettive",
+                "subtitle": "Una selezione curata di pezzi straordinari che ridefiniscono la moda contemporanea. Sicuri. Espressivi. Senza compromessi.",
+                "ctaText": "Acquista Ora",
+                "imageAlt": "Abito grigio da donna"
             }
         },
         "featuredProducts": {
@@ -978,9 +1004,14 @@
         }
     },
     "themeSwitcher": {
-        "ariaLabel": "Selettore tema",
-        "lightTheme": "Tema chiaro",
-        "darkTheme": "Tema scuro"
+        "ariaLabel": "Selettore modalità tema",
+        "lightTheme": "Chiaro",
+        "darkTheme": "Scuro",
+        "themeFamily": "Tema",
+        "themeMode": "Modalità",
+        "themeFamilyAriaLabel": "Selettore famiglia di temi",
+        "marketStreet": "Market Street",
+        "foundations": "Foundations"
     },
     "miniCart": {
         "noImage": "Nessuna immagine",

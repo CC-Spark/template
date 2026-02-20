@@ -26,12 +26,12 @@ export default function Footer(): ReactElement {
     const { t } = useTranslation('footer');
 
     return (
-        <footer data-theme="inverse" className="bg-background/90 py-12 mt-auto border-accent ring-secondary/40">
-            <div className="container mx-auto px-4 text-foreground border-secondary/50">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 bg/40">
+        <footer className="bg-footer-bg py-12 mt-auto">
+            <div className="container mx-auto px-4 text-footer-fg text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Customer Support */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">{t('sections.customerSupport')}</h3>
+                        <h3 className="text-xs font-semibold mb-4">{t('sections.customerSupport')}</h3>
                         <ul className="space-y-2">
                             <UITarget targetId="footer.customersupport.start" />
                             <li>
@@ -46,11 +46,11 @@ export default function Footer(): ReactElement {
                             </li>
                             <UITarget targetId="footer.customersupport.end" />
                         </ul>
-                        <h3 className="text-lg font-semibold my-4">{t('sections.switchLanguage')}</h3>
+                        <h3 className="text-xs font-semibold my-4">{t('sections.switchLanguage')}</h3>
                         <div className="flex items-center gap-2">
                             <LocaleSwitcher />
                         </div>
-                        <h3 className="text-lg font-semibold my-4">{t('sections.switchCurrency')}</h3>
+                        <h3 className="text-xs font-semibold my-4">{t('sections.switchCurrency')}</h3>
                         <div className="flex items-center gap-2">
                             <CurrencySwitcher />
                         </div>
@@ -58,7 +58,7 @@ export default function Footer(): ReactElement {
 
                     {/* Account */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">{t('sections.account')}</h3>
+                        <h3 className="text-xs font-semibold mb-4">{t('sections.account')}</h3>
                         <ul className="space-y-2">
                             <UITarget targetId="footer.account.start" />
                             <li>
@@ -77,7 +77,7 @@ export default function Footer(): ReactElement {
 
                     {/* Our Company */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">{t('sections.ourCompany')}</h3>
+                        <h3 className="text-xs font-semibold mb-4">{t('sections.ourCompany')}</h3>
                         <ul className="space-y-2">
                             <UITarget targetId="footer.ourcompany.start" />
                             <li>
@@ -123,7 +123,7 @@ export default function Footer(): ReactElement {
                 </div>
 
                 <div className="mt-12 pt-8 border-t border-border/60">
-                    <p className="text-center text-muted-foreground text-sm">
+                    <p className="text-center text-muted-foreground text-xs">
                         © {new Date().getFullYear()} {t('copyright')}
                     </p>
                 </div>

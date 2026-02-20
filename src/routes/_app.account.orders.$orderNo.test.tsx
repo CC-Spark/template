@@ -79,6 +79,8 @@ function createRouterWithRejectingLoader(orderNo: string) {
     const orderDataPromise = new Promise<never>((_, reject) => {
         rejectOrderData = reject;
     });
+    // Add a catch handler to prevent unhandled promise rejection during test cleanup
+    orderDataPromise.catch(() => {});
     vi.mocked(fetchOrderWithProducts).mockImplementation(() => {
         setTimeout(() => rejectOrderData(new Error('Order not found')), 0);
         return {
@@ -169,7 +171,7 @@ describe('Order Details Route (_app.account.orders.$orderNo)', () => {
 
         test('shows order not found card when orderData promise rejects (Await errorElement)', async () => {
             const router = createRouterWithRejectingLoader('BAD-ORDER');
-            render(<RouterProvider router={router} />);
+            const { unmount } = render(<RouterProvider router={router} />);
 
             await screen.findByText(t('account:orders.orderNotFound'), {}, { timeout: 2000 });
             const errorSection = screen.getByTestId('order-not-found');
@@ -179,6 +181,10 @@ describe('Order Details Route (_app.account.orders.$orderNo)', () => {
                 name: t('account:orders.backToOrderHistory'),
             });
             expect(backLink).toHaveAttribute('href', '/account/orders');
+
+            // Ensure proper cleanup before test completes
+            unmount();
+            await new Promise((resolve) => setTimeout(resolve, 10));
         });
     });
 });

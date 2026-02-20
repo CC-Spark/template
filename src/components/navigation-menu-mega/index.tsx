@@ -109,8 +109,8 @@ export default function CategoryNavigationMenuMega({
                         propsContent={({ category }) => ({
                             className: hasBanner(category)
                                 ? isVertical(category)
-                                    ? 'grid md:grid-cols-[1fr_.3fr] items-start divide-x'
-                                    : 'grid md:grid-cols-[1fr_.6fr] items-start divide-x'
+                                    ? 'grid md:grid-cols-[1fr_.3fr] items-start divide-x divide-header-divider'
+                                    : 'grid md:grid-cols-[1fr_.6fr] items-start divide-x divide-header-divider'
                                 : undefined,
                         })}
                         propsList={({ parent, categories: subCategories, level }) => {

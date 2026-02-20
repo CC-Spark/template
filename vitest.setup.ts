@@ -26,8 +26,27 @@ import 'vitest-localstorage-mock';
 // Windows converts '/path' to 'file:///path' which is invalid (missing drive letter)
 vi.mock('/favicon.ico', () => ({ default: '/favicon.ico' }));
 vi.mock('/images/GoogleMaps_Logo_Gray_4x.png', () => ({ default: '/images/GoogleMaps_Logo_Gray_4x.png' }));
-vi.mock('/images/hero-cube.webp', () => ({ default: '/images/hero-cube.webp' }));
-vi.mock('/images/hero-new-arrivals.webp', () => ({ default: '/images/hero-new-arrivals.webp' }));
+vi.mock('/images/foundations/hero-carousel/hero-cube.webp', () => ({
+    default: '/images/foundations/hero-carousel/hero-cube.webp',
+}));
+vi.mock('/images/hero-new-arrivals.webp', () => ({
+    default: '/images/hero-new-arrivals.webp',
+}));
+vi.mock('/images/foundations/foundations-logo.svg', () => ({
+    default: '/images/foundations/foundations-logo.svg',
+}));
+vi.mock('/images/black-cube-photo.svg', () => ({
+    default: '/images/black-cube-photo.svg',
+}));
+vi.mock('/images/home-office-setup.svg', () => ({
+    default: '/images/home-office-setup.svg',
+}));
+vi.mock('/images/living-room.svg', () => ({
+    default: '/images/living-room.svg',
+}));
+vi.mock('/images/shelf-display.svg', () => ({
+    default: '/images/shelf-display.svg',
+}));
 // Payment logo SVGs (added in PR #909) - return data URLs to match Vite's test environment behavior
 vi.mock('/images/apple-pay-logo.svg', () => ({
     default:

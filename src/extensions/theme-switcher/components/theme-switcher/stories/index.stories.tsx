@@ -72,14 +72,16 @@ const meta: Meta<typeof ThemeSwitcher> = {
         docs: {
             description: {
                 component: `
-The ThemeSwitcher component allows users to switch between light and dark themes.
+The ThemeSwitcher component allows users to switch between theme families (Market Street, Foundations) and theme modes (light, dark).
 
 ## Features
 
-- **Theme Selection**: Native select dropdown with light and dark options
-- **Theme Toggle**: Automatically toggles dark class on document element
+- **Theme Family Selection**: Switch between Market Street and Foundations themes
+- **Theme Mode Selection**: Switch between light and dark modes
+- **Theme Toggle**: Automatically applies theme via data-theme attribute and dark class
 - **Accessibility**: Proper ARIA labels and semantic HTML
 - **Internationalization**: Supports translation keys
+- **Session-only**: Theme preference lasts for the current session only (resets on page refresh)
 
 ## Usage
 
@@ -106,8 +108,9 @@ export const Default: Story = {
             description: {
                 story: `
 Default theme switcher showing:
-- Native select dropdown
-- Light and dark theme options
+- Two native select dropdowns (theme family and theme mode)
+- Market Street and Foundations theme family options
+- Light and dark theme mode options
 - Proper accessibility labels
 
 This is the standard theme switcher component.
@@ -120,15 +123,22 @@ This is the standard theme switcher component.
 
         const canvas = within(canvasElement);
 
-        // Verify select element is present
-        const select = await canvas.findByRole('combobox', {}, { timeout: 5000 });
-        await expect(select).toBeInTheDocument();
+        // Verify both select elements are present
+        const selects = await canvas.findAllByRole('combobox', {}, { timeout: 5000 });
+        await expect(selects).toHaveLength(2);
 
-        // Verify options are present
-        const lightOption = canvas.getByRole('option', { name: /light/i });
+        // Verify theme family options are present
+        const marketStreetOption = canvas.getByRole('option', { name: /market street/i });
+        await expect(marketStreetOption).toBeInTheDocument();
+
+        const foundationsOption = canvas.getByRole('option', { name: /foundations/i });
+        await expect(foundationsOption).toBeInTheDocument();
+
+        // Verify theme mode options are present
+        const lightOption = canvas.getByRole('option', { name: /^light$/i });
         await expect(lightOption).toBeInTheDocument();
 
-        const darkOption = canvas.getByRole('option', { name: /dark/i });
+        const darkOption = canvas.getByRole('option', { name: /^dark$/i });
         await expect(darkOption).toBeInTheDocument();
     },
 };
@@ -139,9 +149,10 @@ export const WithThemeChange: Story = {
             description: {
                 story: `
 Theme switcher with theme change interaction. Shows:
-- User can select different themes
-- Theme change is logged
-- Document class is updated
+- User can select different theme families
+- User can select different theme modes
+- Theme changes are logged
+- Document attributes and classes are updated
 
 This demonstrates the interactive behavior of the theme switcher.
                 `,
@@ -153,21 +164,27 @@ This demonstrates the interactive behavior of the theme switcher.
 
         const canvas = within(canvasElement);
 
-        // Find and interact with the select
-        const select = await canvas.findByRole('combobox', {}, { timeout: 5000 });
-        await expect(select).toBeInTheDocument();
+        // Find both select elements
+        const selects = await canvas.findAllByRole('combobox', {}, { timeout: 5000 });
+        await expect(selects).toHaveLength(2);
 
-        // Change theme to dark
-        await userEvent.selectOptions(select, 'dark');
+        const [familySelect, modeSelect] = selects;
 
-        // Verify the value changed
-        await expect(select).toHaveValue('dark');
+        // Change theme family to foundations
+        await userEvent.selectOptions(familySelect, 'foundations');
+        await expect(familySelect).toHaveValue('foundations');
 
-        // Change theme back to light
-        await userEvent.selectOptions(select, 'light');
+        // Change theme mode to dark
+        await userEvent.selectOptions(modeSelect, 'dark');
+        await expect(modeSelect).toHaveValue('dark');
 
-        // Verify the value changed back
-        await expect(select).toHaveValue('light');
+        // Change theme mode back to light
+        await userEvent.selectOptions(modeSelect, 'light');
+        await expect(modeSelect).toHaveValue('light');
+
+        // Change theme family back to market-street
+        await userEvent.selectOptions(familySelect, 'market-street');
+        await expect(familySelect).toHaveValue('market-street');
     },
 };
 
@@ -177,7 +194,7 @@ export const MobileLayout: Story = {
             description: {
                 story: `
 Theme switcher optimized for mobile devices. Shows:
-- Touch-friendly select dropdown
+- Touch-friendly select dropdowns
 - Mobile-optimized layout
 - Proper spacing
 
@@ -194,9 +211,9 @@ The component automatically adapts for mobile screens.
 
         const canvas = within(canvasElement);
 
-        // Verify select element is present
-        const select = await canvas.findByRole('combobox', {}, { timeout: 5000 });
-        await expect(select).toBeInTheDocument();
+        // Verify both select elements are present
+        const selects = await canvas.findAllByRole('combobox', {}, { timeout: 5000 });
+        await expect(selects).toHaveLength(2);
     },
 };
 
@@ -223,8 +240,8 @@ The component provides a clean layout for desktop screens.
 
         const canvas = within(canvasElement);
 
-        // Verify select element is present
-        const select = await canvas.findByRole('combobox', {}, { timeout: 5000 });
-        await expect(select).toBeInTheDocument();
+        // Verify both select elements are present
+        const selects = await canvas.findAllByRole('combobox', {}, { timeout: 5000 });
+        await expect(selects).toHaveLength(2);
     },
 };

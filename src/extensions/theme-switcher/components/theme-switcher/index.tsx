@@ -15,24 +15,69 @@
  */
 'use client';
 
-import { type ReactElement, useId } from 'react';
+import { type ReactElement, useId, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { NativeSelect } from '@/components/ui/native-select';
 
+type ThemeFamily = 'market-street' | 'foundations';
+type ThemeMode = 'light' | 'dark';
+
 export default function ThemeSwitcher(): ReactElement {
-    const id = useId();
+    const modeId = useId();
+    const familyId = useId();
     const { t } = useTranslation('themeSwitcher');
-    const handleStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newTheme = e.target.value;
-        document.documentElement.classList.toggle('dark', newTheme === 'dark');
+
+    const [themeFamily, setThemeFamily] = useState<ThemeFamily>('foundations');
+    const [themeMode, setThemeMode] = useState<ThemeMode>('light');
+
+    // Apply theme whenever it changes
+    useEffect(() => {
+        const html = document.documentElement;
+
+        // Handle dark mode class
+        html.classList.toggle('dark', themeMode === 'dark');
+
+        // Handle data-theme attribute for market street
+        if (themeFamily === 'market-street') {
+            html.setAttribute('data-theme', `market-street-${themeMode}`);
+        } else {
+            html.removeAttribute('data-theme');
+        }
+    }, [themeFamily, themeMode]);
+
+    const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setThemeMode(e.target.value as ThemeMode);
     };
+
+    const handleFamilyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setThemeFamily(e.target.value as ThemeFamily);
+    };
+
     return (
-        <div className="*:not-first:mt-2">
-            <NativeSelect id={id} onChange={handleStyleChange} aria-label={t('ariaLabel')}>
-                <option value="light">{t('lightTheme')}</option>
-                <option value="dark">{t('darkTheme')}</option>
-            </NativeSelect>
+        <div className="space-y-2">
+            <div>
+                <label htmlFor={familyId} className="block text-sm font-medium mb-1">
+                    {t('themeFamily')}
+                </label>
+                <NativeSelect
+                    id={familyId}
+                    value={themeFamily}
+                    onChange={handleFamilyChange}
+                    aria-label={t('themeFamilyAriaLabel')}>
+                    <option value="foundations">{t('foundations')}</option>
+                    <option value="market-street">{t('marketStreet')}</option>
+                </NativeSelect>
+            </div>
+            <div>
+                <label htmlFor={modeId} className="block text-sm font-medium mb-1">
+                    {t('themeMode')}
+                </label>
+                <NativeSelect id={modeId} value={themeMode} onChange={handleModeChange} aria-label={t('ariaLabel')}>
+                    <option value="light">{t('lightTheme')}</option>
+                    <option value="dark">{t('darkTheme')}</option>
+                </NativeSelect>
+            </div>
         </div>
     );
 }

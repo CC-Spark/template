@@ -19,7 +19,7 @@ import Search from './search';
 import CartBadge from './cart-badge';
 import UserActions from './user-actions/user-actions';
 import { useTranslation } from 'react-i18next';
-import logo from '/images/market-logo.svg';
+import logo from '/images/foundations/foundations-logo.svg';
 import { UITarget } from '@/targets/ui-target';
 
 export default function Header({ children }: PropsWithChildren): ReactElement {
@@ -27,7 +27,7 @@ export default function Header({ children }: PropsWithChildren): ReactElement {
     const location = useLocation();
 
     return (
-        <header className="bg-background shadow-md sticky top-0 z-50">
+        <header className="bg-header-bg text-header-fg shadow-md sticky top-0 z-50">
             <div className="container mx-auto px-4 py-4">
                 <div className="flex items-center justify-between">
                     {/* Logo */}

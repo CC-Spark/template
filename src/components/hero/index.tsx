@@ -20,7 +20,7 @@ import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { RegionDefinition } from '@/lib/decorators';
 import { type Image } from '@/types';
-import heroImage from '/images/hero-cube.webp';
+import heroImage from '/images/foundations/hero-carousel/hero-cube.webp';
 
 /* v8 ignore start - do not test decorators in unit tests, decorator functionality is tested separately*/
 @Component('hero', {
@@ -90,7 +90,7 @@ export default function Hero({
             {/* Content overlay */}
             <div className="absolute inset-0 z-10 flex items-center justify-center">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-2xl mx-auto text-center" data-theme="light">
+                    <div className="max-w-2xl mx-auto text-center" data-theme="foundations-light">
                         {/* Responsive heading */}
                         <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4 md:mb-6 leading-none tracking-tight">
                             {title}

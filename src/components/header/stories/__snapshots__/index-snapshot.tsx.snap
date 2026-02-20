@@ -6,7 +6,7 @@ exports[`Header stories snapshot > Authenticated story renders and matches snaps
     class="min-h-screen bg-background"
   >
     <header
-      class="bg-background shadow-md sticky top-0 z-50"
+      class="bg-header-bg text-header-fg shadow-md sticky top-0 z-50"
     >
       <div
         class="container mx-auto px-4 py-4"
@@ -20,7 +20,7 @@ exports[`Header stories snapshot > Authenticated story renders and matches snaps
           >
             <img
               alt="Home"
-              src="/images/market-logo.svg"
+              src="/images/foundations/foundations-logo.svg"
             />
           </a>
           <div
@@ -195,7 +195,7 @@ exports[`Header stories snapshot > Guest story renders and matches snapshot 1`] 
     class="min-h-screen bg-background"
   >
     <header
-      class="bg-background shadow-md sticky top-0 z-50"
+      class="bg-header-bg text-header-fg shadow-md sticky top-0 z-50"
     >
       <div
         class="container mx-auto px-4 py-4"
@@ -209,7 +209,7 @@ exports[`Header stories snapshot > Guest story renders and matches snapshot 1`] 
           >
             <img
               alt="Home"
-              src="/images/market-logo.svg"
+              src="/images/foundations/foundations-logo.svg"
             />
           </a>
           <div
@@ -385,7 +385,7 @@ exports[`Header stories snapshot > MobileView story renders and matches snapshot
     class="min-h-screen bg-background"
   >
     <header
-      class="bg-background shadow-md sticky top-0 z-50"
+      class="bg-header-bg text-header-fg shadow-md sticky top-0 z-50"
     >
       <div
         class="container mx-auto px-4 py-4"
@@ -399,7 +399,7 @@ exports[`Header stories snapshot > MobileView story renders and matches snapshot
           >
             <img
               alt="Home"
-              src="/images/market-logo.svg"
+              src="/images/foundations/foundations-logo.svg"
             />
           </a>
           <div
@@ -578,7 +578,7 @@ exports[`Header stories snapshot > StickyWithContent story renders and matches s
       class="min-h-screen"
     >
       <header
-        class="bg-background shadow-md sticky top-0 z-50"
+        class="bg-header-bg text-header-fg shadow-md sticky top-0 z-50"
       >
         <div
           class="container mx-auto px-4 py-4"
@@ -592,7 +592,7 @@ exports[`Header stories snapshot > StickyWithContent story renders and matches s
             >
               <img
                 alt="Home"
-                src="/images/market-logo.svg"
+                src="/images/foundations/foundations-logo.svg"
               />
             </a>
             <nav
@@ -956,7 +956,7 @@ exports[`Header stories snapshot > WithNavigation story renders and matches snap
     class="min-h-screen bg-background"
   >
     <header
-      class="bg-background shadow-md sticky top-0 z-50"
+      class="bg-header-bg text-header-fg shadow-md sticky top-0 z-50"
     >
       <div
         class="container mx-auto px-4 py-4"
@@ -970,7 +970,7 @@ exports[`Header stories snapshot > WithNavigation story renders and matches snap
           >
             <img
               alt="Home"
-              src="/images/market-logo.svg"
+              src="/images/foundations/foundations-logo.svg"
             />
           </a>
           <nav
@@ -1169,7 +1169,7 @@ exports[`Header stories snapshot > WithNavigationAuthenticated story renders and
     class="min-h-screen bg-background"
   >
     <header
-      class="bg-background shadow-md sticky top-0 z-50"
+      class="bg-header-bg text-header-fg shadow-md sticky top-0 z-50"
     >
       <div
         class="container mx-auto px-4 py-4"
@@ -1183,7 +1183,7 @@ exports[`Header stories snapshot > WithNavigationAuthenticated story renders and
           >
             <img
               alt="Home"
-              src="/images/market-logo.svg"
+              src="/images/foundations/foundations-logo.svg"
             />
           </a>
           <nav

@@ -30,7 +30,6 @@ import { fetchPageWithComponentData, type PageWithComponentData } from '@/lib/ut
 
 import heroNewArrivals from '/images/hero-new-arrivals.webp';
 import HeroCarousel, { HeroCarouselSkeleton, type HeroSlide } from '@/components/hero-carousel';
-import heroImage from '/images/hero-cube.webp';
 import { ProductCarouselSkeleton, ProductCarouselWithSuspense } from '@/components/product-carousel';
 import { useTranslation } from 'react-i18next';
 
@@ -94,30 +93,30 @@ export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
     const heroSlides: HeroSlide[] = [
         {
             id: 'slide-1',
-            title: t('hero.slide1.title'),
-            subtitle: t('hero.slide1.subtitle'),
-            imageUrl: heroImage,
-            imageAlt: t('hero.slide1.imageAlt'),
-            ctaText: t('hero.slide1.ctaText'),
+            title: t('hero-foundations.slide1.title'),
+            subtitle: t('hero-foundations.slide1.subtitle'),
+            imageUrl: '/images/foundations/hero-carousel/hero-cube.webp',
+            imageAlt: t('hero-foundations.slide1.imageAlt'),
+            ctaText: t('hero-foundations.slide1.ctaText'),
             ctaLink: '/category/root',
         },
         {
             id: 'slide-2',
-            title: t('hero.slide2.title'),
-            subtitle: t('hero.slide2.subtitle'),
-            imageUrl: heroImage,
-            imageAlt: t('hero.slide1.imageAlt'),
-            ctaText: t('hero.slide2.ctaText'),
+            title: t('hero-foundations.slide2.title'),
+            subtitle: t('hero-foundations.slide2.subtitle'),
+            imageUrl: '/images/foundations/hero-carousel/hero-cube.webp',
+            imageAlt: t('hero-foundations.slide2.imageAlt'),
+            ctaText: t('hero-foundations.slide2.ctaText'),
             ctaLink: '/category/root',
         },
         {
             id: 'slide-3',
-            title: t('hero.slide3.title'),
-            subtitle: t('hero.slide3.subtitle'),
-            imageUrl: heroImage,
-            imageAlt: t('hero.slide1.imageAlt'),
-            ctaText: t('hero.slide3.ctaText'),
-            ctaLink: '/shipping',
+            title: t('hero-foundations.slide3.title'),
+            subtitle: t('hero-foundations.slide3.subtitle'),
+            imageUrl: '/images/foundations/hero-carousel/hero-cube.webp',
+            imageAlt: t('hero-foundations.slide3.imageAlt'),
+            ctaText: t('hero-foundations.slide3.ctaText'),
+            ctaLink: '/category/root',
         },
     ];
 
