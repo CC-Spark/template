@@ -680,7 +680,9 @@
             "mustLoginToRemove": "You must be logged in to remove items from your wishlist."
         },
         "orders": {
-            "empty": "No orders found. Start shopping to see your order history!",
+            "empty": "You haven't placed an order yet. Once you place an order the details will show up here.",
+            "continueShopping": "Continue Shopping",
+            "errorDescription": "We encountered an error loading your order history. Please try again later.",
             "subtitle": "View and track your orders",
             "orderDate": "Order Date",
             "total": "Total",

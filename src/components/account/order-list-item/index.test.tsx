@@ -43,15 +43,15 @@ const mockOrder: OrderListItemData = {
     productItems: [
         {
             productId: 'prod-1',
-            productName: 'Classic Shirt',
             quantity: 1,
             imageUrl: '/images/shirt.jpg',
+            imageAlt: 'Classic Shirt',
         },
         {
             productId: 'prod-2',
-            productName: 'Dress Pants',
             quantity: 2,
             imageUrl: '/images/pants.jpg',
+            imageAlt: 'Dress Pants',
         },
     ],
 };
@@ -132,7 +132,6 @@ describe('OrderListItem', () => {
                 ...mockOrder,
                 productItems: Array.from({ length: 15 }, (_, i) => ({
                     productId: `prod-${i}`,
-                    productName: `Product ${i}`,
                     quantity: 1,
                 })),
             };
@@ -184,7 +183,6 @@ describe('OrderListItem', () => {
                 productItems: [
                     {
                         productId: 'prod-1',
-                        productName: 'Product without image',
                         quantity: 1,
                     },
                 ],
@@ -192,8 +190,127 @@ describe('OrderListItem', () => {
 
             render(<OrderListItem order={orderWithNoImages} />);
 
-            // Should not have any img elements
             expect(screen.queryByRole('img')).not.toBeInTheDocument();
+        });
+
+        it('renders placeholder when imageUrl is an empty string', () => {
+            const orderWithEmptyUrl: OrderListItemData = {
+                ...mockOrder,
+                productItems: [
+                    {
+                        productId: 'prod-1',
+                        quantity: 1,
+                        imageUrl: '',
+                        imageAlt: 'Should not render',
+                    },
+                ],
+            };
+
+            render(<OrderListItem order={orderWithEmptyUrl} />);
+
+            expect(screen.queryByRole('img')).not.toBeInTheDocument();
+        });
+
+        it('renders images and placeholders for mixed items', () => {
+            const mixedOrder: OrderListItemData = {
+                ...mockOrder,
+                productItems: [
+                    {
+                        productId: 'prod-1',
+                        quantity: 1,
+                        imageUrl: '/images/shirt.jpg',
+                        imageAlt: 'Classic Shirt',
+                    },
+                    {
+                        productId: 'prod-2',
+                        quantity: 1,
+                    },
+                    {
+                        productId: 'prod-3',
+                        quantity: 1,
+                        imageUrl: '/images/pants.jpg',
+                        imageAlt: 'Dress Pants',
+                    },
+                ],
+            };
+
+            render(<OrderListItem order={mixedOrder} />);
+
+            const images = screen.getAllByRole('img');
+            expect(images).toHaveLength(2);
+        });
+
+        it('still shows quantity badge on placeholder items', () => {
+            const orderWithQty: OrderListItemData = {
+                ...mockOrder,
+                itemCount: 1,
+                productItems: [
+                    {
+                        productId: 'prod-1',
+                        quantity: 3,
+                    },
+                ],
+            };
+
+            render(<OrderListItem order={orderWithQty} />);
+
+            expect(screen.queryByRole('img')).not.toBeInTheDocument();
+            expect(screen.getByText('3')).toBeInTheDocument();
+        });
+    });
+
+    describe('edge cases', () => {
+        it('renders fallback for invalid date', () => {
+            const order: OrderListItemData = {
+                ...mockOrder,
+                orderDate: 'not-a-date',
+            };
+
+            render(<OrderListItem order={order} />);
+
+            expect(screen.getByText('Invalid Date')).toBeInTheDocument();
+        });
+
+        it('renders fallback status styling for unknown status', () => {
+            const order: OrderListItemData = {
+                ...mockOrder,
+                status: 'unknown_status',
+                statusLabel: 'Unknown',
+            };
+
+            render(<OrderListItem order={order} />);
+
+            expect(screen.getByText('Unknown')).toBeInTheDocument();
+        });
+
+        it('renders without productItems', () => {
+            const order: OrderListItemData = {
+                ...mockOrder,
+                productItems: undefined,
+            };
+
+            render(<OrderListItem order={order} />);
+
+            expect(screen.getByText('View Order Details')).toBeInTheDocument();
+        });
+
+        it('renders without onViewDetails callback', () => {
+            render(<OrderListItem order={mockOrder} />);
+
+            const link = screen.getByText('View Order Details');
+            expect(link.closest('a')).toHaveAttribute('href', '/account/orders/ORD-001-2024');
+        });
+
+        it('uses translated label when statusLabel is not provided', () => {
+            const order: OrderListItemData = {
+                ...mockOrder,
+                status: 'completed',
+                statusLabel: undefined,
+            };
+
+            render(<OrderListItem order={order} />);
+
+            expect(screen.getByText('Completed')).toBeInTheDocument();
         });
     });
 });

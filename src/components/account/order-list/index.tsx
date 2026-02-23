@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 import type { ReactElement } from 'react';
+import { Link } from 'react-router';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/typography';
 import { useTranslation } from 'react-i18next';
 import {
@@ -87,11 +89,86 @@ function toOrderListItemData(order: Order): OrderListItemData {
 }
 
 /**
+ * Empty state displayed when the customer has no orders.
+ */
+function OrderListEmpty({ message }: { message?: string }): ReactElement {
+    const { t } = useTranslation('account');
+
+    return (
+        <Card className="border-order-border m-0 rounded-none shadow-none border-b-0">
+            <CardContent className="p-0">
+                <div className="py-4 space-y-4 flex flex-col items-center justify-center">
+                    <Typography variant="h4" className="text-muted-foreground w-fit">
+                        {message || t('orders.empty')}
+                    </Typography>
+                    <Button asChild>
+                        <Link to="/">{t('orders.continueShopping')}</Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+/**
+ * Page header for the order list with title and optional subtitle.
+ * Extracted so the route can render it outside Suspense for instant display.
+ */
+export function OrderListHeader({ title, subtitle }: { title: string; subtitle?: string }): ReactElement {
+    return (
+        <div className="p-6 m-0 border-t border-x border-order-border rounded-t-xl">
+            <Typography variant="h3" className="text-foreground font-semibold" tabIndex={0}>
+                {title}
+            </Typography>
+            {subtitle && (
+                <Typography variant="small" as="p" className="text-muted-foreground mt-1">
+                    {subtitle}
+                </Typography>
+            )}
+        </div>
+    );
+}
+
+/**
+ * Order items body with footer. Renders order cards, empty state, and total count.
+ * Designed to be used inside Suspense/Await so the header can render instantly.
+ */
+export function OrderListBody({
+    orders,
+    emptyMessage,
+    maxThumbnails = 12,
+    onViewDetails,
+}: Omit<OrderListProps, 'title' | 'subtitle'>): ReactElement {
+    const { t } = useTranslation('account');
+
+    return (
+        <>
+            {orders.length === 0 ? (
+                <OrderListEmpty message={emptyMessage} />
+            ) : (
+                <div className="space-y-4 m-0 border-x border-t border-order-border">
+                    {orders.map((order) => (
+                        <OrderListItem
+                            key={order.orderNo}
+                            order={toOrderListItemData(order)}
+                            maxThumbnails={maxThumbnails}
+                            onViewDetails={onViewDetails}
+                        />
+                    ))}
+                </div>
+            )}
+            <div className="p-6 m-0 border-b border-x border-order-border rounded-b-xl">
+                <Typography variant="small" as="p" className="text-muted-foreground">
+                    {t('orders.totalOrders', { count: orders.length })}
+                </Typography>
+            </div>
+        </>
+    );
+}
+
+/**
  * Reusable order list component that displays a list of order cards.
- * Uses OrderListItem for each order with product thumbnails and pickup info.
- *
- * @param props - Component props
- * @returns JSX element representing the order list
+ * Composes OrderListHeader + OrderListBody for convenience.
  *
  * @example
  * ```tsx
@@ -111,48 +188,15 @@ export function OrderList({
     maxThumbnails = 12,
     onViewDetails,
 }: OrderListProps): ReactElement {
-    const { t } = useTranslation('account');
-
     return (
         <div className="space-y-6">
-            {/* Page Header */}
-            <div className="p-6 m-0 border-t border-x border-order-border rounded-t-xl">
-                <Typography variant="h3" className="text-foreground font-semibold" tabIndex={0}>
-                    {title}
-                </Typography>
-                {subtitle && (
-                    <Typography variant="small" as="p" className="text-muted-foreground mt-1">
-                        {subtitle}
-                    </Typography>
-                )}
-            </div>
-
-            {/* Orders List */}
-            {orders.length === 0 ? (
-                <Card className="border-order-border">
-                    <CardContent className="p-0">
-                        <div className="text-center py-12">
-                            <p className="text-muted-foreground">{emptyMessage || t('orders.empty')}</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            ) : (
-                <div className="space-y-4 m-0 border-x border-t border-order-border">
-                    {orders.map((order) => (
-                        <OrderListItem
-                            key={order.orderNo}
-                            order={toOrderListItemData(order)}
-                            maxThumbnails={maxThumbnails}
-                            onViewDetails={onViewDetails}
-                        />
-                    ))}
-                </div>
-            )}
-            <div className="p-6 m-0 border-b border-x border-order-border rounded-b-xl">
-                <Typography variant="small" as="p" className="text-muted-foreground">
-                    {t('orders.totalOrders', { count: orders.length })}
-                </Typography>
-            </div>
+            <OrderListHeader title={title} subtitle={subtitle} />
+            <OrderListBody
+                orders={orders}
+                emptyMessage={emptyMessage}
+                maxThumbnails={maxThumbnails}
+                onViewDetails={onViewDetails}
+            />
         </div>
     );
 }

@@ -54,7 +54,6 @@ type StatusLabelKey =
  */
 export interface OrderProductItem {
     productId: string;
-    productName: string;
     quantity: number;
     imageUrl?: string;
     imageAlt?: string;
@@ -199,13 +198,15 @@ function ProductThumbnail({ item }: { item: OrderProductItem }): ReactElement {
     return (
         <div className="relative">
             <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border">
-                {item.imageUrl && (
+                {item.imageUrl ? (
                     <img
                         src={item.imageUrl}
-                        alt={item.imageAlt || item.productName}
+                        alt={item.imageAlt || ''}
                         className="w-full h-full object-cover"
                         loading="lazy"
                     />
+                ) : (
+                    <div className="w-full h-full bg-muted rounded" />
                 )}
             </div>
             {item.quantity > 1 && (
@@ -291,8 +292,8 @@ function PickupLocationCard({ location }: { location: PickupLocation }): ReactEl
  *     status: 'ready_for_pickup',
  *     itemCount: 2,
  *     productItems: [
- *       { productId: '1', productName: 'Shirt', quantity: 1, imageUrl: '/img/shirt.jpg' },
- *       { productId: '2', productName: 'Pants', quantity: 2, imageUrl: '/img/pants.jpg' },
+ *       { productId: '1', quantity: 1, imageUrl: '/img/shirt.jpg', imageAlt: 'Shirt' },
+ *       { productId: '2', quantity: 2, imageUrl: '/img/pants.jpg', imageAlt: 'Pants' },
  *     ],
  *     pickupLocation: {
  *       name: 'Salesforce Foundations San Francisco',

@@ -13,87 +13,269 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { render, screen } from '@testing-library/react';
-import { describe, test, expect } from 'vitest';
-import { MemoryRouter } from 'react-router';
-import OrderListPage from './_app.account.orders._index';
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { RouterProvider, createMemoryRouter } from 'react-router';
+import OrderListPage, { loader } from './_app.account.orders._index';
+import { fetchCustomerOrders } from '@/lib/api/order';
+import { getAuth } from '@/middlewares/auth.server';
+import type { Order } from '@/components/account/order-list';
+import { createTestContext } from '@/lib/test-utils';
+
+vi.mock('@/lib/api/order', () => ({
+    fetchCustomerOrders: vi.fn(),
+    DEFAULT_ORDERS_OFFSET: 0,
+    DEFAULT_ORDERS_LIMIT: 10,
+}));
+
+vi.mock('@/middlewares/auth.server', () => ({
+    getAuth: vi.fn(),
+}));
+
+const mockGetAuth = vi.mocked(getAuth);
+
+const mockOrders: Order[] = [
+    {
+        orderNo: 'ORD-2024-001',
+        orderDate: '2024-09-14T10:30:00Z',
+        status: 'created',
+        statusLabel: 'Created',
+        total: 48.38,
+        currency: 'USD',
+        itemCount: 2,
+        productItems: [
+            {
+                productId: 'prod-1',
+                quantity: 1,
+                imageUrl: '/images/shirt.jpg',
+            },
+            {
+                productId: 'prod-2',
+                quantity: 2,
+                imageUrl: '/images/pants.jpg',
+            },
+        ],
+    },
+    {
+        orderNo: 'ORD-2024-002',
+        orderDate: '2024-09-12T14:00:00Z',
+        status: 'new',
+        statusLabel: 'New',
+        total: 43.0,
+        currency: 'USD',
+        itemCount: 1,
+        productItems: [
+            {
+                productId: 'prod-3',
+                quantity: 2,
+                imageUrl: '/images/dress.jpg',
+            },
+        ],
+    },
+    {
+        orderNo: 'ORD-2024-003',
+        orderDate: '2024-09-10T08:00:00Z',
+        status: 'completed',
+        statusLabel: 'Completed',
+        total: 95.92,
+        currency: 'USD',
+        itemCount: 2,
+        productItems: [],
+    },
+];
 
 describe('AccountOrders Page', () => {
-    const renderAccountOrders = () => {
-        return render(
-            <MemoryRouter>
-                <OrderListPage />
-            </MemoryRouter>
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockGetAuth.mockReturnValue({ customerId: 'customer-123' } as ReturnType<typeof getAuth>);
+    });
+
+    const renderAccountOrders = async (ordersData: Order[] = mockOrders) => {
+        vi.mocked(fetchCustomerOrders).mockResolvedValue(ordersData);
+
+        const router = createMemoryRouter(
+            [
+                {
+                    path: '/',
+                    element: <OrderListPage />,
+                    loader,
+                },
+            ],
+            {
+                initialEntries: ['/'],
+            }
         );
+
+        const result = render(<RouterProvider router={router} />);
+
+        // Wait for the Await promise to resolve and actual content to render.
+        // The skeleton also has an h3 so we need to wait for data-specific content.
+        if (ordersData.length > 0) {
+            await waitFor(() => {
+                expect(screen.getAllByText('View Order Details').length).toBeGreaterThan(0);
+            });
+        } else {
+            await waitFor(() => {
+                expect(screen.getByText(/haven't placed an order/)).toBeInTheDocument();
+            });
+        }
+
+        return result;
     };
 
+    describe('loader', () => {
+        test('fetches orders for authenticated customer', () => {
+            const context = createTestContext();
+            vi.mocked(fetchCustomerOrders).mockResolvedValue(mockOrders);
+
+            const result = loader({
+                context,
+                params: {},
+                request: new Request('http://localhost'),
+                unstable_pattern: '/' as never,
+            });
+
+            expect(fetchCustomerOrders).toHaveBeenCalledWith(context, 'customer-123', {
+                offset: 0,
+                limit: 10,
+            });
+            expect(result).toHaveProperty('ordersPromise');
+        });
+
+        test('redirects to login when customerId is missing', () => {
+            mockGetAuth.mockReturnValue({ customerId: undefined } as ReturnType<typeof getAuth>);
+            const context = createTestContext();
+
+            expect(() =>
+                loader({
+                    context,
+                    params: {},
+                    request: new Request('http://localhost'),
+                    unstable_pattern: '/' as never,
+                })
+            ).toThrow();
+        });
+    });
+
     describe('Page Content', () => {
-        test('renders Order History title', () => {
-            renderAccountOrders();
+        test('renders Order History title', async () => {
+            await renderAccountOrders();
             expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Order History');
         });
 
-        test('renders subtitle', () => {
-            renderAccountOrders();
+        test('renders subtitle', async () => {
+            await renderAccountOrders();
             expect(screen.getByText('View and track your orders')).toBeInTheDocument();
         });
 
-        test('renders mock orders', () => {
-            renderAccountOrders();
-            // Check for mock order links by href (order numbers are not visibly rendered, but used in links)
+        test('renders orders from API', async () => {
+            await renderAccountOrders();
+
+            // Check for order links
             const orderLinks = screen.getAllByRole('link');
             const orderHrefs = orderLinks.map((link) => link.getAttribute('href'));
 
             expect(orderHrefs).toContain('/account/orders/ORD-2024-001');
             expect(orderHrefs).toContain('/account/orders/ORD-2024-002');
             expect(orderHrefs).toContain('/account/orders/ORD-2024-003');
-            expect(orderHrefs).toContain('/account/orders/ORD-2024-004');
-            expect(orderHrefs).toContain('/account/orders/ORD-2024-005');
-            expect(orderHrefs).toContain('/account/orders/ORD-2024-006');
         });
 
-        test('renders View Details buttons', () => {
-            renderAccountOrders();
+        test('renders View Details buttons', async () => {
+            await renderAccountOrders();
             const viewDetailsLinks = screen.getAllByText('View Order Details');
-            expect(viewDetailsLinks).toHaveLength(6); // 6 mock orders
+            expect(viewDetailsLinks).toHaveLength(3);
+        });
+
+        test('renders empty state when no orders', async () => {
+            await renderAccountOrders([]);
+            expect(
+                screen.getByText(
+                    "You haven't placed an order yet. Once you place an order the details will show up here."
+                )
+            ).toBeInTheDocument();
         });
     });
 
     describe('Order Status Display', () => {
-        test('renders created status with pickup badge', () => {
-            renderAccountOrders();
+        test('renders created status badge', async () => {
+            await renderAccountOrders();
             const createdBadge = screen.getByText('Created').closest('span');
             expect(createdBadge).toHaveClass('bg-order-status-new');
         });
 
-        test('renders new status with pickup badge', () => {
-            renderAccountOrders();
+        test('renders new status badge', async () => {
+            await renderAccountOrders();
             const newBadge = screen.getByText('New').closest('span');
             expect(newBadge).toHaveClass('bg-order-status-new');
         });
 
-        test('renders completed status with delivered badge', () => {
-            renderAccountOrders();
+        test('renders completed status badge', async () => {
+            await renderAccountOrders();
             const completedBadge = screen.getByText('Completed').closest('span');
             expect(completedBadge).toHaveClass('bg-order-status-completed');
         });
+    });
 
-        test('renders cancelled status with cancelled badge', () => {
-            renderAccountOrders();
-            const cancelledBadge = screen.getByText('Cancelled').closest('span');
-            expect(cancelledBadge).toHaveClass('bg-order-status-cancelled');
+    describe('Loading State', () => {
+        test('shows loading skeleton while fetching orders', async () => {
+            // Mock a delayed response
+            vi.mocked(fetchCustomerOrders).mockImplementation(
+                () => new Promise((resolve) => setTimeout(() => resolve(mockOrders), 200))
+            );
+
+            const router = createMemoryRouter(
+                [
+                    {
+                        path: '/',
+                        element: <OrderListPage />,
+                        loader,
+                    },
+                ],
+                {
+                    initialEntries: ['/'],
+                }
+            );
+
+            render(<RouterProvider router={router} />);
+
+            // Wait for skeleton to appear (router needs a tick to render)
+            await waitFor(() => {
+                expect(screen.getByText('Order History')).toBeInTheDocument();
+            });
+            const skeletonCards = screen.getAllByRole('generic').filter((el) => el.classList.contains('animate-pulse'));
+            expect(skeletonCards.length).toBeGreaterThan(0);
+
+            // Wait for orders to load
+            await waitFor(() => {
+                expect(screen.getAllByText('View Order Details').length).toBeGreaterThan(0);
+            });
         });
+    });
 
-        test('renders failed status with cancelled badge', () => {
-            renderAccountOrders();
-            const failedBadge = screen.getByText('Failed').closest('span');
-            expect(failedBadge).toHaveClass('bg-order-status-cancelled');
-        });
+    describe('Error State', () => {
+        test('shows error message when orders fail to load', async () => {
+            vi.mocked(fetchCustomerOrders).mockRejectedValue(new Error('API error'));
 
-        test('renders failed_with_reopen status with partial badge', () => {
-            renderAccountOrders();
-            const failedWithReopenBadge = screen.getByText('Failed With Reopen').closest('span');
-            expect(failedWithReopenBadge).toHaveClass('bg-order-status-warning');
+            const router = createMemoryRouter(
+                [
+                    {
+                        path: '/',
+                        element: <OrderListPage />,
+                        loader,
+                    },
+                ],
+                {
+                    initialEntries: ['/'],
+                }
+            );
+
+            render(<RouterProvider router={router} />);
+
+            await waitFor(() => {
+                expect(
+                    screen.getByText('We encountered an error loading your order history. Please try again later.')
+                ).toBeInTheDocument();
+            });
         });
     });
 });

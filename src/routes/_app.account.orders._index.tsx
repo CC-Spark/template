@@ -13,104 +13,92 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ReactElement } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { OrderList, type Order } from '@/components/account/order-list';
-import heroNewArrivals from '/images/hero-new-arrivals.webp';
 
-// Mock order data for UI development (order history list)
-// Based on Order History page design: date, total, item count, thumbnails, pickup location
-const MOCK_ORDERS: Order[] = [
-    {
-        orderNo: 'ORD-2024-001',
-        orderDate: '2024-09-14T10:30:00Z',
-        status: 'created',
-        statusLabel: 'Created',
-        total: 48.38,
-        currency: 'GBP',
-        itemCount: 2,
-        productItems: [
-            { productId: '701643632930', productName: 'Classic White Shirt', quantity: 1, imageUrl: heroNewArrivals },
-            { productId: '701643632931', productName: 'Blue Dress Pants', quantity: 2, imageUrl: heroNewArrivals },
-        ],
-        pickupLocation: {
-            name: 'Salesforce Foundations San Francisco',
-            address: '415 Mission Street',
-            city: 'San Francisco',
-            state: 'CA',
-            postalCode: '94105',
-        },
-    },
-    {
-        orderNo: 'ORD-2024-002',
-        orderDate: '2024-09-12T14:00:00Z',
-        status: 'new',
-        statusLabel: 'New',
-        total: 43.0,
-        currency: 'GBP',
-        itemCount: 1,
-        productItems: [
-            { productId: '701643632932', productName: 'Summer Dress', quantity: 2, imageUrl: heroNewArrivals },
-        ],
-    },
-    {
-        orderNo: 'ORD-2024-003',
-        orderDate: '2024-09-10T08:00:00Z',
-        status: 'failed',
-        statusLabel: 'Failed',
-        total: 54.0,
-        currency: 'GBP',
-        itemCount: 4,
-        productItems: [
-            { productId: '701643632933', productName: 'Item 1', quantity: 3, imageUrl: heroNewArrivals },
-            { productId: '701643632934', productName: 'Item 2', quantity: 2, imageUrl: heroNewArrivals },
-            { productId: '701643632935', productName: 'Item 3', quantity: 4, imageUrl: heroNewArrivals },
-            { productId: '701643632936', productName: 'Item 4', quantity: 1, imageUrl: heroNewArrivals },
-        ],
-    },
-    {
-        orderNo: 'ORD-2024-004',
-        orderDate: '2024-09-08T11:30:00Z',
-        status: 'failed_with_reopen',
-        statusLabel: 'Failed With Reopen',
-        total: 95.92,
-        currency: 'GBP',
-        itemCount: 2,
-        productItems: [
-            { productId: '701643632937', productName: 'Reopened Item 1', quantity: 2, imageUrl: heroNewArrivals },
-            { productId: '701643632938', productName: 'Reopened Item 2', quantity: 3, imageUrl: heroNewArrivals },
-        ],
-    },
-    {
-        orderNo: 'ORD-2024-005',
-        orderDate: '2024-09-05T11:30:00Z',
-        status: 'completed',
-        statusLabel: 'Completed',
-        total: 95.92,
-        currency: 'GBP',
-        itemCount: 2,
-        productItems: [
-            { productId: '701643632939', productName: 'Completed Item 1', quantity: 2, imageUrl: heroNewArrivals },
-            { productId: '701643632940', productName: 'Completed Item 2', quantity: 3, imageUrl: heroNewArrivals },
-        ],
-    },
-    {
-        orderNo: 'ORD-2024-006',
-        orderDate: '2024-09-01T09:00:00Z',
-        status: 'cancelled',
-        statusLabel: 'Cancelled',
-        total: 405.0,
-        currency: 'GBP',
-        itemCount: 18,
-        productItems: Array.from({ length: 18 }, (_, i) => ({
-            productId: `7016436329${40 + i}`,
-            productName: `Product ${i + 1}`,
-            quantity: i % 3 === 0 ? 2 : 1,
-            imageUrl: heroNewArrivals,
-        })),
-    },
-];
+import { type ReactElement, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Await, useNavigate, useLoaderData, type LoaderFunctionArgs, redirect } from 'react-router';
+import { OrderListHeader, OrderListBody, type Order } from '@/components/account/order-list';
+import { fetchCustomerOrders, DEFAULT_ORDERS_OFFSET, DEFAULT_ORDERS_LIMIT } from '@/lib/api/order';
+import { Card, CardContent } from '@/components/ui/card';
+import { Typography } from '@/components/typography';
+import { getAuth } from '@/middlewares/auth.server';
+
+type OrderListLoaderData = {
+    ordersPromise: Promise<Order[]>;
+};
+
+/**
+ * Loader fetches all customer orders via SCAPI getCustomerOrders endpoint.
+ * Returns a deferred promise for streaming/suspense support.
+ */
+// eslint-disable-next-line react-refresh/only-export-components -- route file exports loader
+export function loader({ context, request }: LoaderFunctionArgs): OrderListLoaderData {
+    // Get customer ID from auth session
+    const session = getAuth(context);
+    if (!session.customerId) {
+        throw redirect('/login');
+    }
+
+    const { searchParams } = new URL(request.url);
+    const offset = parseInt(searchParams.get('offset') ?? String(DEFAULT_ORDERS_OFFSET));
+    const limit = parseInt(searchParams.get('limit') ?? String(DEFAULT_ORDERS_LIMIT));
+
+    // Fetch orders asynchronously (deferred for streaming)
+    const ordersPromise = fetchCustomerOrders(context, session.customerId, { offset, limit });
+
+    return {
+        ordersPromise,
+    };
+}
+
+/**
+ * Loading skeleton for order list items (header renders separately).
+ */
+function OrderListSkeleton(): ReactElement {
+    return (
+        <>
+            <div className="space-y-4 m-0 border-x border-t border-order-border">
+                {[1, 2, 3].map((i) => (
+                    <Card key={i} className="py-0 rounded-none border-0 border-order-border shadow-none">
+                        <CardContent className="p-6 space-y-4 border-b border-order-border animate-pulse">
+                            <div className="flex flex-wrap items-start justify-between border-b border-order-border -mx-6 -mt-6 px-6 pt-3 pb-3 mb-6 bg-muted">
+                                <div className="flex flex-wrap gap-x-8 gap-y-2">
+                                    <div className="h-10 w-24 bg-muted-foreground/20 rounded" />
+                                    <div className="h-10 w-20 bg-muted-foreground/20 rounded" />
+                                    <div className="h-10 w-16 bg-muted-foreground/20 rounded" />
+                                </div>
+                                <div className="h-8 w-24 bg-muted-foreground/20 rounded-full" />
+                            </div>
+                            <div className="flex gap-2">
+                                <div className="w-16 h-16 bg-muted-foreground/20 rounded-lg" />
+                                <div className="w-16 h-16 bg-muted-foreground/20 rounded-lg" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+            <div className="p-6 m-0 border-b border-x border-order-border rounded-b-xl">
+                <div className="h-5 w-32 bg-muted-foreground/20 rounded" />
+            </div>
+        </>
+    );
+}
+
+/**
+ * Error state for order list.
+ */
+function OrderListError(): ReactElement {
+    const { t } = useTranslation('account');
+    return (
+        <Card className="border-order-border">
+            <CardContent className="p-12 text-center space-y-4">
+                <Typography variant="p" className="text-muted-foreground">
+                    {t('orders.errorDescription')}
+                </Typography>
+            </CardContent>
+        </Card>
+    );
+}
 
 /**
  * Order list page – renders at /account/orders.
@@ -119,6 +107,7 @@ const MOCK_ORDERS: Order[] = [
 export default function OrderListPage(): ReactElement {
     const { t } = useTranslation('account');
     const navigate = useNavigate();
+    const loaderData = useLoaderData<OrderListLoaderData>();
 
     const handleViewDetails = (orderNo: string) => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- navigate() result intentionally not awaited
@@ -126,11 +115,13 @@ export default function OrderListPage(): ReactElement {
     };
 
     return (
-        <OrderList
-            title={t('navigation.orderHistory')}
-            subtitle={t('orders.subtitle')}
-            orders={MOCK_ORDERS}
-            onViewDetails={handleViewDetails}
-        />
+        <div className="space-y-6">
+            <OrderListHeader title={t('navigation.orderHistory')} subtitle={t('orders.subtitle')} />
+            <Suspense fallback={<OrderListSkeleton />}>
+                <Await resolve={loaderData.ordersPromise} errorElement={<OrderListError />}>
+                    {(orders) => <OrderListBody orders={orders} onViewDetails={handleViewDetails} />}
+                </Await>
+            </Suspense>
+        </div>
     );
 }

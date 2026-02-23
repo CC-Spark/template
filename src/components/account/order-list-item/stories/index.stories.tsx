@@ -30,15 +30,15 @@ const baseOrder: OrderListItemData = {
     productItems: [
         {
             productId: 'prod-1',
-            productName: 'Classic White Shirt',
             quantity: 1,
             imageUrl: heroNewArrivals,
+            imageAlt: 'Classic White Shirt',
         },
         {
             productId: 'prod-2',
-            productName: 'Blue Dress Pants',
             quantity: 2,
             imageUrl: heroNewArrivals,
+            imageAlt: 'Blue Dress Pants',
         },
     ],
 };
@@ -108,9 +108,9 @@ export const InTransit: Story = {
             productItems: [
                 {
                     productId: 'prod-3',
-                    productName: 'Summer Dress',
                     quantity: 2,
                     imageUrl: heroNewArrivals,
+                    imageAlt: 'Summer Dress',
                 },
             ],
         },
@@ -132,9 +132,9 @@ export const Delivered: Story = {
             itemCount: 18,
             productItems: Array.from({ length: 18 }, (_, i) => ({
                 productId: `prod-${i}`,
-                productName: `Product ${i + 1}`,
                 quantity: i % 3 === 0 ? 2 : 1,
                 imageUrl: heroNewArrivals,
+                imageAlt: `Product ${i + 1}`,
             })),
         },
         maxThumbnails: 12,
@@ -157,15 +157,15 @@ export const Cancelled: Story = {
             productItems: [
                 {
                     productId: 'prod-4',
-                    productName: 'Cancelled Item 1',
                     quantity: 2,
                     imageUrl: heroNewArrivals,
+                    imageAlt: 'Cancelled Item 1',
                 },
                 {
                     productId: 'prod-5',
-                    productName: 'Cancelled Item 2',
                     quantity: 3,
                     imageUrl: heroNewArrivals,
+                    imageAlt: 'Cancelled Item 2',
                 },
             ],
         },
@@ -188,27 +188,27 @@ export const PartiallyDelivered: Story = {
             productItems: [
                 {
                     productId: 'prod-6',
-                    productName: 'Partially Delivered Item 1',
                     quantity: 3,
                     imageUrl: heroNewArrivals,
+                    imageAlt: 'Partially Delivered Item 1',
                 },
                 {
                     productId: 'prod-7',
-                    productName: 'Partially Delivered Item 2',
                     quantity: 2,
                     imageUrl: heroNewArrivals,
+                    imageAlt: 'Partially Delivered Item 2',
                 },
                 {
                     productId: 'prod-8',
-                    productName: 'Partially Delivered Item 3',
                     quantity: 4,
                     imageUrl: heroNewArrivals,
+                    imageAlt: 'Partially Delivered Item 3',
                 },
                 {
                     productId: 'prod-9',
-                    productName: 'Partially Delivered Item 4',
                     quantity: 1,
                     imageUrl: heroNewArrivals,
+                    imageAlt: 'Partially Delivered Item 4',
                 },
             ],
         },
@@ -226,13 +226,72 @@ export const WithoutImages: Story = {
             productItems: [
                 {
                     productId: 'prod-10',
-                    productName: 'Product without image 1',
                     quantity: 1,
                 },
                 {
                     productId: 'prod-11',
-                    productName: 'Product without image 2',
                     quantity: 2,
+                },
+            ],
+        },
+    },
+};
+
+/**
+ * Order with a mix of products with and without images.
+ */
+export const MixedImages: Story = {
+    args: {
+        order: {
+            ...baseOrder,
+            orderNo: 'ORD-2024-008',
+            itemCount: 4,
+            productItems: [
+                {
+                    productId: 'prod-12',
+                    quantity: 1,
+                    imageUrl: heroNewArrivals,
+                    imageAlt: 'Product With Image',
+                },
+                {
+                    productId: 'prod-13',
+                    quantity: 2,
+                },
+                {
+                    productId: 'prod-14',
+                    quantity: 1,
+                    imageUrl: heroNewArrivals,
+                    imageAlt: 'Another Product With Image',
+                },
+                {
+                    productId: 'prod-15',
+                    quantity: 3,
+                },
+            ],
+        },
+    },
+};
+
+/**
+ * Order with product images that have explicit alt text (from API image data).
+ */
+export const WithImageAlt: Story = {
+    args: {
+        order: {
+            ...baseOrder,
+            orderNo: 'ORD-2024-007',
+            productItems: [
+                {
+                    productId: 'prod-1',
+                    quantity: 1,
+                    imageUrl: heroNewArrivals,
+                    imageAlt: 'Classic White Shirt - Front View',
+                },
+                {
+                    productId: 'prod-2',
+                    quantity: 2,
+                    imageUrl: heroNewArrivals,
+                    imageAlt: 'Blue Dress Pants - Side View',
                 },
             ],
         },
@@ -254,8 +313,6 @@ export const OrdersList: Story = {
                         city: 'San Francisco',
                         state: 'CA',
                         postalCode: '94105',
-                        pickupWindowStart: '2024-09-16',
-                        pickupWindowEnd: '2024-09-20',
                     },
                 }}
             />
@@ -271,9 +328,9 @@ export const OrdersList: Story = {
                     productItems: [
                         {
                             productId: 'prod-3',
-                            productName: 'Summer Dress',
                             quantity: 2,
                             imageUrl: heroNewArrivals,
+                            imageAlt: 'Summer Dress',
                         },
                     ],
                 }}
@@ -289,9 +346,9 @@ export const OrdersList: Story = {
                     itemCount: 18,
                     productItems: Array.from({ length: 18 }, (_, i) => ({
                         productId: `prod-${i}`,
-                        productName: `Product ${i + 1}`,
                         quantity: i % 3 === 0 ? 2 : 1,
                         imageUrl: heroNewArrivals,
+                        imageAlt: `Product ${i + 1}`,
                     })),
                 }}
                 maxThumbnails={12}

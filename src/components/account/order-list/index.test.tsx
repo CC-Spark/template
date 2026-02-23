@@ -16,7 +16,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, test, expect } from 'vitest';
-import { OrderList, type Order } from './index';
+import { OrderList, OrderListHeader, OrderListBody, type Order } from './index';
 
 // Mock react-router
 vi.mock('react-router', async (importOriginal) => {
@@ -40,8 +40,8 @@ const testOrders: Order[] = [
         total: 150.0,
         itemCount: 2,
         productItems: [
-            { productId: 'prod-1', productName: 'Item 1', quantity: 1, imageUrl: '/images/item1.jpg' },
-            { productId: 'prod-2', productName: 'Item 2', quantity: 1, imageUrl: '/images/item2.jpg' },
+            { productId: 'prod-1', quantity: 1, imageUrl: '/images/item1.jpg', imageAlt: 'Item 1' },
+            { productId: 'prod-2', quantity: 1, imageUrl: '/images/item2.jpg', imageAlt: 'Item 2' },
         ],
     },
     {
@@ -51,7 +51,7 @@ const testOrders: Order[] = [
         statusLabel: 'New',
         total: 75.5,
         itemCount: 1,
-        productItems: [{ productId: 'prod-3', productName: 'Item 3', quantity: 1, imageUrl: '/images/item3.jpg' }],
+        productItems: [{ productId: 'prod-3', quantity: 1, imageUrl: '/images/item3.jpg', imageAlt: 'Item 3' }],
     },
     {
         orderNo: 'ORD003',
@@ -61,8 +61,8 @@ const testOrders: Order[] = [
         total: 200.0,
         itemCount: 3,
         productItems: [
-            { productId: 'prod-4', productName: 'Item 4', quantity: 2, imageUrl: '/images/item4.jpg' },
-            { productId: 'prod-5', productName: 'Item 5', quantity: 1, imageUrl: '/images/item5.jpg' },
+            { productId: 'prod-4', quantity: 2, imageUrl: '/images/item4.jpg', imageAlt: 'Item 4' },
+            { productId: 'prod-5', quantity: 1, imageUrl: '/images/item5.jpg', imageAlt: 'Item 5' },
         ],
     },
 ];
@@ -127,7 +127,7 @@ describe('OrderList Component', () => {
                         statusLabel: 'Completed',
                         total: 100,
                         itemCount: 1,
-                        productItems: [{ productId: 'prod-1', productName: 'Item', quantity: 1 }],
+                        productItems: [{ productId: 'prod-1', quantity: 1 }],
                     },
                 ],
             });
@@ -145,7 +145,7 @@ describe('OrderList Component', () => {
                         statusLabel: 'Cancelled',
                         total: 100,
                         itemCount: 1,
-                        productItems: [{ productId: 'prod-1', productName: 'Item', quantity: 1 }],
+                        productItems: [{ productId: 'prod-1', quantity: 1 }],
                     },
                 ],
             });
@@ -163,7 +163,7 @@ describe('OrderList Component', () => {
                         statusLabel: 'New',
                         total: 100,
                         itemCount: 1,
-                        productItems: [{ productId: 'prod-1', productName: 'Item', quantity: 1 }],
+                        productItems: [{ productId: 'prod-1', quantity: 1 }],
                     },
                 ],
             });
@@ -175,7 +175,18 @@ describe('OrderList Component', () => {
     describe('Empty State', () => {
         test('renders empty message when no orders', () => {
             renderOrderList({ orders: [] });
-            expect(screen.getByText('No orders found. Start shopping to see your order history!')).toBeInTheDocument();
+            expect(
+                screen.getByText(
+                    "You haven't placed an order yet. Once you place an order the details will show up here."
+                )
+            ).toBeInTheDocument();
+        });
+
+        test('renders Continue Shopping button in empty state', () => {
+            renderOrderList({ orders: [] });
+            const link = screen.getByRole('link', { name: 'Continue Shopping' });
+            expect(link).toBeInTheDocument();
+            expect(link).toHaveAttribute('href', '/');
         });
 
         test('renders custom empty message when provided', () => {
@@ -221,7 +232,7 @@ describe('OrderList Component', () => {
                 statusLabel: 'Created',
                 total: 50.0,
                 itemCount: 1,
-                productItems: [{ productId: 'prod-1', productName: 'Item', quantity: 1 }],
+                productItems: [{ productId: 'prod-1', quantity: 1 }],
                 pickupLocation: {
                     name: 'Test Store',
                     address: '123 Main St',
@@ -242,5 +253,76 @@ describe('OrderList Component', () => {
             renderOrderList();
             expect(screen.queryByText('Pickup Location')).not.toBeInTheDocument();
         });
+    });
+});
+
+describe('OrderListHeader Component', () => {
+    test('renders title', () => {
+        render(<OrderListHeader title="My Orders" />);
+        expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('My Orders');
+    });
+
+    test('renders subtitle when provided', () => {
+        render(<OrderListHeader title="My Orders" subtitle="Track your purchases" />);
+        expect(screen.getByText('Track your purchases')).toBeInTheDocument();
+    });
+
+    test('does not render subtitle when not provided', () => {
+        render(<OrderListHeader title="My Orders" />);
+        expect(screen.queryByText('Track your purchases')).not.toBeInTheDocument();
+    });
+
+    test('title is focusable for accessibility', () => {
+        render(<OrderListHeader title="My Orders" />);
+        const heading = screen.getByRole('heading', { level: 3 });
+        expect(heading).toHaveAttribute('tabindex', '0');
+    });
+});
+
+describe('OrderListBody Component', () => {
+    test('renders order items', () => {
+        render(<OrderListBody orders={testOrders} />);
+        expect(screen.getByText('Completed')).toBeInTheDocument();
+        expect(screen.getByText('New')).toBeInTheDocument();
+        expect(screen.getByText('Cancelled')).toBeInTheDocument();
+    });
+
+    test('renders empty state when no orders', () => {
+        render(<OrderListBody orders={[]} />);
+        expect(
+            screen.getByText("You haven't placed an order yet. Once you place an order the details will show up here.")
+        ).toBeInTheDocument();
+    });
+
+    test('renders custom empty message', () => {
+        render(<OrderListBody orders={[]} emptyMessage="Nothing here yet!" />);
+        expect(screen.getByText('Nothing here yet!')).toBeInTheDocument();
+    });
+
+    test('renders total orders footer', () => {
+        render(<OrderListBody orders={testOrders} />);
+        expect(screen.getByText('Viewing 3 orders')).toBeInTheDocument();
+    });
+
+    test('renders zero orders count for empty list', () => {
+        render(<OrderListBody orders={[]} />);
+        expect(screen.getByText('Viewing 0 orders')).toBeInTheDocument();
+    });
+
+    test('calls onViewDetails callback', async () => {
+        const user = userEvent.setup();
+        const mockOnViewDetails = vi.fn();
+        render(<OrderListBody orders={testOrders} onViewDetails={mockOnViewDetails} />);
+
+        const viewDetailsLinks = screen.getAllByText('View Order Details');
+        await user.click(viewDetailsLinks[0]);
+
+        expect(mockOnViewDetails).toHaveBeenCalledTimes(1);
+        expect(mockOnViewDetails).toHaveBeenCalledWith('ORD001');
+    });
+
+    test('does not render header elements', () => {
+        render(<OrderListBody orders={testOrders} />);
+        expect(screen.queryByRole('heading', { level: 3 })).not.toBeInTheDocument();
     });
 });

@@ -652,7 +652,9 @@
             "mustLoginToRemove": "Deve essere connesso per rimuovere articoli dalla Sua lista desideri"
         },
         "orders": {
-            "empty": "Nessun ordine trovato. Inizi a fare shopping per vedere lo storico dei Suoi ordini!",
+            "empty": "Non hai ancora effettuato un ordine. Una volta effettuato un ordine, i dettagli verranno mostrati qui.",
+            "continueShopping": "Continua lo shopping",
+            "errorDescription": "Si è verificato un errore nel caricamento dello storico ordini. Riprovi più tardi.",
             "subtitle": "Visualizza e monitora i Suoi ordini",
             "tableHeaders": {
                 "orderNumber": "Numero ordine",
@@ -665,10 +667,18 @@
             "orderDetailsTitle": "Ordine",
             "orderDetailsPageTitle": "Dettaglio ordine",
             "status": {
+                "created": "Creato",
                 "new": "Nuovo",
+                "failed": "Fallito",
+                "failedWithReopen": "Fallito con riapertura",
+                "completed": "Completato",
+                "cancelled": "Annullato",
                 "inTransit": "In transito",
                 "delivered": "Consegnato"
             },
+            "totalOrders_one": "Visualizzazione di {{count}} ordine",
+            "totalOrders_other": "Visualizzazione di {{count}} ordini",
+            "invalidDate": "Data non valida",
             "shipmentNumber": "Spedizione {{n}}",
             "orderSummary": "Riepilogo ordine",
             "itemsOrdered": "Articoli ordinati",

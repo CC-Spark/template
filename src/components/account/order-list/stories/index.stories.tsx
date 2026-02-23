@@ -18,7 +18,7 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
-import { OrderList, type Order } from '../index';
+import { OrderList, OrderListHeader, OrderListBody, type Order } from '../index';
 import heroNewArrivals from '/images/hero-new-arrivals.webp';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -63,8 +63,8 @@ const testOrders: Order[] = [
         total: 48.38,
         itemCount: 2,
         productItems: [
-            { productId: 'prod-1', productName: 'Classic Shirt', quantity: 1, imageUrl: heroNewArrivals },
-            { productId: 'prod-2', productName: 'Dress Pants', quantity: 2, imageUrl: heroNewArrivals },
+            { productId: 'prod-1', imageAlt: 'Classic Shirt', quantity: 1, imageUrl: heroNewArrivals },
+            { productId: 'prod-2', imageAlt: 'Dress Pants', quantity: 2, imageUrl: heroNewArrivals },
         ],
         pickupLocation: {
             name: 'Salesforce Foundations San Francisco',
@@ -81,7 +81,7 @@ const testOrders: Order[] = [
         statusLabel: 'New',
         total: 43.0,
         itemCount: 1,
-        productItems: [{ productId: 'prod-3', productName: 'Summer Dress', quantity: 2, imageUrl: heroNewArrivals }],
+        productItems: [{ productId: 'prod-3', imageAlt: 'Summer Dress', quantity: 2, imageUrl: heroNewArrivals }],
     },
     {
         orderNo: 'INV003',
@@ -91,10 +91,10 @@ const testOrders: Order[] = [
         total: 54.0,
         itemCount: 4,
         productItems: [
-            { productId: 'prod-4', productName: 'Item 1', quantity: 3, imageUrl: heroNewArrivals },
-            { productId: 'prod-5', productName: 'Item 2', quantity: 2, imageUrl: heroNewArrivals },
-            { productId: 'prod-6', productName: 'Item 3', quantity: 4, imageUrl: heroNewArrivals },
-            { productId: 'prod-7', productName: 'Item 4', quantity: 1, imageUrl: heroNewArrivals },
+            { productId: 'prod-4', imageAlt: 'Item 1', quantity: 3, imageUrl: heroNewArrivals },
+            { productId: 'prod-5', imageAlt: 'Item 2', quantity: 2, imageUrl: heroNewArrivals },
+            { productId: 'prod-6', imageAlt: 'Item 3', quantity: 4, imageUrl: heroNewArrivals },
+            { productId: 'prod-7', imageAlt: 'Item 4', quantity: 1, imageUrl: heroNewArrivals },
         ],
     },
     {
@@ -105,8 +105,8 @@ const testOrders: Order[] = [
         total: 95.92,
         itemCount: 2,
         productItems: [
-            { productId: 'prod-8', productName: 'Cancelled Item 1', quantity: 2, imageUrl: heroNewArrivals },
-            { productId: 'prod-9', productName: 'Cancelled Item 2', quantity: 3, imageUrl: heroNewArrivals },
+            { productId: 'prod-8', imageAlt: 'Cancelled Item 1', quantity: 2, imageUrl: heroNewArrivals },
+            { productId: 'prod-9', imageAlt: 'Cancelled Item 2', quantity: 3, imageUrl: heroNewArrivals },
         ],
     },
     {
@@ -118,7 +118,7 @@ const testOrders: Order[] = [
         itemCount: 18,
         productItems: Array.from({ length: 18 }, (_, i) => ({
             productId: `prod-${i + 10}`,
-            productName: `Product ${i + 1}`,
+            imageAlt: `Product ${i + 1}`,
             quantity: i % 3 === 0 ? 2 : 1,
             imageUrl: heroNewArrivals,
         })),
@@ -134,9 +134,9 @@ const singleOrder: Order[] = [
         total: 250.0,
         itemCount: 3,
         productItems: [
-            { productId: 'prod-1', productName: 'Classic Shirt', quantity: 1, imageUrl: heroNewArrivals },
-            { productId: 'prod-2', productName: 'Dress Pants', quantity: 1, imageUrl: heroNewArrivals },
-            { productId: 'prod-3', productName: 'Summer Dress', quantity: 1, imageUrl: heroNewArrivals },
+            { productId: 'prod-1', imageAlt: 'Classic Shirt', quantity: 1, imageUrl: heroNewArrivals },
+            { productId: 'prod-2', imageAlt: 'Dress Pants', quantity: 1, imageUrl: heroNewArrivals },
+            { productId: 'prod-3', imageAlt: 'Summer Dress', quantity: 1, imageUrl: heroNewArrivals },
         ],
     },
 ];
@@ -198,7 +198,6 @@ export const Default: Story = {
         subtitle: 'View and track your orders',
         orders: testOrders,
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -233,8 +232,8 @@ export const WithDeliveredStatus: Story = {
                 total: 150.0,
                 itemCount: 2,
                 productItems: [
-                    { productId: 'prod-1', productName: 'Item 1', quantity: 1, imageUrl: heroNewArrivals },
-                    { productId: 'prod-2', productName: 'Item 2', quantity: 1, imageUrl: heroNewArrivals },
+                    { productId: 'prod-1', imageAlt: 'Item 1', quantity: 1, imageUrl: heroNewArrivals },
+                    { productId: 'prod-2', imageAlt: 'Item 2', quantity: 1, imageUrl: heroNewArrivals },
                 ],
             },
             {
@@ -244,11 +243,10 @@ export const WithDeliveredStatus: Story = {
                 statusLabel: 'Completed',
                 total: 200.0,
                 itemCount: 1,
-                productItems: [{ productId: 'prod-3', productName: 'Item 3', quantity: 1, imageUrl: heroNewArrivals }],
+                productItems: [{ productId: 'prod-3', imageAlt: 'Item 3', quantity: 1, imageUrl: heroNewArrivals }],
             },
         ],
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -270,7 +268,6 @@ export const SingleOrder: Story = {
         subtitle: 'Your most recent purchase',
         orders: singleOrder,
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -290,16 +287,20 @@ export const EmptyState: Story = {
         subtitle: 'View and track your orders',
         orders: [],
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Check empty message is displayed
+        // Check empty message is displayed (from translation key orders.empty)
         await expect(
-            canvas.getByText('No orders found. Start shopping to see your order history!')
+            canvas.getByText("You haven't placed an order yet. Once you place an order the details will show up here.")
         ).toBeInTheDocument();
+
+        // Check Continue Shopping button is displayed
+        const continueShoppingLink = canvas.getByRole('link', { name: 'Continue Shopping' });
+        await expect(continueShoppingLink).toBeInTheDocument();
+        await expect(continueShoppingLink).toHaveAttribute('href', '/');
 
         // Check no View Order Details links exist
         const viewDetailsLinks = canvas.queryAllByText('View Order Details');
@@ -313,7 +314,6 @@ export const CustomEmptyMessage: Story = {
         orders: [],
         emptyMessage: 'You have no orders yet. Browse our catalog to get started!',
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -322,6 +322,9 @@ export const CustomEmptyMessage: Story = {
         await expect(
             canvas.getByText('You have no orders yet. Browse our catalog to get started!')
         ).toBeInTheDocument();
+
+        // Continue Shopping button should still appear with custom message
+        await expect(canvas.getByRole('link', { name: 'Continue Shopping' })).toBeInTheDocument();
     },
 };
 
@@ -330,7 +333,6 @@ export const WithoutSubtitle: Story = {
         title: 'My Orders',
         orders: testOrders,
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -347,7 +349,6 @@ export const ClickViewDetails: Story = {
         title: 'Order History',
         orders: singleOrder,
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -371,7 +372,7 @@ export const MixedStatuses: Story = {
                 statusLabel: 'New',
                 total: 100.0,
                 itemCount: 1,
-                productItems: [{ productId: 'prod-1', productName: 'Item 1', quantity: 1, imageUrl: heroNewArrivals }],
+                productItems: [{ productId: 'prod-1', imageAlt: 'Item 1', quantity: 1, imageUrl: heroNewArrivals }],
             },
             {
                 orderNo: 'INV002',
@@ -381,8 +382,8 @@ export const MixedStatuses: Story = {
                 total: 200.0,
                 itemCount: 2,
                 productItems: [
-                    { productId: 'prod-2', productName: 'Item 2', quantity: 1, imageUrl: heroNewArrivals },
-                    { productId: 'prod-3', productName: 'Item 3', quantity: 1, imageUrl: heroNewArrivals },
+                    { productId: 'prod-2', imageAlt: 'Item 2', quantity: 1, imageUrl: heroNewArrivals },
+                    { productId: 'prod-3', imageAlt: 'Item 3', quantity: 1, imageUrl: heroNewArrivals },
                 ],
             },
             {
@@ -392,11 +393,10 @@ export const MixedStatuses: Story = {
                 statusLabel: 'Cancelled',
                 total: 150.0,
                 itemCount: 1,
-                productItems: [{ productId: 'prod-4', productName: 'Item 4', quantity: 1, imageUrl: heroNewArrivals }],
+                productItems: [{ productId: 'prod-4', imageAlt: 'Item 4', quantity: 1, imageUrl: heroNewArrivals }],
             },
         ],
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -419,7 +419,6 @@ export const WithPickupLocation: Story = {
         subtitle: 'Orders ready for in-store pickup',
         orders: [testOrders[0]], // First order has pickup location
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -432,6 +431,76 @@ export const WithPickupLocation: Story = {
     },
 };
 
+export const WithProductImages: Story = {
+    args: {
+        title: 'Orders with Product Images',
+        subtitle: 'Orders showing product thumbnails with alt text',
+        orders: [
+            {
+                orderNo: 'INV010',
+                orderDate: '2024-09-14T10:30:00Z',
+                status: 'completed',
+                statusLabel: 'Completed',
+                total: 120.0,
+                itemCount: 2,
+                productItems: [
+                    {
+                        productId: 'prod-1',
+                        quantity: 1,
+                        imageUrl: heroNewArrivals,
+                        imageAlt: 'Classic White Shirt - Front View',
+                    },
+                    {
+                        productId: 'prod-2',
+                        quantity: 1,
+                        imageUrl: heroNewArrivals,
+                        imageAlt: 'Blue Dress Pants - Side View',
+                    },
+                ],
+            },
+        ],
+        onViewDetails: action('viewDetails'),
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const images = canvas.getAllByRole('img');
+        await expect(images.length).toBe(2);
+        await expect(images[0]).toHaveAttribute('alt', 'Classic White Shirt - Front View');
+        await expect(images[1]).toHaveAttribute('alt', 'Blue Dress Pants - Side View');
+    },
+};
+
+export const WithoutProductImages: Story = {
+    args: {
+        title: 'Orders Without Images',
+        subtitle: 'Orders where product images are not available',
+        orders: [
+            {
+                orderNo: 'INV011',
+                orderDate: '2024-09-14T10:30:00Z',
+                status: 'new',
+                statusLabel: 'New',
+                total: 75.0,
+                itemCount: 2,
+                productItems: [
+                    { productId: 'prod-1', imageAlt: 'Product A', quantity: 1 },
+                    { productId: 'prod-2', imageAlt: 'Product B', quantity: 3 },
+                ],
+            },
+        ],
+        onViewDetails: action('viewDetails'),
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const images = canvas.queryAllByRole('img');
+        await expect(images.length).toBe(0);
+    },
+};
+
 export const WithManyProducts: Story = {
     args: {
         title: 'Large Order',
@@ -439,7 +508,6 @@ export const WithManyProducts: Story = {
         orders: [testOrders[4]], // Last order has 18 items
         maxThumbnails: 12,
         onViewDetails: action('viewDetails'),
-        onDownloadReceipt: action('downloadReceipt'),
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -447,5 +515,70 @@ export const WithManyProducts: Story = {
 
         // Check that overflow indicator is shown (+6 for 18 items with max 12)
         await expect(canvas.getByText('+6')).toBeInTheDocument();
+    },
+};
+
+// --- OrderListHeader Stories ---
+
+export const HeaderWithSubtitle: StoryObj<typeof OrderListHeader> = {
+    render: () => <OrderListHeader title="Order History" subtitle="View and track your orders" />,
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        await expect(canvas.getByRole('heading', { level: 3 })).toHaveTextContent('Order History');
+        await expect(canvas.getByText('View and track your orders')).toBeInTheDocument();
+    },
+};
+
+export const HeaderWithoutSubtitle: StoryObj<typeof OrderListHeader> = {
+    render: () => <OrderListHeader title="My Orders" />,
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        await expect(canvas.getByRole('heading', { level: 3 })).toHaveTextContent('My Orders');
+    },
+};
+
+// --- OrderListBody Stories ---
+
+export const BodyWithOrders: StoryObj<typeof OrderListBody> = {
+    render: () => (
+        <ActionLogger>
+            <OrderListBody orders={testOrders} onViewDetails={action('viewDetails')} />
+        </ActionLogger>
+    ),
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        await expect(canvas.getByText('Created')).toBeInTheDocument();
+        await expect(canvas.getByText('New')).toBeInTheDocument();
+        const viewDetailsLinks = canvas.getAllByText('View Order Details');
+        await expect(viewDetailsLinks.length).toBe(5);
+    },
+};
+
+export const BodyEmpty: StoryObj<typeof OrderListBody> = {
+    render: () => <OrderListBody orders={[]} />,
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        await expect(
+            canvas.getByText("You haven't placed an order yet. Once you place an order the details will show up here.")
+        ).toBeInTheDocument();
+        await expect(canvas.getByRole('link', { name: 'Continue Shopping' })).toBeInTheDocument();
+    },
+};
+
+export const BodyWithCustomEmptyMessage: StoryObj<typeof OrderListBody> = {
+    render: () => <OrderListBody orders={[]} emptyMessage="No recent purchases found." />,
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        await expect(canvas.getByText('No recent purchases found.')).toBeInTheDocument();
     },
 };

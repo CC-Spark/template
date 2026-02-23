@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 import type { LoaderFunctionArgs } from 'react-router';
-import type { ShopperOrders, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperCustomers, ShopperOrders, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
 import { currencyContext } from '@/lib/currency';
+import { findImageGroupBy } from '@/lib/image-groups-utils';
+import type { Order } from '@/components/account/order-list';
 
 export type OrderProductDataById = Record<string, ShopperProducts.schemas['Product'] | undefined>;
 
@@ -100,4 +102,121 @@ export function fetchOrderWithProducts(
     }));
 
     return { orderDataPromise, orderPromise };
+}
+
+/**
+ * Transform SCAPI order to Order format for display in order list.
+ * Maps the ShopperCustomers Order schema to the simplified format used by OrderList component.
+ *
+ * @param scapiOrder - Order from shopperCustomers.getCustomerOrders response
+ * @param productsById - Optional product data keyed by productId (for image lookup)
+ * @returns Order object for OrderList component
+ */
+export function transformOrderForList(
+    scapiOrder: ShopperCustomers.schemas['Order'],
+    productsById?: OrderProductDataById
+): Order {
+    const itemCount = scapiOrder.productItems?.length ?? 0;
+
+    const productItems = scapiOrder.productItems?.map((item) => {
+        const productId = item.productId ?? '';
+        const product = productsById?.[productId];
+        const group = findImageGroupBy(product?.imageGroups, { viewType: 'small' });
+        const image = group?.images?.[0]; // Extract the first "small" image from a product's imageGroups.
+        const imageAlt = image?.alt ?? product?.name ?? 'Product Image';
+
+        return {
+            productId,
+            quantity: item.quantity ?? 1,
+            imageUrl: image?.link,
+            imageAlt,
+        };
+    });
+
+    return {
+        orderNo: scapiOrder.orderNo ?? '',
+        orderDate: scapiOrder.creationDate ?? '',
+        status: scapiOrder.status ?? 'created',
+        total: scapiOrder.orderTotal ?? 0,
+        currency: scapiOrder.currency,
+        itemCount,
+        productItems,
+        pickupLocation: undefined,
+    };
+}
+
+export const DEFAULT_ORDERS_OFFSET = 0; // Used to retrieve the results based on a particular resource offset.
+export const DEFAULT_ORDERS_LIMIT = 10; // Maximum records to retrieve per request, not to exceed 50. Defaults to 10.
+
+/**
+ * Fetches the customer's order history from SCAPI, then enriches each order
+ * with product thumbnail images via shopperProducts.getProducts.
+ *
+ * Reference: https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-customers?meta=getCustomerOrders
+ *
+ * @param context - React Router loader context (for API clients and currency)
+ * @param customerId - Customer ID from auth session
+ * @param options - Optional query parameters (offset, limit)
+ * @returns Promise resolving to array of Order objects with product images
+ */
+export async function fetchCustomerOrders(
+    context: LoaderFunctionArgs['context'],
+    customerId: string,
+    options?: {
+        offset?: number;
+        limit?: number;
+    }
+): Promise<Order[]> {
+    const clients = createApiClients(context);
+    const currency = context.get(currencyContext) as string;
+
+    try {
+        const { data } = await clients.shopperCustomers.getCustomerOrders({
+            params: {
+                path: { customerId },
+                query: {
+                    offset: options?.offset ?? DEFAULT_ORDERS_OFFSET,
+                    limit: options?.limit ?? DEFAULT_ORDERS_LIMIT,
+                },
+            },
+        });
+
+        const orders = data?.data ?? [];
+
+        // Collect unique product IDs across all orders for a single batch fetch
+        const productIds = Array.from(
+            new Set(
+                orders
+                    .flatMap((order) => order.productItems ?? [])
+                    .map((item) => item.productId)
+                    .filter((id): id is string => typeof id === 'string' && id.length > 0)
+            )
+        );
+
+        const productsById: OrderProductDataById = {};
+
+        if (productIds.length > 0) {
+            try {
+                const { data: productsData } = await clients.shopperProducts.getProducts({
+                    params: {
+                        query: {
+                            ids: productIds,
+                            expand: ['images'],
+                            currency,
+                        },
+                    },
+                });
+                (productsData?.data ?? []).forEach((product) => {
+                    productsById[product.id] = product;
+                });
+            } catch {
+                // Non-fatal: render orders without images
+            }
+        }
+
+        return orders.map((order) => transformOrderForList(order, productsById));
+    } catch {
+        // Return empty array on error - allows the page to render without orders
+        return [];
+    }
 }
