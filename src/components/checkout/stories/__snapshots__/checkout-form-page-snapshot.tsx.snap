@@ -559,18 +559,43 @@ exports[`CheckoutFormPage stories snapshot > DesktopView story renders and match
                     </div>
                   </div>
                 </div>
-                <div
-                  class="flex justify-center pt-2"
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+            data-slot="card"
+          >
+            <div
+              class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+              data-slot="card-header"
+            >
+              <div
+                class="leading-none font-semibold"
+                data-slot="card-title"
+              >
+                <h2
+                  class="text-xl font-semibold tracking-tight text-left"
                 >
-                  <button
-                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-                    data-size="lg"
-                    data-slot="button"
-                    data-variant="default"
-                  >
-                    Continue to Review
-                  </button>
-                </div>
+                  Place Order
+                </h2>
+              </div>
+            </div>
+            <div
+              class="px-6"
+              data-slot="card-content"
+            >
+              <div
+                class="flex justify-center"
+              >
+                <button
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 w-full max-w-sm"
+                  data-size="lg"
+                  data-slot="button"
+                  data-variant="default"
+                >
+                  Place Order
+                </button>
               </div>
             </div>
           </div>
@@ -1802,18 +1827,43 @@ exports[`CheckoutFormPage stories snapshot > MultipleItemsCheckout story renders
                     </div>
                   </div>
                 </div>
-                <div
-                  class="flex justify-center pt-2"
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+            data-slot="card"
+          >
+            <div
+              class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+              data-slot="card-header"
+            >
+              <div
+                class="leading-none font-semibold"
+                data-slot="card-title"
+              >
+                <h2
+                  class="text-xl font-semibold tracking-tight text-left"
                 >
-                  <button
-                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-                    data-size="lg"
-                    data-slot="button"
-                    data-variant="default"
-                  >
-                    Continue to Review
-                  </button>
-                </div>
+                  Place Order
+                </h2>
+              </div>
+            </div>
+            <div
+              class="px-6"
+              data-slot="card-content"
+            >
+              <div
+                class="flex justify-center"
+              >
+                <button
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 w-full max-w-sm"
+                  data-size="lg"
+                  data-slot="button"
+                  data-variant="default"
+                >
+                  Place Order
+                </button>
               </div>
             </div>
           </div>
@@ -2332,18 +2382,43 @@ exports[`CheckoutFormPage stories snapshot > NoSavedPaymentMethod story renders 
                     </div>
                   </div>
                 </div>
-                <div
-                  class="flex justify-center pt-2"
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+            data-slot="card"
+          >
+            <div
+              class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+              data-slot="card-header"
+            >
+              <div
+                class="leading-none font-semibold"
+                data-slot="card-title"
+              >
+                <h2
+                  class="text-xl font-semibold tracking-tight text-left"
                 >
-                  <button
-                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-                    data-size="lg"
-                    data-slot="button"
-                    data-variant="default"
-                  >
-                    Continue to Review
-                  </button>
-                </div>
+                  Place Order
+                </h2>
+              </div>
+            </div>
+            <div
+              class="px-6"
+              data-slot="card-content"
+            >
+              <div
+                class="flex justify-center"
+              >
+                <button
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 w-full max-w-sm"
+                  data-size="lg"
+                  data-slot="button"
+                  data-variant="default"
+                >
+                  Place Order
+                </button>
               </div>
             </div>
           </div>
@@ -3490,18 +3565,43 @@ exports[`CheckoutFormPage stories snapshot > PaymentStep story renders and match
                     </div>
                   </div>
                 </div>
-                <div
-                  class="flex justify-center pt-2"
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+            data-slot="card"
+          >
+            <div
+              class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+              data-slot="card-header"
+            >
+              <div
+                class="leading-none font-semibold"
+                data-slot="card-title"
+              >
+                <h2
+                  class="text-xl font-semibold tracking-tight text-left"
                 >
-                  <button
-                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-                    data-size="lg"
-                    data-slot="button"
-                    data-variant="default"
-                  >
-                    Continue to Review
-                  </button>
-                </div>
+                  Place Order
+                </h2>
+              </div>
+            </div>
+            <div
+              class="px-6"
+              data-slot="card-content"
+            >
+              <div
+                class="flex justify-center"
+              >
+                <button
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 w-full max-w-sm"
+                  data-size="lg"
+                  data-slot="button"
+                  data-variant="default"
+                >
+                  Place Order
+                </button>
               </div>
             </div>
           </div>
@@ -3903,7 +4003,7 @@ exports[`CheckoutFormPage stories snapshot > ReviewOrderStep story renders and m
                 <h2
                   class="text-xl font-semibold tracking-tight text-left"
                 >
-                  Review & Place Order
+                  Place Order
                 </h2>
               </div>
             </div>
@@ -5836,7 +5936,7 @@ exports[`CheckoutFormPage stories snapshot > SubmittingOrder story renders and m
                 <h2
                   class="text-xl font-semibold tracking-tight text-left"
                 >
-                  Review & Place Order
+                  Place Order
                 </h2>
               </div>
             </div>

@@ -299,7 +299,7 @@ describe('Payment Integration Tests', () => {
         test('calls onSubmit with payment data', async () => {
             const user = userEvent.setup();
             const handleSubmit = vi.fn();
-            render(<Payment {...createDefaultProps({ onSubmit: handleSubmit })} />);
+            const { container } = render(<Payment {...createDefaultProps({ onSubmit: handleSubmit })} />);
 
             // Fill in all required fields
             await user.type(screen.getByPlaceholderText('1234 5678 9012 3456'), '4111111111111111');
@@ -307,8 +307,10 @@ describe('Payment Integration Tests', () => {
             await user.type(screen.getByRole('textbox', { name: /expiry date/i }), '1227');
             await user.type(screen.getByRole('textbox', { name: /cvv/i }), '123');
 
-            const submitButton = screen.getByRole('button', { name: /continue/i });
-            await user.click(submitButton);
+            // Payment has no submit button (guest uses Place Order at end of page); submit form programmatically
+            const form = container.querySelector('form');
+            expect(form).toBeInTheDocument();
+            form?.requestSubmit();
 
             await waitFor(() => {
                 expect(handleSubmit).toHaveBeenCalled();
@@ -611,12 +613,11 @@ describe('Payment Integration Tests', () => {
     });
 
     describe('Edge Cases - Loading State', () => {
-        test('displays saving text when submitting', () => {
+        test('does not render a submit button in payment section', () => {
             render(<Payment {...createDefaultProps({ isLoading: true })} />);
 
-            // Should show "Saving..." button text - tests isLoading ? 'saving' : 'continue' branch
-            const submitButton = screen.getByRole('button', { name: /saving/i });
-            expect(submitButton).toBeDisabled();
+            // Payment section has no action button; guest places order via Place Order at end of checkout page
+            expect(screen.queryByRole('button', { name: /continue|saving/i })).not.toBeInTheDocument();
         });
     });
 
@@ -712,9 +713,10 @@ describe('Payment Integration Tests', () => {
                 expect(savedRadio).toBeTruthy();
             });
 
-            // Submit form - this tests isUsingSaved branch and selectedSavedPaymentMethod ternary
-            const submitButton = screen.getByRole('button', { name: /continue/i });
-            await userEvent.click(submitButton);
+            // Payment has no submit button; submit form programmatically to test isUsingSaved branch
+            const form = document.querySelector('form');
+            expect(form).toBeInTheDocument();
+            form?.requestSubmit();
 
             // Tests: isUsingSaved = selectedPaymentMethod !== 'new' && savedPaymentMethods.length > 0
             // Tests: selectedSavedPaymentMethod: isUsingSaved ? selectedPaymentMethod : undefined

@@ -128,8 +128,10 @@ describe('Payment Component - BOPIS/Store Pickup Scenarios', () => {
         await user.type(screen.getByPlaceholderText('MM/YY'), '12/25');
         await user.type(screen.getByPlaceholderText('123'), '123');
 
-        // Try to submit without filling billing address
-        await user.click(screen.getByRole('button', { name: /continue/i }));
+        // Payment has no submit button; submit form programmatically to trigger validation
+        const form = document.querySelector('form');
+        expect(form).toBeInTheDocument();
+        form?.requestSubmit();
 
         // Verify the form was not submitted (onSubmit should not be called)
         await waitFor(() => {

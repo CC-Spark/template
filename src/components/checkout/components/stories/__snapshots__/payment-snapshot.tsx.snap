@@ -320,19 +320,6 @@ exports[`Payment stories snapshot > Default story renders and matches snapshot 1
             </div>
           </div>
         </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            type="submit"
-          >
-            Continue to Review
-          </button>
-        </div>
       </form>
     </div>
   </div>
@@ -733,20 +720,6 @@ exports[`Payment stories snapshot > LoadingState story renders and matches snaps
             </div>
           </div>
         </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            disabled=""
-            type="submit"
-          >
-            Saving...
-          </button>
-        </div>
       </form>
     </div>
     <div
@@ -1010,19 +983,6 @@ exports[`Payment stories snapshot > MobileView story renders and matches snapsho
             </div>
           </div>
         </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            type="submit"
-          >
-            Continue to Review
-          </button>
-        </div>
       </form>
     </div>
   </div>
@@ -1274,19 +1234,6 @@ exports[`Payment stories snapshot > TabletView story renders and matches snapsho
               </div>
             </div>
           </div>
-        </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            type="submit"
-          >
-            Continue to Review
-          </button>
         </div>
       </form>
     </div>
@@ -1540,19 +1487,6 @@ exports[`Payment stories snapshot > WithBillingAddress story renders and matches
             </div>
           </div>
         </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            type="submit"
-          >
-            Continue to Review
-          </button>
-        </div>
       </form>
     </div>
   </div>
@@ -1804,19 +1738,6 @@ exports[`Payment stories snapshot > WithExistingPayment story renders and matche
               </div>
             </div>
           </div>
-        </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            type="submit"
-          >
-            Continue to Review
-          </button>
         </div>
       </form>
     </div>
@@ -2076,19 +1997,6 @@ exports[`Payment stories snapshot > WithFormError story renders and matches snap
               </div>
             </div>
           </div>
-        </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            type="submit"
-          >
-            Continue to Review
-          </button>
         </div>
       </form>
     </div>
@@ -2366,19 +2274,6 @@ exports[`Payment stories snapshot > WithValidationErrors story renders and match
               </div>
             </div>
           </div>
-        </div>
-        <div
-          class="flex justify-end pt-2"
-        >
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-md px-6 has-[>svg]:px-4 min-w-48"
-            data-size="lg"
-            data-slot="button"
-            data-variant="default"
-            type="submit"
-          >
-            Continue to Review
-          </button>
         </div>
       </form>
     </div>

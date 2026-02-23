@@ -629,7 +629,23 @@ describe('CheckoutFormPage', () => {
     });
 
     describe('Place order section', () => {
-        test('renders place order button when step is review order', async () => {
+        test('renders place order button when step is payment (guest flow)', async () => {
+            mockUseCheckoutContext.mockReturnValue(
+                buildCheckoutContext({
+                    step: defaultSteps.PAYMENT,
+                })
+            );
+
+            await renderCheckoutPage();
+
+            expect(
+                screen.getByRole('button', {
+                    name: i18next.t('checkout:placeOrder.button'),
+                })
+            ).toBeInTheDocument();
+        });
+
+        test('renders place order button when step is review order (returning shopper)', async () => {
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
                     step: defaultSteps.REVIEW_ORDER,
@@ -809,26 +825,6 @@ describe('CheckoutFormPage', () => {
     });
 
     describe('Scroll behavior', () => {
-        test('scrolls to top when reaching review step', async () => {
-            const scrollToSpy = vi.fn();
-            Object.defineProperty(window, 'scrollTo', {
-                writable: true,
-                value: scrollToSpy,
-            });
-
-            mockUseCheckoutContext.mockReturnValue(
-                buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
-                })
-            );
-
-            await renderCheckoutPage();
-
-            await waitFor(() => {
-                expect(scrollToSpy).toHaveBeenCalledWith({ top: 0 });
-            });
-        });
-
         test('renders error banner when place order fails', async () => {
             // Mock scrollIntoView to prevent errors
             const mockScrollIntoView = vi.fn();

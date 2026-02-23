@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 import { useForm } from 'react-hook-form';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
-import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/typography';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -47,6 +46,7 @@ interface PaymentProps {
     isEditing: boolean;
     onEdit: () => void;
     showBillingSameAsShipping?: boolean;
+    paymentFormDataRef?: { current: (() => PaymentData) | null };
 }
 
 export default function Payment({
@@ -57,6 +57,7 @@ export default function Payment({
     isEditing,
     onEdit,
     showBillingSameAsShipping = true,
+    paymentFormDataRef,
 }: PaymentProps) {
     const cart = useBasket();
     const customerProfile = useCustomerProfile();
@@ -193,6 +194,24 @@ export default function Payment({
 
     // Watch billingSameAsShipping for reactive UI updates
     const billingSameAsShipping = form.watch('billingSameAsShipping');
+
+    // Expose current form data to parent
+    const selectedPaymentMethodRef = useRef(selectedPaymentMethod);
+    selectedPaymentMethodRef.current = selectedPaymentMethod;
+    useEffect(() => {
+        if (!paymentFormDataRef) return;
+        paymentFormDataRef.current = () => {
+            const isUsingSaved = selectedPaymentMethodRef.current !== 'new' && savedPaymentMethods.length > 0;
+            return {
+                ...form.getValues(),
+                selectedSavedPaymentMethod: isUsingSaved ? selectedPaymentMethodRef.current : undefined,
+                useSavedPaymentMethod: isUsingSaved,
+            };
+        };
+        return () => {
+            if (paymentFormDataRef) paymentFormDataRef.current = null;
+        };
+    }, [form, savedPaymentMethods.length, paymentFormDataRef]);
 
     // For single page layout, always show the component but in collapsed state when not editing
     // The ToggleCard will handle the collapsed/expanded state based on editing prop
@@ -382,22 +401,6 @@ export default function Payment({
                                 )}
                             </UITarget>
                             <UITarget targetId="checkout.payment.billingAddress.after" />
-                        </div>
-
-                        <div className="flex justify-end pt-2">
-                            <Button
-                                type="submit"
-                                disabled={isLoading || (form.formState.isSubmitted && !form.formState.isValid)}
-                                size="lg"
-                                className="min-w-48"
-                                onClick={() => {
-                                    if (!form.formState.isValid) {
-                                        // Trigger validation manually to update error state
-                                        void form.trigger();
-                                    }
-                                }}>
-                                {isLoading ? t('payment.saving') : t('payment.continue')}
-                            </Button>
                         </div>
                     </form>
                 </Form>

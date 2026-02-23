@@ -15,7 +15,7 @@
  */
 'use client';
 
-import { useEffect, lazy, Suspense, use, useRef, useState } from 'react';
+import { useEffect, lazy, Suspense, use, useRef, useState, type FormEvent } from 'react';
 import { useCheckoutContext } from '@/hooks/use-checkout';
 import { useBasket } from '@/providers/basket';
 import { useCheckoutActions } from '@/hooks/use-checkout-actions';
@@ -25,6 +25,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Typography } from '@/components/typography';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
+import type { PaymentData } from '@/lib/checkout-schemas';
 import { useTranslation } from 'react-i18next';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { UITarget } from '@/targets/ui-target';
@@ -185,6 +186,8 @@ export default function CheckoutFormPage({
     const analytics = useAnalytics();
     const hasTrackedCheckoutStartRef = useRef(false);
     const previousStepRef = useRef<CheckoutStep | null>(null);
+    const paymentFormDataRef = useRef<(() => PaymentData) | null>(null);
+    const placeOrderAfterPaymentRef = useRef(false);
 
     useEffect(() => {
         // Only track checkout start once on mount if baseket is not empty
@@ -216,6 +219,19 @@ export default function CheckoutFormPage({
     const handleShippingAddressSubmit = submitShippingAddress;
     const handleShippingOptionsSubmit = submitShippingOptions;
     const handlePaymentSubmit = submitPayment;
+
+    const handlePlaceOrderSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (step === STEPS.PAYMENT) {
+            const paymentData = paymentFormDataRef.current?.();
+            if (paymentData) {
+                placeOrderAfterPaymentRef.current = true;
+                submitPayment(paymentData);
+            }
+        } else {
+            submitPlaceOrder();
+        }
+    };
 
     // Step state logic - centralized in container for single page layout
     // For single page layout: show all steps, current step is editable, completed steps show summary
@@ -249,13 +265,6 @@ export default function CheckoutFormPage({
     // The place order action automatically redirects to the confirmation page
     // Session storage cleanup is also handled in the action route
 
-    // Auto-scroll to top when reaching review step
-    useEffect(() => {
-        if (step === STEPS.REVIEW_ORDER) {
-            window.scrollTo({ top: 0 });
-        }
-    }, [step, STEPS.REVIEW_ORDER]);
-
     useEffect(() => {
         if (
             placeOrderFetcher.state === 'idle' &&
@@ -267,6 +276,14 @@ export default function CheckoutFormPage({
             placeOrderErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [placeOrderFetcher.state, placeOrderFetcher.data]);
+
+    // Place the order once payment succeeds
+    useEffect(() => {
+        if (placeOrderAfterPaymentRef.current && paymentFetcher.state === 'idle' && paymentFetcher.data?.success) {
+            placeOrderAfterPaymentRef.current = false;
+            submitPlaceOrder();
+        }
+    }, [paymentFetcher.state, paymentFetcher.data, submitPlaceOrder]);
 
     // Check if cart is empty (no items) - also handle basketId to ensure we have a valid basket
     if (!cart || !cart.basketId || !cart.productItems || cart.productItems.length === 0) {
@@ -452,6 +469,7 @@ export default function CheckoutFormPage({
                                     isLoading={isSubmitting('payment')}
                                     actionData={paymentFetcher.data}
                                     showBillingSameAsShipping={showAddressAndOptions}
+                                    paymentFormDataRef={paymentFormDataRef}
                                     {...paymentState}
                                 />
                             </UITarget>
@@ -470,7 +488,7 @@ export default function CheckoutFormPage({
                         <UITarget targetId="checkout.createAccount.after" />
 
                         {/* Place Order Section */}
-                        {step === STEPS.REVIEW_ORDER && (
+                        {(step === STEPS.PAYMENT || step === STEPS.REVIEW_ORDER) && (
                             <div className="flex flex-col items-end gap-4 w-full lg:w-auto">
                                 {placeOrderFetcher.data &&
                                     !placeOrderFetcher.data.success &&
@@ -483,18 +501,19 @@ export default function CheckoutFormPage({
                                     )}
                                 <UITarget targetId="checkout.placeOrder.before" />
                                 <UITarget targetId="checkout.placeOrder">
-                                    <form
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            submitPlaceOrder();
-                                        }}
-                                        className="w-full lg:w-auto">
+                                    <form onSubmit={handlePlaceOrderSubmit} className="w-full lg:w-auto">
                                         <Button
                                             type="submit"
-                                            disabled={isPlacingOrder}
+                                            disabled={
+                                                isPlacingOrder ||
+                                                (step === STEPS.PAYMENT && isSubmitting('payment')) ||
+                                                paymentFetcher.state === 'submitting'
+                                            }
                                             className="w-full lg:max-w-sm"
                                             size="lg">
-                                            {isPlacingOrder ? t('placeOrder.processing') : t('placeOrder.button')}
+                                            {isPlacingOrder || (step === STEPS.PAYMENT && isSubmitting('payment'))
+                                                ? t('placeOrder.processing')
+                                                : t('placeOrder.button')}
                                         </Button>
                                     </form>
                                 </UITarget>
