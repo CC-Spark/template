@@ -119,14 +119,37 @@ export const getCookieNameWithSiteId = (name: string, context?: Readonly<RouterC
  * // Result: { path: '/custom', sameSite: 'lax', secure: true, domain: '.env.com' }
  *
  * @example
- * // Use with React Router's createCookie (server-side)
- * const authCookie = createCookie('auth', getCookieConfig({ httpOnly: false }, context));
- *
- * @example
- * // Use with js-cookie (client-side)
- * import Cookies from 'js-cookie';
- * Cookies.set('auth', value, getCookieConfig());
+ * // Use with createCookie (server-side)
+ * const authCookie = createCookie('auth', getCookieConfig({ httpOnly: false }, context), context);
  */
+
+/**
+ * Parse all cookies from a Cookie header string into a key-value map.
+ * More efficient than calling parse() multiple times on individual cookies.
+ *
+ * @param cookieHeader - Raw Cookie header string
+ * @returns Record of cookie name to value (no decoding, raw values)
+ */
+export const parseAllCookies = (cookieHeader: string | null): Record<string, string> => {
+    if (!cookieHeader) {
+        return {};
+    }
+
+    return cookieHeader.split(';').reduce(
+        (acc, cookie) => {
+            const [key, ...valueParts] = cookie.trim().split('=');
+            if (key) {
+                const value = valueParts.join('=');
+                if (value) {
+                    acc[key] = value;
+                }
+            }
+            return acc;
+        },
+        {} as Record<string, string>
+    );
+};
+
 export const getCookieConfig = <T extends object = CookieConfig>(
     cookieOptions?: T,
     context?: Readonly<RouterContextProvider>
@@ -167,4 +190,92 @@ export const getCookieConfig = <T extends object = CookieConfig>(
         ...merged,
         ...cookieConfigOverrides,
     } as T & CookieConfig;
+};
+
+/**
+ * Cookie interface for server-side cookie operations.
+ */
+export interface Cookie<T = unknown> {
+    parse: (cookieHeader: string | null) => Promise<T | null>;
+    serialize: (value: T | '', config?: CookieConfig) => Promise<string>;
+}
+
+/**
+ * Simple cookie implementation for server environments.
+ * Creates a cookie instance that:
+ * - Parses cookies from Cookie header strings
+ * - Serializes cookies to Set-Cookie header strings
+ * - No signing, encryption, or encoding — values are stored as-is
+ * - Automatically namespaces cookies by siteId
+ *
+ * @param name - Cookie name (will be namespaced with siteId)
+ * @param defaultConfig - Default cookie configuration
+ * @param context - Router context for accessing configuration (server-side only)
+ * @returns Cookie instance with parse and serialize methods
+ */
+export const createCookie = <T = unknown>(
+    name: string,
+    defaultConfig: CookieConfig,
+    context?: Readonly<RouterContextProvider>
+): Cookie<T> => {
+    const namespacedName = getCookieNameWithSiteId(name, context);
+
+    return {
+        parse: (cookieHeader: string | null): Promise<T | null> => {
+            const cookies = parseAllCookies(cookieHeader);
+            const value = cookies[namespacedName];
+
+            if (!value) {
+                return Promise.resolve(null);
+            }
+
+            return Promise.resolve(value as T);
+        },
+
+        serialize: (value: T | '', config: CookieConfig = {}): Promise<string> => {
+            const finalConfig = getCookieConfig({ ...defaultConfig, ...config }, context);
+            const parts: string[] = [];
+
+            if (value === '') {
+                parts.push(`${namespacedName}=`);
+            } else {
+                parts.push(`${namespacedName}=${String(value)}`);
+            }
+
+            if (finalConfig.domain) {
+                parts.push(`Domain=${finalConfig.domain}`);
+            }
+
+            if (finalConfig.path) {
+                parts.push(`Path=${finalConfig.path}`);
+            }
+
+            if (finalConfig.expires) {
+                parts.push(`Expires=${finalConfig.expires.toUTCString()}`);
+            }
+
+            if (finalConfig.maxAge !== undefined) {
+                parts.push(`Max-Age=${finalConfig.maxAge}`);
+            }
+
+            if (finalConfig.httpOnly) {
+                parts.push('HttpOnly');
+            }
+
+            if (finalConfig.secure) {
+                parts.push('Secure');
+            }
+
+            if (finalConfig.sameSite) {
+                const sameSiteValue = finalConfig.sameSite.charAt(0).toUpperCase() + finalConfig.sameSite.slice(1);
+                parts.push(`SameSite=${sameSiteValue}`);
+            }
+
+            if (finalConfig.partitioned) {
+                parts.push('Partitioned');
+            }
+
+            return Promise.resolve(parts.join('; '));
+        },
+    };
 };

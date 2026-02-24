@@ -37,12 +37,16 @@ async function setCookie(
     response: Response,
     cookieName: string,
     cookieValue: Record<string, string>,
-    maxAge: number
+    maxAge: number,
+    context: Parameters<MiddlewareFunction>[0]['context']
 ): Promise<void> {
-    const cookieConfig = getCookieConfig({
-        httpOnly: false,
-        maxAge,
-    });
+    const cookieConfig = getCookieConfig(
+        {
+            httpOnly: false,
+            maxAge,
+        },
+        context
+    );
     const cookieHandler = createCookie(cookieName, cookieConfig);
     const cookieValueSerialized = await cookieHandler.serialize(cookieValue);
     response.headers.append('Set-Cookie', cookieValueSerialized);
@@ -79,7 +83,7 @@ const shopperContextMiddleware: MiddlewareFunction<Response> = async ({ request,
         const contextCookieName = getShopperContextCookieName(session.usid);
         const sourceCodeCookieName = getSourceCodeCookieName(context);
 
-        const cookieConfig = getCookieConfig({ httpOnly: false });
+        const cookieConfig = getCookieConfig({ httpOnly: false }, context);
 
         const contextCookieHandler = createCookie(contextCookieName, cookieConfig);
         const sourceCodeCookieHandler = createCookie(sourceCodeCookieName, cookieConfig);
@@ -111,7 +115,8 @@ const shopperContextMiddleware: MiddlewareFunction<Response> = async ({ request,
                 response,
                 sourceCodeCookieName,
                 effectiveSourceCodeContext,
-                SOURCE_CODE_COOKIE_EXPIRY_SECONDS
+                SOURCE_CODE_COOKIE_EXPIRY_SECONDS,
+                context
             );
         }
         if (hasNewContext) {
@@ -119,7 +124,8 @@ const shopperContextMiddleware: MiddlewareFunction<Response> = async ({ request,
                 response,
                 contextCookieName,
                 effectiveShopperContext,
-                SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS
+                SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS,
+                context
             );
         }
 

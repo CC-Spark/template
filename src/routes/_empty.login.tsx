@@ -33,11 +33,8 @@ import { getTranslation } from '@/lib/i18next';
 
 // services
 import { getAuth, authorizePasswordless } from '@/middlewares/auth.server';
-// import { updateAuth, getAuth as getClientAuth } from '@/middlewares/auth.client';
-// import { updateBasketResource } from '@/middlewares/basket.server';
 import { loginRegisteredUser } from '@/lib/api/auth/standard-login';
 import { authorizeIDP } from '@/lib/api/auth/social-login';
-// import { mergeBasket } from '@/lib/api/basket';
 
 type LoginActionResponse = {
     error?: string;

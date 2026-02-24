@@ -539,6 +539,45 @@ describe('shopper-context.server', () => {
         });
     });
 
+    describe('loader and action URLs', () => {
+        test('should process shopper context when request URL is a loader URL (e.g. .data fetch)', async () => {
+            // Real-life loader URL: React Router data request with .data path and _routes query
+            const loaderUrl =
+                'http://localhost:5173/product/25697782M.data?color=JJI15XX&size=006&pid=701644606374M&src=email&_routes=root%2Croutes%2F_app.product.%24productId';
+            mockRequest = new Request(loaderUrl);
+
+            const result = await shopperContextMiddleware(createMiddlewareArgs(mockRequest, mockContext), mockNext);
+
+            expect(mockNext).toHaveBeenCalledOnce();
+            expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', { sourceCode: 'email' });
+            expect(result).toBeInstanceOf(Response);
+            const setCookieHeaders = (result as Response).headers.getSetCookie();
+            expect(setCookieHeaders.length).toBe(1);
+            const cookieConfig = getCookieConfig({ httpOnly: false });
+            const sourceCodeCookieHandler = createCookie('dwsourcecode_test-site', cookieConfig);
+            const sourceCodeCookieValue = await sourceCodeCookieHandler.parse(setCookieHeaders[0]);
+            expect(sourceCodeCookieValue).toEqual({ sourceCode: 'email' });
+        });
+
+        test('should process shopper context when request URL is an action URL (e.g. POST to action route)', async () => {
+            // Real-life action URL: POST to action route with product/quantity params and src for shopper context
+            const actionUrl = 'http://localhost:5173/action/cart-item-add?pid=701644606374M&quantity=1&src=email';
+            mockRequest = new Request(actionUrl, { method: 'POST' });
+
+            const result = await shopperContextMiddleware(createMiddlewareArgs(mockRequest, mockContext), mockNext);
+
+            expect(mockNext).toHaveBeenCalledOnce();
+            expect(createShopperContext).toHaveBeenCalledWith(mockContext, 'test-usid', { sourceCode: 'email' });
+            expect(result).toBeInstanceOf(Response);
+            const setCookieHeaders = (result as Response).headers.getSetCookie();
+            expect(setCookieHeaders.length).toBe(1);
+            const cookieConfig = getCookieConfig({ httpOnly: false });
+            const sourceCodeCookieHandler = createCookie('dwsourcecode_test-site', cookieConfig);
+            const sourceCodeCookieValue = await sourceCodeCookieHandler.parse(setCookieHeaders[0]);
+            expect(sourceCodeCookieValue).toEqual({ sourceCode: 'email' });
+        });
+    });
+
     describe('sourceCode handling', () => {
         test('should update sourceCode when present in URL', async () => {
             const url = new URL('https://example.com?src=email');

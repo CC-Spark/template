@@ -14,35 +14,18 @@
  * limitations under the License.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-    createRoutesStub,
-    type LoaderFunctionArgs,
-    type ActionFunctionArgs,
-    type ClientActionFunctionArgs,
-} from 'react-router';
-import Login, { loader, action, clientAction } from './_empty.login';
+import { createRoutesStub, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import Login, { loader, action } from './_empty.login';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getAuth, authorizePasswordless } from '@/middlewares/auth.server';
-import { getAuth as getClientAuth, updateAuth } from '@/middlewares/auth.client';
-import { updateBasketResource } from '@/middlewares/basket.server';
 import { loginRegisteredUser } from '@/lib/api/auth/standard-login';
 import { authorizeIDP } from '@/lib/api/auth/social-login';
-import { mergeBasket } from '@/lib/api/basket';
 import { getAppOrigin, isAbsoluteURL, extractResponseError } from '@/lib/utils';
 
 vi.mock('@/middlewares/auth.server', () => ({
     getAuth: vi.fn(),
     authorizePasswordless: vi.fn(),
-}));
-
-vi.mock('@/middlewares/auth.client', () => ({
-    getAuth: vi.fn(),
-    updateAuth: vi.fn(),
-}));
-
-vi.mock('@/middlewares/basket.server', () => ({
-    updateBasketResource: vi.fn(),
 }));
 
 vi.mock('@/lib/api/auth/standard-login', () => ({
@@ -51,10 +34,6 @@ vi.mock('@/lib/api/auth/standard-login', () => ({
 
 vi.mock('@/lib/api/auth/social-login', () => ({
     authorizeIDP: vi.fn(),
-}));
-
-vi.mock('@/lib/api/basket', () => ({
-    mergeBasket: vi.fn(),
 }));
 
 vi.mock('@/lib/utils', () => ({
@@ -112,13 +91,9 @@ vi.mock('@/lib/i18next', () => ({
 
 // Get mocked functions
 const mockGetAuth = vi.mocked(getAuth);
-const mockGetClientAuth = vi.mocked(getClientAuth);
-const mockUpdateAuth = vi.mocked(updateAuth);
-const mockUpdateBasket = vi.mocked(updateBasketResource);
 const mockLoginRegisteredUser = vi.mocked(loginRegisteredUser);
 const mockAuthorizeIDP = vi.mocked(authorizeIDP);
 const mockAuthorizePasswordless = vi.mocked(authorizePasswordless);
-const mockMergeBasket = vi.mocked(mergeBasket);
 const mockGetAppOrigin = vi.mocked(getAppOrigin);
 const mockIsAbsoluteURL = vi.mocked(isAbsoluteURL);
 const mockExtractResponseError = vi.mocked(extractResponseError);
@@ -681,151 +656,6 @@ describe('Login Route', () => {
                     userid: 'test@example.com',
                 })
             );
-        });
-    });
-
-    const describeClientAction = typeof clientAction === 'function' ? describe : describe.skip;
-
-    describeClientAction('clientAction', () => {
-        it('should update auth and redirect on successful login', async () => {
-            const mockServerAction = vi.fn().mockResolvedValue({
-                redirectUrl: '/',
-                auth: { userType: 'registered', customerId: 'test-123' },
-            });
-            mockGetClientAuth.mockReturnValue({ userType: 'guest' });
-
-            const mockContext = { get: vi.fn(), set: vi.fn() };
-            const args: ClientActionFunctionArgs = {
-                request: new Request('http://localhost:5173/login'),
-                params: {},
-                context: mockContext,
-                serverAction: mockServerAction,
-            } as any;
-
-            const result = await clientAction(args);
-
-            expect(mockUpdateAuth).toHaveBeenCalled();
-            expect(result).toHaveProperty('status', 302);
-        });
-
-        it('should merge basket when transitioning from guest to registered', async () => {
-            const mockBasket = { basketId: 'merged-basket', productItems: [] };
-            const mockServerAction = vi.fn().mockResolvedValue({
-                redirectUrl: '/',
-                auth: { userType: 'registered', customerId: 'test-123' },
-            });
-            mockGetClientAuth.mockReturnValue({ userType: 'guest' });
-            mockMergeBasket.mockResolvedValue(mockBasket);
-
-            const mockContext = { get: vi.fn(), set: vi.fn() };
-            const args: ClientActionFunctionArgs = {
-                request: new Request('http://localhost:5173/login'),
-                params: {},
-                context: mockContext,
-                serverAction: mockServerAction,
-            } as any;
-
-            await clientAction(args);
-
-            expect(mockMergeBasket).toHaveBeenCalledWith(mockContext);
-            expect(mockUpdateBasket).toHaveBeenCalledWith(mockContext, mockBasket);
-        });
-
-        it('should not merge basket if already registered', async () => {
-            const mockServerAction = vi.fn().mockResolvedValue({
-                redirectUrl: '/',
-                auth: { userType: 'registered', customerId: 'test-123' },
-            });
-            mockGetClientAuth.mockReturnValue({ userType: 'registered' });
-
-            const mockContext = { get: vi.fn(), set: vi.fn() };
-            const args: ClientActionFunctionArgs = {
-                request: new Request('http://localhost:5173/login'),
-                params: {},
-                context: mockContext,
-                serverAction: mockServerAction,
-            } as any;
-
-            await clientAction(args);
-
-            expect(mockMergeBasket).not.toHaveBeenCalled();
-        });
-
-        it('should handle basket merge errors gracefully', async () => {
-            const mockServerAction = vi.fn().mockResolvedValue({
-                redirectUrl: '/',
-                auth: { userType: 'registered', customerId: 'test-123' },
-            });
-            mockGetClientAuth.mockReturnValue({ userType: 'guest' });
-            mockMergeBasket.mockRejectedValue(new Error('Basket merge failed'));
-
-            const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-            const mockContext = { get: vi.fn(), set: vi.fn() };
-            const args: ClientActionFunctionArgs = {
-                request: new Request('http://localhost:5173/login'),
-                params: {},
-                context: mockContext,
-                serverAction: mockServerAction,
-            } as any;
-
-            const result = await clientAction(args);
-
-            expect(consoleErrorSpy).toHaveBeenCalledWith('[Standard Login] Failed to merge basket:', expect.any(Error));
-            expect(result).toHaveProperty('status', 302); // Should still redirect
-
-            consoleErrorSpy.mockRestore();
-        });
-
-        it('should use window.location.assign for absolute URLs', async () => {
-            const mockServerAction = vi.fn().mockResolvedValue({
-                redirectUrl: 'http://localhost:5173/mobify/proxy/api/oauth',
-                auth: { userType: 'guest' },
-            });
-            mockGetClientAuth.mockReturnValue({ userType: 'guest' });
-
-            // Mock window.location.assign
-            const mockAssign = vi.fn();
-            Object.defineProperty(window, 'location', {
-                value: { assign: mockAssign },
-                writable: true,
-            });
-
-            const mockContext = { get: vi.fn(), set: vi.fn() };
-            const args: ClientActionFunctionArgs = {
-                request: new Request('http://localhost:5173/login'),
-                params: {},
-                context: mockContext,
-                serverAction: mockServerAction,
-            } as any;
-
-            const result = await clientAction(args);
-
-            expect(mockAssign).toHaveBeenCalledWith('http://localhost:5173/mobify/proxy/api/oauth');
-            expect(result).toBeNull();
-        });
-
-        it('should use React Router redirect for relative URLs', async () => {
-            const mockServerAction = vi.fn().mockResolvedValue({
-                redirectUrl: '/dashboard',
-                auth: { userType: 'registered' },
-            });
-            mockGetClientAuth.mockReturnValue({ userType: 'guest' });
-
-            const mockContext = { get: vi.fn(), set: vi.fn() };
-            const args: ClientActionFunctionArgs = {
-                request: new Request('http://localhost:5173/login'),
-                params: {},
-                context: mockContext,
-                serverAction: mockServerAction,
-            } as any;
-
-            const result = await clientAction(args);
-
-            expect(result).toHaveProperty('status', 302);
-            if (result && result instanceof Response) {
-                expect(result.headers.get('Location')).toBe('/dashboard');
-            }
         });
     });
 

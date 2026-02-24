@@ -43,7 +43,6 @@ import { isDesignModeActive, isPreviewModeActive } from '@salesforce/storefront-
 
 // Middlewares
 import authMiddlewareServer, { getAuth as getAuthServer } from '@/middlewares/auth.server';
-import authMiddlewareClient from '@/middlewares/auth.client';
 import { getPublicSessionData } from '@/middlewares/auth.utils';
 import createBasketMiddleware, { basketResourceContext, type BasketSnapshot } from '@/middlewares/basket.server';
 import shopperContextMiddlewareServer from '@/middlewares/shopper-context.server';
@@ -56,7 +55,6 @@ import { appConfigMiddlewareServer } from '@/middlewares/app-config.server';
 import { appConfigMiddlewareClient } from '@/middlewares/app-config.client';
 import { i18nextMiddleware } from '@/middlewares/i18next.server';
 import { currencyMiddleware } from '@/middlewares/currency.server';
-import { currencyClientMiddleware } from '@/middlewares/currency.client';
 import { correlationMiddleware } from '@/middlewares/correlation.server';
 import { modeDetectionMiddlewareServer, modeDetectionMiddlewareClient } from '@/middlewares/mode-detection';
 import { maintenanceMiddleware } from '@/middlewares/maintenance.server';
@@ -133,8 +131,6 @@ export const clientMiddleware: MiddlewareFunction<Record<string, DataStrategyRes
     modeDetectionMiddlewareClient,
     legacyRoutesMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Checks hybrid.enabled, needs config from context
     performanceMetricsMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
-    currencyClientMiddleware as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>, // Read currency from cookie
-    authMiddlewareClient as unknown as MiddlewareFunction<Record<string, DataStrategyResult>>,
 ];
 
 // On the client side, initialize i18next.

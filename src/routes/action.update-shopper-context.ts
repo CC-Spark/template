@@ -69,17 +69,25 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
         }
 
         // Use shared function to update shopper context
-        await updateShopperContext({
+        const { setCookieHeaders } = await updateShopperContext({
             context,
             usid: session.usid,
             newShopperContext,
             newSourceCodeContext,
+            cookieHeader: request.headers.get('Cookie'),
         });
 
-        return Response.json({
+        const response = Response.json({
             success: true,
             message: t('Shopper context has been updated.'),
         } satisfies UpdateShopperContextResponse);
+
+        // Apply Set-Cookie headers from updateShopperContext
+        for (const header of setCookieHeaders) {
+            response.headers.append('Set-Cookie', header);
+        }
+
+        return response;
     } catch (error) {
         const statusCode = extractStatusCode(error) ? Number(extractStatusCode(error)) : 500;
         const errorMessage = error instanceof Error ? error.message : t('Shopper context failed to update');

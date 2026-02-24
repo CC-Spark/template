@@ -126,16 +126,6 @@ vi.mock('@salesforce/storefront-next-runtime/design/react/core', async (importOr
     };
 });
 
-vi.mock('@/middlewares/auth.client', async () => ({
-    ...(await vi.importActual('@/middlewares/auth.client')),
-    default: vi.fn(),
-    getAuth: vi.fn(() => ({
-        accessToken: 'test-token',
-        customerId: 'test-customer',
-        userType: 'registered',
-    })),
-}));
-
 vi.mock('@/middlewares/basket.server', async () => ({
     ...(await vi.importActual('@/middlewares/basket.server')),
     default: vi.fn(),

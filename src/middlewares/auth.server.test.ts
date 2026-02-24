@@ -57,14 +57,9 @@ vi.mock('@/lib/api-clients', () => ({
     })),
 }));
 
-// Mock cookies.server
-vi.mock('@/lib/cookies.server', () => ({
-    parseAllCookies: vi.fn(),
-    createCookie: vi.fn(),
-}));
-
 // Mock cookie-utils
 vi.mock('@/lib/cookie-utils', () => ({
+    createCookie: vi.fn(),
     getCookieConfig: vi.fn((overrides = {}) => ({
         httpOnly: false,
         secure: true,
@@ -73,6 +68,7 @@ vi.mock('@/lib/cookie-utils', () => ({
         ...overrides,
     })),
     getCookieNameWithSiteId: vi.fn((name: string) => name),
+    parseAllCookies: vi.fn(),
 }));
 
 // Mock performance metrics
@@ -1120,11 +1116,10 @@ describe('auth middleware (server)', () => {
 
         beforeEach(async () => {
             // Get mocked modules
-            const cookiesServer = await import('@/lib/cookies.server');
             const cookieUtils = await import('@/lib/cookie-utils');
 
-            mockParseAllCookies = cookiesServer.parseAllCookies;
-            mockCreateCookie = cookiesServer.createCookie;
+            mockParseAllCookies = cookieUtils.parseAllCookies;
+            mockCreateCookie = cookieUtils.createCookie;
             mockGetCookieConfig = cookieUtils.getCookieConfig;
             mockgetCookieNameWithSiteId = cookieUtils.getCookieNameWithSiteId;
 

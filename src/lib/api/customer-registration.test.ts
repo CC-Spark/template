@@ -16,12 +16,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { extractNameFromEmail, generateRandomPassword } from './customer';
 
-// Mock the auth module with factory function
-vi.mock('@/middlewares/auth.client', () => ({
-    getAuth: vi.fn(),
-    updateAuth: vi.fn(),
-}));
-
 describe('Guest User Registration', () => {
     beforeEach(() => {
         vi.clearAllMocks();

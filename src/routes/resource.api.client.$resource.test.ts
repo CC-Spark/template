@@ -23,7 +23,6 @@ import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 
 // Mock dependencies
 vi.mock('@/middlewares/auth.server');
-vi.mock('@/middlewares/auth.client');
 vi.mock('@/lib/utils', () => ({
     extractResponseError: vi.fn(),
     getErrorMessage: vi.fn(),

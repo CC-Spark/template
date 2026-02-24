@@ -40,10 +40,30 @@ vi.mock('@/lib/api/shopper-context', () => ({
     createShopperContext: vi.fn(),
 }));
 
-vi.mock('@/lib/cookies.client', () => ({
-    getCookie: vi.fn(),
-    setNamespacedCookie: vi.fn(),
+vi.mock('@/lib/cookie-utils', () => ({
+    getCookieConfig: vi.fn((overrides = {}) => ({
+        httpOnly: false,
+        secure: true,
+        sameSite: 'lax' as const,
+        path: '/',
+        ...overrides,
+    })),
 }));
+
+const { mockSerialize, mockParse } = vi.hoisted(() => ({
+    mockSerialize: vi.fn(),
+    mockParse: vi.fn(),
+}));
+vi.mock('react-router', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('react-router')>();
+    return {
+        ...actual,
+        createCookie: vi.fn(() => ({
+            serialize: mockSerialize,
+            parse: mockParse,
+        })),
+    };
+});
 
 vi.mock('@salesforce/storefront-next-runtime/design/mode', () => ({
     isDesignModeActive: vi.fn(),
@@ -959,18 +979,12 @@ describe('shopper-context-utils', () => {
 
     describe('updateShopperContext', () => {
         let mockContext: RouterContextProvider;
-        let mockGetCookie: ReturnType<typeof vi.fn>;
-        let mockSetNamespacedCookie: ReturnType<typeof vi.fn>;
         let mockCreateShopperContext: ReturnType<typeof vi.fn>;
         let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
         beforeEach(async () => {
-            const { getCookie } = await import('@/lib/cookies.client');
-            const { setNamespacedCookie } = await import('@/lib/cookies.client');
             const { createShopperContext } = await import('@/lib/api/shopper-context');
 
-            mockGetCookie = vi.mocked(getCookie);
-            mockSetNamespacedCookie = vi.mocked(setNamespacedCookie);
             mockCreateShopperContext = vi.mocked(createShopperContext);
 
             mockContext = {
@@ -987,8 +1001,8 @@ describe('shopper-context-utils', () => {
 
             consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-            mockGetCookie.mockReturnValue('');
-            mockSetNamespacedCookie.mockReturnValue(undefined);
+            mockParse.mockResolvedValue(null);
+            mockSerialize.mockResolvedValue('Set-Cookie: mock=value');
             mockCreateShopperContext.mockResolvedValue(undefined);
         });
 
@@ -1001,11 +1015,12 @@ describe('shopper-context-utils', () => {
             const newShopperContext = { deviceType: 'mobile' };
             const newSourceCodeContext = {};
 
-            await updateShopperContext({
+            const result = await updateShopperContext({
                 context: mockContext,
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: null,
             });
 
             expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
@@ -1019,25 +1034,20 @@ describe('shopper-context-utils', () => {
                 })
             );
 
-            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
-            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
-                `${SHOPPER_CONTEXT_COOKIE_NAME_BASE}-test-usid`,
-                JSON.stringify({ deviceType: 'mobile' }),
-                expect.objectContaining({
-                    expires: expect.any(Date),
-                })
-            );
+            expect(mockSerialize).toHaveBeenCalledTimes(1);
+            expect(result.setCookieHeaders).toHaveLength(1);
         });
 
         test('should update source code context', async () => {
             const newShopperContext = {};
             const newSourceCodeContext = { sourceCode: 'email' };
 
-            await updateShopperContext({
+            const result = await updateShopperContext({
                 context: mockContext,
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: null,
             });
 
             expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
@@ -1049,38 +1059,31 @@ describe('shopper-context-utils', () => {
                 })
             );
 
-            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
-            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
-                `${SOURCE_CODE_COOKIE_NAME_BASE}_test-site`,
-                JSON.stringify({ sourceCode: 'email' }),
-                expect.objectContaining({
-                    expires: expect.any(Date),
-                })
-            );
+            expect(mockSerialize).toHaveBeenCalledTimes(1);
+            expect(result.setCookieHeaders).toHaveLength(1);
         });
 
         test('should update both shopper context and source code context', async () => {
             const newShopperContext = { deviceType: 'mobile' };
             const newSourceCodeContext = { sourceCode: 'email' };
 
-            await updateShopperContext({
+            const result = await updateShopperContext({
                 context: mockContext,
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: null,
             });
 
             expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
-            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(2);
+            expect(mockSerialize).toHaveBeenCalledTimes(2);
+            expect(result.setCookieHeaders).toHaveLength(2);
         });
 
         test('should merge new context with existing cookie context', async () => {
-            const existingContext = JSON.stringify({ existingKey: 'existing' });
-            const existingSourceCode = JSON.stringify({ sourceCode: 'old-source' });
-
-            mockGetCookie
-                .mockReturnValueOnce(existingContext) // shopper context cookie
-                .mockReturnValueOnce(existingSourceCode); // source code cookie
+            mockParse
+                .mockResolvedValueOnce({ existingKey: 'existing' }) // shopper context cookie
+                .mockResolvedValueOnce({ sourceCode: 'old-source' }); // source code cookie
 
             const newShopperContext = { deviceType: 'mobile' };
             const newSourceCodeContext = { sourceCode: 'new-source' };
@@ -1090,20 +1093,17 @@ describe('shopper-context-utils', () => {
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: 'some-cookie-header',
             });
 
-            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
-                `${SHOPPER_CONTEXT_COOKIE_NAME_BASE}-test-usid`,
-                JSON.stringify({
+            // Verify serialize was called with the merged context
+            expect(mockSerialize).toHaveBeenCalledWith({ sourceCode: 'new-source' }, expect.any(Object));
+
+            expect(mockSerialize).toHaveBeenCalledWith(
+                {
                     existingKey: 'existing',
                     deviceType: 'mobile',
-                }),
-                expect.any(Object)
-            );
-
-            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
-                `${SOURCE_CODE_COOKIE_NAME_BASE}_test-site`,
-                JSON.stringify({ sourceCode: 'new-source' }),
+                },
                 expect.any(Object)
             );
         });
@@ -1112,38 +1112,40 @@ describe('shopper-context-utils', () => {
             const newShopperContext = {};
             const newSourceCodeContext = {};
 
-            await updateShopperContext({
+            const result = await updateShopperContext({
                 context: mockContext,
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: null,
             });
 
             expect(mockCreateShopperContext).not.toHaveBeenCalled();
-            expect(mockSetNamespacedCookie).not.toHaveBeenCalled();
+            expect(mockSerialize).not.toHaveBeenCalled();
+            expect(result.setCookieHeaders).toHaveLength(0);
         });
 
-        test('should handle cookie setting errors gracefully', async () => {
+        test('should handle cookie serialization errors gracefully', async () => {
             const newShopperContext = { deviceType: 'mobile' };
             const newSourceCodeContext = {};
 
-            mockSetNamespacedCookie.mockImplementation(() => {
-                throw new Error('Cookie setting failed');
-            });
+            mockSerialize.mockRejectedValue(new Error('Cookie serialization failed'));
 
-            await updateShopperContext({
+            const result = await updateShopperContext({
                 context: mockContext,
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: null,
             });
 
-            // Should still call API even if cookie setting fails
+            // Should still call API even if cookie serialization fails
             expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
             expect(consoleErrorSpy).toHaveBeenCalledWith(
-                'Failed to set shopper context cookie at client side:',
-                'Cookie setting failed'
+                'Failed to serialize shopper context cookie:',
+                'Cookie serialization failed'
             );
+            expect(result.setCookieHeaders).toHaveLength(0);
         });
 
         test('should propagate API errors', async () => {
@@ -1158,53 +1160,57 @@ describe('shopper-context-utils', () => {
                     usid: 'test-usid',
                     newShopperContext,
                     newSourceCodeContext,
+                    cookieHeader: null,
                 })
             ).rejects.toThrow('API error');
 
-            // Cookies should not be set if API fails (API call happens before cookie setting)
-            expect(mockSetNamespacedCookie).not.toHaveBeenCalled();
+            // Cookies should not be serialized if API fails (API call happens before cookie serialization)
+            expect(mockSerialize).not.toHaveBeenCalled();
         });
 
-        test('should handle empty cookie values', async () => {
-            mockGetCookie.mockReturnValue('');
+        test('should handle null cookie values from parse', async () => {
+            mockParse.mockResolvedValue(null);
 
             const newShopperContext = { deviceType: 'mobile' };
             const newSourceCodeContext = {};
 
-            await updateShopperContext({
+            const result = await updateShopperContext({
                 context: mockContext,
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: null,
             });
 
             expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
-            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
+            expect(mockSerialize).toHaveBeenCalledTimes(1);
+            expect(result.setCookieHeaders).toHaveLength(1);
         });
 
         test('should handle invalid JSON in cookies', async () => {
-            mockGetCookie
-                .mockReturnValueOnce('invalid json') // shopper context cookie
-                .mockReturnValueOnce(''); // source code cookie
+            mockParse
+                .mockResolvedValueOnce(null) // shopper context cookie (corrupt/missing)
+                .mockResolvedValueOnce(null); // source code cookie
 
             const newShopperContext = { deviceType: 'mobile' };
             const newSourceCodeContext = {};
 
-            await updateShopperContext({
+            const result = await updateShopperContext({
                 context: mockContext,
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: 'some-header',
             });
 
             // Should still work with empty context from invalid JSON
             expect(mockCreateShopperContext).toHaveBeenCalledTimes(1);
-            expect(mockSetNamespacedCookie).toHaveBeenCalledTimes(1);
+            expect(mockSerialize).toHaveBeenCalledTimes(1);
+            expect(result.setCookieHeaders).toHaveLength(1);
         });
 
         test('should overwrite existing qualifiers with new values', async () => {
-            const existingContext = JSON.stringify({ deviceType: 'old-device' });
-            mockGetCookie.mockReturnValueOnce(existingContext).mockReturnValueOnce('');
+            mockParse.mockResolvedValueOnce({ deviceType: 'old-device' }).mockResolvedValueOnce(null);
 
             const newShopperContext = { deviceType: 'new-device' };
             const newSourceCodeContext = {};
@@ -1214,13 +1220,10 @@ describe('shopper-context-utils', () => {
                 usid: 'test-usid',
                 newShopperContext,
                 newSourceCodeContext,
+                cookieHeader: 'some-header',
             });
 
-            expect(mockSetNamespacedCookie).toHaveBeenCalledWith(
-                `${SHOPPER_CONTEXT_COOKIE_NAME_BASE}-test-usid`,
-                JSON.stringify({ deviceType: 'new-device' }),
-                expect.any(Object)
-            );
+            expect(mockSerialize).toHaveBeenCalledWith({ deviceType: 'new-device' }, expect.any(Object));
         });
     });
 });

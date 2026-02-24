@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { RouterContextProvider } from 'react-router';
+import { createCookie, type RouterContextProvider } from 'react-router';
 import { createShopperContext, type ShopperContext } from '@/lib/api/shopper-context';
 import {
     SHOPPER_CONTEXT_SEARCH_PARAMS,
@@ -23,7 +23,7 @@ import {
     SOURCE_CODE_API_FIELD_NAME,
 } from '@/lib/shopper-context-constants';
 import { getConfig } from '@/config';
-import { getCookie, setNamespacedCookie } from '@/lib/cookies.client';
+import { getCookieConfig } from '@/lib/cookie-utils';
 import { isDesignModeActive, isPreviewModeActive } from '@salesforce/storefront-next-runtime/design/mode';
 
 /**
@@ -328,28 +328,36 @@ export function computeEffectiveShopperContext(
  * @param params - Parameters for updating shopper context
  * @param params.context - React Router context
  * @param params.usid - Shopper's unique identifier
- * @param params.newQualifiers - New qualifiers to merge (excluding sourceCode)
- * @param params.newSourceCodeQualifiers - New source code qualifiers to merge
- * @returns Promise resolving to void
+ * @param params.newShopperContext - New qualifiers to merge (excluding sourceCode)
+ * @param params.newSourceCodeContext - New source code qualifiers to merge
+ * @param params.cookieHeader - Raw Cookie header string from the request
+ * @returns Promise resolving to an object with setCookieHeaders to apply to the response
  */
 export async function updateShopperContext({
     context,
     usid,
     newShopperContext,
     newSourceCodeContext,
+    cookieHeader,
 }: {
     context: Readonly<RouterContextProvider>;
     usid: string;
     newShopperContext: Record<string, string>;
     newSourceCodeContext: Record<string, string>;
-}): Promise<void> {
-    // Get current context from cookies
+    cookieHeader: string | null;
+}): Promise<{ setCookieHeaders: string[] }> {
+    const setCookieHeaders: string[] = [];
+
+    // Get current context from cookies using React Router's createCookie
     const shopperContextCookieName = getShopperContextCookieName(usid);
     const sourceCodeCookieName = getSourceCodeCookieName(context);
-    const shopperContextCookie = getCookie(shopperContextCookieName);
-    const sourceCodeCookie = getCookie(sourceCodeCookieName);
-    const currentShopperContext = safeParseCookie(shopperContextCookie);
-    const currentSourceCodeContext = safeParseCookie(sourceCodeCookie);
+
+    const cookieConfig = getCookieConfig({ httpOnly: false }, context);
+    const shopperContextCookieHandler = createCookie(shopperContextCookieName, cookieConfig);
+    const sourceCodeCookieHandler = createCookie(sourceCodeCookieName, cookieConfig);
+
+    const currentShopperContext = cookieHeader ? (await shopperContextCookieHandler.parse(cookieHeader)) || {} : {};
+    const currentSourceCodeContext = cookieHeader ? (await sourceCodeCookieHandler.parse(cookieHeader)) || {} : {};
 
     // Compute effective context by merging new with current
     const effectiveShopperContext = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
@@ -368,29 +376,31 @@ export async function updateShopperContext({
         await createShopperContext(context, usid, shopperContextBody);
     }
 
-    // Update cookies even if API call failed (graceful degradation)
-    // This ensures context is preserved locally even if API is temporarily unavailable
+    // Serialize updated cookies as Set-Cookie headers
     try {
         if (hasNewSourceCodeContext) {
-            setNamespacedCookie(sourceCodeCookieName, JSON.stringify(effectiveSourceCodeContext), {
-                expires: new Date(Date.now() + SOURCE_CODE_COOKIE_EXPIRY_SECONDS * 1000),
+            const header = await sourceCodeCookieHandler.serialize(effectiveSourceCodeContext, {
+                maxAge: SOURCE_CODE_COOKIE_EXPIRY_SECONDS,
             });
+            setCookieHeaders.push(header);
         }
 
         if (hasNewContext) {
-            // Store the entire effectiveShopperContext object as JSON string, including all qualifiers
-            setNamespacedCookie(shopperContextCookieName, JSON.stringify(effectiveShopperContext), {
-                expires: new Date(Date.now() + SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS * 1000),
+            const header = await shopperContextCookieHandler.serialize(effectiveShopperContext, {
+                maxAge: SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS,
             });
+            setCookieHeaders.push(header);
         }
     } catch (cookieError) {
-        // Cookie setting failed - log but don't throw
+        // Cookie serialization failed - log but don't throw
         // eslint-disable-next-line no-console
         console.error(
-            'Failed to set shopper context cookie at client side:',
+            'Failed to serialize shopper context cookie:',
             cookieError instanceof Error ? cookieError.message : String(cookieError)
         );
     }
+
+    return { setCookieHeaders };
 }
 
 /**

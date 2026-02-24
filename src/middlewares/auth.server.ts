@@ -45,8 +45,7 @@ import { getAppOrigin, isAbsoluteURL } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { performanceTimerContext, PERFORMANCE_MARKS } from '@/middlewares/performance-metrics';
 import { getConfig } from '@/config';
-import { getCookieConfig, getCookieNameWithSiteId } from '@/lib/cookie-utils';
-import { createCookie, parseAllCookies } from '@/lib/cookies.server';
+import { createCookie, getCookieConfig, getCookieNameWithSiteId, parseAllCookies } from '@/lib/cookie-utils';
 import { getTranslation } from '@/lib/i18next';
 import { TrackingConsent, trackingConsentToBoolean } from '@/types/tracking-consent';
 
@@ -383,8 +382,8 @@ const authCacheContext = createContext<{ ref: AuthData | undefined }>();
  * User type is determined by which refresh token cookie exists (cc-nx-g = guest, cc-nx = registered).
  * Only one refresh token cookie exists at a time - a user cannot be both guest and registered.
  *
- * All cookies use httpOnly: false to allow ECOM to access cookies in hybrid storefronts, except:
- * - `cc-cv` uses httpOnly: true for security (OAuth2 PKCE flow, server-only)
+ * All cookies use httpOnly: true to prevent client-side JavaScript access (XSS protection).
+ * ECOM hybrid storefronts can still read cookies from the incoming request headers server-side.
  *
  * Cookie configuration can be overridden via getCookieConfig using environment variables.
  *
@@ -398,7 +397,7 @@ const authCacheContext = createContext<{ ref: AuthData | undefined }>();
  */
 const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }, next) => {
     // Before calling the handler: Load current Commerce API data from incoming cookies, if applicable
-    const cookieConfig = getCookieConfig({ httpOnly: false }, context);
+    const cookieConfig = getCookieConfig({ httpOnly: true }, context);
     const cookieHeader = request.headers.get('Cookie');
 
     // Parse cookie header once (not 5 times) for optimal performance

@@ -17,8 +17,7 @@ import { type MiddlewareFunction, createContext as createRouterContext } from 'r
 import { currencyContext, COOKIE_CURRENCY } from '@/lib/currency';
 import { getConfig } from '@/config';
 import { i18nextContext } from '@/lib/i18next';
-import { createCookie } from '@/lib/cookies.server';
-import { getCookieConfig } from '@/lib/cookie-utils';
+import { createCookie, getCookieConfig } from '@/lib/cookie-utils';
 
 /**
  * Currency storage context for tracking updates (like authStorageContext)
