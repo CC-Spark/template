@@ -148,27 +148,6 @@ declare function transformTargetPlaceholderPlugin(): {
   } | null;
 };
 //#endregion
-//#region src/types.d.ts
-
-interface PushOptions {
-  projectDirectory: string;
-  buildDirectory?: string;
-  message?: string;
-  projectSlug?: string;
-  target?: string;
-  cloudOrigin?: string;
-  credentialsFile?: string;
-  user?: string;
-  key?: string;
-  wait?: boolean;
-}
-//#endregion
-//#region src/commands/push.d.ts
-/**
- * Main function to push bundle to Managed Runtime
- */
-declare function push(options: PushOptions): Promise<void>;
-//#endregion
 //#region src/server/config.d.ts
 /**
  * Server configuration extracted from environment variables
@@ -323,5 +302,5 @@ interface GenerateMetadataResult {
 }
 declare function generateMetadata(projectDirectory: string, metadataDirectory: string, options?: GenerateMetadataOptions): Promise<GenerateMetadataResult>;
 //#endregion
-export { type GenerateMetadataOptions, type GenerateMetadataResult, type PushOptions, type StorefrontNextTargetsConfig, createServer, storefrontNextTargets as default, generateMetadata, loadConfigFromEnv, loadProjectConfig, push, transformTargetPlaceholderPlugin, trimExtensions };
+export { type GenerateMetadataOptions, type GenerateMetadataResult, type StorefrontNextTargetsConfig, createServer, storefrontNextTargets as default, generateMetadata, loadConfigFromEnv, loadProjectConfig, transformTargetPlaceholderPlugin, trimExtensions };
 //# sourceMappingURL=index.d.ts.map

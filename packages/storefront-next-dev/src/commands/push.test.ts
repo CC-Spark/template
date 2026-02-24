@@ -13,332 +13,539 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
-import type { PushOptions, CloudAPIResponse } from '../types';
-import type { push as PushFn } from './push';
-import type { createBundle as CreateBundleFn } from '../bundle';
-import type { buildMrtConfig as BuildMrtConfigFn } from '../config';
-import type fsExtra from 'fs-extra';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import Push from './push';
+import fs from 'fs-extra';
+import path from 'path';
 
-// Module-level variables for mocked modules
-let push: typeof PushFn;
-let createBundle: typeof CreateBundleFn;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- assigned from dynamic import
-let CloudAPIClient: any;
-let buildMrtConfig: typeof BuildMrtConfigFn;
-let getMrtConfig: ReturnType<typeof vi.fn>;
-let info: ReturnType<typeof vi.fn>;
-let success: ReturnType<typeof vi.fn>;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- assigned from dynamic import, freshWarn used in tests
-let warn: ReturnType<typeof vi.fn>;
-let error: ReturnType<typeof vi.fn>;
-let fs: typeof fsExtra;
+// Hoisted mocks must be declared before vi.mock calls due to hoisting
+const {
+    mockCreateBundle,
+    mockUploadBundle,
+    mockWaitForEnv,
+    mockCreateMrtClient,
+    mockGetMrtAuth,
+    mockRequireMrtCredentials,
+    mockGenerateMetadata,
+    mockUploadCartridges,
+    mockResolveConfig,
+} = vi.hoisted(() => ({
+    mockCreateBundle: vi.fn(() => Promise.resolve({ data: 'test-bundle' })),
+    mockUploadBundle: vi.fn(() =>
+        Promise.resolve({ bundleId: 123, projectSlug: 'my-project', deployed: false, message: 'Test' })
+    ),
+    mockWaitForEnv: vi.fn(() => Promise.resolve({ state: 'ACTIVE' })),
+    mockCreateMrtClient: vi.fn(() => ({
+        /* mock client */
+    })),
+    mockGetMrtAuth: vi.fn(() => ({
+        /* mock auth */
+    })),
+    mockRequireMrtCredentials: vi.fn(),
+    mockGenerateMetadata: vi.fn(() => Promise.resolve()),
+    mockUploadCartridges: vi.fn(() => Promise.resolve()),
+    mockResolveConfig: vi.fn(
+        () =>
+            ({
+                hasB2CInstanceConfig: () => false,
+                values: {},
+            }) as any
+    ),
+}));
 
-// Track CloudAPIClient instances for assertions
-let mockCloudAPIInstances: Array<{ push: ReturnType<typeof vi.fn>; waitForDeploy: ReturnType<typeof vi.fn> }> = [];
+// Mock dependencies
+vi.mock('fs-extra', () => ({
+    default: {
+        existsSync: vi.fn(() => true),
+        mkdirSync: vi.fn(),
+    },
+}));
 
-describe('push', () => {
-    beforeAll(async () => {
-        // Setup mocks before importing modules
-        vi.doMock('../bundle', () => ({
-            createBundle: vi.fn(() => Promise.resolve('mock-bundle')),
-        }));
+vi.mock('../bundle', () => ({
+    createBundle: mockCreateBundle,
+}));
 
-        vi.doMock('../cloud-api', () => ({
-            CloudAPIClient: class MockCloudAPIClient {
-                push: ReturnType<typeof vi.fn>;
-                waitForDeploy: ReturnType<typeof vi.fn>;
-                constructor() {
-                    this.push = vi.fn(() =>
-                        Promise.resolve<CloudAPIResponse>({
-                            url: 'https://example.com/bundle',
-                            warnings: [],
-                        })
-                    );
-                    this.waitForDeploy = vi.fn(() => Promise.resolve());
-                    mockCloudAPIInstances.push(this);
-                }
+vi.mock('@salesforce/b2c-tooling-sdk/operations/mrt', () => ({
+    uploadBundle: mockUploadBundle,
+    waitForEnv: mockWaitForEnv,
+}));
+
+vi.mock('@salesforce/b2c-tooling-sdk/clients', () => ({
+    createMrtClient: mockCreateMrtClient,
+    DEFAULT_MRT_ORIGIN: 'https://cloud.mobify.com',
+}));
+
+vi.mock('../cartridge-services/generate-cartridge', () => ({
+    generateMetadata: mockGenerateMetadata,
+}));
+
+vi.mock('@salesforce/b2c-tooling-sdk/operations/code', () => ({
+    uploadCartridges: mockUploadCartridges,
+}));
+
+vi.mock('@salesforce/b2c-tooling-sdk/config', () => ({
+    resolveConfig: mockResolveConfig,
+}));
+
+vi.mock('@salesforce/b2c-tooling-sdk/cli', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Command } = require('@oclif/core');
+    class MrtCommand extends Command {
+        static baseFlags = {};
+        resolvedConfig = {
+            values: {
+                mrtProject: undefined,
+                mrtEnvironment: undefined,
+                mrtApiKey: undefined,
+                mrtOrigin: undefined,
             },
-        }));
+        };
+        getMrtAuth = mockGetMrtAuth;
+        requireMrtCredentials = mockRequireMrtCredentials;
+    }
+    return { MrtCommand };
+});
 
-        vi.doMock('../config', () => ({
-            buildMrtConfig: vi.fn(() => ({
-                ssrParameters: {},
-                ssrOnly: [],
-                ssrShared: [],
-            })),
-        }));
+vi.mock('../utils', () => ({
+    getDefaultBuildDir: vi.fn(() => '/test/project/build'),
+    getDefaultMessage: vi.fn(() => 'main:abc123'),
+}));
 
-        vi.doMock('../utils', () => ({
-            DEFAULT_CLOUD_ORIGIN: 'https://cloud.mobify.com',
-            getDefaultBuildDir: vi.fn(() => '/test/build'),
-            getCredentialsFile: vi.fn(() => '/test/.credentials'),
-            readCredentials: vi.fn(() =>
-                Promise.resolve({
-                    username: 'test@example.com',
-                    api_key: 'test-api-key',
-                })
-            ),
-            getMrtConfig: vi.fn(() => ({
-                defaultMrtProject: 'test-project',
-                defaultMrtTarget: 'staging' as string | undefined,
-            })),
-            getDefaultMessage: vi.fn(() => 'main:abc123'),
-        }));
+vi.mock('../config', () => ({
+    buildMrtConfig: vi.fn(() => ({
+        ssrParameters: {},
+        ssrOnly: [],
+        ssrShared: [],
+    })),
+    CARTRIDGES_BASE_DIR: 'cartridges',
+    SFNEXT_BASE_CARTRIDGE_NAME: 'app_storefrontnext_base',
+    SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR: 'app_storefrontnext_base/cartridge/experience',
+    GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH: false,
+}));
 
-        vi.doMock('../utils/logger', () => ({
-            info: vi.fn(),
-            success: vi.fn(),
-            warn: vi.fn(),
-            error: vi.fn(),
-            debug: vi.fn(),
-        }));
-
-        vi.doMock('fs-extra', () => ({
-            default: {
-                existsSync: vi.fn(() => true),
-            },
-            existsSync: vi.fn(() => true),
-        }));
-
-        // Dynamic imports after mocks are set up
-        const pushModule = await import('./push');
-        push = pushModule.push;
-
-        const bundleModule = await import('../bundle');
-        createBundle = bundleModule.createBundle;
-
-        const cloudApiModule = await import('../cloud-api');
-        CloudAPIClient = cloudApiModule.CloudAPIClient;
-
-        const configModule = await import('../config');
-        buildMrtConfig = configModule.buildMrtConfig;
-
-        const utilsModule = await import('../utils');
-        getMrtConfig = utilsModule.getMrtConfig as ReturnType<typeof vi.fn>;
-
-        const loggerModule = await import('../utils/logger');
-        info = loggerModule.info as ReturnType<typeof vi.fn>;
-        success = loggerModule.success as ReturnType<typeof vi.fn>;
-        warn = loggerModule.warn as ReturnType<typeof vi.fn>;
-        error = loggerModule.error as ReturnType<typeof vi.fn>;
-
-        const fsModule = await import('fs-extra');
-        fs = fsModule.default;
-    });
+describe('push command', () => {
+    const originalMrtProject = process.env.MRT_PROJECT;
+    const originalMrtTarget = process.env.MRT_TARGET;
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Clear tracked instances
-        mockCloudAPIInstances = [];
-        // Reset mocks to default values
         (fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(true);
-        getMrtConfig.mockReturnValue({
-            defaultMrtProject: 'test-project',
-            defaultMrtTarget: 'staging' as string | undefined,
+        delete process.env.MRT_PROJECT;
+        delete process.env.MRT_TARGET;
+    });
+
+    afterEach(() => {
+        if (originalMrtProject === undefined) {
+            delete process.env.MRT_PROJECT;
+        } else {
+            process.env.MRT_PROJECT = originalMrtProject;
+        }
+
+        if (originalMrtTarget === undefined) {
+            delete process.env.MRT_TARGET;
+        } else {
+            process.env.MRT_TARGET = originalMrtTarget;
+        }
+    });
+
+    it('should push bundle with correct project slug', async () => {
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
+
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                'build-directory': '/test/build',
+                project: 'my-project',
+                environment: 'staging',
+                message: 'Test push',
+                wait: false,
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
         });
-    });
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
 
-    it('should successfully push a bundle with minimal options', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-        };
+        await cmdAny.run();
 
-        await push(options);
-
-        expect(createBundle).toHaveBeenCalled();
-        expect(success).toHaveBeenCalledWith('Bundle uploaded successfully!');
-    });
-
-    it('should use credentials from options when provided', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            user: 'user@example.com',
-            key: 'test-key',
-        };
-
-        await push(options);
-
-        expect(createBundle).toHaveBeenCalled();
-    });
-
-    it('should wait for deployment when wait flag is set', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            target: 'staging',
-            wait: true,
-        };
-
-        await push(options);
-
-        // Use tracked instance instead of mock.results
-        const clientInstance = mockCloudAPIInstances[0];
-        expect(clientInstance).toBeDefined();
-        expect(clientInstance.waitForDeploy).toHaveBeenCalledWith('test-project', 'staging');
-        expect(success).toHaveBeenCalledWith('Deployment complete!');
-    });
-
-    it('should use custom build directory when provided', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            buildDirectory: '/custom/build',
-        };
-
-        await push(options);
-
-        expect(buildMrtConfig).toHaveBeenCalledWith('/custom/build', '/test/project');
-    });
-
-    it('should use custom message when provided', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            message: 'Custom deployment message',
-        };
-
-        await push(options);
-
-        expect(createBundle).toHaveBeenCalledWith(
+        expect(mockRequireMrtCredentials).toHaveBeenCalled();
+        expect(mockCreateBundle).toHaveBeenCalledWith(
             expect.objectContaining({
-                message: 'Custom deployment message',
+                projectSlug: 'my-project',
+                message: 'Test push',
             })
         );
+        expect(mockCreateMrtClient).toHaveBeenCalled();
+        expect(mockUploadBundle).toHaveBeenCalled();
     });
 
-    it('should throw error when wait is set without target', async () => {
-        getMrtConfig.mockReturnValue({
-            defaultMrtProject: 'test-project',
-            defaultMrtTarget: undefined,
-        });
-
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            wait: true,
-        };
-
-        await expect(push(options)).rejects.toThrow('You must provide a target to deploy to when using --wait');
-    });
-
-    it('should throw error when only user is provided without key', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            user: 'user@example.com',
-        };
-
-        await expect(push(options)).rejects.toThrow('You must provide both --user and --key together, or neither');
-    });
-
-    it('should throw error when only key is provided without user', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            key: 'test-key',
-        };
-
-        await expect(push(options)).rejects.toThrow('You must provide both --user and --key together, or neither');
-    });
-
-    it('should throw error when project directory does not exist', async () => {
+    it('should error if project directory does not exist', async () => {
         (fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
-        const options: PushOptions = {
-            projectDirectory: '/nonexistent/project',
-        };
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
 
-        await expect(push(options)).rejects.toThrow('Project directory "/nonexistent/project" does not exist!');
-    });
-
-    it('should throw error when project slug cannot be determined', async () => {
-        getMrtConfig.mockReturnValue({
-            defaultMrtProject: '',
-            defaultMrtTarget: 'staging' as string | undefined,
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/nonexistent/project',
+                project: 'my-project',
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'error').mockImplementation((msg: any) => {
+            throw new Error(msg);
         });
 
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
+        await expect(cmdAny.run()).rejects.toThrow('does not exist');
+    });
+
+    it('should error if build directory does not exist', async () => {
+        // First call (project dir) returns true, second call (build dir) returns false
+        (fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
+
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                'build-directory': '/nonexistent/build',
+                project: 'my-project',
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'error').mockImplementation((msg: any) => {
+            throw new Error(msg);
+        });
+
+        await expect(cmdAny.run()).rejects.toThrow('does not exist');
+    });
+
+    it('should error if wait is true but no environment specified', async () => {
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as {
+            run: () => Promise<void>;
+            resolvedConfig: { values: { mrtProject: string; mrtEnvironment: undefined } };
         };
 
-        await expect(push(options)).rejects.toThrow(
-            'Project slug could not be determined from CLI, .env, or package.json'
+        // Override resolvedConfig to have no mrtEnvironment
+        cmdAny.resolvedConfig = {
+            values: {
+                mrtProject: 'test-project',
+                mrtEnvironment: undefined,
+            },
+        };
+
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                project: 'my-project',
+                environment: undefined,
+                wait: true,
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'error').mockImplementation((msg: any) => {
+            throw new Error(msg);
+        });
+
+        await expect(cmdAny.run()).rejects.toThrow('target environment');
+    });
+
+    it('should require MRT credentials before push', async () => {
+        mockRequireMrtCredentials.mockImplementationOnce(() => {
+            throw new Error('MRT API key is required');
+        });
+
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
+
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                project: 'my-project',
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'error').mockImplementation((msg: any) => {
+            throw new Error(msg);
+        });
+
+        await expect(cmdAny.run()).rejects.toThrow('MRT API key is required');
+    });
+
+    it('should error if project slug is not provided', async () => {
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as {
+            run: () => Promise<void>;
+            resolvedConfig: { values: { mrtProject: undefined; mrtEnvironment: undefined } };
+        };
+
+        // Override resolvedConfig to have no mrtProject
+        cmdAny.resolvedConfig = {
+            values: {
+                mrtProject: undefined,
+                mrtEnvironment: undefined,
+            },
+        };
+
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                project: undefined,
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'error').mockImplementation((msg: any) => {
+            throw new Error(msg);
+        });
+
+        await expect(cmdAny.run()).rejects.toThrow('Project slug is required');
+    });
+
+    it('should wait for deployment when wait flag is true', async () => {
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
+
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                project: 'my-project',
+                environment: 'staging',
+                wait: true,
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+
+        await cmdAny.run();
+
+        expect(mockWaitForEnv).toHaveBeenCalledWith(
+            expect.objectContaining({
+                projectSlug: 'my-project',
+                slug: 'staging',
+            }),
+            expect.anything()
         );
     });
 
-    it('should throw error when build directory does not exist', async () => {
-        (fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValueOnce(true).mockReturnValueOnce(false);
+    it('should support deprecated --project-slug and --target flags', async () => {
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
 
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-        };
-
-        await expect(push(options)).rejects.toThrow('Build directory "/test/build" does not exist!');
-    });
-
-    it('should display warnings from API response', async () => {
-        // First, we need to reset the module to get a fresh mock with warnings
-        vi.resetModules();
-        mockCloudAPIInstances = [];
-
-        // Re-mock with warnings
-        vi.doMock('../cloud-api', () => ({
-            CloudAPIClient: class MockCloudAPIClient {
-                push = vi.fn(() =>
-                    Promise.resolve<CloudAPIResponse>({
-                        url: 'https://example.com/bundle',
-                        warnings: ['Warning 1', 'Warning 2'],
-                    })
-                );
-                waitForDeploy = vi.fn(() => Promise.resolve());
-                constructor() {
-                    mockCloudAPIInstances.push(this);
-                }
+        const warnSpy = vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                'project-slug': 'legacy-project',
+                target: 'legacy-target',
+                wait: false,
             },
-        }));
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
 
-        // Re-import with fresh mocks
-        const { push: freshPush } = await import('./push');
-        const loggerModule = await import('../utils/logger');
-        const freshWarn = loggerModule.warn as ReturnType<typeof vi.fn>;
+        await cmdAny.run();
 
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-        };
-
-        await freshPush(options);
-
-        // warnings.forEach(warn) passes index and array as additional parameters
-        expect(freshWarn).toHaveBeenNthCalledWith(1, 'Warning 1', 0, ['Warning 1', 'Warning 2']);
-        expect(freshWarn).toHaveBeenNthCalledWith(2, 'Warning 2', 1, ['Warning 1', 'Warning 2']);
+        expect(warnSpy).toHaveBeenCalledWith('Flag --project-slug is deprecated. Use --project instead.');
+        expect(warnSpy).toHaveBeenCalledWith('Flag --target is deprecated. Use --environment instead.');
+        expect(mockCreateBundle).toHaveBeenCalledWith(expect.objectContaining({ projectSlug: 'legacy-project' }));
+        expect(mockUploadBundle).toHaveBeenCalledWith(
+            expect.anything(),
+            'legacy-project',
+            expect.anything(),
+            'legacy-target'
+        );
     });
 
-    it('should use custom cloud origin when provided', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            cloudOrigin: 'https://custom-cloud.example.com',
-        };
+    it('should fall back to MRT_PROJECT and MRT_TARGET env vars (via oclif default)', async () => {
+        // SDK 0.5.2+ resolves MRT_PROJECT/MRT_TARGET via oclif flag defaults,
+        // so they appear in flags.project/flags.environment after parsing
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
 
-        await push(options);
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                project: 'env-project',
+                environment: 'env-target',
+                wait: false,
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
 
-        expect(info).toHaveBeenCalledWith('Beginning upload to https://custom-cloud.example.com');
+        await cmdAny.run();
+
+        expect(mockCreateBundle).toHaveBeenCalledWith(expect.objectContaining({ projectSlug: 'env-project' }));
+        expect(mockUploadBundle).toHaveBeenCalledWith(
+            expect.anything(),
+            'env-project',
+            expect.anything(),
+            'env-target'
+        );
+        expect(process.env.DEPLOY_TARGET).toBe('env-target');
     });
 
-    it('should set DEPLOY_TARGET environment variable when target is provided', async () => {
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-            target: 'production',
-        };
+    it('should prefer canonical flags over deprecated aliases', async () => {
+        const cmd = new Push([], {} as never);
+        const cmdAny = cmd as unknown as { run: () => Promise<void> };
 
-        await push(options);
+        const warnSpy = vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'parse').mockResolvedValue({
+            flags: {
+                'project-directory': '/test/project',
+                project: 'canonical-project',
+                'project-slug': 'legacy-project',
+                environment: 'canonical-env',
+                target: 'legacy-env',
+                wait: false,
+            },
+            args: {},
+            argv: [],
+            raw: [],
+            metadata: {},
+        });
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
 
-        expect(process.env.DEPLOY_TARGET).toBe('production');
+        await cmdAny.run();
+
+        // Deprecated flags still warn
+        expect(warnSpy).toHaveBeenCalledWith('Flag --project-slug is deprecated. Use --project instead.');
+        expect(warnSpy).toHaveBeenCalledWith('Flag --target is deprecated. Use --environment instead.');
+        // Canonical flags win over deprecated aliases
+        expect(mockCreateBundle).toHaveBeenCalledWith(expect.objectContaining({ projectSlug: 'canonical-project' }));
+        expect(mockUploadBundle).toHaveBeenCalledWith(
+            expect.anything(),
+            'canonical-project',
+            expect.anything(),
+            'canonical-env'
+        );
     });
 
-    it('should rethrow errors after logging them', async () => {
-        const testError = new Error('Test error');
-        (createBundle as ReturnType<typeof vi.fn>).mockRejectedValueOnce(testError);
+    it('should skip cartridge deployment when B2C config is missing', async () => {
+        const cmd = new Push([], {} as never);
+        const warnSpy = vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
 
-        const options: PushOptions = {
-            projectDirectory: '/test/project',
-        };
+        mockResolveConfig.mockReturnValue({
+            hasB2CInstanceConfig: () => false,
+            values: {},
+        });
 
-        await expect(push(options)).rejects.toThrow('Test error');
-        expect(error).toHaveBeenCalledWith('Test error');
+        await (cmd as any).generateAndDeployCartridge('/test/project');
+
+        expect(warnSpy).toHaveBeenCalledWith('B2C instance not configured, skipping cartridge deployment');
+        expect(mockUploadCartridges).not.toHaveBeenCalled();
+    });
+
+    it('should skip cartridge deployment when code version is missing', async () => {
+        const cmd = new Push([], {} as never);
+        const warnSpy = vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
+
+        mockResolveConfig.mockReturnValue({
+            hasB2CInstanceConfig: () => true,
+            values: {
+                codeVersion: undefined,
+            },
+            createB2CInstance: vi.fn(() => ({})),
+        });
+
+        await (cmd as any).generateAndDeployCartridge('/test/project');
+
+        expect(warnSpy).toHaveBeenCalledWith('Code version not configured, skipping cartridge deployment');
+        expect(mockUploadCartridges).not.toHaveBeenCalled();
+    });
+
+    it('should generate and upload cartridges when B2C config is complete', async () => {
+        const cmd = new Push([], {} as never);
+        vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
+
+        const instance = { id: 'instance' };
+        mockResolveConfig.mockReturnValue({
+            hasB2CInstanceConfig: () => true,
+            values: {
+                codeVersion: 'test-version',
+            },
+            createB2CInstance: vi.fn(() => instance),
+        });
+
+        await (cmd as any).generateAndDeployCartridge('/test/project');
+
+        expect(mockGenerateMetadata).toHaveBeenCalledWith(
+            '/test/project',
+            path.join('/test/project', 'cartridges', 'app_storefrontnext_base', 'cartridge', 'experience')
+        );
+        expect(mockUploadCartridges).toHaveBeenCalledWith(instance, [
+            {
+                name: 'app_storefrontnext_base',
+                src: path.join('/test/project', 'cartridges', 'app_storefrontnext_base'),
+                dest: 'app_storefrontnext_base',
+            },
+        ]);
+    });
+
+    it('should create metadata directory when it is missing', async () => {
+        const cmd = new Push([], {} as never);
+        vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
+
+        (fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValueOnce(false);
+        mockResolveConfig.mockReturnValue({
+            hasB2CInstanceConfig: () => false,
+            values: {},
+        });
+
+        await (cmd as any).generateAndDeployCartridge('/test/project');
+
+        expect(fs.mkdirSync).toHaveBeenCalledWith(
+            path.join('/test/project', 'cartridges', 'app_storefrontnext_base', 'cartridge', 'experience'),
+            { recursive: true }
+        );
+    });
+
+    it('should warn and continue when cartridge generation throws', async () => {
+        const cmd = new Push([], {} as never);
+        const warnSpy = vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
+        vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
+
+        mockGenerateMetadata.mockRejectedValueOnce(new Error('generation failed'));
+
+        await (cmd as any).generateAndDeployCartridge('/test/project');
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('Failed to generate or deploy cartridge: generation failed')
+        );
     });
 });

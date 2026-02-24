@@ -19,11 +19,6 @@ export { storefrontNextTargets as default, type StorefrontNextTargetsConfig } fr
 // Named export: Transform target placeholder components (UITarget & TargetProviders)
 export { transformTargetPlaceholderPlugin } from './plugins/transformTargets';
 
-// Named export: Push function for programmatic usage
-// For better tree-shaking, import from './commands/push' subpath export instead
-export { push } from './commands/push';
-export type { PushOptions } from './types';
-
 // Server factory for production use
 export { createServer, loadProjectConfig, loadConfigFromEnv } from './server/index';
 

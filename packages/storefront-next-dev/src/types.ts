@@ -20,11 +20,6 @@ export type FilePatterns = string[];
 // Encoding type for bundle data
 export type BundleEncoding = 'base64';
 
-export interface Credentials {
-    username: string;
-    api_key: string;
-}
-
 // Bundle configuration (internal format - camelCase)
 export interface BundleConfig {
     ssrParameters?: SSRParameters;
@@ -34,6 +29,7 @@ export interface BundleConfig {
 
 export interface BundleMetadata {
     dependencies: DependencyRecord;
+    [key: string]: unknown;
 }
 
 // Bundle format (API format - snake_case to match external API)
@@ -45,25 +41,6 @@ export interface Bundle {
     ssr_only: FilePatterns;
     ssr_shared: FilePatterns;
     bundle_metadata: BundleMetadata;
-}
-
-export interface PushOptions {
-    projectDirectory: string;
-    buildDirectory?: string;
-    message?: string;
-    projectSlug?: string;
-    target?: string;
-    cloudOrigin?: string;
-    credentialsFile?: string;
-    user?: string;
-    key?: string;
-    wait?: boolean;
-}
-
-export interface CloudAPIResponse {
-    url?: string;
-    warnings?: string[];
-    state?: string;
 }
 
 export interface ProjectPackage {

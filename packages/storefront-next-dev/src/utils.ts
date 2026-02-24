@@ -19,10 +19,7 @@ import fs from 'fs-extra';
 import { execSync } from 'child_process';
 import dotenv from 'dotenv';
 import { warn, debug } from './utils/logger';
-import type { Credentials, ProjectPackage, DependencyTree, DependencyRecord } from './types';
-
-// Configuration
-export const DEFAULT_CLOUD_ORIGIN = 'https://cloud.mobify.com';
+import type { ProjectPackage, DependencyTree, DependencyRecord } from './types';
 
 export const getDefaultBuildDir = (targetDir: string) => path.join(targetDir, 'build');
 
@@ -43,39 +40,6 @@ export const isProduction = () => NODE_ENV === 'production';
  * Check if running in development mode
  */
 export const isDevelopment = () => NODE_ENV === 'development';
-
-/**
- * Get credentials file path based on cloud origin
- */
-export const getCredentialsFile = (cloudOrigin: string, credentialsFile?: string): string => {
-    if (credentialsFile) {
-        return credentialsFile;
-    }
-
-    const url = new URL(cloudOrigin);
-    const host = url.host;
-    const suffix = host === 'cloud.mobify.com' ? '' : `--${host}`;
-    return path.join(os.homedir(), `.mobify${suffix}`);
-};
-
-/**
- * Read credentials from file
- */
-export const readCredentials = async (filepath: string): Promise<Credentials> => {
-    try {
-        const data = await fs.readJSON(filepath);
-        return {
-            username: data.username,
-            api_key: data.api_key,
-        };
-    } catch {
-        throw new Error(
-            `Credentials file "${filepath}" not found.\n` +
-                'Visit https://runtime.commercecloud.com/account/settings for ' +
-                'steps on authorizing your computer to push bundles.'
-        );
-    }
-};
 
 /**
  * Get project package.json

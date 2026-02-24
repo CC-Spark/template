@@ -23,7 +23,7 @@ export default defineConfig([
         clean: true,
         // Don't bundle dependencies - they should be installed by consumers
         external: [/node_modules/],
-        hash: false
+        hash: false,
     },
     // 2. React Router Scripts component
     {
@@ -36,7 +36,7 @@ export default defineConfig([
         outDir: 'dist/react-router',
         clean: false,
         external: [/node_modules/],
-        hash: false
+        hash: false,
     },
     // 3a. MRT SSR server build
     {
@@ -108,7 +108,7 @@ export default defineConfig([
         outDir: 'dist/configs',
         clean: false,
         external: [/node_modules/],
-        hash: false
+        hash: false,
     },
     // 5. Cartridge services API
     {
@@ -122,19 +122,31 @@ export default defineConfig([
         outDir: 'dist/cartridge-services',
         clean: false,
         external: [/node_modules/],
-        hash: false
+        hash: false,
     },
-    // 6. CLI build (with shebang)
+    // 6. oclif commands build
     {
         entry: {
-            cli: 'src/cli.ts',
+            // Top-level commands
+            'commands/create-storefront': 'src/commands/create-storefront.ts',
+            'commands/create-instructions': 'src/commands/create-instructions.ts',
+            'commands/dev': 'src/commands/dev.ts',
+            'commands/preview': 'src/commands/preview.ts',
+            'commands/prepare-local': 'src/commands/prepare-local.ts',
+            // Legacy CLI commands (root level)
+            'commands/push': 'src/commands/push.ts',
+            'commands/create-bundle': 'src/commands/create-bundle.ts',
+            'commands/generate-cartridge': 'src/commands/generate-cartridge.ts',
+            'commands/deploy-cartridge': 'src/commands/deploy-cartridge.ts',
+            // Extensions commands
+            'commands/extensions/list': 'src/commands/extensions/list.ts',
+            'commands/extensions/install': 'src/commands/extensions/install.ts',
+            'commands/extensions/remove': 'src/commands/extensions/remove.ts',
+            'commands/extensions/create': 'src/commands/extensions/create.ts',
         },
         platform: 'node',
         target: 'node24',
         format: ['esm'],
-        banner: {
-            js: '#!/usr/bin/env node',
-        },
         minify: false,
         dts: false,
         outDir: 'dist',
@@ -146,6 +158,6 @@ export default defineConfig([
         ],
         clean: false,
         external: [/node_modules/],
-        hash: false
+        hash: false,
     },
 ]);

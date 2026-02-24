@@ -71,6 +71,7 @@ export default {
 ### CLI Commands
 
 #### Create storefront
+
 ```bash
 # Create storefront
 pnpm dlx @salesforce/storefront-next-dev create-storefront
@@ -80,19 +81,19 @@ pnpm dlx @salesforce/storefront-next-dev create-storefront
 
 ```bash
 # Push bundle
-pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment
+pnpm sfnext push --project-directory /path/to/your/project --project mrt-project-id --environment mrt-target-environment
 
 # Push bundle and wait for deployment
-pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment --wait
+pnpm sfnext push --project-directory /path/to/your/project --project mrt-project-id --environment mrt-target-environment --wait
 
 # Push with custom message
-pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id --target mrt-target-environment --message "Release v1.2.3"
+pnpm sfnext push --project-directory /path/to/your/project --project mrt-project-id --environment mrt-target-environment --message "Release v1.2.3"
 
 # Push without deployment (upload only)
-pnpm sfnext push --project-directory /path/to/your/project --project-slug mrt-project-id
+pnpm sfnext push --project-directory /path/to/your/project --project mrt-project-id
 
 # With custom build directory
-pnpm sfnext push --project-directory /path/to/your/project --build-directory /custom/build/path --project-slug mrt-project-id --target mrt-target-environment
+pnpm sfnext push --project-directory /path/to/your/project --build-directory /custom/build/path --project mrt-project-id --environment mrt-target-environment
 ```
 
 #### Generate extension instructions
@@ -110,14 +111,7 @@ pnpm sfnext generate-cartridge --project-directory /path/to/your/project
 
 # Deploy generated metadata to Commerce Cloud (uses dw.json for all settings)
 pnpm sfnext deploy-cartridge --project-directory /path/to/your/project
-
-# Deploy cartridge to Commerce Cloud (uses dw.json for all settings)
-pnpm sfnext deploy-cartridge my-cartridge.zip
-
-# Deploy with both custom instance and version
-pnpm sfnext deploy-cartridge my-cartridge.zip -i yourCommerceInstance -v custom-version
 ```
-
 
 ## CLI Options
 
@@ -127,31 +121,40 @@ Run `pnpm sfnext push --help` to see all available options:
 
 - `-b, --build-directory <dir>`: Build directory to push (default: auto-detected)
 - `-m, --message <message>`: Bundle message (default: git branch:commit)
-- `-s, --project-slug <slug>`: Project slug - the unique identifier for your project on Managed Runtime (required)
-- `-t, --target <target>`: Deploy target environment on Managed Runtime
+- `-p, --project <slug>`: Project slug - the unique identifier for your project on Managed Runtime
+- `-e, --environment <target>`: Deploy target environment on Managed Runtime
 - `-w, --wait`: Wait for deployment to complete
 - `--cloud-origin <origin>`: API origin (default: https://cloud.mobify.com)
-- `-c, --credentials-file <file>`: Credentials file location
-- `-u, --user <email>`: User email for Managed Runtime
-- `-k, --key <api-key>`: API key for Managed Runtime
+- `--credentials-file <file>`: Credentials file location
+- `--api-key <api-key>`: MRT API key
+
+Backward compatibility:
+
+- `--project-slug` is supported as a deprecated alias for `--project`
+- `--target` is supported as a deprecated alias for `--environment`
+- `MRT_PROJECT` and `MRT_TARGET` are supported as fallback env vars for `project` and `environment`
 
 #### Manage extensions
 
 Run `pnpm sfnext extensions list` to view the list of installed extensions
+
 - `-d, --project-directory`: Target project directory (default: current directory)
 
 Run `pnpm sfnext extensions install` to install a new extension
+
 - `-d, --project-directory`: Target project directory (default: current directory)
 - `-e, --extension`: Extension marker value (e.g. SFDC_EXT_STORE_LOCATOR)
 - `-s, --source-git-url`: Git URL of the source template project (default: "https://github.com/SalesforceCommerceCloud/storefront-next-template.git")
 - `-v, --verbose`: Verbose mode
 
 Run `pnpm sfnext extensions remove` to remove existing extensions
+
 - `-d, --project-directory`: Target project directory (default: current directory)
 - `-e, --extensions`: Comma-separated list of extension marker values (e.g. SFDC_EXT_STORE_LOCATOR,SFDC_EXT_INTERNAL_THEME_SWITCHER)
 - `-v, --verbose`: Verbose mode
 
 Run `pnpm sfnext extensions create` to create a new extension scaffolding
+
 - `-p, --project-directory`: Target project directory (default: current directory)
 - `-n, --name`: New extension name (e.g., Store Locator)
 - `-d, --description`: Description for the extension
@@ -205,34 +208,35 @@ Response streaming is enabled by default for bundles pushed to MRT. To change th
 
 ### Deploy Cartridge Command Authentication
 
-For cartridge deployment to Commerce Cloud, you need to configure credentials in `dw.json`:
+For cartridge deployment to Commerce Cloud, configure B2C settings in `dw.json` (or pass flags directly):
 
-1. **dw.json file** (required): Create a `dw.json` file in the **storefront-next-dev package directory** with:
-   ```json
-   {
-     "username": "your-username@salesforce.com",
-     "password": "your-web-access-key",
-     "hostname": "your-instance.dx.commercecloud.salesforce.com",
-     "code-version": "code-version-from-instance-BM"
-   }
-   ```
+1. **dw.json file** (recommended):
 
-2. **Authentication**: The tool will automatically read username, password, hostname, and code-version from `dw.json` in the storefront-next-dev directory and use Basic Authentication
+    ```json
+    {
+        "username": "your-username@salesforce.com",
+        "password": "your-web-access-key",
+        "hostname": "your-instance.dx.commercecloud.salesforce.com",
+        "code-version": "code-version-from-instance-BM"
+    }
+    ```
+
+2. **Authentication**: `sfnext deploy-cartridge` resolves instance settings from SDK config sources (`dw.json`, env vars, flags, instance selection) and supports WebDAV basic auth or OAuth credentials.
 
 ### Cartridge Commands
 
 The cartridge commands are independent tools for working with Commerce Cloud metadata:
 
 **Generate Cartridge**: `generate-cartridge` scans your project for decorated components and creates metadata files
+
 - Scans `src/` directory for `@Component`, `@PageType`, and `@Aspect` decorators
 - Generates JSON metadata files in `cartridge/cartridge/experience/` directory
 - Creates separate files for components, page types, and aspects
 
 **Deploy Metadata**: `deploy-cartridge` uploads metadata directories to Commerce Cloud
-- ZIP Creation: Automatically creates a ZIP archive from the metadata directory
-- Upload: Uploads the ZIP file to Commerce Cloud using WebDAV PUT
-- Unzip: Extracts the ZIP contents on the server using WebDAV POST
-- Cleanup: Deletes the temporary ZIP file from the server using WebDAV DELETE
+
+- Uploads mapped cartridges through `@salesforce/b2c-tooling-sdk`
+- Uses the configured code version and credentials from resolved SDK config
 
 **Automatic Cartridge Generation and Deployment on Push**
 
@@ -251,14 +255,17 @@ export const GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH = true; // Set to true to
 **Default:** `false` (manual cartridge generation/deployment via `sfnext generate-cartridge` and `sfnext deploy-cartridge`)
 
 **Prerequisites:**
-- A valid `dw.json` file must be present in the storefront-next-dev package directory with Commerce Cloud credentials (see "Deploy Cartridge Command Authentication" section above)
+
+- A valid B2C configuration must be available via SDK config resolution (for example `dw.json`, env vars, or CLI flags)
 
 When enabled, before each `pnpm sfnext push` command:
+
 1. Cartridge metadata will be automatically generated from decorated components
 2. The cartridge will be automatically deployed to Commerce Cloud
 3. The MRT push will proceed as normal
 
 If generation or deployment fails:
+
 - A warning is displayed with manual command suggestions
 - The MRT push still succeeds (cartridge errors don't block deployments)
 
@@ -279,7 +286,7 @@ Set up credentials in one of these ways:
     }
     ```
 
-2. **Command line flags**: Use `--user` and `--key` options (see CLI Options section)
+2. **Command line flags**: Use `--api-key` and optionally `--credentials-file` (see CLI Options section)
 
 Get your credentials at: https://runtime.commercecloud.com/account/settings
 

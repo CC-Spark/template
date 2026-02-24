@@ -13,107 +13,140 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { Flags } from '@oclif/core';
+import { MrtCommand } from '@salesforce/b2c-tooling-sdk/cli';
 import fs from 'fs-extra';
 import { createBundle } from '../bundle';
-import { CloudAPIClient } from '../cloud-api';
-import { buildMrtConfig } from '../config';
 import {
-    DEFAULT_CLOUD_ORIGIN,
-    getDefaultBuildDir,
-    getCredentialsFile,
-    readCredentials,
-    getMrtConfig,
-    getDefaultMessage,
-} from '../utils';
-import { info, success, warn, error, debug } from '../utils/logger';
-import type { PushOptions } from '../types';
+    buildMrtConfig,
+    CARTRIDGES_BASE_DIR,
+    SFNEXT_BASE_CARTRIDGE_NAME,
+    SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR,
+    GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH,
+} from '../config';
+import { getDefaultBuildDir, getDefaultMessage } from '../utils';
+import { generateMetadata } from '../cartridge-services/generate-cartridge';
+import { resolveConfig } from '@salesforce/b2c-tooling-sdk/config';
+import { uploadCartridges, type CartridgeMapping } from '@salesforce/b2c-tooling-sdk/operations/code';
+import { uploadBundle, waitForEnv } from '@salesforce/b2c-tooling-sdk/operations/mrt';
+import { createMrtClient, DEFAULT_MRT_ORIGIN } from '@salesforce/b2c-tooling-sdk/clients';
+import path from 'path';
 
 /**
- * Main function to push bundle to Managed Runtime
+ * MRT Push command - builds and pushes bundle to Managed Runtime.
+ *
+ * Inherits MRT flags from MrtCommand:
+ * - --api-key: MRT API key (env: SFCC_MRT_API_KEY)
+ * - --project/-p: MRT project slug (env: SFCC_MRT_PROJECT)
+ * - --environment/-e: MRT target environment (env: SFCC_MRT_ENVIRONMENT)
+ * - --cloud-origin: MRT cloud origin URL (env: SFCC_MRT_CLOUD_ORIGIN)
+ * - --credentials-file: Path to MRT credentials file (env: MRT_CREDENTIALS_FILE)
+ * - --config: Path to dw.json config file (env: SFCC_CONFIG)
+ * - --instance/-i: Named instance from config (env: SFCC_INSTANCE)
  */
-export async function push(options: PushOptions): Promise<void> {
-    // Get MRT configuration early for validation
-    const mrtConfig = getMrtConfig(options.projectDirectory);
-    const resolvedTarget = options.target ?? mrtConfig.defaultMrtTarget;
+export default class Push extends MrtCommand<typeof Push> {
+    static description = 'Build and push bundle to Managed Runtime';
 
-    // Input validation (fail fast - don't catch these)
-    if (options.wait && !resolvedTarget) {
-        throw new Error(
-            'You must provide a target to deploy to when using --wait (via --target flag or .env MRT_TARGET)'
-        );
-    }
+    static examples = [
+        '<%= config.bin %> <%= command.id %>',
+        '<%= config.bin %> <%= command.id %> --project-directory ./my-project',
+        '<%= config.bin %> <%= command.id %> --project my-project --environment staging',
+        '<%= config.bin %> <%= command.id %> --wait',
+    ];
 
-    if ((options.user && !options.key) || (!options.user && options.key)) {
-        throw new Error('You must provide both --user and --key together, or neither');
-    }
+    static flags = {
+        ...MrtCommand.baseFlags,
+        'build-directory': Flags.string({
+            char: 'b',
+            description: 'Build directory to push (default: auto-detected)',
+        }),
+        message: Flags.string({
+            char: 'm',
+            description: 'Bundle message (default: git branch:commit)',
+        }),
+        wait: Flags.boolean({
+            char: 'w',
+            description: 'Wait for deployment to complete',
+            default: false,
+        }),
+        'project-slug': Flags.string({
+            char: 's',
+            description: 'DEPRECATED: Use --project instead',
+            hidden: true,
+        }),
+        target: Flags.string({
+            char: 't',
+            description: 'DEPRECATED: Use --environment instead',
+            hidden: true,
+        }),
+    };
 
-    // Validate project directory exists
-    if (!fs.existsSync(options.projectDirectory)) {
-        throw new Error(`Project directory "${options.projectDirectory}" does not exist!`);
-    }
+    async run(): Promise<void> {
+        const { flags } = await this.parse(Push);
+        const projectDirectory = flags['project-directory'] || process.cwd();
 
-    // Get project slug: CLI option -> .env -> package.json name
-    const projectSlug = options.projectSlug ?? mrtConfig.defaultMrtProject;
-    if (!projectSlug || projectSlug.trim() === '') {
-        throw new Error('Project slug could not be determined from CLI, .env, or package.json');
-    }
+        // Deprecated alias handling
+        if (flags['project-slug']) {
+            this.warn('Flag --project-slug is deprecated. Use --project instead.');
+        }
+        if (flags.target) {
+            this.warn('Flag --target is deprecated. Use --environment instead.');
+        }
 
-    // Use the resolved target from validation
-    const target = resolvedTarget;
+        // Precedence (via oclif + SDK): CLI flag > SFCC_* env > MRT_* legacy env > dw.json
+        // flags.environment includes all oclif-resolved sources; resolvedConfig adds dw.json
+        const target = flags.environment || flags.target || this.resolvedConfig.values.mrtEnvironment;
 
-    // Set default build directory and validate it exists
-    const buildDirectory = options.buildDirectory ?? getDefaultBuildDir(options.projectDirectory);
-    if (!fs.existsSync(buildDirectory)) {
-        throw new Error(`Build directory "${buildDirectory}" does not exist!`);
-    }
+        // Input validation
+        if (flags.wait && !target) {
+            this.error(
+                'You must provide a target environment when using --wait (via --environment flag, SFCC_MRT_ENVIRONMENT env var, or dw.json)'
+            );
+        }
 
-    try {
+        // Validate project directory exists
+        if (!fs.existsSync(projectDirectory)) {
+            this.error(`Project directory "${projectDirectory}" does not exist!`);
+        }
+
+        // Precedence (via oclif + SDK): CLI flag > SFCC_* env > MRT_* legacy env > dw.json
+        const projectSlug = flags.project || flags['project-slug'] || this.resolvedConfig.values.mrtProject;
+        if (!projectSlug || projectSlug.trim() === '') {
+            this.error(
+                'Project slug is required. Provide --project, set SFCC_MRT_PROJECT env var, or configure mrtProject in dw.json'
+            );
+        }
+
+        // Set default build directory and validate it exists
+        const buildDirectory = flags['build-directory'] ?? getDefaultBuildDir(projectDirectory);
+        if (!fs.existsSync(buildDirectory)) {
+            this.error(`Build directory "${buildDirectory}" does not exist!`);
+        }
+
+        // Optionally generate and deploy cartridge metadata before MRT push
+        if (GENERATE_AND_DEPLOY_CARTRIDGE_ON_MRT_PUSH) {
+            await this.generateAndDeployCartridge(projectDirectory);
+        }
+
         // Set deployment target environment variable
         if (target) {
             process.env.DEPLOY_TARGET = target;
         }
 
-        // Get credentials
-        let credentials;
-        if (options.user && options.key) {
-            credentials = {
-                username: options.user,
-                api_key: options.key,
-            };
-        } else {
-            const credentialsPath = getCredentialsFile(
-                options.cloudOrigin ?? DEFAULT_CLOUD_ORIGIN,
-                options.credentialsFile
-            );
-            credentials = await readCredentials(credentialsPath);
-        }
+        // Require MRT credentials (API key from --api-key, env var, or credentials file)
+        this.requireMrtCredentials();
 
         // Build SSR configuration for MRT bundle
-        const config = buildMrtConfig(buildDirectory, options.projectDirectory);
+        const config = buildMrtConfig(buildDirectory, projectDirectory);
 
         // Set default message
-        const message = options.message ?? getDefaultMessage(options.projectDirectory);
+        const message = flags.message ?? getDefaultMessage(projectDirectory);
 
-        info(`Creating bundle for project: ${projectSlug}`);
-        if (options.projectSlug) {
-            debug('Using project slug from CLI argument');
-        } else if (process.env.MRT_PROJECT) {
-            debug('Using project slug from .env MRT_PROJECT');
-        } else {
-            debug('Using project slug from package.json name');
-        }
+        this.log(`Creating bundle for project: ${projectSlug}`);
         if (target) {
-            info(`Target environment: ${target}`);
-            if (options.target) {
-                debug('Using target from CLI argument');
-            } else {
-                debug('Using target from .env');
-            }
+            this.log(`Target environment: ${target}`);
         }
-
-        // Debug: Log configuration arrays for troubleshooting
-        debug('SSR shared files', config.ssrShared);
-        debug('SSR only files', config.ssrOnly);
 
         // Create bundle
         const bundle = await createBundle({
@@ -122,42 +155,83 @@ export async function push(options: PushOptions): Promise<void> {
             ssr_only: config.ssrOnly,
             ssr_shared: config.ssrShared,
             buildDirectory,
-            projectDirectory: options.projectDirectory,
+            projectDirectory,
             projectSlug,
         });
 
-        // Create API client and push
-        const client = new CloudAPIClient({
-            credentials,
-            origin: options.cloudOrigin ?? DEFAULT_CLOUD_ORIGIN,
-        });
+        // Create MRT client and upload bundle
+        const origin = this.resolvedConfig.values.mrtOrigin || DEFAULT_MRT_ORIGIN;
+        const client = createMrtClient({ origin }, this.getMrtAuth());
 
-        info(`Beginning upload to ${options.cloudOrigin ?? DEFAULT_CLOUD_ORIGIN}`);
-        const data = await client.push(bundle, projectSlug, target);
+        this.log(`Beginning upload to ${origin}`);
+        const result = await uploadBundle(client, projectSlug, bundle, target);
 
-        // Debug: Log API response for troubleshooting
-        debug('API response', data);
-
-        // Handle warnings
-        const warnings = data.warnings || [];
-        warnings.forEach(warn);
-
-        if (options.wait && target) {
-            success('Bundle uploaded - waiting for deployment to complete');
-            await client.waitForDeploy(projectSlug, target);
-            success('Deployment complete!');
+        if (flags.wait && target) {
+            this.log('Bundle uploaded - waiting for deployment to complete');
+            await waitForEnv(
+                {
+                    projectSlug,
+                    slug: target,
+                    origin,
+                },
+                this.getMrtAuth()
+            );
+            this.log('Deployment complete!');
         } else {
-            success('Bundle uploaded successfully!');
+            this.log('Bundle uploaded successfully!');
         }
 
-        if (data.url) {
-            info(`Bundle URL: ${data.url}`);
+        this.log(`Bundle ID: ${result.bundleId}`);
+    }
+
+    /**
+     * Generate and deploy cartridge metadata to B2C instance.
+     * This is a pre-MRT-push step that ensures Page Designer metadata is current.
+     */
+    private async generateAndDeployCartridge(projectDirectory: string): Promise<void> {
+        const metadataDir = path.join(projectDirectory, CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR);
+
+        try {
+            this.log('Generating cartridge metadata before MRT push...');
+
+            // Ensure the metadata directory exists
+            if (!fs.existsSync(metadataDir)) {
+                fs.mkdirSync(metadataDir, { recursive: true });
+            }
+
+            await generateMetadata(projectDirectory, metadataDir);
+            this.log('Cartridge metadata generated successfully!');
+
+            this.log('Deploying cartridge to Commerce Cloud...');
+
+            // Resolve B2C instance config (separate from MRT config)
+            const b2cConfig = resolveConfig({}, { workingDirectory: projectDirectory });
+
+            if (!b2cConfig.hasB2CInstanceConfig()) {
+                this.warn('B2C instance not configured, skipping cartridge deployment');
+                return;
+            }
+
+            if (!b2cConfig.values.codeVersion) {
+                this.warn('Code version not configured, skipping cartridge deployment');
+                return;
+            }
+
+            const instance = b2cConfig.createB2CInstance();
+            const cartridgeSrc = path.join(projectDirectory, CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_NAME);
+            const cartridges: CartridgeMapping[] = [
+                {
+                    name: SFNEXT_BASE_CARTRIDGE_NAME,
+                    src: cartridgeSrc,
+                    dest: SFNEXT_BASE_CARTRIDGE_NAME,
+                },
+            ];
+
+            await uploadCartridges(instance, cartridges);
+            this.log('Cartridge deployed successfully!');
+        } catch (cartridgeError) {
+            // Don't fail the push if cartridge generation/deployment fails
+            this.warn(`Failed to generate or deploy cartridge: ${(cartridgeError as Error).message}`);
         }
-    } catch (err) {
-        error((err as Error).message || err?.toString() || 'Unknown error');
-        throw err;
     }
 }
-
-// Export types
-export type { PushOptions } from '../types';

@@ -14,97 +14,54 @@
  * limitations under the License.
  */
 
-import fs from 'fs-extra';
-import path from 'path';
-import zlib from 'zlib';
-import { promisify } from 'util';
-import { createBundle } from '../bundle';
-import { buildMrtConfig } from '../config';
-import { getDefaultBuildDir, getMrtConfig, getDefaultMessage } from '../utils';
-import { info, success } from '../utils/logger';
-
-const gzip = promisify(zlib.gzip);
-
-export interface CreateBundleOptions {
-    projectDirectory: string;
-    buildDirectory?: string;
-    outputDirectory?: string;
-    message?: string;
-    projectSlug?: string;
-}
+import { Command, Flags } from '@oclif/core';
+import { createBundleCommand } from '../lib/create-bundle';
+import { commonFlags } from '../flags';
 
 /**
- * Create a bundle and save it to disk without pushing to Managed Runtime
+ * Create bundle command - creates an MRT bundle without pushing.
  */
-export async function createBundleCommand(options: CreateBundleOptions): Promise<void> {
-    // Validate project directory exists
-    if (!fs.existsSync(options.projectDirectory)) {
-        throw new Error(`Project directory "${options.projectDirectory}" does not exist!`);
-    }
+export default class Bundle extends Command {
+    static description = 'Create an MRT bundle from the build directory without pushing';
 
-    // Get MRT configuration
-    const mrtConfig = getMrtConfig(options.projectDirectory);
-    const projectSlug = options.projectSlug ?? mrtConfig.defaultMrtProject;
-    if (!projectSlug || projectSlug.trim() === '') {
-        throw new Error('Project slug could not be determined from CLI, .env, or package.json');
-    }
+    static examples = [
+        '<%= config.bin %> <%= command.id %>',
+        '<%= config.bin %> <%= command.id %> -d ./my-project',
+        '<%= config.bin %> <%= command.id %> -o ./my-bundle',
+    ];
 
-    // Set default build directory and validate it exists
-    const buildDirectory = options.buildDirectory ?? getDefaultBuildDir(options.projectDirectory);
-    if (!fs.existsSync(buildDirectory)) {
-        throw new Error(`Build directory "${buildDirectory}" does not exist!`);
-    }
-
-    // Set default output directory
-    const outputDirectory = options.outputDirectory ?? path.join(options.projectDirectory, '.bundle');
-    await fs.ensureDir(outputDirectory);
-
-    // Set default message
-    const message = options.message ?? getDefaultMessage(options.projectDirectory);
-
-    // Build SSR configuration for MRT bundle
-    const config = buildMrtConfig(buildDirectory, options.projectDirectory);
-
-    info(`Creating bundle for project: ${projectSlug}`);
-    info(`Build directory: ${buildDirectory}`);
-    info(`Output directory: ${outputDirectory}`);
-
-    // Create bundle
-    const bundle = await createBundle({
-        message,
-        ssr_parameters: config.ssrParameters,
-        ssr_only: config.ssrOnly,
-        ssr_shared: config.ssrShared,
-        buildDirectory,
-        projectDirectory: options.projectDirectory,
-        projectSlug,
-    });
-
-    // Save bundle data to files
-    const bundleTgzPath = path.join(outputDirectory, 'bundle.tgz');
-    const bundleJsonPath = path.join(outputDirectory, 'bundle.json');
-
-    // Decode base64 data and compress as tgz file
-    const bundleData = Buffer.from(bundle.data, 'base64');
-    const compressedData = await gzip(bundleData);
-    await fs.writeFile(bundleTgzPath, compressedData);
-
-    // Save bundle metadata as JSON (excluding the large base64 data)
-    const bundleMetadata = {
-        message: bundle.message,
-        encoding: bundle.encoding,
-        ssr_parameters: bundle.ssr_parameters,
-        ssr_only: bundle.ssr_only,
-        ssr_shared: bundle.ssr_shared,
-        bundle_metadata: bundle.bundle_metadata,
-        // Include data size for reference
-        data_size: bundleData.length,
+    static flags = {
+        ...commonFlags,
+        'build-directory': Flags.string({
+            char: 'b',
+            description: 'Build directory to bundle (default: auto-detected)',
+        }),
+        'output-directory': Flags.string({
+            char: 'o',
+            description: 'Output directory for bundle files (default: .bundle)',
+        }),
+        message: Flags.string({
+            char: 'm',
+            description: 'Bundle message (default: git branch:commit)',
+        }),
+        'project-slug': Flags.string({
+            char: 's',
+            description:
+                'Project slug - the unique identifier for your project on Managed Runtime (default: from .env MRT_PROJECT or package.json name)',
+        }),
     };
-    await fs.writeJson(bundleJsonPath, bundleMetadata, { spaces: 2 });
 
-    success(`Bundle created successfully!`);
-    info(`Bundle tgz file: ${bundleTgzPath}`);
-    info(`Bundle metadata: ${bundleJsonPath}`);
-    info(`Uncompressed size: ${(bundleData.length / 1024 / 1024).toFixed(2)} MB`);
-    info(`Compressed size: ${(compressedData.length / 1024 / 1024).toFixed(2)} MB`);
+    async run(): Promise<void> {
+        const { flags } = await this.parse(Bundle);
+
+        await createBundleCommand({
+            projectDirectory: flags['project-directory'],
+            buildDirectory: flags['build-directory'],
+            outputDirectory: flags['output-directory'],
+            message: flags.message,
+            projectSlug: flags['project-slug'],
+        });
+
+        this.log('Bundle created successfully!');
+    }
 }

@@ -18,11 +18,5 @@
  * Cartridge services exports for programmatic usage
  */
 
-// Deploy cartridge functionality
-export { deployCode } from './deploy-cartridge';
-
 // Generate cartridge metadata
 export { generateMetadata, type GenerateMetadataOptions, type GenerateMetadataResult } from './generate-cartridge';
-
-// Types
-export type { DeployResult } from './types';

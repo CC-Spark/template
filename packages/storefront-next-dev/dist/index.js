@@ -1,7 +1,7 @@
 import path, { basename, extname, join, resolve } from "node:path";
 import fs from "fs-extra";
 import path$1, { dirname, join as join$1, relative, resolve as resolve$1 } from "path";
-import { URL as URL$1, fileURLToPath, pathToFileURL } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { parse } from "@babel/parser";
 import { isJSXAttribute, isJSXElement, isJSXFragment, isJSXIdentifier, jsxClosingElement, jsxClosingFragment, jsxElement, jsxFragment, jsxIdentifier, jsxOpeningElement, jsxOpeningFragment, jsxText } from "@babel/types";
 import { generate } from "@babel/generator";
@@ -9,22 +9,18 @@ import traverseModule from "@babel/traverse";
 import fs$1, { existsSync, readFileSync, writeFileSync } from "fs";
 import { glob } from "glob";
 import { Node, Project, ts } from "ts-morph";
-import os from "os";
-import archiver from "archiver";
-import { Minimatch, minimatch } from "minimatch";
-import { execSync } from "child_process";
-import dotenv from "dotenv";
-import chalk from "chalk";
 import express from "express";
 import { createRequestHandler } from "@react-router/express";
 import { existsSync as existsSync$1, readFileSync as readFileSync$1, unlinkSync } from "node:fs";
 import { pathToFileURL as pathToFileURL$1 } from "node:url";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import chalk from "chalk";
 import compression from "compression";
 import zlib from "node:zlib";
 import morgan from "morgan";
+import { minimatch } from "minimatch";
 import { access, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { execSync as execSync$1 } from "node:child_process";
+import { execSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { npmRunPathEnv } from "npm-run-path";
@@ -640,8 +636,8 @@ async function scanComponents(project, projectRoot, componentPath, registryPath,
 				}
 			}
 		}
-	} catch (error$1) {
-		if (verbose$1) console.warn(`⚠️  Could not process ${filePath}:`, error$1.message);
+	} catch (error) {
+		if (verbose$1) console.warn(`⚠️  Could not process ${filePath}:`, error.message);
 	}
 	return components;
 }
@@ -706,8 +702,8 @@ export const registry = new ComponentRegistry();
 		existingContent = basicRegistryContent;
 	} else try {
 		existingContent = readFileSync(registryFilePath, "utf-8");
-	} catch (error$1) {
-		throw new Error(`Failed to read registry file: ${error$1.message}`);
+	} catch (error) {
+		throw new Error(`Failed to read registry file: ${error.message}`);
 	}
 	const startMarker = "// STATIC_REGISTRY_START";
 	const endMarker = "// STATIC_REGISTRY_END";
@@ -718,8 +714,8 @@ export const registry = new ComponentRegistry();
 	try {
 		writeFileSync(registryFilePath, updatedContent, "utf-8");
 		if (verbose$1) console.log(`💾 Updated registry file: ${registryFilePath}`);
-	} catch (error$1) {
-		throw new Error(`Failed to write registry file: ${error$1.message}`);
+	} catch (error) {
+		throw new Error(`Failed to write registry file: ${error.message}`);
 	}
 }
 /**
@@ -773,9 +769,9 @@ const staticRegistryPlugin = (config = {}) => {
 		async buildStart() {
 			try {
 				await runRegistryGeneration();
-			} catch (error$1) {
-				console.error(`❌ Static registry generation failed: ${error$1.message}`);
-				if (failOnError) throw error$1;
+			} catch (error) {
+				console.error(`❌ Static registry generation failed: ${error.message}`);
+				if (failOnError) throw error;
 				console.warn("⚠️  Continuing build without static registry...");
 			}
 		},
@@ -789,8 +785,8 @@ const staticRegistryPlugin = (config = {}) => {
 					const registryModule = server.moduleGraph.getModuleById(registryFilePath);
 					if (registryModule) await server.reloadModule(registryModule);
 					if (verbose$1) console.log("✅ Registry regenerated successfully!");
-				} catch (error$1) {
-					console.error(`❌ Failed to regenerate registry: ${error$1.message}`);
+				} catch (error) {
+					console.error(`❌ Failed to regenerate registry: ${error.message}`);
 				}
 				return [];
 			}
@@ -814,8 +810,8 @@ async function loadEngagementConfig(projectRoot, configPath, verbose$1) {
 			return null;
 		}
 		return engagement;
-	} catch (error$1) {
-		if (verbose$1) console.warn(`  ⚠️  Could not load config from ${configPath}: ${error$1.message}`);
+	} catch (error) {
+		if (verbose$1) console.warn(`  ⚠️  Could not load config from ${configPath}: ${error.message}`);
 		return null;
 	}
 }
@@ -859,8 +855,8 @@ async function scanForInstrumentedEvents(projectRoot, scanPaths, verbose$1) {
 			trackEventPattern.lastIndex = 0;
 			sendViewPagePattern.lastIndex = 0;
 			createEventPattern.lastIndex = 0;
-		} catch (error$1) {
-			if (verbose$1) console.warn(`    ⚠️  Could not read ${file}: ${error$1.message}`);
+		} catch (error) {
+			if (verbose$1) console.warn(`    ⚠️  Could not read ${file}: ${error.message}`);
 		}
 	}
 	return instrumentedEvents;
@@ -1067,447 +1063,6 @@ function storefrontNextTargets(config = {}) {
 }
 
 //#endregion
-//#region package.json
-var version = "0.2.0-dev";
-
-//#endregion
-//#region src/utils/logger.ts
-/**
-* Logger utilities
-*/
-const colors = {
-	warn: "yellow",
-	error: "red",
-	success: "cyan",
-	info: "green",
-	debug: "gray"
-};
-const fancyLog = (level, msg) => {
-	const colorFn = chalk[colors[level]];
-	console.log(`${colorFn(level)}: ${msg}`);
-};
-const info = (msg) => fancyLog("info", msg);
-const success = (msg) => fancyLog("success", msg);
-const warn = (msg) => fancyLog("warn", msg);
-const error = (msg) => fancyLog("error", msg);
-const debug = (msg, data) => {
-	if (process.env.DEBUG || process.env.NODE_ENV !== "production") {
-		fancyLog("debug", msg);
-		if (data) console.log(data);
-	}
-};
-
-//#endregion
-//#region src/utils.ts
-const DEFAULT_CLOUD_ORIGIN = "https://cloud.mobify.com";
-const getDefaultBuildDir = (targetDir) => path$1.join(targetDir, "build");
-const NODE_ENV = process.env.NODE_ENV || "development";
-/**
-* Get credentials file path based on cloud origin
-*/
-const getCredentialsFile = (cloudOrigin, credentialsFile) => {
-	if (credentialsFile) return credentialsFile;
-	const host = new URL(cloudOrigin).host;
-	const suffix = host === "cloud.mobify.com" ? "" : `--${host}`;
-	return path$1.join(os.homedir(), `.mobify${suffix}`);
-};
-/**
-* Read credentials from file
-*/
-const readCredentials = async (filepath) => {
-	try {
-		const data = await fs.readJSON(filepath);
-		return {
-			username: data.username,
-			api_key: data.api_key
-		};
-	} catch {
-		throw new Error(`Credentials file "${filepath}" not found.\nVisit https://runtime.commercecloud.com/account/settings for steps on authorizing your computer to push bundles.`);
-	}
-};
-/**
-* Get project package.json
-*/
-const getProjectPkg = (projectDir) => {
-	const packagePath = path$1.join(projectDir, "package.json");
-	try {
-		return fs.readJSONSync(packagePath);
-	} catch {
-		throw new Error(`Could not read project package at "${packagePath}"`);
-	}
-};
-/**
-* Load .env file from project directory
-*/
-const loadEnvFile = (projectDir) => {
-	const envPath = path$1.join(projectDir, ".env");
-	if (fs.existsSync(envPath)) dotenv.config({ path: envPath });
-	else warn("No .env file found");
-};
-/**
-* Get MRT configuration with priority logic: .env -> package.json -> defaults
-*/
-const getMrtConfig = (projectDir) => {
-	loadEnvFile(projectDir);
-	const pkg = getProjectPkg(projectDir);
-	const defaultMrtProject = process.env.MRT_PROJECT ?? pkg.name;
-	if (!defaultMrtProject || defaultMrtProject.trim() === "") throw new Error("Project name couldn't be determined. Do one of these options:\n  1. Set MRT_PROJECT in your .env file, or\n  2. Ensure package.json has a valid \"name\" field.");
-	const defaultMrtTarget = process.env.MRT_TARGET ?? void 0;
-	debug("MRT configuration resolved", {
-		projectDir,
-		envMrtProject: process.env.MRT_PROJECT,
-		envMrtTarget: process.env.MRT_TARGET,
-		packageName: pkg.name,
-		resolvedProject: defaultMrtProject,
-		resolvedTarget: defaultMrtTarget
-	});
-	return {
-		defaultMrtProject,
-		defaultMrtTarget
-	};
-};
-/**
-* Get project dependency tree (simplified version)
-*/
-const getProjectDependencyTree = (projectDir) => {
-	try {
-		const tmpFile = path$1.join(os.tmpdir(), `npm-ls-${Date.now()}.json`);
-		execSync(`npm ls --all --json > ${tmpFile}`, {
-			stdio: "ignore",
-			cwd: projectDir
-		});
-		const data = fs.readJSONSync(tmpFile);
-		fs.unlinkSync(tmpFile);
-		return data;
-	} catch {
-		return null;
-	}
-};
-/**
-* Get PWA Kit dependencies from dependency tree
-*/
-const getPwaKitDependencies = (dependencyTree) => {
-	if (!dependencyTree) return {};
-	const pwaKitDependencies = ["@salesforce/storefront-next-dev"];
-	const result = {};
-	const searchDeps = (tree) => {
-		if (tree.dependencies) for (const [name, dep] of Object.entries(tree.dependencies)) {
-			if (pwaKitDependencies.includes(name)) result[name] = dep.version || "unknown";
-			if (dep.dependencies) searchDeps({ dependencies: dep.dependencies });
-		}
-	};
-	searchDeps(dependencyTree);
-	return result;
-};
-/**
-* Get default commit message from git
-*/
-const getDefaultMessage = (projectDir) => {
-	try {
-		return `${execSync("git rev-parse --abbrev-ref HEAD", {
-			encoding: "utf8",
-			cwd: projectDir
-		}).trim()}: ${execSync("git rev-parse --short HEAD", {
-			encoding: "utf8",
-			cwd: projectDir
-		}).trim()}`;
-	} catch {
-		debug("Using default bundle message as no message was provided and not in a Git repo.");
-		return "PWA Kit Bundle";
-	}
-};
-
-//#endregion
-//#region src/bundle.ts
-/**
-* Create a bundle from the build directory
-*/
-const createBundle = async (options) => {
-	const { message, ssr_parameters, ssr_only, ssr_shared, buildDirectory, projectDirectory, projectSlug } = options;
-	const tmpDir = fs.mkdtempSync(path$1.join(os.tmpdir(), "storefront-next-dev-push-"));
-	const destination = path$1.join(tmpDir, "build.tar");
-	const filesInArchive = [];
-	if (!ssr_only || ssr_only.length === 0 || !ssr_shared || ssr_shared.length === 0) throw new Error("no ssrOnly or ssrShared files are defined");
-	return new Promise((resolve$2, reject) => {
-		const output = fs.createWriteStream(destination);
-		const archive = archiver("tar");
-		archive.pipe(output);
-		const newRoot = path$1.join(projectSlug, "bld", "");
-		const storybookExclusionMatchers = [
-			"**/*.stories.tsx",
-			"**/*.stories.ts",
-			"**/*-snapshot.tsx",
-			".storybook/**/*",
-			"storybook-static/**/*",
-			"**/__mocks__/**/*",
-			"**/__snapshots__/**/*"
-		].map((pattern) => new Minimatch(pattern, { nocomment: true }));
-		archive.directory(buildDirectory, "", (entry) => {
-			if (entry.name && storybookExclusionMatchers.some((matcher) => matcher.match(entry.name))) return false;
-			if (entry.stats?.isFile() && entry.name) filesInArchive.push(entry.name);
-			entry.prefix = newRoot;
-			return entry;
-		});
-		archive.on("error", reject);
-		output.on("finish", () => {
-			try {
-				const { dependencies = {}, devDependencies = {} } = getProjectPkg(projectDirectory);
-				const dependencyTree = getProjectDependencyTree(projectDirectory);
-				const pwaKitDeps = dependencyTree ? getPwaKitDependencies(dependencyTree) : {};
-				const bundle_metadata = { dependencies: {
-					...dependencies,
-					...devDependencies,
-					...pwaKitDeps
-				} };
-				const data = fs.readFileSync(destination);
-				const encoding = "base64";
-				fs.rmSync(tmpDir, { recursive: true });
-				const createGlobMatcher = (patterns) => {
-					const allPatterns = patterns.map((pattern) => new Minimatch(pattern, { nocomment: true })).filter((pattern) => !pattern.empty);
-					const positivePatterns = allPatterns.filter((pattern) => !pattern.negate);
-					const negativePatterns = allPatterns.filter((pattern) => pattern.negate);
-					return (filePath) => {
-						if (filePath) {
-							const positive = positivePatterns.some((pattern) => pattern.match(filePath));
-							const negative = negativePatterns.some((pattern) => !pattern.match(filePath));
-							return positive && !negative;
-						}
-						return false;
-					};
-				};
-				resolve$2({
-					message,
-					encoding,
-					data: data.toString(encoding),
-					ssr_parameters,
-					ssr_only: filesInArchive.filter(createGlobMatcher(ssr_only)),
-					ssr_shared: filesInArchive.filter(createGlobMatcher(ssr_shared)),
-					bundle_metadata
-				});
-			} catch (err) {
-				reject(err);
-			}
-		});
-		archive.finalize().catch(reject);
-	});
-};
-
-//#endregion
-//#region src/cloud-api.ts
-var CloudAPIClient = class {
-	credentials;
-	origin;
-	constructor({ credentials, origin }) {
-		this.credentials = credentials;
-		this.origin = origin;
-	}
-	getAuthHeader() {
-		const { username, api_key } = this.credentials;
-		return { Authorization: `Basic ${Buffer.from(`${username}:${api_key}`, "binary").toString("base64")}` };
-	}
-	getHeaders() {
-		return {
-			"User-Agent": `storefront-next-dev@${version}`,
-			...this.getAuthHeader()
-		};
-	}
-	/**
-	* Push bundle to Managed Runtime
-	*/
-	async push(bundle, projectSlug, target) {
-		const base = `api/projects/${projectSlug}/builds/`;
-		const pathname = target ? `${base}${target}/` : base;
-		const url = new URL$1(this.origin);
-		url.pathname = pathname;
-		const body = Buffer.from(JSON.stringify(bundle));
-		const headers = {
-			...this.getHeaders(),
-			"Content-Length": body.length.toString()
-		};
-		const res = await fetch(url.toString(), {
-			body,
-			method: "POST",
-			headers
-		});
-		if (res.status >= 400) {
-			const bodyText = await res.text();
-			let errorData;
-			try {
-				errorData = JSON.parse(bodyText);
-			} catch {
-				errorData = { message: bodyText };
-			}
-			throw new Error(`HTTP ${res.status}: ${errorData.message || bodyText}\nFor more information visit https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/pushing-and-deploying-bundles.html`);
-		}
-		return await res.json();
-	}
-	/**
-	* Wait for deployment to complete
-	*/
-	async waitForDeploy(project, environment) {
-		return new Promise((resolve$2, reject) => {
-			const delay = 3e4;
-			const check = async () => {
-				const url = new URL$1(`/api/projects/${project}/target/${environment}`, this.origin);
-				const res = await fetch(url, { headers: this.getHeaders() });
-				if (!res.ok) {
-					const text = await res.text();
-					let json;
-					try {
-						if (text) json = JSON.parse(text);
-					} catch {}
-					const message = json?.detail ?? text;
-					const detail = message ? `: ${message}` : "";
-					throw new Error(`${res.status} ${res.statusText}${detail}`);
-				}
-				const data = await res.json();
-				if (typeof data.state !== "string") return reject(/* @__PURE__ */ new Error("An unknown state occurred when polling the deployment."));
-				switch (data.state) {
-					case "CREATE_IN_PROGRESS":
-					case "PUBLISH_IN_PROGRESS":
-						setTimeout(() => {
-							check().catch(reject);
-						}, delay);
-						return;
-					case "CREATE_FAILED":
-					case "PUBLISH_FAILED": return reject(/* @__PURE__ */ new Error("Deployment failed."));
-					case "ACTIVE": return resolve$2();
-					default: return reject(/* @__PURE__ */ new Error(`Unknown deployment state "${data.state}".`));
-				}
-			};
-			setTimeout(() => {
-				check().catch(reject);
-			}, delay);
-		});
-	}
-};
-
-//#endregion
-//#region src/config.ts
-const SFNEXT_BASE_CARTRIDGE_NAME = "app_storefrontnext_base";
-const SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR = `${SFNEXT_BASE_CARTRIDGE_NAME}/cartridge/experience`;
-/**
-* Build MRT SSR configuration for bundle deployment
-*
-* Defines which files should be:
-* - Server-only (ssrOnly): Deployed only to Lambda functions
-* - Shared (ssrShared): Deployed to both Lambda and CDN
-*
-* @param buildDirectory - Path to the build output directory
-* @param projectDirectory - Path to the project root (reserved for future use)
-* @returns MRT SSR configuration with glob patterns
-*/
-const buildMrtConfig = (_buildDirectory, _projectDirectory) => {
-	const ssrEntryPoint = getMrtEntryFile("production");
-	return {
-		ssrOnly: [
-			"server/**/*",
-			"loader.js",
-			`${ssrEntryPoint}.{js,mjs,cjs}`,
-			`${ssrEntryPoint}.{js,mjs,cjs}.map`,
-			"!static/**/*",
-			"sfnext-server-*.mjs",
-			"!**/*.stories.tsx",
-			"!**/*.stories.ts",
-			"!**/*-snapshot.tsx",
-			"!.storybook/**/*",
-			"!storybook-static/**/*",
-			"!**/__mocks__/**/*",
-			"!**/__snapshots__/**/*"
-		],
-		ssrShared: [
-			"client/**/*",
-			"static/**/*",
-			"**/*.css",
-			"**/*.png",
-			"**/*.jpg",
-			"**/*.jpeg",
-			"**/*.gif",
-			"**/*.svg",
-			"**/*.ico",
-			"**/*.woff",
-			"**/*.woff2",
-			"**/*.ttf",
-			"**/*.eot",
-			"!**/*.stories.tsx",
-			"!**/*.stories.ts",
-			"!**/*-snapshot.tsx",
-			"!.storybook/**/*",
-			"!storybook-static/**/*",
-			"!**/__mocks__/**/*",
-			"!**/__snapshots__/**/*"
-		],
-		ssrParameters: { ssrFunctionNodeVersion: "24.x" }
-	};
-};
-
-//#endregion
-//#region src/commands/push.ts
-/**
-* Main function to push bundle to Managed Runtime
-*/
-async function push(options) {
-	const mrtConfig = getMrtConfig(options.projectDirectory);
-	const resolvedTarget = options.target ?? mrtConfig.defaultMrtTarget;
-	if (options.wait && !resolvedTarget) throw new Error("You must provide a target to deploy to when using --wait (via --target flag or .env MRT_TARGET)");
-	if (options.user && !options.key || !options.user && options.key) throw new Error("You must provide both --user and --key together, or neither");
-	if (!fs.existsSync(options.projectDirectory)) throw new Error(`Project directory "${options.projectDirectory}" does not exist!`);
-	const projectSlug = options.projectSlug ?? mrtConfig.defaultMrtProject;
-	if (!projectSlug || projectSlug.trim() === "") throw new Error("Project slug could not be determined from CLI, .env, or package.json");
-	const target = resolvedTarget;
-	const buildDirectory = options.buildDirectory ?? getDefaultBuildDir(options.projectDirectory);
-	if (!fs.existsSync(buildDirectory)) throw new Error(`Build directory "${buildDirectory}" does not exist!`);
-	try {
-		if (target) process.env.DEPLOY_TARGET = target;
-		let credentials;
-		if (options.user && options.key) credentials = {
-			username: options.user,
-			api_key: options.key
-		};
-		else credentials = await readCredentials(getCredentialsFile(options.cloudOrigin ?? DEFAULT_CLOUD_ORIGIN, options.credentialsFile));
-		const config = buildMrtConfig(buildDirectory, options.projectDirectory);
-		const message = options.message ?? getDefaultMessage(options.projectDirectory);
-		info(`Creating bundle for project: ${projectSlug}`);
-		if (options.projectSlug) debug("Using project slug from CLI argument");
-		else if (process.env.MRT_PROJECT) debug("Using project slug from .env MRT_PROJECT");
-		else debug("Using project slug from package.json name");
-		if (target) {
-			info(`Target environment: ${target}`);
-			if (options.target) debug("Using target from CLI argument");
-			else debug("Using target from .env");
-		}
-		debug("SSR shared files", config.ssrShared);
-		debug("SSR only files", config.ssrOnly);
-		const bundle = await createBundle({
-			message,
-			ssr_parameters: config.ssrParameters,
-			ssr_only: config.ssrOnly,
-			ssr_shared: config.ssrShared,
-			buildDirectory,
-			projectDirectory: options.projectDirectory,
-			projectSlug
-		});
-		const client = new CloudAPIClient({
-			credentials,
-			origin: options.cloudOrigin ?? DEFAULT_CLOUD_ORIGIN
-		});
-		info(`Beginning upload to ${options.cloudOrigin ?? DEFAULT_CLOUD_ORIGIN}`);
-		const data = await client.push(bundle, projectSlug, target);
-		debug("API response", data);
-		(data.warnings || []).forEach(warn);
-		if (options.wait && target) {
-			success("Bundle uploaded - waiting for deployment to complete");
-			await client.waitForDeploy(projectSlug, target);
-			success("Deployment complete!");
-		} else success("Bundle uploaded successfully!");
-		if (data.url) info(`Bundle URL: ${data.url}`);
-	} catch (err) {
-		error(err.message || err?.toString() || "Unknown error");
-		throw err;
-	}
-}
-
-//#endregion
 //#region src/server/ts-import.ts
 /**
 * Parse TypeScript paths from tsconfig.json and convert to jiti alias format.
@@ -1660,6 +1215,25 @@ function createCommerceProxyMiddleware(config) {
 		changeOrigin: true
 	});
 }
+
+//#endregion
+//#region src/utils/logger.ts
+/**
+* Logger utilities
+*/
+const colors = {
+	warn: "yellow",
+	error: "red",
+	success: "cyan",
+	info: "green",
+	debug: "gray"
+};
+const fancyLog = (level, msg) => {
+	const colorFn = chalk[colors[level]];
+	console.log(`${colorFn(level)}: ${msg}`);
+};
+const info = (msg) => fancyLog("info", msg);
+const warn = (msg) => fancyLog("warn", msg);
 
 //#endregion
 //#region src/server/middleware/static.ts
@@ -1912,9 +1486,9 @@ async function createSSRHandler(mode, bundleId, vite, build, enableAssetUrlPatch
 					build: await ssrEnvironment.runner.import("virtual:react-router/server-build"),
 					mode: process.env.NODE_ENV
 				})(req, res, next);
-			} catch (error$1) {
-				vite.ssrFixStacktrace(error$1);
-				next(error$1);
+			} catch (error) {
+				vite.ssrFixStacktrace(error);
+				next(error);
 			}
 		};
 	} else if (build) {
@@ -2005,8 +1579,8 @@ function processFile(filePath, extensions) {
 				fs$1.unlinkSync(filePath);
 				if (verbose) console.log(`Deleted file ${filePath}`);
 			} catch (e) {
-				const error$1 = e;
-				console.error(`Error deleting file ${filePath}: ${error$1.message}`);
+				const error = e;
+				console.error(`Error deleting file ${filePath}: ${error.message}`);
 				throw e;
 			}
 			return;
@@ -2058,8 +1632,8 @@ function processFile(filePath, extensions) {
 			fs$1.writeFileSync(filePath, newSource);
 			if (verbose) console.log(`Updated file ${filePath}`);
 		} catch (e) {
-			const error$1 = e;
-			console.error(`Error updating file ${filePath}: ${error$1.message}`);
+			const error = e;
+			console.error(`Error updating file ${filePath}: ${error.message}`);
 			throw e;
 		}
 	}
@@ -2085,9 +1659,9 @@ function deleteExtensionFolders(projectRoot, extensions, extensionConfig) {
 				});
 				if (verbose) console.log(`Deleted extension folder: ${extensionFolderPath}`);
 			} catch (err) {
-				const error$1 = err;
-				if (error$1.code === "EPERM") console.error(`Permission denied - cannot delete ${extensionFolderPath}. You may need to run with sudo or check permissions.`);
-				else console.error(`Error deleting ${extensionFolderPath}: ${error$1.message}`);
+				const error = err;
+				if (error.code === "EPERM") console.error(`Permission denied - cannot delete ${extensionFolderPath}. You may need to run with sudo or check permissions.`);
+				else console.error(`Error deleting ${extensionFolderPath}: ${error.message}`);
 			}
 		}
 	});
@@ -2099,7 +1673,7 @@ let isCliAvailable = null;
 function checkReactRouterCli(projectDirectory) {
 	if (isCliAvailable !== null) return isCliAvailable;
 	try {
-		execSync$1("react-router --version", {
+		execSync("react-router --version", {
 			cwd: projectDirectory,
 			env: npmRunPathEnv(),
 			stdio: "pipe"
@@ -2124,7 +1698,7 @@ function getReactRouterRoutes(projectDirectory) {
 	if (!checkReactRouterCli(projectDirectory)) throw new Error("React Router CLI is not available. Please make sure @react-router/dev is installed and accessible.");
 	const tempFile = join(tmpdir(), `react-router-routes-${randomUUID()}.json`);
 	try {
-		execSync$1(`react-router routes --json > "${tempFile}"`, {
+		execSync(`react-router routes --json > "${tempFile}"`, {
 			cwd: projectDirectory,
 			env: npmRunPathEnv(),
 			encoding: "utf-8",
@@ -2136,8 +1710,8 @@ function getReactRouterRoutes(projectDirectory) {
 		});
 		const output = readFileSync$1(tempFile, "utf-8");
 		return JSON.parse(output);
-	} catch (error$1) {
-		throw new Error(`Failed to get routes from React Router CLI: ${error$1.message}`);
+	} catch (error) {
+		throw new Error(`Failed to get routes from React Router CLI: ${error.message}`);
 	} finally {
 		try {
 			if (existsSync$1(tempFile)) unlinkSync(tempFile);
@@ -2281,8 +1855,8 @@ function parseNestedObject(objectLiteral) {
 			const initializer = property.getInitializer();
 			if (initializer) result[name] = parseExpression(initializer);
 		}
-	} catch (error$1) {
-		console.warn(`Warning: Could not parse nested object: ${error$1.message}`);
+	} catch (error) {
+		console.warn(`Warning: Could not parse nested object: ${error.message}`);
 		return result;
 	}
 	return result;
@@ -2292,8 +1866,8 @@ function parseArrayLiteral(arrayLiteral) {
 	try {
 		const elements = arrayLiteral.getElements();
 		for (const element of elements) result.push(parseExpression(element));
-	} catch (error$1) {
-		console.warn(`Warning: Could not parse array literal: ${error$1.message}`);
+	} catch (error) {
+		console.warn(`Warning: Could not parse array literal: ${error.message}`);
 	}
 	return result;
 }
@@ -2325,8 +1899,8 @@ function parseDecoratorArgs(decorator) {
 			}
 		}
 		return result;
-	} catch (error$1) {
-		console.warn(`Warning: Could not parse decorator arguments: ${error$1.message}`);
+	} catch (error) {
+		console.warn(`Warning: Could not parse decorator arguments: ${error.message}`);
 		return result;
 	}
 }
@@ -2354,8 +1928,8 @@ function extractAttributesFromSource(sourceFile, className) {
 			if (config.defaultValue !== void 0) attribute.default_value = config.defaultValue;
 			attributes.push(attribute);
 		}
-	} catch (error$1) {
-		console.warn(`Warning: Could not extract attributes from class ${className}: ${error$1.message}`);
+	} catch (error) {
+		console.warn(`Warning: Could not extract attributes from class ${className}: ${error.message}`);
 	}
 	return attributes;
 }
@@ -2389,8 +1963,8 @@ function extractRegionDefinitionsFromSource(sourceFile, className) {
 				}
 			}
 		}
-	} catch (error$1) {
-		console.warn(`Warning: Could not extract region definitions from class ${className}: ${error$1.message}`);
+	} catch (error) {
+		console.warn(`Warning: Could not extract region definitions from class ${className}: ${error.message}`);
 	}
 	return regionDefinitions;
 }
@@ -2423,12 +1997,12 @@ async function processComponentFile(filePath, _projectRoot) {
 				};
 				components.push(componentMetadata);
 			}
-		} catch (error$1) {
-			console.warn(`Warning: Could not process file ${filePath}:`, error$1.message);
+		} catch (error) {
+			console.warn(`Warning: Could not process file ${filePath}:`, error.message);
 		}
 		return components;
-	} catch (error$1) {
-		console.warn(`Warning: Could not read file ${filePath}:`, error$1.message);
+	} catch (error) {
+		console.warn(`Warning: Could not read file ${filePath}:`, error.message);
 		return [];
 	}
 }
@@ -2463,12 +2037,12 @@ async function processPageTypeFile(filePath, projectRoot) {
 				};
 				pageTypes.push(pageTypeMetadata);
 			}
-		} catch (error$1) {
-			console.warn(`Warning: Could not process file ${filePath}:`, error$1.message);
+		} catch (error) {
+			console.warn(`Warning: Could not process file ${filePath}:`, error.message);
 		}
 		return pageTypes;
-	} catch (error$1) {
-		console.warn(`Warning: Could not read file ${filePath}:`, error$1.message);
+	} catch (error) {
+		console.warn(`Warning: Could not read file ${filePath}:`, error.message);
 		return [];
 	}
 }
@@ -2494,8 +2068,8 @@ async function processAspectFile(filePath, _projectRoot) {
 			console.warn(`Warning: Could not parse JSON in file ${filePath}:`, parseError.message);
 		}
 		return aspects;
-	} catch (error$1) {
-		console.warn(`Warning: Could not read file ${filePath}:`, error$1.message);
+	} catch (error) {
+		console.warn(`Warning: Could not read file ${filePath}:`, error.message);
 		return [];
 	}
 }
@@ -2572,14 +2146,14 @@ async function generateAspectCartridge(aspect, outputDir, dryRun = false) {
 function lintGeneratedFiles(metadataDir, projectRoot) {
 	try {
 		console.log("🔧 Running ESLint --fix on generated JSON files...");
-		execSync$1(`npx eslint "${metadataDir}/**/*.json" --fix --no-error-on-unmatched-pattern`, {
+		execSync(`npx eslint "${metadataDir}/**/*.json" --fix --no-error-on-unmatched-pattern`, {
 			cwd: projectRoot,
 			stdio: "pipe",
 			encoding: "utf-8"
 		});
 		console.log("✅ JSON files formatted successfully");
-	} catch (error$1) {
-		const execError = error$1;
+	} catch (error) {
+		const execError = error;
 		if (execError.status === 2) {
 			const errMsg = execError.stderr || execError.stdout || "Unknown error";
 			console.warn(`⚠️  Warning: Could not run ESLint --fix: ${errMsg}`);
@@ -2625,11 +2199,11 @@ async function generateMetadata(projectDirectory, metadataDirectory, options) {
 				aspectsOutputDir
 			]) try {
 				await mkdir(outputDir, { recursive: true });
-			} catch (error$1) {
+			} catch (error) {
 				try {
 					await access(outputDir);
 				} catch {
-					console.error(`❌ Error: Failed to create output directory ${outputDir}: ${error$1.message}`);
+					console.error(`❌ Error: Failed to create output directory ${outputDir}: ${error.message}`);
 					process.exit(1);
 				}
 			}
@@ -2697,12 +2271,12 @@ async function generateMetadata(projectDirectory, metadataDirectory, options) {
 			aspectsGenerated: allAspects.length,
 			totalFiles: allComponents.length + allPageTypes.length + allAspects.length
 		};
-	} catch (error$1) {
-		console.error("❌ Error:", error$1.message);
+	} catch (error) {
+		console.error("❌ Error:", error.message);
 		process.exit(1);
 	}
 }
 
 //#endregion
-export { createServer, storefrontNextTargets as default, generateMetadata, loadConfigFromEnv, loadProjectConfig, push, transformTargetPlaceholderPlugin, trimExtensions };
+export { createServer, storefrontNextTargets as default, generateMetadata, loadConfigFromEnv, loadProjectConfig, transformTargetPlaceholderPlugin, trimExtensions };
 //# sourceMappingURL=index.js.map

@@ -13,80 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import path from 'path';
-import { createServer as createViteServer } from 'vite';
-import { createServer } from '../server/index';
-import { loadProjectConfig } from '../server/config';
-import { printServerInfo, printServerConfig, printShutdownMessage } from '../utils/logger';
-import { loadEnvFile } from '../utils';
-import { getCommerceCloudApiUrl } from '../utils/paths';
 
-export interface DevOptions {
-    projectDirectory?: string;
-    port?: number;
-}
+import { Command, Flags } from '@oclif/core';
+import { dev } from '../lib/dev';
+import { commonFlags } from '../flags';
 
 /**
- * Start the development server with Vite in middleware mode
+ * Dev server command - starts the Vite development server with SSR.
  */
-export async function dev(options: DevOptions = {}): Promise<void> {
-    const startTime = Date.now();
-    const projectDir = path.resolve(options.projectDirectory || process.cwd());
-    const port = options.port || 5173;
+export default class Dev extends Command {
+    static description = 'Start Vite development server with SSR';
 
-    // Set NODE_ENV to development
-    process.env.NODE_ENV = process.env.NODE_ENV ?? 'development';
-    process.env.EXTERNAL_DOMAIN_NAME = process.env.EXTERNAL_DOMAIN_NAME ?? `localhost:${port}`;
+    static examples = [
+        '<%= config.bin %> <%= command.id %>',
+        '<%= config.bin %> <%= command.id %> -d ./my-project -p 3000',
+    ];
 
-    // Load .env file early
-    loadEnvFile(projectDir);
+    static flags = {
+        ...commonFlags,
+        port: Flags.integer({
+            char: 'p',
+            description: 'Port number (default: 5173)',
+        }),
+    };
 
-    const config = await loadProjectConfig(projectDir);
+    async run(): Promise<void> {
+        const { flags } = await this.parse(Dev);
 
-    const vite = await createViteServer({
-        root: projectDir,
-        server: {
-            middlewareMode: true,
-        },
-    });
-
-    // Create unified server in development mode
-    const app = await createServer({
-        mode: 'development',
-        projectDirectory: projectDir,
-        config,
-        port,
-        vite,
-    });
-
-    // Start server
-    const server = app.listen(port, () => {
-        printServerInfo('development', port, startTime, projectDir);
-
-        // Print server configuration after startup banner
-        printServerConfig({
-            mode: 'development',
-            port,
-            enableProxy: true,
-            enableStaticServing: false,
-            enableCompression: false,
-            proxyPath: config.commerce.api.proxy,
-            proxyTarget: getCommerceCloudApiUrl(config.commerce.api.shortCode),
-            shortCode: config.commerce.api.shortCode,
-            organizationId: config.commerce.api.organizationId,
-            clientId: config.commerce.api.clientId,
-            siteId: config.commerce.api.siteId,
+        await dev({
+            projectDirectory: flags['project-directory'],
+            port: flags.port,
         });
-    });
-
-    // Graceful shutdown
-    ['SIGTERM', 'SIGINT'].forEach((signal) => {
-        process.once(signal, () => {
-            printShutdownMessage();
-            server?.close(() => {
-                void vite.close();
-                process.exit(0);
-            });
-        });
-    });
+    }
 }
