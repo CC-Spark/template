@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createCookie, type MiddlewareFunction } from 'react-router';
+import { createCookie, type MiddlewareFunction, type RouterContextProvider } from 'react-router';
 import { getCookieConfig } from '@/lib/cookie-utils';
 import { getConfig } from '@/config';
 import { getAuth } from './auth.server';
@@ -38,7 +38,7 @@ async function setCookie(
     cookieName: string,
     cookieValue: Record<string, string>,
     maxAge: number,
-    context: Parameters<MiddlewareFunction>[0]['context']
+    context: Readonly<RouterContextProvider>
 ): Promise<void> {
     const cookieConfig = getCookieConfig(
         {
