@@ -16,22 +16,49 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import { MarketingConsent } from '../index';
+import { MarketingConsent, type MarketingConsentSubscriptions } from '../index';
+
+const defaultSubscriptions: MarketingConsentSubscriptions = {
+    data: [
+        {
+            subscriptionId: 'Sale',
+            channels: ['email'],
+            title: 'Sale',
+            consentType: 'marketing',
+            consentRequired: false,
+            defaultStatus: 'opt_out',
+            tags: [],
+            consentStatus: [{ channel: 'email', contactPointValue: 'user@example.com', status: 'opt_out' }],
+        },
+        {
+            subscriptionId: 'Newsletter',
+            channels: ['email'],
+            title: 'Newsletter',
+            consentType: 'marketing',
+            consentRequired: false,
+            defaultStatus: 'opt_out',
+            tags: [],
+            consentStatus: [{ channel: 'email', contactPointValue: 'user@example.com', status: 'opt_in' }],
+        },
+    ],
+};
 
 const meta: Meta<typeof MarketingConsent> = {
     title: 'ACCOUNT/Marketing Consent',
     component: MarketingConsent,
+    args: {
+        subscriptions: defaultSubscriptions,
+    },
     parameters: {
         layout: 'padded',
         docs: {
             description: {
                 component:
-                    'Marketing & Communication Preferences section displayed on the Account Details page. Allows users to manage their marketing subscription preferences.',
+                    'Marketing & Communication Preferences section displayed on the Account Details page. Data is loaded from the consent API (getSubscriptions). Subscription opt-in/opt-out is derived from consentStatus (per channel). Switches are read-only until the update API is integrated.',
             },
         },
     },
-    // Excluded from a11y test run until violations (e.g. contrast/region) are resolved; component has aria-label on Edit and Switches
-    tags: ['autodocs', 'interaction', 'skip-a11y'],
+    tags: ['autodocs', 'interaction'],
 };
 
 export default meta;
@@ -42,23 +69,17 @@ export const Default: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Card title and Edit button
         await expect(canvas.getByText('Marketing & Communication Preferences')).toBeInTheDocument();
         const editButton = canvas.getByRole('button', { name: /edit/i });
         await expect(editButton).toBeInTheDocument();
         await expect(editButton).toHaveAttribute('type', 'button');
-
-        // Channel sections (from mock: email, whatsapp, sms)
-        await expect(canvas.getByRole('heading', { name: 'Email', level: 2 })).toBeInTheDocument();
-        await expect(canvas.getByRole('heading', { name: 'Whatsapp', level: 2 })).toBeInTheDocument();
-        await expect(canvas.getByRole('heading', { name: 'Sms', level: 2 })).toBeInTheDocument();
-
-        // Subscription items from mock data (Weekly Newsletter appears under multiple channels)
-        await expect(canvas.getAllByText('Weekly Newsletter').length).toBeGreaterThan(0);
-        await expect(canvas.getByText('Promotional Offers')).toBeInTheDocument();
-
-        // Disclaimer
-        await expect(canvas.getByText(/By enabling these communication preferences/)).toBeInTheDocument();
+        await expect(canvas.getByRole('heading', { level: 2, name: 'Email' })).toBeInTheDocument();
+        const lists = canvas.getAllByRole('list');
+        await expect(lists.length).toBeGreaterThanOrEqual(1);
+        const switches = canvas.getAllByRole('switch');
+        await expect(switches.length).toBe(2);
+        await expect(canvas.getByText('Sale')).toBeInTheDocument();
+        await expect(canvas.getByText('Newsletter')).toBeInTheDocument();
     },
 };
 
@@ -67,10 +88,24 @@ export const ClickEditButton: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Assert Edit button is present and has accessible label (no click to avoid navigation error in test runner)
         const editButton = canvas.getByRole('button', { name: /edit marketing preferences/i });
         await expect(editButton).toBeInTheDocument();
         await expect(editButton).toHaveAttribute('type', 'button');
         await expect(editButton).toHaveAttribute('aria-label', 'Edit marketing preferences');
+    },
+};
+
+export const Empty: Story = {
+    args: {
+        subscriptions: { data: [] },
+    },
+    parameters: { snapshot: false },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        await expect(canvas.getByText('Marketing & Communication Preferences')).toBeInTheDocument();
+        await expect(canvas.getByRole('button', { name: /edit/i })).toBeInTheDocument();
+        await expect(canvas.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
     },
 };

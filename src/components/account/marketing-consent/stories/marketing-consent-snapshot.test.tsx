@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { expect, test, describe, afterEach } from 'vitest';
+import { vi, expect, test, describe, afterEach } from 'vitest';
 import { composeStories } from '@storybook/react-vite';
-
+// eslint-disable-next-line import/no-namespace
 import * as MarketingConsentStories from './index.stories';
 import { render, cleanup } from '@testing-library/react';
+import { ConfigWrapper } from '@/test-utils/config';
+
+vi.mock('@/hooks/use-scapi-fetcher', () => ({
+    useScapiFetcher: vi.fn(() => ({ data: null, load: vi.fn() })),
+}));
 
 const composed = composeStories(MarketingConsentStories);
 
@@ -29,7 +34,11 @@ describe('MarketingConsent stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
         if (Story?.parameters?.snapshot === false || /interactiontests?/i.test(storyName)) continue;
         test(`${storyName} story renders and matches snapshot`, () => {
-            const { container } = render(<Story />);
+            const { container } = render(
+                <ConfigWrapper>
+                    <Story />
+                </ConfigWrapper>
+            );
             expect(container.firstChild).toMatchSnapshot();
         });
     }

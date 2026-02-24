@@ -18,9 +18,10 @@ import { Outlet, type LoaderFunctionArgs, redirect, type ShouldRevalidateFunctio
 import { House, User, Heart, ShoppingBag, MapPin, CreditCard, Building, LogOut } from 'lucide-react';
 import { getAuth as getAuthServer } from '@/middlewares/auth.server';
 import { getCustomer } from '@/lib/api/customer';
+import { getSubscriptions } from '@/lib/api/consent';
 import { Card, CardContent } from '@/components/ui/card';
 import { AccountNavList, type AccountNavItemData } from '@/components/account-navigation';
-import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperCustomers, ShopperConsents } from '@salesforce/storefront-next-runtime/scapi';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -28,6 +29,7 @@ import { useTranslation } from 'react-i18next';
  */
 type AccountPageData = {
     customer: Promise<ShopperCustomers.schemas['Customer']>;
+    subscriptions: Promise<ShopperConsents.schemas['ConsentSubscriptionResponse'] | null>;
 };
 
 /**
@@ -53,8 +55,9 @@ export function loader(args: LoaderFunctionArgs) {
     }
 
     const customer = getCustomer(args.context, customerId);
+    const subscriptions = getSubscriptions(args.context);
 
-    return { customer };
+    return { customer, subscriptions };
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -76,7 +79,7 @@ export function shouldRevalidate({ defaultShouldRevalidate, formData }: ShouldRe
  */
 export default function AccountPage({ loaderData }: { loaderData: AccountPageData }): ReactElement {
     const { t } = useTranslation('account');
-    const { customer } = loaderData;
+    const { customer, subscriptions } = loaderData;
 
     const navigationItems: AccountNavItemData[] = useMemo(
         () => [
@@ -164,7 +167,7 @@ export default function AccountPage({ loaderData }: { loaderData: AccountPageDat
 
                     {/* Main Content - Child routes render here */}
                     <div className="lg:col-span-3">
-                        <Outlet context={{ customer }} />
+                        <Outlet context={{ customer, subscriptions }} />
                     </div>
                 </div>
             </div>

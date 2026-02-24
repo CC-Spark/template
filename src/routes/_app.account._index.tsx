@@ -24,7 +24,7 @@ import { CustomerProfileForm } from '@/components/customer-profile-form';
 import { InterestsPreferencesSection } from '@/components/account/interests-preferences-section';
 import { MarketingConsent } from '@/components/account/marketing-consent';
 import { useToast } from '@/components/toast';
-import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
+import type { ShopperConsents, ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 import { useFetcherEffect } from '@/hooks/use-fetcher-effect';
 import { useScapiFetcher } from '@/hooks/use-scapi-fetcher';
 import { useAuth } from '@/providers/auth';
@@ -36,13 +36,20 @@ type Customer = ShopperCustomers.schemas['Customer'];
 
 type AccountLayoutContext = {
     customer: Promise<Customer | null>;
+    subscriptions: Promise<ShopperConsents.schemas['ConsentSubscriptionResponse'] | null>;
 };
 
 /**
  * Account details content component that renders when customer data is loaded.
  * This component receives the resolved customer data and displays the profile information.
  */
-function AccountDetailsContent({ customer }: { customer: Customer | null }): ReactElement {
+function AccountDetailsContent({
+    customer,
+    subscriptions,
+}: {
+    customer: Customer | null;
+    subscriptions: ShopperConsents.schemas['ConsentSubscriptionResponse'] | null;
+}): ReactElement {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isEditingPassword, setIsEditingPassword] = useState(false);
 
@@ -386,23 +393,27 @@ function AccountDetailsContent({ customer }: { customer: Customer | null }): Rea
             </ToggleCard>
 
             {/* Email Preferences – MarketingConsent (part of My Account) */}
-            <MarketingConsent />
+            <MarketingConsent subscriptions={subscriptions} />
         </div>
     );
 }
 
 /**
- * Account details page component that uses Await to handle customer data loading.
- * Shows a skeleton while the customer data is being loaded.
+ * Account details page component that uses Await to handle customer and subscriptions loading.
+ * Shows a skeleton while data is being loaded.
  */
 export default function AccountDetails(): ReactElement {
-    // Get customer data from parent layout context
-    const { customer: customerPromise } = useOutletContext<AccountLayoutContext>();
+    const { customer: customerPromise, subscriptions: subscriptionsPromise } = useOutletContext<AccountLayoutContext>();
+
+    const dataPromise = Promise.all([customerPromise, subscriptionsPromise]);
 
     return (
         <Suspense fallback={<AccountDetailSkeleton />}>
-            <Await resolve={customerPromise}>
-                {(customer: Customer | null) => <AccountDetailsContent customer={customer} />}
+            <Await resolve={dataPromise}>
+                {([customer, subscriptions]: [
+                    Customer | null,
+                    ShopperConsents.schemas['ConsentSubscriptionResponse'] | null,
+                ]) => <AccountDetailsContent customer={customer} subscriptions={subscriptions} />}
             </Await>
         </Suspense>
     );
