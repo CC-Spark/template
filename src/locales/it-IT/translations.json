@@ -641,6 +641,13 @@
             }
         },
         "wishlist": {
+            "pageTitle": "La mia lista desideri",
+            "pageSubtitle": "I Suoi articoli salvati per dopo",
+            "savedItems": "Articoli salvati",
+            "emptyTitle": "La lista desideri è vuota",
+            "emptySubtitle": "Inizia ad aggiungere articoli alla Sua lista desideri!",
+            "itemCount_one": "{{count}} articolo salvato",
+            "itemCount_other": "{{count}} articoli salvati",
             "empty": "La Sua lista desideri è vuota. Inizi ad aggiungere articoli che Le piacciono!",
             "wishlistName": "Lista desideri",
             "failedToCreate": "Impossibile creare la lista desideri: listId non disponibile dopo la creazione",

@@ -109,6 +109,8 @@
     "failedToRemoveFromWishlist": "Impossibile rimuovere l'articolo dalla lista desideri",
     "removeFromWishlist": "Rimuovi dalla lista desideri",
     "removedLabel": "Rimosso",
+    "remove": "Rimuovi",
+    "selectVariantPlaceholder": "Seleziona",
     "itemAlreadyInWishlist": "L'articolo è già nella Sua lista desideri",
     "addedToWishlistGeneric": "Aggiunto alla lista desideri",
     "productIdRequired": "L'ID prodotto è obbligatorio",

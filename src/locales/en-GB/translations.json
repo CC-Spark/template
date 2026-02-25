@@ -681,6 +681,13 @@
             }
         },
         "wishlist": {
+            "pageTitle": "My Wishlist",
+            "pageSubtitle": "Your saved items for later",
+            "savedItems": "Saved Items",
+            "emptyTitle": "This wishlist is empty",
+            "emptySubtitle": "Start adding items to your wishlist!",
+            "itemCount_one": "{{count}} item saved",
+            "itemCount_other": "{{count}} items saved",
             "empty": "Your wishlist is empty. Start adding items you love!",
             "wishlistName": "Wishlist",
             "failedToCreate": "Failed to create wishlist: listId not available after creation.",

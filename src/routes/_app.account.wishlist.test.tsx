@@ -52,11 +52,6 @@ vi.mock('@/components/ui/skeleton', () => ({
     ),
 }));
 
-// Mock ProductCarouselSkeleton
-vi.mock('@/components/product-carousel/skeleton', () => ({
-    default: () => <div data-testid="product-carousel-skeleton">Product Carousel Skeleton</div>,
-}));
-
 // Mock auth functions
 const mockGetAuthServer = vi.fn();
 const mockGetAuth = vi.fn();
@@ -581,11 +576,6 @@ describe('account.wishlist loaders', () => {
                     },
                 },
             },
-            global: {
-                paginatedProductCarousel: {
-                    defaultLimit: 8,
-                },
-            },
             commerce: {
                 api: {
                     proxy: '/mobify/proxy/api',
@@ -673,7 +663,7 @@ describe('account.wishlist loaders', () => {
             expect(mockGetConfig).toHaveBeenCalled();
         });
 
-        test('should only fetch initial batch of products (initialLimit)', async () => {
+        test('should fetch all products for the wishlist (no initial batch limit)', async () => {
             const mockWishlist: ShopperCustomers.schemas['CustomerProductList'] = {
                 id: 'wishlist-1',
                 listId: 'wishlist-1',
@@ -692,10 +682,12 @@ describe('account.wishlist loaders', () => {
             });
 
             mockGetProducts.mockResolvedValue({
-                data: Array.from({ length: 8 }, (_, i) => ({
-                    id: `product-${i}`,
-                    name: `Product ${i}`,
-                })),
+                data: {
+                    data: Array.from({ length: 20 }, (_, i) => ({
+                        id: `product-${i}`,
+                        name: `Product ${i}`,
+                    })),
+                },
             });
 
             const result = await loader({
@@ -708,12 +700,12 @@ describe('account.wishlist loaders', () => {
             expect(result.items).toHaveLength(20); // All items are returned
             // Await the promise to trigger the fetch
             await result.productsByProductId;
-            // Only 8 products should be fetched (initialLimit)
+            // All 20 products should be fetched in a single batch (within the 24-limit)
             expect(mockGetProducts).toHaveBeenCalledTimes(1);
             expect(mockGetProducts).toHaveBeenCalledWith({
                 params: {
                     query: {
-                        ids: Array.from({ length: 8 }, (_, i) => `product-${i}`),
+                        ids: Array.from({ length: 20 }, (_, i) => `product-${i}`),
                         allImages: true,
                         perPricebook: true,
                         currency: 'GBP',
@@ -877,7 +869,7 @@ describe('WishlistSkeleton Component', () => {
         vi.clearAllMocks();
     });
 
-    test('should render page title and skeletons while awaiting loader data', async () => {
+    test('should render page title and list skeleton rows while awaiting loader data', async () => {
         const AccountWishlist = (await import('./_app.account.wishlist')).default;
 
         // Create a pending promise that never resolves during the test
@@ -902,8 +894,7 @@ describe('WishlistSkeleton Component', () => {
         const skeletons = container.querySelectorAll('[data-testid="skeleton"]');
         expect(skeletons.length).toBeGreaterThan(0);
 
-        // Should render product carousel skeleton
-        const carouselSkeleton = screen.getByTestId('product-carousel-skeleton');
-        expect(carouselSkeleton).toBeInTheDocument();
+        // Should NOT render the old product carousel skeleton
+        expect(container.querySelector('[data-testid="product-carousel-skeleton"]')).not.toBeInTheDocument();
     });
 });
