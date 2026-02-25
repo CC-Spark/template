@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { WriteReviewFormData } from '@/lib/adapters/product-content-data-types';
+import type { WriteReviewFormData, EstimatedDeliveryData } from '@/lib/adapters/product-content-data-types';
 
 /**
  * Payment schedule data for installment payment modal
@@ -85,11 +85,21 @@ export interface StarRatingDistributionModalData extends InfoModalDataBase {
     onSeeReviewsClick?: () => void;
 }
 
+/** Data for estimated delivery / fulfillment & shipping modal */
+export interface EstimatedDeliveryModalData extends InfoModalDataBase {
+    type: 'estimated-delivery';
+    deliveryData: EstimatedDeliveryData;
+}
+
 /**
  * Structured data for the info modal. Add new modal types by defining a new variant
  * (e.g. SizeGuideModalData) and extending this union.
  */
-export type InfoModalData = PaymentScheduleModalData | WriteReviewModalData | StarRatingDistributionModalData;
+export type InfoModalData =
+    | PaymentScheduleModalData
+    | WriteReviewModalData
+    | StarRatingDistributionModalData
+    | EstimatedDeliveryModalData;
 
 export interface InfoModalProps {
     open: boolean;

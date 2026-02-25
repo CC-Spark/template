@@ -205,18 +205,16 @@ const MOCK_ESTIMATED_DELIVERY_DATA: EstimatedDeliveryData = {
     internationalShipping: {
         heading: 'International Shipping',
         points: [
-            'We ship to over 50 countries worldwide.',
-            'International shipping rates and delivery times vary by destination.',
-            'International orders may be subject to customs fees and import duties, which are the responsibility of the customer.',
-            'Proceed to checkout and enter your shipping address for specific international shipping rates.',
+            'We ship to over 50 countries worldwide. International shipping rates and delivery times vary by destination.',
+            'Customs & Duties: International orders may be subject to customs fees and import duties, which are the responsibility of the customer.',
         ],
+        note: 'For specific international shipping rates, please proceed to checkout and enter your shipping address.',
     },
     orderTracking: {
         heading: 'Order Tracking',
         points: [
-            'Once your order ships, you will receive a confirmation email with tracking information.',
-            'You can track your order in real-time through our website or mobile app.',
-            'If you have questions about your shipment or delivery, please contact our customer service team.',
+            "Once your order ships, you'll receive a confirmation email with tracking information. You can track your order status in real-time through our website or mobile app.",
+            'Need Help? Contact our customer service team if you have questions about your shipment or delivery.',
         ],
     },
 };

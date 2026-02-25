@@ -149,6 +149,7 @@ export interface EstimatedDeliveryData {
     internationalShipping: {
         heading: string;
         points: string[];
+        note?: string;
     };
     /** Order tracking section */
     orderTracking: {

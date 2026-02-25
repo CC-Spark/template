@@ -1268,7 +1268,17 @@
     "infoModal": {
         "paymentScheduleDescription": "Payment schedule details",
         "writeReviewDescription": "Write a review form",
-        "starRatingDistributionDescription": "Star rating distribution details"
+        "starRatingDistributionDescription": "Star rating distribution details",
+        "estimatedDeliveryDescription": "Estimated delivery details",
+        "close": "Close"
+    },
+    "estimatedDelivery": {
+        "cardTitle": "Estimated Delivery",
+        "cardDescription": "Shipping options available",
+        "learnMore": "Learn More",
+        "sectionHeading": "Estimated Delivery",
+        "shippingOptionsHeading": "Shipping Options & Rates",
+        "free": "Free"
     },
     "writeReview": {
         "validation": {

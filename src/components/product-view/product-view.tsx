@@ -22,6 +22,7 @@ import ProductViewProvider from '@/providers/product-view';
 import { useProductImages } from '@/hooks/product/use-product-images';
 import { useSelectedVariations } from '@/hooks/product/use-selected-variations';
 import CategoryBreadcrumbs from '../category-breadcrumbs';
+import EstimatedDelivery from '@/components/estimated-delivery';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 
 interface ProductViewProps {
@@ -86,6 +87,7 @@ export default function ProductView({ product, category }: ProductViewProps): Re
                     )}
                     <ProductInfo product={product} />
                     <ProductCartActions product={product} />
+                    <EstimatedDelivery productId={product.id} />
                 </div>
             </div>
         </ProductViewProvider>

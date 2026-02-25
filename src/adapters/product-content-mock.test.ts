@@ -106,8 +106,8 @@ describe('ProductContentMockAdapter', () => {
             expect(data.estimatedDelivery.options).toHaveLength(3);
             expect(data.shippingOptions).toHaveLength(3);
             expect(data.shippingOptions[0].cost).toBe(5.99);
-            expect(data.internationalShipping.points).toHaveLength(4);
-            expect(data.orderTracking.points).toHaveLength(3);
+            expect(data.internationalShipping.points).toHaveLength(2);
+            expect(data.orderTracking.points).toHaveLength(2);
         });
     });
 

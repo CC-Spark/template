@@ -1087,7 +1087,17 @@
     "infoModal": {
         "paymentScheduleDescription": "Dettagli piano di pagamento",
         "writeReviewDescription": "Modulo per scrivere una recensione",
-        "starRatingDistributionDescription": "Dettagli distribuzione valutazioni a stelle"
+        "starRatingDistributionDescription": "Dettagli distribuzione valutazioni a stelle",
+        "estimatedDeliveryDescription": "Dettagli consegna stimata",
+        "close": "Chiudi"
+    },
+    "estimatedDelivery": {
+        "cardTitle": "Consegna Stimata",
+        "cardDescription": "Opzioni di spedizione disponibili",
+        "learnMore": "Scopri di più",
+        "sectionHeading": "Consegna Stimata",
+        "shippingOptionsHeading": "Opzioni di Spedizione e Tariffe",
+        "free": "Gratuito"
     },
     "writeReview": {
         "validation": {
