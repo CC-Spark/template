@@ -14,10 +14,29 @@
  * limitations under the License.
  */
 import type { ActionFunctionArgs } from 'react-router';
-import { extractQualifiersFromInput, safeParseCookie, updateShopperContext } from '@/lib/shopper-context-utils';
+import { extractQualifiersFromInput, updateShopperContext } from '@/lib/shopper-context-utils';
 import { getAuth } from '@/middlewares/auth.server';
 import { getTranslation } from '@/lib/i18next';
 import { extractStatusCode } from '@/lib/utils';
+
+/**
+ * Safely parse JSON from cookie/qualifiers value.
+ * Returns empty object if parsing fails.
+ */
+function safeParseCookie(cookieValue: string): Record<string, string> {
+    if (!cookieValue) {
+        return {};
+    }
+    try {
+        const parsed = JSON.parse(cookieValue);
+        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            return parsed as Record<string, string>;
+        }
+        return {};
+    } catch {
+        return {};
+    }
+}
 
 type UpdateShopperContextResponse = {
     success: boolean;

@@ -109,36 +109,10 @@ export const isCouponCode = (key: string): boolean => {
 };
 
 /**
- * Safely parse JSON from cookie value
- * Returns empty object if parsing fails
+ * Shared logic: extract qualifiers from key-value entries.
+ * Used by extractQualifiersFromUrl and extractQualifiersFromInput.
  */
-export function safeParseCookie(cookieValue: string): Record<string, string> {
-    if (!cookieValue) {
-        return {};
-    }
-
-    try {
-        const parsed = JSON.parse(cookieValue);
-        // Ensure parsed value is an object
-        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-            return parsed as Record<string, string>;
-        }
-        // eslint-disable-next-line no-console
-        console.warn('Parsed shopper context cookie is not a Record<string, string> object', parsed);
-        return {};
-    } catch (error) {
-        // Invalid JSON in cookie - log warning and return empty object
-        // eslint-disable-next-line no-console
-        console.warn('Failed to parse shopper context cookie:', error instanceof Error ? error.message : String(error));
-        return {};
-    }
-}
-
-/**
- * Extract qualifiers from URL query parameters into a map
- * Uses SHOPPER_CONTEXT_SEARCH_PARAMS to determine which qualifiers to extract
- */
-export function extractQualifiersFromUrl(url: URL): {
+function extractQualifiersFromEntries(entries: Iterable<[string, string]>): {
     qualifiers: Record<string, string>;
     sourceCodeQualifiers: Record<string, string>;
 } {
@@ -149,8 +123,7 @@ export function extractQualifiersFromUrl(url: URL): {
     // For example: couponCodes
     const tempQualifiers: Record<string, string[]> = {};
 
-    // Iterate through all URL search params
-    for (const [searchParamKey, searchParamValue] of url.searchParams.entries()) {
+    for (const [searchParamKey, searchParamValue] of entries) {
         if (!searchParamKey) continue;
 
         const mapping = SHOPPER_CONTEXT_SEARCH_PARAMS[searchParamKey];
@@ -200,6 +173,17 @@ export function extractQualifiersFromUrl(url: URL): {
 }
 
 /**
+ * Extract qualifiers from URL query parameters into a map
+ * Uses SHOPPER_CONTEXT_SEARCH_PARAMS to determine which qualifiers to extract
+ */
+export function extractQualifiersFromUrl(url: URL): {
+    qualifiers: Record<string, string>;
+    sourceCodeQualifiers: Record<string, string>;
+} {
+    return extractQualifiersFromEntries(url.searchParams.entries());
+}
+
+/**
  * Extract qualifiers from input record into a map
  * Similar to extractQualifiersFromUrl but accepts a Record<string, string> directly
  * Uses SHOPPER_CONTEXT_SEARCH_PARAMS to determine which qualifiers to extract
@@ -217,61 +201,7 @@ export function extractQualifiersFromInput(input: Record<string, string>): {
     qualifiers: Record<string, string>;
     sourceCodeQualifiers: Record<string, string>;
 } {
-    const qualifiers: Record<string, string> = {};
-    const sourceCodeQualifiers: Record<string, string> = {};
-
-    // For temporary storage of qualifiers with value as string array
-    // For example: couponCodes
-    const tempQualifiers: Record<string, string[]> = {};
-
-    // Iterate through all input entries
-    for (const [inputKey, inputValue] of Object.entries(input)) {
-        if (!inputKey) continue;
-
-        const mapping = SHOPPER_CONTEXT_SEARCH_PARAMS[inputKey];
-        let apiFieldName: string | undefined;
-        let qualifierMapping: QualifierMapping | undefined;
-
-        // Check if it's a root-level qualifier (e.g., src)
-        if (mapping && QUALIFIER_MAPPING_PARAM_NAME in mapping) {
-            qualifierMapping = mapping as QualifierMapping;
-        }
-        // Check if it's a customQualifier (e.g., customQualifiers.device)
-        else if (isCustomQualifier(inputKey)) {
-            qualifierMapping = customQualifiersMapping[inputKey];
-        }
-        // Check if it's an assignmentQualifier (e.g., assignmentQualifiers.store)
-        else if (isAssignmentQualifier(inputKey)) {
-            qualifierMapping = assignmentQualifiersMapping[inputKey];
-        }
-
-        if (qualifierMapping && qualifierMapping[QUALIFIER_MAPPING_PARAM_NAME] === inputKey) {
-            apiFieldName =
-                qualifierMapping[QUALIFIER_MAPPING_API_FIELD_NAME] ?? qualifierMapping[QUALIFIER_MAPPING_PARAM_NAME];
-
-            // Separate sourceCode from other qualifiers
-            if (apiFieldName === SOURCE_CODE_API_FIELD_NAME) {
-                sourceCodeQualifiers[apiFieldName] = inputValue;
-            } else {
-                if (!tempQualifiers[apiFieldName]) {
-                    tempQualifiers[apiFieldName] = [];
-                }
-                // Add to regular qualifiers (for other qualifiers than sourceCode)
-                tempQualifiers[apiFieldName].push(inputValue);
-            }
-        }
-    }
-
-    // Convert temporary qualifiers with value as string array to qualifiers with value as string
-    // As cookies only support string values
-    // Will use string.split(',') to get the values as string array in buildShopperContextBody
-    // As API call will need payload as string or string array
-    for (const key in tempQualifiers) {
-        const values = tempQualifiers[key];
-        qualifiers[key] = values.join(',');
-    }
-
-    return { qualifiers, sourceCodeQualifiers };
+    return extractQualifiersFromEntries(Object.entries(input));
 }
 
 /**
@@ -353,6 +283,7 @@ export async function updateShopperContext({
     const sourceCodeCookieName = getSourceCodeCookieName(context);
 
     const cookieConfig = getCookieConfig({ httpOnly: false }, context);
+
     const shopperContextCookieHandler = createCookie(shopperContextCookieName, cookieConfig);
     const sourceCodeCookieHandler = createCookie(sourceCodeCookieName, cookieConfig);
 
