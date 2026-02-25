@@ -173,7 +173,7 @@ export default function ProductCartActions({
                 )}
 
                 <UITarget targetId="pdp.after.addToCart">
-                    {currentProductId && <BuyNowPayLater productId={String(currentProductId)} />}
+                    {!isEditMode && currentProductId && <BuyNowPayLater productId={String(currentProductId)} />}
                 </UITarget>
 
                 {!isEditMode && (

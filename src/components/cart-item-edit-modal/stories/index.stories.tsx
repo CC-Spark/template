@@ -22,21 +22,66 @@ import { expect, within } from 'storybook/test';
 import { masterProduct, variantProduct } from '@/components/__mocks__/master-variant-product';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
-// Create a product that won't trigger fetches by ensuring matching variant has same productId
+// Create a product that won't trigger fetches by ensuring all variants have same productId as master
 const createMockProductForModal = (): ShopperProducts.schemas['Product'] => {
-    // Use master product but ensure the variant matching variantProduct.variationValues has productId matching master id
-    const product = { ...masterProduct, variationValues: variantProduct.variationValues };
-    // Find the variant that matches and update its productId to match the master id
+    const product = {
+        ...masterProduct,
+        variationValues: variantProduct.variationValues,
+        brand: 'Salesforce Foundations',
+    };
+    // Set all variants' productId to match the master id so no variant change triggers a fetch
     if (product.variants) {
-        const matchingVariant = product.variants.find(
-            (v) =>
-                v.variationValues?.color === variantProduct.variationValues?.color &&
-                v.variationValues?.size === variantProduct.variationValues?.size &&
-                v.variationValues?.width === variantProduct.variationValues?.width
-        );
-        if (matchingVariant) {
-            matchingVariant.productId = product.id;
-        }
+        product.variants = product.variants.map((v) => ({ ...v, productId: product.id }));
+    }
+    return product;
+};
+
+// Create a product with only Size variation (no color/width) for the size-only story
+const createSizeOnlyProduct = (): ShopperProducts.schemas['Product'] => {
+    const product = createMockProductForModal();
+    // Keep only the 'size' variation attribute
+    product.variationAttributes = product.variationAttributes?.filter((attr) => attr.id === 'size');
+    // Remove color/width from variant variation values and deduplicate by size
+    const seenSizes = new Set<string>();
+    product.variants = product.variants
+        ?.map((v) => ({
+            ...v,
+            variationValues: { size: v.variationValues?.size || '' },
+        }))
+        .filter((v) => {
+            if (seenSizes.has(v.variationValues.size)) return false;
+            seenSizes.add(v.variationValues.size);
+            return true;
+        });
+    // Set variation values to size only
+    product.variationValues = { size: product.variationValues?.size || '040' };
+    // Remove color-keyed image groups (keep only generic ones)
+    product.imageGroups = product.imageGroups?.filter(
+        (group) => !group.variationAttributes?.some((attr) => attr.id === 'color')
+    );
+    // Ensure matching variant has same productId
+    const matchingVariant = product.variants?.find((v) => v.variationValues?.size === product.variationValues?.size);
+    if (matchingVariant) {
+        matchingVariant.productId = product.id;
+    }
+    return product;
+};
+
+// Create a product with extra images (>4) to demonstrate thumbnail scrolling arrows
+const createProductWithManyImages = (): ShopperProducts.schemas['Product'] => {
+    const product = createMockProductForModal();
+    // Add extra images to the generic (non-color-specific) large image group
+    const largeGroup = product.imageGroups?.find((g) => g.viewType === 'large' && !g.variationAttributes);
+    if (largeGroup?.images) {
+        const baseImages = largeGroup.images;
+        // Duplicate images with unique alt text to create 6+ thumbnails
+        largeGroup.images = [
+            ...baseImages,
+            { ...baseImages[0], alt: `${baseImages[0].alt} - angle 3` },
+            { ...baseImages[1], alt: `${baseImages[1].alt} - angle 4` },
+            { ...baseImages[0], alt: `${baseImages[0].alt} - angle 5` },
+            { ...baseImages[1], alt: `${baseImages[1].alt} - angle 6` },
+        ];
     }
     return product;
 };
@@ -138,34 +183,29 @@ const meta: Meta<typeof CartItemEditModal> = {
     parameters: {
         layout: 'centered',
         docs: {
+            story: { inline: false, height: '600px' },
             description: {
                 component: `
-A modal dialog component for editing cart items. This component provides a full product editing experience with image gallery, variant selection, and quantity adjustment.
+A modal dialog component for editing cart items. Allows shoppers to change product variants, adjust quantity, and update their cart without navigating away from the cart page.
 
 ## Features
 
-- **Product Display**: Shows product images in a gallery
-- **Variant Selection**: Interactive swatches for color, size, etc.
-- **Quantity Adjustment**: Quantity picker for updating quantity
-- **Product Info**: Full product details and description
-- **Update Action**: Button to save changes to cart
-- **Responsive Layout**: Grid layout that adapts to screen size
-- **Modal Dialog**: Accessible dialog with proper focus management
+- **Brand Display**: Shows the product brand above the product name
+- **Product Browsing**: Image gallery with scrollable thumbnails for viewing product images
+- **Variant Selection**: Interactive swatches for selecting size, color, and other product options
+- **Quantity Adjustment**: Quantity picker to increase or decrease item quantity
+- **Price Display**: Shows the current unit price for the selected variant
+- **Update Action**: Confirms and applies the shopper's changes to the cart item
+- **Accessible Dialog**: Modal with proper focus management and close functionality
 
 ## Usage
-
-The CartItemEditModal is used in:
-- Cart item editing flows
-- Product variant changes
-- Quantity updates
-- Cart item management
 
 \`\`\`tsx
 import { CartItemEditModal } from '../cart-item-edit-modal';
 
 function CartItem({ product, itemId, quantity }) {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   return (
     <>
       <button onClick={() => setIsOpen(true)}>Edit</button>
@@ -199,6 +239,7 @@ function CartItem({ product, itemId, quantity }) {
 - **Quantity Updates**: Updates cart item quantity
 - **Modal Management**: Handles open/close state
 - **Optimistic UI**: Closes modal immediately before update
+- **Compact styling**: Hides inventory status, promotional callouts, list prices, and "Buy now pay later" text
                 `,
             },
         },
@@ -275,52 +316,9 @@ function CartItem({ product, itemId, quantity }) {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-    args: {
-        product: createMockProductForModal(),
-        initialQuantity: 1,
-        itemId: 'item-123',
-        open: true,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: `
-The default CartItemEditModal shows the edit interface:
-
-### Features:
-- **Modal dialog**: Opens with product editing interface
-- **Image gallery**: Product images on the left
-- **Product info**: Product details and variants on the right
-- **Quantity picker**: Current quantity displayed
-- **Update button**: Button to save changes
-
-### Use Cases:
-- Standard cart item editing
-- Product variant changes
-- Quantity updates
-- Most common edit scenarios
-                `,
-            },
-        },
-    },
-    play: async ({ canvasElement: _canvasElement }) => {
-        // Dialog renders in a portal, so query from document.body
-        const documentBody = within(document.body);
-
-        // Wait for modal dialog to be visible (not aria-hidden)
-        const dialog = await documentBody.findByRole('dialog', { hidden: false });
-        await expect(dialog).toBeInTheDocument();
-
-        // Test modal title is present (wait for it to appear)
-        const title = await documentBody.findByText(/edit cart item/i);
-        await expect(title).toBeInTheDocument();
-    },
-};
-
 export const WithHighQuantity: Story = {
     args: {
-        product: createMockProductForModal(),
+        product: createSizeOnlyProduct(),
         initialQuantity: 5,
         itemId: 'item-123',
         open: true,
@@ -329,19 +327,20 @@ export const WithHighQuantity: Story = {
         docs: {
             description: {
                 story: `
-CartItemEditModal with high initial quantity:
+CartItemEditModal with a size-only product and high initial quantity. Demonstrates the simplified edit experience for products with a single variation attribute.
 
-### High Quantity Features:
-- **Quantity display**: Shows current high quantity
-- **Quantity editing**: Can adjust quantity in modal
-- **Same functionality**: All edit features work the same
-- **Quantity context**: Modal shows current quantity
+### Features:
+- **Brand header**: Organisation name in uppercase grey text
+- **Size only**: Single variation attribute (no color or width swatches)
+- **High quantity**: Initial quantity of 5 shown in the quantity picker
+- **Current price only**: Clean price display without promotions or list price
+- **Compact thumbnails**: No scroll arrows (fewer than 4 images)
+- **Full-width Update button**: Separated by a divider at the bottom
 
 ### Use Cases:
-- Items with multiple quantities
-- Bulk item editing
-- Quantity adjustments
-- High quantity scenarios
+- Products with a single variation attribute
+- Size-only products (e.g. accessories, shoes)
+- Bulk quantity editing
                 `,
             },
         },
@@ -358,7 +357,7 @@ CartItemEditModal with high initial quantity:
 
 export const WithVariants: Story = {
     args: {
-        product: createMockProductForModal(),
+        product: createProductWithManyImages(),
         initialQuantity: 1,
         itemId: 'item-123',
         open: true,
@@ -368,19 +367,22 @@ export const WithVariants: Story = {
         docs: {
             description: {
                 story: `
-CartItemEditModal with product variants:
+CartItemEditModal with multiple product variants and a large image gallery. Demonstrates the full edit experience with all variation attributes and scrollable thumbnails.
 
-### Variant Features:
-- **Variant display**: Shows selected variants
-- **Variant selection**: Can change variants in modal
-- **Variant swatches**: Interactive swatches for selection
-- **Image updates**: Gallery updates based on selected variant
+### Features:
+- **Brand header**: Organisation name in uppercase grey text
+- **Multiple variants**: Size, Color, and Width swatches (size displayed first)
+- **Blue selected state**: Selected swatches use primary (blue) fill
+- **Scrollable thumbnails**: Horizontal thumbnail strip with left/right arrows (6+ images)
+- **Navigation arrows**: Previous/next arrows on the main image
+- **Current price only**: Clean price display without promotions or list price
+- **Full-width Update button**: Separated by a divider at the bottom
+- **Live label updates**: Variant labels (e.g. "Size: 40") update on selection
 
 ### Use Cases:
-- Products with color/size options
-- Variant changes
-- Product configuration
-- Variant-specific editing
+- Products with multiple variation attributes (color, size, width)
+- Products with many images
+- Full variant editing experience
                 `,
             },
         },
@@ -406,19 +408,16 @@ export const Closed: Story = {
         docs: {
             description: {
                 story: `
-CartItemEditModal in closed state:
+CartItemEditModal in its closed (default) state. The modal is not rendered in the DOM until opened.
 
-### Closed State Features:
-- **Modal hidden**: Dialog is not visible
-- **Not rendered**: Modal content not in DOM
-- **Ready to open**: Can be opened programmatically
-- **State management**: Open state controlled by parent
+### Features:
+- **Modal hidden**: Dialog is not visible or rendered
+- **Ready to open**: Can be opened programmatically via the \`open\` prop
+- **State management**: Open state controlled by parent component
 
 ### Use Cases:
-- Initial state
-- After closing modal
-- Conditional rendering
-- State management
+- Default initial state before user clicks "Edit"
+- After modal is closed following an update
                 `,
             },
         },

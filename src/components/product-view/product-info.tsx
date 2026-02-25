@@ -36,6 +36,10 @@ import DeliveryOptions from '@/extensions/bopis/components/delivery-options/deli
 type ProductInfoBaseProps = {
     product: ShopperProducts.schemas['Product'];
     hideVariantSelection?: boolean;
+    /** Layout style: 'full' (default) shows title, description, inventory; 'compact' shows brand, smaller title, sorted attributes */
+    variantStyle?: 'full' | 'compact';
+    /** When true and mode is 'edit', show quantity picker (e.g. in cart edit modal) */
+    showQuantityInEditMode?: boolean;
 };
 type ProductInfoUncontrolledProps = ProductInfoBaseProps & {
     /** Mode for swatch interaction: 'uncontrolled' uses URL navigation */
@@ -72,6 +76,8 @@ export default function ProductInfo({
     onAttributeChange,
     variationValues,
     hideVariantSelection = false,
+    variantStyle = 'full',
+    showQuantityInEditMode = false,
 }: ProductInfoProps): ReactElement {
     const config = useConfig();
     const isProductASet = isProductSet(product);
@@ -96,15 +102,45 @@ export default function ProductInfo({
 
     const { t } = useTranslation('product');
 
+    const isCompactStyle = variantStyle === 'compact';
+    const showQuantity = !isProductASet && !isProductABundle && (mode !== 'edit' || showQuantityInEditMode);
+
+    // In compact mode, sort variation attributes by priority order
+    const COMPACT_ATTRIBUTE_ORDER = ['size', 'color'];
+    const sortedVariationAttributes = isCompactStyle
+        ? [...variationAttributes].sort((a, b) => {
+              const aIndex = COMPACT_ATTRIBUTE_ORDER.indexOf(a.id);
+              const bIndex = COMPACT_ATTRIBUTE_ORDER.indexOf(b.id);
+              // Attributes not in the list sort to the end, preserving original order
+              const aPriority = aIndex === -1 ? COMPACT_ATTRIBUTE_ORDER.length : aIndex;
+              const bPriority = bIndex === -1 ? COMPACT_ATTRIBUTE_ORDER.length : bIndex;
+              return aPriority - bPriority;
+          })
+        : variationAttributes;
+
     return (
         <div className="grid gap-4">
-            {/* Desktop Product Title - hidden on mobile */}
-            <div className="hidden md:block">
-                <h1 className="text-3xl font-bold text-foreground">{product.name}</h1>
-                {product.shortDescription && (
-                    <p className="mt-2 text-lg text-muted-foreground">{product.shortDescription}</p>
-                )}
-            </div>
+            {/* Compact style: brand (uppercase) then product name */}
+            {isCompactStyle && (
+                <>
+                    {product.brand && (
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            {product.brand}
+                        </p>
+                    )}
+                    <h2 className="text-xl font-bold text-foreground">{product.name}</h2>
+                </>
+            )}
+
+            {/* Desktop Product Title - hidden on mobile when not compact */}
+            {!isCompactStyle && (
+                <div className="hidden md:block">
+                    <h1 className="text-3xl font-bold text-foreground">{product.name}</h1>
+                    {product.shortDescription && (
+                        <p className="mt-2 text-lg text-muted-foreground">{product.shortDescription}</p>
+                    )}
+                </div>
+            )}
 
             {/* Price - show unit price on PDP */}
             <div>
@@ -117,14 +153,22 @@ export default function ProductInfo({
                     currentPriceProps={{
                         className: 'text-xl font-bold text-foreground',
                     }}
+                    hidePromo={isCompactStyle}
+                    currentPriceOnly={isCompactStyle}
                 />
             </div>
 
-            {/* Inventory Status Message */}
-            <InventoryMessage product={product} currentVariant={currentVariant} />
+            {/* Inventory Status Message - hidden in compact/edit mode */}
+            {!isCompactStyle && <InventoryMessage product={product} currentVariant={currentVariant} />}
 
             {/* Swatch Groups for Product Variations */}
-            {variationAttributes.map(({ id, name, selectedValue, values }) => {
+            {sortedVariationAttributes.map(({ id, name, selectedValue, values }) => {
+                // In controlled mode, derive display name from variationValues state
+                const controlledValue = variationValues?.[id];
+                const controlledDisplayName = controlledValue
+                    ? values.find((v) => v.value === controlledValue)?.name || ''
+                    : '';
+
                 // When hideVariantSelection is true, only show the selected swatch (read-only)
                 const swatchesToShow = hideVariantSelection
                     ? values.filter((v) => v.value === selectedValue?.value)
@@ -159,8 +203,8 @@ export default function ProductInfo({
                 return (
                     <SwatchGroup
                         key={id}
-                        value={swatchMode === 'uncontrolled' ? selectedValue?.value : variationValues?.[id]}
-                        displayName={selectedValue?.name || ''}
+                        value={swatchMode === 'uncontrolled' ? selectedValue?.value : controlledValue}
+                        displayName={swatchMode === 'controlled' ? controlledDisplayName : selectedValue?.name || ''}
                         label={name}
                         handleChange={
                             // Disable handleChange when hideVariantSelection is true
@@ -188,8 +232,8 @@ export default function ProductInfo({
             )}
             {/* @sfdc-extension-block-end SFDC_EXT_BOPIS */}
 
-            {/* Quantity Selector - Only for non-set/bundle products and not when opened from cart page */}
-            {!isProductASet && !isProductABundle && mode !== 'edit' && (
+            {/* Quantity Selector - for non-set/bundle when not edit mode, or when showQuantityInEditMode in edit mode */}
+            {showQuantity && (
                 <ProductQuantityPicker
                     value={quantity.toString()}
                     onChange={setQuantity}

@@ -15,7 +15,7 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
           class="space-y-4"
         >
           <div
-            class="aspect-square overflow-hidden rounded-lg bg-muted"
+            class="relative aspect-square overflow-hidden rounded-lg bg-muted"
           >
             <div
               class="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
@@ -533,7 +533,7 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
           class="space-y-4"
         >
           <div
-            class="aspect-square overflow-hidden rounded-lg bg-muted"
+            class="relative aspect-square overflow-hidden rounded-lg bg-muted"
           >
             <div
               class="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"

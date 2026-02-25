@@ -166,7 +166,7 @@ export function CartItemEditModal({
                 className="sm:max-w-4xl max-h-[90vh] overflow-y-auto"
                 showCloseButton
                 aria-describedby={undefined}>
-                <DialogHeader>
+                <DialogHeader className="sr-only">
                     <DialogTitle>{t('title')}</DialogTitle>
                 </DialogHeader>
                 <ProductViewProvider
@@ -174,26 +174,32 @@ export function CartItemEditModal({
                     mode="edit"
                     initialQuantity={initialQuantity}
                     itemId={itemId}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 pt-2">
                         <div className="order-1">
                             <ImageGallery
                                 key={currentProduct.id}
                                 images={galleryImages}
                                 eager={!isProductASet && !isProductABundle}
+                                showNavigationArrows
+                                horizontalThumbnails
                                 productName={currentProduct.name}
                             />
                         </div>
-                        <div className="order-2">
+                        <div className="order-2 flex flex-col">
                             {/* we are controlling the swatches state with onAttributeChange and variationValues */}
                             <ProductInfo
                                 product={currentProduct}
                                 swatchMode="controlled"
                                 onAttributeChange={handleAttributeChange}
                                 variationValues={variationValues}
+                                variantStyle="compact"
+                                showQuantityInEditMode
                             />
-                            <ProductCartActions product={currentProduct} onBeforeCartAction={handleCloseModal} />
                         </div>
                     </div>
+                    {/* Separator and full-width Update button at bottom of modal */}
+                    <hr className="border-border border-t-2" />
+                    <ProductCartActions product={currentProduct} onBeforeCartAction={handleCloseModal} />
                 </ProductViewProvider>
                 {isProductASet || isProductABundle ? (
                     <ChildProducts

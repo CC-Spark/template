@@ -17,7 +17,9 @@
             "defaultTitle": "Shop Now",
             "defaultImageAlt": "Hero Image",
             "defaultCtaText": "Shop Now"
-        }
+        },
+        "previousImage": "Previous image",
+        "nextImage": "Next image"
     },
     "search": {
         "results": "Search Results for",

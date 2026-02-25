@@ -6,7 +6,7 @@ exports[`ImageGallery stories snapshot > Default story renders and matches snaps
     class="space-y-4"
   >
     <div
-      class="aspect-square overflow-hidden rounded-lg bg-muted"
+      class="relative aspect-square overflow-hidden rounded-lg bg-muted"
     >
       <div
         class="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
@@ -42,7 +42,7 @@ exports[`ImageGallery stories snapshot > EagerLoading story renders and matches 
     class="space-y-4"
   >
     <div
-      class="aspect-square overflow-hidden rounded-lg bg-muted"
+      class="relative aspect-square overflow-hidden rounded-lg bg-muted"
     >
       <div
         class="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
@@ -99,7 +99,7 @@ exports[`ImageGallery stories snapshot > SingleImage story renders and matches s
     class="space-y-4"
   >
     <div
-      class="aspect-square overflow-hidden rounded-lg bg-muted"
+      class="relative aspect-square overflow-hidden rounded-lg bg-muted"
     >
       <div
         class="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"

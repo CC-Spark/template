@@ -10,7 +10,9 @@
         "noImageAvailable": "Nessuna immagine disponibile",
         "productGeneric": "Prodotto",
         "noProductsFound": "Nessun prodotto trovato",
-        "productCarousel": "Carosello prodotti"
+        "productCarousel": "Carosello prodotti",
+        "previousImage": "Immagine precedente",
+        "nextImage": "Immagine successiva"
     },
     "search": {
         "results": "Risultati di ricerca per",

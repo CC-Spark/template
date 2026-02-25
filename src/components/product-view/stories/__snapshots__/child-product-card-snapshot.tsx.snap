@@ -52,7 +52,7 @@ exports[`ChildProductCard stories snapshot > Controlled story renders and matche
             class="space-y-4"
           >
             <div
-              class="aspect-square overflow-hidden rounded-lg bg-muted"
+              class="relative aspect-square overflow-hidden rounded-lg bg-muted"
             >
               <div
                 class="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
@@ -193,7 +193,7 @@ exports[`ChildProductCard stories snapshot > Default story renders and matches s
             class="space-y-4"
           >
             <div
-              class="aspect-square overflow-hidden rounded-lg bg-muted"
+              class="relative aspect-square overflow-hidden rounded-lg bg-muted"
             >
               <div
                 class="w-full h-full object-cover object-center [&_img]:object-contain! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
