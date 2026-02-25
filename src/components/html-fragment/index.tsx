@@ -23,8 +23,6 @@ interface HtmlFragmentProps {
     content: string;
     /** Declares the expected HTML structure, used to resolve default styling */
     contentType?: HtmlContentType;
-    /** Optional section label displayed above the content */
-    label?: string;
     /** CSS class override — takes precedence over contentType-based styling */
     className?: string;
 }
@@ -37,22 +35,14 @@ interface HtmlFragmentProps {
 export default function HtmlFragment({
     content,
     contentType = 'plain-text',
-    label,
     className,
 }: HtmlFragmentProps): ReactElement {
     return (
-        <div className="flex flex-col gap-3">
-            {label && (
-                <div className="flex items-center gap-2 text-sm text-foreground">
-                    <span className="font-semibold">{label}</span>
-                </div>
-            )}
-
-            <div
-                className={className ?? HTML_CONTENT_STYLES[contentType]}
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: content }}
-            />
-        </div>
+        <div
+            data-testid="html-fragment"
+            className={className ?? HTML_CONTENT_STYLES[contentType]}
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: content }}
+        />
     );
 }

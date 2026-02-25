@@ -31,20 +31,6 @@ const renderHtmlFragment = (props: React.ComponentProps<typeof HtmlFragment>) =>
 };
 
 describe('HtmlFragment', () => {
-    test('renders a label when provided', () => {
-        renderHtmlFragment({ content: 'Some content', label: 'Description:' });
-
-        expect(screen.getByText('Description:')).toBeInTheDocument();
-        expect(screen.getByText('Description:')).toHaveClass('font-semibold');
-    });
-
-    test('does not render a label when omitted', () => {
-        const { container } = renderHtmlFragment({ content: 'Some content' });
-
-        expect(screen.queryByText('Description:')).not.toBeInTheDocument();
-        expect(container.querySelectorAll('.font-semibold')).toHaveLength(0);
-    });
-
     test('renders plain text content', () => {
         renderHtmlFragment({ content: 'A premium quality product.' });
 
@@ -62,38 +48,27 @@ describe('HtmlFragment', () => {
     });
 
     test('applies plain-text styles by default', () => {
-        const { container } = renderHtmlFragment({ content: 'Some text', label: 'Label' });
+        renderHtmlFragment({ content: 'Some text' });
 
-        const wrapper = container.querySelector('.flex.flex-col.gap-3');
-        const contentDiv = wrapper?.querySelector(':scope > div:last-child');
-        expect(contentDiv).toBeInTheDocument();
-        expect(contentDiv?.className).toBe(HTML_CONTENT_STYLES['plain-text']);
+        expect(screen.getByTestId('html-fragment').className).toBe(HTML_CONTENT_STYLES['plain-text']);
     });
 
     test('applies bulleted-list styles when contentType is bulleted-list', () => {
-        const { container } = renderHtmlFragment({
+        renderHtmlFragment({
             content: '<ul><li>Item</li></ul>',
             contentType: 'bulleted-list',
-            label: 'Label',
         });
 
-        const wrapper = container.querySelector('.flex.flex-col.gap-3');
-        const contentDiv = wrapper?.querySelector(':scope > div:last-child');
-        expect(contentDiv).toBeInTheDocument();
-        expect(contentDiv?.className).toBe(HTML_CONTENT_STYLES['bulleted-list']);
+        expect(screen.getByTestId('html-fragment').className).toBe(HTML_CONTENT_STYLES['bulleted-list']);
     });
 
     test('applies table-2-column styles when contentType is table-2-column', () => {
-        const { container } = renderHtmlFragment({
+        renderHtmlFragment({
             content: '<table><tr><td>Key:</td><td>Value</td></tr></table>',
             contentType: 'table-2-column',
-            label: 'Specs',
         });
 
-        const wrapper = container.querySelector('.flex.flex-col.gap-3');
-        const contentDiv = wrapper?.querySelector(':scope > div:last-child');
-        expect(contentDiv).toBeInTheDocument();
-        expect(contentDiv?.className).toBe(HTML_CONTENT_STYLES['table-2-column']);
+        expect(screen.getByTestId('html-fragment').className).toBe(HTML_CONTENT_STYLES['table-2-column']);
     });
 
     test('className override takes precedence over contentType', () => {
@@ -110,11 +85,9 @@ describe('HtmlFragment', () => {
     });
 
     test('renders empty content gracefully', () => {
-        const { container } = renderHtmlFragment({ content: '' });
+        renderHtmlFragment({ content: '' });
 
-        const wrapper = container.querySelector('.flex.flex-col.gap-3');
-        const contentDiv = wrapper?.querySelector(':scope > div:last-child');
-        expect(contentDiv?.textContent).toBe('');
+        expect(screen.getByTestId('html-fragment').textContent).toBe('');
     });
 
     test('renders plain text when contentType is bulleted-list', () => {

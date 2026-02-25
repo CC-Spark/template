@@ -34,7 +34,6 @@ export const PlainText: Story = {
     args: {
         content: 'This is a premium quality product with excellent durability and comfort.',
         contentType: 'plain-text',
-        label: 'Description:',
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -49,7 +48,6 @@ export const BulletedList: Story = {
     args: {
         content: '<ul><li>Premium cotton blend</li><li>Machine washable</li><li>Breathable fabric</li></ul>',
         contentType: 'bulleted-list',
-        label: 'Description:',
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
@@ -64,24 +62,11 @@ export const Table2Column: Story = {
         content:
             '<table><tr><td>Material:</td><td>Full-grain leather</td></tr><tr><td>Sole:</td><td>Rubber</td></tr><tr><td>Heel height:</td><td>1.5"</td></tr><tr><td>Closure:</td><td>Lace-up + side zip</td></tr></table>',
         contentType: 'table-2-column',
-        label: 'Specifications:',
     },
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         await expect(canvas.getByText('Material:')).toBeInTheDocument();
         await expect(canvas.getByText('Full-grain leather')).toBeInTheDocument();
-    },
-};
-
-export const WithoutLabel: Story = {
-    args: {
-        content: 'Content rendered without a section label.',
-        contentType: 'plain-text',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-        await expect(canvas.getByText('Content rendered without a section label.')).toBeInTheDocument();
     },
 };

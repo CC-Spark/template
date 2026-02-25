@@ -69,23 +69,20 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
             </svg>
           </summary>
           <div
-            class="flex flex-col gap-3"
+            class="text-sm text-foreground [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:list-none [&_ul]:m-0 [&_ul]:p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2 [&_li]:before:content-[''] [&_li]:before:h-1.5 [&_li]:before:w-1.5 [&_li]:before:flex-shrink-0 [&_li]:before:rounded-full [&_li]:before:bg-foreground"
+            data-testid="html-fragment"
           >
-            <div
-              class="text-sm text-foreground [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:list-none [&_ul]:m-0 [&_ul]:p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2 [&_li]:before:content-[''] [&_li]:before:h-1.5 [&_li]:before:w-1.5 [&_li]:before:flex-shrink-0 [&_li]:before:rounded-full [&_li]:before:bg-foreground"
-            >
-              <ul>
-                <li>
-                  Grain deerskin leather
-                </li>
-                <li>
-                  Water resistant and durable
-                </li>
-                <li>
-                  Outseam machine sewn
-                </li>
-              </ul>
-            </div>
+            <ul>
+              <li>
+                Grain deerskin leather
+              </li>
+              <li>
+                Water resistant and durable
+              </li>
+              <li>
+                Outseam machine sewn
+              </li>
+            </ul>
           </div>
         </details>
       </div>
@@ -582,23 +579,20 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
             </svg>
           </summary>
           <div
-            class="flex flex-col gap-3"
+            class="text-sm text-foreground [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:list-none [&_ul]:m-0 [&_ul]:p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2 [&_li]:before:content-[''] [&_li]:before:h-1.5 [&_li]:before:w-1.5 [&_li]:before:flex-shrink-0 [&_li]:before:rounded-full [&_li]:before:bg-foreground"
+            data-testid="html-fragment"
           >
-            <div
-              class="text-sm text-foreground [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:list-none [&_ul]:m-0 [&_ul]:p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2 [&_li]:before:content-[''] [&_li]:before:h-1.5 [&_li]:before:w-1.5 [&_li]:before:flex-shrink-0 [&_li]:before:rounded-full [&_li]:before:bg-foreground"
-            >
-              <ul>
-                <li>
-                  Grain deerskin leather
-                </li>
-                <li>
-                  Water resistant and durable
-                </li>
-                <li>
-                  Outseam machine sewn
-                </li>
-              </ul>
-            </div>
+            <ul>
+              <li>
+                Grain deerskin leather
+              </li>
+              <li>
+                Water resistant and durable
+              </li>
+              <li>
+                Outseam machine sewn
+              </li>
+            </ul>
           </div>
         </details>
       </div>
