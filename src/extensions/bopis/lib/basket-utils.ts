@@ -16,8 +16,8 @@
 
 import type { ShopperBasketsV2, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import type { PickupItemInfo } from '@/extensions/bopis/context/pickup-context';
-import { PICKUP_SHIPPING_METHOD_ID } from '@/extensions/bopis/constants';
 import { getPickupStoreFromMap } from '@/extensions/bopis/lib/store-utils';
+import { isPickupShippingMethod } from '@/extensions/bopis/lib/pickup-shipping-method-utils';
 
 /**
  * Extracts pickup items from basket by checking shipments for store pickup.
@@ -393,23 +393,14 @@ export function filterPickupProductItems(
 /**
  * Filters out pickup shipping methods from a shipping methods map.
  *
- * This function removes any shipping methods that match the PICKUP_SHIPPING_METHOD_ID
- * constant ('005'), leaving only delivery shipping methods. Useful when you want to
- * display only delivery options to the customer.
+ * Removes methods identified as pickup (c_storePickupEnabled === true, or id '005' as fallback),
  *
  * @param shippingMethodsMap - A map of shipment ID to shipping method results
  * @returns A shipping methods map with pickup methods filtered out from each shipment
  *
  * @example
  * ```tsx
- * const shippingMethodsMap = {
- *     'shipment-1': await client.ShopperBaskets.getShippingMethodsForShipment({
- *         parameters: { basketId, shipmentId: 'shipment-1' }
- *     }),
- * };
- *
  * const deliveryMethodsMap = filterDeliveryShippingMethods(shippingMethodsMap);
- * // deliveryMethodsMap now only contains delivery options, not pickup
  * ```
  */
 export function filterDeliveryShippingMethods(
@@ -426,7 +417,7 @@ export function filterDeliveryShippingMethods(
         filteredMap[shipmentId] = {
             ...shippingMethods,
             applicableShippingMethods: shippingMethods.applicableShippingMethods.filter(
-                (method) => method.id !== PICKUP_SHIPPING_METHOD_ID
+                (method) => !isPickupShippingMethod(method)
             ),
         };
     }

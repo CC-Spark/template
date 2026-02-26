@@ -94,7 +94,7 @@ export function AddAddressDialog({
     const generateAddressIdFallback = (firstName?: string, lastName?: string): string => {
         const firstNameTrimmed = firstName?.trim() || '';
         const lastNameTrimmed = lastName?.trim() || '';
-        return tAddressForm('checkout.addressForm.deliveryAddressFallback', {
+        return tAddressForm('checkout.addressForm.deliveryAddressIdFallback', {
             firstName: firstNameTrimmed,
             lastName: lastNameTrimmed,
         }).trim();
