@@ -18,10 +18,17 @@ import { action } from './action.set-locale';
 import type { ActionFunctionArgs } from 'react-router';
 import { createFormDataRequest } from '@/test-utils/request-helpers';
 
-vi.mock('@/middlewares/i18next.server', () => ({
-    localeCookie: {
-        serialize: vi.fn((locale: string) => Promise.resolve(`lng=${locale}; Path=/`)),
-    },
+const mockLocaleCookieSerialize = vi.fn((locale: string) => Promise.resolve(`lng=${locale}; Path=/`));
+
+vi.mock('@salesforce/storefront-next-runtime/multi-site', () => ({
+    getMultiSiteCookies: vi.fn(() => ({
+        siteCookie: {
+            serialize: vi.fn(),
+        },
+        localeCookie: {
+            serialize: mockLocaleCookieSerialize,
+        },
+    })),
 }));
 
 vi.mock('react-router', async () => {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { data, type ActionFunction } from 'react-router';
-import { localeCookie } from '@/middlewares/i18next.server';
+import { getMultiSiteCookies } from '@salesforce/storefront-next-runtime/multi-site';
 
 /**
  * Server action to set the locale cookie
@@ -24,16 +24,25 @@ import { localeCookie } from '@/middlewares/i18next.server';
  * Note: This MUST be a server action (not clientAction) because we need to set
  * the Set-Cookie HTTP header, which can only be done server-side.
  */
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, context }) => {
     const formData = await request.formData();
     const locale = formData.get('locale') as string;
 
     if (!locale) {
+        // The form data is missing the locale. This is a client error so we return a 400 response.
         throw new Response('Locale is required', { status: 400 });
     }
 
+    // Get cookies from multi-site middleware context
+    const cookies = getMultiSiteCookies(context);
+    if (!cookies) {
+        // If the site and locale cookies weren't initialized in the multi-site middleware, this is a server error
+        // so we return a 500 response.
+        throw new Response('Site and locale cookies were not initialized', { status: 500 });
+    }
+
     // Set the cookie using the same cookie object that the middleware uses
-    const cookieHeader = await localeCookie.serialize(locale);
+    const cookieHeader = await cookies.localeCookie.serialize(locale);
 
     // Return success without redirecting (useFetcher expects a response)
     return data(

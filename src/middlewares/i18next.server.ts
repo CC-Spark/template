@@ -15,27 +15,25 @@
  */
 import { initReactI18next } from 'react-i18next';
 import { createI18nextMiddleware } from 'remix-i18next/middleware';
-import { createCookie, type MiddlewareFunction } from 'react-router';
+import { type MiddlewareFunction } from 'react-router';
 import resources from '@/locales'; // Import translations from all of your locales - SERVER ONLY
 import 'i18next';
 import { i18nextContext } from '@/lib/i18next';
-
-/**
- * This cookie is used to store the user locale/language preference
- */
-export const localeCookie = createCookie('lng', {
-    path: '/',
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-});
+import { requestToLocaleMap } from '@salesforce/storefront-next-runtime/multi-site';
 
 const [originalI18nextMiddleware, getLocale, getInstance] = createI18nextMiddleware({
-    // Read the locale from the cookie, if it exists, and set it in the context.
-    // If the cookie doesn't exist, it will use the Accept-Language header or the fallback language.
+    // Read the locale from the multi-site middleware via WeakMap
     detection: {
-        cookie: localeCookie,
-        // Make sure the following properties are in sync with config.server.ts file
+        // Use only custom detection as implemented by findLocale - bypass all built-in detection methods
+        order: ['custom'],
+        // Read the locale resolved by multi-site middleware
+        // Multi-site stores the locale ID in a WeakMap keyed by the Request object
+        // eslint-disable-next-line @typescript-eslint/require-await
+        findLocale: async (request: Request) => {
+            const localeId = requestToLocaleMap.get(request);
+            return localeId ?? null;
+        },
+        // The following properties are not used in the detection process but are required by i18next
         // TODO: is there a way to call getConfig here? I can't see a way to pass in the router context.
         fallbackLanguage: 'en-GB',
         supportedLanguages: ['it-IT', 'en-GB'], // Your supported languages, the fallback should be LAST

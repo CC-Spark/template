@@ -17,6 +17,7 @@ export default defineConfig([
             'design-mode': 'src/design/modeDetection.ts',
             'design-react-core': 'src/design/react/core/index.ts',
             events: 'src/events/index.ts',
+            'multi-site': 'src/multi-site/index.ts',
             routing: 'src/routing/index.ts',
             'routing-app-wrapper': 'src/routing/app-wrapper.tsx',
         },

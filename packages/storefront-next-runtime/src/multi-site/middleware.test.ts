@@ -1,0 +1,261 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
+import type { MiddlewareFunction, RouterContextProvider } from 'react-router';
+import type { DetectionConfig, MultiSiteConfig, MultiSiteContext } from './types';
+
+const cookieSerialize = vi.fn((value: string, name: string) => Promise.resolve(`${name}=${value}; Path=/`));
+
+vi.mock('./cookies', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('./cookies')>();
+    return {
+        ...actual,
+        createMultiSiteCookie: vi.fn((name: string) => ({
+            name,
+            serialize: (value: string) => cookieSerialize(value, name),
+            parse: vi.fn(),
+        })),
+    };
+});
+
+// This is here so the middleware module is loaded after the config and cookie mocks
+// thereby allowing the module to access the mock cookie serializers
+async function getMiddleware() {
+    const { createMultiSiteMiddleware, multiSiteContext, getMultiSiteCookies } = await import('./middleware');
+    return { createMultiSiteMiddleware, multiSiteContext, getMultiSiteCookies };
+}
+
+const DEFAULT_CONFIG: MultiSiteConfig = {
+    sites: [
+        {
+            id: 'site-us',
+            name: 'US',
+            alias: 'us',
+            supportedLocales: [
+                { id: 'en-US', preferredCurrency: 'USD' },
+                { id: 'es-US', preferredCurrency: 'USD' },
+            ],
+            supportedCurrencies: ['USD'],
+            defaultCurrency: 'USD',
+        },
+        {
+            id: 'site-mx',
+            name: 'Mexico',
+            alias: 'mx',
+            supportedLocales: [
+                { id: 'es-MX', preferredCurrency: 'MXN' },
+                { id: 'en-MX', preferredCurrency: 'MXN' },
+            ],
+            supportedCurrencies: ['MXN'],
+            defaultCurrency: 'MXN',
+        },
+    ],
+    defaultSiteId: 'site-us',
+    defaultLocale: 'en-US',
+};
+
+type MiddlewareNext = Parameters<MiddlewareFunction<Response>>[1];
+
+describe('createMultiSiteMiddleware', () => {
+    let context: RouterContextProvider;
+    let next: ReturnType<typeof vi.fn>;
+    let defaultSiteDetection: Required<DetectionConfig>;
+    let defaultLocaleDetection: Required<DetectionConfig>;
+    let requestToLocaleMap: WeakMap<Request, string>;
+
+    beforeAll(async () => {
+        const configs = await vi.importActual<typeof import('./configs')>('./configs');
+        const cookies = await vi.importActual<typeof import('./cookies')>('./cookies');
+        defaultSiteDetection = configs.DEFAULT_SITE_DETECTION;
+        defaultLocaleDetection = configs.DEFAULT_LOCALE_DETECTION;
+        requestToLocaleMap = cookies.requestToLocaleMap;
+    });
+
+    beforeEach(() => {
+        const store = new Map<unknown, unknown>();
+        context = {
+            set: (ctx: unknown, value: unknown) => store.set(ctx, value),
+            get: (ctx: unknown) => store.get(ctx),
+        } as unknown as RouterContextProvider;
+        next = vi.fn().mockResolvedValue(new Response('ok'));
+        cookieSerialize.mockClear();
+    });
+
+    async function run(config: MultiSiteConfig, request: Request) {
+        const { createMultiSiteMiddleware, multiSiteContext: ctx } = await getMiddleware();
+        const middleware = createMultiSiteMiddleware(config);
+        const response = (await middleware(
+            { request, context, params: {}, unstable_pattern: '' } as Parameters<MiddlewareFunction<Response>>[0],
+            next as MiddlewareNext
+        )) as Response;
+        return { response, context: context.get(ctx) as MultiSiteContext };
+    }
+
+    function configWithCaches(
+        siteCaches: Array<'cookie'> | readonly [],
+        localeCaches: Array<'cookie'> | readonly []
+    ): MultiSiteConfig {
+        return {
+            ...DEFAULT_CONFIG,
+            siteDetectionConfig: { ...defaultSiteDetection, caches: [...siteCaches] },
+            localeDetectionConfig: { ...defaultLocaleDetection, caches: [...localeCaches] },
+        };
+    }
+
+    it('resolves site and locale from path, sets context, serializes cookies, and returns response from next', async () => {
+        const nextResponse = new Response('body', { status: 201 });
+        next.mockResolvedValue(nextResponse);
+
+        const request = new Request('https://example.com/mx/es-MX/page');
+        const { response, context: ctx } = await run(DEFAULT_CONFIG, request);
+
+        expect(next).toHaveBeenCalledOnce();
+        expect(ctx.site.id).toBe('site-mx');
+        expect(ctx.locale.id).toBe('es-MX');
+        expect(ctx.siteCookie).toBeDefined();
+        expect(ctx.localeCookie).toBeDefined();
+        expect(requestToLocaleMap.get(request)).toBe('es-MX');
+        expect(response).toBe(nextResponse);
+        expect(response.status).toBe(201);
+        expect(await response.text()).toBe('body');
+        expect(cookieSerialize).toHaveBeenCalledWith('site-mx', 'site_id');
+        expect(cookieSerialize).toHaveBeenCalledWith('es-MX', 'lng');
+    });
+
+    it('uses default site and locale when path has no segments and serializes cookies', async () => {
+        const request = new Request('https://example.com/');
+        const { context: ctx } = await run(DEFAULT_CONFIG, request);
+        expect(ctx.site.id).toBe('site-us');
+        expect(ctx.locale.id).toBe('en-US');
+        expect(requestToLocaleMap.get(request)).toBe('en-US');
+        expect(cookieSerialize).toHaveBeenCalledWith('site-us', 'site_id');
+        expect(cookieSerialize).toHaveBeenCalledWith('en-US', 'lng');
+    });
+
+    it('resolves site from header when siteDetectionConfig.lookupHeader is provided', async () => {
+        const siteDetectionConfig: DetectionConfig = {
+            order: ['path', 'querystring', 'header', 'cookie'],
+            lookupHeader: 'X-Custom-Site',
+        };
+        const request = new Request('https://example.com/', { headers: { 'X-Custom-Site': 'site-us' } });
+        const { context: ctx } = await run({ ...DEFAULT_CONFIG, siteDetectionConfig }, request);
+        expect(ctx.site.id).toBe('site-us');
+        expect(ctx.locale.id).toBe('en-US');
+        expect(requestToLocaleMap.get(request)).toBe('en-US');
+    });
+
+    it('does not serialize or set cookies when caches is empty for both', async () => {
+        const request = new Request('https://example.com/us/en-US/');
+        const { response, context: ctx } = await run(configWithCaches([], []), request);
+        expect(ctx.site.id).toBe('site-us');
+        expect(ctx.locale.id).toBe('en-US');
+        expect(requestToLocaleMap.get(request)).toBe('en-US');
+        expect(cookieSerialize).not.toHaveBeenCalled();
+        expect(response.headers.getSetCookie?.() ?? []).toHaveLength(0);
+    });
+
+    it('serializes only site cookie when only site caches include cookie', async () => {
+        const request = new Request('https://example.com/us/en-US/');
+        const { context: ctx } = await run(configWithCaches(['cookie'], []), request);
+        expect(ctx.site.id).toBe('site-us');
+        expect(ctx.locale.id).toBe('en-US');
+        expect(requestToLocaleMap.get(request)).toBe('en-US');
+        expect(cookieSerialize).toHaveBeenCalledWith('site-us', 'site_id');
+        expect(cookieSerialize).toHaveBeenCalledTimes(1);
+    });
+
+    it('serializes only locale cookie when only locale caches include cookie', async () => {
+        const request = new Request('https://example.com/us/en-US/');
+        const { context: ctx } = await run(configWithCaches([], ['cookie']), request);
+        expect(ctx.site.id).toBe('site-us');
+        expect(ctx.locale.id).toBe('en-US');
+        expect(requestToLocaleMap.get(request)).toBe('en-US');
+        expect(cookieSerialize).toHaveBeenCalledWith('en-US', 'lng');
+        expect(cookieSerialize).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses custom cookie names when configured', async () => {
+        const customConfig: MultiSiteConfig = {
+            ...DEFAULT_CONFIG,
+            siteDetectionConfig: {
+                ...defaultSiteDetection,
+                lookupCookie: 'custom_site',
+            },
+            localeDetectionConfig: {
+                ...defaultLocaleDetection,
+                lookupCookie: 'custom_locale',
+            },
+        };
+        const request = new Request('https://example.com/us/en-US/');
+        const { context: ctx } = await run(customConfig, request);
+        expect(ctx.site.id).toBe('site-us');
+        expect(ctx.locale.id).toBe('en-US');
+        expect(requestToLocaleMap.get(request)).toBe('en-US');
+        expect(cookieSerialize).toHaveBeenCalledWith('site-us', 'custom_site');
+        expect(cookieSerialize).toHaveBeenCalledWith('en-US', 'custom_locale');
+    });
+
+    it('provides cookies through getMultiSiteCookies helper', async () => {
+        const { createMultiSiteMiddleware, getMultiSiteCookies } = await getMiddleware();
+        const middleware = createMultiSiteMiddleware(DEFAULT_CONFIG);
+        const request = new Request('https://example.com/us/en-US/');
+
+        await middleware(
+            { request, context, params: {}, unstable_pattern: '' } as Parameters<MiddlewareFunction<Response>>[0],
+            next as MiddlewareNext
+        );
+
+        const cookies = getMultiSiteCookies(context);
+        expect(cookies).toBeDefined();
+        expect(cookies?.siteCookie).toBeDefined();
+        expect(cookies?.localeCookie).toBeDefined();
+    });
+
+    it('throws when no valid site and does not call next', async () => {
+        const { createMultiSiteMiddleware } = await getMiddleware();
+        const middleware = createMultiSiteMiddleware({
+            ...DEFAULT_CONFIG,
+            defaultSiteId: 'nonexistent',
+        });
+        const request = new Request('https://example.com/');
+
+        await expect(
+            middleware(
+                { request, context, params: {}, unstable_pattern: '' } as Parameters<MiddlewareFunction<Response>>[0],
+                next as MiddlewareNext
+            )
+        ).rejects.toThrow('Default site nonexistent not found');
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('throws when no valid locale and does not call next', async () => {
+        const { createMultiSiteMiddleware } = await getMiddleware();
+        const middleware = createMultiSiteMiddleware({
+            ...DEFAULT_CONFIG,
+            defaultLocale: 'fr-FR',
+        });
+        const request = new Request('https://example.com/');
+
+        await expect(
+            middleware(
+                { request, context, params: {}, unstable_pattern: '' } as Parameters<MiddlewareFunction<Response>>[0],
+                next as MiddlewareNext
+            )
+        ).rejects.toThrow('Default locale fr-FR not found in the list of supported locales for site site-us');
+        expect(next).not.toHaveBeenCalled();
+    });
+});

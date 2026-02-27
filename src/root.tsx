@@ -53,6 +53,7 @@ import {
 } from '@/middlewares/performance-metrics';
 import { appConfigMiddlewareServer } from '@/middlewares/app-config.server';
 import { appConfigMiddlewareClient } from '@/middlewares/app-config.client';
+import { multiSiteMiddleware } from '@/middlewares/multi-site.server';
 import { i18nextMiddleware } from '@/middlewares/i18next.server';
 import { currencyMiddleware } from '@/middlewares/currency.server';
 import { correlationMiddleware } from '@/middlewares/correlation.server';
@@ -114,8 +115,9 @@ export const middleware: MiddlewareFunction<Response>[] = [
     correlationMiddleware,
     modeDetectionMiddlewareServer,
     appConfigMiddlewareServer,
+    multiSiteMiddleware, // Must run after appConfig, before i18next and currency
     i18nextMiddleware,
-    currencyMiddleware, // Read currency cookie early
+    currencyMiddleware,
     performanceMetricsMiddlewareServer,
     maintenanceMiddleware,
     authMiddlewareServer,

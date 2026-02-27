@@ -15,8 +15,7 @@
  */
 import { type MiddlewareFunction, createContext as createRouterContext } from 'react-router';
 import { currencyContext, COOKIE_CURRENCY } from '@/lib/currency';
-import { getConfig } from '@/config';
-import { i18nextContext } from '@/lib/i18next';
+import { multiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
 import { createCookie, getCookieConfig } from '@/lib/cookie-utils';
 
 /**
@@ -61,96 +60,65 @@ export const updateCurrency = (context: Parameters<MiddlewareFunction>[0]['conte
 
 /**
  * Middleware to resolve currency and store it in context
- * Priority: Cookie → Locale's preferred currency → Site default
- * This must run AFTER i18next middleware to access locale
+ * Priority: Cookie → Locale's preferred currency → First supported currency
+ * This must run AFTER multi-site middleware to access locale and site
  */
 export const currencyMiddleware: MiddlewareFunction<Response> = async ({ request, context }, next) => {
-    // Before calling the handler: Set fallback currency from cookies or defaults
-    try {
-        const config = getConfig(context);
-        const currencyCookie = createCurrencyCookie(context);
-
-        // Create currency storage (like authStorage)
-        const currencyStorage = new Map<string, string | boolean>();
-        context.set(currencyStorageContext, currencyStorage);
-
-        // Try to read currency from cookie
-        const cookieHeader = request.headers.get('Cookie');
-        const userCurrency = cookieHeader ? await currencyCookie.parse(cookieHeader) : null;
-
-        // Get current site configuration (using first site as default for now)
-        const currentSite = config.commerce.sites[0];
-
-        // Validate and use cookie currency if valid
-        if (
-            userCurrency &&
-            typeof userCurrency === 'string' &&
-            currentSite.supportedCurrencies.includes(userCurrency)
-        ) {
-            context.set(currencyContext, userCurrency);
-        } else {
-            // Fallback: Get locale from i18next context to determine preferred currency
-            const i18nextData = context.get(i18nextContext);
-            if (i18nextData) {
-                const currentLocale = i18nextData.getLocale();
-                const supportedLocale = currentSite.supportedLocales.find(
-                    (loc: { id: string; preferredCurrency: string }) => loc.id === currentLocale
-                );
-                if (supportedLocale?.preferredCurrency) {
-                    context.set(currencyContext, supportedLocale.preferredCurrency);
-                } else {
-                    // Final fallback: Use site default locale's preferred currency
-                    const defaultLocaleConfig = currentSite.supportedLocales.find(
-                        (loc) => loc.id === currentSite.defaultLocale
-                    );
-                    context.set(currencyContext, defaultLocaleConfig?.preferredCurrency || currentSite.defaultCurrency);
-                }
-            } else {
-                // Final fallback: Use site default locale's preferred currency
-                const defaultLocaleConfig = currentSite.supportedLocales.find(
-                    (loc) => loc.id === currentSite.defaultLocale
-                );
-                context.set(currencyContext, defaultLocaleConfig?.preferredCurrency || currentSite.defaultCurrency);
-            }
-        }
-    } catch {
-        // On error, set to default to prevent loader failures
-        const config = getConfig(context);
-        const currentSite = config.commerce.sites[0];
-        const defaultLocaleConfig = currentSite.supportedLocales.find((loc) => loc.id === currentSite.defaultLocale);
-        context.set(currencyContext, defaultLocaleConfig?.preferredCurrency ?? currentSite.defaultCurrency);
+    // Before calling the handler: Set currency from cookies or defaults
+    const multiSite = context.get(multiSiteContext);
+    if (!multiSite) {
+        throw new Error('Multi-site middleware must run before currency middleware');
     }
+
+    const { site, locale } = multiSite;
+
+    const currencyCookie = createCurrencyCookie(context);
+
+    // Create currency storage (like authStorage)
+    const currencyStorage = new Map<string, string | boolean>();
+    context.set(currencyStorageContext, currencyStorage);
+
+    // Get supported currencies from site configuration
+    const supportedCurrencies = site.supportedCurrencies;
+    if (!supportedCurrencies || supportedCurrencies.length === 0) {
+        throw new Error(`Site "${site.id}" must have supportedCurrencies configured.`);
+    }
+
+    // Try to read currency from cookie
+    let userSelectedCurrency: string | null = null;
+    const requestCookieHeader = request.headers.get('Cookie');
+    const parsedCookie = requestCookieHeader ? await currencyCookie.parse(requestCookieHeader) : null;
+    userSelectedCurrency = typeof parsedCookie === 'string' ? parsedCookie : null;
+
+    // Priority: Cookie → Locale's preferred currency → First supported currency
+    let currency: string;
+    if (userSelectedCurrency && supportedCurrencies.includes(userSelectedCurrency)) {
+        currency = userSelectedCurrency;
+    } else if (locale.preferredCurrency && supportedCurrencies.includes(locale.preferredCurrency)) {
+        currency = locale.preferredCurrency;
+    } else {
+        currency = site.defaultCurrency;
+    }
+
+    context.set(currencyContext, currency);
 
     // Execute handler (loader/action/render)
     const response = await next();
 
     // After calling the handler: Check if currency was updated and set cookie
-    try {
-        const currencyStorage = context.get(currencyStorageContext);
-        if (currencyStorage?.has('isUpdated')) {
-            // Clean up storage metadata
-            currencyStorage.delete('isUpdated');
+    if (currencyStorage.has('isUpdated')) {
+        // Clean up storage metadata
+        currencyStorage.delete('isUpdated');
 
-            const updatedCurrency = currencyStorage.get('currency') as string;
-            if (updatedCurrency) {
-                const config = getConfig(context);
-                const currentSite = config.commerce.sites[0];
+        const updatedCurrency = currencyStorage.get('currency') as string;
+        if (updatedCurrency && supportedCurrencies.includes(updatedCurrency)) {
+            // Set currency cookie automatically
+            const setCurrencyCookieHeader = await currencyCookie.serialize(updatedCurrency);
+            response.headers.append('Set-Cookie', setCurrencyCookieHeader);
 
-                // Validate the currency
-                if (currentSite.supportedCurrencies.includes(updatedCurrency)) {
-                    // Set currency cookie automatically
-                    const currencyCookie = createCurrencyCookie(context);
-                    const cookieHeader = await currencyCookie.serialize(updatedCurrency);
-                    response.headers.append('Set-Cookie', cookieHeader);
-
-                    // Update context immediately for current request (triggers provider update)
-                    context.set(currencyContext, updatedCurrency);
-                }
-            }
+            // Update context immediately for current request (triggers provider update)
+            context.set(currencyContext, updatedCurrency);
         }
-    } catch {
-        // If currency update fails, continue without setting cookie
-        // This ensures middleware doesn't break the request
     }
 
     return response;
