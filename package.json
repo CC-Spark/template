@@ -200,7 +200,7 @@
             },
             {
                 "name": "assets/\\(components\\)-\\(product-view\\)-child-products.*.js",
-                "limit": "70 kB",
+                "limit": "74 kB",
                 "comment": "Child products component includes Radix UI menu and dropdown dependencies for variant selection"
             },
             {

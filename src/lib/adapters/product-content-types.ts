@@ -21,7 +21,9 @@ import type {
     IngredientsData,
     ProductDescriptionData,
     ReturnsAndWarrantyData,
+    ReviewItem,
     ReviewsData,
+    ReviewsSummaryData,
     ShippingEstimate,
     SizeGuideData,
     TechSpecsData,
@@ -99,9 +101,22 @@ export interface ProductContentAdapter {
     getTechSpecs?(productId?: string): Promise<TechSpecsData>;
 
     /**
-     * Get customer reviews for PDP reviews section
+     * Get lightweight reviews summary for accordion header (count, rating, distribution, AI summary).
+     * Use this on mount so the header can show without loading the full review list.
+     */
+    getReviewsSummary?(productId?: string): Promise<ReviewsSummaryData>;
+
+    /**
+     * Get full customer reviews list for PDP reviews section (cards, filters, pagination).
+     * Lazy-load when user expands the accordion.
      */
     getReviews?(productId?: string): Promise<ReviewsData>;
+
+    /**
+     * Submit a new review for a product (e.g. from Write a Review modal).
+     * Optional; when implemented, getReviews may return the new review on subsequent fetches.
+     */
+    addReview?(productId?: string, review?: ReviewItem): Promise<void>;
 
     /**
      * Get Write a Review form config for PDP (submit review modal). Excludes name and email.

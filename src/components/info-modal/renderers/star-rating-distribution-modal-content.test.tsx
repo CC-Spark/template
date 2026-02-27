@@ -68,9 +68,9 @@ describe('StarRatingDistributionModalContent', () => {
             <StarRatingDistributionModalContent rating={4.8} reviewCount={200} distributions={defaultDistributions} />
         );
 
-        // Check that distribution percentages are displayed
-        // The StarRatingDistributions component should render these
-        expect(screen.getByText(/60%/)).toBeInTheDocument(); // 120/200 = 60%
+        // Check that distribution counts are displayed (StarRatingDistributions shows count per rating)
+        expect(screen.getByText('120')).toBeInTheDocument();
+        expect(screen.getByText('50')).toBeInTheDocument();
     });
 
     it('handles empty distributions', () => {

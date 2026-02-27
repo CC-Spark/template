@@ -53,6 +53,9 @@
     /* -- rating colors -- */
     --color-rating: var(--rating);
     --color-rating-foreground: var(--rating-foreground);
+    /* -- review verified badge (themeable) -- */
+    --color-review-verified-bg: var(--review-verified-bg);
+    --color-review-verified-text: var(--review-verified-text);
     /* -- payment provider colors -- */
     --color-paypal-gold: var(--paypal-gold);
     --color-venmo-blue: var(--venmo-blue);
@@ -87,6 +90,10 @@
     --color-brand-gray-700: var(--brand-gray-700);
     --color-brand-gray-800: var(--brand-gray-800);
     --color-brand-gray-900: var(--brand-gray-900);
+    --color-brand-blue-100: var(--brand-blue-100);
+    --color-brand-blue-200: var(--brand-blue-200);
+    --color-brand-blue-600: var(--brand-blue-600);
+    --color-brand-blue-700: var(--brand-blue-700);
 }
 /*---break---*/
 :root,
@@ -131,6 +138,10 @@ html.dark [data-theme='inverse'] {
     /* rating colors */
     --rating: #facc15;
     --rating-foreground: #ffffff;
+
+    /* review verified purchase badge (themeable) */
+    --review-verified-bg: #dcfce7; /* green-100 - light pastel green */
+    --review-verified-text: #166534; /* green-800 */
 
     /* filter selected state (yellow/amber highlight, themeable) */
     --filter-selected: #fef3c7; /* amber-100 */
@@ -177,7 +188,11 @@ html.dark [data-theme='inverse'] {
     /* brand typography/UI (e.g. review cards) */
     --brand-black: oklch(0 0 0);
     --brand-gray-600: #4b5563;
+    --brand-blue-100: #dbeafe;
+    --brand-blue-200: #bfdbfe;
     --brand-blue-500: oklch(0.59 0.2 264);
+    --brand-blue-600: #2563eb;
+    --brand-blue-700: #1d4ed8;
     /* order status tokens (SCAPI statuses: created, new, failed, failed_with_reopen, completed, cancelled) */
     --order-status-new: #dbeafe;  /* -blue-100 - for created/new */
     --order-status-new-foreground: #1d4ed8; /* -blue-700 */
@@ -258,6 +273,7 @@ html:not(.dark) [data-theme='inverse'] {
 
     /* review verified purchase badge (themeable) */
     --review-verified-bg: rgb(22 101 52 / 0.3); /* green-900/30 */
+    --review-verified-text: #bbf7d0; /* green-200 */
 
     /* review avatar background (themeable) */
     --review-avatar-bg: #525252;

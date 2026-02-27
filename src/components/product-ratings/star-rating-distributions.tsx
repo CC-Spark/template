@@ -34,13 +34,21 @@ export interface StarRatingDistributionsProps extends HTMLAttributes<HTMLDivElem
      * Array of rating distribution data
      */
     distributions: RatingDistributionData[];
+    /**
+     * Currently selected rating filter (for highlighting clickable bars)
+     */
+    selectedRating?: number | null;
+    /**
+     * Called when a distribution row is clicked to filter by that rating
+     */
+    onRatingClick?: (rating: number) => void;
 }
 
 /**
  * StarRatingDistributions component stacks rating distributions for 5, 4, 3, 2, 1 stars
  */
 export const StarRatingDistributions = forwardRef<HTMLDivElement, StarRatingDistributionsProps>(
-    ({ distributions, className, ...props }, ref) => {
+    ({ distributions, selectedRating, onRatingClick, className, ...props }, ref) => {
         const { t } = useTranslation();
 
         // Calculate total reviews (memoized to prevent recalculation on every render)
@@ -72,6 +80,8 @@ export const StarRatingDistributions = forwardRef<HTMLDivElement, StarRatingDist
                             rating={rating}
                             reviewCount={reviewCount}
                             totalReviews={totalReviews}
+                            selectedRating={selectedRating}
+                            onRatingClick={onRatingClick}
                         />
                     );
                 })}

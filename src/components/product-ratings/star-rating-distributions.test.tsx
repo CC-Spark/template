@@ -35,14 +35,13 @@ describe('StarRatingDistributions', () => {
         expect(screen.getByText('1')).toBeInTheDocument();
     });
 
-    it('renders percentages', () => {
+    it('renders review counts for each rating', () => {
         render(<StarRatingDistributions distributions={mockDistributions} />);
-        // Total = 200, so: 100/200=50%, 50/200=25%, 25/200=13%, 15/200=8%, 10/200=5%
-        expect(screen.getByText('50%')).toBeInTheDocument();
-        expect(screen.getByText('25%')).toBeInTheDocument();
-        expect(screen.getByText('13%')).toBeInTheDocument();
-        expect(screen.getByText('8%')).toBeInTheDocument();
-        expect(screen.getByText('5%')).toBeInTheDocument();
+        expect(screen.getByText('100')).toBeInTheDocument();
+        expect(screen.getByText('50')).toBeInTheDocument();
+        expect(screen.getByText('25')).toBeInTheDocument();
+        expect(screen.getByText('15')).toBeInTheDocument();
+        expect(screen.getByText('10')).toBeInTheDocument();
     });
 
     it('fills in missing ratings with zero count', () => {
@@ -50,13 +49,9 @@ describe('StarRatingDistributions', () => {
             { rating: 5, count: 100 },
             { rating: 1, count: 10 },
         ];
-        const { container } = render(<StarRatingDistributions distributions={sparseDistributions} />);
+        render(<StarRatingDistributions distributions={sparseDistributions} />);
 
-        // Should still render all 5 distributions
-        const distributions = container.querySelectorAll('[tabindex="0"]');
-        expect(distributions).toHaveLength(5);
-
-        // Check that aria-labels include ratings 5, 4, 3, 2, 1
+        // Should still render all 5 distributions (no onRatingClick so rows are non-focusable divs)
         expect(screen.getByLabelText(/5 stars/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/4 stars/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/3 stars/i)).toBeInTheDocument();
@@ -85,10 +80,18 @@ describe('StarRatingDistributions', () => {
         expect(group).toBeInTheDocument();
     });
 
-    it('all child distributions are focusable', () => {
+    it('when onRatingClick is not provided, child distributions are not focusable (no keyboard trap per WCAG 2.1.1)', () => {
         const { container } = render(<StarRatingDistributions distributions={mockDistributions} />);
-        const focusableElements = container.querySelectorAll('[tabindex="0"]');
-        expect(focusableElements).toHaveLength(5); // 5 star ratings
+        const focusableByTabindex = container.querySelectorAll('[tabindex="0"]');
+        expect(focusableByTabindex).toHaveLength(0);
+    });
+
+    it('when onRatingClick is provided, child distributions are focusable buttons', () => {
+        const { container } = render(
+            <StarRatingDistributions distributions={mockDistributions} onRatingClick={() => {}} />
+        );
+        const buttons = container.querySelectorAll('button');
+        expect(buttons).toHaveLength(5);
     });
 
     it('applies custom className', () => {

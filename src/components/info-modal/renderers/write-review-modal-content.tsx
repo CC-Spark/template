@@ -22,8 +22,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/typography';
+import { filterAcceptedFiles, getFileUploadConfig } from '@/lib/file-upload-utils';
 import { cn } from '@/lib/utils';
-import type { WriteReviewFormData } from '@/lib/adapters/product-content-data-types';
+import type { ReviewItem, WriteReviewFormData } from '@/lib/adapters/product-content-data-types';
+import { useProductReviews } from '@/hooks/product-reviews/use-product-reviews';
 
 const VALIDATION_ORANGE = '#f97316';
 
@@ -59,13 +61,6 @@ function FieldValidationPopup({ id, message }: { id?: string; message: string })
     );
 }
 
-/**
- * Handler for submit review. Implementation to be added in a separate WI.
- */
-function handleSubmitReview(): void {
-    // No-op for now; will be implemented in a separate work item.
-}
-
 export function WriteReviewModalContent({
     onClose,
     formConfig,
@@ -78,7 +73,10 @@ export function WriteReviewModalContent({
     const [reviewTitle, setReviewTitle] = useState('');
     const [reviewBody, setReviewBody] = useState('');
     const [recommend, setRecommend] = useState<boolean | null>(null);
+    const [location, setLocation] = useState('');
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isUploadZoneHovered, setIsUploadZoneHovered] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const [showRatingValidation, setShowRatingValidation] = useState(false);
     const [showReviewValidation, setShowReviewValidation] = useState(false);
     const [showTitleValidation, setShowTitleValidation] = useState(false);
@@ -87,7 +85,10 @@ export function WriteReviewModalContent({
     const ratingSectionRef = useRef<HTMLDivElement>(null);
     const ratingGroupRef = useRef<HTMLFieldSetElement>(null);
     const reviewBodyRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const { t } = useTranslation('writeReview');
+    const { t: tProduct } = useTranslation('product');
+    const { addReview } = useProductReviews();
 
     const minReviewLength = formConfig?.reviewBody?.minCharacters ?? 50;
     const maxReviewLength = formConfig?.reviewBody?.maxCharacters;
@@ -153,17 +154,37 @@ export function WriteReviewModalContent({
                 if (textarea) textarea.focus();
                 return;
             }
-            handleSubmitReview();
+            const newReview: ReviewItem = {
+                id: `new-${Date.now()}`,
+                authorName: 'You',
+                verifiedPurchase: false,
+                date: new Date().toISOString().split('T')[0],
+                location: location.trim() || undefined,
+                rating: selectedRating,
+                headline: reviewTitleTrimmed,
+                body: reviewBodyTrimmed,
+                photos:
+                    selectedFiles.length > 0
+                        ? selectedFiles.map((f) => ({ url: URL.createObjectURL(f), alt: f.name }))
+                        : undefined,
+                helpfulCount: 0,
+                reportLabel: tProduct('report'),
+            };
+            addReview(newReview);
             onClose?.();
         },
         [
+            addReview,
+            location,
             onClose,
-            reviewBodyTrimmed.length,
-            reviewTitleTrimmed.length,
+            reviewBodyTrimmed,
+            reviewTitleTrimmed,
             selectedRating,
+            selectedFiles,
             minReviewLength,
             maxReviewLength,
             maxTitleLength,
+            tProduct,
         ]
     );
 
@@ -180,6 +201,64 @@ export function WriteReviewModalContent({
         setReviewBody(e.target.value);
         setShowReviewValidation(false);
         e.target.setCustomValidity('');
+    }, []);
+
+    const fileUploadConfig = getFileUploadConfig(formConfig?.addPhotos);
+
+    const processFiles = useCallback(
+        (fileList: FileList | null) => {
+            const accepted = filterAcceptedFiles(fileList, {
+                allowedTypes: fileUploadConfig.allowedTypes,
+                maxBytes: fileUploadConfig.maxBytes,
+            });
+            if (accepted.length > 0) {
+                setSelectedFiles((prev) => [...prev, ...accepted]);
+            }
+        },
+        [fileUploadConfig.allowedTypes, fileUploadConfig.maxBytes]
+    );
+
+    const handleFileInputChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            processFiles(e.target.files);
+            e.target.value = '';
+        },
+        [processFiles]
+    );
+
+    const handleUploadZoneClick = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
+
+    const handleUploadZoneKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileInputRef.current?.click();
+        }
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        setIsDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false);
+    }, []);
+
+    const handleDrop = useCallback(
+        (e: React.DragEvent) => {
+            e.preventDefault();
+            setIsDragging(false);
+            processFiles(e.dataTransfer.files);
+        },
+        [processFiles]
+    );
+
+    const removeFile = useCallback((index: number) => {
+        setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     }, []);
 
     const reviewValidationMessage = !showReviewValidation
@@ -312,9 +391,12 @@ export function WriteReviewModalContent({
                             (reviewBodyInvalid || showReviewValidation) && 'border-destructive'
                         )}
                     />
-                    <p className="mt-2 text-[0.75rem] text-muted-foreground">
-                        {t('minCharactersHint', { count: minReviewLength })}
-                    </p>
+                    <div className="mt-2 flex items-center justify-between text-[0.75rem] text-muted-foreground">
+                        <span>{t('minCharactersHint', { count: minReviewLength })}</span>
+                        <span aria-live="polite">
+                            {reviewBody.length}/{typeof maxReviewLength === 'number' ? maxReviewLength : 2000}
+                        </span>
+                    </div>
                     {showReviewValidation && reviewValidationMessage && (
                         <>
                             <FieldValidationPopup id="review-validation-message" message={reviewValidationMessage} />
@@ -352,9 +434,36 @@ export function WriteReviewModalContent({
                     </div>
                 </div>
 
-                {/* Add Photos (Optional) - dotted border, blue on hover */}
+                {/* Location (Optional) */}
+                {formConfig.location && (
+                    <div className="space-y-2">
+                        <Label htmlFor="write-review-location" className="text-foreground">
+                            {formConfig.location.label}
+                        </Label>
+                        <Input
+                            id="write-review-location"
+                            type="text"
+                            placeholder={formConfig.location.placeholder}
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            className="w-full"
+                        />
+                        <p className="text-[0.75rem] text-muted-foreground">{formConfig.location.hint}</p>
+                    </div>
+                )}
+
+                {/* Add Photos (Optional) - click or drag and drop */}
                 <div className="space-y-2">
                     <Label className="text-foreground">{formConfig.addPhotos.label}</Label>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept={fileUploadConfig.acceptAttr}
+                        multiple
+                        className="sr-only"
+                        aria-label={formConfig.addPhotos.label}
+                        onChange={handleFileInputChange}
+                    />
                     <div
                         role="button"
                         tabIndex={0}
@@ -362,9 +471,16 @@ export function WriteReviewModalContent({
                         onMouseLeave={() => setIsUploadZoneHovered(false)}
                         onFocus={() => setIsUploadZoneHovered(true)}
                         onBlur={() => setIsUploadZoneHovered(false)}
+                        onClick={handleUploadZoneClick}
+                        onKeyDown={handleUploadZoneKeyDown}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
                         className={cn(
                             'mt-2 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 transition-colors cursor-pointer',
-                            isUploadZoneHovered ? 'border-primary bg-primary/5' : 'border-muted-foreground/40'
+                            isUploadZoneHovered || isDragging
+                                ? 'border-primary bg-primary/5'
+                                : 'border-muted-foreground/40'
                         )}>
                         <svg
                             className="h-10 w-10 text-muted-foreground"
@@ -386,6 +502,34 @@ export function WriteReviewModalContent({
                             {formConfig.addPhotos.accept} up to {formConfig.addPhotos.maxSize}
                         </Typography>
                     </div>
+                    {selectedFiles.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                                {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''} selected
+                            </p>
+                            <ul className="flex flex-wrap gap-2">
+                                {selectedFiles.map((file) => (
+                                    <li
+                                        key={`${file.name}-${file.size}-${file.lastModified}`}
+                                        className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2 py-1.5 text-sm">
+                                        <span className="truncate max-w-[180px]" title={file.name}>
+                                            {file.name}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeFile(selectedFiles.indexOf(file));
+                                            }}
+                                            className="shrink-0 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                            aria-label={`Remove ${file.name}`}>
+                                            ×
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 <Typography variant="muted" className="text-xs">
@@ -393,7 +537,7 @@ export function WriteReviewModalContent({
                 </Typography>
             </div>
 
-            <div className="flex justify-end gap-3 p-6 pt-0 border-t border-border">
+            <div className="mt-4 flex justify-end gap-3 p-6 pt-0">
                 <Button
                     type="button"
                     variant="outline"

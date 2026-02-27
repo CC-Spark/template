@@ -20,6 +20,7 @@ import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-ro
 import { ConfigProvider } from '@/config/context';
 import { ProductProvider } from '@/providers/product-context';
 import ProductContentProvider from '@/providers/product-content';
+import { ProductReviewsProvider } from '@/providers/product-reviews-context';
 import { mockConfig } from '@/test-utils/config';
 import WriteReviewButton from '../index';
 import type { ReactElement } from 'react';
@@ -32,9 +33,11 @@ function WriteReviewButtonWrapper(): ReactElement {
         <ConfigProvider config={mockConfig}>
             <ProductProvider product={mockProduct}>
                 <ProductContentProvider>
-                    <div className="max-w-md p-6">
-                        <WriteReviewButton />
-                    </div>
+                    <ProductReviewsProvider>
+                        <div className="max-w-md p-6">
+                            <WriteReviewButton />
+                        </div>
+                    </ProductReviewsProvider>
                 </ProductContentProvider>
             </ProductProvider>
         </ConfigProvider>

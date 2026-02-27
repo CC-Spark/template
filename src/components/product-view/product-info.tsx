@@ -26,6 +26,7 @@ import { useConfig } from '@/config';
 import ProductPrice from '../product-price';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import InventoryMessage from '../inventory-message';
+import { ProductRatingSummary } from './product-rating-summary';
 import { useCurrentVariant } from '@/hooks/product/use-current-variant';
 import { useTranslation } from 'react-i18next';
 // @sfdc-extension-line SFDC_EXT_BOPIS
@@ -139,6 +140,8 @@ export default function ProductInfo({
                     )}
                 </div>
             )}
+            {/* Rating summary - visible on both mobile and desktop */}
+            {!isCompactStyle && <ProductRatingSummary />}
 
             {/* Price - show unit price on PDP */}
             <div>

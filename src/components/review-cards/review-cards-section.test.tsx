@@ -30,13 +30,13 @@ const mockReview1: ReviewItem = {
     body: 'Body one.',
     helpfulCount: 0,
 };
-const mockGetReviews = vi.fn();
-const mockUseProductContent = vi.fn();
+const mockLoadReviewsIfNeeded = vi.fn();
+const mockUseProductReviews = vi.fn();
 vi.mock('@/providers/product-context', () => ({
     useProduct: () => ({ id: 'product-123' }),
 }));
-vi.mock('@/hooks/product-content/use-product-content', () => ({
-    useProductContent: (...args: unknown[]) => mockUseProductContent(...args),
+vi.mock('@/hooks/product-reviews/use-product-reviews', () => ({
+    useProductReviews: (...args: unknown[]) => mockUseProductReviews(...args),
 }));
 
 // Avoid image resolution in section's child ReviewCard
@@ -44,27 +44,37 @@ vi.mock('./review-card-images', () => ({
     REVIEW_CARD_IMAGES: {},
 }));
 
+const defaultReviewsContext = {
+    reviewsSummary: null,
+    reviewsSummaryLoading: false,
+    reviews: [] as ReviewItem[],
+    reviewsLoading: false,
+    loadReviewsIfNeeded: mockLoadReviewsIfNeeded,
+    aiSummary: '',
+    addReview: vi.fn(),
+    expandReviews: vi.fn(),
+    registerExpand: vi.fn(),
+};
+
 describe('ReviewCardsSection', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        mockUseProductContent.mockReturnValue({
-            adapter: { getReviews: mockGetReviews },
+        mockUseProductReviews.mockReturnValue(defaultReviewsContext);
+    });
+
+    it('shows no reviews message when context has no reviews', async () => {
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: [] });
+        render(<ReviewCardsSection />);
+        await waitFor(() => {
+            expect(screen.getByText('No reviews for this product.')).toBeInTheDocument();
         });
     });
 
-    it('shows coming soon when adapter returns no reviews', async () => {
-        mockGetReviews.mockResolvedValue({ reviews: [] });
+    it('shows no reviews message when context has empty reviews', async () => {
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: [] });
         render(<ReviewCardsSection />);
         await waitFor(() => {
-            expect(screen.getByText('Customer reviews coming soon.')).toBeInTheDocument();
-        });
-    });
-
-    it('shows coming soon when adapter is undefined', async () => {
-        mockUseProductContent.mockReturnValue({ adapter: undefined });
-        render(<ReviewCardsSection />);
-        await waitFor(() => {
-            expect(screen.getByText('Customer reviews coming soon.')).toBeInTheDocument();
+            expect(screen.getByText('No reviews for this product.')).toBeInTheDocument();
         });
     });
 
@@ -75,7 +85,7 @@ describe('ReviewCardsSection', () => {
             authorName: `User ${i}`,
             headline: `Headline ${i}`,
         }));
-        mockGetReviews.mockResolvedValue({ reviews: sevenReviews });
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: sevenReviews });
         render(<ReviewCardsSection />);
         await waitFor(() => {
             expect(screen.getByText(/Showing 1-5 of 7 reviews/)).toBeInTheDocument();
@@ -93,7 +103,7 @@ describe('ReviewCardsSection', () => {
             authorName: `User ${i}`,
             headline: `Headline ${i}`,
         }));
-        mockGetReviews.mockResolvedValue({ reviews: sixReviews });
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: sixReviews });
         const user = userEvent.setup();
         render(<ReviewCardsSection />);
         await waitFor(() => {
@@ -106,18 +116,21 @@ describe('ReviewCardsSection', () => {
         expect(screen.getByText('User 5')).toBeInTheDocument();
     });
 
-    it('calls getReviews with product id', async () => {
-        mockGetReviews.mockResolvedValue({ reviews: [mockReview1] });
+    it('displays reviews from context when provided', async () => {
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: [mockReview1] });
         render(<ReviewCardsSection />);
         await waitFor(() => {
-            expect(mockGetReviews).toHaveBeenCalledWith('product-123');
+            expect(screen.getByText(/Showing 1-1 of 1 reviews/)).toBeInTheDocument();
         });
+        expect(screen.getByText('Alice')).toBeInTheDocument();
+        expect(screen.getByText('Great')).toBeInTheDocument();
     });
 
     it('filters by star rating when a rating chip is clicked', async () => {
         const fiveStar = { ...mockReview1, id: 'r1', rating: 5, authorName: 'Alice', headline: 'Five' };
         const fourStar = { ...mockReview1, id: 'r2', rating: 4, authorName: 'Bob', headline: 'Four' };
-        mockGetReviews.mockResolvedValue({
+        mockUseProductReviews.mockReturnValue({
+            ...defaultReviewsContext,
             reviews: [
                 fiveStar,
                 fourStar,
@@ -143,7 +156,7 @@ describe('ReviewCardsSection', () => {
             { ...mockReview1, id: 'r1', authorName: 'Alice', headline: 'Great product', body: 'Loved it.' },
             { ...mockReview1, id: 'r2', authorName: 'Bob', headline: 'Okay', body: 'Not bad.' },
         ];
-        mockGetReviews.mockResolvedValue({ reviews });
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews });
         const user = userEvent.setup();
         render(<ReviewCardsSection />);
         await waitFor(() => {
@@ -174,7 +187,10 @@ describe('ReviewCardsSection', () => {
             photos: [{ url: '/img2.svg', alt: 'Photo 2' }],
         };
         const noPhotos = { ...mockReview1, id: 'r3', authorName: 'Carol', photos: undefined };
-        mockGetReviews.mockResolvedValue({ reviews: [withPhotos1, withPhotos2, noPhotos] });
+        mockUseProductReviews.mockReturnValue({
+            ...defaultReviewsContext,
+            reviews: [withPhotos1, withPhotos2, noPhotos],
+        });
         const user = userEvent.setup();
         render(<ReviewCardsSection />);
         await waitFor(() => {
@@ -190,7 +206,7 @@ describe('ReviewCardsSection', () => {
     });
 
     it('shows filter by, search input, and sort dropdown when reviews exist', async () => {
-        mockGetReviews.mockResolvedValue({ reviews: [mockReview1] });
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: [mockReview1] });
         render(<ReviewCardsSection />);
         await waitFor(() => {
             expect(screen.getByText('Filter by:')).toBeInTheDocument();
@@ -202,7 +218,7 @@ describe('ReviewCardsSection', () => {
     });
 
     it('shows no reviews match filters when filters return zero results', async () => {
-        mockGetReviews.mockResolvedValue({ reviews: [mockReview1] });
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: [mockReview1] });
         const user = userEvent.setup();
         render(<ReviewCardsSection />);
         await waitFor(() => {
@@ -218,7 +234,7 @@ describe('ReviewCardsSection', () => {
     });
 
     it('sort dropdown has four options', async () => {
-        mockGetReviews.mockResolvedValue({ reviews: [mockReview1] });
+        mockUseProductReviews.mockReturnValue({ ...defaultReviewsContext, reviews: [mockReview1] });
         render(<ReviewCardsSection />);
         await waitFor(() => {
             expect(screen.getByRole('combobox', { name: 'Sort:' })).toBeInTheDocument();

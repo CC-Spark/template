@@ -23,8 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import type { ReviewItem } from '@/lib/adapters/product-content-data-types';
-import { useProduct } from '@/providers/product-context';
-import { useProductContent } from '@/hooks/product-content/use-product-content';
+import { useProductReviews } from '@/hooks/product-reviews/use-product-reviews';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { getPaginationItems } from '@/lib/pagination-utils';
 import { cn } from '@/lib/utils';
@@ -45,6 +44,13 @@ const REVIEW_SORT_OPTIONS = [
 ] as const;
 
 export type ReviewSortValue = (typeof REVIEW_SORT_OPTIONS)[number]['value'];
+
+export interface ReviewCardsSectionProps {
+    /** When provided, rating filter is controlled by parent (e.g. from distribution bar clicks) */
+    selectedRating?: number | null;
+    /** When provided, parent is notified when user changes rating filter */
+    onRatingChange?: (rating: number | null) => void;
+}
 
 /**
  * Parse ISO 8601 date string (YYYY-MM-DD) to timestamp for stable sorting.
@@ -101,41 +107,33 @@ function sortReviews(reviews: ReviewItem[], sortBy: ReviewSortValue): ReviewItem
     });
 }
 
-export default function ReviewCardsSection(): ReactElement {
+export default function ReviewCardsSection({
+    selectedRating: controlledRating,
+    onRatingChange,
+}: ReviewCardsSectionProps = {}): ReactElement {
     const { t } = useTranslation('product');
-    const product = useProduct();
-    const { adapter } = useProductContent();
-    const productId = product?.id;
+    const { reviews } = useProductReviews();
     const sortSelectId = useId();
 
-    const [reviews, setReviews] = useState<ReviewItem[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchKeyword, setSearchKeyword] = useState('');
-    const [selectedRating, setSelectedRating] = useState<number | null>(null);
+    const [internalRating, setInternalRating] = useState<number | null>(null);
     const [withPhotosOnly, setWithPhotosOnly] = useState(false);
     const [sortBy, setSortBy] = useState<ReviewSortValue>('most-recent');
     const sectionRef = useRef<HTMLDivElement>(null);
 
+    const isControlled = onRatingChange != null;
+    const selectedRating = isControlled ? (controlledRating ?? null) : internalRating;
+    const setSelectedRating = (value: number | null) => {
+        if (isControlled) onRatingChange?.(value);
+        else setInternalRating(value);
+    };
+
     const debouncedSearchKeyword = useDebouncedValue(searchKeyword, 300);
 
     useEffect(() => {
-        if (!adapter?.getReviews || productId == null) return;
-        let cancelled = false;
-        adapter
-            .getReviews(productId)
-            .then((data) => {
-                if (!cancelled) {
-                    setReviews(data.reviews ?? []);
-                    setCurrentPage(1);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) setReviews([]);
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, [adapter, productId]);
+        setCurrentPage(1);
+    }, []);
 
     const filteredReviews = useMemo(
         () => filterReviews(reviews, debouncedSearchKeyword, selectedRating, withPhotosOnly),
@@ -181,12 +179,12 @@ export default function ReviewCardsSection(): ReactElement {
     return (
         <div ref={sectionRef} className="space-y-6" data-testid="review-cards-section">
             {reviews.length === 0 ? (
-                <p className="text-muted-foreground">{t('reviewsComingSoon')}</p>
+                <p className="text-muted-foreground">{t('noReviewsForProduct')}</p>
             ) : (
                 <>
                     {/* Filter by star rating + With Photos */}
                     <div className="space-y-2">
-                        <p className="text-sm font-medium text-foreground">{t('filterBy')}</p>
+                        <p className="sm:text-sm text-brand-gray-600 font-medium">{t('filterBy')}</p>
                         <div className="flex flex-wrap items-center gap-2">
                             {([5, 4, 3, 2, 1] as const).map((rating) => {
                                 const count = ratingCounts[rating] ?? 0;
@@ -198,7 +196,7 @@ export default function ReviewCardsSection(): ReactElement {
                                         variant="outline"
                                         size="sm"
                                         className={cn(
-                                            'cursor-pointer gap-1',
+                                            'cursor-pointer gap-1 rounded-full bg-[#f5f5f5] border-transparent hover:bg-[#ebebeb]',
                                             isSelected &&
                                                 'border-[var(--filter-selected-border)] bg-[var(--filter-selected)]'
                                         )}
@@ -216,7 +214,7 @@ export default function ReviewCardsSection(): ReactElement {
                                 variant="outline"
                                 size="sm"
                                 className={cn(
-                                    'cursor-pointer gap-1.5',
+                                    'cursor-pointer gap-1.5 rounded-full bg-[#f5f5f5] border-transparent hover:bg-[#ebebeb]',
                                     withPhotosOnly &&
                                         'border-[var(--filter-selected-border)] bg-[var(--filter-selected)]'
                                 )}
@@ -248,7 +246,7 @@ export default function ReviewCardsSection(): ReactElement {
                     {/* Sort + Write a Review */}
                     <div className="flex flex-wrap items-center justify-between gap-4 w-full">
                         <div className="flex items-center gap-2">
-                            <label htmlFor={sortSelectId} className="text-sm font-medium text-foreground">
+                            <label htmlFor={sortSelectId} className="sm:text-sm text-brand-gray-600 font-medium">
                                 {t('sortLabel')}
                             </label>
                             <NativeSelect
@@ -295,16 +293,16 @@ export default function ReviewCardsSection(): ReactElement {
                         <p className="text-muted-foreground">{t('noReviewsMatchFilters')}</p>
                     ) : (
                         <>
-                            <ul className="space-y-6 list-none p-0 m-0">
+                            <ul className="list-none divide-y divide-border p-0 m-0">
                                 {pageReviews.map((review) => (
-                                    <li key={review.id}>
+                                    <li key={review.id} className="py-6 first:pt-0">
                                         <ReviewCard review={review} />
                                     </li>
                                 ))}
                             </ul>
 
-                            {/* Pagination */}
-                            <div className="flex flex-col gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+                            {/* Pagination - gap between last review and this divider */}
+                            <div className="mt-6 flex flex-col gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
                                 <p className="text-sm text-muted-foreground">
                                     {t('showingReviews', { from, to, total: totalReviews })}
                                 </p>

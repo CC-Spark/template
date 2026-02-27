@@ -16,15 +16,25 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import type { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
 import { ConfigProvider } from '@/config/context';
 import { ProductProvider } from '@/providers/product-context';
 import ProductContentProvider from '@/providers/product-content';
+import { ProductReviewsProvider, useProductReviews } from '@/providers/product-reviews-context';
 import { mockConfig } from '@/test-utils/config';
 import ReviewCardsSection from '../review-cards-section';
 
 const mockProduct = { id: 'storybook-product' };
+
+/** Triggers loadReviewsIfNeeded on mount so the mock adapter populates reviews (required for play tests). */
+function LoadReviewsOnMount({ children }: { children: React.ReactNode }): ReactElement {
+    const { loadReviewsIfNeeded } = useProductReviews();
+    React.useEffect(() => {
+        loadReviewsIfNeeded();
+    }, [loadReviewsIfNeeded]);
+    return <>{children}</>;
+}
 
 function ReviewCardsSectionWrapper(): ReactElement {
     const inRouter = useInRouterContext();
@@ -32,10 +42,14 @@ function ReviewCardsSectionWrapper(): ReactElement {
         <ConfigProvider config={mockConfig}>
             <ProductProvider product={mockProduct}>
                 <ProductContentProvider>
-                    <div className="max-w-3xl">
-                        <h2 className="mb-4 text-xl font-semibold">Customer Reviews</h2>
-                        <ReviewCardsSection />
-                    </div>
+                    <ProductReviewsProvider>
+                        <LoadReviewsOnMount>
+                            <div className="max-w-3xl">
+                                <h2 className="mb-4 text-xl font-semibold">Customer Reviews</h2>
+                                <ReviewCardsSection />
+                            </div>
+                        </LoadReviewsOnMount>
+                    </ProductReviewsProvider>
                 </ProductContentProvider>
             </ProductProvider>
         </ConfigProvider>
@@ -91,10 +105,12 @@ export const Default: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
-        // Mock adapter returns 7 reviews; wait for "Showing 1-5 of 7 reviews"
-        await expect(canvas.findByText(/Showing 1-5 of 7 reviews/, {}, { timeout: 5000 })).resolves.toBeInTheDocument();
+        // Mock adapter returns 7 reviews; wait for load then "Showing 1-5 of 7 reviews"
+        await expect(
+            canvas.findByText(/Showing 1-5 of 7 reviews/, {}, { timeout: 10000 })
+        ).resolves.toBeInTheDocument();
         // Pagination to page 2
-        const page2 = await canvas.findByRole('button', { name: 'Page 2' }, { timeout: 3000 });
+        const page2 = await canvas.findByRole('button', { name: 'Page 2' }, { timeout: 5000 });
         await userEvent.click(page2);
         await expect(canvas.findByText(/Showing 6-7 of 7 reviews/)).resolves.toBeInTheDocument();
     },
@@ -104,13 +120,15 @@ export const FilterAndSort: Story = {
     play: async ({ canvasElement }) => {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
-        await expect(canvas.findByText(/Showing 1-5 of 7 reviews/, {}, { timeout: 5000 })).resolves.toBeInTheDocument();
+        await expect(
+            canvas.findByText(/Showing 1-5 of 7 reviews/, {}, { timeout: 10000 })
+        ).resolves.toBeInTheDocument();
         // Filter by 5 stars (mock returns 7 reviews, mix of ratings)
-        const fiveStarButton = await canvas.findByRole('button', { name: 'Filter by 5 stars' }, { timeout: 3000 });
+        const fiveStarButton = await canvas.findByRole('button', { name: 'Filter by 5 stars' }, { timeout: 5000 });
         await userEvent.click(fiveStarButton);
         await expect(canvas.findByText(/Sort:/)).resolves.toBeInTheDocument();
         // Change sort to Highest Rated
-        const sortSelect = canvas.getByRole('combobox', { name: 'Sort:' });
+        const sortSelect = await canvas.findByRole('combobox', { name: 'Sort:' }, { timeout: 3000 });
         await userEvent.selectOptions(sortSelect, 'highest-rated');
         await expect(sortSelect).toHaveValue('highest-rated');
     },

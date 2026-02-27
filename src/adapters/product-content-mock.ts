@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import i18n from 'i18next';
 import type { ProductContentAdapter } from '@/lib/adapters/product-content-types';
 import type {
     BuyNowPayLaterLearnMoreData,
@@ -21,8 +22,11 @@ import type {
     EstimatedDeliveryData,
     IngredientsData,
     ProductDescriptionData,
+    RatingDistribution,
     ReturnsAndWarrantyData,
+    ReviewItem,
     ReviewsData,
+    ReviewsSummaryData,
     ShippingEstimate,
     SizeGuideData,
     TechSpecsData,
@@ -297,7 +301,8 @@ const MOCK_REVIEWS_DATA: ReviewsData = {
     summary: {
         averageRating: 4.9,
         totalCount: 7,
-        basedOnLabel: 'Based on 7 reviews',
+        basedOnLabel:
+            typeof i18n.t === 'function' ? i18n.t('product:rating.basedOnReviews', { count: 7 }) : 'Based on 7 reviews',
         distribution: {
             oneStar: 0,
             twoStars: 0,
@@ -306,6 +311,8 @@ const MOCK_REVIEWS_DATA: ReviewsData = {
             fiveStars: 6,
         },
     },
+    aiSummary:
+        'Customers love the quality and comfort of this product. Many reviewers highlight the excellent fit and durability, making it a great value for the price.',
     searchPlaceholder: 'Search reviews...',
     sortOptions: ['Most Recent', 'Highest Rating', 'Lowest Rating', 'Most Helpful'],
     defaultSort: 'Most Recent',
@@ -437,6 +444,11 @@ const MOCK_WRITE_REVIEW_FORM_DATA: WriteReviewFormData = {
         yesLabel: 'Yes',
         noLabel: 'No',
     },
+    location: {
+        label: 'Location',
+        placeholder: 'City, State or Country (e.g., Los Angeles, CA)',
+        hint: 'Optional - helps other customers',
+    },
     addPhotos: {
         label: 'Add Photos (Optional)',
         hint: 'Click to upload or drag and drop',
@@ -470,8 +482,36 @@ const simulateDelay = (ms: number): Promise<void> => new Promise((resolve) => se
  *
  * @param config - Config (enabled, optional mockDelay)
  */
+/** Build rating distribution and average from a list of reviews */
+function buildSummaryFromReviews(reviews: ReviewItem[]): ReviewsData['summary'] {
+    const totalCount = reviews.length;
+    const distribution: RatingDistribution = { oneStar: 0, twoStars: 0, threeStars: 0, fourStars: 0, fiveStars: 0 };
+    let sum = 0;
+    for (const r of reviews) {
+        if (r.rating >= 1 && r.rating <= 5) {
+            const key = (['oneStar', 'twoStars', 'threeStars', 'fourStars', 'fiveStars'] as const)[r.rating - 1];
+            distribution[key]++;
+            sum += r.rating;
+        }
+    }
+    const averageRating = totalCount > 0 ? sum / totalCount : 0;
+    return {
+        averageRating: Math.round(averageRating * 10) / 10,
+        totalCount,
+        basedOnLabel:
+            typeof i18n.t === 'function'
+                ? i18n.t('product:rating.basedOnReviews', { count: totalCount })
+                : totalCount === 1
+                  ? 'Based on 1 review'
+                  : `Based on ${totalCount} reviews`,
+        distribution,
+    };
+}
+
 export function createProductContentMockAdapter(config: ProductContentMockAdapterConfig): ProductContentAdapter {
     const mockDelay = config.mockDelay ?? 0;
+    /** User-submitted reviews per productId (persisted in mock so getReviews returns them) */
+    const userAddedReviewsByProduct = new Map<string, ReviewItem[]>();
 
     return {
         // Could vary data based on productId if provided (e.g. product-specific size charts)
@@ -515,9 +555,37 @@ export function createProductContentMockAdapter(config: ProductContentMockAdapte
             await simulateDelay(mockDelay);
             return MOCK_TECH_SPECS_DATA;
         },
-        getReviews: async (_productId?: string): Promise<ReviewsData> => {
+        getReviewsSummary: async (productId?: string): Promise<ReviewsSummaryData> => {
             await simulateDelay(mockDelay);
-            return MOCK_REVIEWS_DATA;
+            const key = productId ?? 'default';
+            const userAdded = userAddedReviewsByProduct.get(key) ?? [];
+            const allReviews = [...userAdded, ...MOCK_REVIEWS_DATA.reviews];
+            const summary = buildSummaryFromReviews(allReviews);
+            return {
+                ...summary,
+                aiSummary: MOCK_REVIEWS_DATA.aiSummary,
+            };
+        },
+        getReviews: async (productId?: string): Promise<ReviewsData> => {
+            await simulateDelay(mockDelay);
+            const key = productId ?? 'default';
+            const userAdded = userAddedReviewsByProduct.get(key) ?? [];
+            const allReviews = [...userAdded, ...MOCK_REVIEWS_DATA.reviews];
+            const summary = buildSummaryFromReviews(allReviews);
+            return {
+                ...MOCK_REVIEWS_DATA,
+                subtitle: `${summary.totalCount} reviews for Pure Cube`,
+                summary,
+                reviews: allReviews,
+            };
+        },
+        addReview: async (productId?: string, review?: ReviewItem): Promise<void> => {
+            await simulateDelay(mockDelay);
+            if (!review) return;
+            const key = productId ?? 'default';
+            const existing = userAddedReviewsByProduct.get(key) ?? [];
+            const updated = [review, ...existing];
+            userAddedReviewsByProduct.set(key, updated);
         },
         getWriteReviewForm: async (_productId?: string): Promise<WriteReviewFormData> => {
             await simulateDelay(mockDelay);

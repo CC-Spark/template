@@ -113,9 +113,10 @@ export function ReviewCard({ review, className }: ReviewCardProps): ReactElement
             data-testid="review-card"
             aria-labelledby={`review-headline-${review.id}`}>
             <div className="flex gap-3">
-                {/* Avatar - theme token, text-lg/leading-7 */}
+                {/* Avatar - circle with grey background (brand-gray-200) */}
                 <div
-                    className="flex size-12 shrink-0 items-center justify-center rounded-full bg-review-avatar-bg text-lg leading-7 font-medium text-muted-foreground"
+                    className="flex size-12 shrink-0 items-center justify-center rounded-full text-lg leading-7 font-medium text-brand-gray-600"
+                    style={{ backgroundColor: '#ededed' }}
                     aria-hidden>
                     {initial}
                 </div>
@@ -124,7 +125,7 @@ export function ReviewCard({ review, className }: ReviewCardProps): ReactElement
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="text-base font-medium leading-6 text-brand-black">{review.authorName}</span>
                         {review.verifiedPurchase && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--review-verified-bg)] px-2 py-0.5 text-xs font-medium text-foreground">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-review-verified-bg px-2 py-0.5 text-xs font-normal text-review-verified-text">
                                 <Check className="size-3.5" aria-hidden />
                                 {t('verifiedPurchase')}
                             </span>

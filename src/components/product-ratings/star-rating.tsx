@@ -261,7 +261,7 @@ export const StarRating = forwardRef<HTMLDivElement, StarRatingProps>(
                             onClick={onRatingLinkClick}
                             onMouseEnter={onRatingLinkClick}
                             aria-label={ratingLinkAriaLabel}
-                            className="text-sm text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 rounded">
+                            className="cursor-pointer text-sm text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 rounded">
                             {ratingLinkText}
                         </button>
                     )}

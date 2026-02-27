@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { use, useEffect, useRef, useMemo, Suspense, Fragment } from 'react';
+import { use, useEffect, useRef, useMemo, Suspense, Fragment, lazy } from 'react';
 import { type LoaderFunctionArgs } from 'react-router';
 import { type ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
@@ -22,6 +22,12 @@ import ProductSkeleton from '@/components/product-skeleton';
 import ProductView from '@/components/product-view';
 import { Typography } from '@/components/typography';
 import ChildProducts from '@/components/product-view/child-products';
+import { ProductRatingSummary } from '@/components/product-view/product-rating-summary';
+
+// Lazy-load reviews section to reduce initial PDP bundle (reviews chunk loads with product page)
+const CustomerReviewsSection = lazy(() =>
+    import('@/components/customer-reviews-section').then((m) => ({ default: m.CustomerReviewsSection }))
+);
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import ProductRecommendations from '@/components/product-recommendations';
 import { EINSTEIN_RECOMMENDERS } from '@/adapters/einstein';
@@ -30,6 +36,7 @@ import { useAnalytics } from '@/hooks/use-analytics';
 import { Region } from '@/components/region';
 import { ProductProvider } from '@/providers/product-context';
 import ProductContentProvider from '@/providers/product-content';
+import { ProductReviewsProvider } from '@/providers/product-reviews-context';
 import { PageType } from '@/lib/decorators/page-type';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 import { fetchPageWithComponentData, type PageWithComponentData } from '@/lib/util/pageLoader';
@@ -330,6 +337,7 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
                         {productData.shortDescription}
                     </Typography>
                 )}
+                <ProductRatingSummary />
             </div>
             {isProductASet || isProductABundle ? (
                 <>
@@ -339,6 +347,10 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
             ) : (
                 <ProductView product={productData} category={categoryData} />
             )}
+            {/* Customer Reviews Section (lazy-loaded to reduce initial bundle) */}
+            <Suspense fallback={null}>
+                <CustomerReviewsSection />
+            </Suspense>
         </div>
     );
 
@@ -376,17 +388,18 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
         );
     };
 
-    // Wrap entire page content with ProductContentProvider (PDP modals) and ProductProvider (product context)
     const content = (
-        <ProductContentProvider>
-            <ProductProvider product={productData}>
-                <div className="min-h-screen bg-background">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        {renderPageContent(loaderData.page)}
+        <ProductProvider product={productData}>
+            <ProductContentProvider>
+                <ProductReviewsProvider>
+                    <div className="min-h-screen bg-background">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            {renderPageContent(loaderData.page)}
+                        </div>
                     </div>
-                </div>
-            </ProductProvider>
-        </ProductContentProvider>
+                </ProductReviewsProvider>
+            </ProductContentProvider>
+        </ProductProvider>
     );
 
     let finalContent = content;

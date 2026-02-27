@@ -23,9 +23,9 @@ describe('StarRatingDistribution', () => {
         expect(screen.getByText('5')).toBeInTheDocument();
     });
 
-    it('renders percentage label', () => {
+    it('renders review count label', () => {
         render(<StarRatingDistribution rating={4} reviewCount={50} totalReviews={200} />);
-        expect(screen.getByText('25%')).toBeInTheDocument();
+        expect(screen.getByText('50')).toBeInTheDocument();
     });
 
     it('calculates percentage correctly', () => {
@@ -46,14 +46,14 @@ describe('StarRatingDistribution', () => {
         expect(starIcon).toHaveClass('w-4', 'h-4');
     });
 
-    it('is focusable with tabindex', () => {
+    it('is not focusable when non-clickable (no keyboard trap per WCAG 2.1.1)', () => {
         const { container } = render(<StarRatingDistribution rating={5} reviewCount={100} totalReviews={200} />);
-        expect(container.firstChild).toHaveAttribute('tabindex', '0');
+        expect(container.firstChild).not.toHaveAttribute('tabindex');
     });
 
-    it('has accessible aria-label with complete information', () => {
+    it('has accessible aria-label with count and total (matches visual; WCAG 1.3.1)', () => {
         render(<StarRatingDistribution rating={5} reviewCount={100} totalReviews={200} />);
-        const distribution = screen.getByLabelText(/5 stars.*50.*percent/i);
+        const distribution = screen.getByLabelText(/5 stars.*100.*200.*reviews/i);
         expect(distribution).toBeInTheDocument();
     });
 
@@ -71,36 +71,37 @@ describe('StarRatingDistribution', () => {
         expect(container.firstChild).toHaveClass('custom-class');
     });
 
-    it('displays 100% when all reviews have same rating', () => {
+    it('displays review count when all reviews have same rating', () => {
         render(<StarRatingDistribution rating={5} reviewCount={200} totalReviews={200} />);
-        expect(screen.getByText('100%')).toBeInTheDocument();
+        expect(screen.getByText('200')).toBeInTheDocument();
     });
 
-    it('displays 0% when no reviews for that rating', () => {
+    it('displays 0 when no reviews for that rating', () => {
         render(<StarRatingDistribution rating={1} reviewCount={0} totalReviews={200} />);
-        expect(screen.getByText('0%')).toBeInTheDocument();
+        expect(screen.getByText('0')).toBeInTheDocument();
     });
 
-    it('displays 1% for very small percentages', () => {
+    it('displays review count for very small percentages', () => {
         render(<StarRatingDistribution rating={1} reviewCount={2} totalReviews={200} />);
-        expect(screen.getByText('1%')).toBeInTheDocument();
+        expect(screen.getByText('2')).toBeInTheDocument();
     });
 
-    it('rounds percentage to nearest integer', () => {
-        // 75/200 = 37.5% should round to 38%
-        render(<StarRatingDistribution rating={4} reviewCount={75} totalReviews={200} />);
-        expect(screen.getByText('38%')).toBeInTheDocument();
+    it('progress bar width reflects percentage', () => {
+        // 75/200 = 37.5%
+        const { container } = render(<StarRatingDistribution rating={4} reviewCount={75} totalReviews={200} />);
+        const progressBarFill = container.querySelector('.bg-rating');
+        expect(progressBarFill).toHaveStyle({ width: '37.5%' });
     });
 
-    it('percentage label has fixed width for alignment', () => {
+    it('review count label has fixed width for alignment', () => {
         render(<StarRatingDistribution rating={5} reviewCount={100} totalReviews={200} />);
-        const percentageLabel = screen.getByText('50%');
-        expect(percentageLabel).toHaveClass('w-12');
+        const countLabel = screen.getByText('100');
+        expect(countLabel).toHaveClass('w-6');
     });
 
     it('uses tabular numbers for consistent digit width', () => {
         render(<StarRatingDistribution rating={5} reviewCount={100} totalReviews={200} />);
-        const percentageLabel = screen.getByText('50%');
-        expect(percentageLabel).toHaveClass('tabular-nums');
+        const countLabel = screen.getByText('100');
+        expect(countLabel).toHaveClass('tabular-nums');
     });
 });

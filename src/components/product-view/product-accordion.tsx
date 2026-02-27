@@ -98,17 +98,6 @@ export default function ProductAccordion({ product }: ProductAccordionProps): Re
                     </AccordionContent>
                 </AccordionItem>
 
-                {/* Reviews */}
-                <AccordionItem value="reviews">
-                    <AccordionTrigger className="text-left font-semibold text-lg">{t('reviews')}</AccordionTrigger>
-                    <AccordionContent>
-                        <div className="text-muted-foreground">
-                            <p>{t('reviewsComingSoon')}</p>
-                            {/* Future: Add review system integration */}
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-
                 {/* Care Instructions */}
                 {product.type?.item && (
                     <AccordionItem value="care">

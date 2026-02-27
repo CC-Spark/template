@@ -60,8 +60,11 @@ export function StarRatingDistributionModalContent({
             {onSeeReviewsClick && (
                 <button
                     type="button"
-                    onClick={onSeeReviewsClick}
-                    className="mt-4 text-sm font-normal text-primary hover:underline">
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onSeeReviewsClick();
+                    }}
+                    className="mt-4 cursor-pointer text-sm font-normal text-primary hover:underline">
                     {t('product:rating.seeCustomerReviews')}
                 </button>
             )}

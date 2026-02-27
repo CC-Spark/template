@@ -262,6 +262,19 @@ export interface RatingDistribution {
 }
 
 /**
+ * Lightweight reviews summary for accordion header (count, rating, distribution, AI summary).
+ * Fetched on mount so the header can show "X reviews for [product]" and AI summary without loading the full list.
+ */
+export interface ReviewsSummaryData {
+    totalCount: number;
+    averageRating: number;
+    distribution: RatingDistribution;
+    basedOnLabel: string;
+    /** AI-generated review summary for display in collapsed accordion state */
+    aiSummary?: string;
+}
+
+/**
  * Customer reviews section data for PDP
  */
 export interface ReviewsData {
@@ -274,6 +287,8 @@ export interface ReviewsData {
         basedOnLabel: string;
         distribution: RatingDistribution;
     };
+    /** AI-generated review summary for display in collapsed accordion state */
+    aiSummary?: string;
     searchPlaceholder: string;
     sortOptions: string[];
     defaultSort?: string;
@@ -309,6 +324,11 @@ export interface WriteReviewFormData {
         label: string;
         yesLabel: string;
         noLabel: string;
+    };
+    location?: {
+        label: string;
+        placeholder: string;
+        hint: string;
     };
     addPhotos: {
         label: string;
