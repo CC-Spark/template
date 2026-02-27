@@ -11,7 +11,7 @@ name: Deploy to MRT
 on:
   push:
     branches:
-      - 'main'
+      - 'latest'
   workflow_dispatch:
     inputs:
       environment:
@@ -32,19 +32,19 @@ env:
   PNPM_VERSION: '10.28.0'
   CREDENTIALS_FILE_PATH: '~/.mobify'
   DEFAULT_MESSAGE: 'build ${{ github.run_id }} on ${{ github.ref }} - ${{ github.sha }}'
+  MRT_CLIENT_API_KEY: ${{ secrets.MRT_CLIENT_API_KEY == '' }}
 
 jobs:
   check-deploy:
     runs-on: ${{ vars.RUNNER_UBUNTU || 'ubuntu-latest' }}
     steps:
       - name: Log deploy skip
-        if: ${{ secrets.MRT_CLIENT_API_KEY == '' }}
+        if: env.MRT_CLIENT_API_KEY == ''
         run: |
           echo "::notice title=Deploy skipped::Deploy job was skipped because MRT_CLIENT_API_KEY is not set. Configure the secret in repository settings to enable deploys."
 
   deploy:
     needs: check-deploy
-    if: ${{ secrets.MRT_CLIENT_API_KEY != '' }}
     runs-on: ${{ vars.RUNNER_UBUNTU || 'ubuntu-latest' }}
     environment: ${{ github.event.inputs.environment || 'Production' }}
     timeout-minutes: 30
@@ -60,6 +60,7 @@ jobs:
           pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: Create MRT credentials file
+        if: env.MRT_CLIENT_API_KEY != ''
         id: create_mrt_credentials
         uses: './.github/actions/set_mrt_credentials'
         with:
@@ -68,6 +69,7 @@ jobs:
           CREDENTIALS_FILE_PATH: ${{ env.CREDENTIALS_FILE_PATH }}
 
       - name: Push to MRT
+        if: env.MRT_CLIENT_API_KEY != ''
         uses: './.github/actions/push_to_mrt'
         with:
           TARGET: ${{ github.event.inputs.target || vars.MRT_TARGET || 'production' }}
@@ -88,4 +90,4 @@ jobs:
             echo "🧹 Cleaned up credentials file: $CREDENTIALS_PATH"
           fi
         shell: bash
-        if: always()
+        if: always() && env.MRT_CLIENT_API_KEY != ''
