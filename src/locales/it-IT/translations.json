@@ -658,7 +658,22 @@
             "idNotFound": "ID lista desideri non trovato",
             "itemNotFound": "Articolo non trovato nella lista desideri",
             "mustLoginToAdd": "Deve essere connesso per aggiungere articoli alla Sua lista desideri",
-            "mustLoginToRemove": "Deve essere connesso per rimuovere articoli dalla Sua lista desideri"
+            "mustLoginToRemove": "Deve essere connesso per rimuovere articoli dalla Sua lista desideri",
+            "sortBy": "Ordina per",
+            "sort": {
+                "recentlyAdded": "Aggiunti di recente",
+                "nameAZ": "Nome (A-Z)",
+                "priceLow": "Prezzo: dal più basso",
+                "priceHigh": "Prezzo: dal più alto"
+            },
+            "filterBy": "Filtra per",
+            "filter": {
+                "all": "Tutti gli articoli",
+                "inStock": "Disponibile",
+                "outOfStock": "Non disponibile",
+                "onSale": "In offerta"
+            },
+            "noFilterResults": "Nessun articolo corrisponde al filtro selezionato."
         },
         "orders": {
             "empty": "Non hai ancora effettuato un ordine. Una volta effettuato un ordine, i dettagli verranno mostrati qui.",

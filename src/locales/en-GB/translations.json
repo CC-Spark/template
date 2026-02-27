@@ -698,7 +698,22 @@
             "idNotFound": "Wishlist ID not found",
             "itemNotFound": "Item not found in wishlist",
             "mustLoginToAdd": "You must be logged in to add items to your wishlist.",
-            "mustLoginToRemove": "You must be logged in to remove items from your wishlist."
+            "mustLoginToRemove": "You must be logged in to remove items from your wishlist.",
+            "sortBy": "Sort by",
+            "sort": {
+                "recentlyAdded": "Recently Added",
+                "nameAZ": "Name (A-Z)",
+                "priceLow": "Price: Low to High",
+                "priceHigh": "Price: High to Low"
+            },
+            "filterBy": "Filter by",
+            "filter": {
+                "all": "All Items",
+                "inStock": "In Stock",
+                "outOfStock": "Out of Stock",
+                "onSale": "On Sale"
+            },
+            "noFilterResults": "No items match your filter."
         },
         "orders": {
             "empty": "You haven't placed an order yet. Once you place an order the details will show up here.",
