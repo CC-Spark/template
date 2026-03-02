@@ -40,6 +40,7 @@ import { type i18n } from 'i18next';
 import { I18nextProvider } from 'react-i18next';
 import { PageDesignerProvider } from '@salesforce/storefront-next-runtime/design/react/core';
 import { isDesignModeActive, isPreviewModeActive } from '@salesforce/storefront-next-runtime/design/mode';
+import { SiteProvider } from '@salesforce/storefront-next-runtime/multi-site';
 
 // Middlewares
 import authMiddlewareServer, { getAuth as getAuthServer } from '@/middlewares/auth.server';
@@ -324,6 +325,8 @@ export default function App({
             [
                 [I18nextProvider, { i18n: i18next }],
                 [ConfigProvider, { config: appConfig }],
+                // TODO: Will change when we start integrating Multi site feature from runtime
+                [SiteProvider, { value: appConfig.commerce.sites[0] }],
                 [CurrencyProvider, { value: currency }],
                 [AuthProvider, { value: clientAuth }],
                 [BasketProvider, { snapshot: basketSnapshot }],

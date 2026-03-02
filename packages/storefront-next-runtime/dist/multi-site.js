@@ -1,5 +1,109 @@
-import { createContext, createCookie } from "react-router";
+import { t as applyUrlConfig } from "./apply-url-config.js";
+import { createContext, useContext } from "react";
+import { jsx } from "react/jsx-runtime";
+import { createContext as createContext$1, createCookie } from "react-router";
 
+//#region src/multi-site/site-context.tsx
+const SiteContext = createContext(void 0);
+/**
+* Provides the current site to the component tree.
+* Follows the same pattern as CurrencyProvider.
+*
+* Mounted in the template (e.g., app-wrapper.tsx or root.tsx) with the resolved
+* site value from the loader/middleware.
+*/
+function SiteProvider({ value, children }) {
+	return /* @__PURE__ */ jsx(SiteContext.Provider, {
+		value,
+		children
+	});
+}
+/**
+* React hook to get the current site.
+* Returns undefined when no SiteProvider is mounted.
+*/
+function useSite() {
+	return useContext(SiteContext);
+}
+
+//#endregion
+//#region src/multi-site/build-url.ts
+/**
+* Parses search config string into key-value pairs, preserving ':param' placeholders.
+* '?lng=:localeId&site=:siteId' → { lng: ':localeId', site: ':siteId' }
+*/
+function parseSearchConfig(search) {
+	const searchParams = new URLSearchParams(search);
+	const result = {};
+	for (const [key, value] of searchParams) result[key] = value;
+	return result;
+}
+/**
+* Extracts parameter names from a prefix string.
+* '/:siteId/:localeId' → ['siteId', 'localeId']
+*/
+function extractPrefixParams(prefix) {
+	const matches = prefix.match(/:(\w+)/g);
+	return matches ? matches.map((m) => m.slice(1)) : [];
+}
+/**
+* Splits a URL string into its component parts.
+* '/product/123?color=red#details' → { pathname: '/product/123', search: 'color=red', hash: '#details' }
+*/
+function decomposeUrl(url) {
+	const hashIdx = url.indexOf("#");
+	const hash = hashIdx >= 0 ? url.slice(hashIdx) : "";
+	const withoutHash = hashIdx >= 0 ? url.slice(0, hashIdx) : url;
+	const searchIdx = withoutHash.indexOf("?");
+	const search = searchIdx >= 0 ? withoutHash.slice(searchIdx + 1) : "";
+	return {
+		pathname: searchIdx >= 0 ? withoutHash.slice(0, searchIdx) : withoutHash,
+		search,
+		hash
+	};
+}
+/**
+* Resolves a prefix template by replacing parameter placeholders with values.
+* ('/:siteId/:localeId', { siteId: 'global', localeId: 'en-GB' }) → '/global/en-GB'
+*/
+function resolvePrefix(prefix, params) {
+	let resolved = prefix;
+	for (const paramName of extractPrefixParams(prefix)) {
+		const value = params[paramName];
+		if (value) resolved = resolved.replace(`:${paramName}`, value);
+	}
+	return resolved;
+}
+/**
+* Builds a fully-qualified URL with multi-site prefix and search params.
+*
+* Only keys defined in urlConfig.search are set by multi-site. Any other query params
+* already present on the `to` URL (including duplicate keys) are preserved as-is.
+* e.g. to='/api/search?refine=color:blue&refine=size:M', search='?lng=:localeId'
+*   → '/api/search?refine=color:blue&refine=size:M&lng=en-GB'
+*
+* @example
+* buildUrl({ to: '/product/123', urlConfig: { prefix: '/:siteId', search: '?lng=:localeId' }, params: { siteId: 'global', localeId: 'en-GB' } })
+* // → '/global/product/123?lng=en-GB'
+*/
+function buildUrl({ to, urlConfig, params }) {
+	if (!urlConfig) return to;
+	if (!to || to === "#" || to.startsWith("http") || to.startsWith("//")) return to;
+	const { pathname, search: existingSearch, hash } = decomposeUrl(to);
+	const prefixed = urlConfig.prefix && urlConfig.prefix !== "/" ? `${resolvePrefix(urlConfig.prefix, params)}${pathname}` : pathname;
+	const searchParams = new URLSearchParams(existingSearch);
+	if (urlConfig.search) {
+		const searchConfig = parseSearchConfig(urlConfig.search);
+		for (const [queryKey, value] of Object.entries(searchConfig)) if (value.startsWith(":")) {
+			const paramValue = params[value.slice(1)];
+			if (paramValue) searchParams.set(queryKey, paramValue);
+		} else searchParams.set(queryKey, value);
+	}
+	const search = searchParams.toString();
+	return `${prefixed}${search ? `?${search}` : ""}${hash}`;
+}
+
+//#endregion
 //#region src/multi-site/utils.ts
 /**
 * Extract a string value from the URL path segment at the given index.
@@ -171,7 +275,7 @@ async function resolveLocale(request, settings, site) {
 
 //#endregion
 //#region src/multi-site/middleware.ts
-const multiSiteContext = createContext(null);
+const multiSiteContext = createContext$1(null);
 /**
 * Helper function to get multi-site cookies from router context.
 * Useful in server actions and loaders that need to read/set cookies.
@@ -273,5 +377,5 @@ function createMultiSiteMiddleware(config) {
 }
 
 //#endregion
-export { createMultiSiteMiddleware, getMultiSiteCookies, multiSiteContext, requestToLocaleMap };
+export { SiteProvider, applyUrlConfig, buildUrl, createMultiSiteMiddleware, getMultiSiteCookies, multiSiteContext, requestToLocaleMap, useSite };
 //# sourceMappingURL=multi-site.js.map

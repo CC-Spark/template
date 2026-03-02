@@ -16,6 +16,7 @@ export default defineConfig([
             // Won't bring in the rest of the design layer dependencies.
             'design-mode': 'src/design/modeDetection.ts',
             'design-react-core': 'src/design/react/core/index.ts',
+            config: 'src/config/index.ts',
             events: 'src/events/index.ts',
             'multi-site': 'src/multi-site/index.ts',
             routing: 'src/routing/index.ts',
@@ -31,7 +32,7 @@ export default defineConfig([
         alias: {
             '@/*': 'src/*',
         },
-        hash: false
+        hash: false,
     },
     // scapi module entry
     {
@@ -46,6 +47,6 @@ export default defineConfig([
         clean: true,
         minify: true,
         noExternal: ['openapi-fetch'],
-        hash: false
+        hash: false,
     },
 ]);

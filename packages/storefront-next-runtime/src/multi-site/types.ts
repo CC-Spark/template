@@ -15,20 +15,17 @@
  */
 
 import type { Cookie } from 'react-router';
+import type { Locale as BaseLocale, Site as BaseSite } from '../config/types';
 
-export type Locale = {
-    id: string;
+// extended Site/Locale to use for Multi Site feature.
+export type Locale = BaseLocale & {
     alias?: string;
-    preferredCurrency: string;
 };
 
-export type Site = {
-    id: string;
-    name: string;
+export type Site = Omit<BaseSite, 'supportedLocales'> & {
+    name?: string;
     alias?: string;
     supportedLocales: Locale[];
-    supportedCurrencies: string[];
-    defaultCurrency: string;
 };
 
 export type MultiSiteContext = {

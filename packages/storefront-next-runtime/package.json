@@ -38,6 +38,12 @@
       "import": "./dist/design-styles.css",
       "require": "./dist/design-styles.css"
     },
+    "./config": {
+      "import": {
+        "types": "./dist/config.d.ts",
+        "default": "./dist/config.js"
+      }
+    },
     "./events": {
       "import": {
         "types": "./dist/events.d.ts",

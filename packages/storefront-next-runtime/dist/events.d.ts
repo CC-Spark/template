@@ -1,4 +1,4 @@
-import { a as ShopperSearch, i as ShopperProducts, n as ShopperBasketsV2, t as ShopperBasketsV1 } from "./types2.js";
+import { a as ShopperSearch, i as ShopperProducts, n as ShopperBasketsV2, t as ShopperBasketsV1 } from "./types3.js";
 import "openapi-fetch";
 
 //#region src/events/types.d.ts

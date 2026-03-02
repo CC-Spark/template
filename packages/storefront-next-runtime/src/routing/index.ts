@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// WARNING: This entry point is server-only (uses Node APIs via flatRoutes → loadConfig).
+// Do NOT add browser-safe exports here — they will pull Node modules into client bundles.
 export { flatRoutes } from './flat-routes';
 export { mergeRoutes } from './merge-routes';
-export { applyUrlConfig } from '../multi-site/apply-url-config';
-export type { UrlConfig } from './types';

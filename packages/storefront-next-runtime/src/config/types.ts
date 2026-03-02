@@ -13,9 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export type UrlConfig = {
+
+// Note: this type will have become granular when we start moving config setup/config from template to runtime
+export type Locale = {
+    id: string;
+    preferredCurrency: string;
+};
+
+export type Site = {
+    cookies?: {
+        domain?: string;
+    };
+    defaultCurrency: string;
+    defaultLocale: string;
+    domain?: string;
+    id: string;
+    supportedCurrencies: string[];
+    supportedLocales: Array<Locale>;
+};
+
+export type Url = {
+    /** URL path prefix using React Router param syntax. e.g. '/:siteId/:localeId' */
     prefix?: string;
+    /**
+     * Query parameters to append to URLs, using ':param' syntax.
+     * e.g. '?lng=:localeId' or '?lng=:localeId&site=:siteId'
+     */
     search?: string;
-    hash?: string;
+
     excludeRoutes?: string[];
 };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { describe, expect, it } from 'vitest';
-import { createPatternMatcher } from './utils';
+import { createPatternMatcher } from './index';
 
 describe('createPatternMatcher', () => {
     describe('exact matching', () => {

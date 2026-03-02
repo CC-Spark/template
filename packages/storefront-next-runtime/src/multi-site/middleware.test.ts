@@ -45,6 +45,7 @@ const DEFAULT_CONFIG: MultiSiteConfig = {
             id: 'site-us',
             name: 'US',
             alias: 'us',
+            defaultLocale: 'en-US',
             supportedLocales: [
                 { id: 'en-US', preferredCurrency: 'USD' },
                 { id: 'es-US', preferredCurrency: 'USD' },
@@ -56,6 +57,7 @@ const DEFAULT_CONFIG: MultiSiteConfig = {
             id: 'site-mx',
             name: 'Mexico',
             alias: 'mx',
+            defaultLocale: 'es-MX',
             supportedLocales: [
                 { id: 'es-MX', preferredCurrency: 'MXN' },
                 { id: 'en-MX', preferredCurrency: 'MXN' },

@@ -16,8 +16,11 @@
 import { deepMerge, mergeEnvConfig } from './utils';
 import type { EngagementAdapterConfig } from '@/lib/adapters';
 import type { TrackingConsent } from '@/types/tracking-consent';
-//Note: this will change when we start moving base config for into runtime.
-import type { UrlConfig } from '@salesforce/storefront-next-runtime/routing';
+
+// NOTE: this will change once we migrate the config to runtime package
+import type { Locale, Site, Url } from '@salesforce/storefront-next-runtime/config';
+
+export type { Locale, Site };
 
 // Badge configuration
 export type BadgeDetail = {
@@ -25,24 +28,6 @@ export type BadgeDetail = {
     label: string;
     color: 'green' | 'yellow' | 'orange' | 'purple' | 'red' | 'blue' | 'pink';
     priority?: number;
-};
-
-export type Locale = {
-    id: string;
-    preferredCurrency: string;
-};
-
-// Site configuration type
-export type Site = {
-    cookies?: {
-        domain?: string;
-    };
-    defaultCurrency: string;
-    defaultLocale: string;
-    domain?: string;
-    id: string;
-    supportedCurrencies: string[];
-    supportedLocales: Array<Locale>;
 };
 
 // Main configuration type for config.server.ts
@@ -244,7 +229,7 @@ export type Config = {
             hotReload: boolean;
             strictMode: boolean;
         };
-        url?: UrlConfig;
+        url?: Url;
     };
 };
 

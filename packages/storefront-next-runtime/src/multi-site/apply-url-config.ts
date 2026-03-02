@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import type { RouteConfigEntry } from '@react-router/dev/routes';
-import { createPatternMatcher } from '../routing/utils';
-import type { UrlConfig } from '../routing/types';
+import { createPatternMatcher } from '../utils';
+import type { Url } from '../config/types';
 
 const DEFAULT_EXCLUDED_ROUTES = ['/resource/**', '/action/**'];
 
@@ -120,7 +120,7 @@ export function cloneRootIndexRoutes(routes: RouteConfigEntry[]): RouteConfigEnt
  */
 export function applyUrlConfig(options: {
     routes: RouteConfigEntry[];
-    urlConfig?: UrlConfig;
+    urlConfig?: Url;
     wrapperFile: string;
 }): RouteConfigEntry[] {
     const { routes, urlConfig, wrapperFile } = options;

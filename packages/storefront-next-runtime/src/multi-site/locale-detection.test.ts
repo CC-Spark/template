@@ -33,6 +33,7 @@ const localeCookie = createMultiSiteCookie(DEFAULT_LOCALE_DETECTION.lookupCookie
 const SITE: Site = {
     id: 'site-us',
     name: 'US',
+    defaultLocale: 'en-US',
     supportedLocales: [
         { id: 'en-US', preferredCurrency: 'USD' },
         { id: 'es-US', preferredCurrency: 'USD' },
