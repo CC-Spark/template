@@ -105,12 +105,14 @@ pnpm sfnext create-instructions --project-directory /path/to/your/project --exte
 
 #### Cartridge generation and deployment instructions
 
+Run these commands from your project directory (e.g., `template-retail-rsc-app`):
+
 ```bash
 # Generate cartridge metadata for your site
-pnpm sfnext generate-cartridge --project-directory /path/to/your/project
+pnpm sfnext generate-cartridge
 
 # Deploy generated metadata to Commerce Cloud (uses dw.json for all settings)
-pnpm sfnext deploy-cartridge --project-directory /path/to/your/project
+pnpm sfnext deploy-cartridge
 ```
 
 ## CLI Options

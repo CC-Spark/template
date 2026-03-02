@@ -145,6 +145,8 @@ export default defineConfig([
             'commands/extensions/install': 'src/commands/extensions/install.ts',
             'commands/extensions/remove': 'src/commands/extensions/remove.ts',
             'commands/extensions/create': 'src/commands/extensions/create.ts',
+            // oclif hooks
+            'hooks/init': 'src/hooks/init.ts',
         },
         platform: 'node',
         target: 'node24',
