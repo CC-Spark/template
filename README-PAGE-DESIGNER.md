@@ -957,7 +957,7 @@ npm run build
 # - Compiles your source code
 # - Preserves decorator metadata via reflect-metadata
 
-# Step 2: designer-decorator tool execution
+# Step 2: Metadata generation (sfnext generate-cartridge)
 # - Scans compiled components and routes
 # - Extracts @Component, @PageType, @RegionDefinition decorators
 # - Reads @AttributeDefinition metadata
@@ -1299,17 +1299,13 @@ The two fields work together to enable the complete Page Designer experience:
 
 **Metadata Generation Tools:**
 
-The build process uses these specialized tools:
+The build process uses `storefront-next-dev` for metadata generation:
 
-- **`designer-decorator`** - Main tool that scans decorators and generates metadata
-  - Location: `packages/odyssey-mcp/src/tools/designer-decorator/`
+- **`sfnext generate-cartridge`** - Scans decorators and generates metadata
+  - Location: `packages/storefront-next-dev/src/cartridge-services/generate-cartridge.ts`
   - Reads TypeScript decorators via reflect-metadata
   - Outputs JSON files matching SFCC Page Designer schema
-
-- **`generate-page-designer-metadata`** - CLI tool for on-demand generation
-  - Location: `packages/odyssey-mcp/src/tools/generate-page-designer-metadata/`
-  - Can be run independently: `npm run generate-metadata`
-  - Useful for verifying metadata without full build
+  - Run via `pnpm generate:cartridge` in the template, or `sfnext generate-cartridge --project-directory ./` for on-demand generation
 
 **Verifying Metadata Generation:**
 

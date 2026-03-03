@@ -119,12 +119,6 @@ ${parentRulesContent}`;
     // 3. Convert export default defineConfig([...]) to const baseConfig = defineConfig([...])
     // 4. Add new export default with baseConfig spread and Storybook overrides
 
-    // Remove any monorepo-specific rules (like odyssey-mcp package rule)
-    parentConfigContent = parentConfigContent.replace(
-        /\s*{\s*\/\/ Skip odyssey-mcp package from header rules[\s\S]*?},?\s*(?=\/\/|eslintPluginPrettierRecommended|$)/,
-        '\n    '
-    );
-
     // Replace the final export with a const declaration
     parentConfigContent = parentConfigContent.replace(
         /export default defineConfig\(\[/,
