@@ -27805,6 +27805,8 @@ interface AuthConfig {
   siteId: string;
   /** Base URL for Commerce API (e.g., 'https://{shortCode}.api.commercecloud.salesforce.com') */
   baseUrl: string;
+  /** Direct SCAPI proxy URL for workspace environments. When set, guest login uses client_credentials grant directly. */
+  proxyHost?: string;
 }
 /**
  * Options for guest login.
@@ -29018,6 +29020,14 @@ interface CommerceApiClientConfig extends ClientOptions {
   redirectUri: string;
   /** Optional callback when access token is invalidated */
   onAuthTokenInvalid?: (response: Response) => void;
+  /**
+   * Direct SCAPI proxy URL for workspace environments (e.g., 'https://scw:25010').
+   * When set, the SDK automatically:
+   * - Strips 'f_ecom_' prefix from organizationId for SLAS auth endpoints
+   * - Rewrites org IDs back to full form for product/search API endpoints
+   * - Uses client_credentials grant for guest login (no PKCE)
+   */
+  proxyHost?: string;
 }
 type Clients = {
   shopperBasketsV1: ProxyClient<Client<ShopperBasketsV1.endpoints>, typeof operations>;

@@ -28,6 +28,7 @@ export interface ServerConfig {
             clientId: string;
             siteId: string;
             proxy: string;
+            proxyHost?: string;
         };
     };
 }
@@ -46,8 +47,9 @@ export function loadConfigFromEnv(): ServerConfig {
     const clientId = process.env.PUBLIC__app__commerce__api__clientId;
     const siteId = process.env.PUBLIC__app__commerce__api__siteId;
     const proxy = process.env.PUBLIC__app__commerce__api__proxy || '/mobify/proxy/api';
+    const proxyHost = process.env.SCAPI_PROXY_HOST;
 
-    if (!shortCode) {
+    if (!shortCode && !proxyHost) {
         throw new Error(
             'Missing PUBLIC__app__commerce__api__shortCode environment variable.\n' +
                 'Please set it in your .env file or environment.'
@@ -78,11 +80,12 @@ export function loadConfigFromEnv(): ServerConfig {
     return {
         commerce: {
             api: {
-                shortCode,
+                shortCode: shortCode || '',
                 organizationId,
                 clientId,
                 siteId,
                 proxy,
+                proxyHost,
             },
         },
     };
@@ -137,9 +140,10 @@ export async function loadProjectConfig(projectDirectory: string): Promise<Serve
     }
 
     const api = config.app.commerce.api;
+    const proxyHost = process.env.SCAPI_PROXY_HOST;
 
-    // Validate required fields
-    if (!api.shortCode) {
+    // Validate required fields (shortCode not required when proxyHost is set)
+    if (!api.shortCode && !proxyHost) {
         throw new Error('Missing shortCode in config.server.ts commerce.api configuration');
     }
     if (!api.organizationId) {
@@ -155,11 +159,12 @@ export async function loadProjectConfig(projectDirectory: string): Promise<Serve
     return {
         commerce: {
             api: {
-                shortCode: api.shortCode,
+                shortCode: api.shortCode || '',
                 organizationId: api.organizationId,
                 clientId: api.clientId,
                 siteId: api.siteId,
                 proxy: api.proxy || '/mobify/proxy/api',
+                proxyHost,
             },
         },
     };

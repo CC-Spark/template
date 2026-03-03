@@ -49,26 +49,32 @@ export const action: ActionFunction = async ({ request, context }) => {
     const currentAuth = getAuth(context);
     const refreshToken = currentAuth.refreshToken;
 
-    if (!refreshToken) {
-        throw new Response('No refresh token available. User must be authenticated.', { status: 401 });
-    }
-
     const userType: 'guest' | 'registered' = currentAuth.userType || 'guest';
 
-    // Refresh token with the new tracking consent value
-    const tokenResponse = await refreshAccessToken(context, refreshToken, {
-        trackingConsent,
-    });
+    if (refreshToken) {
+        // Standard flow: refresh the SLAS token with tracking consent embedded (DNT claim)
+        const tokenResponse = await refreshAccessToken(context, refreshToken, {
+            trackingConsent,
+        });
 
-    // Update the auth context with the new token response
-    updateAuth(context, tokenResponse);
+        // Update the auth context with the new token response
+        updateAuth(context, tokenResponse);
 
-    // Restore userType and set the new tracking consent value
-    updateAuth(context, (session) => ({
-        ...session,
-        userType,
-        trackingConsent,
-    }));
+        // Restore userType and set the new tracking consent value
+        updateAuth(context, (session) => ({
+            ...session,
+            userType,
+            trackingConsent,
+        }));
+    } else {
+        // No refresh token (e.g., environments using client_credentials grant without refresh).
+        // Skip token refresh and just update tracking consent in the session cookies.
+        // The auth middleware will persist the tracking consent cookie in the response.
+        updateAuth(context, (session) => ({
+            ...session,
+            trackingConsent,
+        }));
+    }
 
     return data({ success: true, trackingConsent });
 };

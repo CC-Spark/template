@@ -25,8 +25,8 @@ export function toPosixPath(filePath: string): string {
 /**
  * Get the Commerce Cloud API URL from a short code
  */
-export function getCommerceCloudApiUrl(shortCode: string): string {
-    return `https://${shortCode}.api.commercecloud.salesforce.com`;
+export function getCommerceCloudApiUrl(shortCode: string, proxyHost?: string): string {
+    return proxyHost || `https://${shortCode}.api.commercecloud.salesforce.com`;
 }
 
 /**

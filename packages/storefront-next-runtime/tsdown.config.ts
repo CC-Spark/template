@@ -21,6 +21,7 @@ export default defineConfig([
             'multi-site': 'src/multi-site/index.ts',
             routing: 'src/routing/index.ts',
             'routing-app-wrapper': 'src/routing/app-wrapper.tsx',
+            workspace: 'src/workspace/index.ts',
         },
         platform: 'neutral',
         target: 'node24',

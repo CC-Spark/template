@@ -160,6 +160,7 @@ interface ServerConfig {
       clientId: string;
       siteId: string;
       proxy: string;
+      proxyHost?: string;
     };
   };
 }

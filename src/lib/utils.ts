@@ -183,6 +183,18 @@ export const getAppOrigin = () => {
 };
 
 /**
+ * Get the SCAPI base URL for server-side requests.
+ * Uses SCAPI_PROXY_HOST if set, otherwise constructs from the given shortCode.
+ *
+ * Server-only — accesses process.env.
+ *
+ * @param shortCode - Commerce API short code (e.g., 'kv7kzm78')
+ * @returns Base URL like 'https://kv7kzm78.api.commercecloud.salesforce.com' or the proxy host
+ */
+export const getScapiBaseUrl = (shortCode: string): string =>
+    process.env.SCAPI_PROXY_HOST || `https://${shortCode}.api.commercecloud.salesforce.com`;
+
+/**
  * Determines whether the specified URL is absolute.
  *
  * @param url The URL to test

@@ -333,6 +333,7 @@ export default defineConfig({
             formats: ['webp'],
             fallbackFormat: 'jpg',
             host: DIS_DEFAULT_HOST,
+            enableDis: true,
         },
         // Search-specific settings
         // See CONFIG-OPTIONS.md#search for detailed documentation

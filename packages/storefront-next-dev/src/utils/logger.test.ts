@@ -277,7 +277,7 @@ describe('logger utils', () => {
                 enableStaticServing: false,
                 enableCompression: false,
                 proxyPath: '/mobify/proxy/api',
-                proxyTarget: 'https://test.api.commercecloud.salesforce.com',
+                proxyHost: 'https://test.api.commercecloud.salesforce.com',
                 shortCode: 'test-sc',
                 organizationId: 'org-123',
                 clientId: 'client-456',
@@ -363,7 +363,7 @@ describe('logger utils', () => {
                 port: 5173,
                 enableProxy: true,
                 proxyPath: '/mobify/proxy/api',
-                proxyTarget: 'https://test.api.commercecloud.salesforce.com',
+                proxyHost: 'https://test.api.commercecloud.salesforce.com',
                 shortCode: 'test-sc',
             });
 

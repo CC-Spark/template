@@ -24,6 +24,7 @@
 import type { LoaderFunctionArgs } from 'react-router';
 import { getConfig } from '@/config';
 import { getTranslation } from '@/lib/i18next';
+import { getScapiBaseUrl } from '@/lib/utils';
 
 interface JWKSResponse {
     keys: Array<{
@@ -58,7 +59,7 @@ async function fetchUpstreamJWKS(context: LoaderFunctionArgs['context']): Promis
         throw new Error(t('errors:jwks.missingEnvironmentVariables'));
     }
 
-    const upstreamUrl = `https://${shortCode}.api.commercecloud.salesforce.com/shopper/auth/v1/organizations/${organizationId}/oauth2/jwks`;
+    const upstreamUrl = `${getScapiBaseUrl(shortCode)}/shopper/auth/v1/organizations/${organizationId}/oauth2/jwks`;
 
     const response = await fetch(upstreamUrl, {
         method: 'GET',

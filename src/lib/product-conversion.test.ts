@@ -63,7 +63,7 @@ describe('convertProductToProductSearchHit', () => {
 
         expect(result.image).toBeDefined();
         expect(result.image?.disBaseLink).toBe('https://example.com/image');
-        expect(result.image?.link).toBe('https://example.com/image.jpg');
+        expect(result.image?.link).toBe('https://example.com/image');
         expect(result.image?.alt).toBe('Product Image');
     });
 

@@ -27,6 +27,7 @@ import {
 } from './plugins/eventInstrumentationValidator';
 import { buildMiddlewareRegistryPlugin } from './plugins/buildMiddlewareRegistry';
 import { platformEntryPlugin } from './plugins/platformEntry';
+import { workspacePlugin } from './plugins/workspace';
 
 /**
  * Configuration options for the Storefront Next Vite plugin.
@@ -114,6 +115,7 @@ export function storefrontNextTargets(config: StorefrontNextTargetsConfig = {}):
     } = config;
 
     const plugins: Plugin[] = [
+        workspacePlugin(),
         managedRuntimeBundlePlugin(),
         fixReactRouterManifestUrlsPlugin(),
         patchReactRouterPlugin(),

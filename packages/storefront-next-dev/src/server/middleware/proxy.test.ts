@@ -75,6 +75,7 @@ describe('proxy middleware', () => {
             expect(createProxyMiddleware).toHaveBeenCalledWith({
                 target: 'https://my-short-code.api.commercecloud.salesforce.com',
                 changeOrigin: true,
+                secure: true,
             });
             expect(middleware.options.target).toBe('https://my-short-code.api.commercecloud.salesforce.com');
         });
@@ -140,7 +141,7 @@ describe('proxy middleware', () => {
             expect(createProxyMiddleware).toHaveBeenCalledTimes(1);
         });
 
-        it('should only pass target and changeOrigin to createProxyMiddleware', () => {
+        it('should only pass target, changeOrigin, and secure to createProxyMiddleware', () => {
             const config: ServerConfig = {
                 commerce: {
                     api: {
@@ -158,11 +159,32 @@ describe('proxy middleware', () => {
             expect(createProxyMiddleware).toHaveBeenCalledWith({
                 target: 'https://test.api.commercecloud.salesforce.com',
                 changeOrigin: true,
+                secure: true,
             });
 
             // Verify no other options were passed
             const callArgs = (createProxyMiddleware as any).mock.calls[0][0];
-            expect(Object.keys(callArgs)).toEqual(['target', 'changeOrigin']);
+            expect(Object.keys(callArgs)).toEqual(['target', 'changeOrigin', 'secure']);
+        });
+
+        it('should use proxyHost when provided', () => {
+            const config: ServerConfig = {
+                commerce: {
+                    api: {
+                        shortCode: '',
+                        organizationId: 'org',
+                        clientId: 'client',
+                        siteId: 'site',
+                        proxy: '/mobify/proxy/api',
+                        proxyHost: 'https://scw:25010',
+                    },
+                },
+            };
+
+            const middleware = createCommerceProxyMiddleware(config) as any;
+
+            expect(middleware.options.target).toBe('https://scw:25010');
+            expect(middleware.options.secure).toBe(false);
         });
     });
 });

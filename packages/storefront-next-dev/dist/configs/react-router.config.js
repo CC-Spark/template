@@ -5,6 +5,7 @@
 * Users cannot override these values - they will be validated and an error will be thrown if modified.
 */
 function storefrontNextPreset() {
+	const sfwFalconInstance = process.env.SFW_FALCON_INSTANCE;
 	const presetConfig = {
 		appDirectory: "./src",
 		buildDirectory: "build",
@@ -14,7 +15,8 @@ function storefrontNextPreset() {
 		future: {
 			v8_middleware: true,
 			v8_viteEnvironmentApi: true
-		}
+		},
+		...sfwFalconInstance && { allowedActionOrigins: [`*.dataplane.cvw-dataplane-test.${sfwFalconInstance}.aws.sfdc.cl`] }
 	};
 	return {
 		name: "storefront-next-preset",

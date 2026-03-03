@@ -26,7 +26,7 @@ const disImageURL = {
         'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw1e4fcb17/images/large/PG.10212867.JJ3XYXX.PZ.jpg[?sw={width}]',
 };
 
-const urlWithWidth = (width: number) => getSrc(disImageURL.withOptionalParams, width);
+const urlWithWidth = (width: number) => getSrc(disImageURL.withOptionalParams, width, undefined, 'webp');
 
 describe('replaceImageFormat()', () => {
     describe('default target format', () => {
@@ -1027,6 +1027,32 @@ describe('toDisImageUrl()', () => {
             expect(result).toContain('/dw/image/v2/ZZRF_001/');
         });
     });
+
+    describe('enableDis config', () => {
+        const disDisabledConfig = {
+            ...mockConfig,
+            images: {
+                ...mockConfig.images,
+                enableDis: false,
+            },
+        } as typeof mockConfig;
+
+        test('returns relative path for SFCC static URL', () => {
+            const staticUrl =
+                'https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-catalog/default/image.jpg';
+            const result = toDisImageUrl({ src: staticUrl, config: disDisabledConfig });
+
+            expect(result).toBe('/on/demandware.static/-/Sites-catalog/default/image.jpg');
+        });
+
+        test('preserves placeholders with relative path', () => {
+            const staticUrl =
+                'https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-catalog/default/image.jpg[?sw={width}]';
+            const result = toDisImageUrl({ src: staticUrl, config: disDisabledConfig });
+
+            expect(result).toBe('/on/demandware.static/-/Sites-catalog/default/image.jpg[?sw={width}]');
+        });
+    });
 });
 
 describe('toImageUrl()', () => {
@@ -1167,6 +1193,46 @@ describe('toImageUrl()', () => {
 
             expect(toImageUrl({ src: externalUrl })).toBe(externalUrl);
             expect(toDisImageUrl({ src: externalUrl })).toBeUndefined();
+        });
+    });
+
+    describe('enableDis config', () => {
+        const disDisabledConfig = {
+            ...mockConfig,
+            images: {
+                ...mockConfig.images,
+                enableDis: false,
+            },
+        } as typeof mockConfig;
+
+        test('returns relative path for SFCC static URL', () => {
+            const staticUrl =
+                'https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-catalog/default/image.jpg';
+            const result = toImageUrl({ src: staticUrl, config: disDisabledConfig });
+
+            expect(result).toBe('/on/demandware.static/-/Sites-catalog/default/image.jpg');
+        });
+
+        test('returns relative path for DIS URL', () => {
+            const disUrl =
+                'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-catalog/default/image.jpg';
+            const result = toImageUrl({ src: disUrl, config: disDisabledConfig });
+
+            expect(result).toBe('/on/demandware.static/-/Sites-catalog/default/image.jpg');
+        });
+
+        test('returns original for non-parseable URL', () => {
+            const result = toImageUrl({ src: 'not-a-valid-url', config: disDisabledConfig });
+
+            expect(result).toBe('not-a-valid-url');
+        });
+
+        test('preserves placeholders with relative path', () => {
+            const staticUrl =
+                'https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-catalog/default/image.jpg[?sw={width}]';
+            const result = toImageUrl({ src: staticUrl, config: disDisabledConfig });
+
+            expect(result).toBe('/on/demandware.static/-/Sites-catalog/default/image.jpg[?sw={width}]');
         });
     });
 });

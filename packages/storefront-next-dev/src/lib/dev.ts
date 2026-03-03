@@ -71,7 +71,7 @@ export async function dev(options: DevOptions = {}): Promise<void> {
             enableStaticServing: false,
             enableCompression: false,
             proxyPath: config.commerce.api.proxy,
-            proxyTarget: getCommerceCloudApiUrl(config.commerce.api.shortCode),
+            proxyHost: getCommerceCloudApiUrl(config.commerce.api.shortCode, config.commerce.api.proxyHost),
             shortCode: config.commerce.api.shortCode,
             organizationId: config.commerce.api.organizationId,
             clientId: config.commerce.api.clientId,

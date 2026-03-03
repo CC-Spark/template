@@ -86,8 +86,8 @@ function toPosixPath(filePath) {
 /**
 * Get the Commerce Cloud API URL from a short code
 */
-function getCommerceCloudApiUrl(shortCode) {
-	return `https://${shortCode}.api.commercecloud.salesforce.com`;
+function getCommerceCloudApiUrl(shortCode, proxyHost) {
+	return proxyHost || `https://${shortCode}.api.commercecloud.salesforce.com`;
 }
 /**
 * Get the bundle path for static assets
@@ -1197,6 +1197,48 @@ function platformEntryPlugin() {
 }
 
 //#endregion
+//#region src/plugins/workspace.ts
+/**
+* Vite plugin that automatically configures workspace-specific settings when
+* SCAPI_PROXY_HOST is set. This includes:
+* - Disabling DIS (Dynamic Imaging Service) via PUBLIC__app__images__enableDis
+* - Adding dev server proxy rules for image paths (/dw/image, /on/demandware.static)
+* - Allowing all hosts for the dev server (workspace proxies use dynamic hostnames)
+*
+* Environment variables:
+* - `SCAPI_PROXY_HOST` — (Required) Base URL of the SCAPI proxy in workspace environments.
+*    Enables workspace mode when set. Used as the proxy target for SCAPI requests and,
+*    if JWEB_TARGET is not set, for static asset/image paths.
+*    Example: `http://scw:25010`
+* - `JWEB_TARGET` — (Optional) Separate proxy target for JWeb static asset paths
+*    (`/dw/image`, `/on/demandware.static`). Falls back to SCAPI_PROXY_HOST if not set.
+*    Example: `http://jweb:8080`
+* - `PUBLIC__app__images__enableDis` — (Auto-set) Set to `'false'` when SCAPI_PROXY_HOST
+*    is present, unless already explicitly configured. Controls whether the template
+*    uses DIS for image format conversion and responsive srcsets.
+*/
+const workspacePlugin = () => {
+	return {
+		name: "storefront-next-workspace",
+		config(_, { mode }) {
+			const scapiProxyHost = process.env.SCAPI_PROXY_HOST;
+			if (!scapiProxyHost) return;
+			process.env.PUBLIC__app__images__enableDis ??= "false";
+			if (mode !== "development") return;
+			const jwebTarget = process.env.JWEB_TARGET;
+			return { server: {
+				allowedHosts: true,
+				proxy: Object.fromEntries(["/dw/image", "/on/demandware.static"].map((path$2) => [path$2, {
+					target: jwebTarget || scapiProxyHost,
+					changeOrigin: true,
+					secure: false
+				}]))
+			} };
+		}
+	};
+};
+
+//#endregion
 //#region src/storefront-next-targets.ts
 /**
 * Storefront Next Vite plugin that powers the React Router RSC app.
@@ -1229,6 +1271,7 @@ function storefrontNextTargets(config = {}) {
 		verbose: false
 	} } = config;
 	const plugins = [
+		workspacePlugin(),
 		managedRuntimeBundlePlugin(),
 		fixReactRouterManifestUrlsPlugin(),
 		patchReactRouterPlugin(),
@@ -1312,16 +1355,18 @@ function loadConfigFromEnv() {
 	const clientId = process.env.PUBLIC__app__commerce__api__clientId;
 	const siteId = process.env.PUBLIC__app__commerce__api__siteId;
 	const proxy = process.env.PUBLIC__app__commerce__api__proxy || "/mobify/proxy/api";
-	if (!shortCode) throw new Error("Missing PUBLIC__app__commerce__api__shortCode environment variable.\nPlease set it in your .env file or environment.");
+	const proxyHost = process.env.SCAPI_PROXY_HOST;
+	if (!shortCode && !proxyHost) throw new Error("Missing PUBLIC__app__commerce__api__shortCode environment variable.\nPlease set it in your .env file or environment.");
 	if (!organizationId) throw new Error("Missing PUBLIC__app__commerce__api__organizationId environment variable.\nPlease set it in your .env file or environment.");
 	if (!clientId) throw new Error("Missing PUBLIC__app__commerce__api__clientId environment variable.\nPlease set it in your .env file or environment.");
 	if (!siteId) throw new Error("Missing PUBLIC__app__commerce__api__siteId environment variable.\nPlease set it in your .env file or environment.");
 	return { commerce: { api: {
-		shortCode,
+		shortCode: shortCode || "",
 		organizationId,
 		clientId,
 		siteId,
-		proxy
+		proxy,
+		proxyHost
 	} } };
 }
 /**
@@ -1341,16 +1386,18 @@ async function loadProjectConfig(projectDirectory) {
 	})).default;
 	if (!config?.app?.commerce?.api) throw new Error("Invalid config.server.ts: missing app.commerce.api configuration.\nPlease ensure your config.server.ts has the commerce API configuration.");
 	const api = config.app.commerce.api;
-	if (!api.shortCode) throw new Error("Missing shortCode in config.server.ts commerce.api configuration");
+	const proxyHost = process.env.SCAPI_PROXY_HOST;
+	if (!api.shortCode && !proxyHost) throw new Error("Missing shortCode in config.server.ts commerce.api configuration");
 	if (!api.organizationId) throw new Error("Missing organizationId in config.server.ts commerce.api configuration");
 	if (!api.clientId) throw new Error("Missing clientId in config.server.ts commerce.api configuration");
 	if (!api.siteId) throw new Error("Missing siteId in config.server.ts commerce.api configuration");
 	return { commerce: { api: {
-		shortCode: api.shortCode,
+		shortCode: api.shortCode || "",
 		organizationId: api.organizationId,
 		clientId: api.clientId,
 		siteId: api.siteId,
-		proxy: api.proxy || "/mobify/proxy/api"
+		proxy: api.proxy || "/mobify/proxy/api",
+		proxyHost
 	} } };
 }
 
@@ -1362,8 +1409,9 @@ async function loadProjectConfig(projectDirectory) {
 */
 function createCommerceProxyMiddleware(config) {
 	return createProxyMiddleware({
-		target: getCommerceCloudApiUrl(config.commerce.api.shortCode),
-		changeOrigin: true
+		target: getCommerceCloudApiUrl(config.commerce.api.shortCode, config.commerce.api.proxyHost),
+		changeOrigin: true,
+		secure: !config.commerce.api.proxyHost
 	});
 }
 

@@ -163,22 +163,34 @@ describe('action.update-tracking-consent', () => {
             expect(mockUpdateAuth).not.toHaveBeenCalled();
         });
 
-        it('should throw error when no refresh token is available', async () => {
+        it('should update tracking consent without refresh when no refresh token', async () => {
             mockGetAuth.mockReturnValue({ userType: 'guest' } as never); // No refreshToken
 
-            await expect(action(createActionArgs(TrackingConsent.Accepted))).rejects.toThrow(Response);
-
-            try {
-                await action(createActionArgs(TrackingConsent.Accepted));
-            } catch (error) {
-                expect(error).toBeInstanceOf(Response);
-                const response = error as Response;
-                expect(response.status).toBe(401);
-                expect(await response.text()).toBe('No refresh token available. User must be authenticated.');
-            }
+            const result = (await action(createActionArgs(TrackingConsent.Accepted))) as DataWithResponseInit<{
+                success: boolean;
+                trackingConsent: TrackingConsent;
+            }>;
 
             expect(mockRefreshAccessToken).not.toHaveBeenCalled();
-            expect(mockUpdateAuth).not.toHaveBeenCalled();
+            expect(mockUpdateAuth).toHaveBeenCalledTimes(1);
+
+            // Verify the session updater sets trackingConsent
+            const updaterFn = mockUpdateAuth.mock.calls[0][1] as (session: unknown) => unknown;
+            const updatedSession = updaterFn({});
+            expect(updatedSession).toEqual({ trackingConsent: TrackingConsent.Accepted });
+
+            expect(result.data).toEqual({
+                success: true,
+                trackingConsent: TrackingConsent.Accepted,
+            });
+        });
+
+        it('should call updateAuth only once when no refresh token', async () => {
+            mockGetAuth.mockReturnValue({ userType: 'guest' } as never); // No refreshToken
+
+            await action(createActionArgs(TrackingConsent.Declined));
+
+            expect(mockUpdateAuth).toHaveBeenCalledTimes(1);
         });
 
         it('should propagate error when refresh token operation fails', async () => {

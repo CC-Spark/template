@@ -73,6 +73,12 @@
         "types": "./dist/routing-app-wrapper.d.ts",
         "default": "./dist/routing-app-wrapper.js"
       }
+    },
+    "./workspace": {
+      "import": {
+        "types": "./dist/workspace.d.ts",
+        "default": "./dist/workspace.js"
+      }
     }
   },
   "files": [

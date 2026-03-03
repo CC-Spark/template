@@ -93,6 +93,9 @@ function stripDisPath(pathname: string): string {
 /**
  * Utility helper to convert B2C Commerce static asset URLs into Dynamic Imaging Service (DIS) URLs.
  *
+ * When `config.images.enableDis` is false, skips DIS transformation and returns
+ * relative static paths for environments that serve images directly.
+ *
  * Example:
  * https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-storefront-catalog-m-non-en/default/dwa6379acf/images/slot/landing/cat-landing-slotbanner-mens.jpg
  * becomes
@@ -111,6 +114,14 @@ export function toDisImageUrl({ src, options = {}, config }: ImageUrlParams): st
         const placeholders = src.match(PLACEHOLDER_REGEX) || [];
         const cleanUrl = src.replace(PLACEHOLDER_REGEX, '');
         const url = new URL(cleanUrl);
+
+        // When DIS is disabled, skip transformation and use direct static paths
+        // (/on/demandware.static paths proxied through Vite dev server config)
+        if (config?.images?.enableDis === false) {
+            const normalizedPathname = stripDisPath(url.pathname);
+            return placeholders.length > 0 ? `${normalizedPathname}${placeholders.join('')}` : normalizedPathname;
+        }
+
         const disHost = options.disHost || config?.images?.host;
         if (!disHost) {
             return undefined;
@@ -126,7 +137,7 @@ export function toDisImageUrl({ src, options = {}, config }: ImageUrlParams): st
         // Derive formats
         const extMatch = normalizedPathname.match(FILE_EXTENSION_REGEX);
         const sourceFormat = options.sourceFormat || extMatch?.[1]?.toLowerCase() || 'jpg';
-        const targetFormat = options.format || 'webp';
+        const targetFormat = options.format || config?.images?.formats?.[0] || config?.images?.fallbackFormat || 'webp';
 
         // Replace the extension with target format
         const disPath = normalizedPathname.replace(FILE_EXTENSION_REGEX, `.${targetFormat}`);
@@ -142,6 +153,7 @@ export function toDisImageUrl({ src, options = {}, config }: ImageUrlParams): st
 
         const query = search.toString();
         const baseUrl = `${disHost}/dw/image/v2/${realm}${disPath}${query ? `?${query}` : ''}`;
+
         // Append preserved placeholders for DynamicImage to process
         return placeholders.length > 0 ? `${baseUrl}${placeholders.join('')}` : baseUrl;
     } catch {
@@ -187,23 +199,40 @@ export function toImageUrl({ src, options = {}, config, image }: ImageUrlParams)
         const placeholders = imageUrl.match(PLACEHOLDER_REGEX) || [];
         const cleanUrl = imageUrl.replace(PLACEHOLDER_REGEX, '');
 
-        // If already a DIS URL, ensure correct format and add quality if not present
-        const isDisUrl = IS_DIS_URL_REGEX.test(cleanUrl);
-        if (isDisUrl) {
-            const targetFormat = options.format || 'webp';
-            let transformedUrl = replaceImageFormat(cleanUrl, targetFormat);
-
-            // Add quality parameter if not already present
-            const quality = options.quality ?? config?.images?.quality;
-            if (quality && !HAS_QUALITY_PARAM_REGEX.test(transformedUrl)) {
-                const separator = transformedUrl.includes('?') ? '&' : '?';
-                transformedUrl = `${transformedUrl}${separator}q=${quality}`;
+        // When DIS is disabled, convert all image URLs to relative static paths
+        if (config?.images?.enableDis === false) {
+            try {
+                const url = new URL(cleanUrl);
+                const normalizedPathname = stripDisPath(url.pathname);
+                return placeholders.length > 0 ? `${normalizedPathname}${placeholders.join('')}` : normalizedPathname;
+            } catch {
+                return imageUrl;
             }
-
-            return placeholders.length > 0 ? `${transformedUrl}${placeholders.join('')}` : transformedUrl;
         }
 
-        // Try to convert to DIS URL
+        // If already a DIS URL, check if the host needs rewriting
+        const isDisUrl = IS_DIS_URL_REGEX.test(cleanUrl);
+        if (isDisUrl) {
+            const disHost = options.disHost || config?.images?.host;
+            const needsHostRewrite = disHost && !cleanUrl.startsWith(disHost);
+
+            if (!needsHostRewrite) {
+                const targetFormat =
+                    options.format || config?.images?.formats?.[0] || config?.images?.fallbackFormat || 'webp';
+                let transformedUrl = replaceImageFormat(cleanUrl, targetFormat);
+
+                // Add quality parameter if not already present
+                const quality = options.quality ?? config?.images?.quality;
+                if (quality && !HAS_QUALITY_PARAM_REGEX.test(transformedUrl)) {
+                    const separator = transformedUrl.includes('?') ? '&' : '?';
+                    transformedUrl = `${transformedUrl}${separator}q=${quality}`;
+                }
+
+                return placeholders.length > 0 ? `${transformedUrl}${placeholders.join('')}` : transformedUrl;
+            }
+        }
+
+        // Try to convert to DIS URL (also handles host rewriting for existing DIS URLs)
         const disUrl = toDisImageUrl({ src: imageUrl, options, config });
         // If conversion succeeded, return DIS URL; otherwise return original URL as fallback
         return disUrl ?? imageUrl;
@@ -355,7 +384,12 @@ export const replaceImageFormat = (
  * // returns https://example.com/image_720.webp?sw=720&q=60&sfrm=jpg
  * getSrc('https://example.com/image[_{width}].jpg', 720, 60)
  */
-export const getSrc = (dynamicSrc: string, imageWidth: number, quality?: number): string => {
+export const getSrc = (
+    dynamicSrc: string,
+    imageWidth: number,
+    quality?: number,
+    targetFormat?: 'webp' | 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png'
+): string => {
     const getSep = (res: string): '?' | '&' => (res.includes('?') ? '&' : '?');
     const hasUrlParam = (url: string, param: string) => new RegExp(`[?&]${param}=`).test(url);
 
@@ -382,7 +416,12 @@ export const getSrc = (dynamicSrc: string, imageWidth: number, quality?: number)
         result = `${result}${getSep(result)}q=${quality}`;
     }
 
-    return replaceImageFormat(result);
+    // If no target format specified, don't convert format (keep original)
+    // This is important for environments where DIS format conversion isn't available
+    if (targetFormat) {
+        return replaceImageFormat(result, targetFormat);
+    }
+    return result;
 };
 
 /**
@@ -510,6 +549,8 @@ const getResponsiveSourcesAndLinks = (
 
     const sourcesWidths = convertToPxNumbers(padArray(widths));
     const sourcesLength = sourcesWidths.length;
+    // Use first format for srcSet generation (when DIS is disabled, formats is empty so no conversion occurs)
+    const targetFormat = formats[0];
     const { sources, links } = breakpointLabels.reduce(
         (acc: { sources: Source[]; links: ImageLink[] }, _bp, idx) => {
             // To support higher-density devices, request all images in 1x and 2x widths
@@ -527,7 +568,7 @@ const getResponsiveSourcesAndLinks = (
                     const effectiveWidth = Math.round(width * factor);
                     const effectiveSize = Math.round(width * factor);
 
-                    return `${getSrc(src, effectiveSize, quality)} ${effectiveWidth}w`;
+                    return `${getSrc(src, effectiveSize, quality, targetFormat)} ${effectiveWidth}w`;
                 })
                 .join(', ');
 

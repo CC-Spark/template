@@ -22,10 +22,15 @@ import { getCommerceCloudApiUrl } from '../../utils/paths';
  * Proxies requests from /mobify/proxy/api to the Commerce Cloud API
  */
 export function createCommerceProxyMiddleware(config: ServerConfig): RequestHandler {
-    const target = getCommerceCloudApiUrl(config.commerce.api.shortCode);
+    const target = getCommerceCloudApiUrl(config.commerce.api.shortCode, config.commerce.api.proxyHost);
 
     return createProxyMiddleware({
         target,
         changeOrigin: true,
+        // Disable SSL verification when using a custom proxy target (e.g. the local
+        // SCW instance at https://scw:25010 which uses a self-signed certificate).
+        // This is safe because the proxy middleware is only mounted in dev/preview
+        // modes — production builds on Managed Runtime disable it (enableProxy: false).
+        secure: !config.commerce.api.proxyHost,
     });
 }

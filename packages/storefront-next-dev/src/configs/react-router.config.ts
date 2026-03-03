@@ -21,6 +21,8 @@ import type { Preset } from '@react-router/dev/config';
  * Users cannot override these values - they will be validated and an error will be thrown if modified.
  */
 export function storefrontNextPreset(): Preset {
+    const sfwFalconInstance = process.env.SFW_FALCON_INSTANCE;
+
     const presetConfig = {
         appDirectory: './src',
         buildDirectory: 'build',
@@ -31,6 +33,10 @@ export function storefrontNextPreset(): Preset {
             v8_middleware: true,
             v8_viteEnvironmentApi: true,
         },
+        // Allow workspace proxy domain for CSRF protection on form actions
+        ...(sfwFalconInstance && {
+            allowedActionOrigins: [`*.dataplane.cvw-dataplane-test.${sfwFalconInstance}.aws.sfdc.cl`],
+        }),
     };
 
     return {

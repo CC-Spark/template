@@ -76,8 +76,34 @@ describe('server config', () => {
             expect(config.commerce.api.proxy).toBe('/mobify/proxy/api');
         });
 
+        it('should include proxyHost when SCAPI_PROXY_HOST is set', () => {
+            process.env.PUBLIC__app__commerce__api__shortCode = 'test-short-code';
+            process.env.PUBLIC__app__commerce__api__organizationId = 'test-org-id';
+            process.env.PUBLIC__app__commerce__api__clientId = 'test-client-id';
+            process.env.PUBLIC__app__commerce__api__siteId = 'test-site-id';
+            process.env.SCAPI_PROXY_HOST = 'https://scw:25010';
+
+            const config = loadConfigFromEnv();
+
+            expect(config.commerce.api.proxyHost).toBe('https://scw:25010');
+        });
+
+        it('should not require shortCode when SCAPI_PROXY_HOST is set', () => {
+            delete process.env.PUBLIC__app__commerce__api__shortCode;
+            process.env.PUBLIC__app__commerce__api__organizationId = 'test-org-id';
+            process.env.PUBLIC__app__commerce__api__clientId = 'test-client-id';
+            process.env.PUBLIC__app__commerce__api__siteId = 'test-site-id';
+            process.env.SCAPI_PROXY_HOST = 'https://scw:25010';
+
+            const config = loadConfigFromEnv();
+
+            expect(config.commerce.api.shortCode).toBe('');
+            expect(config.commerce.api.proxyHost).toBe('https://scw:25010');
+        });
+
         it('should throw error when PUBLIC__app__commerce__api__shortCode is missing', () => {
             delete process.env.PUBLIC__app__commerce__api__shortCode;
+            delete process.env.SCAPI_PROXY_HOST;
             process.env.PUBLIC__app__commerce__api__organizationId = 'test-org-id';
             process.env.PUBLIC__app__commerce__api__clientId = 'test-client-id';
             process.env.PUBLIC__app__commerce__api__siteId = 'test-site-id';
@@ -217,7 +243,32 @@ describe('server config', () => {
             );
         });
 
+        it('should not require shortCode when SCAPI_PROXY_HOST is set', async () => {
+            process.env.SCAPI_PROXY_HOST = 'https://scw:25010';
+            mockExistsSync.mockReturnValue(true);
+            mockImportTypescript.mockResolvedValue({
+                default: {
+                    app: {
+                        commerce: {
+                            api: {
+                                organizationId: 'config-org-id',
+                                clientId: 'config-client-id',
+                                siteId: 'config-site-id',
+                            },
+                        },
+                    },
+                },
+            });
+
+            const config = await loadProjectConfig('/test/project');
+
+            expect(config.commerce.api.shortCode).toBe('');
+            expect(config.commerce.api.proxyHost).toBe('https://scw:25010');
+            delete process.env.SCAPI_PROXY_HOST;
+        });
+
         it('should throw error when shortCode is missing', async () => {
+            delete process.env.SCAPI_PROXY_HOST;
             mockExistsSync.mockReturnValue(true);
             mockImportTypescript.mockResolvedValue({
                 default: {

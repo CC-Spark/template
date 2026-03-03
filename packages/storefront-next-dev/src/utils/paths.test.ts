@@ -28,6 +28,18 @@ describe('getCommerceCloudApiUrl', () => {
 
         expect(url).toBe('https://production-123.api.commercecloud.salesforce.com');
     });
+
+    it('should return proxyHost when provided', () => {
+        const url = getCommerceCloudApiUrl('test-code', 'https://scw:25010');
+
+        expect(url).toBe('https://scw:25010');
+    });
+
+    it('should fall back to constructed URL when proxyHost is undefined', () => {
+        const url = getCommerceCloudApiUrl('test-code', undefined);
+
+        expect(url).toBe('https://test-code.api.commercecloud.salesforce.com');
+    });
 });
 
 describe('getBundlePath', () => {

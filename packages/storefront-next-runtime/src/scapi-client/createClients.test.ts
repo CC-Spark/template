@@ -740,4 +740,120 @@ describe('createCommerceApiClients', () => {
             });
         });
     });
+
+    describe('proxyHost (workspace mode)', () => {
+        it('should strip f_ecom_ prefix from organizationId when proxyHost is set', () => {
+            const mockFetch = vi.fn().mockResolvedValue({
+                ok: true,
+                status: 200,
+                headers: new Headers({ 'content-type': 'application/json' }),
+                json: () => Promise.resolve({}),
+            } as Response);
+
+            const clients = createCommerceApiClients({
+                ...defaultConfig,
+                organizationId: 'f_ecom_zzzz_s01',
+                proxyHost: 'https://scw:25010',
+                fetch: mockFetch,
+            });
+
+            // Clients should be created
+            expect(clients.shopperProducts).toBeDefined();
+            expect(clients.auth).toBeDefined();
+        });
+
+        it('should register org ID rewriting middleware when proxyHost is set', async () => {
+            const mockFetch = vi.fn().mockResolvedValue({
+                ok: true,
+                status: 200,
+                headers: new Headers({ 'content-type': 'application/json' }),
+                json: () => Promise.resolve({ data: [] }),
+            } as Response);
+
+            const clients = createCommerceApiClients({
+                ...defaultConfig,
+                organizationId: 'f_ecom_zzzz_s01',
+                proxyHost: 'https://scw:25010',
+                fetch: mockFetch,
+            });
+
+            // Make a product API call — the middleware should rewrite the org ID
+            await clients.shopperProducts.getProducts({
+                params: {
+                    query: { ids: ['p1'] },
+                },
+            });
+
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+            const [request] = mockFetch.mock.calls[0];
+            const url = request instanceof Request ? request.url : String(request);
+            // Non-SLAS endpoint should have full org ID restored
+            expect(url).toContain('/organizations/f_ecom_zzzz_s01/');
+        });
+
+        it('should NOT rewrite org ID for SLAS auth endpoints', async () => {
+            const mockFetch = vi.fn().mockResolvedValue({
+                ok: true,
+                status: 303,
+                headers: new Headers({
+                    location: 'https://example.com/callback?code=abc&usid=123',
+                }),
+                json: () => Promise.resolve({}),
+            } as Response);
+
+            const clients = createCommerceApiClients({
+                ...defaultConfig,
+                organizationId: 'f_ecom_zzzz_s01',
+                proxyHost: 'https://scw:25010',
+                fetch: mockFetch,
+            });
+
+            // Call an SLAS endpoint
+            await clients.shopperLogin.authorizeCustomer({
+                params: {
+                    query: {
+                        client_id: clientId,
+                        channel_id: siteId,
+                        redirect_uri: redirectUri,
+                        response_type: 'code',
+                    },
+                },
+                redirect: 'manual',
+            });
+
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+            const [request] = mockFetch.mock.calls[0];
+            const url = request instanceof Request ? request.url : String(request);
+            // SLAS auth endpoint should keep stripped org ID
+            expect(url).toContain('/organizations/zzzz_s01/');
+            expect(url).not.toContain('/organizations/f_ecom_zzzz_s01/');
+        });
+
+        it('should not register middleware when proxyHost is not set', async () => {
+            const mockFetch = vi.fn().mockResolvedValue({
+                ok: true,
+                status: 200,
+                headers: new Headers({ 'content-type': 'application/json' }),
+                json: () => Promise.resolve({ data: [] }),
+            } as Response);
+
+            const clients = createCommerceApiClients({
+                ...defaultConfig,
+                organizationId: 'f_ecom_zzzz_s01',
+                fetch: mockFetch,
+            });
+
+            await clients.shopperProducts.getProducts({
+                params: {
+                    query: { ids: ['p1'] },
+                },
+            });
+
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+            const [request] = mockFetch.mock.calls[0];
+            const url = request instanceof Request ? request.url : String(request);
+            // Without proxyHost, org ID should remain as-is
+            expect(url).toContain('/organizations/f_ecom_zzzz_s01/');
+        });
+    });
 });

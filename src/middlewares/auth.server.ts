@@ -92,6 +92,7 @@ export async function refreshAccessToken(
 /**
  * Login as guest user.
  * Returns AuthResponse which includes dwsid (automatically extracted from Set-Cookie header by SDK).
+ * The SDK handles auth flow selection internally when proxyHost is configured.
  */
 export async function loginGuestUser(
     context: Readonly<RouterContextProvider>,
@@ -107,6 +108,7 @@ export async function loginGuestUser(
     performanceTimer?.mark(performanceName, 'start');
 
     try {
+        // SDK handles auth flow selection internally when proxyHost is configured
         return await clients.auth.loginAsGuest({ usid: options?.usid });
     } finally {
         performanceTimer?.mark(performanceName, 'end');

@@ -27,12 +27,16 @@ function validateConfig(): void {
         return;
     }
 
-    const required = {
+    const required: Record<string, string> = {
         clientId: config.app.commerce.api.clientId,
         organizationId: config.app.commerce.api.organizationId,
         siteId: config.app.commerce.api.siteId,
-        shortCode: config.app.commerce.api.shortCode,
     };
+
+    // shortCode is only required when not using a proxy host override
+    if (!process.env.SCAPI_PROXY_HOST) {
+        required.shortCode = config.app.commerce.api.shortCode;
+    }
 
     const missing = Object.entries(required)
         .filter(([_, value]) => !value)

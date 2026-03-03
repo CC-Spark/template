@@ -37,6 +37,8 @@ import { defaultQuerySerializer } from './defaultQuerySerializer';
 import type { ProxyClient } from './proxy-types';
 import { createAuthHelpers, type AuthNamespace } from './auth';
 import { createBasketHelpers, type BasketHelpersNamespace } from './basket';
+import { SLAS_AUTH_ENDPOINTS } from './constants';
+import { getWorkspaceSlasOrgId } from '../workspace';
 
 /**
  * Configuration for creating Commerce API clients.
@@ -61,6 +63,14 @@ export interface CommerceApiClientConfig extends ClientOptions {
     redirectUri: string;
     /** Optional callback when access token is invalidated */
     onAuthTokenInvalid?: (response: Response) => void;
+    /**
+     * Direct SCAPI proxy URL for workspace environments (e.g., 'https://scw:25010').
+     * When set, the SDK automatically:
+     * - Strips 'f_ecom_' prefix from organizationId for SLAS auth endpoints
+     * - Rewrites org IDs back to full form for product/search API endpoints
+     * - Uses client_credentials grant for guest login (no PKCE)
+     */
+    proxyHost?: string;
 }
 
 // Import operation maps for all APIs
@@ -110,15 +120,22 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
         baseUrl,
         fetch: customFetch,
         querySerializer,
-        organizationId,
+        organizationId: rawOrganizationId,
         siteId,
         locale,
         clientId,
         clientSecret,
         redirectUri,
         onAuthTokenInvalid,
+        proxyHost,
         ...rest
     } = config;
+
+    // In workspace environments (proxyHost set), SLAS auth endpoints use the org ID
+    // without the 'f_ecom_' prefix, but product/search APIs need the full org ID.
+    // We pass the stripped org ID to the SDK and use middleware to rewrite for non-SLAS endpoints.
+    const isWorkspace = !!proxyHost;
+    const organizationId = isWorkspace ? getWorkspaceSlasOrgId(rawOrganizationId) : rawOrganizationId;
 
     // Validate required parameters
     const requiredParams = { baseUrl, organizationId, siteId, clientId, redirectUri } as const;
@@ -317,6 +334,30 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
         shopperStores,
     ];
 
+    // In workspace environments, automatically register middleware to rewrite org IDs.
+    // SLAS auth endpoints use the stripped org ID (e.g., 'zzzz_s01') while
+    // product/search APIs need the full org ID (e.g., 'f_ecom_zzzz_s01').
+    if (isWorkspace && organizationId !== rawOrganizationId) {
+        const workspaceOrgIdMiddleware: Middleware = {
+            onRequest({ request }) {
+                const url = new URL(request.url);
+                const isSlasAuthEndpoint = SLAS_AUTH_ENDPOINTS.some((path) => url.pathname.includes(path));
+
+                // Only rewrite non-SLAS endpoints (product, search, etc.)
+                if (!isSlasAuthEndpoint) {
+                    url.pathname = url.pathname.replace(
+                        `/organizations/${organizationId}/`,
+                        `/organizations/${rawOrganizationId}/`
+                    );
+                    return new Request(url, request);
+                }
+
+                return request;
+            },
+        };
+        allClients.forEach((client) => client.use(workspaceOrgIdMiddleware));
+    }
+
     // Create auth helpers namespace
     const auth = createAuthHelpers({
         shopperLoginClient: shopperLogin,
@@ -326,6 +367,7 @@ export function createCommerceApiClients(config: CommerceApiClientConfig): Clien
         organizationId,
         siteId,
         baseUrl,
+        proxyHost,
     });
     const basket = createBasketHelpers({ shopperBasketsClient: shopperBasketsV2 });
 

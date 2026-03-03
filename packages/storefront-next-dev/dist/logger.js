@@ -73,10 +73,10 @@ function printServerInfo(mode, port, startTime, projectDir) {
 * Print server configuration details (proxy, static, etc.)
 */
 function printServerConfig(config) {
-	const { port, enableProxy, enableStaticServing, enableCompression, proxyPath, proxyTarget, shortCode, organizationId, clientId, siteId } = config;
+	const { port, enableProxy, enableStaticServing, enableCompression, proxyPath, proxyHost, shortCode, organizationId, clientId, siteId } = config;
 	console.log(`  ${chalk.bold("Environment Configuration:")}`);
-	if (enableProxy && proxyPath && proxyTarget && shortCode) {
-		console.log(`    ${chalk.green("✓")} ${chalk.bold("Proxy:")} ${chalk.cyan(`localhost:${port}${proxyPath}`)} ${chalk.dim("→")} ${chalk.cyan(proxyTarget)}`);
+	if (enableProxy && proxyPath && proxyHost && shortCode) {
+		console.log(`    ${chalk.green("✓")} ${chalk.bold("Proxy:")} ${chalk.cyan(`localhost:${port}${proxyPath}`)} ${chalk.dim("→")} ${chalk.cyan(proxyHost)}`);
 		console.log(`      ${chalk.dim("Short Code:     ")} ${chalk.dim(shortCode)}`);
 		if (organizationId) console.log(`      ${chalk.dim("Organization ID:")} ${chalk.dim(organizationId)}`);
 		if (clientId) console.log(`      ${chalk.dim("Client ID:      ")} ${chalk.dim(clientId)}`);

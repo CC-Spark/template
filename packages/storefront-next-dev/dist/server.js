@@ -80,16 +80,18 @@ function loadConfigFromEnv() {
 	const clientId = process.env.PUBLIC__app__commerce__api__clientId;
 	const siteId = process.env.PUBLIC__app__commerce__api__siteId;
 	const proxy = process.env.PUBLIC__app__commerce__api__proxy || "/mobify/proxy/api";
-	if (!shortCode) throw new Error("Missing PUBLIC__app__commerce__api__shortCode environment variable.\nPlease set it in your .env file or environment.");
+	const proxyHost = process.env.SCAPI_PROXY_HOST;
+	if (!shortCode && !proxyHost) throw new Error("Missing PUBLIC__app__commerce__api__shortCode environment variable.\nPlease set it in your .env file or environment.");
 	if (!organizationId) throw new Error("Missing PUBLIC__app__commerce__api__organizationId environment variable.\nPlease set it in your .env file or environment.");
 	if (!clientId) throw new Error("Missing PUBLIC__app__commerce__api__clientId environment variable.\nPlease set it in your .env file or environment.");
 	if (!siteId) throw new Error("Missing PUBLIC__app__commerce__api__siteId environment variable.\nPlease set it in your .env file or environment.");
 	return { commerce: { api: {
-		shortCode,
+		shortCode: shortCode || "",
 		organizationId,
 		clientId,
 		siteId,
-		proxy
+		proxy,
+		proxyHost
 	} } };
 }
 /**
@@ -109,16 +111,18 @@ async function loadProjectConfig(projectDirectory) {
 	})).default;
 	if (!config?.app?.commerce?.api) throw new Error("Invalid config.server.ts: missing app.commerce.api configuration.\nPlease ensure your config.server.ts has the commerce API configuration.");
 	const api = config.app.commerce.api;
-	if (!api.shortCode) throw new Error("Missing shortCode in config.server.ts commerce.api configuration");
+	const proxyHost = process.env.SCAPI_PROXY_HOST;
+	if (!api.shortCode && !proxyHost) throw new Error("Missing shortCode in config.server.ts commerce.api configuration");
 	if (!api.organizationId) throw new Error("Missing organizationId in config.server.ts commerce.api configuration");
 	if (!api.clientId) throw new Error("Missing clientId in config.server.ts commerce.api configuration");
 	if (!api.siteId) throw new Error("Missing siteId in config.server.ts commerce.api configuration");
 	return { commerce: { api: {
-		shortCode: api.shortCode,
+		shortCode: api.shortCode || "",
 		organizationId: api.organizationId,
 		clientId: api.clientId,
 		siteId: api.siteId,
-		proxy: api.proxy || "/mobify/proxy/api"
+		proxy: api.proxy || "/mobify/proxy/api",
+		proxyHost
 	} } };
 }
 
@@ -127,8 +131,8 @@ async function loadProjectConfig(projectDirectory) {
 /**
 * Get the Commerce Cloud API URL from a short code
 */
-function getCommerceCloudApiUrl(shortCode) {
-	return `https://${shortCode}.api.commercecloud.salesforce.com`;
+function getCommerceCloudApiUrl(shortCode, proxyHost) {
+	return proxyHost || `https://${shortCode}.api.commercecloud.salesforce.com`;
 }
 /**
 * Get the bundle path for static assets
@@ -145,8 +149,9 @@ function getBundlePath(bundleId) {
 */
 function createCommerceProxyMiddleware(config) {
 	return createProxyMiddleware({
-		target: getCommerceCloudApiUrl(config.commerce.api.shortCode),
-		changeOrigin: true
+		target: getCommerceCloudApiUrl(config.commerce.api.shortCode, config.commerce.api.proxyHost),
+		changeOrigin: true,
+		secure: !config.commerce.api.proxyHost
 	});
 }
 

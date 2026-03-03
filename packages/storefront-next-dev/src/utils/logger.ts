@@ -116,7 +116,7 @@ export function printServerConfig(config: {
     enableStaticServing?: boolean;
     enableCompression?: boolean;
     proxyPath?: string;
-    proxyTarget?: string;
+    proxyHost?: string;
     shortCode?: string;
     organizationId?: string;
     clientId?: string;
@@ -128,7 +128,7 @@ export function printServerConfig(config: {
         enableStaticServing,
         enableCompression,
         proxyPath,
-        proxyTarget,
+        proxyHost,
         shortCode,
         organizationId,
         clientId,
@@ -137,9 +137,9 @@ export function printServerConfig(config: {
 
     console.log(`  ${chalk.bold('Environment Configuration:')}`);
 
-    if (enableProxy && proxyPath && proxyTarget && shortCode) {
+    if (enableProxy && proxyPath && proxyHost && shortCode) {
         console.log(
-            `    ${chalk.green('✓')} ${chalk.bold('Proxy:')} ${chalk.cyan(`localhost:${port}${proxyPath}`)} ${chalk.dim('→')} ${chalk.cyan(proxyTarget)}`
+            `    ${chalk.green('✓')} ${chalk.bold('Proxy:')} ${chalk.cyan(`localhost:${port}${proxyPath}`)} ${chalk.dim('→')} ${chalk.cyan(proxyHost)}`
         );
         console.log(`      ${chalk.dim('Short Code:     ')} ${chalk.dim(shortCode)}`);
         if (organizationId) {

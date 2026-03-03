@@ -75,6 +75,8 @@ export interface AuthConfig {
     siteId: string;
     /** Base URL for Commerce API (e.g., 'https://{shortCode}.api.commercecloud.salesforce.com') */
     baseUrl: string;
+    /** Direct SCAPI proxy URL for workspace environments. When set, guest login uses client_credentials grant directly. */
+    proxyHost?: string;
 }
 
 /**

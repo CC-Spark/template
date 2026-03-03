@@ -106,7 +106,7 @@ export async function preview(options: ServeOptions = {}): Promise<void> {
             enableStaticServing: true,
             enableCompression: true,
             proxyPath: config.commerce.api.proxy,
-            proxyTarget: getCommerceCloudApiUrl(config.commerce.api.shortCode),
+            proxyHost: getCommerceCloudApiUrl(config.commerce.api.shortCode),
             shortCode: config.commerce.api.shortCode,
             organizationId: config.commerce.api.organizationId,
             clientId: config.commerce.api.clientId,

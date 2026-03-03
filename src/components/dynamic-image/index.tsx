@@ -17,7 +17,12 @@ import { type ElementType, type ImgHTMLAttributes, useMemo } from 'react';
 import { preload } from 'react-dom';
 import { useConfig } from '@/config';
 import { cn, isServer } from '@/lib/utils';
-import { defaultImageFormats, getResponsivePictureAttributes, replaceImageFormat } from '@/lib/dynamic-image';
+import {
+    defaultImageFormats,
+    getResponsivePictureAttributes,
+    replaceImageFormat,
+    toImageUrl,
+} from '@/lib/dynamic-image';
 import { useDynamicImageContext } from '@/providers/dynamic-image';
 
 interface DynamicImageProps {
@@ -85,31 +90,45 @@ const DynamicImage = ({
     priority,
     ...rest
 }: DynamicImageProps) => {
+    const config = useConfig();
     const {
         images: {
             quality: defaultQuality = 70,
-            formats: defaultFormats = defaultImageFormats,
+            formats: configFormats = defaultImageFormats,
             fallbackFormat: defaultFallbackFormat = 'jpg',
+            enableDis = true,
         } = {},
-    } = useConfig();
+    } = config;
+
+    // When DIS is disabled, transform the source URL to relative static paths
+    // and skip all DIS-dependent behavior (format conversion, responsive <source> generation).
+    const transformedSrc = useMemo(() => {
+        if (enableDis) return src;
+        return toImageUrl({ src, config }) || src;
+    }, [src, config, enableDis]);
+
+    // When DIS is disabled, use empty formats to skip <source> generation and format conversion.
+    // Without DIS, format conversion (webp/avif) and server-side resizing are not available.
+    const effectiveFormats = useMemo(() => (enableDis ? configFormats : []), [enableDis, configFormats]);
+
     const responsiveImageProps = useMemo(() => {
         return getResponsivePictureAttributes({
-            src,
+            src: transformedSrc,
             widths,
-            quality: defaultQuality,
-            formats: defaultFormats,
+            quality: enableDis ? defaultQuality : undefined,
+            formats: effectiveFormats,
         });
-    }, [src, widths, defaultQuality, defaultFormats]);
+    }, [transformedSrc, widths, defaultQuality, effectiveFormats, enableDis]);
     const imageContext = useDynamicImageContext();
 
-    const effectivePriority = priority ?? (imageContext?.hasSource(src) ? 'high' : 'auto');
+    const effectivePriority = priority ?? (imageContext?.hasSource(transformedSrc) ? 'high' : 'auto');
     const effectiveLoading = loading ?? (effectivePriority === 'high' ? 'eager' : 'lazy');
     const effectiveImageProps = {
         ...imageProps,
         loading: effectiveLoading,
         fetchPriority: effectivePriority,
         alt,
-        src: replaceImageFormat(responsiveImageProps.src, defaultFallbackFormat),
+        src: enableDis ? replaceImageFormat(responsiveImageProps.src, defaultFallbackFormat) : responsiveImageProps.src,
     };
 
     if (isServer() && effectivePriority === 'high') {

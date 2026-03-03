@@ -151,7 +151,7 @@ describe('dev command', () => {
                 enableStaticServing: false,
                 enableCompression: false,
                 proxyPath: '/mobify/proxy/api',
-                proxyTarget: 'https://test-short-code.api.commercecloud.salesforce.com',
+                proxyHost: 'https://test-short-code.api.commercecloud.salesforce.com',
                 shortCode: 'test-short-code',
                 organizationId: 'test-org-id',
                 clientId: 'test-client-id',

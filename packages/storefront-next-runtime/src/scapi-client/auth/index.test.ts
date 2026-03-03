@@ -925,4 +925,82 @@ describe('createAuthHelpers', () => {
             });
         });
     });
+
+    describe('workspace guest login (proxyHost)', () => {
+        it('should use client_credentials grant without auth header when proxyHost is set', async () => {
+            const config: AuthConfig = {
+                ...baseConfig,
+                organizationId: 'zzzz_s01',
+                proxyHost: 'https://scw:25010',
+            };
+
+            mockShopperLoginClient.getAccessToken.mockResolvedValue({
+                data: mockTokenResponse,
+                response: new Response(),
+            });
+
+            const auth = createAuthHelpers(config);
+            const result = await auth.loginAsGuest();
+
+            // Should use SDK client with client_credentials, no Authorization header
+            expect(mockShopperLoginClient.getAccessToken).toHaveBeenCalledWith({
+                params: {},
+                headers: FORM_URLENCODED_HEADER,
+                body: {
+                    grant_type: 'client_credentials',
+                    channel_id: 'RefArch',
+                },
+            });
+            expect(result).toEqual(mockTokenResponse);
+        });
+
+        it('should include auth header when both proxyHost and clientSecret are set', async () => {
+            const config: AuthConfig = {
+                ...baseConfig,
+                proxyHost: 'https://scw:25010',
+                clientSecret: 'test-secret',
+            };
+
+            mockShopperLoginClient.getAccessToken.mockResolvedValue({
+                data: mockTokenResponse,
+                response: new Response(),
+            });
+
+            const auth = createAuthHelpers(config);
+            await auth.loginAsGuest();
+
+            expect(mockShopperLoginClient.getAccessToken).toHaveBeenCalledWith({
+                params: {
+                    header: {
+                        Authorization: expect.stringContaining('Basic'),
+                    },
+                },
+                headers: FORM_URLENCODED_HEADER,
+                body: {
+                    grant_type: 'client_credentials',
+                    channel_id: 'RefArch',
+                },
+            });
+        });
+
+        it('should not use workspace flow when proxyHost is not set', async () => {
+            // Without proxyHost, should use normal loginGuestPublic flow (PKCE)
+            mockShopperLoginClient.authorizeCustomer.mockResolvedValue({
+                response: new Response(null, {
+                    status: 303,
+                    headers: { location: 'https://example.com/callback?code=auth-code&usid=test-usid' },
+                }),
+            });
+            mockShopperLoginClient.getAccessToken.mockResolvedValue({
+                data: mockTokenResponse,
+                response: new Response(),
+            });
+
+            const auth = createAuthHelpers(baseConfig);
+            const result = await auth.loginAsGuest();
+
+            expect(result.access_token).toBe('mock-access-token');
+            expect(mockShopperLoginClient.authorizeCustomer).toHaveBeenCalled();
+        });
+    });
 });

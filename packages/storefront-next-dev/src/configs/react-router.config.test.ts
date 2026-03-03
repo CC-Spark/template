@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { describe, it, expect } from 'vitest';
+import { afterEach, beforeEach, describe, it, expect } from 'vitest';
 import { storefrontNextPreset } from './react-router.config';
 
 // Helper to create a mock resolved config with all required properties
@@ -44,6 +44,22 @@ const createMockResolvedConfig = (overrides: Record<string, any> = {}) => {
 
 describe('react-router.config', () => {
     describe('storefrontNextPreset', () => {
+        const originalSfwFalconInstance = process.env.SFW_FALCON_INSTANCE;
+
+        beforeEach(() => {
+            // Clear workspace env var so tests get deterministic config
+            delete process.env.SFW_FALCON_INSTANCE;
+        });
+
+        afterEach(() => {
+            // Restore original value
+            if (originalSfwFalconInstance !== undefined) {
+                process.env.SFW_FALCON_INSTANCE = originalSfwFalconInstance;
+            } else {
+                delete process.env.SFW_FALCON_INSTANCE;
+            }
+        });
+
         it('should return a preset with correct name', () => {
             const preset = storefrontNextPreset();
             expect(preset.name).toBe('storefront-next-preset');
@@ -90,6 +106,25 @@ describe('react-router.config', () => {
                 const config2 = preset.reactRouterConfig?.({ reactRouterUserConfig: mockUserConfig });
 
                 expect(config1).toEqual(config2);
+            });
+
+            it('should include allowedActionOrigins when SFW_FALCON_INSTANCE is set', () => {
+                process.env.SFW_FALCON_INSTANCE = 'aws-dev2-uswest2';
+                const preset = storefrontNextPreset();
+                const config = preset.reactRouterConfig?.({ reactRouterUserConfig: {} });
+
+                expect(config).toEqual(
+                    expect.objectContaining({
+                        allowedActionOrigins: ['*.dataplane.cvw-dataplane-test.aws-dev2-uswest2.aws.sfdc.cl'],
+                    })
+                );
+            });
+
+            it('should not include allowedActionOrigins when SFW_FALCON_INSTANCE is not set', () => {
+                const preset = storefrontNextPreset();
+                const config = preset.reactRouterConfig?.({ reactRouterUserConfig: {} });
+
+                expect(config).not.toHaveProperty('allowedActionOrigins');
             });
         });
 

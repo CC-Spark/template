@@ -158,8 +158,7 @@ describe('createApiClients', () => {
         it('should add authentication middleware', () => {
             createApiClients(mockContextProvider);
 
-            // Four middlewares in use: correlation, auth, identifying headers, and maintenance
-            // 3 with the middleware disabled
+            // Three middlewares on client-side: correlation, auth, identifying headers
             expect(mockUse).toHaveBeenCalledTimes(3);
             expect(mockUse).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -257,6 +256,18 @@ describe('createApiClients', () => {
                     );
                 });
 
+                it('should use SCAPI_PROXY_HOST when set', () => {
+                    vi.stubEnv('SCAPI_PROXY_HOST', 'https://scw:25010');
+
+                    createApiClients(mockContextProvider);
+                    expect(mockCreateCommerceApiClients).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            baseUrl: 'https://scw:25010',
+                            proxyHost: 'https://scw:25010',
+                        })
+                    );
+                });
+
                 it('should use shortCode from config', () => {
                     mockGetConfig.mockReturnValue({
                         commerce: {
@@ -308,7 +319,7 @@ describe('createApiClients', () => {
 
         beforeEach(() => {
             createApiClients(mockContextProvider);
-            // authMiddleware is at index 1 (correlationMiddleware is at index 0)
+            // authMiddleware is at index 1 (correlation at 0)
             authMiddleware = mockUse.mock.calls[1][0];
         });
 

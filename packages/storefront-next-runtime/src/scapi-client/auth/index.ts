@@ -84,7 +84,8 @@ export type {
  * ```
  */
 export function createAuthHelpers(config: AuthConfig): AuthNamespace {
-    const { shopperLoginClient, clientId, clientSecret, redirectUri, siteId, baseUrl, organizationId } = config;
+    const { shopperLoginClient, clientId, clientSecret, redirectUri, siteId, baseUrl, organizationId, proxyHost } =
+        config;
 
     const isPrivateClient = !!clientSecret;
 
@@ -97,20 +98,20 @@ export function createAuthHelpers(config: AuthConfig): AuthNamespace {
     }
 
     /**
-     * Guest login for private SLAS client using client_credentials grant.
+     * Guest login using client_credentials grant.
+     * Used for private SLAS clients (with clientSecret) and workspace environments.
+     * Authorization header is included only when clientSecret is available.
      */
-    async function loginGuestPrivate(options: LoginAsGuestOptions = {}): Promise<RawTokenResult> {
+    async function loginGuestClientCredentials(options: LoginAsGuestOptions = {}): Promise<RawTokenResult> {
         const { usid, dnt } = options;
-
-        if (!clientSecret) {
-            throw new Error('Client secret is required for private client guest login');
-        }
 
         const result = await shopperLoginClient.getAccessToken({
             params: {
-                header: {
-                    Authorization: createBasicAuthHeader(clientId, clientSecret),
-                },
+                ...(clientSecret && {
+                    header: {
+                        Authorization: createBasicAuthHeader(clientId, clientSecret),
+                    },
+                }),
             },
             headers: FORM_URLENCODED_HEADER,
             body: {
@@ -184,10 +185,15 @@ export function createAuthHelpers(config: AuthConfig): AuthNamespace {
     return {
         /**
          * Login as a guest user.
-         * Automatically uses the appropriate flow based on whether a client secret is configured.
+         * Automatically uses the appropriate flow based on configuration:
+         * - Private client or workspace (clientSecret or proxyHost set): client_credentials grant
+         * - Public client: PKCE flow
          */
         loginAsGuest: async (options: LoginAsGuestOptions = {}): Promise<AuthResponse> => {
-            const result = isPrivateClient ? await loginGuestPrivate(options) : await loginGuestPublic(options);
+            const result =
+                proxyHost || isPrivateClient
+                    ? await loginGuestClientCredentials(options)
+                    : await loginGuestPublic(options);
             return addDwsidToTokenData(result);
         },
 
