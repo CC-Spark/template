@@ -1,0 +1,211 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import type { ShopperExperience } from '@/scapi-client/types';
+
+/**
+ * A manifest containing all variations of a single Page Designer page for a
+ * specific locale. Variations are evaluated in {@link variationOrder} sequence;
+ * the first whose visibility rule passes is selected. If none match, the
+ * {@link defaultVariation} is used as a fallback.
+ */
+export interface PageManifest {
+    /** The unique identifier of the page this manifest represents. */
+    pageId: string;
+    /** The locale this manifest applies to (e.g. `"en-US"`). */
+    locale: string;
+    /** Campaigns and customer groups referenced across all variations in this manifest. */
+    context: PageManifestContext;
+    /** Ordered list of variation IDs defining the evaluation sequence. */
+    variationOrder: string[];
+    /** Map of variation ID to its entry data. */
+    variations: Record<string, VariationEntry>;
+    /** The variation ID to use when no other variation's rule matches. */
+    defaultVariation: string;
+    /**
+     * Component visibility rule definitions extracted from the page layout.
+     * Maps each component ID to its array of rule objects and a flag indicating
+     * if any rules are defined for that component.
+     */
+    componentInfo: {
+        [componentId: string]: {
+            /** The visibility rules for this component. */
+            visibilityRules: VisibilityRuleDef[];
+            /** Whether this component or any of its descendants have visibility rules. */
+            hasVisibilityRules: boolean;
+        };
+    };
+}
+
+/**
+ * Site-wide manifest containing content assignments that map product and category
+ * identifiers to page IDs, plus the category hierarchy used for parent-category
+ * traversal during lookup.
+ */
+export interface SiteManifest {
+    /**
+     * Nested mapping of content assignments.
+     * Structure: `aspectType -> objectType -> objectId -> assignment`.
+     *
+     * For example, a PDP assignment for product "nike-air-max-90":
+     * `contentObjectAssignments.pdp.product["nike-air-max-90"].contentId`
+     */
+    contentObjectAssignments: {
+        [aspectType: string]: {
+            [objectType: string]: {
+                [objectId: string]: {
+                    /** Whether this assignment was explicitly set or inherited from a parent category. */
+                    lookupMode: 'category-implicit' | 'category-explicit';
+                    /** The page ID assigned to this object. */
+                    contentId: string;
+                };
+            };
+        };
+    };
+    /**
+     * Category hierarchy used to traverse from child to parent when resolving
+     * category-based content assignments.
+     */
+    categories: {
+        [categoryId: string]: {
+            /** Display name of the category. */
+            name: string;
+            /** ID of the parent category, or undefined for root categories. */
+            parentCategory?: string;
+        };
+    };
+}
+
+/**
+ * A campaign and promotion pair used in visibility rules. Both the campaign and
+ * the specific promotion within it must be active in the shopper's context for
+ * the qualifier to match.
+ */
+export interface CampaignQualifier {
+    /** The campaign identifier. */
+    campaignId: string;
+    /** The promotion identifier within the campaign. */
+    promotionId: string;
+}
+
+/**
+ * Metadata extracted from all variation rules in a {@link PageManifest}. Lists
+ * every campaign qualifier and customer group referenced, so the runtime knows
+ * which context values may be needed without inspecting each rule individually.
+ */
+export interface PageManifestContext {
+    /** All campaign/promotion pairs referenced by any variation's visibility rule. */
+    campaignQualifiers: CampaignQualifier[];
+    /** All customer group IDs referenced by any variation's visibility rule. */
+    customerGroups: string[];
+}
+
+/**
+ * A single page variation within a {@link PageManifest}. Each variation holds
+ * the full page data and flags indicating whether qualifier context is needed
+ * for selection or component-level processing.
+ */
+export interface VariationEntry {
+    /**
+     * Whether this variation's page contains components with visibility rules
+     * that require qualifier context. When `true`, the context resolver is called
+     * before processing the page's components.
+     */
+    pageRequiresContext: boolean;
+    /**
+     * Whether this variation's own visibility rule requires qualifier context
+     * to evaluate. When `true`, the context resolver is called before checking
+     * the variation-level rule.
+     */
+    ruleRequiresContext: boolean;
+    /** The visibility rule that must pass for this variation to be selected. Undefined for the default variation. */
+    visibilityRule?: VisibilityRuleDef;
+    /** The full page data for this variation. */
+    page: ShopperExperience.schemas['Page'];
+}
+
+/**
+ * A visibility rule definition that controls when a page variation or component
+ * is shown. All conditions within a rule use AND logic — every specified
+ * condition must pass for the rule to be satisfied.
+ */
+export interface VisibilityRuleDef {
+    /** Customer groups that the shopper must belong to. All groups must match. */
+    customerGroups?: string[];
+    /** Campaign/promotion pairs that must be active. All qualifiers must match. */
+    campaignQualifiers?: CampaignQualifier[];
+    /** Time window during which the rule is active, as ISO 8601 UTC strings. */
+    schedule?: {
+        /** Start time as an ISO 8601 UTC string. Rule fails before this time. */
+        start?: string;
+        /** End time as an ISO 8601 UTC string. Rule fails after this time. */
+        end?: string;
+    };
+    /** Whether this rule is active for the locale of the manifest. */
+    isActiveForLocale: boolean;
+}
+
+/**
+ * Runtime context representing the current shopper's active qualifiers.
+ * Passed to {@link validateRule} to evaluate visibility rules. This context
+ * is typically resolved lazily — only fetched when a rule actually needs it.
+ */
+export interface QualifierContext {
+    /**
+     * Active campaign qualifiers. Outer key is campaign ID, inner key is
+     * promotion ID. A value of `true` means the qualifier is active.
+     */
+    campaignQualifiers: {
+        [campaignId: string]: {
+            [promotionId: string]: boolean;
+        };
+    };
+    /**
+     * Customer group memberships. Key is the customer group ID, value of
+     * `true` means the shopper belongs to that group.
+     */
+    customerGroups: {
+        [customerGroupId: string]: boolean;
+    };
+}
+
+/**
+ * The type of identifier used to look up a page. Determines how the ID is
+ * resolved to a page manifest:
+ * - `'page'` — Direct page ID, used as-is
+ * - `'category'` — Category ID, resolved via content assignments with parent traversal
+ * - `'product'` — Product ID, resolved via content assignments
+ */
+export type IdentifierType = 'page' | 'category' | 'product';
+
+/**
+ * Storage interface for fetching page and site manifests. Implementations
+ * decouple the page resolution logic from the underlying data source (e.g.,
+ * filesystem, CDN, database).
+ */
+export interface ManifestStorage {
+    /** Fetch the page manifest for a given page ID and locale. */
+    getPageManifest(id: string, locale: string): Promise<PageManifest>;
+    /** Fetch the site-wide manifest for a given locale. */
+    getSiteManifest(locale: string): Promise<SiteManifest>;
+}
+
+export type VisitorContextType = 'page' | 'region' | 'component' | 'root';
+
+export type InferNodeFromType<TType extends VisitorContextType> = TType extends 'page'
+    ? ShopperExperience.schemas['Page']
+    : TType extends 'region'
+      ? ShopperExperience.schemas['Region']
+      : ShopperExperience.schemas['Component'];

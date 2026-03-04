@@ -10,6 +10,12 @@
         "default": "./dist/design.js"
       }
     },
+    "./design/data": {
+      "import": {
+        "types": "./dist/design-data.d.ts",
+        "default": "./dist/design-data.js"
+      }
+    },
     "./design/messaging": {
       "import": {
         "types": "./dist/design-messaging.d.ts",

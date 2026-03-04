@@ -1,0 +1,839 @@
+import { r as ShopperExperience } from "./types2.js";
+
+//#region src/design/data/types.d.ts
+
+/**
+ * A manifest containing all variations of a single Page Designer page for a
+ * specific locale. Variations are evaluated in {@link variationOrder} sequence;
+ * the first whose visibility rule passes is selected. If none match, the
+ * {@link defaultVariation} is used as a fallback.
+ */
+interface PageManifest {
+  /** The unique identifier of the page this manifest represents. */
+  pageId: string;
+  /** The locale this manifest applies to (e.g. `"en-US"`). */
+  locale: string;
+  /** Campaigns and customer groups referenced across all variations in this manifest. */
+  context: PageManifestContext;
+  /** Ordered list of variation IDs defining the evaluation sequence. */
+  variationOrder: string[];
+  /** Map of variation ID to its entry data. */
+  variations: Record<string, VariationEntry>;
+  /** The variation ID to use when no other variation's rule matches. */
+  defaultVariation: string;
+  /**
+   * Component visibility rule definitions extracted from the page layout.
+   * Maps each component ID to its array of rule objects and a flag indicating
+   * if any rules are defined for that component.
+   */
+  componentInfo: {
+    [componentId: string]: {
+      /** The visibility rules for this component. */
+      visibilityRules: VisibilityRuleDef[];
+      /** Whether this component or any of its descendants have visibility rules. */
+      hasVisibilityRules: boolean;
+    };
+  };
+}
+/**
+ * Site-wide manifest containing content assignments that map product and category
+ * identifiers to page IDs, plus the category hierarchy used for parent-category
+ * traversal during lookup.
+ */
+interface SiteManifest {
+  /**
+   * Nested mapping of content assignments.
+   * Structure: `aspectType -> objectType -> objectId -> assignment`.
+   *
+   * For example, a PDP assignment for product "nike-air-max-90":
+   * `contentObjectAssignments.pdp.product["nike-air-max-90"].contentId`
+   */
+  contentObjectAssignments: {
+    [aspectType: string]: {
+      [objectType: string]: {
+        [objectId: string]: {
+          /** Whether this assignment was explicitly set or inherited from a parent category. */
+          lookupMode: 'category-implicit' | 'category-explicit';
+          /** The page ID assigned to this object. */
+          contentId: string;
+        };
+      };
+    };
+  };
+  /**
+   * Category hierarchy used to traverse from child to parent when resolving
+   * category-based content assignments.
+   */
+  categories: {
+    [categoryId: string]: {
+      /** Display name of the category. */
+      name: string;
+      /** ID of the parent category, or undefined for root categories. */
+      parentCategory?: string;
+    };
+  };
+}
+/**
+ * A campaign and promotion pair used in visibility rules. Both the campaign and
+ * the specific promotion within it must be active in the shopper's context for
+ * the qualifier to match.
+ */
+interface CampaignQualifier {
+  /** The campaign identifier. */
+  campaignId: string;
+  /** The promotion identifier within the campaign. */
+  promotionId: string;
+}
+/**
+ * Metadata extracted from all variation rules in a {@link PageManifest}. Lists
+ * every campaign qualifier and customer group referenced, so the runtime knows
+ * which context values may be needed without inspecting each rule individually.
+ */
+interface PageManifestContext {
+  /** All campaign/promotion pairs referenced by any variation's visibility rule. */
+  campaignQualifiers: CampaignQualifier[];
+  /** All customer group IDs referenced by any variation's visibility rule. */
+  customerGroups: string[];
+}
+/**
+ * A single page variation within a {@link PageManifest}. Each variation holds
+ * the full page data and flags indicating whether qualifier context is needed
+ * for selection or component-level processing.
+ */
+interface VariationEntry {
+  /**
+   * Whether this variation's page contains components with visibility rules
+   * that require qualifier context. When `true`, the context resolver is called
+   * before processing the page's components.
+   */
+  pageRequiresContext: boolean;
+  /**
+   * Whether this variation's own visibility rule requires qualifier context
+   * to evaluate. When `true`, the context resolver is called before checking
+   * the variation-level rule.
+   */
+  ruleRequiresContext: boolean;
+  /** The visibility rule that must pass for this variation to be selected. Undefined for the default variation. */
+  visibilityRule?: VisibilityRuleDef;
+  /** The full page data for this variation. */
+  page: ShopperExperience.schemas['Page'];
+}
+/**
+ * A visibility rule definition that controls when a page variation or component
+ * is shown. All conditions within a rule use AND logic — every specified
+ * condition must pass for the rule to be satisfied.
+ */
+interface VisibilityRuleDef {
+  /** Customer groups that the shopper must belong to. All groups must match. */
+  customerGroups?: string[];
+  /** Campaign/promotion pairs that must be active. All qualifiers must match. */
+  campaignQualifiers?: CampaignQualifier[];
+  /** Time window during which the rule is active, as ISO 8601 UTC strings. */
+  schedule?: {
+    /** Start time as an ISO 8601 UTC string. Rule fails before this time. */
+    start?: string;
+    /** End time as an ISO 8601 UTC string. Rule fails after this time. */
+    end?: string;
+  };
+  /** Whether this rule is active for the locale of the manifest. */
+  isActiveForLocale: boolean;
+}
+/**
+ * Runtime context representing the current shopper's active qualifiers.
+ * Passed to {@link validateRule} to evaluate visibility rules. This context
+ * is typically resolved lazily — only fetched when a rule actually needs it.
+ */
+interface QualifierContext {
+  /**
+   * Active campaign qualifiers. Outer key is campaign ID, inner key is
+   * promotion ID. A value of `true` means the qualifier is active.
+   */
+  campaignQualifiers: {
+    [campaignId: string]: {
+      [promotionId: string]: boolean;
+    };
+  };
+  /**
+   * Customer group memberships. Key is the customer group ID, value of
+   * `true` means the shopper belongs to that group.
+   */
+  customerGroups: {
+    [customerGroupId: string]: boolean;
+  };
+}
+/**
+ * The type of identifier used to look up a page. Determines how the ID is
+ * resolved to a page manifest:
+ * - `'page'` — Direct page ID, used as-is
+ * - `'category'` — Category ID, resolved via content assignments with parent traversal
+ * - `'product'` — Product ID, resolved via content assignments
+ */
+type IdentifierType = 'page' | 'category' | 'product';
+/**
+ * Storage interface for fetching page and site manifests. Implementations
+ * decouple the page resolution logic from the underlying data source (e.g.,
+ * filesystem, CDN, database).
+ */
+interface ManifestStorage {
+  /** Fetch the page manifest for a given page ID and locale. */
+  getPageManifest(id: string, locale: string): Promise<PageManifest>;
+  /** Fetch the site-wide manifest for a given locale. */
+  getSiteManifest(locale: string): Promise<SiteManifest>;
+}
+type VisitorContextType = 'page' | 'region' | 'component' | 'root';
+type InferNodeFromType<TType extends VisitorContextType> = TType extends 'page' ? ShopperExperience.schemas['Page'] : TType extends 'region' ? ShopperExperience.schemas['Region'] : ShopperExperience.schemas['Component'];
+//#endregion
+//#region src/design/data/page/process-page.d.ts
+/**
+ * Context required for page processing. Contains the shopper's runtime
+ * qualifiers and the component-level visibility rules from the page manifest.
+ */
+interface PageProcessorContext {
+  /** The shopper's active qualifiers (campaigns, customer groups), or `null` if not resolved. */
+  qualifiers: QualifierContext | null;
+  /** Component visibility rule definitions extracted from the page layout. */
+  componentInfo: PageManifest['componentInfo'];
+}
+/**
+ * Filters a page's components based on their visibility rules. Traverses the
+ * page tree using the visitor pattern and removes any component whose
+ * visibility rules do not pass against the shopper's qualifier context.
+ *
+ * A component is visible if **any** of its visibility rules pass (OR logic).
+ * If a component has rules and none of them pass, it is removed. Components
+ * without rules are always included.
+ *
+ * @param page - The page to process.
+ * @param context - The processing context with qualifier data and visibility rules.
+ * @returns A new page with invisible components filtered out.
+ *
+ * @example
+ * ```ts
+ * import { processPage } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * const page = {
+ *     id: 'homepage',
+ *     typeId: 'storePage',
+ *     regions: [{
+ *         id: 'main',
+ *         components: [
+ *             { id: 'public-banner', typeId: 'commerce_assets.heroBanner', regions: [] },
+ *             { id: 'loyalty-offer', typeId: 'commerce_assets.promoTile', regions: [] },
+ *         ],
+ *     }],
+ * };
+ *
+ * // The "loyalty-offer" component requires the shopper to be in "loyalty-members"
+ * const componentInfo = {
+ *     'public-banner': { visibilityRules: [], hasVisibilityRules: false },
+ *     'loyalty-offer': {
+ *         visibilityRules: [{ customerGroups: ['loyalty-members'] }],
+ *         hasVisibilityRules: true,
+ *     },
+ * };
+ *
+ * // Guest shopper — not in any customer group
+ * const filtered = processPage(page, {
+ *     qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+ *     componentInfo,
+ * });
+ * // filtered.regions[0].components has only "public-banner"
+ * // "loyalty-offer" was removed because the shopper isn't a loyalty member
+ * ```
+ */
+declare function processPage(page: ShopperExperience.schemas['Page'], processorContext: PageProcessorContext): ShopperExperience.schemas['Page'];
+//#endregion
+//#region src/design/data/page/transform.d.ts
+/**
+ * Context object passed to {@link PageVisitor} handler methods during page tree
+ * traversal. Provides access to the current node via {@link node}, the tree
+ * position via {@link page}, {@link parentRegion}, and {@link parentComponent},
+ * and traversal methods ({@link visitRegions}, {@link visitComponents}) for
+ * continuing into child nodes.
+ *
+ * When a visitor handler is defined, the handler is responsible for traversing
+ * into children by calling the appropriate context method. If the handler does
+ * not call these methods, children will not be visited.
+ */
+declare class VisitorContext<TNode> {
+  private readonly context;
+  constructor(context: {
+    /** The current node being visited. */
+    node: TNode;
+    /** The node type */
+    type: VisitorContextType;
+    /** The visitor being used to transform the page tree. */
+    visitor: PageVisitor;
+    /** The root page being traversed. */
+    page?: ShopperExperience.schemas['Page'];
+    /** The parent region of the current node, if traversing within a region. */
+    parentRegion?: ShopperExperience.schemas['Region'];
+    /** The parent component of the current node, if traversing within a component's nested regions. */
+    parentComponent?: ShopperExperience.schemas['Component'];
+  });
+  get type(): VisitorContextType;
+  /**
+   * The current node being visited.
+   */
+  get node(): TNode;
+  /**
+   * The root page being traversed.
+   */
+  get page(): ShopperExperience.schemas['Page'] | undefined;
+  /**
+   * The parent region of the current node, if traversing within a region.
+   */
+  get parentRegion(): ShopperExperience.schemas['Region'] | undefined;
+  /**
+   * The parent component of the current node, if traversing within a component's nested regions.
+   */
+  get parentComponent(): ShopperExperience.schemas['Component'] | undefined;
+  /**
+   * Traverses an array of regions, invoking the visitor's `visitRegion` handler
+   * on each one. Regions for which the handler returns `null` are excluded from
+   * the result. Call this from within a `visitPage` or `visitComponent` handler
+   * to continue traversal into child regions.
+   *
+   * @param regions - The regions to traverse.
+   * @returns The filtered array of transformed regions.
+   *
+   * @example
+   * ```ts
+   * transformPage(page, {
+   *     visitPage(context) {
+   *         // Traverse into regions explicitly
+   *         const regions = context.visitRegions(context.node.regions);
+   *         return { ...context.node, regions };
+   *     },
+   * });
+   * ```
+   */
+  visitRegions(regions?: ShopperExperience.schemas['Region'][]): ShopperExperience.schemas['Region'][];
+  /**
+   * Traverses a single region. If the visitor has a `visitRegion` handler, the
+   * handler is called with a new {@link VisitorContext} for the region. Otherwise,
+   * the region's child components are traversed automatically.
+   *
+   * @param region - The region to visit.
+   * @returns The transformed region, or `null` to exclude it.
+   */
+  visitRegion(region: ShopperExperience.schemas['Region']): ShopperExperience.schemas['Region'] | null;
+  /**
+   * Traverses an array of components, invoking the visitor's `visitComponent`
+   * handler on each one. Components for which the handler returns `null` are
+   * excluded from the result. Call this from within a `visitRegion` handler to
+   * continue traversal into child components.
+   *
+   * @param components - The components to traverse.
+   * @returns The filtered array of transformed components.
+   *
+   * @example
+   * ```ts
+   * transformPage(page, {
+   *     visitRegion(context) {
+   *         // Traverse into components explicitly
+   *         const components = context.visitComponents(context.node.components);
+   *         return { ...context.node, components };
+   *     },
+   * });
+   * ```
+   */
+  visitComponents(components?: ShopperExperience.schemas['Component'][]): ShopperExperience.schemas['Component'][];
+  /**
+   * Traverses a single component. If the visitor has a `visitComponent` handler,
+   * the handler is called with a new {@link VisitorContext} for the component.
+   * Otherwise, the component's nested regions are traversed automatically.
+   *
+   * @param component - The component to visit.
+   * @returns The transformed component, or `null` to exclude it.
+   */
+  visitComponent(component: ShopperExperience.schemas['Component']): ShopperExperience.schemas['Component'] | null;
+  /**
+   * Traverses a single page. If the visitor has a `visitPage` handler, the
+   * handler is called with a new {@link VisitorContext} for the page. Otherwise,
+   * the page's regions are traversed automatically.
+   *
+   * @param page - The page to visit.
+   * @returns The transformed page, or `null` to exclude it.
+   */
+  visitPage(page: ShopperExperience.schemas['Page']): ShopperExperience.schemas['Page'] | null;
+  private toChildContext;
+}
+/**
+ * Visitor interface for traversing and transforming a Page Designer page tree.
+ * Implement any combination of visit methods to intercept pages, regions, or
+ * components during traversal. Return `null` from `visitRegion` or
+ * `visitComponent` to remove that element from the tree.
+ */
+interface PageVisitor {
+  visitPage?(context: VisitorContext<ShopperExperience.schemas['Page']>): ShopperExperience.schemas['Page'];
+  visitRegion?(context: VisitorContext<ShopperExperience.schemas['Region']>): ShopperExperience.schemas['Region'] | null;
+  visitComponent?(component: VisitorContext<ShopperExperience.schemas['Component']>): ShopperExperience.schemas['Component'] | null;
+}
+/**
+ * Traverses a page tree using the visitor pattern, applying the visitor's
+ * callbacks to the page, its regions, and their nested components. This is
+ * the top-level entry point for page tree transformation.
+ *
+ * When a visitor handler is defined, it receives a {@link VisitorContext} and
+ * is responsible for traversing into children using the context's traversal
+ * methods (`visitRegions`, `visitComponents`). If the handler does not call
+ * these methods, children will not be visited. When no handler is defined for
+ * a node type, children are traversed automatically.
+ *
+ * Returning `null` from a `visitRegion` or `visitComponent` callback removes
+ * that element and its children from the resulting tree.
+ *
+ * @param page - The page to traverse.
+ * @param visitor - The visitor with callbacks to apply at each tree node.
+ * @returns A new page with visitor transformations applied, or `null`.
+ *
+ * @example
+ * ```ts
+ * import { transformPage } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * const page = { id: 'homepage', typeId: 'storePage', regions: [
+ *     { id: 'header', components: [
+ *         { id: 'hero-banner', typeId: 'commerce_assets.heroBanner', regions: [] },
+ *         { id: 'promo-tile', typeId: 'commerce_assets.promoTile', regions: [] },
+ *     ]},
+ * ]};
+ *
+ * // When only visitComponent is defined, regions are traversed automatically.
+ * // The handler receives a VisitorContext — use context.node to access the component.
+ * transformPage(page, {
+ *     visitComponent(context) {
+ *         console.log(`Component: ${context.node.typeId} in region ${context.parentRegion?.id}`);
+ *         return context.node;
+ *     },
+ * });
+ *
+ * // When visitRegion is defined, the handler must traverse into children explicitly.
+ * // Without calling context.visitComponents(), components inside the region are skipped.
+ * transformPage(page, {
+ *     visitRegion(context) {
+ *         console.log(`Entering region: ${context.node.id}`);
+ *         const components = context.visitComponents(context.node.components);
+ *         return { ...context.node, components };
+ *     },
+ *     visitComponent(context) {
+ *         console.log(`  Component: ${context.node.typeId}`);
+ *         return context.node;
+ *     },
+ * });
+ * ```
+ */
+declare function transformPage(page: ShopperExperience.schemas['Page'], visitor: PageVisitor): ShopperExperience.schemas['Page'] | null;
+/**
+ * Applies the visitor to a single component. If the visitor's `visitComponent`
+ * handler is defined, it receives a {@link VisitorContext} and is responsible
+ * for traversing into the component's nested regions using `context.visitRegions()`.
+ * If no `visitComponent` handler is defined, nested regions are traversed
+ * automatically. Returns `null` to exclude the component from the result.
+ *
+ * @param component - The component to transform.
+ * @param visitor - The visitor with callbacks.
+ * @returns The transformed component, or `null` to exclude it.
+ *
+ * @example
+ * ```ts
+ * import { transformComponent } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * // Replace the image URL in a hero banner component and traverse its nested regions
+ * const heroBanner = {
+ *     id: 'hero-1',
+ *     typeId: 'commerce_assets.heroBanner',
+ *     data: { imageUrl: '/images/summer-sale.jpg' },
+ *     regions: [{ id: 'banner-content', components: [] }],
+ * };
+ *
+ * const result = transformComponent(heroBanner, {
+ *     visitComponent(context) {
+ *         // Traverse into nested regions using the context API
+ *         const regions = context.visitRegions(context.node.regions);
+ *
+ *         if (context.node.typeId === 'commerce_assets.heroBanner') {
+ *             return { ...context.node, regions, data: { ...context.node.data, imageUrl: '/images/winter-sale.jpg' } };
+ *         }
+ *         return { ...context.node, regions };
+ *     },
+ * });
+ * ```
+ */
+declare function transformComponent(component: ShopperExperience.schemas['Component'], visitor: PageVisitor): ShopperExperience.schemas['Component'] | null;
+/**
+ * Applies the visitor to a single region. If the visitor's `visitRegion`
+ * handler is defined, it receives a {@link VisitorContext} and is responsible
+ * for traversing into the region's child components using `context.visitComponents()`.
+ * If no `visitRegion` handler is defined, child components are traversed
+ * automatically. Returns `null` to exclude the region and all its children
+ * from the result.
+ *
+ * @param region - The region to transform.
+ * @param visitor - The visitor with callbacks.
+ * @returns The transformed region, or `null` to exclude it.
+ *
+ * @example
+ * ```ts
+ * import { transformRegion } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * // Filter empty regions and traverse into non-empty ones
+ * const emptyRegion = { id: 'sidebar', components: [] };
+ * const populatedRegion = { id: 'main', components: [
+ *     { id: 'product-grid', typeId: 'commerce_assets.productGrid', regions: [] },
+ * ]};
+ *
+ * const visitor = {
+ *     visitRegion(context) {
+ *         if (!context.node.components?.length) {
+ *             return null; // Remove empty regions
+ *         }
+ *         // Traverse into child components using the context API
+ *         const components = context.visitComponents(context.node.components);
+ *         return { ...context.node, components };
+ *     },
+ * };
+ *
+ * transformRegion(emptyRegion, visitor);      // => null (removed)
+ * transformRegion(populatedRegion, visitor);   // => { id: 'main', components: [...] }
+ * ```
+ */
+declare function transformRegion(region: ShopperExperience.schemas['Region'], visitor: PageVisitor): ShopperExperience.schemas['Region'] | null;
+//#endregion
+//#region src/design/data/errors/required.d.ts
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+declare class RequiredError extends Error {
+  constructor(message: string);
+  static assert<TValue>(value: TValue, message: string, isEmpty?: (value: TValue) => boolean): asserts value is NonNullable<TValue>;
+}
+//#endregion
+//#region src/design/data/page/resolve-page.d.ts
+/**
+ * Main entry point for the page resolution pipeline. Orchestrates the full flow:
+ *
+ * 1. **Resolve dynamic page ID** — For product/category identifiers, looks up
+ *    the assigned page ID via content assignments in the site manifest.
+ * 2. **Fetch page manifest** — Loads all variations for the resolved page.
+ * 3. **Select variation** — Evaluates visibility rules to pick the right variation.
+ * 4. **Load qualifier context** — Lazily fetches the shopper's context only if needed.
+ * 5. **Process page** — Filters out components that fail visibility rules.
+ *
+ * Returns `null` if the page ID cannot be resolved, the manifest doesn't exist,
+ * or no variation is available.
+ *
+ * @param options - The resolution options.
+ * @param options.id - The identifier to resolve (product ID, category ID, or page ID).
+ * @param options.identifierType - The type of identifier: `'product'`, `'category'`, or `'page'`.
+ * @param options.locale - The locale to resolve the page for (e.g. `"en-US"`).
+ * @param options.manifestStorage - Storage implementation for fetching manifests.
+ * @param options.contextResolver - Optional async function that returns the shopper's qualifier context. Only called if a visibility rule needs it.
+ * @param options.aspectType - The aspect type to resolve the page for when the identifier type is `'product'` or `'category'`.
+ * @returns The fully resolved and filtered page, or `null`.
+ *
+ * @example
+ * ```ts
+ * import { resolvePage } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * // Resolve the PDP page for a specific product with an active holiday campaign
+ * const page = await resolvePage({
+ *     id: 'nike-air-max-90',
+ *     identifierType: 'product',
+ *     aspectType: 'pdp',
+ *     locale: 'en-US',
+ *     manifestStorage: {
+ *         async getPageManifest(id, locale) {
+ *             // Fetch from CDN, filesystem, or database
+ *             return fetchManifest(`/manifests/${locale}/${id}.json`);
+ *         },
+ *         async getSiteManifest(locale) {
+ *             return fetchManifest(`/manifests/${locale}/site.json`);
+ *         },
+ *     },
+ *     contextResolver: async () => ({
+ *         customerGroups: { 'vip-customers': true },
+ *         campaignQualifiers: {
+ *             'holiday-sale-2026': { 'free-shipping': true },
+ *         },
+ *     }),
+ * });
+ *
+ * if (page) {
+ *     // page.regions contains only components visible to this VIP shopper
+ *     // during the holiday sale campaign
+ *     renderPage(page);
+ * }
+ * ```
+ */
+declare function resolvePage({
+  id,
+  identifierType,
+  aspectType,
+  locale,
+  manifestStorage,
+  contextResolver
+}: {
+  id: string;
+  identifierType: IdentifierType;
+  aspectType?: string;
+  locale: string;
+  manifestStorage: ManifestStorage;
+  contextResolver?: () => Promise<QualifierContext>;
+}): Promise<ShopperExperience.schemas['Page'] | null>;
+//#endregion
+//#region src/design/data/manifest/resolve-dynamic-page-id.d.ts
+/**
+ * Converts a product or category identifier into a page ID by looking up
+ * content assignments in the site manifest. For categories, the lookup
+ * traverses the category hierarchy from the given category up to the root,
+ * returning the first matching assignment.
+ *
+ * Returns `null` if no content assignment is found for the identifier or if
+ * the identifier type has no registered resolver.
+ *
+ * @param options - The resolution options.
+ * @param options.id - The identifier to resolve (product ID, category ID, or page ID).
+ * @param options.identifierType - The type of identifier: `'product'`, `'category'`, or `'page'`.
+ * @param options.siteManifest - The site manifest containing content assignments and category hierarchy.
+ * @returns The resolved page ID, or `null` if no assignment was found.
+ *
+ * @example
+ * ```ts
+ * import { resolveDynamicPageId } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * const siteManifest = {
+ *     contentObjectAssignments: {
+ *         plp: {
+ *             category: {
+ *                 'mens-shoes': {
+ *                     lookupMode: 'category-explicit',
+ *                     contentId: 'page-mens-shoes-plp',
+ *                 },
+ *             },
+ *         },
+ *     },
+ *     categories: {
+ *         'mens-running-shoes': { name: 'Running Shoes', parentCategory: 'mens-shoes' },
+ *         'mens-shoes': { name: "Men's Shoes" },
+ *     },
+ * };
+ *
+ * // Direct match
+ * resolveDynamicPageId({ id: 'mens-shoes', identifierType: 'category', siteManifest });
+ * // => 'page-mens-shoes-plp'
+ *
+ * // Inherited from parent category
+ * resolveDynamicPageId({ id: 'mens-running-shoes', identifierType: 'category', siteManifest });
+ * // => 'page-mens-shoes-plp' (found via parent traversal)
+ *
+ * // No assignment found
+ * resolveDynamicPageId({ id: 'womens-shoes', identifierType: 'category', siteManifest });
+ * // => null
+ * ```
+ */
+declare function resolveDynamicPageId<TIdentifier extends IdentifierType = IdentifierType>({
+  id,
+  identifierType,
+  siteManifest,
+  aspectType
+}: {
+  id: string;
+  identifierType: TIdentifier;
+  aspectType: string;
+  siteManifest?: SiteManifest;
+}): string | null;
+//#endregion
+//#region src/design/data/manifest/get-page.d.ts
+/**
+ * Selects the appropriate page variation from a manifest by evaluating each
+ * variation's visibility rule in order. Returns the first variation whose rule
+ * passes, or falls back to the manifest's default variation.
+ *
+ * The qualifier context is resolved lazily — the `contextResolver` is only
+ * called when a variation's `ruleRequiresContext` flag is `true`, and only
+ * once (the result is cached for subsequent variations).
+ *
+ * @param manifest - The page manifest containing all variations.
+ * @param options - Resolution options.
+ * @param options.contextResolver - Optional async function that returns the shopper's qualifier context. Only called if a variation's rule needs it.
+ * @returns The selected variation entry and resolved context, or `null` if no variation (including default) exists.
+ *
+ * @example
+ * ```ts
+ * import { getPageFromManifest } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * const manifest = {
+ *     pageId: 'homepage',
+ *     locale: 'en-US',
+ *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'] },
+ *     variationOrder: ['vip-homepage', 'holiday-homepage'],
+ *     variations: {
+ *         'vip-homepage': {
+ *             ruleRequiresContext: true,
+ *             pageRequiresContext: false,
+ *             visibilityRule: { customerGroups: ['vip-customers'] },
+ *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
+ *         },
+ *         'holiday-homepage': {
+ *             ruleRequiresContext: false,
+ *             pageRequiresContext: false,
+ *             visibilityRule: {
+ *                 schedule: {
+ *                     start: new Date('2026-12-01').getTime(),
+ *                     end: new Date('2026-12-31').getTime(),
+ *                 },
+ *             },
+ *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
+ *         },
+ *         'default-homepage': {
+ *             ruleRequiresContext: false,
+ *             pageRequiresContext: false,
+ *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
+ *         },
+ *     },
+ *     defaultVariation: 'default-homepage',
+ *     visibilityRules: {},
+ * };
+ *
+ * // VIP shopper — matches first variation
+ * const result = await getPageFromManifest(manifest, {
+ *     contextResolver: async () => ({
+ *         customerGroups: { 'vip-customers': true },
+ *         campaignQualifiers: {},
+ *     }),
+ * });
+ * // result.entry === manifest.variations['vip-homepage']
+ *
+ * // Non-VIP shopper outside holiday window — falls back to default
+ * const fallback = await getPageFromManifest(manifest, {
+ *     contextResolver: async () => ({
+ *         customerGroups: {},
+ *         campaignQualifiers: {},
+ *     }),
+ * });
+ * // fallback.entry === manifest.variations['default-homepage']
+ * ```
+ */
+declare function getPageFromManifest(manifest: PageManifest, {
+  contextResolver
+}: {
+  contextResolver?: () => Promise<QualifierContext>;
+}): Promise<{
+  entry: VariationEntry;
+  context: QualifierContext | null;
+} | null>;
+//#endregion
+//#region src/design/data/manifest/content-assignment-resolvers.d.ts
+/**
+ * The result of resolving an identifier through a content assignment resolver.
+ * Contains the object type, aspect type, and ordered list of keys to search
+ * in the site manifest's content assignments.
+ */
+interface ResolvedContentAssignmentLookup {
+  /** The type of commerce object (e.g. `'product'`, `'category'`). */
+  objectType: string;
+  /** Ordered list of object IDs to search in the site manifest's content assignments. */
+  keys: string[];
+}
+/**
+ * A function that converts an identifier key (e.g., a product or category ID)
+ * into a {@link ResolvedContentAssignmentLookup} describing where to search
+ * in the site manifest for the assigned page ID.
+ */
+type ContentAssignmentResolver = (key: string, manifest?: SiteManifest) => ResolvedContentAssignmentLookup;
+/**
+ * Registry of content assignment resolvers keyed by {@link IdentifierType}.
+ * Each resolver knows how to convert its identifier type into a set of lookup
+ * keys for the site manifest.
+ *
+ * Built-in resolvers:
+ * - **`'product'`** — Maps a product ID to a single PDP lookup key.
+ * - **`'category'`** — Maps a category ID to an ordered list of keys that
+ *   traverses the category hierarchy from child to root, enabling inherited
+ *   page assignments.
+ *
+ * The `'page'` identifier type has no resolver — page IDs are used directly.
+ *
+ * @example
+ * ```ts
+ * import { ContentAssignmentResolvers } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * // Resolve a product identifier for PDP lookup
+ * const productResolver = ContentAssignmentResolvers.get('product');
+ * productResolver('nike-air-max-90');
+ * // => { objectType: 'product', aspectType: 'pdp', keys: ['nike-air-max-90'] }
+ *
+ * // Resolve a category identifier — traverses hierarchy to find inherited assignments
+ * const categoryResolver = ContentAssignmentResolvers.get('category');
+ * const siteManifest = {
+ *     categories: {
+ *         'mens-running-shoes': { name: 'Running Shoes', parentCategory: 'mens-shoes' },
+ *         'mens-shoes': { name: "Men's Shoes", parentCategory: 'mens' },
+ *         'mens': { name: 'Men' },
+ *     },
+ *     contentObjectAssignments: {},
+ * };
+ * categoryResolver('mens-running-shoes', siteManifest);
+ * // => { objectType: 'category', aspectType: 'plp', keys: ['mens-running-shoes', 'mens-shoes', 'mens'] }
+ * ```
+ */
+declare const ContentAssignmentResolvers: Map<string, ContentAssignmentResolver>;
+//#endregion
+//#region src/design/data/validate-rule.d.ts
+/**
+ * Evaluates a visibility rule against a shopper's qualifier context.
+ *
+ * Campaign-based and non-campaign rules are **mutually exclusive** paths,
+ * matching the server's `VisibilityDefinition.isVisible()` logic:
+ *
+ * - **Campaign-based rule** (has `campaignQualifiers`): only the campaign
+ *   qualifiers are checked. Schedule and customer-group fields are ignored
+ *   because the campaign qualification already incorporates those checks
+ *   server-side.
+ * - **Non-campaign rule**: schedule AND customer groups are checked. All
+ *   specified conditions must pass.
+ *
+ * When no context is provided and the rule requires campaign or customer group
+ * checks, those checks will fail (returning `false`). Schedule checks do not
+ * require context and are evaluated against `Date.now()`.
+ *
+ * @param rule - The visibility rule to evaluate.
+ * @param context - The shopper's active qualifiers, or `null`/`undefined` if not yet resolved.
+ * @returns `true` if the rule's conditions pass, `false` otherwise.
+ *
+ * @example
+ * ```ts
+ * import { validateRule } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * // Campaign-based rule — only campaign qualifiers are evaluated
+ * const campaignRule = {
+ *     campaignQualifiers: [{ campaignId: 'holiday-sale-2026', promotionId: 'free-shipping' }],
+ * };
+ *
+ * // Non-campaign rule — schedule AND customer groups are evaluated
+ * const segmentRule = {
+ *     customerGroups: ['vip-customers'],
+ *     schedule: {
+ *         start: new Date('2026-12-01').toISOString(),
+ *         end: new Date('2026-12-31').toISOString(),
+ *     },
+ * };
+ * ```
+ */
+declare function validateRule(rule: VisibilityRuleDef, context?: QualifierContext | null): boolean;
+//#endregion
+export { CampaignQualifier, ContentAssignmentResolvers, IdentifierType, InferNodeFromType, ManifestStorage, PageManifest, PageManifestContext, type PageProcessorContext, type PageVisitor, QualifierContext, RequiredError, SiteManifest, VariationEntry, VisibilityRuleDef, type VisitorContext, VisitorContextType, getPageFromManifest, processPage, resolveDynamicPageId, resolvePage, transformComponent, transformPage, transformRegion, validateRule };
+//# sourceMappingURL=design-data.d.ts.map

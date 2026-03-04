@@ -12,6 +12,7 @@ export default defineConfig([
             design: 'src/design/index.ts',
             'design-messaging': 'src/design/messaging-api/index.ts',
             'design-react': 'src/design/react/index.ts',
+            'design-data': 'src/design/data/index.ts',
             // Minimal entry point for checking whether we are in design mode
             // Won't bring in the rest of the design layer dependencies.
             'design-mode': 'src/design/modeDetection.ts',

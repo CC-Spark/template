@@ -1,4 +1,4 @@
-import { r as ShopperExperience } from "./types3.js";
+import { r as ShopperExperience } from "./types2.js";
 
 //#region src/design/messaging-api/domain-types.d.ts
 

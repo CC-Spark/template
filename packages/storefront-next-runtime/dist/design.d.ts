@@ -1,4 +1,4 @@
-import { a as Entry, i as DesignMetadata, n as ComponentModule, o as FrameworkAdapter, r as ComponentRegistryOptions, s as LoaderNames, t as ComponentId } from "./types2.js";
+import { a as Entry, i as DesignMetadata, n as ComponentModule, o as FrameworkAdapter, r as ComponentRegistryOptions, s as LoaderNames, t as ComponentId } from "./types3.js";
 
 //#region src/design/registry/registry.d.ts
 
