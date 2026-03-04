@@ -32,55 +32,10 @@ const EXTENSIONS_DIR = path.join(process.cwd(), 'src/extensions');
 const OUTPUT_DIR = path.join(process.cwd(), '.storybook', 'coverage');
 const JSON_PATH = path.join(OUTPUT_DIR, 'storybook-component-coverage.json');
 const MD_PATH = path.join(OUTPUT_DIR, 'storybook-component-coverage.md');
-const COMPONENT_OWNERS_PATH = path.join(process.cwd(), 'config', 'component-owners.json');
 
 // Coverage thresholds
 const STORY_COVERAGE_THRESHOLD = 100; // All components must have stories
 const CODE_COVERAGE_THRESHOLD = 80; // Minimum acceptable code coverage
-
-// Load component ownership mapping and build reverse lookup
-// Structure: { "team-name": { "slack": "@channel", "components": [...] } }
-let teamOwners = {};
-let componentOwners = {}; // Reverse lookup: component name -> { team, slack }
-if (fs.existsSync(COMPONENT_OWNERS_PATH)) {
-    try {
-        teamOwners = JSON.parse(fs.readFileSync(COMPONENT_OWNERS_PATH, 'utf8'));
-        // Build reverse lookup map: component name -> ownership info
-        for (const [teamName, teamInfo] of Object.entries(teamOwners)) {
-            if (teamInfo.components && Array.isArray(teamInfo.components)) {
-                for (const componentName of teamInfo.components) {
-                    componentOwners[componentName] = {
-                        team: teamName,
-                        slack: teamInfo.slack || null,
-                    };
-                }
-            }
-        }
-    } catch (e) {
-        console.warn(`⚠️  Could not load component owners file: ${e.message}`);
-    }
-}
-
-/**
- * Get ownership info for a component by matching component name or parent directory
- * @param {string} componentName - Component name (e.g., "cart/cart-content" or "checkout/payment-form")
- * @returns {object|null} Ownership info with team and slack, or null if not found
- */
-function getComponentOwnership(componentName) {
-    // Try exact match first
-    if (componentOwners[componentName]) {
-        return componentOwners[componentName];
-    }
-    // Try parent directory match (e.g., "cart/cart-content" -> "cart")
-    const parts = componentName.split('/');
-    if (parts.length > 1) {
-        const parentDir = parts[0];
-        if (componentOwners[parentDir]) {
-            return componentOwners[parentDir];
-        }
-    }
-    return null;
-}
 
 // Components that don't require stories (simple icons, internal sub-components, etc.)
 const EXCLUDED_COMPONENTS = new Set([
@@ -246,12 +201,9 @@ function generateCoverage() {
         const dirName = path.dirname(componentName);
         const hasStory = stories.has(componentName) || (componentName.endsWith('/index') && stories.has(dirName));
         if (!hasStory) {
-            const ownership = getComponentOwnership(componentName);
             missing.push({
                 name: componentName,
                 path: filePath,
-                team: ownership?.team || null,
-                slack: ownership?.slack || null,
             });
         }
     }
@@ -289,11 +241,7 @@ function generateCoverage() {
         componentsWithStories: covered,
         coveragePercent: percent,
         excludedComponents: excluded.length,
-        missingComponents: missing.map((m) => ({
-            name: m.name,
-            team: m.team,
-            slack: m.slack,
-        })),
+        missingComponents: missing.map((m) => ({ name: m.name })),
         thresholds: {
             storyCoverage: {
                 threshold: STORY_COVERAGE_THRESHOLD,
@@ -390,53 +338,7 @@ The following components are missing Storybook stories:
 <details>
 <summary><b>📋 Click to expand missing components list</b></summary>
 
-${(() => {
-    // Group missing components by team
-    const byTeam = {};
-    const unassigned = [];
-
-    missing.forEach((m) => {
-        if (m.team) {
-            if (!byTeam[m.team]) {
-                byTeam[m.team] = {
-                    slack: m.slack,
-                    components: [],
-                };
-            }
-            byTeam[m.team].components.push(m);
-        } else {
-            unassigned.push(m);
-        }
-    });
-
-    // Build markdown output
-    let output = '';
-
-    // Grouped by team
-    const sortedTeams = Object.keys(byTeam).sort();
-    sortedTeams.forEach((teamName) => {
-        const teamData = byTeam[teamName];
-        const slackInfo = teamData.slack ? ` ${teamData.slack}` : '';
-        output += `\n### 👥 ${teamName}${slackInfo}\n\n`;
-        teamData.components
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .forEach((m) => {
-                output += `- \`${m.name}\`\n`;
-            });
-    });
-
-    // Unassigned components
-    if (unassigned.length > 0) {
-        output += `\n### ⚠️ Unassigned Components\n\n`;
-        unassigned
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .forEach((m) => {
-                output += `- \`${m.name}\`\n`;
-            });
-    }
-
-    return output.trim();
-})()}
+${missing.map((m) => `- \`${m.name}\``).join('\n')}
 
 </details>
 `
@@ -514,8 +416,7 @@ ${
         console.error(`\n❌ Story coverage threshold not met: ${percent}% < ${STORY_COVERAGE_THRESHOLD}%`);
         console.error(`   Missing stories for ${missing.length} component(s):`);
         missing.slice(0, 10).forEach((m) => {
-            const ownership = m.team ? ` (${m.team}${m.slack ? ` ${m.slack}` : ''})` : '';
-            console.error(`   - ${m.name}${ownership}`);
+            console.error(`   - ${m.name}`);
         });
         if (missing.length > 10) {
             console.error(`   ... and ${missing.length - 10} more (see report for full list)`);
