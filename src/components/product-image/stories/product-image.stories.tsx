@@ -26,6 +26,7 @@ import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
+import DynamicImageProvider from '@/providers/dynamic-image';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -75,9 +76,11 @@ const meta: Meta<typeof ProductImageContainer> = {
         (Story) => (
             <ConfigProvider config={mockConfig}>
                 <ActionLogger>
-                    <div className="w-64 h-64">
-                        <Story />
-                    </div>
+                    <DynamicImageProvider value={{ widths: ['50vw', '50vw', '15vw'] }}>
+                        <div className="w-64 h-64">
+                            <Story />
+                        </div>
+                    </DynamicImageProvider>
                 </ActionLogger>
             </ConfigProvider>
         ),

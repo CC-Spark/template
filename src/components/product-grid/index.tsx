@@ -22,6 +22,17 @@ import { ProductTileSkeleton } from '@/components/category-skeleton';
 
 type ProductSearchHit = ShopperSearch.schemas['ProductSearchHit'];
 
+// Responsive size of the product images in the product grid. The values are based on the grid column configuration and
+// the width of the refinement panel (w-64 + gap-8 --> 256px + 32px = 288px).
+const responsiveImageWidths = [
+    '40vw', // base: 2 grid columns, no refinement panel, ~(100vw - col padding) / 2 ≈ 40% of vw
+    '25vw', // sm:   3 grid columns, no refinement panel, ~(100vw - col padding) / 3 ≈ 25% of vw
+    '18vw', // md:   4 grid columns, no refinement panel, ~(100vw - col padding) / 4 ≈ 18% of vw
+    '14vw', // lg:   4 grid columns, refinement panel, ~(100vw − 288px − col padding) / 4 ≈ 14% of vw
+    '16vw', // xl:   4 grid columns, refinement panel, ~(100vw − 288px − col padding) / 4 ≈ 16% of vw
+    '16vw', // 2xl:  4 grid columns, refinement panel, ~(100vw − 288px − col padding) / 4 ≈ 16% of vw
+];
+
 function NoProductsMessage({ criticalSize, nonCriticalSize }: { criticalSize: number; nonCriticalSize: number }) {
     const { t } = useTranslation('common');
 
@@ -46,12 +57,12 @@ function NonCriticalContent({
 }) {
     const products = use(nonCritical);
     return (
-        <>
+        <DynamicImageProvider value={{ widths: responsiveImageWidths }}>
             {products.map((product) => (
                 <ProductTile key={product.productId} product={product} handleProductClick={handleProductClick} />
             ))}
             <NoProductsMessage criticalSize={criticalSize} nonCriticalSize={products.length} />
-        </>
+        </DynamicImageProvider>
     );
 }
 
@@ -87,7 +98,7 @@ export default function ProductGrid({
         <ProductTileProvider>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8">
                 {l > 0 && (
-                    <DynamicImageProvider value={{ hasSource }}>
+                    <DynamicImageProvider value={{ hasSource, widths: responsiveImageWidths }}>
                         {criticalData.map((product) => (
                             <ProductTile
                                 key={product.productId}

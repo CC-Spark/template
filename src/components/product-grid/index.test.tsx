@@ -320,7 +320,7 @@ describe('ProductGrid DynamicImageProvider Integration', () => {
         });
 
         // Verify `addSource` was called by each ProductTile with its image URL
-        expect(addSourceSpy).toHaveBeenCalledTimes(2);
+        expect(addSourceSpy).toHaveBeenCalledTimes(6);
         expect(addSourceSpy).toHaveBeenNthCalledWith(
             1,
             'https://example.com/product-1-default.jpg',
@@ -333,7 +333,7 @@ describe('ProductGrid DynamicImageProvider Integration', () => {
         );
 
         // Verify `hasSource` was called by each DynamicImage to check priority
-        expect(hasSourceSpy).toHaveBeenCalledTimes(2);
+        expect(hasSourceSpy).toHaveBeenCalledTimes(6);
         expect(hasSourceSpy).toHaveBeenNthCalledWith(
             1,
             'https://example.com/product-1-default.jpg',
@@ -347,7 +347,15 @@ describe('ProductGrid DynamicImageProvider Integration', () => {
 
         expect(addSourceSpy.mock.calls[0][1]).toBe(false); // not implemented
         expect(addSourceSpy.mock.calls[1][1]).toBe(false); // not implemented
+        expect(addSourceSpy.mock.calls[2][1]).toBe(false); // not implemented
+        expect(addSourceSpy.mock.calls[3][1]).toBe(false); // not implemented
+        expect(addSourceSpy.mock.calls[4][1]).toBe(false); // not implemented
+        expect(addSourceSpy.mock.calls[5][1]).toBe(false); // not implemented
         expect(hasSourceSpy.mock.calls[0][1]).toBe(true); // returns true, despite `addSourceSpy` not implemented
         expect(hasSourceSpy.mock.calls[1][1]).toBe(true); // returns true, despite `addSourceSpy` not implemented
+        expect(hasSourceSpy.mock.calls[2][1]).toBe(false);
+        expect(hasSourceSpy.mock.calls[3][1]).toBe(false);
+        expect(hasSourceSpy.mock.calls[4][1]).toBe(false);
+        expect(hasSourceSpy.mock.calls[5][1]).toBe(false);
     });
 });

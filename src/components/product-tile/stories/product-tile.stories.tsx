@@ -18,6 +18,7 @@ import ProductTile from '../index';
 import {
     mockProductSearchItem,
     mockMasterProductHitWithMultipleVariants,
+    // @ts-expect-error mock file is JS
 } from '../../__mocks__/product-search-hit-data';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
@@ -25,6 +26,7 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import DynamicImageProvider from '@/providers/dynamic-image';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -76,9 +78,11 @@ const meta: Meta<typeof ProductTile> = {
         (Story) => (
             <ConfigProvider config={mockConfig}>
                 <ActionLogger>
-                    <div className="w-64">
-                        <Story />
-                    </div>
+                    <DynamicImageProvider value={{ widths: ['50vw', '50vw', '15vw'] }}>
+                        <div className="w-64">
+                            <Story />
+                        </div>
+                    </DynamicImageProvider>
                 </ActionLogger>
             </ConfigProvider>
         ),

@@ -1180,7 +1180,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify parseAllCookies was called
             expect(mockParseAllCookies).toHaveBeenCalledWith(
@@ -1226,7 +1226,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify userType was set to 'guest' in storage
             expect(storage.get('userType')).toBe('guest');
@@ -1271,7 +1271,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify userType was set to 'registered' in storage
             expect(storage.get('userType')).toBe('registered');
@@ -1314,7 +1314,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify accessTokenExpiry was set from JWT
             const expiry = storage.get('accessTokenExpiry');
@@ -1358,7 +1358,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify all 12 cookies were deleted:
             // cc-nx-g, cc-nx, cc-at, usid, customerId, encUserId, cc-idp-at, dwsid, cc-cv, tc,
@@ -1406,7 +1406,7 @@ describe('auth middleware (server)', () => {
             const mockTokenResponse = getMockTokenResponse();
             mockAuth.refreshToken.mockResolvedValue(getMockAuthResponse(mockTokenResponse, 'refresh-dwsid'));
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify serialize was called multiple times
             // Cookies: refreshToken, accessToken, usid, customerId, idpAccessToken, dwsid,
@@ -1462,7 +1462,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify the "other" refresh token cookie (guest in this case) was deleted
             // One call should be to delete the guest cookie with empty string
@@ -1507,7 +1507,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify all 12 cookies were deleted due to error
             // cc-nx-g, cc-nx, cc-at, usid, customerId, encUserId, cc-idp-at, dwsid, cc-cv, tc,
@@ -1539,7 +1539,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify getCookieNameWithSiteId was called for each cookie
             expect(mockgetCookieNameWithSiteId).toHaveBeenCalledWith('cc-nx-g', context);
@@ -1571,7 +1571,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Should fall back to guest login when no cookies present
             expect(mockAuth.loginAsGuest).toHaveBeenCalled();
@@ -1612,7 +1612,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Should use registered type (cc-nx takes priority)
             expect(storage.get('userType')).toBe('registered');
@@ -1659,7 +1659,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify IDP access token was reconstructed from cookies
             expect(storage.get('idpAccessToken')).toBe('idp-access-token');
@@ -1705,7 +1705,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify code verifier was reconstructed from cookie
             expect(storage.get('codeVerifier')).toBe('code-verifier-abc123');
@@ -1751,7 +1751,7 @@ describe('auth middleware (server)', () => {
             const mockResponse = new Response('OK');
             const next = vi.fn().mockResolvedValue(mockResponse);
 
-            await authMiddleware({ request, context, params: {} }, next);
+            await authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next);
 
             // Verify code verifier cookie was deleted (empty string with expired date)
             const deleteCodeVerifierCalls = mockSerialize.mock.calls.filter(
@@ -1800,7 +1800,10 @@ describe('auth middleware (server)', () => {
 
             const next = vi.fn().mockRejectedValue(createAuthTokenInvalidError());
 
-            const response = await authMiddleware({ request, context, params: {} }, next);
+            const response = (await authMiddleware(
+                { request, context, params: {}, unstable_pattern: '/' },
+                next
+            )) as Response;
 
             expect(response.status).toBe(307);
             expect(response.headers.get('Location')).toBe('https://example.com/test');
@@ -1852,7 +1855,10 @@ describe('auth middleware (server)', () => {
                 throw createAuthTokenInvalidError();
             });
 
-            const response = await authMiddleware({ request, context, params: {} }, next);
+            const response = (await authMiddleware(
+                { request, context, params: {}, unstable_pattern: '/' },
+                next
+            )) as Response;
 
             expect(response.status).toBe(307);
             expect(mockAuth.refreshToken).toHaveBeenCalledTimes(1);
@@ -1881,7 +1887,7 @@ describe('auth middleware (server)', () => {
 
             const next = vi.fn().mockRejectedValue(createAuthTokenInvalidError());
 
-            await expect(authMiddleware({ request, context, params: {} }, next)).rejects.toThrow(
+            await expect(authMiddleware({ request, context, params: {}, unstable_pattern: '/' }, next)).rejects.toThrow(
                 'Access token is invalid or revoked'
             );
         });
@@ -1915,7 +1921,10 @@ describe('auth middleware (server)', () => {
                 return new Response('OK');
             });
 
-            const response = await authMiddleware({ request, context, params: {} }, next);
+            const response = (await authMiddleware(
+                { request, context, params: {}, unstable_pattern: '/' },
+                next
+            )) as Response;
 
             expect(response.status).toBe(307);
             expect(mockAuth.loginAsGuest).toHaveBeenCalled();
@@ -1949,7 +1958,10 @@ describe('auth middleware (server)', () => {
 
             const next = vi.fn().mockResolvedValue(new Response('OK'));
 
-            const response = await authMiddleware({ request, context, params: {} }, next);
+            const response = (await authMiddleware(
+                { request, context, params: {}, unstable_pattern: '/' },
+                next
+            )) as Response;
 
             expect(response.headers.get('x-sfnext-auth-recovery-guard')).toBe('1');
             const deleteCalls = mockSerialize.mock.calls.filter(

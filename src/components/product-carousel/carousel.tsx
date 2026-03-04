@@ -21,6 +21,7 @@ import { Link } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ProductTile, ProductTileProvider } from '@/components/product-tile';
+import DynamicImageProvider from '@/providers/dynamic-image';
 import withSuspense from '@/components/with-suspense';
 import ProductCarouselSkeleton from './skeleton';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,16 @@ export interface ProductCarouselProps {
     /** Optional className to apply to the carousel wrapper */
     className?: string;
 }
+
+// Responsive size of the product images in the product carousel
+const responsiveImageWidths = [
+    '40vw', // base: 2 columns, ~(100vw - padding) / 2 ≈ 40% of vw
+    '23vw', // sm:   3 columns, ~(100vw - padding) / 3 ≈ 23% of vw
+    '18vw', // md:   4 columns, ~(100vw - padding) / 4 ≈ 18% of vw
+    '20vw', // lg:   4 columns, ~(100vw - padding) / 4 ≈ 20% of vw
+    '21vw', // xl:   4 columns, ~(100vw − padding) / 4 ≈ 21% of vw
+    '24vw', // 2xl:  4 columns, ~(100vw − padding) / 4 ≈ 24% of vw
+];
 
 /**
  * ProductCarousel component displays a horizontal carousel of product tiles.
@@ -110,15 +121,17 @@ export default function ProductCarousel({
                 aria-label={title ? `${title} carousel` : t('productCarousel')}>
                 <CarouselContent className="-ml-4 items-stretch flex-nowrap">
                     <ProductTileProvider>
-                        {products.map((product) => (
-                            <CarouselItem
-                                key={product.productId}
-                                className="basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex pl-4 min-w-0">
-                                <div className="w-full max-w-full min-w-0 flex">
-                                    <ProductTile product={product} className="h-full w-full" />
-                                </div>
-                            </CarouselItem>
-                        ))}
+                        <DynamicImageProvider value={{ widths: responsiveImageWidths }}>
+                            {products.map((product) => (
+                                <CarouselItem
+                                    key={product.productId}
+                                    className="basis-1/2 sm:basis-1/3 md:basis-1/4 py-1 flex pl-4 min-w-0">
+                                    <div className="w-full max-w-full min-w-0 flex">
+                                        <ProductTile product={product} className="h-full w-full" />
+                                    </div>
+                                </CarouselItem>
+                            ))}
+                        </DynamicImageProvider>
                     </ProductTileProvider>
                 </CarouselContent>
                 <CarouselPrevious className="flex left-0 -translate-x-1/2 size-9 rounded-lg shadow-md" />

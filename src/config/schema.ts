@@ -135,9 +135,6 @@ export type Config = {
             carousel: {
                 defaultItemCount: number;
             };
-            paginatedProductCarousel: {
-                defaultLimit: number;
-            };
             badges: BadgeDetail[];
             skeleton: {
                 thumbnails: number;

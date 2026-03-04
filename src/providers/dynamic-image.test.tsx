@@ -172,6 +172,198 @@ describe('DynamicImageProvider', () => {
             });
         });
 
+        describe('widths', () => {
+            test('returns undefined when widths is not provided', () => {
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(result.current?.widths).toBeUndefined();
+            });
+
+            test('returns undefined when widths is explicitly undefined', () => {
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths: undefined,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(result.current?.widths).toBeUndefined();
+            });
+
+            test('exposes widths as a frozen array of numbers', () => {
+                const widths = [100, 360, 720];
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(result.current?.widths).toEqual([100, 360, 720]);
+                expect(Object.isFrozen(result.current?.widths)).toBe(true);
+            });
+
+            test('exposes widths as a frozen array of strings', () => {
+                const widths = ['50vw', '100vw', '25vw'];
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(result.current?.widths).toEqual(['50vw', '100vw', '25vw']);
+                expect(Object.isFrozen(result.current?.widths)).toBe(true);
+            });
+
+            test('exposes widths as a frozen array of mixed types', () => {
+                const widths = [100, '50vw', 300];
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(result.current?.widths).toEqual([100, '50vw', 300]);
+                expect(Object.isFrozen(result.current?.widths)).toBe(true);
+            });
+
+            test('exposes widths as a frozen record with breakpoint keys', () => {
+                const widths = { base: 100, sm: 360, md: 720 };
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(result.current?.widths).toEqual({ base: 100, sm: 360, md: 720 });
+                expect(Object.isFrozen(result.current?.widths)).toBe(true);
+            });
+
+            test('exposes widths as a frozen record with string values', () => {
+                const widths = { base: '100vw', sm: '50vw', md: '500px' };
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(result.current?.widths).toEqual({ base: '100vw', sm: '50vw', md: '500px' });
+                expect(Object.isFrozen(result.current?.widths)).toBe(true);
+            });
+
+            test('frozen widths array prevents mutation', () => {
+                const widths = [100, 200, 300];
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(() => {
+                    (result.current?.widths as number[]).push(400);
+                }).toThrow();
+            });
+
+            test('frozen widths record prevents mutation', () => {
+                const widths = { base: 100, sm: 200 };
+                const wrapper = ({ children }: { children: ReactNode }) => (
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        {children}
+                    </DynamicImageProvider>
+                );
+
+                const { result } = renderHook(() => useDynamicImageContext(), { wrapper });
+
+                expect(() => {
+                    (result.current?.widths as Record<string, number>).lg = 400;
+                }).toThrow();
+            });
+
+            test('provides widths to nested children via context', () => {
+                const widths = ['40vw', '25vw', '18vw'];
+
+                const NestedComponent = () => {
+                    const context = useDynamicImageContext();
+                    return <div data-testid="widths">{JSON.stringify(context?.widths)}</div>;
+                };
+
+                render(
+                    <DynamicImageProvider
+                        value={{
+                            addSource: vi.fn(),
+                            hasSource: vi.fn(),
+                            widths,
+                        }}>
+                        <NestedComponent />
+                    </DynamicImageProvider>
+                );
+
+                expect(screen.getByTestId('widths')).toHaveTextContent(JSON.stringify(widths));
+            });
+        });
+
         describe('sources Set initialization', () => {
             test('uses provided sources Set when passed via value', () => {
                 const existingSources = new Set(['https://example.com/existing.jpg']);

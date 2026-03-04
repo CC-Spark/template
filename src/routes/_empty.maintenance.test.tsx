@@ -55,7 +55,6 @@ describe('MaintenancePage', () => {
                         path: '/',
                         element: <MaintenancePage />,
                         loader: () => null, // Simulate loader returning null (fallback)
-                        HydrateFallback: () => <div>Loading...</div>,
                     },
                 ],
                 {
@@ -79,7 +78,6 @@ describe('MaintenancePage', () => {
                         path: '/',
                         element: <MaintenancePage />,
                         loader: () => null,
-                        HydrateFallback: () => <div>Loading...</div>,
                     },
                 ],
                 {
@@ -105,7 +103,6 @@ describe('MaintenancePage', () => {
                         path: '/',
                         element: <MaintenancePage />,
                         loader: () => cdnContent,
-                        HydrateFallback: () => <div>Loading...</div>,
                     },
                 ],
                 {

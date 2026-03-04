@@ -742,14 +742,6 @@ PUBLIC__app__global__carousel__defaultItemCount=5
 
 ---
 
-### global.paginatedProductCarousel.defaultLimit
-
-Type: `number` | Default: `8`
-
-The default number of products to load per page in paginated product carousels. Page Designer components may override this value with their own configuration.
-
----
-
 ### global.badges
 
 Type: `BadgeDetail[]` | Default: Array of 7 badge configurations for New, Sale, Limited, Exclusive, Trending, Best Seller, and Out of Stock

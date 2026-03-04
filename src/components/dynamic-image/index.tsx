@@ -19,6 +19,7 @@ import { useConfig } from '@/config';
 import { cn, isServer } from '@/lib/utils';
 import {
     defaultImageFormats,
+    type DynamicImageWidths,
     getResponsivePictureAttributes,
     replaceImageFormat,
     toImageUrl,
@@ -35,7 +36,7 @@ interface DynamicImageProps {
      * - Object with breakpoint keys: {base: 100, sm: 360, md: 720} (unitless, interpreted as px)
      * - Object with breakpoint keys and units: {base: '100vw', sm: '50vw', md: '500px'}
      */
-    widths?: (number | string)[] | Record<string, number> | Record<string, string> | Record<string, number | string>;
+    widths?: DynamicImageWidths;
     imageProps?: ImgHTMLAttributes<HTMLImageElement>;
     as?: ElementType;
     className?: string;

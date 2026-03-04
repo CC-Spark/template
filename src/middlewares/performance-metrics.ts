@@ -474,9 +474,8 @@ export const performanceMetricsMiddlewareClient: MiddlewareFunction<Record<strin
 
     // **Important:** By default, this client middleware runs **after** the client-side process has already finished its
     // initial render cycle. That's due to how client middleware works in React Router if applied to a component that
-    // doesn't also provide a `HydrateFallback` component - which is the case in our default `root.tsx`. That's why we
-    // retrieve historical "first-paint" data from the performance API to adjust the start of our "clientTotal" mark
-    // accordingly - on initial navigations only.
+    // doesn't also provide a `HydrateFallback` component. That's why we retrieve historical "first-paint" data from the
+    // performance API to adjust the start of our "clientTotal" mark accordingly - on initial navigations only.
     if (!sfdcPerformanceMetricsReported) {
         sfdcPerformanceMetricsReported = true;
         const entry = performance.getEntriesByName('first-paint', 'paint').at(0);

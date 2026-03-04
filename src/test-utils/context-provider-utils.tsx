@@ -114,7 +114,6 @@ export const mockBuildConfig: Config = {
                 defaultProductTileImgAspectRatio: 1,
             },
             carousel: { defaultItemCount: 4 },
-            paginatedProductCarousel: { defaultLimit: 4 },
             badges: [
                 { propertyName: 'c_isSale', label: 'Sale', color: 'orange', priority: 1 },
                 { propertyName: 'c_isNew', label: 'New', color: 'green', priority: 2 },

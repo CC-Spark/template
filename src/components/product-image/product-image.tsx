@@ -17,6 +17,7 @@
 
 import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import type { DynamicImageWidths } from '@/lib/dynamic-image';
 import { DynamicImage } from '@/components/dynamic-image';
 import { useTranslation } from 'react-i18next';
 
@@ -25,7 +26,7 @@ interface ProductImageProps {
     alt: string;
     className?: string;
     // Pass through all DynamicImage props
-    widths?: (number | string)[] | Record<string, number> | Record<string, string> | Record<string, number | string>;
+    widths?: DynamicImageWidths;
     imageProps?: React.ImgHTMLAttributes<HTMLImageElement>;
     as?: React.ElementType;
     loading?: 'lazy' | 'eager';

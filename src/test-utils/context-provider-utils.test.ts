@@ -192,9 +192,6 @@ describe('context-provider-utils', () => {
                         carousel: {
                             defaultItemCount: 4,
                         },
-                        paginatedProductCarousel: {
-                            defaultLimit: 4,
-                        },
                         badges: [],
                         skeleton: {
                             thumbnails: 4,

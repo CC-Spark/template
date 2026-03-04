@@ -17,6 +17,8 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import type { AppConfig } from '@/config/context';
 
+export type DynamicImageWidths = Array<number | string> | Record<string, number | string>;
+
 // Pre-compiled regex patterns for better performance (compiled once at module load)
 /** Matches DIS path and captures the realm: /dw/image/v2/REALM_ID/... */
 const DIS_PATH_REALM_REGEX = /\/dw\/image\/v\d+\/([^/]+)/i;
@@ -316,7 +318,7 @@ const isObject = (o: any): o is Record<string, any> => o?.constructor === Object
  * // returns the array [10, 10, 10, 50]
  * widthsAsArray({base: 10, lg: 50})
  */
-const widthsAsArray = (widths: Record<string, number | string>): (number | string)[] => {
+const widthsAsArray = (widths: Record<string, number | string>): Array<number | string> => {
     const biggestBreakpoint = breakpointLabels.filter((bp) => Boolean(widths[bp])).pop();
 
     if (!biggestBreakpoint) {
@@ -431,7 +433,7 @@ export const getSrc = (
  */
 const getSrcWithoutOptionalParams = (dynamicSrc: string): string => dynamicSrc.replace(/\[[^\]]+]/g, '');
 
-const padArray = (arr: (number | string)[]): (number | string)[] => {
+const padArray = (arr: Array<number | string>): Array<number | string> => {
     const l1 = arr.length;
     const l2 = breakpointLabels.length;
     if (l1 < l2) {
@@ -442,7 +444,7 @@ const padArray = (arr: (number | string)[]): (number | string)[] => {
     return arr;
 };
 
-const convertToPxNumbers = (widths: (number | string)[]): number[] =>
+const convertToPxNumbers = (widths: Array<number | string>): Array<number> =>
     widths
         .map((width, i) => {
             if (typeof width === 'number') {
@@ -527,7 +529,11 @@ const toMimeType = (format: DynamicImageFormat) => (format === 'jpg' ? 'image/jp
  */
 const getResponsiveSourcesAndLinks = (
     src: string,
-    { widths, formats, quality }: { widths: (number | string)[]; formats: Array<DynamicImageFormat>; quality?: number }
+    {
+        widths,
+        formats,
+        quality,
+    }: { widths: Array<number | string>; formats: Array<DynamicImageFormat>; quality?: number }
 ): ResponsiveData => {
     // By default, unitless value is interpreted as px
     const sizesWidths = widths.map((width) => (typeof width === 'number' ? `${width}px` : width));
@@ -614,7 +620,7 @@ export const getResponsivePictureAttributes = ({
      * - Object with breakpoint keys: {base: 100, sm: 360, md: 720} (unitless, interpreted as px)
      * - Object with breakpoint keys and units: {base: '100vw', sm: '50vw', md: '500px'}
      */
-    widths?: (number | string)[] | Record<string, number> | Record<string, string> | Record<string, number | string>;
+    widths?: DynamicImageWidths;
     formats?: Array<DynamicImageFormat>;
     breakpoints?: Record<string, string>;
     /**
@@ -642,7 +648,7 @@ export const getResponsivePictureAttributes = ({
 
     const _widths = isObject(widths)
         ? widthsAsArray(widths as Record<string, number | string>)
-        : (widths as (number | string)[]).slice(0);
+        : (widths as Array<number | string>).slice(0);
     const { sources, links } = getResponsiveSourcesAndLinks(src, {
         widths: _widths,
         formats,

@@ -186,15 +186,6 @@ function ContentComponent() {
     return <div data-testid="content">Content</div>;
 }
 
-/**
- * HydrateFallback is required when using createRoutesStub with components that have loaders.
- * Without it, React Router throws "Cannot destructure property 'basename' of 'undefined'"
- * during the hydration phase. This is a React Router v7 testing requirement.
- */
-function HydrateFallback() {
-    return <div data-testid="hydrate-fallback">Loading...</div>;
-}
-
 function LayoutComponent() {
     return (
         <Layout>
@@ -428,7 +419,6 @@ describe('root.tsx', () => {
                     id: 'root',
                     path: '/',
                     Component: App,
-                    HydrateFallback,
                     loader: () => ({
                         clientAuth: {
                             customerId: 'test-customer',
@@ -508,7 +498,6 @@ describe('root.tsx', () => {
                     id: 'root',
                     path: '/',
                     Component: App,
-                    HydrateFallback,
                     loader: () => ({
                         clientAuth: {
                             customerId: 'test-customer',
@@ -553,7 +542,6 @@ describe('root.tsx', () => {
                         id: 'root',
                         path: '/',
                         Component: App,
-                        HydrateFallback,
                         loader: () => ({
                             clientAuth: {
                                 customerId: 'test-customer',
@@ -596,7 +584,6 @@ describe('root.tsx', () => {
                         // The actual path doesn't matter here since we mock isProxyPath() to return true
                         path: '/cart',
                         Component: App,
-                        HydrateFallback,
                         loader: () => ({
                             clientAuth: {
                                 customerId: 'test-customer',
@@ -654,7 +641,6 @@ describe('root.tsx', () => {
                         id: 'root',
                         path: '/',
                         Component: App,
-                        HydrateFallback,
                         loader: () => ({
                             auth: () => ({
                                 access_token: 'test-token',
@@ -708,7 +694,6 @@ describe('root.tsx', () => {
                         id: 'root',
                         path: '/',
                         Component: App,
-                        HydrateFallback,
                         loader: () => ({
                             auth: () => ({
                                 access_token: 'test-token',
@@ -762,7 +747,6 @@ describe('root.tsx', () => {
                         id: 'root',
                         path: '/',
                         Component: App,
-                        HydrateFallback,
                         loader: () => ({
                             auth: () => ({
                                 access_token: 'test-token',
