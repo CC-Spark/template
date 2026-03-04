@@ -54,6 +54,8 @@ interface ProductTileProps extends ComponentProps<'div'> {
     selectedVariantColorValue?: string | null;
     /** Image aspect ratio (width/height). If provided, calculates height based on viewport width. Defaults to 1 (square) */
     imgAspectRatio?: number;
+    /** Show prev/next navigation arrows on the product image */
+    showNavigationArrows?: boolean;
 
     // Page Designer styling props
     objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
@@ -276,6 +278,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
             selectedVariantColorValue,
             handleProductClick,
             imgAspectRatio,
+            showNavigationArrows = false,
             // Page Designer styling props
             objectFit,
             borderRadius,
@@ -373,6 +376,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                             imgAspectRatio={effectiveImgAspectRatio}
                             className="w-full aspect-square [&_img]:object-cover! [&_img]:h-full! [&_img]:max-w-full! [&_img]:mx-auto!"
                             handleProductClick={handleProductClick}
+                            showNavigationArrows={showNavigationArrows}
                         />
 
                         {/* Badges overlaid top-left */}

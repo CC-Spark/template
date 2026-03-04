@@ -81,6 +81,8 @@ export default function ProductView({ product, category }: ProductViewProps): Re
                         key={product.id}
                         images={galleryImages}
                         eager={!isProductASet && !isProductABundle}
+                        showNavigationArrows
+                        navigationArrowSize="lg"
                         productName={product.name}
                     />
                     {showDescription && (

@@ -19,6 +19,7 @@
 import { useState, useEffect, useRef, type ReactElement } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { DynamicImage } from '@/components/dynamic-image';
+import ImageNavArrows from '@/components/image-nav-arrows';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +34,8 @@ interface ImageGalleryProps {
     eager?: boolean;
     /** Show prev/next arrows on the main image (e.g. in modal) */
     showNavigationArrows?: boolean;
+    /** Size of navigation arrows: "sm" (default) or "lg" for PDP */
+    navigationArrowSize?: 'sm' | 'lg';
     /** Use horizontal scrollable thumbnail strip with arrows instead of grid */
     horizontalThumbnails?: boolean;
     productName?: string;
@@ -44,6 +47,7 @@ export default function ImageGallery({
     images,
     eager = false,
     showNavigationArrows = false,
+    navigationArrowSize = 'sm',
     horizontalThumbnails = false,
     productName,
 }: ImageGalleryProps): ReactElement {
@@ -80,9 +84,6 @@ export default function ImageGallery({
 
     const imageAltFallback = productName || tProduct('imageAlt') || 'Product Image';
 
-    const goPrev = () => setSelectedImageIndex((i) => (i <= 0 ? images.length - 1 : i - 1));
-    const goNext = () => setSelectedImageIndex((i) => (i >= images.length - 1 ? 0 : i + 1));
-
     return (
         <div className="space-y-4">
             {/* Main Image */}
@@ -96,30 +97,11 @@ export default function ImageGallery({
                     priority={eager ? 'high' : undefined}
                 />
                 {showNavigationArrows && images.length > 1 && (
-                    <>
-                        <button
-                            type="button"
-                            onClick={goPrev}
-                            className={cn(
-                                'absolute left-2 top-1/2 -translate-y-1/2 rounded-full p-1.5',
-                                'bg-background/90 shadow-md hover:bg-background transition-colors',
-                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-                            )}
-                            aria-label={tCommon('previousImage')}>
-                            <ChevronLeft className="size-5" />
-                        </button>
-                        <button
-                            type="button"
-                            onClick={goNext}
-                            className={cn(
-                                'absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5',
-                                'bg-background/90 shadow-md hover:bg-background transition-colors',
-                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-                            )}
-                            aria-label={tCommon('nextImage')}>
-                            <ChevronRight className="size-5" />
-                        </button>
-                    </>
+                    <ImageNavArrows
+                        imageCount={images.length}
+                        onIndexChange={setSelectedImageIndex}
+                        size={navigationArrowSize}
+                    />
                 )}
             </div>
 

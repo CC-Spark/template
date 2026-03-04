@@ -59,7 +59,12 @@ function NonCriticalContent({
     return (
         <DynamicImageProvider value={{ widths: responsiveImageWidths }}>
             {products.map((product) => (
-                <ProductTile key={product.productId} product={product} handleProductClick={handleProductClick} />
+                <ProductTile
+                    key={product.productId}
+                    product={product}
+                    handleProductClick={handleProductClick}
+                    showNavigationArrows
+                />
             ))}
             <NoProductsMessage criticalSize={criticalSize} nonCriticalSize={products.length} />
         </DynamicImageProvider>
@@ -104,6 +109,7 @@ export default function ProductGrid({
                                 key={product.productId}
                                 product={product}
                                 handleProductClick={handleProductClick}
+                                showNavigationArrows
                             />
                         ))}
                     </DynamicImageProvider>

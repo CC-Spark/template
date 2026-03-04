@@ -15,12 +15,13 @@
  */
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { createProductUrl, getImagesForColor } from '@/lib/product-utils';
 import { useDynamicImageContext } from '@/providers/dynamic-image';
 import { ProductImage } from './product-image';
+import ImageNavArrows from '@/components/image-nav-arrows';
 import { useTranslation } from 'react-i18next';
 
 interface ProductImageContainerProps {
@@ -30,6 +31,8 @@ interface ProductImageContainerProps {
     handleProductClick?: (product: ShopperSearch.schemas['ProductSearchHit']) => void;
     /** Image aspect ratio (width/height). If provided, calculates height based on viewport width. Defaults to 1 (square) */
     imgAspectRatio?: number;
+    /** Show prev/next navigation arrows when multiple images are available */
+    showNavigationArrows?: boolean;
 }
 
 const ProductImageContainer = ({
@@ -38,10 +41,15 @@ const ProductImageContainer = ({
     className,
     handleProductClick,
     imgAspectRatio = 1,
+    showNavigationArrows = false,
 }: ProductImageContainerProps) => {
     const { t } = useTranslation('product');
-    // Get the product image for the selected color variant
-    const currentImage = getImagesForColor(product, selectedColorValue, 'medium').at(0) ?? product.image;
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    // Get all images for the selected color variant
+    const allImages = getImagesForColor(product, selectedColorValue, 'medium');
+
+    const currentImage = allImages[selectedImageIndex] ?? allImages[0] ?? product.image;
     const currentImageUrl = currentImage?.disBaseLink || currentImage?.link;
     const imageAltFallback = product.productName || t('imageAlt') || 'Product Image';
 
@@ -70,7 +78,7 @@ const ProductImageContainer = ({
 
     return (
         <div
-            className={`relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col ${
+            className={`${showNavigationArrows ? 'group/image ' : ''}relative overflow-hidden rounded-lg bg-secondary/20 border-secondary flex flex-col ${
                 imgAspectRatio === 1 ? 'aspect-square' : ''
             } ${className || ''}`}
             style={heightStyle}>
@@ -87,6 +95,14 @@ const ProductImageContainer = ({
                     widths={imageContext?.widths}
                 />
             </Link>
+            {/* Navigation Arrows - visible on hover */}
+            {showNavigationArrows && allImages.length > 1 && (
+                <ImageNavArrows
+                    imageCount={allImages.length}
+                    onIndexChange={setSelectedImageIndex}
+                    className="opacity-0 group-hover/image:opacity-100 transition-opacity"
+                />
+            )}
         </div>
     );
 };
