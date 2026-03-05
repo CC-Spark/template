@@ -17,7 +17,6 @@ The workflow performs the following automated steps:
 2. **Runs Tests with Coverage**: Executes the generated story tests with Vitest's coverage instrumentation enabled
 3. **Generates Coverage Report**: Analyzes component coverage by comparing components with their corresponding story files
 4. **Uploads Artifacts**: Saves coverage reports and metrics as GitHub Actions artifacts
-5. **Posts PR Comment**: Automatically posts a sticky comment on the PR with the coverage report
 
 The workflow uses the `generate:story-tests:coverage` npm script which:
 - Runs `generate-story-tests.js` to create test files from stories
@@ -142,34 +141,7 @@ The workflow generates and uploads the following artifacts:
 
 **Artifact Retention**: Artifacts are available for download from the GitHub Actions run page for 90 days (default GitHub Actions retention).
 
-## 3. Automatic PR Comment
-
-The workflow automatically posts a **sticky comment** on every pull request with the coverage report.
-
-**How it works:**
-- Uses the `marocchino/sticky-pull-request-comment@v2` GitHub Action
-- The comment is **recreated** on each workflow run (ensures it always shows the latest results)
-- The comment content is generated from the markdown coverage report
-- The comment appears at the top of the PR's comment thread (sticky behavior)
-
-**Comment contents:**
-- Story coverage badge and percentage
-- Status indicator (complete or missing stories count)
-- Metrics table with total components, covered components, excluded components
-- Missing components list (if any) in a collapsible details section
-- Code coverage section (if available) with:
-  - Average coverage badge
-  - Individual metrics table (lines, statements, functions, branches)
-  - Status emojis for each metric
-- Generation timestamp
-
-**Benefits:**
-- Immediate visibility of coverage status without checking workflow logs
-- Easy identification of missing stories
-- Code coverage metrics at a glance
-- Historical tracking as PR evolves
-
-## 4. Workflow Location
+## 3. Workflow Location
 
 The GitHub Actions workflow file is located at:
 
@@ -184,9 +156,7 @@ The GitHub Actions workflow file is located at:
 - **Runs on**: `ubuntu-latest`
 - **Node version**: 24
 - **Package manager**: pnpm 10.28.0
-- **Permissions**: 
-  - `contents: read` - To checkout code
-  - `pull-requests: write` - To post PR comments
+- **Permissions**: `contents: read` - To checkout code
 
 **Workflow steps:**
 1. Checkout code
@@ -198,9 +168,8 @@ The GitHub Actions workflow file is located at:
 7. Upload JSON summary artifact
 8. Upload Markdown report artifact
 9. Upload Vitest coverage artifact
-10. Post PR comment (if PR event)
 
-## 5. Coverage Scripts Location
+## 4. Coverage Scripts Location
 
 The coverage scripts are located in the `scripts/` directory:
 
@@ -276,7 +245,6 @@ The story coverage and code quality enforcement system provides:
 ✅ **Automated coverage tracking** on every PR  
 ✅ **Dual metrics**: Story coverage + Code coverage  
 ✅ **Visual badges** for quick status assessment  
-✅ **PR comments** for immediate visibility  
 ✅ **Artifact storage** for detailed analysis  
 ✅ **Standardized structure**: Stories must be in `stories/` subdirectories  
 ✅ **Configurable exclusions** for components that don't need stories  
