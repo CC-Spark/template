@@ -3,7 +3,7 @@
 exports[`Grid stories snapshot > Default story renders and matches snapshot 1`] = `
 <div>
   <div
-    class="grid grid-cols-3 gap-4"
+    class="grid grid-cols-3 max-w-full items-stretch gap-4"
     data-slot="grid"
   >
     <div
@@ -25,10 +25,40 @@ exports[`Grid stories snapshot > Default story renders and matches snapshot 1`] 
 </div>
 `;
 
+exports[`Grid stories snapshot > FullFeatured story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="grid grid-cols-4 max-w-screen-2xl gap-6 items-stretch bg-gradient-to-br from-purple-500 to-purple-700 mx-auto p-8 rounded-xl"
+    data-slot="grid"
+  >
+    <div
+      class="bg-white p-4 rounded shadow"
+    >
+      Feature 1
+    </div>
+    <div
+      class="bg-white p-4 rounded shadow"
+    >
+      Feature 2
+    </div>
+    <div
+      class="bg-white p-4 rounded shadow"
+    >
+      Feature 3
+    </div>
+    <div
+      class="bg-white p-4 rounded shadow"
+    >
+      Feature 4
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Grid stories snapshot > InlineGrid story renders and matches snapshot 1`] = `
 <div>
   <div
-    class="inline-grid grid-cols-2 gap-2"
+    class="inline-grid grid-cols-2 max-w-full items-stretch gap-2"
     data-slot="grid"
   >
     <div
@@ -48,7 +78,7 @@ exports[`Grid stories snapshot > InlineGrid story renders and matches snapshot 1
 exports[`Grid stories snapshot > TwoColumns story renders and matches snapshot 1`] = `
 <div>
   <div
-    class="grid grid-cols-2 gap-4"
+    class="grid grid-cols-2 max-w-full items-stretch gap-4"
     data-slot="grid"
   >
     <div
@@ -65,10 +95,57 @@ exports[`Grid stories snapshot > TwoColumns story renders and matches snapshot 1
 </div>
 `;
 
+exports[`Grid stories snapshot > WithBackgroundBlur story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="relative"
+  >
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg"
+    />
+    <div
+      class="grid grid-cols-2 max-w-full gap-4 items-stretch backdrop-blur-md relative p-6 rounded-lg bg-white/30"
+      data-slot="grid"
+    >
+      <div
+        class="bg-white/80 p-4 rounded"
+      >
+        Blurred Background
+      </div>
+      <div
+        class="bg-white/80 p-4 rounded"
+      >
+        Glassmorphism Effect
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Grid stories snapshot > WithBackgroundGradient story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="grid grid-cols-2 max-w-full gap-6 items-stretch bg-gradient-to-br from-blue-500 to-blue-700 p-8 rounded-lg"
+    data-slot="grid"
+  >
+    <div
+      class="bg-white p-4 rounded shadow"
+    >
+      Item 1
+    </div>
+    <div
+      class="bg-white p-4 rounded shadow"
+    >
+      Item 2
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Grid stories snapshot > WithFlow story renders and matches snapshot 1`] = `
 <div>
   <div
-    class="grid grid-cols-3 grid-flow-dense gap-4"
+    class="grid grid-cols-3 grid-flow-dense max-w-full items-stretch gap-4"
     data-slot="grid"
   >
     <div
@@ -90,6 +167,56 @@ exports[`Grid stories snapshot > WithFlow story renders and matches snapshot 1`]
       class="bg-muted p-4 rounded"
     >
       Item 4
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Grid stories snapshot > WithMaxWidth story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="grid grid-cols-3 max-w-screen-lg gap-4 items-stretch mx-auto"
+    data-slot="grid"
+  >
+    <div
+      class="bg-muted p-4 rounded"
+    >
+      Item 1
+    </div>
+    <div
+      class="bg-muted p-4 rounded"
+    >
+      Item 2
+    </div>
+    <div
+      class="bg-muted p-4 rounded"
+    >
+      Item 3
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Grid stories snapshot > WithVerticalAlignment story renders and matches snapshot 1`] = `
+<div>
+  <div
+    class="grid grid-cols-3 max-w-full gap-4 items-center h-64"
+    data-slot="grid"
+  >
+    <div
+      class="bg-muted p-4 rounded h-16"
+    >
+      Short Item
+    </div>
+    <div
+      class="bg-muted p-4 rounded h-32"
+    >
+      Tall Item
+    </div>
+    <div
+      class="bg-muted p-4 rounded h-24"
+    >
+      Medium Item
     </div>
   </div>
 </div>

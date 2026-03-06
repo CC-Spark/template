@@ -31,6 +31,10 @@ vi.mock('@/lib/decorators/attribute-definition', () => ({
     AttributeDefinition: () => () => {},
 }));
 
+vi.mock('@/components/region', () => ({
+    Region: ({ regionId }: { regionId: string }) => <div data-testid={`region-${regionId}`}>Region: {regionId}</div>,
+}));
+
 describe('Grid Component', () => {
     describe('Basic Rendering', () => {
         it('should render with children', () => {
@@ -345,6 +349,264 @@ describe('Grid Component', () => {
             expect(grid.textContent).toContain('Span');
             expect(grid.textContent).toContain('Text');
             expect(grid.textContent).toContain('123');
+        });
+    });
+
+    describe('New Page Designer Attributes', () => {
+        describe('Max Width', () => {
+            it('should apply max-w-screen-lg for maxWidth="lg"', () => {
+                render(
+                    <Grid maxWidth="lg" data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).toContain('max-w-screen-lg');
+            });
+
+            it('should apply max-w-full for maxWidth="full"', () => {
+                render(
+                    <Grid maxWidth="full" data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).toContain('max-w-full');
+            });
+
+            it('should not apply max width class when maxWidth="none"', () => {
+                render(
+                    <Grid maxWidth="none" data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).not.toContain('max-w-');
+            });
+        });
+
+        describe('Column Gap', () => {
+            const gapValues = ['0', '1', '2', '3', '4', '6', '8', '12', '16'] as const;
+
+            gapValues.forEach((gap) => {
+                it(`should apply gap-${gap} for columnGap="${gap}"`, () => {
+                    render(
+                        <Grid columnGap={gap} data-testid="grid">
+                            Content
+                        </Grid>
+                    );
+                    const grid = screen.getByTestId('grid');
+                    expect(grid.className).toContain(`gap-${gap}`);
+                });
+            });
+        });
+
+        describe('Vertical Alignment', () => {
+            const alignments = [
+                { value: 'start', class: 'items-start' },
+                { value: 'center', class: 'items-center' },
+                { value: 'end', class: 'items-end' },
+                { value: 'stretch', class: 'items-stretch' },
+                { value: 'baseline', class: 'items-baseline' },
+            ] as const;
+
+            alignments.forEach(({ value, class: className }) => {
+                it(`should apply ${className} for verticalAlignment="${value}"`, () => {
+                    render(
+                        <Grid verticalAlignment={value} data-testid="grid">
+                            Content
+                        </Grid>
+                    );
+                    const grid = screen.getByTestId('grid');
+                    expect(grid.className).toContain(className);
+                });
+            });
+        });
+
+        describe('Background Gradient', () => {
+            it('should apply gradient classes for backgroundGradient="light"', () => {
+                render(
+                    <Grid backgroundGradient="light" data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).toContain('bg-gradient-to-br');
+                expect(grid.className).toContain('from-white');
+                expect(grid.className).toContain('to-gray-100');
+            });
+
+            it('should apply gradient classes for backgroundGradient="blue"', () => {
+                render(
+                    <Grid backgroundGradient="blue" data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).toContain('bg-gradient-to-br');
+                expect(grid.className).toContain('from-blue-500');
+                expect(grid.className).toContain('to-blue-700');
+            });
+
+            it('should not apply gradient for backgroundGradient="none"', () => {
+                render(
+                    <Grid backgroundGradient="none" data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).not.toContain('bg-gradient');
+            });
+        });
+
+        describe('Background Blur', () => {
+            const blurValues = [
+                { value: 'sm', class: 'backdrop-blur-sm' },
+                { value: 'md', class: 'backdrop-blur-md' },
+                { value: 'lg', class: 'backdrop-blur-lg' },
+                { value: 'xl', class: 'backdrop-blur-xl' },
+            ] as const;
+
+            blurValues.forEach(({ value, class: className }) => {
+                it(`should apply ${className} for backgroundBlur="${value}"`, () => {
+                    render(
+                        <Grid backgroundBlur={value} data-testid="grid">
+                            Content
+                        </Grid>
+                    );
+                    const grid = screen.getByTestId('grid');
+                    expect(grid.className).toContain(className);
+                });
+            });
+
+            it('should not apply blur for backgroundBlur="none"', () => {
+                render(
+                    <Grid backgroundBlur="none" data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).not.toContain('backdrop-blur');
+            });
+        });
+
+        describe('Combined New Attributes', () => {
+            it('should handle multiple new attributes together', () => {
+                render(
+                    <Grid
+                        maxWidth="lg"
+                        columnGap="8"
+                        verticalAlignment="center"
+                        backgroundGradient="purple"
+                        backgroundBlur="md"
+                        data-testid="grid">
+                        Content
+                    </Grid>
+                );
+                const grid = screen.getByTestId('grid');
+                expect(grid.className).toContain('max-w-screen-lg');
+                expect(grid.className).toContain('gap-8');
+                expect(grid.className).toContain('items-center');
+                expect(grid.className).toContain('from-purple-500');
+                expect(grid.className).toContain('backdrop-blur-md');
+            });
+        });
+    });
+
+    describe('Page Designer Mode - Dynamic Regions', () => {
+        const mockComponent = {
+            id: 'test-grid',
+            typeId: 'grid',
+            regions: [
+                { id: 'column-1', components: [] },
+                { id: 'column-2', components: [] },
+                { id: 'column-3', components: [] },
+            ],
+        } as any;
+
+        // Test data for column counts 1-6
+        const columnTestCases = [
+            { columns: 1, description: 'single region' },
+            { columns: 2, description: 'two regions' },
+            { columns: 3, description: 'three regions' },
+            { columns: 4, description: 'four regions' },
+            { columns: 5, description: 'five regions' },
+            { columns: 6, description: 'six regions' },
+        ] as const;
+
+        it.each(columnTestCases)('should render $description when columns="$columns"', ({ columns }) => {
+            render(
+                <Grid columns={String(columns)} component={mockComponent} data-testid="grid">
+                    Fallback content
+                </Grid>
+            );
+            const grid = screen.getByTestId('grid');
+            expect(grid).toBeInTheDocument();
+
+            // Should have exactly N regions
+            const regions = screen.getAllByTestId(/^region-column-/);
+            expect(regions).toHaveLength(columns);
+
+            // Assert each expected region exists
+            for (let i = 1; i <= columns; i++) {
+                expect(screen.getByTestId(`region-column-${i}`)).toBeInTheDocument();
+            }
+
+            // Assert unwanted regions don't exist
+            for (let i = columns + 1; i <= 6; i++) {
+                expect(screen.queryByTestId(`region-column-${i}`)).not.toBeInTheDocument();
+            }
+        });
+
+        it('should apply grid-cols-3 class when rendering 3 regions', () => {
+            render(
+                <Grid columns="3" component={mockComponent} data-testid="grid">
+                    Fallback content
+                </Grid>
+            );
+            const grid = screen.getByTestId('grid');
+            expect(grid.className).toContain('grid-cols-3');
+        });
+
+        it('should not render children when in Page Designer mode', () => {
+            render(
+                <Grid columns="2" component={mockComponent} data-testid="grid">
+                    <div data-testid="child-content">This should not appear</div>
+                </Grid>
+            );
+
+            // Children should not be rendered in Page Designer mode
+            expect(screen.queryByTestId('child-content')).not.toBeInTheDocument();
+
+            // Only regions should be present
+            expect(screen.getByTestId('region-column-1')).toBeInTheDocument();
+            expect(screen.getByTestId('region-column-2')).toBeInTheDocument();
+        });
+
+        it('should combine Page Designer attributes with dynamic regions', () => {
+            render(
+                <Grid
+                    columns="4"
+                    maxWidth="xl"
+                    columnGap="6"
+                    verticalAlignment="start"
+                    component={mockComponent}
+                    data-testid="grid">
+                    Fallback
+                </Grid>
+            );
+
+            const grid = screen.getByTestId('grid');
+
+            // Check that styling classes are applied
+            expect(grid.className).toContain('grid-cols-4');
+            expect(grid.className).toContain('max-w-screen-xl');
+            expect(grid.className).toContain('gap-6');
+            expect(grid.className).toContain('items-start');
+
+            // Check that 4 regions are created
+            const regions = screen.getAllByTestId(/^region-column-/);
+            expect(regions).toHaveLength(4);
         });
     });
 

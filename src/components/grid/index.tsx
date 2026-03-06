@@ -31,8 +31,28 @@ import { type ComponentType, Region } from '@/components/region';
 })
 @RegionDefinition([
     {
-        id: 'main',
-        name: 'Main',
+        id: 'column-1',
+        name: 'Column 1',
+    },
+    {
+        id: 'column-2',
+        name: 'Column 2',
+    },
+    {
+        id: 'column-3',
+        name: 'Column 3',
+    },
+    {
+        id: 'column-4',
+        name: 'Column 4',
+    },
+    {
+        id: 'column-5',
+        name: 'Column 5',
+    },
+    {
+        id: 'column-6',
+        name: 'Column 6',
     },
 ])
 export class GridMetadata {
@@ -43,6 +63,56 @@ export class GridMetadata {
         defaultValue: '1',
     })
     columns?: string;
+
+    @AttributeDefinition({
+        id: 'maxWidth',
+        name: 'Max Width',
+        description: 'Maximum width of the grid container',
+        type: 'enum',
+        values: ['none', 'sm', 'md', 'lg', 'xl', '2xl', 'full'],
+        defaultValue: 'full',
+    })
+    maxWidth?: string;
+
+    @AttributeDefinition({
+        id: 'columnGap',
+        name: 'Column Gap',
+        description: 'Space between columns',
+        type: 'enum',
+        values: ['0', '1', '2', '3', '4', '6', '8', '12', '16'],
+        defaultValue: '4',
+    })
+    columnGap?: string;
+
+    @AttributeDefinition({
+        id: 'verticalAlignment',
+        name: 'Vertical Alignment',
+        description: 'Vertical alignment of grid items',
+        type: 'enum',
+        values: ['start', 'center', 'end', 'stretch', 'baseline'],
+        defaultValue: 'stretch',
+    })
+    verticalAlignment?: string;
+
+    @AttributeDefinition({
+        id: 'backgroundGradient',
+        name: 'Background Gradient',
+        description: 'Gradient background effect',
+        type: 'enum',
+        values: ['none', 'light', 'dark', 'blue', 'purple'],
+        defaultValue: 'none',
+    })
+    backgroundGradient?: string;
+
+    @AttributeDefinition({
+        id: 'backgroundBlur',
+        name: 'Background Blur',
+        description: 'Blur effect intensity',
+        type: 'enum',
+        values: ['none', 'sm', 'md', 'lg', 'xl'],
+        defaultValue: 'none',
+    })
+    backgroundBlur?: string;
 }
 /* v8 ignore stop */
 
@@ -59,6 +129,13 @@ interface GridProps extends Omit<ComponentPropsWithoutRef<'div'>, 'children'> {
     px?: string;
     py?: string;
     children?: ReactNode;
+
+    // Page Designer attributes
+    maxWidth?: string;
+    columnGap?: string;
+    verticalAlignment?: string;
+    backgroundGradient?: string;
+    backgroundBlur?: string;
 
     // Page Designer props (need to be extracted to avoid passing to DOM)
     regionId?: string;
@@ -85,6 +162,52 @@ const flowMap: Record<GridFlow, string> = {
     'col-dense': 'grid-flow-col-dense',
 };
 
+const maxWidthMap: Record<string, string> = {
+    none: '',
+    sm: 'max-w-screen-sm',
+    md: 'max-w-screen-md',
+    lg: 'max-w-screen-lg',
+    xl: 'max-w-screen-xl',
+    '2xl': 'max-w-screen-2xl',
+    full: 'max-w-full',
+};
+
+const columnGapMap: Record<string, string> = {
+    '0': 'gap-0',
+    '1': 'gap-1',
+    '2': 'gap-2',
+    '3': 'gap-3',
+    '4': 'gap-4',
+    '6': 'gap-6',
+    '8': 'gap-8',
+    '12': 'gap-12',
+    '16': 'gap-16',
+};
+
+const verticalAlignmentMap: Record<string, string> = {
+    start: 'items-start',
+    center: 'items-center',
+    end: 'items-end',
+    stretch: 'items-stretch',
+    baseline: 'items-baseline',
+};
+
+const backgroundGradientMap: Record<string, string> = {
+    none: '',
+    light: 'bg-gradient-to-br from-white to-gray-100',
+    dark: 'bg-gradient-to-br from-gray-800 to-gray-900',
+    blue: 'bg-gradient-to-br from-blue-500 to-blue-700',
+    purple: 'bg-gradient-to-br from-purple-500 to-purple-700',
+};
+
+const backgroundBlurMap: Record<string, string> = {
+    none: '',
+    sm: 'backdrop-blur-sm',
+    md: 'backdrop-blur-md',
+    lg: 'backdrop-blur-lg',
+    xl: 'backdrop-blur-xl',
+};
+
 const Grid = forwardRef<HTMLDivElement, GridProps>(
     (
         {
@@ -96,6 +219,11 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
             p,
             px,
             py,
+            maxWidth = 'full',
+            columnGap = '4',
+            verticalAlignment = 'stretch',
+            backgroundGradient = 'none',
+            backgroundBlur = 'none',
             style,
             children,
             regionId: _regionId,
@@ -111,6 +239,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
 
         // Support for column numbers from 1 to 6
         const columnsNum: string = Number(columns) > 0 && Number(columns) < 7 ? columns : '1';
+        const numColumns = Number(columnsNum);
 
         // Build class names
         const classes = cn(
@@ -129,6 +258,21 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
             // Flow
             flow && flowMap[flow],
 
+            // Max Width
+            maxWidth && maxWidthMap[maxWidth],
+
+            // Column Gap
+            columnGap && columnGapMap[columnGap],
+
+            // Vertical Alignment
+            verticalAlignment && verticalAlignmentMap[verticalAlignment],
+
+            // Background Gradient
+            backgroundGradient && backgroundGradientMap[backgroundGradient],
+
+            // Background Blur
+            backgroundBlur && backgroundBlurMap[backgroundBlur],
+
             // Padding
             Number(p) > 0 && `p-${p}`,
             Number(px) > 0 && `px-${px}`,
@@ -137,9 +281,24 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(
             className
         );
 
+        // Page Designer mode: Render dynamic regions based on column count
+        if (component) {
+            // Generate region IDs based on column count (column-1, column-2, etc.)
+            const regionIds = Array.from({ length: numColumns }, (_, i) => `column-${i + 1}`);
+
+            return (
+                <ComponentElement ref={ref} className={classes} style={gridStyles} data-slot="grid" {...props}>
+                    {regionIds.map((regionId) => (
+                        <Region key={regionId} regionId={regionId} component={component} errorElement={null} />
+                    ))}
+                </ComponentElement>
+            );
+        }
+
+        // Standalone mode: Render children directly
         return (
             <ComponentElement ref={ref} className={classes} style={gridStyles} data-slot="grid" {...props}>
-                {component ? <Region regionId="main" component={component} errorElement={children} /> : children}
+                {children}
             </ComponentElement>
         );
     }
