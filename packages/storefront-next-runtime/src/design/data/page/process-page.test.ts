@@ -18,11 +18,13 @@ import { processPage, type PageProcessorContext } from './process-page';
 import type { ShopperExperience } from '@/scapi-client/types';
 
 type Page = ShopperExperience.schemas['Page'];
+type Component = ShopperExperience.schemas['Component'];
 
-const makeComponent = (id: string, regions: ShopperExperience.schemas['Region'][] = []) => ({
+const makeComponent = (id: string, overrides: Partial<Component> = {}) => ({
     id,
     typeId: `type.${id}`,
-    regions,
+    regions: [] as ShopperExperience.schemas['Region'][],
+    ...overrides,
 });
 
 const makeRegion = (id: string, components: ShopperExperience.schemas['Component'][] = []) => ({
@@ -37,149 +39,322 @@ const makePage = (regions: ShopperExperience.schemas['Region'][] = []): Page => 
 });
 
 describe('processPage', () => {
-    test('keeps components without visibility rules', () => {
-        const page = makePage([makeRegion('main', [makeComponent('banner')])]);
-        const context: PageProcessorContext = {
-            qualifiers: null,
-            componentInfo: {
-                banner: { visibilityRules: [], hasVisibilityRules: false },
-            },
-        };
+    describe('visibility rules', () => {
+        test('keeps components without visibility rules', () => {
+            const page = makePage([makeRegion('main', [makeComponent('banner')])]);
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
 
-        const result = processPage(page, context);
-        expect(result.regions?.[0].components).toHaveLength(1);
-        expect(result.regions?.[0].components?.[0].id).toBe('banner');
+            const result = processPage(page, context);
+            expect(result.regions?.[0].components).toHaveLength(1);
+            expect(result.regions?.[0].components?.[0].id).toBe('banner');
+        });
+
+        test('removes components whose visibility rules fail', () => {
+            const page = makePage([makeRegion('main', [makeComponent('public-banner'), makeComponent('vip-offer')])]);
+
+            const context: PageProcessorContext = {
+                qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+                componentInfo: {
+                    'public-banner': {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                    'vip-offer': {
+                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            expect(result.regions?.[0].components?.map((c) => c.id)).toEqual(['public-banner']);
+        });
+
+        test('keeps components whose visibility rules pass', () => {
+            const page = makePage([makeRegion('main', [makeComponent('vip-offer')])]);
+
+            const context: PageProcessorContext = {
+                qualifiers: { customerGroups: { vip: true }, campaignQualifiers: {} },
+                componentInfo: {
+                    'vip-offer': {
+                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            expect(result.regions?.[0].components).toHaveLength(1);
+        });
+
+        test('keeps component when any visibility rule passes (OR logic)', () => {
+            const page = makePage([makeRegion('main', [makeComponent('promo')])]);
+
+            const context: PageProcessorContext = {
+                qualifiers: {
+                    customerGroups: { vip: true },
+                    campaignQualifiers: {},
+                },
+                componentInfo: {
+                    promo: {
+                        visibilityRules: [
+                            { isActiveForLocale: true, customerGroups: ['vip'] },
+                            {
+                                isActiveForLocale: true,
+                                campaignQualifiers: [{ campaignId: 'sale', promotionId: 'discount' }],
+                            },
+                        ],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            expect(result.regions?.[0].components).toHaveLength(1);
+            expect(result.regions?.[0].components?.[0].id).toBe('promo');
+        });
+
+        test('removes component when all visibility rules fail', () => {
+            const page = makePage([makeRegion('main', [makeComponent('promo')])]);
+
+            const context: PageProcessorContext = {
+                qualifiers: {
+                    customerGroups: {},
+                    campaignQualifiers: {},
+                },
+                componentInfo: {
+                    promo: {
+                        visibilityRules: [
+                            { isActiveForLocale: true, customerGroups: ['vip'] },
+                            {
+                                isActiveForLocale: true,
+                                campaignQualifiers: [{ campaignId: 'sale', promotionId: 'discount' }],
+                            },
+                        ],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            expect(result.regions?.[0].components).toHaveLength(0);
+        });
     });
 
-    test('removes components whose visibility rules fail', () => {
-        const page = makePage([makeRegion('main', [makeComponent('public-banner'), makeComponent('vip-offer')])]);
+    describe('descendant traversal', () => {
+        test('traverses children when hasAnyDescendantVisibilityRules is true', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('container', {
+                        regions: [makeRegion('inner', [makeComponent('nested-vip')])],
+                    }),
+                ]),
+            ]);
 
-        const context: PageProcessorContext = {
-            qualifiers: { customerGroups: {}, campaignQualifiers: {} },
-            componentInfo: {
-                'public-banner': { visibilityRules: [], hasVisibilityRules: false },
-                'vip-offer': {
-                    visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                    hasVisibilityRules: true,
+            const context: PageProcessorContext = {
+                qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+                componentInfo: {
+                    container: {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: true,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                    'nested-vip': {
+                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
                 },
-            },
-        };
+            };
 
-        const result = processPage(page, context);
-        expect(result.regions?.[0].components?.map((c) => c.id)).toEqual(['public-banner']);
+            const result = processPage(page, context);
+            const container = result.regions?.[0].components?.[0];
+            expect(container?.id).toBe('container');
+            expect(container?.regions?.[0].components).toHaveLength(0);
+        });
+
+        test('traverses children when hasAnyDescendantDataBindings is true', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('container', {
+                        regions: [
+                            makeRegion('inner', [
+                                makeComponent('bound-child', {
+                                    data: { heading: 'Fallback' } as unknown as Component['data'],
+                                    custom: {
+                                        dataBinding: {
+                                            expressions: { heading: 'content_asset.title' },
+                                            contexts: [{ type: 'content_asset', id: 'asset-1' }],
+                                        },
+                                    } as unknown as Component['custom'],
+                                }),
+                            ]),
+                        ],
+                    }),
+                ]),
+            ]);
+
+            const context: PageProcessorContext = {
+                qualifiers: {
+                    customerGroups: {},
+                    campaignQualifiers: {},
+                    dataBindings: {
+                        content_asset: { 'asset-1': { title: 'Resolved Title' } },
+                    },
+                },
+                componentInfo: {
+                    container: {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: true,
+                    },
+                    'bound-child': {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const child = result.regions?.[0].components?.[0].regions?.[0].components?.[0];
+            expect((child?.data as Record<string, unknown>).heading).toBe('Resolved Title');
+        });
+
+        test('traverses children when component is not in componentInfo', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('unknown-container', {
+                        regions: [makeRegion('inner', [makeComponent('nested-vip')])],
+                    }),
+                ]),
+            ]);
+
+            const context: PageProcessorContext = {
+                qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+                componentInfo: {
+                    'nested-vip': {
+                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const container = result.regions?.[0].components?.[0];
+            expect(container?.id).toBe('unknown-container');
+            expect(container?.regions?.[0].components).toHaveLength(0);
+        });
+
+        test('skips traversal when both descendant flags are false', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('container', {
+                        regions: [makeRegion('inner', [makeComponent('child')])],
+                    }),
+                ]),
+            ]);
+
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                componentInfo: {
+                    container: {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                    child: {
+                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const container = result.regions?.[0].components?.[0];
+            // Child is preserved because the container's descendants were not traversed
+            expect(container?.regions?.[0].components).toHaveLength(1);
+        });
     });
 
-    test('keeps components whose visibility rules pass', () => {
-        const page = makePage([makeRegion('main', [makeComponent('vip-offer')])]);
+    describe('data binding resolution', () => {
+        test('resolves data binding expressions on components', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('banner', {
+                        data: { heading: 'Fallback' } as unknown as Component['data'],
+                        custom: {
+                            dataBinding: {
+                                expressions: { heading: 'content_asset.title' },
+                                contexts: [{ type: 'content_asset', id: 'asset-1' }],
+                            },
+                        } as unknown as Component['custom'],
+                    }),
+                ]),
+            ]);
 
-        const context: PageProcessorContext = {
-            qualifiers: { customerGroups: { vip: true }, campaignQualifiers: {} },
-            componentInfo: {
-                'vip-offer': {
-                    visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                    hasVisibilityRules: true,
+            const context: PageProcessorContext = {
+                qualifiers: {
+                    customerGroups: {},
+                    campaignQualifiers: {},
+                    dataBindings: {
+                        content_asset: { 'asset-1': { title: 'Winter Sale' } },
+                    },
                 },
-            },
-        };
-
-        const result = processPage(page, context);
-        expect(result.regions?.[0].components).toHaveLength(1);
-    });
-
-    test('keeps component when any visibility rule passes (OR logic)', () => {
-        const page = makePage([makeRegion('main', [makeComponent('promo')])]);
-
-        const context: PageProcessorContext = {
-            qualifiers: {
-                customerGroups: { vip: true },
-                campaignQualifiers: {},
-            },
-            componentInfo: {
-                promo: {
-                    visibilityRules: [
-                        { isActiveForLocale: true, customerGroups: ['vip'] },
-                        {
-                            isActiveForLocale: true,
-                            campaignQualifiers: [{ campaignId: 'sale', promotionId: 'discount' }],
-                        },
-                    ],
-                    hasVisibilityRules: true,
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
                 },
-            },
-        };
+            };
 
-        const result = processPage(page, context);
-        expect(result.regions?.[0].components).toHaveLength(1);
-        expect(result.regions?.[0].components?.[0].id).toBe('promo');
-    });
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            expect(data.heading).toBe('Winter Sale');
+        });
 
-    test('removes component when all visibility rules fail', () => {
-        const page = makePage([makeRegion('main', [makeComponent('promo')])]);
+        test('leaves components unchanged when no dataBindings are provided', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('banner', {
+                        data: { heading: 'Static' } as unknown as Component['data'],
+                    }),
+                ]),
+            ]);
 
-        const context: PageProcessorContext = {
-            qualifiers: {
-                customerGroups: {},
-                campaignQualifiers: {},
-            },
-            componentInfo: {
-                promo: {
-                    visibilityRules: [
-                        { isActiveForLocale: true, customerGroups: ['vip'] },
-                        {
-                            isActiveForLocale: true,
-                            campaignQualifiers: [{ campaignId: 'sale', promotionId: 'discount' }],
-                        },
-                    ],
-                    hasVisibilityRules: true,
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        hasAnyDescendantVisibilityRules: false,
+                        hasAnyDescendantDataBindings: false,
+                    },
                 },
-            },
-        };
+            };
 
-        const result = processPage(page, context);
-        expect(result.regions?.[0].components).toHaveLength(0);
-    });
-
-    test('traverses nested components with hasVisibilityRules', () => {
-        const page = makePage([
-            makeRegion('main', [makeComponent('container', [makeRegion('inner', [makeComponent('nested-vip')])])]),
-        ]);
-
-        const context: PageProcessorContext = {
-            qualifiers: { customerGroups: {}, campaignQualifiers: {} },
-            componentInfo: {
-                container: { visibilityRules: [], hasVisibilityRules: true },
-                'nested-vip': {
-                    visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                    hasVisibilityRules: true,
-                },
-            },
-        };
-
-        const result = processPage(page, context);
-        const container = result.regions?.[0].components?.[0];
-        expect(container?.id).toBe('container');
-        expect(container?.regions?.[0].components).toHaveLength(0);
-    });
-
-    test('skips traversal for components with hasVisibilityRules: false', () => {
-        const page = makePage([
-            makeRegion('main', [makeComponent('container', [makeRegion('inner', [makeComponent('child')])])]),
-        ]);
-
-        const context: PageProcessorContext = {
-            qualifiers: null,
-            componentInfo: {
-                container: { visibilityRules: [], hasVisibilityRules: false },
-                child: {
-                    visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                    hasVisibilityRules: true,
-                },
-            },
-        };
-
-        const result = processPage(page, context);
-        const container = result.regions?.[0].components?.[0];
-        expect(container?.regions?.[0].components).toHaveLength(1);
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            expect(data.heading).toBe('Static');
+        });
     });
 
     test('handles page with no regions', () => {
@@ -207,17 +382,22 @@ describe('processPage', () => {
     test('does not mutate the original page object', () => {
         const innerComponent = makeComponent('nested-vip');
         const innerRegion = makeRegion('inner', [innerComponent]);
-        const container = makeComponent('container', [innerRegion]);
+        const container = makeComponent('container', { regions: [innerRegion] });
         const mainRegion = makeRegion('main', [container]);
         const page = makePage([mainRegion]);
 
         const context: PageProcessorContext = {
             qualifiers: { customerGroups: {}, campaignQualifiers: {} },
             componentInfo: {
-                container: { visibilityRules: [], hasVisibilityRules: true },
+                container: {
+                    visibilityRules: [],
+                    hasAnyDescendantVisibilityRules: true,
+                    hasAnyDescendantDataBindings: false,
+                },
                 'nested-vip': {
                     visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                    hasVisibilityRules: true,
+                    hasAnyDescendantVisibilityRules: false,
+                    hasAnyDescendantDataBindings: false,
                 },
             },
         };

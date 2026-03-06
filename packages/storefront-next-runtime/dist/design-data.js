@@ -333,6 +333,125 @@ function transformRegion(region, visitor) {
 }
 
 //#endregion
+//#region src/design/data/page/resolve-data-bindings.ts
+/**
+* Pattern matching bare expressions: `type.field`.
+*/
+const BARE_EXPRESSION_PATTERN = /^(\w+)\.(\w+)$/;
+/**
+* Parses a binding expression string into its provider type and field name.
+* Supports the bare `type.field` format.
+*
+* @param expression - The expression string to parse.
+* @returns The parsed type and field, or `null` if the expression is invalid.
+*
+* @example
+* ```ts
+* parseExpression('content_asset.title');  // { type: 'content_asset', field: 'title' }
+* parseExpression('invalid');              // null
+* ```
+*/
+function parseExpression(expression) {
+	const match = expression.trim().match(BARE_EXPRESSION_PATTERN);
+	if (match) return {
+		type: match[1],
+		field: match[2]
+	};
+	return null;
+}
+/**
+* Resolves a single binding expression against the component's data contexts
+* and the resolved data bindings from context resolution.
+*
+* Returns the resolved field value, or an empty string if the expression is
+* invalid, the matching context or record is not found, or the field does not
+* exist on the resolved record.
+*
+* @param expression - The expression string (e.g. `"content_asset.body"`).
+* @param contexts - The component's data binding contexts.
+* @param dataBindings - The resolved data bindings from {@link QualifierContext}.
+* @returns The resolved value, or `''` if resolution fails.
+*/
+function resolveExpression(expression, contexts, dataBindings) {
+	const parsed = parseExpression(expression);
+	if (!parsed) return "";
+	const context = contexts.find((c) => c.type === parsed.type);
+	if (!context) return "";
+	const record = dataBindings[context.type]?.[context.id];
+	if (!record) return "";
+	return record[parsed.field] ?? "";
+}
+/**
+* Extracts the {@link ComponentDataBinding} metadata from a component's
+* `custom` field. Returns `undefined` if the component has no data binding
+* configuration.
+*/
+function getDataBinding(component) {
+	return component.custom?.dataBinding;
+}
+/**
+* Resolves data binding expressions for a single component. Replaces attribute
+* values in the component's `data` with the resolved values from context
+* resolution. Attributes without a matching expression are preserved as-is.
+* When an expression cannot be resolved, the attribute value is set to an
+* empty string.
+*
+* Returns the component unchanged if it has no data binding metadata or if
+* `dataBindings` is `undefined`.
+*
+* @param component - The component to resolve data bindings for.
+* @param dataBindings - The resolved data bindings from {@link QualifierContext}, or `undefined` if no bindings were resolved.
+* @returns The component with resolved attribute values, or the original component if no bindings apply.
+*
+* @example
+* ```ts
+* import { resolveComponentDataBindings } from '@salesforce/storefront-next-runtime/design/data';
+*
+* const component = {
+*     id: 'banner',
+*     typeId: 'commerce_assets.contentBanner',
+*     data: { heading: 'Fallback Title', body: 'Fallback Body' },
+*     custom: {
+*         dataBinding: {
+*             expressions: {
+*                 heading: 'content_asset.title',
+*                 body: 'content_asset.body',
+*             },
+*             contexts: [{ type: 'content_asset', id: 'winter-sale-uuid' }],
+*         },
+*     },
+*     regions: [],
+* };
+*
+* const dataBindings = {
+*     content_asset: {
+*         'winter-sale-uuid': {
+*             title: 'Winter Sale',
+*             body: '<div>Free Shipping on all orders!</div>',
+*         },
+*     },
+* };
+*
+* const resolved = resolveComponentDataBindings(component, dataBindings);
+* // resolved.data.heading === 'Winter Sale'
+* // resolved.data.body === '<div>Free Shipping on all orders!</div>'
+* ```
+*/
+function resolveComponentDataBindings(component, dataBindings) {
+	if (!dataBindings) return component;
+	const binding = getDataBinding(component);
+	if (!binding?.contexts?.length) return component;
+	const expressionEntries = Object.entries(binding.expressions ?? {});
+	if (expressionEntries.length === 0) return component;
+	const resolvedData = { ...component.data };
+	for (const [attrName, expression] of expressionEntries) resolvedData[attrName] = resolveExpression(expression, binding.contexts, dataBindings);
+	return {
+		...component,
+		data: resolvedData
+	};
+}
+
+//#endregion
 //#region src/design/data/validate-rule.ts
 /**
 * Evaluates a visibility rule against a shopper's qualifier context.
@@ -400,17 +519,22 @@ function validateRule(rule, context) {
 //#endregion
 //#region src/design/data/page/process-page.ts
 /**
-* Filters a page's components based on their visibility rules. Traverses the
-* page tree using the visitor pattern and removes any component whose
-* visibility rules do not pass against the shopper's qualifier context.
+* Filters a page's components based on their visibility rules and resolves
+* data binding expressions in a single traversal. Traverses the page tree
+* using the visitor pattern and:
+*
+* 1. Removes any component whose visibility rules do not pass against the
+*    shopper's qualifier context.
+* 2. Resolves data binding expressions in each surviving component's `data`
+*    attributes using the resolved data bindings from context resolution.
 *
 * A component is visible if **any** of its visibility rules pass (OR logic).
 * If a component has rules and none of them pass, it is removed. Components
 * without rules are always included.
 *
 * @param page - The page to process.
-* @param context - The processing context with qualifier data and visibility rules.
-* @returns A new page with invisible components filtered out.
+* @param context - The processing context with qualifier data, visibility rules, and resolved data bindings.
+* @returns A new page with invisible components filtered out and data binding expressions resolved.
 *
 * @example
 * ```ts
@@ -449,17 +573,16 @@ function validateRule(rule, context) {
 function processPage(page, processorContext) {
 	return transformPage(page, { visitComponent(ctx) {
 		const componentInfo = processorContext.componentInfo[ctx.node.id];
-		if (componentInfo?.hasVisibilityRules) {
-			const visibilityRules = componentInfo.visibilityRules ?? [];
-			if (visibilityRules.length > 0) {
-				if (!visibilityRules.some((rule) => validateRule(rule, processorContext.qualifiers))) return null;
-			}
-			return {
-				...ctx.node,
-				regions: ctx.visitRegions(ctx.node.regions)
-			};
+		const visibilityRules = componentInfo?.visibilityRules ?? [];
+		if (visibilityRules.length > 0) {
+			if (!visibilityRules.some((rule) => validateRule(rule, processorContext.qualifiers))) return null;
 		}
-		return ctx.node;
+		const resolved = resolveComponentDataBindings(ctx.node, processorContext.qualifiers?.dataBindings);
+		if (!componentInfo || componentInfo.hasAnyDescendantVisibilityRules || componentInfo.hasAnyDescendantDataBindings) return {
+			...resolved,
+			regions: ctx.visitRegions(ctx.node.regions)
+		};
+		return resolved;
 	} });
 }
 
@@ -629,7 +752,7 @@ function resolveDynamicPageId({ id, identifierType, siteManifest, aspectType }) 
 * const manifest = {
 *     pageId: 'homepage',
 *     locale: 'en-US',
-*     context: { campaignQualifiers: [], customerGroups: ['vip-customers'] },
+*     context: { campaignQualifiers: [], customerGroups: ['vip-customers'], dataBindings: [] },
 *     variationOrder: ['vip-homepage', 'holiday-homepage'],
 *     variations: {
 *         'vip-homepage': {
@@ -781,5 +904,5 @@ async function resolvePage({ id, identifierType, aspectType, locale, manifestSto
 }
 
 //#endregion
-export { ContentAssignmentResolvers, RequiredError, getPageFromManifest, processPage, resolveDynamicPageId, resolvePage, transformComponent, transformPage, transformRegion, validateRule };
+export { ContentAssignmentResolvers, RequiredError, getPageFromManifest, parseExpression, processPage, resolveComponentDataBindings, resolveDynamicPageId, resolveExpression, resolvePage, transformComponent, transformPage, transformRegion, validateRule };
 //# sourceMappingURL=design-data.js.map

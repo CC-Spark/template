@@ -29,7 +29,7 @@ const makeVariation = (overrides: Partial<VariationEntry> = {}): VariationEntry 
 const makeManifest = (overrides: Partial<PageManifest> = {}): PageManifest => ({
     pageId: 'test-page',
     locale: 'en-US',
-    context: { campaignQualifiers: [], customerGroups: [] },
+    context: { campaignQualifiers: [], customerGroups: [], dataBindings: [] },
     variationOrder: [],
     variations: {},
     defaultVariation: 'default',

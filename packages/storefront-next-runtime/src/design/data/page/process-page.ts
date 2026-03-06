@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { transformPage } from './transform';
+import { resolveComponentDataBindings } from './resolve-data-bindings';
 import { validateRule } from '../validate-rule';
 import type { QualifierContext, PageManifest } from '../types';
 import type { ShopperExperience } from '@/scapi-client/types';
@@ -30,17 +31,22 @@ export interface PageProcessorContext {
 }
 
 /**
- * Filters a page's components based on their visibility rules. Traverses the
- * page tree using the visitor pattern and removes any component whose
- * visibility rules do not pass against the shopper's qualifier context.
+ * Filters a page's components based on their visibility rules and resolves
+ * data binding expressions in a single traversal. Traverses the page tree
+ * using the visitor pattern and:
+ *
+ * 1. Removes any component whose visibility rules do not pass against the
+ *    shopper's qualifier context.
+ * 2. Resolves data binding expressions in each surviving component's `data`
+ *    attributes using the resolved data bindings from context resolution.
  *
  * A component is visible if **any** of its visibility rules pass (OR logic).
  * If a component has rules and none of them pass, it is removed. Components
  * without rules are always included.
  *
  * @param page - The page to process.
- * @param context - The processing context with qualifier data and visibility rules.
- * @returns A new page with invisible components filtered out.
+ * @param context - The processing context with qualifier data, visibility rules, and resolved data bindings.
+ * @returns A new page with invisible components filtered out and data binding expressions resolved.
  *
  * @example
  * ```ts
@@ -83,34 +89,36 @@ export function processPage(
     return transformPage(page, {
         visitComponent(ctx) {
             const componentInfo = processorContext.componentInfo[ctx.node.id];
+            const visibilityRules = componentInfo?.visibilityRules ?? [];
 
-            // If this component and any of it's children don't have visibility rules,
-            // we can skip processing them and just return the node.
-            if (componentInfo?.hasVisibilityRules) {
-                const visibilityRules = componentInfo.visibilityRules ?? [];
+            // Visibility rules use OR logic: the component is visible
+            // if ANY rule passes. Only remove it when it has its own
+            // rules and none of them pass.
+            if (visibilityRules.length > 0) {
+                const anyRulePassed = visibilityRules.some((rule) => validateRule(rule, processorContext.qualifiers));
 
-                // Visibility rules use OR logic: the component is visible
-                // if ANY rule passes. Only remove it when it has its own
-                // rules and none of them pass.
-                if (visibilityRules.length > 0) {
-                    const anyRulePassed = visibilityRules.some((rule) =>
-                        validateRule(rule, processorContext.qualifiers)
-                    );
-
-                    if (!anyRulePassed) {
-                        return null;
-                    }
+                if (!anyRulePassed) {
+                    return null;
                 }
+            }
 
-                // Either no own rules (children have rules) or a rule
-                // passed — keep traversing the tree.
+            const resolved = resolveComponentDataBindings(ctx.node, processorContext.qualifiers?.dataBindings);
+
+            // If this component and any of it's children don't have visibility rules or data bindings,
+            // we can skip processing them and just return the node.
+            // If we can't determine any component info, we can't assume any descendants don't have rules or data bindings.
+            if (
+                !componentInfo ||
+                componentInfo.hasAnyDescendantVisibilityRules ||
+                componentInfo.hasAnyDescendantDataBindings
+            ) {
                 return {
-                    ...ctx.node,
+                    ...resolved,
                     regions: ctx.visitRegions(ctx.node.regions),
                 };
             }
 
-            return ctx.node;
+            return resolved;
         },
     }) as ShopperExperience.schemas['Page'];
 }

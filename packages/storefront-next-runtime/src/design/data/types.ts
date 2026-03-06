@@ -44,7 +44,9 @@ export interface PageManifest {
             /** The visibility rules for this component. */
             visibilityRules: VisibilityRuleDef[];
             /** Whether this component or any of its descendants have visibility rules. */
-            hasVisibilityRules: boolean;
+            hasAnyDescendantVisibilityRules: boolean;
+            /** Whether this component or any of its descendants has data bindings. */
+            hasAnyDescendantDataBindings: boolean;
         };
     };
 }
@@ -110,6 +112,23 @@ export interface PageManifestContext {
     campaignQualifiers: CampaignQualifier[];
     /** All customer group IDs referenced by any variation's visibility rule. */
     customerGroups: string[];
+    /** All data bindings required by components on this page, hoisted for batch resolution. */
+    dataBindings: DataBindingRequirement[];
+}
+
+/**
+ * A single data binding requirement declared by a component. The `type`
+ * identifies the data provider (e.g. `"content_asset"`, `"product"`) and the
+ * `id` identifies the specific record within that provider.
+ *
+ * These requirements are hoisted into {@link PageManifestContext} so MRT can
+ * request all required external data in a single batch during context resolution.
+ */
+export interface DataBindingRequirement {
+    /** The data provider type (e.g. `"content_asset"`, `"product"`, `"personalization"`). */
+    type: string;
+    /** The UUID or identifier of the specific record. */
+    id: string;
 }
 
 /**
@@ -179,6 +198,25 @@ export interface QualifierContext {
     customerGroups: {
         [customerGroupId: string]: boolean;
     };
+    /**
+     * Resolved data binding objects returned from context resolution. Grouped
+     * by provider type, then by record ID. The `ExpressionResolver` uses this
+     * to evaluate attribute expressions like `content_asset.body`.
+     */
+    dataBindings?: {
+        [type: string]: {
+            [id: string]: ResolvedDataBinding;
+        };
+    };
+}
+
+/**
+ * A resolved data binding object containing the fields returned by the data
+ * provider for a specific record. For example, a resolved `content_asset`
+ * might contain `{ title: "Winter Sale", body: "<div>…</div>" }`.
+ */
+export interface ResolvedDataBinding {
+    [field: string]: unknown;
 }
 
 /**

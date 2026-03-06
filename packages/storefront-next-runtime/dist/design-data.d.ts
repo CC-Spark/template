@@ -31,7 +31,9 @@ interface PageManifest {
       /** The visibility rules for this component. */
       visibilityRules: VisibilityRuleDef[];
       /** Whether this component or any of its descendants have visibility rules. */
-      hasVisibilityRules: boolean;
+      hasAnyDescendantVisibilityRules: boolean;
+      /** Whether this component or any of its descendants has data bindings. */
+      hasAnyDescendantDataBindings: boolean;
     };
   };
 }
@@ -94,6 +96,22 @@ interface PageManifestContext {
   campaignQualifiers: CampaignQualifier[];
   /** All customer group IDs referenced by any variation's visibility rule. */
   customerGroups: string[];
+  /** All data bindings required by components on this page, hoisted for batch resolution. */
+  dataBindings: DataBindingRequirement[];
+}
+/**
+ * A single data binding requirement declared by a component. The `type`
+ * identifies the data provider (e.g. `"content_asset"`, `"product"`) and the
+ * `id` identifies the specific record within that provider.
+ *
+ * These requirements are hoisted into {@link PageManifestContext} so MRT can
+ * request all required external data in a single batch during context resolution.
+ */
+interface DataBindingRequirement {
+  /** The data provider type (e.g. `"content_asset"`, `"product"`, `"personalization"`). */
+  type: string;
+  /** The UUID or identifier of the specific record. */
+  id: string;
 }
 /**
  * A single page variation within a {@link PageManifest}. Each variation holds
@@ -160,6 +178,24 @@ interface QualifierContext {
   customerGroups: {
     [customerGroupId: string]: boolean;
   };
+  /**
+   * Resolved data binding objects returned from context resolution. Grouped
+   * by provider type, then by record ID. The `ExpressionResolver` uses this
+   * to evaluate attribute expressions like `content_asset.body`.
+   */
+  dataBindings?: {
+    [type: string]: {
+      [id: string]: ResolvedDataBinding;
+    };
+  };
+}
+/**
+ * A resolved data binding object containing the fields returned by the data
+ * provider for a specific record. For example, a resolved `content_asset`
+ * might contain `{ title: "Winter Sale", body: "<div>…</div>" }`.
+ */
+interface ResolvedDataBinding {
+  [field: string]: unknown;
 }
 /**
  * The type of identifier used to look up a page. Determines how the ID is
@@ -195,17 +231,22 @@ interface PageProcessorContext {
   componentInfo: PageManifest['componentInfo'];
 }
 /**
- * Filters a page's components based on their visibility rules. Traverses the
- * page tree using the visitor pattern and removes any component whose
- * visibility rules do not pass against the shopper's qualifier context.
+ * Filters a page's components based on their visibility rules and resolves
+ * data binding expressions in a single traversal. Traverses the page tree
+ * using the visitor pattern and:
+ *
+ * 1. Removes any component whose visibility rules do not pass against the
+ *    shopper's qualifier context.
+ * 2. Resolves data binding expressions in each surviving component's `data`
+ *    attributes using the resolved data bindings from context resolution.
  *
  * A component is visible if **any** of its visibility rules pass (OR logic).
  * If a component has rules and none of them pass, it is removed. Components
  * without rules are always included.
  *
  * @param page - The page to process.
- * @param context - The processing context with qualifier data and visibility rules.
- * @returns A new page with invisible components filtered out.
+ * @param context - The processing context with qualifier data, visibility rules, and resolved data bindings.
+ * @returns A new page with invisible components filtered out and data binding expressions resolved.
  *
  * @example
  * ```ts
@@ -521,6 +562,109 @@ declare class RequiredError extends Error {
   static assert<TValue>(value: TValue, message: string, isEmpty?: (value: TValue) => boolean): asserts value is NonNullable<TValue>;
 }
 //#endregion
+//#region src/design/data/page/resolve-data-bindings.d.ts
+/**
+ * Data binding metadata attached to a component instance. Stored in the
+ * component's `custom.dataBinding` field by ECOM when the author binds a
+ * data source to the component in Page Designer.
+ */
+interface ComponentDataBinding {
+  /** Maps attribute names to expression strings (e.g. `"content_asset.body"`). */
+  expressions: Record<string, string>;
+  /** The data contexts bound to this component, identifying the records to resolve against. */
+  contexts: DataBindingContext[];
+}
+/**
+ * A data context reference on a component instance, identifying a specific
+ * record from a data provider.
+ */
+interface DataBindingContext {
+  /** The data provider type (e.g. `"content_asset"`). */
+  type: string;
+  /** The record identifier (e.g. a content asset UUID). */
+  id: string;
+}
+/**
+ * Parses a binding expression string into its provider type and field name.
+ * Supports the bare `type.field` format.
+ *
+ * @param expression - The expression string to parse.
+ * @returns The parsed type and field, or `null` if the expression is invalid.
+ *
+ * @example
+ * ```ts
+ * parseExpression('content_asset.title');  // { type: 'content_asset', field: 'title' }
+ * parseExpression('invalid');              // null
+ * ```
+ */
+declare function parseExpression(expression: string): {
+  type: string;
+  field: string;
+} | null;
+/**
+ * Resolves a single binding expression against the component's data contexts
+ * and the resolved data bindings from context resolution.
+ *
+ * Returns the resolved field value, or an empty string if the expression is
+ * invalid, the matching context or record is not found, or the field does not
+ * exist on the resolved record.
+ *
+ * @param expression - The expression string (e.g. `"content_asset.body"`).
+ * @param contexts - The component's data binding contexts.
+ * @param dataBindings - The resolved data bindings from {@link QualifierContext}.
+ * @returns The resolved value, or `''` if resolution fails.
+ */
+declare function resolveExpression(expression: string, contexts: DataBindingContext[], dataBindings: NonNullable<QualifierContext['dataBindings']>): unknown;
+/**
+ * Resolves data binding expressions for a single component. Replaces attribute
+ * values in the component's `data` with the resolved values from context
+ * resolution. Attributes without a matching expression are preserved as-is.
+ * When an expression cannot be resolved, the attribute value is set to an
+ * empty string.
+ *
+ * Returns the component unchanged if it has no data binding metadata or if
+ * `dataBindings` is `undefined`.
+ *
+ * @param component - The component to resolve data bindings for.
+ * @param dataBindings - The resolved data bindings from {@link QualifierContext}, or `undefined` if no bindings were resolved.
+ * @returns The component with resolved attribute values, or the original component if no bindings apply.
+ *
+ * @example
+ * ```ts
+ * import { resolveComponentDataBindings } from '@salesforce/storefront-next-runtime/design/data';
+ *
+ * const component = {
+ *     id: 'banner',
+ *     typeId: 'commerce_assets.contentBanner',
+ *     data: { heading: 'Fallback Title', body: 'Fallback Body' },
+ *     custom: {
+ *         dataBinding: {
+ *             expressions: {
+ *                 heading: 'content_asset.title',
+ *                 body: 'content_asset.body',
+ *             },
+ *             contexts: [{ type: 'content_asset', id: 'winter-sale-uuid' }],
+ *         },
+ *     },
+ *     regions: [],
+ * };
+ *
+ * const dataBindings = {
+ *     content_asset: {
+ *         'winter-sale-uuid': {
+ *             title: 'Winter Sale',
+ *             body: '<div>Free Shipping on all orders!</div>',
+ *         },
+ *     },
+ * };
+ *
+ * const resolved = resolveComponentDataBindings(component, dataBindings);
+ * // resolved.data.heading === 'Winter Sale'
+ * // resolved.data.body === '<div>Free Shipping on all orders!</div>'
+ * ```
+ */
+declare function resolveComponentDataBindings(component: ShopperExperience.schemas['Component'], dataBindings: QualifierContext['dataBindings']): ShopperExperience.schemas['Component'];
+//#endregion
 //#region src/design/data/page/resolve-page.d.ts
 /**
  * Main entry point for the page resolution pipeline. Orchestrates the full flow:
@@ -678,7 +822,7 @@ declare function resolveDynamicPageId<TIdentifier extends IdentifierType = Ident
  * const manifest = {
  *     pageId: 'homepage',
  *     locale: 'en-US',
- *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'] },
+ *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'], dataBindings: [] },
  *     variationOrder: ['vip-homepage', 'holiday-homepage'],
  *     variations: {
  *         'vip-homepage': {
@@ -835,5 +979,5 @@ declare const ContentAssignmentResolvers: Map<string, ContentAssignmentResolver>
  */
 declare function validateRule(rule: VisibilityRuleDef, context?: QualifierContext | null): boolean;
 //#endregion
-export { CampaignQualifier, ContentAssignmentResolvers, IdentifierType, InferNodeFromType, ManifestStorage, PageManifest, PageManifestContext, type PageProcessorContext, type PageVisitor, QualifierContext, RequiredError, SiteManifest, VariationEntry, VisibilityRuleDef, type VisitorContext, VisitorContextType, getPageFromManifest, processPage, resolveDynamicPageId, resolvePage, transformComponent, transformPage, transformRegion, validateRule };
+export { CampaignQualifier, type ComponentDataBinding, ContentAssignmentResolvers, type DataBindingContext, DataBindingRequirement, IdentifierType, InferNodeFromType, ManifestStorage, PageManifest, PageManifestContext, type PageProcessorContext, type PageVisitor, QualifierContext, RequiredError, ResolvedDataBinding, SiteManifest, VariationEntry, VisibilityRuleDef, type VisitorContext, VisitorContextType, getPageFromManifest, parseExpression, processPage, resolveComponentDataBindings, resolveDynamicPageId, resolveExpression, resolvePage, transformComponent, transformPage, transformRegion, validateRule };
 //# sourceMappingURL=design-data.d.ts.map

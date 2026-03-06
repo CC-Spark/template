@@ -27,7 +27,7 @@ const makePage = (id = 'resolved-page') => ({
 const makePageManifest = (overrides: Partial<PageManifest> = {}): PageManifest => ({
     pageId: 'test-page',
     locale: 'en-US',
-    context: { campaignQualifiers: [], customerGroups: [] },
+    context: { campaignQualifiers: [], customerGroups: [], dataBindings: [] },
     variationOrder: ['default'],
     variations: {
         default: {
@@ -291,10 +291,15 @@ describe('resolvePage', () => {
                 },
             },
             componentInfo: {
-                'public-banner': { visibilityRules: [], hasVisibilityRules: false },
+                'public-banner': {
+                    visibilityRules: [],
+                    hasAnyDescendantVisibilityRules: false,
+                    hasAnyDescendantDataBindings: false,
+                },
                 'vip-offer': {
                     visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                    hasVisibilityRules: true,
+                    hasAnyDescendantVisibilityRules: true,
+                    hasAnyDescendantDataBindings: false,
                 },
             },
         });

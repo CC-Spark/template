@@ -37,7 +37,7 @@ import { validateRule } from '../validate-rule';
  * const manifest = {
  *     pageId: 'homepage',
  *     locale: 'en-US',
- *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'] },
+ *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'], dataBindings: [] },
  *     variationOrder: ['vip-homepage', 'holiday-homepage'],
  *     variations: {
  *         'vip-homepage': {
