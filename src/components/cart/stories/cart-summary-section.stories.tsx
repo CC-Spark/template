@@ -27,6 +27,7 @@ import {
 } from '@/components/__mocks__/basket-with-dress';
 import { basketWithMultipleItems, inBasketProductDetails } from '@/components/__mocks__/basket-with-multiple-items';
 import { getTranslation } from '@/lib/i18next';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -389,7 +390,9 @@ This component is used by CartContent and integrates with:
     decorators: [
         (Story: React.ComponentType) => (
             <ActionLogger>
-                <Story />
+                <CurrencyWrapper currency="GBP">
+                    <Story />
+                </CurrencyWrapper>
             </ActionLogger>
         ),
     ],

@@ -80,7 +80,7 @@ const MODAL_WIDTH_CLASSES = {
  * @returns ReactElement
  */
 export default function InfoModal({ open, onOpenChange, data, className }: InfoModalProps): ReactElement {
-    const currency = useCurrency() || 'USD';
+    const currency = useCurrency();
     const { t } = useTranslation('infoModal');
     const { t: tProduct } = useTranslation('product');
 

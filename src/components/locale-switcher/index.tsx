@@ -21,12 +21,21 @@ import { useFetcher } from 'react-router';
 
 import { NativeSelect } from '@/components/ui/native-select';
 import { useConfig } from '@/config';
+import { useSite } from '@salesforce/storefront-next-runtime/multi-site';
 
 export default function LocaleSwitcher(): ReactElement {
     const id = useId();
     const { t, i18n } = useTranslation('localeSwitcher');
     const fetcher = useFetcher();
     const config = useConfig();
+    const site = useSite();
+
+    // Show only languages the app has translations for AND the current site supports.
+    // This ensures each site's locale-switcher only shows relevant options.
+    const siteLocaleIds = site ? new Set(site.supportedLocales.map((l) => l.id)) : null;
+    const supportedLngs = siteLocaleIds
+        ? config.i18n.supportedLngs.filter((lng) => siteLocaleIds.has(lng))
+        : config.i18n.supportedLngs;
 
     const handleLocaleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newLocale = e.target.value;
@@ -50,7 +59,7 @@ export default function LocaleSwitcher(): ReactElement {
                 onChange={(e) => void handleLocaleChange(e)}
                 aria-label={t('ariaLabel')}
                 value={i18n.language}>
-                {config.i18n.supportedLngs.map((locale) => {
+                {supportedLngs.map((locale) => {
                     return (
                         <option key={locale} value={locale}>
                             {t(`locales.${locale}`, { defaultValue: locale })}

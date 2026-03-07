@@ -45,7 +45,7 @@ interface WishlistListItemProps {
 export function WishlistListItem({ product, wishlistItem, onRemove }: WishlistListItemProps): ReactElement {
     const { t } = useTranslation('product');
     const config = useConfig();
-    const currency = useCurrency() ?? '';
+    const currency = useCurrency();
     const { addToast } = useToast();
     const removeFetcher = useFetcher<{ success: boolean; error?: string }>();
     const hasHandledResponse = useRef(false);

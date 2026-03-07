@@ -10,7 +10,7 @@ exports[`ProductTileContext stories snapshot > Default story renders and matches
   <dd
     data-testid="currency"
   >
-    undefined
+    GBP
   </dd>
   <dt>
     swatchMode

@@ -67,11 +67,11 @@ exports[`OrderItemsList stories snapshot > Default story renders and matches sna
           class="items-center gap-2"
         >
           <span
-            aria-label="Current price: $61.99"
+            aria-label="Current price: £61.99"
             aria-live="polite"
             class="leading-7 [&:not(:first-child)]:mt-6 text-left font-semibold"
           >
-            $61.99
+            £61.99
           </span>
           <span
             aria-atomic="true"
@@ -79,14 +79,14 @@ exports[`OrderItemsList stories snapshot > Default story renders and matches sna
             class="sr-only"
           >
             Sweater
-            Current price: $61.99
+            Current price: £61.99
           </span>
            
           <span
-            aria-label="List price: $185.97"
+            aria-label="List price: £185.97"
             class="leading-7 [&:not(:first-child)]:mt-6 text-left text-muted-foreground line-through"
           >
-            $185.97
+            £185.97
           </span>
           <span
             aria-atomic="true"
@@ -94,7 +94,7 @@ exports[`OrderItemsList stories snapshot > Default story renders and matches sna
             class="sr-only"
           >
             Sweater
-            List price: $185.97
+            List price: £185.97
           </span>
         </div>
         <a
@@ -171,11 +171,11 @@ exports[`OrderItemsList stories snapshot > MultipleItems story renders and match
           class="items-center gap-2"
         >
           <span
-            aria-label="Current price: $10.00"
+            aria-label="Current price: £10.00"
             aria-live="polite"
             class="leading-7 [&:not(:first-child)]:mt-6 text-left font-semibold"
           >
-            $10.00
+            £10.00
           </span>
           <span
             aria-atomic="true"
@@ -183,7 +183,7 @@ exports[`OrderItemsList stories snapshot > MultipleItems story renders and match
             class="sr-only"
           >
             Product One
-            Current price: $10.00
+            Current price: £10.00
           </span>
            
         </div>
@@ -246,11 +246,11 @@ exports[`OrderItemsList stories snapshot > MultipleItems story renders and match
           class="items-center gap-2"
         >
           <span
-            aria-label="Current price: $20.00"
+            aria-label="Current price: £20.00"
             aria-live="polite"
             class="leading-7 [&:not(:first-child)]:mt-6 text-left font-semibold"
           >
-            $20.00
+            £20.00
           </span>
           <span
             aria-atomic="true"
@@ -258,7 +258,7 @@ exports[`OrderItemsList stories snapshot > MultipleItems story renders and match
             class="sr-only"
           >
             Product Two
-            Current price: $20.00
+            Current price: £20.00
           </span>
            
         </div>

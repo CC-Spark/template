@@ -23,6 +23,7 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 // We need to mock useItemFetcherLoading.
 // Since we can't easily mock imports in stories without test-runner hooks,
@@ -103,11 +104,13 @@ A component that displays individual product information in cart or summary view
     decorators: [
         (Story) => (
             <ConfigProvider config={mockConfig}>
-                <ActionLogger>
-                    <div className="max-w-2xl mx-auto">
-                        <Story />
-                    </div>
-                </ActionLogger>
+                <CurrencyWrapper currency="GBP">
+                    <ActionLogger>
+                        <div className="max-w-2xl mx-auto">
+                            <Story />
+                        </div>
+                    </ActionLogger>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

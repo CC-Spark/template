@@ -22,6 +22,7 @@ import { mockConfig } from '@/test-utils/config';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import ProductViewProvider from '@/providers/product-view';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 
@@ -86,11 +87,13 @@ const meta: Meta<typeof ChildProducts> = {
 
             return (
                 <ConfigProvider config={mockConfig}>
-                    <ProductViewProvider product={context.args.parentProduct as any} mode="add">
-                        <ActionLogger>
-                            <Story />
-                        </ActionLogger>
-                    </ProductViewProvider>
+                    <CurrencyWrapper currency="GBP">
+                        <ProductViewProvider product={context.args.parentProduct as any} mode="add">
+                            <ActionLogger>
+                                <Story />
+                            </ActionLogger>
+                        </ProductViewProvider>
+                    </CurrencyWrapper>
                 </ConfigProvider>
             );
         },

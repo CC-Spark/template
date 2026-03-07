@@ -23,6 +23,7 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -73,11 +74,13 @@ const meta: Meta<typeof ProductItemsList> = {
     decorators: [
         (Story) => (
             <ConfigProvider config={mockConfig}>
-                <ActionLogger>
-                    <div className="max-w-2xl mx-auto">
-                        <Story />
-                    </div>
-                </ActionLogger>
+                <CurrencyWrapper currency="GBP">
+                    <ActionLogger>
+                        <div className="max-w-2xl mx-auto">
+                            <Story />
+                        </div>
+                    </ActionLogger>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

@@ -19,6 +19,7 @@ import ProductRecommendations from '..';
 import { mockStandardProductHit } from '../../__mocks__/product-search-hit-data';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
@@ -89,13 +90,15 @@ In Storybook, the component may not display recommendations without a real adapt
     decorators: [
         (Story: React.ComponentType) => (
             <ConfigProvider config={mockConfig}>
-                <RecommendersProvider>
-                    <ActionLogger>
-                        <div className="p-8">
-                            <Story />
-                        </div>
-                    </ActionLogger>
-                </RecommendersProvider>
+                <CurrencyWrapper currency="GBP">
+                    <RecommendersProvider>
+                        <ActionLogger>
+                            <div className="p-8">
+                                <Story />
+                            </div>
+                        </ActionLogger>
+                    </RecommendersProvider>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

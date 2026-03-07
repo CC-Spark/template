@@ -19,6 +19,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 import Footer from '../index';
 
@@ -118,12 +119,14 @@ Site footer with support, account, company links, newsletter signup, social icon
     decorators: [
         (Story) => (
             <ConfigProvider config={mockConfig}>
-                <ActionLogger>
-                    <div className="min-h-[60vh] flex flex-col">
-                        <div className="flex-1" />
-                        <Story />
-                    </div>
-                </ActionLogger>
+                <CurrencyWrapper currency="GBP">
+                    <ActionLogger>
+                        <div className="min-h-[60vh] flex flex-col">
+                            <div className="flex-1" />
+                            <Story />
+                        </div>
+                    </ActionLogger>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

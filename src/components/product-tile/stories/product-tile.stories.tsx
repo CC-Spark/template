@@ -26,6 +26,7 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import DynamicImageProvider from '@/providers/dynamic-image';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -77,13 +78,15 @@ const meta: Meta<typeof ProductTile> = {
     decorators: [
         (Story) => (
             <ConfigProvider config={mockConfig}>
-                <ActionLogger>
-                    <DynamicImageProvider value={{ widths: ['50vw', '50vw', '15vw'] }}>
-                        <div className="w-64">
-                            <Story />
-                        </div>
-                    </DynamicImageProvider>
-                </ActionLogger>
+                <CurrencyWrapper currency="GBP">
+                    <ActionLogger>
+                        <DynamicImageProvider value={{ widths: ['50vw', '50vw', '15vw'] }}>
+                            <div className="w-64">
+                                <Story />
+                            </div>
+                        </DynamicImageProvider>
+                    </ActionLogger>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

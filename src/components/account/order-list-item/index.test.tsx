@@ -17,7 +17,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { OrderListItem, type OrderListItemData } from './index';
+
+const renderWithProviders = (ui: React.ReactElement) => render(ui, { wrapper: CurrencyWrapper });
 
 // Mock react-router
 vi.mock('react-router', async (importOriginal) => {
@@ -70,10 +73,10 @@ const mockOrderWithPickup: OrderListItemData = {
 describe('OrderListItem', () => {
     describe('rendering', () => {
         it('renders order date, total, and item count', () => {
-            render(<OrderListItem order={mockOrder} />);
+            renderWithProviders(<OrderListItem order={mockOrder} />);
 
             expect(screen.getByText('14 Sept 2024')).toBeInTheDocument();
-            expect(screen.getByText('£48.38')).toBeInTheDocument();
+            expect(screen.getByText('$48.38')).toBeInTheDocument();
             // Check for Items label and its value
             expect(screen.getByText('Items')).toBeInTheDocument();
             // The item count "2" appears twice - once in header and once as quantity badge
@@ -82,20 +85,20 @@ describe('OrderListItem', () => {
         });
 
         it('renders status badge with label', () => {
-            render(<OrderListItem order={mockOrder} />);
+            renderWithProviders(<OrderListItem order={mockOrder} />);
 
             expect(screen.getByText('Created')).toBeInTheDocument();
         });
 
         it('renders product thumbnails', () => {
-            render(<OrderListItem order={mockOrder} />);
+            renderWithProviders(<OrderListItem order={mockOrder} />);
 
             const images = screen.getAllByRole('img');
             expect(images).toHaveLength(2);
         });
 
         it('shows quantity badge for items with quantity > 1', () => {
-            render(<OrderListItem order={mockOrder} />);
+            renderWithProviders(<OrderListItem order={mockOrder} />);
 
             // Quantity badge for pants (qty: 2) - appears in a badge element
             const quantityBadges = screen.getAllByText('2');
@@ -104,7 +107,7 @@ describe('OrderListItem', () => {
         });
 
         it('renders View Order Details link', () => {
-            render(<OrderListItem order={mockOrder} />);
+            renderWithProviders(<OrderListItem order={mockOrder} />);
 
             expect(screen.getByText('View Order Details')).toBeInTheDocument();
         });
@@ -112,7 +115,7 @@ describe('OrderListItem', () => {
 
     describe('pickup location', () => {
         it('renders pickup location when provided', () => {
-            render(<OrderListItem order={mockOrderWithPickup} />);
+            renderWithProviders(<OrderListItem order={mockOrderWithPickup} />);
 
             expect(screen.getByText('Pickup Location')).toBeInTheDocument();
             expect(screen.getByText('Salesforce Foundations San Francisco')).toBeInTheDocument();
@@ -120,7 +123,7 @@ describe('OrderListItem', () => {
         });
 
         it('does not render pickup section when not provided', () => {
-            render(<OrderListItem order={mockOrder} />);
+            renderWithProviders(<OrderListItem order={mockOrder} />);
 
             expect(screen.queryByText('Pickup Location')).not.toBeInTheDocument();
         });
@@ -136,13 +139,13 @@ describe('OrderListItem', () => {
                 })),
             };
 
-            render(<OrderListItem order={manyProducts} maxThumbnails={12} />);
+            renderWithProviders(<OrderListItem order={manyProducts} maxThumbnails={12} />);
 
             expect(screen.getByText('+3')).toBeInTheDocument();
         });
 
         it('does not show overflow when products fit within maxThumbnails', () => {
-            render(<OrderListItem order={mockOrder} maxThumbnails={5} />);
+            renderWithProviders(<OrderListItem order={mockOrder} maxThumbnails={5} />);
 
             expect(screen.queryByText(/\+\d+/)).not.toBeInTheDocument();
         });
@@ -157,7 +160,7 @@ describe('OrderListItem', () => {
             ['failed_with_reopen', 'Failed With Reopen'],
         ])('renders %s status correctly', (status, expectedLabel) => {
             const order = { ...mockOrder, status, statusLabel: expectedLabel };
-            render(<OrderListItem order={order} />);
+            renderWithProviders(<OrderListItem order={order} />);
 
             expect(screen.getByText(expectedLabel)).toBeInTheDocument();
         });
@@ -168,7 +171,7 @@ describe('OrderListItem', () => {
             const user = userEvent.setup();
             const onViewDetails = vi.fn();
 
-            render(<OrderListItem order={mockOrder} onViewDetails={onViewDetails} />);
+            renderWithProviders(<OrderListItem order={mockOrder} onViewDetails={onViewDetails} />);
 
             await user.click(screen.getByText('View Order Details'));
 
@@ -188,7 +191,7 @@ describe('OrderListItem', () => {
                 ],
             };
 
-            render(<OrderListItem order={orderWithNoImages} />);
+            renderWithProviders(<OrderListItem order={orderWithNoImages} />);
 
             expect(screen.queryByRole('img')).not.toBeInTheDocument();
         });
@@ -206,7 +209,7 @@ describe('OrderListItem', () => {
                 ],
             };
 
-            render(<OrderListItem order={orderWithEmptyUrl} />);
+            renderWithProviders(<OrderListItem order={orderWithEmptyUrl} />);
 
             expect(screen.queryByRole('img')).not.toBeInTheDocument();
         });
@@ -234,7 +237,7 @@ describe('OrderListItem', () => {
                 ],
             };
 
-            render(<OrderListItem order={mixedOrder} />);
+            renderWithProviders(<OrderListItem order={mixedOrder} />);
 
             const images = screen.getAllByRole('img');
             expect(images).toHaveLength(2);
@@ -252,7 +255,7 @@ describe('OrderListItem', () => {
                 ],
             };
 
-            render(<OrderListItem order={orderWithQty} />);
+            renderWithProviders(<OrderListItem order={orderWithQty} />);
 
             expect(screen.queryByRole('img')).not.toBeInTheDocument();
             expect(screen.getByText('3')).toBeInTheDocument();
@@ -266,7 +269,7 @@ describe('OrderListItem', () => {
                 orderDate: 'not-a-date',
             };
 
-            render(<OrderListItem order={order} />);
+            renderWithProviders(<OrderListItem order={order} />);
 
             expect(screen.getByText('Invalid Date')).toBeInTheDocument();
         });
@@ -278,7 +281,7 @@ describe('OrderListItem', () => {
                 statusLabel: 'Unknown',
             };
 
-            render(<OrderListItem order={order} />);
+            renderWithProviders(<OrderListItem order={order} />);
 
             expect(screen.getByText('Unknown')).toBeInTheDocument();
         });
@@ -289,13 +292,13 @@ describe('OrderListItem', () => {
                 productItems: undefined,
             };
 
-            render(<OrderListItem order={order} />);
+            renderWithProviders(<OrderListItem order={order} />);
 
             expect(screen.getByText('View Order Details')).toBeInTheDocument();
         });
 
         it('renders without onViewDetails callback', () => {
-            render(<OrderListItem order={mockOrder} />);
+            renderWithProviders(<OrderListItem order={mockOrder} />);
 
             const link = screen.getByText('View Order Details');
             expect(link.closest('a')).toHaveAttribute('href', '/account/orders/ORD-001-2024');
@@ -308,7 +311,7 @@ describe('OrderListItem', () => {
                 statusLabel: undefined,
             };
 
-            render(<OrderListItem order={order} />);
+            renderWithProviders(<OrderListItem order={order} />);
 
             expect(screen.getByText('Completed')).toBeInTheDocument();
         });

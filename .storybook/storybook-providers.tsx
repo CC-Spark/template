@@ -18,6 +18,8 @@ import CheckoutOneClickProvider from '../src/components/checkout/utils/checkout-
 import ProductViewProvider from '../src/providers/product-view';
 import StoreLocatorProvider from '../src/extensions/store-locator/providers/store-locator';
 import { ConfigProvider } from '../src/config';
+import { CurrencyProvider } from '../src/providers/currency';
+import { SiteProvider } from '@salesforce/storefront-next-runtime/multi-site';
 import { mockConfig } from '../src/test-utils/config';
 import type { SessionData } from '../src/lib/api/types';
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
@@ -80,6 +82,20 @@ export const StorybookConfigProvider = ({ children }: PropsWithChildren) => (
 );
 
 /**
+ * Storybook SiteProvider wrapper with mock site data from the first configured site
+ */
+export const StorybookSiteProvider = ({ children }: PropsWithChildren) => (
+    <SiteProvider value={mockConfig.commerce.sites[0]}>{children}</SiteProvider>
+);
+
+/**
+ * Storybook CurrencyProvider wrapper with default currency from the first configured site
+ */
+export const StorybookCurrencyProvider = ({ children }: PropsWithChildren) => (
+    <CurrencyProvider value={mockConfig.commerce.sites[0].defaultCurrency}>{children}</CurrencyProvider>
+);
+
+/**
  * Storybook I18nextProvider wrapper with initialized i18next instance
  */
 export const StorybookI18nextProvider = ({ children }: PropsWithChildren) => (
@@ -139,6 +155,8 @@ export const StorybookProductViewProvider = ({ children }: PropsWithChildren) =>
 export const storybookProviders = [
     StorybookConfigProvider,
     StorybookI18nextProvider,
+    StorybookSiteProvider,
+    StorybookCurrencyProvider,
     StorybookAuthProvider,
     StorybookBasketProvider,
     StorybookStoreLocatorProvider,

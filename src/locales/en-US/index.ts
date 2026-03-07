@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { Resource } from 'i18next';
-import enGB from './en-GB';
-import enUS from './en-US';
-import itIT from './it-IT';
+import type { ResourceLanguage } from 'i18next';
+import translations from '@/locales/en-US/translations.json';
+import product from '@/locales/en-US/product.json';
+import extensionTranslations from '@/extensions/locales/en-US/';
 
-export default { 'en-GB': enGB, 'en-US': enUS, 'it-IT': itIT } satisfies Resource;
+const allTranslations = {
+    ...translations,
+    product,
+    ...extensionTranslations,
+};
+
+export default allTranslations satisfies ResourceLanguage;

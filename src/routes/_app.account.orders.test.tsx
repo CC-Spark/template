@@ -21,6 +21,7 @@ import { fetchCustomerOrders } from '@/lib/api/order';
 import { getAuth } from '@/middlewares/auth.server';
 import type { Order } from '@/components/account/order-list';
 import { createTestContext } from '@/lib/test-utils';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 vi.mock('@/lib/api/order', () => ({
     fetchCustomerOrders: vi.fn(),
@@ -106,7 +107,11 @@ describe('AccountOrders Page', () => {
             }
         );
 
-        const result = render(<RouterProvider router={router} />);
+        const result = render(
+            <CurrencyWrapper>
+                <RouterProvider router={router} />
+            </CurrencyWrapper>
+        );
 
         // Wait for the Await promise to resolve and actual content to render.
         // The skeleton also has an h3 so we need to wait for data-specific content.
@@ -236,7 +241,11 @@ describe('AccountOrders Page', () => {
                 }
             );
 
-            render(<RouterProvider router={router} />);
+            render(
+                <CurrencyWrapper>
+                    <RouterProvider router={router} />
+                </CurrencyWrapper>
+            );
 
             // Wait for skeleton to appear (router needs a tick to render)
             await waitFor(() => {
@@ -269,7 +278,11 @@ describe('AccountOrders Page', () => {
                 }
             );
 
-            render(<RouterProvider router={router} />);
+            render(
+                <CurrencyWrapper>
+                    <RouterProvider router={router} />
+                </CurrencyWrapper>
+            );
 
             await waitFor(() => {
                 expect(

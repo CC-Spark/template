@@ -16,6 +16,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, test, expect } from 'vitest';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { OrderList, OrderListHeader, OrderListBody, type Order } from './index';
 
 // Mock react-router
@@ -73,7 +74,11 @@ describe('OrderList Component', () => {
             title: 'Order History',
             orders: testOrders,
         };
-        return render(<OrderList {...defaultProps} {...props} />);
+        return render(
+            <CurrencyWrapper>
+                <OrderList {...defaultProps} {...props} />
+            </CurrencyWrapper>
+        );
     };
 
     describe('Header Rendering', () => {
@@ -104,9 +109,9 @@ describe('OrderList Component', () => {
 
         test('renders order totals correctly', () => {
             renderOrderList();
-            expect(screen.getByText('£150.00')).toBeInTheDocument();
-            expect(screen.getByText('£75.50')).toBeInTheDocument();
-            expect(screen.getByText('£200.00')).toBeInTheDocument();
+            expect(screen.getByText('$150.00')).toBeInTheDocument();
+            expect(screen.getByText('$75.50')).toBeInTheDocument();
+            expect(screen.getByText('$200.00')).toBeInTheDocument();
         });
 
         test('renders View Order Details link for each order', () => {
@@ -281,38 +286,62 @@ describe('OrderListHeader Component', () => {
 
 describe('OrderListBody Component', () => {
     test('renders order items', () => {
-        render(<OrderListBody orders={testOrders} />);
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={testOrders} />
+            </CurrencyWrapper>
+        );
         expect(screen.getByText('Completed')).toBeInTheDocument();
         expect(screen.getByText('New')).toBeInTheDocument();
         expect(screen.getByText('Cancelled')).toBeInTheDocument();
     });
 
     test('renders empty state when no orders', () => {
-        render(<OrderListBody orders={[]} />);
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={[]} />
+            </CurrencyWrapper>
+        );
         expect(
             screen.getByText("You haven't placed an order yet. Once you place an order the details will show up here.")
         ).toBeInTheDocument();
     });
 
     test('renders custom empty message', () => {
-        render(<OrderListBody orders={[]} emptyMessage="Nothing here yet!" />);
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={[]} emptyMessage="Nothing here yet!" />
+            </CurrencyWrapper>
+        );
         expect(screen.getByText('Nothing here yet!')).toBeInTheDocument();
     });
 
     test('renders total orders footer', () => {
-        render(<OrderListBody orders={testOrders} />);
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={testOrders} />
+            </CurrencyWrapper>
+        );
         expect(screen.getByText('Viewing 3 orders')).toBeInTheDocument();
     });
 
     test('renders zero orders count for empty list', () => {
-        render(<OrderListBody orders={[]} />);
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={[]} />
+            </CurrencyWrapper>
+        );
         expect(screen.getByText('Viewing 0 orders')).toBeInTheDocument();
     });
 
     test('calls onViewDetails callback', async () => {
         const user = userEvent.setup();
         const mockOnViewDetails = vi.fn();
-        render(<OrderListBody orders={testOrders} onViewDetails={mockOnViewDetails} />);
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={testOrders} onViewDetails={mockOnViewDetails} />
+            </CurrencyWrapper>
+        );
 
         const viewDetailsLinks = screen.getAllByText('View Order Details');
         await user.click(viewDetailsLinks[0]);
@@ -322,7 +351,11 @@ describe('OrderListBody Component', () => {
     });
 
     test('does not render header elements', () => {
-        render(<OrderListBody orders={testOrders} />);
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={testOrders} />
+            </CurrencyWrapper>
+        );
         expect(screen.queryByRole('heading', { level: 3 })).not.toBeInTheDocument();
     });
 });

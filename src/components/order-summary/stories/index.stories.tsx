@@ -22,6 +22,7 @@ import emptyBasket from '@/components/__mocks__/empty-basket';
 import { basketWithMultipleItems, inBasketProductDetails } from '@/components/__mocks__/basket-with-multiple-items';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -159,7 +160,9 @@ const meta: Meta<typeof OrderSummary> = {
     decorators: [
         (Story: React.ComponentType) => (
             <ActionLogger>
-                <Story />
+                <CurrencyWrapper currency="GBP">
+                    <Story />
+                </CurrencyWrapper>
             </ActionLogger>
         ),
     ],

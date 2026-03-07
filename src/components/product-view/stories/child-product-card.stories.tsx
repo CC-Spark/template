@@ -22,6 +22,7 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import ProductViewProvider from '@/providers/product-view';
 import { action } from 'storybook/actions';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
@@ -71,13 +72,15 @@ const meta: Meta<typeof ChildProductCard> = {
     decorators: [
         (Story, context) => (
             <ConfigProvider config={mockConfig}>
-                <ProductViewProvider product={context.args.parentProduct as any} mode="add">
-                    <ActionLogger>
-                        <div className="w-80">
-                            <Story />
-                        </div>
-                    </ActionLogger>
-                </ProductViewProvider>
+                <CurrencyWrapper currency="GBP">
+                    <ProductViewProvider product={context.args.parentProduct as any} mode="add">
+                        <ActionLogger>
+                            <div className="w-80">
+                                <Story />
+                            </div>
+                        </ActionLogger>
+                    </ProductViewProvider>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

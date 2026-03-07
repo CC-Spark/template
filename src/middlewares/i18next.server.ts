@@ -20,40 +20,46 @@ import resources from '@/locales'; // Import translations from all of your local
 import 'i18next';
 import { i18nextContext } from '@/lib/i18next';
 import { requestToLocaleMap } from '@salesforce/storefront-next-runtime/multi-site';
+import { getConfig } from '@/config';
 
-const [originalI18nextMiddleware, getLocale, getInstance] = createI18nextMiddleware({
-    // Read the locale from the multi-site middleware via WeakMap
-    detection: {
-        // Use only custom detection as implemented by findLocale - bypass all built-in detection methods
-        order: ['custom'],
-        // Read the locale resolved by multi-site middleware
-        // Multi-site stores the locale ID in a WeakMap keyed by the Request object
-        // eslint-disable-next-line @typescript-eslint/require-await
-        findLocale: async (request: Request) => {
-            const localeId = requestToLocaleMap.get(request);
-            return localeId ?? null;
-        },
-        // The following properties are not used in the detection process but are required by i18next
-        // TODO: is there a way to call getConfig here? I can't see a way to pass in the router context.
-        fallbackLanguage: 'en-GB',
-        supportedLanguages: ['it-IT', 'en-GB'], // Your supported languages, the fallback should be LAST
-    },
-    i18next: {
-        resources,
-        interpolation: {
-            escapeValue: false,
-            format: (value, format) => {
-                if (format === 'number' && typeof value === 'number') {
-                    return value.toLocaleString();
-                }
-                return value;
-            },
-        },
-    }, // Translations from all of your locales
-    plugins: [initReactI18next], // Plugins you may need, like react-i18next
-});
+// Lazy-initialized on first request so we can read supported languages from config
+// rather than hard-coding them. Contains [middleware, getLocale, getInstance].
+let cached: ReturnType<typeof createI18nextMiddleware> | null = null;
 
 const i18nextMiddleware: MiddlewareFunction<Response> = async (args, next) => {
+    if (!cached) {
+        const config = getConfig(args.context);
+        const { supportedLngs: supportedLanguages, fallbackLng: fallbackLanguage } = config.i18n;
+
+        cached = createI18nextMiddleware({
+            detection: {
+                order: ['custom'],
+                // eslint-disable-next-line @typescript-eslint/require-await
+                findLocale: async (request: Request) => {
+                    const localeId = requestToLocaleMap.get(request);
+                    return localeId ?? null;
+                },
+                fallbackLanguage,
+                supportedLanguages,
+            },
+            i18next: {
+                resources,
+                interpolation: {
+                    escapeValue: false,
+                    format: (value, format) => {
+                        if (format === 'number' && typeof value === 'number') {
+                            return value.toLocaleString();
+                        }
+                        return value;
+                    },
+                },
+            },
+            plugins: [initReactI18next],
+        });
+    }
+
+    const [originalI18nextMiddleware, getLocale, getInstance] = cached;
+
     // Store bound accessor functions in context (bound to args.context)
     // These will be called AFTER originalI18nextMiddleware sets up i18next
     args.context.set(i18nextContext, {
