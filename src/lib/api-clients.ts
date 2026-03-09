@@ -19,11 +19,11 @@ import {
     SLAS_AUTH_ENDPOINTS,
     type Middleware,
 } from '@salesforce/storefront-next-runtime/scapi';
-import { authContext } from '@/middlewares/auth.utils';
+import { AUTH_TOKEN_INVALID_ERROR, authContext, authStorageContext } from '@/middlewares/auth.utils';
 import { correlationContext } from '@/lib/correlation';
 import { maintenanceContext } from '@/lib/maintenance';
 import { getConfig } from '@/config';
-import { getAppOrigin, isAbsoluteURL } from '@/lib/utils';
+import { getAppOrigin, getScapiBaseUrl, isAbsoluteURL } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
 
 /**
@@ -60,11 +60,15 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
     const appOrigin = getAppOrigin();
     const config = getConfig(context);
     const { shortCode, proxy, callback, organizationId, siteId, clientId } = config.commerce.api;
+    const scapiProxyHost = typeof window === 'undefined' ? process.env.SCAPI_PROXY_HOST : undefined;
+
     // @ts-expect-error: __DEV__ is a global variable existing to support dead code elimination
     const baseUrl = __DEV__
-        ? `${appOrigin}${proxy}`
+        ? typeof window === 'undefined' && scapiProxyHost
+            ? scapiProxyHost // Server-side with proxy host: use direct connection
+            : `${appOrigin}${proxy}` // Client-side or no proxy host: use standard proxy path through dev server
         : typeof window === 'undefined'
-          ? `https://${shortCode}.api.commercecloud.salesforce.com`
+          ? getScapiBaseUrl(shortCode)
           : `${appOrigin}${proxy}`;
     // Use absolute URL if provided, otherwise construct from app origin
     const redirectUri = callback && isAbsoluteURL(callback) ? callback : `${appOrigin}${callback || ''}`;
@@ -83,7 +87,18 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
         clientId,
         clientSecret: getSlasClientSecret(),
         redirectUri,
-    });
+        onAuthTokenInvalid: () => {
+            try {
+                const authStorage = context.get(authStorageContext);
+                if (authStorage && !authStorage.has('error')) {
+                    authStorage.set('error', AUTH_TOKEN_INVALID_ERROR);
+                }
+            } catch {
+                // Intentionally ignore if auth storage is unavailable (client-side)
+            }
+        },
+        proxyHost: scapiProxyHost, // SDK handles org ID rewriting and auth flow selection internally
+    } as Parameters<typeof createCommerceApiClients>[0]);
 
     // Add authentication middleware - inject Bearer token from auth context
     const authMiddleware: Middleware = {
@@ -102,7 +117,7 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
             if (!session) {
                 throw new Error('No session found');
             }
-            request.headers.set('Authorization', `Bearer ${session.access_token}`);
+            request.headers.set('Authorization', `Bearer ${session.accessToken}`);
             if (session.dwsid) {
                 request.headers.set(DWSID_HEADER, session.dwsid);
             }

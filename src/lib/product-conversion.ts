@@ -41,7 +41,7 @@ export function convertProductToProductSearchHit(
         image: firstImage
             ? {
                   disBaseLink: firstImage.disBaseLink || firstImage.link || '',
-                  link: firstImage.link || firstImage.disBaseLink || '',
+                  link: firstImage.disBaseLink || firstImage.link || '',
                   alt: firstImage.alt || product.name || '',
               }
             : undefined,

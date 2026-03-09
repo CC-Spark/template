@@ -14,21 +14,6 @@
  * limitations under the License.
  */
 import { type RouteConfig } from '@react-router/dev/routes';
-import { flatRoutes } from '@react-router/fs-routes';
-import fs from 'fs';
-import { mergeRoutes } from './routes-merge';
+import { flatRoutes } from '@salesforce/storefront-next-runtime/routing';
 
-export default (async () => {
-    const ignoredRouteFiles = ['**/*.test.{ts,tsx}'];
-    const routes = await flatRoutes({ ignoredRouteFiles });
-
-    for (const extension of fs.readdirSync('./src/extensions')) {
-        const extensionRoutes = await flatRoutes({
-            ignoredRouteFiles,
-            rootDirectory: `extensions/${extension}/routes`,
-        });
-        mergeRoutes(routes, extensionRoutes, `extensions/${extension}/`);
-    }
-
-    return routes;
-})() satisfies RouteConfig;
+export default flatRoutes() satisfies RouteConfig;

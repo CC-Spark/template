@@ -90,7 +90,7 @@ All settings defined in `config.server.ts` can be overridden via environment var
 
 **Syntax:**
 ```bash
-PUBLIC__app__site__locale=en-US    # Maps to config.app.site.locale
+PUBLIC__app__site__locale=en-GB    # Maps to config.app.site.locale
 ```
 
 **Usage:**
@@ -257,7 +257,7 @@ export default function MyForm() {
 Extensions are modular features in `src/extensions/`. Each extension:
 - Contains self-contained feature code
 - Can add routes in `src/extensions/[ext]/routes/`
-- Can inject components via `plugin-config.json`
+- Can inject components via `target-config.json`
 - Can provide context via custom providers
 - Supports i18n in `src/extensions/[ext]/locales/`
 

@@ -102,7 +102,7 @@ const mockConfig = {
         },
     },
     site: {
-        locale: 'en-US',
+        locale: 'en-GB',
         currency: 'USD',
         features: {
             passwordlessLogin: false,
@@ -113,10 +113,7 @@ const mockConfig = {
     global: {
         branding: { name: 'Test Store', logoAlt: 'Home' },
         productListing: {
-            productsPerPage: 24,
-            enableInfiniteScroll: false,
-            sortOptions: ['relevance'],
-            enableQuickView: true,
+            defaultProductTileImgAspectRatio: 1,
         },
         carousel: { defaultItemCount: 4 },
         badges: [
@@ -125,6 +122,17 @@ const mockConfig = {
         ],
     },
     images: { quality: 70, formats: ['webp'], fallbackFormat: 'jpg' },
+    search: {
+        products: {
+            refine: {
+                orderableOnly: true,
+            },
+            hits: {
+                limit: 24,
+                critical: 2,
+            },
+        },
+    },
     performance: {
         caching: { apiCacheTtl: 300, staticAssetCacheTtl: 31536000 },
     },
@@ -142,7 +150,7 @@ vi.mock('@/config', () => ({
 import { composeStories } from '@storybook/react-vite';
 
 import * as ProductGridStories from './index.stories';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, waitFor, act } from '@testing-library/react';
 
 const composed = composeStories(ProductGridStories);
 
@@ -152,8 +160,19 @@ afterEach(() => {
 
 describe('ProductGrid stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
-        test(`${storyName} story renders and matches snapshot`, () => {
-            const { container } = render(<Story />);
+        test(`${storyName} story renders and matches snapshot`, async () => {
+            let result: ReturnType<typeof render>;
+            await act(async () => {
+                result = render(<Story />);
+            });
+            const { container } = result!;
+            // Wait for lazy-loaded swatches to resolve through <Suspense/>
+            await waitFor(() => {
+                expect(container.querySelector('.product-tile-skeleton')).toBeNull();
+            });
+            await waitFor(() => {
+                expect(container.querySelector('.product-tile-swatches-skeleton')).toBeNull();
+            });
             expect(container.firstChild).toMatchSnapshot();
         });
     }

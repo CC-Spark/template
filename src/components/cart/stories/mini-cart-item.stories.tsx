@@ -207,9 +207,13 @@ Product with sale pricing showing savings. Demonstrates:
         await expect(productName).toBeInTheDocument();
 
         // Verify variation attributes are shown
-        const colorAttr = await canvas.findByText(/Color: Grey/);
+        const colorAttr = await canvas.findByText((content, element) => {
+            return element?.textContent === 'Color: Grey';
+        });
         await expect(colorAttr).toBeInTheDocument();
-        const sizeAttr = await canvas.findByText(/Size: XL/);
+        const sizeAttr = await canvas.findByText((content, element) => {
+            return element?.textContent === 'Size: XL';
+        });
         await expect(sizeAttr).toBeInTheDocument();
 
         // Verify pricing is displayed
@@ -218,8 +222,8 @@ Product with sale pricing showing savings. Demonstrates:
             const priceContainer = canvasElement.querySelector('[data-testid="mini-cart-item"]');
             expect(priceContainer).toBeInTheDocument();
             const priceText = priceContainer?.textContent || '';
-            expect(priceText).toContain('$20.00'); // List price (strikethrough)
-            expect(priceText).toContain('$15.00'); // Current price
+            expect(priceText).toContain('£20.00'); // List price (strikethrough)
+            expect(priceText).toContain('£15.00'); // Current price
         });
 
         // Verify quantity selector
@@ -269,7 +273,7 @@ Product at regular price with no savings. Shows:
             const priceContainer = canvasElement.querySelector('[data-testid="mini-cart-item"]');
             expect(priceContainer).toBeInTheDocument();
             const priceText = priceContainer?.textContent || '';
-            expect(priceText).toContain('$15.00'); // Current price
+            expect(priceText).toContain('£15.00'); // Current price
         });
 
         // Verify no savings badge
@@ -406,7 +410,13 @@ Product with only color variation. Shows:
         const canvas = within(canvasElement);
 
         // Wait for color attribute (use findBy to wait for async loading)
-        const colorAttr = await canvas.findByText(/Color: Blue/);
+        const colorAttr = await canvas.findByText((content, element) => {
+            return (
+                element?.textContent === 'Color: Blue' &&
+                element?.className?.includes('inline-block') &&
+                element?.className?.includes('w-full')
+            );
+        });
         await expect(colorAttr).toBeInTheDocument();
 
         // Verify size attribute is not shown
@@ -448,7 +458,13 @@ Product with only size variation. Shows:
         const canvas = within(canvasElement);
 
         // Wait for size attribute (use findBy to wait for async loading)
-        const sizeAttr = await canvas.findByText(/Size: M/);
+        const sizeAttr = await canvas.findByText((content, element) => {
+            return (
+                element?.textContent === 'Size: M' &&
+                element?.className?.includes('inline-block') &&
+                element?.className?.includes('w-full')
+            );
+        });
         await expect(sizeAttr).toBeInTheDocument();
 
         // Verify color attribute is not shown

@@ -1,6 +1,6 @@
 {
     "name": "template-retail-rsc-app",
-    "version": "0.1.1",
+    "version": "0.2.0-alpha.0",
     "private": true,
     "type": "module",
     "scripts": {
@@ -57,12 +57,12 @@
         "@radix-ui/react-radio-group": "1.3.8",
         "@radix-ui/react-select": "2.2.6",
         "@radix-ui/react-separator": "1.1.8",
-        "@radix-ui/react-switch": "1.2.2",
         "@radix-ui/react-slot": "1.2.3",
+        "@radix-ui/react-switch": "1.2.2",
         "@radix-ui/react-tooltip": "1.2.8",
         "@react-router/node": "7.12.0",
-        "@salesforce/storefront-next-dev": "0.1.1",
-        "@salesforce/storefront-next-runtime": "0.1.1",
+        "@salesforce/storefront-next-dev": "0.2.0-alpha.0",
+        "@salesforce/storefront-next-runtime": "0.2.0-alpha.0",
         "@vis.gl/react-google-maps": "1.7.1",
         "class-variance-authority": "0.7.1",
         "clsx": "2.1.1",
@@ -143,7 +143,7 @@
         "jsdom": "27.4.0",
         "morgan": "1.10.1",
         "msw": "2.11.3",
-        "playwright": "1.55.1",
+        "playwright": "1.58.0",
         "prettier": "3.6.2",
         "rollup-plugin-visualizer": "6.0.4",
         "source-map-support": "0.5.21",
@@ -155,6 +155,7 @@
         "vite-plugin-devtools-json": "1.0.0",
         "vite-tsconfig-paths": "5.1.4",
         "vitest": "4.0.18",
+        "vitest-localstorage-mock": "^0.1.2",
         "wait-on": "^8.0.1"
     },
     "volta": {
@@ -191,7 +192,8 @@
             },
             {
                 "name": "assets/\\(routes\\)-_app.*.js",
-                "limit": "58 kB"
+                "limit": "59 kB",
+                "comment": "App layout route chunk; at 58 kB after dependency updates"
             },
             {
                 "name": "assets/\\(package\\)-\\(@radix-ui-react-visually-hidden\\)-\\(dist\\)-index.*.js",
@@ -199,8 +201,13 @@
             },
             {
                 "name": "assets/\\(components\\)-\\(product-view\\)-child-products.*.js",
-                "limit": "70 kB",
+                "limit": "74 kB",
                 "comment": "Child products component includes Radix UI menu and dropdown dependencies for variant selection"
+            },
+            {
+                "name": "assets/\\(locales\\)-*-index.*.js",
+                "limit": "60 kB",
+                "comment": "Locales chunks (all locale translations)"
             },
             {
                 "name": "**/*",

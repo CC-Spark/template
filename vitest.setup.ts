@@ -20,12 +20,50 @@ import { mockConfig } from '@/test-utils/config';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import resources from '@/locales';
+import 'vitest-localstorage-mock';
 
 // Mock static asset imports that fail on Windows due to absolute path resolution
 // Windows converts '/path' to 'file:///path' which is invalid (missing drive letter)
 vi.mock('/favicon.ico', () => ({ default: '/favicon.ico' }));
 vi.mock('/images/GoogleMaps_Logo_Gray_4x.png', () => ({ default: '/images/GoogleMaps_Logo_Gray_4x.png' }));
-vi.mock('/images/hero-cube.webp', () => ({ default: '/images/hero-cube.webp' }));
+vi.mock('/images/hero-cube.webp', () => ({
+    default: '/images/hero-cube.webp',
+}));
+vi.mock('/images/hero-new-arrivals.webp', () => ({
+    default: '/images/hero-new-arrivals.webp',
+}));
+vi.mock('/images/foundations/foundations-logo.svg', () => ({
+    default: '/images/foundations/foundations-logo.svg',
+}));
+vi.mock('/images/black-cube-photo.svg', () => ({
+    default: '/images/black-cube-photo.svg',
+}));
+vi.mock('/images/home-office-setup.svg', () => ({
+    default: '/images/home-office-setup.svg',
+}));
+vi.mock('/images/living-room.svg', () => ({
+    default: '/images/living-room.svg',
+}));
+vi.mock('/images/shelf-display.svg', () => ({
+    default: '/images/shelf-display.svg',
+}));
+// Payment logo SVGs (added in PR #909) - return data URLs to match Vite's test environment behavior
+vi.mock('/images/apple-pay-logo.svg', () => ({
+    default:
+        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4=',
+}));
+vi.mock('/images/google-pay-logo.svg', () => ({
+    default:
+        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4=',
+}));
+vi.mock('/images/paypal.svg', () => ({
+    default:
+        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4=',
+}));
+vi.mock('/images/venmo.svg', () => ({
+    default:
+        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4=',
+}));
 
 // Clear engagement-related PUBLIC__ env vars before any modules load
 // The engagement config is protected from env var overrides, so these must be cleared
@@ -46,11 +84,17 @@ for (const key of Object.keys(process.env)) {
 beforeAll(() => {
     if (!i18next.isInitialized) {
         void i18next.use(initReactI18next).init({
-            lng: 'en-US',
-            fallbackLng: 'en-US',
+            lng: 'en-GB',
+            fallbackLng: 'en-GB',
             resources,
             interpolation: {
                 escapeValue: false,
+                format: (value, format) => {
+                    if (format === 'number' && typeof value === 'number') {
+                        return value.toLocaleString('en-GB');
+                    }
+                    return value;
+                },
             },
         });
     }
@@ -72,7 +116,7 @@ vi.mock('@/middlewares/i18next', async () => {
                 // Navigate nested object using dot notation
                 const keys = keyPath.split('.');
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                let value: any = resources['en-US'][ns as keyof (typeof resources)['en-US']];
+                let value: any = resources['en-GB'][ns as keyof (typeof resources)['en-GB']];
                 for (const k of keys) {
                     if (value && typeof value === 'object') {
                         value = value[k];
@@ -82,20 +126,28 @@ vi.mock('@/middlewares/i18next', async () => {
                 }
 
                 if (typeof value === 'string' && options) {
-                    // Simple interpolation for {{variable}} syntax
-                    return value.replace(/\{\{(\w+)\}\}/g, (_, prop) => options[prop] || `{{${prop}}}`);
+                    // Simple interpolation for {{variable}} and {{variable, number}} syntax
+                    return value.replace(/\{\{(\w+)(?:,\s*number)?\}\}/g, (_, prop) => {
+                        const val = options[prop];
+                        if (val === undefined) return `{{${prop}}}`;
+                        // Format numbers with locale-specific thousands separators
+                        if (typeof val === 'number') {
+                            return val.toLocaleString('en-GB');
+                        }
+                        return val;
+                    });
                 }
                 return value || key;
             }
             return key;
         },
-        language: 'en-US',
+        language: 'en-GB',
     };
 
     return {
         ...actual,
         getI18nextInstance: () => mockI18next,
-        getLocale: () => 'en-US',
+        getLocale: () => 'en-GB',
     };
 });
 

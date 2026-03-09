@@ -18,8 +18,12 @@ import type { RouterContextProvider } from 'react-router';
 import { PICKUP_SHIPMENT_ID, PICKUP_SHIPPING_METHOD_ID } from '@/extensions/bopis/constants';
 import type { ShopperBasketsV2, ShopperStores } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
+import { getShippingMethodsForShipment } from '@/lib/api/shipping-methods';
 import { getTranslation } from '@/lib/i18next';
+import { getPickupShippingMethodId } from '@/extensions/bopis/lib/pickup-shipping-method-utils';
 import { orderAddressFromStoreAddress } from '@/extensions/bopis/lib/store-utils';
+
+export { getPickupShippingMethodId } from '@/extensions/bopis/lib/pickup-shipping-method-utils';
 
 /**
  * Update shipment custom attributes for pickup
@@ -57,10 +61,10 @@ export async function updateShipmentForPickup(
 }
 
 /**
- * Sets store address and shipping method for BOPIS orders
+ * Sets store address and shipping method for BOPIS orders.
  *
  * @param context - Router context
- * @param basket - Current basket
+ * @param basketId - Basket ID
  * @param store - Store details for pickup
  * @param shipmentId - Shipment ID (defaults to PICKUP_SHIPMENT_ID)
  * @returns Updated basket with store address and shipping method
@@ -80,21 +84,30 @@ export async function setAddressAndMethodForPickup(
 
     const storeAddress = orderAddressFromStoreAddress(store, context);
 
-    // Update both shipping address and method in one call
-    const { data: updatedBasket } = await clients.shopperBasketsV2.updateShipmentForBasket({
+    // Set shipping address so API returns applicable shipping methods
+    await clients.shopperBasketsV2.updateShippingAddressForShipment({
         params: {
             path: {
                 basketId,
                 shipmentId,
             },
         },
-        body: {
-            shipmentId,
-            shippingAddress: storeAddress,
-            shippingMethod: {
-                id: PICKUP_SHIPPING_METHOD_ID,
+        body: storeAddress,
+    });
+
+    // Get applicable shipping methods and resolve pickup method ID
+    const shippingMethodResult = await getShippingMethodsForShipment(context, basketId, shipmentId);
+    const pickupMethodId = getPickupShippingMethodId(shippingMethodResult) ?? PICKUP_SHIPPING_METHOD_ID;
+
+    // Set the shipping method for pickup shipment
+    const { data: updatedBasket } = await clients.shopperBasketsV2.updateShippingMethodForShipment({
+        params: {
+            path: {
+                basketId,
+                shipmentId,
             },
         },
+        body: { id: pickupMethodId },
     });
 
     return updatedBasket;

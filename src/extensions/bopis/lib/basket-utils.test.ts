@@ -1865,6 +1865,23 @@ describe('filterDeliveryShippingMethods', () => {
         expect(result['shipment-1'].applicableShippingMethods?.[0].id).toBe('001');
         expect(result['shipment-1'].applicableShippingMethods?.[1].id).toBe('002');
     });
+
+    it('should filter out pickup methods by c_storePickupEnabled when id is not fallback 005', () => {
+        const shippingMethodsMap = {
+            'shipment-1': {
+                applicableShippingMethods: [
+                    { id: '001', name: 'Standard' },
+                    { id: 'store-pickup', name: 'Store Pickup', c_storePickupEnabled: true },
+                    { id: '002', name: 'Express' },
+                ],
+            },
+        } as Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
+
+        const result = filterDeliveryShippingMethods(shippingMethodsMap);
+
+        expect(result['shipment-1'].applicableShippingMethods).toHaveLength(2);
+        expect(result['shipment-1'].applicableShippingMethods?.map((m) => m.id)).toEqual(['001', '002']);
+    });
 });
 
 describe('isStorePickup', () => {

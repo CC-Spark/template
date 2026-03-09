@@ -19,17 +19,19 @@ import {
     type RouterContextProvider,
     type ActionFunctionArgs,
 } from 'react-router';
-import type { AuthResponse } from '@salesforce/storefront-next-runtime/scapi';
+import { type AuthResponse, AuthTokenInvalidError } from '@salesforce/storefront-next-runtime/scapi';
 import type { SessionData as AuthData } from '@/lib/api/types';
 import { clearStorage, type StorageErrorData, unpackStorage } from '@/lib/middleware';
 import {
     authContext,
+    authStorageContext,
     type AuthStorageData,
     createAuthPromise,
     updateAuthStorageData,
     updateStorageAndCache,
     getSLASAccessTokenClaims,
     isTrackingConsentEnabled,
+    AUTH_TOKEN_INVALID_ERROR,
     COOKIE_REFRESH_TOKEN_GUEST,
     COOKIE_REFRESH_TOKEN_REGISTERED,
     COOKIE_ACCESS_TOKEN,
@@ -40,15 +42,16 @@ import {
     COOKIE_CODE_VERIFIER,
     COOKIE_TRACKING_CONSENT,
     COOKIE_DWSID,
+    COOKIE_AUTH_RECOVERY_GUARD,
 } from '@/middlewares/auth.utils';
 import { getAppOrigin, isAbsoluteURL } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { performanceTimerContext, PERFORMANCE_MARKS } from '@/middlewares/performance-metrics';
 import { getConfig } from '@/config';
-import { getCookieConfig, getCookieNameWithSiteId } from '@/lib/cookie-utils';
-import { createCookie, parseAllCookies } from '@/lib/cookies.server';
-import { getTranslation } from '@/lib/i18next';
+import { createCookie, getCookieConfig, getCookieNameWithSiteId, parseAllCookies } from '@/lib/cookie-utils';
+import { getTranslation, i18nextContext } from '@/lib/i18next';
 import { TrackingConsent, trackingConsentToBoolean } from '@/types/tracking-consent';
+import { SHOPPER_CONTEXT_COOKIE_NAME_BASE, SOURCE_CODE_COOKIE_NAME_BASE } from '@/lib/shopper-context-constants';
 
 /**
  * Refresh access token using refresh token.
@@ -89,6 +92,7 @@ export async function refreshAccessToken(
 /**
  * Login as guest user.
  * Returns AuthResponse which includes dwsid (automatically extracted from Set-Cookie header by SDK).
+ * The SDK handles auth flow selection internally when proxyHost is configured.
  */
 export async function loginGuestUser(
     context: Readonly<RouterContextProvider>,
@@ -104,6 +108,7 @@ export async function loginGuestUser(
     performanceTimer?.mark(performanceName, 'start');
 
     try {
+        // SDK handles auth flow selection internally when proxyHost is configured
         return await clients.auth.loginAsGuest({ usid: options?.usid });
     } finally {
         performanceTimer?.mark(performanceName, 'end');
@@ -172,19 +177,28 @@ export async function authorizePasswordless(
 
     const appConfig = getConfig(context);
     const passwordlessCallback = appConfig.features.passwordlessLogin.callbackUri;
+    const mode = appConfig.features.passwordlessLogin.mode;
 
-    const passwordlessLoginCallbackUri = isAbsoluteURL(passwordlessCallback)
-        ? passwordlessCallback
-        : `${getAppOrigin()}${passwordlessCallback}`;
+    let baseCallbackUri: string | undefined;
 
-    const callbackUri = parameters.callbackUri || passwordlessLoginCallbackUri;
+    if (parameters.callbackUri) {
+        baseCallbackUri = parameters.callbackUri;
+    } else if (passwordlessCallback) {
+        baseCallbackUri = isAbsoluteURL(passwordlessCallback)
+            ? passwordlessCallback
+            : `${getAppOrigin()}${passwordlessCallback}`;
+    }
 
-    const finalCallbackUri = parameters.redirectPath
-        ? `${callbackUri}?redirectUrl=${encodeURIComponent(parameters.redirectPath)}`
-        : callbackUri;
+    const finalCallbackUri =
+        baseCallbackUri && parameters.redirectPath
+            ? `${baseCallbackUri}?redirectUrl=${encodeURIComponent(parameters.redirectPath)}`
+            : baseCallbackUri;
 
     const usid = session.usid;
-    const mode = finalCallbackUri ? 'callback' : 'sms';
+
+    // Get locale from i18next context for email/SMS template localization
+    const i18nextData = context.get(i18nextContext);
+    const locale = i18nextData?.getLocale();
 
     return await clients.auth.passwordless
         .authorize({
@@ -192,6 +206,7 @@ export async function authorizePasswordless(
             callbackUri: finalCallbackUri,
             usid: usid ? String(usid) : undefined,
             mode,
+            ...(locale && { locale }),
         })
         .finally(() => {
             performanceTimer?.mark(PERFORMANCE_MARKS.authAuthorizePasswordless, 'end');
@@ -213,18 +228,25 @@ export async function getPasswordResetToken(
     const clients = createApiClients(context);
     const appConfig = getConfig(context);
     const resetPasswordCallbackUri = appConfig.features.resetPassword.callbackUri;
+    const mode = appConfig.features.resetPassword.mode;
     const callbackUri = isAbsoluteURL(resetPasswordCallbackUri)
         ? resetPasswordCallbackUri
         : `${getAppOrigin()}${resetPasswordCallbackUri}`;
 
-    return await clients.auth.password
-        .requestReset({
+    // Get locale from i18next context for email/SMS template localization
+    const i18nextData = context.get(i18nextContext);
+    const locale = i18nextData?.getLocale();
+
+    try {
+        return await clients.auth.password.requestReset({
             userId: parameters.email,
             callbackUri,
-        })
-        .finally(() => {
-            performanceTimer?.mark(PERFORMANCE_MARKS.authGetPasswordResetToken, 'end');
+            mode,
+            ...(locale && { locale }),
         });
+    } finally {
+        performanceTimer?.mark(PERFORMANCE_MARKS.authGetPasswordResetToken, 'end');
+    }
 }
 
 /**
@@ -305,9 +327,9 @@ const retrieveAuthStorageData = async (
 ): Promise<void> => {
     const { t } = getTranslation(context);
 
-    const accessToken = storage.get('access_token');
-    const accessTokenExpiry = storage.get('access_token_expiry');
-    const refreshToken = storage.get('refresh_token');
+    const accessToken = storage.get('accessToken');
+    const accessTokenExpiry = storage.get('accessTokenExpiry');
+    const refreshToken = storage.get('refreshToken');
     const performanceTimer = context.get(performanceTimerContext);
 
     // Check if access token exists and is not expired
@@ -364,7 +386,75 @@ const retrieveAuthStorageData = async (
 // - cc-nx-g: Guest users (cookie name encodes user type)
 // - cc-nx: Registered users (cookie name encodes user type)
 
-const authStorageContext = createContext<Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>>();
+/**
+ * Type guard for auth-token invalidation errors thrown by the SCAPI client.
+ */
+const isAuthTokenInvalidError = (error: unknown): error is Error =>
+    error instanceof Error && error.name === 'AuthTokenInvalidError';
+
+/**
+ * Reset any stale error state and remove access-token related data to force recovery.
+ */
+const resetRecoveryStorageState = (authStorage: Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>) => {
+    authStorage.delete('error');
+    authStorage.delete('accessToken');
+    authStorage.delete('accessTokenExpiry');
+    authStorage.delete('idpAccessToken');
+    authStorage.delete('idpAccessTokenExpiry');
+};
+
+/**
+ * Recover from a 401 by forcing a refresh/guest login and redirecting the request.
+ * Returns the redirect response and a flag used to set the recovery guard cookie.
+ */
+const handleAuthTokenInvalidation = async ({
+    request,
+    context,
+    authStorage,
+    authCache,
+    hasAuthRecoveryGuard,
+    error,
+}: {
+    request: Request;
+    context: Readonly<RouterContextProvider>;
+    authStorage: Map<keyof AuthStorageData, AuthStorageData[keyof AuthStorageData]>;
+    authCache: { ref: AuthData | undefined };
+    hasAuthRecoveryGuard: boolean;
+    error: unknown;
+}): Promise<{ response: Response; authRecoveryTriggered: boolean }> => {
+    // Guard against loops: if we already redirected once, surface the error.
+    if (hasAuthRecoveryGuard) {
+        throw error;
+    }
+
+    // Clear stale error/access-token state so refresh/guest flow can run cleanly.
+    resetRecoveryStorageState(authStorage);
+
+    // Refresh before redirect so the next request arrives with fresh cookies,
+    // and to fail fast if recovery is not possible (avoid a pointless redirect).
+    await retrieveAuthStorageData(context, authStorage, authCache).catch(() => {
+        // Intentionally empty
+    });
+
+    // If recovery failed, rethrow so ErrorBoundary can handle it.
+    if (authStorage.has('error')) {
+        throw error;
+    }
+
+    // Restart the request lifecycle with fresh auth cookies.
+    return {
+        authRecoveryTriggered: true,
+        response: new Response(null, {
+            status: 307,
+            headers: {
+                Location: request.url,
+                // Observability only: marks recovery redirect in logs/debugging.
+                'x-sfnext-auth-recovery': '1',
+            },
+        }),
+    };
+};
+
 const authCacheContext = createContext<{ ref: AuthData | undefined }>();
 
 /**
@@ -383,8 +473,8 @@ const authCacheContext = createContext<{ ref: AuthData | undefined }>();
  * User type is determined by which refresh token cookie exists (cc-nx-g = guest, cc-nx = registered).
  * Only one refresh token cookie exists at a time - a user cannot be both guest and registered.
  *
- * All cookies use httpOnly: false to allow ECOM to access cookies in hybrid storefronts, except:
- * - `cc-cv` uses httpOnly: true for security (OAuth2 PKCE flow, server-only)
+ * All cookies use httpOnly: true to prevent client-side JavaScript access (XSS protection).
+ * ECOM hybrid storefronts can still read cookies from the incoming request headers server-side.
  *
  * Cookie configuration can be overridden via getCookieConfig using environment variables.
  *
@@ -398,7 +488,7 @@ const authCacheContext = createContext<{ ref: AuthData | undefined }>();
  */
 const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }, next) => {
     // Before calling the handler: Load current Commerce API data from incoming cookies, if applicable
-    const cookieConfig = getCookieConfig({ httpOnly: false }, context);
+    const cookieConfig = getCookieConfig({ httpOnly: true }, context);
     const cookieHeader = request.headers.get('Cookie');
 
     // Parse cookie header once (not 5 times) for optimal performance
@@ -419,6 +509,8 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     const idpAccessToken = getAuthCookie(COOKIE_IDP_ACCESS_TOKEN);
     const codeVerifier = getAuthCookie(COOKIE_CODE_VERIFIER);
     const dwsid = getAuthCookie(COOKIE_DWSID);
+    const authRecoveryGuard = getAuthCookie(COOKIE_AUTH_RECOVERY_GUARD);
+    const hasAuthRecoveryGuard = authRecoveryGuard === '1';
     // Read tracking consent cookie directly as TrackingConsent enum (values match)
     const trackingConsentCookieValue = getAuthCookie(COOKIE_TRACKING_CONSENT);
     let trackingConsent: TrackingConsent | undefined =
@@ -439,6 +531,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     const encUserIdCookie = createCookie<string>(COOKIE_ENC_USER_ID, cookieConfig, context);
     const idpAccessTokenCookie = createCookie<string>(COOKIE_IDP_ACCESS_TOKEN, cookieConfig, context);
     const dwsidCookie = createCookie<string>(COOKIE_DWSID, cookieConfig, context);
+    const authRecoveryCookie = createCookie<string>(COOKIE_AUTH_RECOVERY_GUARD, cookieConfig, context);
     // Code verifier cookie is httpOnly for security (OAuth2 PKCE flow, server-only)
     const codeVerifierCookie = createCookie<string>(
         COOKIE_CODE_VERIFIER,
@@ -446,6 +539,8 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         context
     );
     const trackingConsentCookie = createCookie<string>(COOKIE_TRACKING_CONSENT, cookieConfig, context);
+    const shopperContextCookie = createCookie<string>(SHOPPER_CONTEXT_COOKIE_NAME_BASE, cookieConfig, context);
+    const sourceCodeCookie = createCookie<string>(SOURCE_CODE_COOKIE_NAME_BASE, cookieConfig, context);
 
     // Determine user type and refresh token from which cookie exists
     // Only one should exist at a time (guest and registered are mutually exclusive)
@@ -479,12 +574,12 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     // Note: expiry times are NOT persisted in cookies - they're derived from JWT tokens at runtime
     // This decodes once during middleware initialization for fast numeric comparison later
     const authData: Partial<AuthStorageData> = {};
-    if (refreshToken) authData.refresh_token = refreshToken;
+    if (refreshToken) authData.refreshToken = refreshToken;
     if (accessToken) {
-        authData.access_token = accessToken;
+        authData.accessToken = accessToken;
         // Extract claims from JWT (source of truth) - decode once for efficiency
         const claims = getSLASAccessTokenClaims(accessToken);
-        if (claims.expiry) authData.access_token_expiry = claims.expiry;
+        if (claims.expiry) authData.accessTokenExpiry = claims.expiry;
 
         // Validate tracking consent value from token matches cookie - if they differ, mark cookie for deletion
         // Only validate if tracking consent feature is enabled
@@ -498,10 +593,10 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         }
     }
     if (usid) authData.usid = usid;
-    if (customerId) authData.customer_id = customerId;
-    if (encUserId) authData.enc_user_id = encUserId;
+    if (customerId) authData.customerId = customerId;
+    if (encUserId) authData.encUserId = encUserId;
     // Add IDP access token for social login (if present)
-    if (idpAccessToken) authData.idp_access_token = idpAccessToken;
+    if (idpAccessToken) authData.idpAccessToken = idpAccessToken;
     // Add code verifier for OAuth2 PKCE flow (if present)
     if (codeVerifier) authData.codeVerifier = codeVerifier;
     // Add dwsid for hybrid storefronts (if present)
@@ -531,19 +626,52 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
     context.set(authStorageContext, authStorage);
     context.set(authCacheContext, authCache);
 
-    // Skip auth retrieval for resource auth routes as they handle their own auth operations
-    const url = new URL(request.url);
-    const isAuthResourceRoute = url.pathname.startsWith('/resource/auth/');
-
     // Before calling the handler: Verify existing Commerce API auth data or retrieve new information
-    if (!isAuthResourceRoute) {
-        await retrieveAuthStorageData(context, authStorage, authCache).catch(() => {
-            // Intentionally empty
-        });
-    }
+    await retrieveAuthStorageData(context, authStorage, authCache).catch(() => {
+        // Intentionally empty
+    });
+
+    let response: Response;
+    let authRecoveryTriggered = false;
 
     // Execute handler (loader/action/render)
-    const response = await next();
+    try {
+        response = await next();
+    } catch (error) {
+        // Only handle auth-token invalidation; everything else should bubble.
+        if (!isAuthTokenInvalidError(error)) {
+            throw error;
+        }
+
+        // Run the recovery flow and build the redirect response.
+        const recovery = await handleAuthTokenInvalidation({
+            request,
+            context,
+            authStorage,
+            authCache,
+            hasAuthRecoveryGuard,
+            error,
+        });
+
+        // Persist recovery state for response cookie handling below.
+        authRecoveryTriggered = recovery.authRecoveryTriggered;
+        response = recovery.response;
+    }
+
+    const storedAuthError = authStorage.get('error');
+    if (storedAuthError === AUTH_TOKEN_INVALID_ERROR) {
+        authStorage.delete('error');
+        const recovery = await handleAuthTokenInvalidation({
+            request,
+            context,
+            authStorage,
+            authCache,
+            hasAuthRecoveryGuard,
+            error: new AuthTokenInvalidError(),
+        });
+        authRecoveryTriggered = recovery.authRecoveryTriggered;
+        response = recovery.response;
+    }
 
     // After calling the handler: Write back storage data and cookies, if required
     if (authStorage.has('isDestroyed') || authStorage.has('error')) {
@@ -580,6 +708,8 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         response.headers.append('Set-Cookie', await dwsidCookie.serialize('', deleteCookieConfig));
         response.headers.append('Set-Cookie', await codeVerifierCookie.serialize('', deleteHttpOnlyCookieConfig));
         response.headers.append('Set-Cookie', await trackingConsentCookie.serialize('', deleteCookieConfig));
+        response.headers.append('Set-Cookie', await shopperContextCookie.serialize('', deleteHttpOnlyCookieConfig));
+        response.headers.append('Set-Cookie', await sourceCodeCookie.serialize('', deleteHttpOnlyCookieConfig));
     } else if (authStorage.has('isUpdated')) {
         // Clean up storage container metadata
         authStorage.delete('isUpdated');
@@ -590,8 +720,8 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         authPromiseCache.ref = createAuthPromise(context, entry);
 
         // Get expiry times (calculated from token response) and user type
-        const accessTokenExpiryValue = authStorage.get('access_token_expiry') as number | undefined;
-        const refreshTokenExpiryValue = authStorage.get('refresh_token_expiry') as number | undefined;
+        const accessTokenExpiryValue = authStorage.get('accessTokenExpiry') as number | undefined;
+        const refreshTokenExpiryValue = authStorage.get('refreshTokenExpiry') as number | undefined;
         const userTypeValue = authStorage.get('userType') as 'guest' | 'registered' | undefined;
 
         // Set refresh token cookie with refresh token expiry
@@ -600,7 +730,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         // NOTE: userType itself is NOT written to cookies - only the refresh token is written
         // to the appropriate cookie name (cc-nx-g or cc-nx). On next request, userType will
         // be derived from which cookie exists.
-        const refreshTokenValue = authStorage.get('refresh_token');
+        const refreshTokenValue = authStorage.get('refreshToken');
         if (refreshTokenValue && typeof refreshTokenValue === 'string' && refreshTokenExpiryValue && userTypeValue) {
             const refreshTokenCookie =
                 userTypeValue === 'guest' ? refreshTokenGuestCookie : refreshTokenRegisteredCookie;
@@ -635,7 +765,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         }
 
         // Set access token cookie with access token expiry
-        const accessTokenValue = authStorage.get('access_token');
+        const accessTokenValue = authStorage.get('accessToken');
         if (accessTokenValue && typeof accessTokenValue === 'string' && accessTokenExpiryValue) {
             response.headers.append(
                 'Set-Cookie',
@@ -669,7 +799,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         }
 
         // Set customerId cookie with refresh token expiry (same as refresh token)
-        const customerIdValue = authStorage.get('customer_id');
+        const customerIdValue = authStorage.get('customerId');
         if (customerIdValue && typeof customerIdValue === 'string' && refreshTokenExpiryValue) {
             response.headers.append(
                 'Set-Cookie',
@@ -686,7 +816,7 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         }
 
         // Set encUserId cookie with refresh token expiry (same as refresh token)
-        const encUserIdValue = authStorage.get('enc_user_id');
+        const encUserIdValue = authStorage.get('encUserId');
         if (encUserIdValue && typeof encUserIdValue === 'string' && refreshTokenExpiryValue) {
             response.headers.append(
                 'Set-Cookie',
@@ -703,8 +833,8 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
         }
 
         // Set IDP access token cookie with access token expiry (for social login)
-        const idpAccessTokenValue = authStorage.get('idp_access_token');
-        const idpAccessTokenExpiryValue = authStorage.get('idp_access_token_expiry') as number | undefined;
+        const idpAccessTokenValue = authStorage.get('idpAccessToken');
+        const idpAccessTokenExpiryValue = authStorage.get('idpAccessTokenExpiry') as number | undefined;
         if (idpAccessTokenValue && typeof idpAccessTokenValue === 'string' && idpAccessTokenExpiryValue) {
             response.headers.append(
                 'Set-Cookie',
@@ -802,6 +932,38 @@ const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }
                 }
             }
         }
+    }
+
+    if (authRecoveryTriggered) {
+        response.headers.append(
+            'Set-Cookie',
+            await authRecoveryCookie.serialize(
+                '1',
+                getCookieConfig(
+                    {
+                        maxAge: 30,
+                    },
+                    context
+                )
+            )
+        );
+    }
+
+    if (hasAuthRecoveryGuard) {
+        response.headers.append(
+            'Set-Cookie',
+            await authRecoveryCookie.serialize(
+                '',
+                getCookieConfig(
+                    {
+                        maxAge: undefined,
+                        expires: new Date(0),
+                    },
+                    context
+                )
+            )
+        );
+        response.headers.set('x-sfnext-auth-recovery-guard', '1');
     }
 
     return response;

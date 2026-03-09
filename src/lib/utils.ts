@@ -183,6 +183,18 @@ export const getAppOrigin = () => {
 };
 
 /**
+ * Get the SCAPI base URL for server-side requests.
+ * Uses SCAPI_PROXY_HOST if set, otherwise constructs from the given shortCode.
+ *
+ * Server-only — accesses process.env.
+ *
+ * @param shortCode - Commerce API short code (e.g., 'kv7kzm78')
+ * @returns Base URL like 'https://kv7kzm78.api.commercecloud.salesforce.com' or the proxy host
+ */
+export const getScapiBaseUrl = (shortCode: string): string =>
+    process.env.SCAPI_PROXY_HOST || `https://${shortCode}.api.commercecloud.salesforce.com`;
+
+/**
  * Determines whether the specified URL is absolute.
  *
  * @param url The URL to test
@@ -241,6 +253,34 @@ export const clearSessionJSONItem = (key: string): void => {
         // Failed to remove, ignore silently
     }
 };
+
+/**
+ * Parse a JSON string into a flat Record<string, string>.
+ * Only includes entries whose values are string or null (number, boolean, objects, arrays are omitted).
+ * Null is coerced to the string "null". Returns {} for invalid JSON or non-objects.
+ *
+ * For now used for strings can be extended to support other types in the future.
+ *
+ * @param value - JSON string, e.g. '{"device":"mobile","src":"124"}', '{"src":"email"}'
+ * @returns Record with string values only
+ */
+export function parseJsonToStringRecord(value: string | null | undefined): Record<string, string> {
+    if (value == null || value === '') return {};
+    try {
+        const parsed = JSON.parse(value);
+        if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return {};
+        const result: Record<string, string> = {};
+        for (const key of Object.keys(parsed)) {
+            const v = (parsed as Record<string, unknown>)[key];
+            if (typeof v === 'string' || v === null) {
+                result[key] = String(v);
+            }
+        }
+        return result;
+    } catch {
+        return {};
+    }
+}
 
 /**
  * Resolves a local asset URL to work correctly in both local and MRT (Managed Runtime) environments.

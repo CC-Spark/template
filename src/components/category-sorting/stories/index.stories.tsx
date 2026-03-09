@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { allModes } from '../../../../.storybook/modes';
 import CategorySorting from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
@@ -74,6 +75,7 @@ const meta: Meta<typeof CategorySorting> = {
     component: CategorySorting,
     tags: ['autodocs', 'interaction'],
     parameters: {
+        chromatic: { modes: { desktop: allModes.desktop } },
         layout: 'centered',
         docs: {
             description: {
@@ -197,7 +199,7 @@ The default CategorySorting shows the sort dropdown:
         await expect(label).toBeInTheDocument();
 
         // Test select is present
-        const select = canvas.getByRole('combobox');
+        const select = canvas.getByRole<HTMLSelectElement>('combobox');
         await expect(select).toBeInTheDocument();
 
         // Test changing sort option
@@ -269,7 +271,7 @@ CategorySorting with a pre-selected sort option:
         await waitForStorybookReady(canvasElement);
 
         // Test select is present
-        const select = canvas.getByRole('combobox');
+        const select = canvas.getByRole<HTMLSelectElement>('combobox');
         await expect(select).toBeInTheDocument();
 
         // Test selected option is set

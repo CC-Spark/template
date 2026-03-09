@@ -17,6 +17,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
 import SearchSuggestionsPopup from './suggestions-grid';
+import { ConfigProvider } from '@/config/context';
+import { mockConfig } from '@/test-utils/config';
 
 // Mock DynamicImage component
 vi.mock('@/components/dynamic-image', () => ({
@@ -32,7 +34,11 @@ vi.mock('@/hooks/use-analytics', () => ({
 }));
 
 const renderWithRouter = (ui: React.ReactElement) => {
-    return render(<BrowserRouter>{ui}</BrowserRouter>);
+    return render(
+        <ConfigProvider config={mockConfig}>
+            <BrowserRouter>{ui}</BrowserRouter>
+        </ConfigProvider>
+    );
 };
 
 describe('SearchSuggestionsPopup Component', () => {
@@ -55,13 +61,13 @@ describe('SearchSuggestionsPopup Component', () => {
 
     it('should render nothing when suggestions are empty, null, or undefined', () => {
         const { container: emptyContainer } = renderWithRouter(<SearchSuggestionsPopup suggestions={[]} />);
-        expect(emptyContainer.firstChild).toBeNull();
+        expect(emptyContainer.querySelector('[data-testid="sf-horizontal-product-suggestions"]')).toBeNull();
 
         const { container: nullContainer } = renderWithRouter(<SearchSuggestionsPopup suggestions={null as any} />);
-        expect(nullContainer.firstChild).toBeNull();
+        expect(nullContainer.querySelector('[data-testid="sf-horizontal-product-suggestions"]')).toBeNull();
 
         const { container: undefinedContainer } = renderWithRouter(<SearchSuggestionsPopup suggestions={undefined} />);
-        expect(undefinedContainer.firstChild).toBeNull();
+        expect(undefinedContainer.querySelector('[data-testid="sf-horizontal-product-suggestions"]')).toBeNull();
     });
 
     it('should render suggestions with correct structure and content', () => {
@@ -79,14 +85,12 @@ describe('SearchSuggestionsPopup Component', () => {
     it('should render images when provided and fallback when missing', () => {
         const { container } = renderWithRouter(<SearchSuggestionsPopup suggestions={mockSuggestions} />);
 
-        // Images are decorative (aria-hidden), so use querySelector instead of getByRole
+        // Product suggestion images are informative and use suggestion name alt text.
         const images = container.querySelectorAll('img');
         expect(images).toHaveLength(3); // Only 3 products have images
 
         expect(images[0]).toHaveAttribute('src', 'https://example.com/iphone15.jpg[?sw={width}]');
-        // Decorative images have empty alt text to avoid redundant-alt a11y violation
-        expect(images[0]).toHaveAttribute('alt', '');
-        expect(images[0]).toHaveAttribute('aria-hidden', 'true');
+        expect(images[0]).toHaveAttribute('alt', 'iPhone 15 Pro');
         expect(images[0]).toHaveAttribute('loading', 'eager');
 
         // Check fallback for missing image
@@ -124,9 +128,11 @@ describe('SearchSuggestionsPopup Component', () => {
 
         // Should not crash without callback
         rerender(
-            <BrowserRouter>
-                <SearchSuggestionsPopup suggestions={mockSuggestions} closeAndNavigate={undefined} />
-            </BrowserRouter>
+            <ConfigProvider config={mockConfig}>
+                <BrowserRouter>
+                    <SearchSuggestionsPopup suggestions={mockSuggestions} closeAndNavigate={undefined} />
+                </BrowserRouter>
+            </ConfigProvider>
         );
         expect(() => fireEvent.click(screen.getByText('Samsung Galaxy S24'))).not.toThrow();
     });

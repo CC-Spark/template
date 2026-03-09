@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { use, useEffect, useRef, useMemo, Suspense, Fragment } from 'react';
+import { use, useEffect, useRef, useMemo, Suspense, Fragment, lazy } from 'react';
 import { type LoaderFunctionArgs } from 'react-router';
-import { type ShopperProducts, type ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import { type ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
 import { currencyContext } from '@/lib/currency';
 import ProductSkeleton from '@/components/product-skeleton';
 import ProductView from '@/components/product-view';
 import { Typography } from '@/components/typography';
 import ChildProducts from '@/components/product-view/child-products';
+import { ProductRatingSummary } from '@/components/product-view/product-rating-summary';
+
+// Lazy-load reviews section to reduce initial PDP bundle (reviews chunk loads with product page)
+const CustomerReviewsSection = lazy(() =>
+    import('@/components/customer-reviews-section').then((m) => ({ default: m.CustomerReviewsSection }))
+);
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import ProductRecommendations from '@/components/product-recommendations';
 import { EINSTEIN_RECOMMENDERS } from '@/adapters/einstein';
@@ -30,9 +36,10 @@ import { useAnalytics } from '@/hooks/use-analytics';
 import { Region } from '@/components/region';
 import { ProductProvider } from '@/providers/product-context';
 import ProductContentProvider from '@/providers/product-content';
+import { ProductReviewsProvider } from '@/providers/product-reviews-context';
 import { PageType } from '@/lib/decorators/page-type';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
-import { collectComponentDataPromises, fetchPageFromLoader } from '@/lib/util/pageLoader';
+import { fetchPageWithComponentData, type PageWithComponentData } from '@/lib/util/pageLoader';
 import { JsonLd } from '@/components/json-ld';
 import { generateProductSchema } from '@/utils/product-schema';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
@@ -65,8 +72,7 @@ export class ProductPageMetadata {}
 export type ProductPageData = {
     product: Promise<ShopperProducts.schemas['Product']>;
     category: Promise<ShopperProducts.schemas['Category'] | undefined>;
-    page: Promise<ShopperExperience.schemas['Page']>;
-    componentData: Promise<Record<string, Promise<unknown>>>;
+    page: Promise<PageWithComponentData>;
     pageKey: string;
     productSchema: Promise<ReturnType<typeof generateProductSchema> | null>;
 };
@@ -179,12 +185,6 @@ export function loader(args: LoaderFunctionArgs): ProductPageData {
         return undefined;
     });
 
-    // Fetch page data from Page Designer API
-    const pagePromise = fetchPageFromLoader(args, {
-        pageId: 'pdp',
-        productId: searchParams.get('pid') || productId,
-    });
-
     // Generate product schema in loader (server-side) for SEO
     // This ensures it's available immediately and can be rendered outside Suspense
     const productSchemaPromise = productPromise
@@ -205,12 +205,14 @@ export function loader(args: LoaderFunctionArgs): ProductPageData {
     return {
         product: productPromise,
         category: categoryPromise,
-        page: pagePromise,
         /**
-         * Collect component data promises for components in regions.
-         * Handle errors gracefully - return empty object if page fetch failed.
+         * Fetch page data from Page Designer API with nested componentData promises.
+         * Handle errors gracefully - return page with empty componentData if fetch failed.
          */
-        componentData: collectComponentDataPromises(args, pagePromise).catch(() => ({})),
+        page: fetchPageWithComponentData(args, {
+            pageId: 'pdp',
+            productId: searchParams.get('pid') || productId,
+        }),
         pageKey: productId,
         productSchema: productSchemaPromise,
     };
@@ -335,6 +337,7 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
                         {productData.shortDescription}
                     </Typography>
                 )}
+                <ProductRatingSummary />
             </div>
             {isProductASet || isProductABundle ? (
                 <>
@@ -344,24 +347,21 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
             ) : (
                 <ProductView product={productData} category={categoryData} />
             )}
+            {/* Customer Reviews Section (lazy-loaded to reduce initial bundle) */}
+            <Suspense fallback={null}>
+                <CustomerReviewsSection />
+            </Suspense>
         </div>
     );
 
     /**
      * Renders the page content based on Page Designer regions
      */
-    const renderPageContent = (page: Promise<ShopperExperience.schemas['Page']>) => {
+    const renderPageContent = (page: Promise<PageWithComponentData>) => {
         return (
             <>
                 {/* Promo Content Region - Promotional content above main product */}
-                <div className="mb-8">
-                    <Region
-                        page={page}
-                        regionId="promoContent"
-                        componentData={loaderData.componentData}
-                        errorElement={<div />}
-                    />
-                </div>
+                <Region className="mb-8" page={page} regionId="promoContent" />
 
                 {/* Mobile Product Title - shown on mobile only */}
                 <div className="block md:hidden mb-8">
@@ -379,29 +379,28 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
                 {mainProductContent}
 
                 {/* Engagement Content Region - Shows page content or recommendations */}
-                <div className="mt-16">
-                    <Region
-                        page={page}
-                        regionId="engagementContent"
-                        componentData={loaderData.componentData}
-                        errorElement={<ProductRecommendationsSection />}
-                    />
-                </div>
+                <Region
+                    className="mt-16"
+                    page={page}
+                    regionId="engagementContent"
+                    errorElement={<ProductRecommendationsSection />}
+                />
             </>
         );
     };
 
-    // Wrap entire page content with ProductContentProvider (PDP modals) and ProductProvider (product context)
     const content = (
-        <ProductContentProvider>
-            <ProductProvider product={productData}>
-                <div className="min-h-screen bg-background">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        {renderPageContent(loaderData.page)}
+        <ProductProvider product={productData}>
+            <ProductContentProvider>
+                <ProductReviewsProvider>
+                    <div className="min-h-screen bg-background">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            {renderPageContent(loaderData.page)}
+                        </div>
                     </div>
-                </div>
-            </ProductProvider>
-        </ProductContentProvider>
+                </ProductReviewsProvider>
+            </ProductContentProvider>
+        </ProductProvider>
     );
 
     let finalContent = content;

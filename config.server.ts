@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { defineConfig } from '@/config/schema';
-import { TrackingConsent } from '@/types/tracking-consent';
+// Relative paths required here — this file is evaluated by vite-node during
+// react-router typegen (via routes.ts), before Vite aliases are resolved.
+import { defineConfig } from './src/config/schema';
+import { TrackingConsent } from './src/types/tracking-consent';
 
 /**
  * Application Configuration
@@ -39,6 +41,11 @@ import { TrackingConsent } from '@/types/tracking-consent';
  *    - Configuration Guide: `src/config/README.md`
  *    - Configuration Options Reference: `src/config/CONFIG-OPTIONS.md`
  */
+
+// DIS hosts:
+// - Staging: https://edge.disstg.commercecloud.salesforce.com
+// - Production: https://edge.dis.commercecloud.salesforce.com
+const DIS_DEFAULT_HOST = 'https://edge.disstg.commercecloud.salesforce.com';
 
 export default defineConfig({
     // Project identification and metadata
@@ -126,13 +133,9 @@ export default defineConfig({
             sites: [
                 {
                     id: 'RefArchGlobal',
-                    defaultLocale: 'en-US',
-                    defaultCurrency: 'USD',
+                    defaultLocale: 'en-GB',
+                    defaultCurrency: 'GBP',
                     supportedLocales: [
-                        {
-                            id: 'en-US',
-                            preferredCurrency: 'USD',
-                        },
                         {
                             id: 'da-DK',
                             preferredCurrency: 'EUR',
@@ -199,7 +202,7 @@ export default defineConfig({
                             preferredCurrency: 'TWD',
                         },
                     ],
-                    supportedCurrencies: ['EUR', 'USD'],
+                    supportedCurrencies: ['EUR', 'GBP'],
                 },
             ],
         },
@@ -215,17 +218,24 @@ export default defineConfig({
             enabled: false,
             legacyRoutes: [],
         },
+        // Authentication configuration shared across all auth features
+        // See CONFIG-OPTIONS.md#auth for detailed documentation
+        auth: {
+            otpLength: 8,
+        },
         // Feature flags for enabling/disabling functionality
         // See CONFIG-OPTIONS.md#features for detailed documentation
         features: {
             passwordlessLogin: {
                 enabled: false,
+                mode: 'email',
                 callbackUri: '/passwordless-login-callback',
-                landingUri: '/passwordless-login-landing',
+                landingUri: '/login',
             },
             resetPassword: {
                 callbackUri: '/reset-password-callback',
                 landingUri: '/reset-password-landing',
+                mode: 'email',
             },
             socialLogin: {
                 enabled: false,
@@ -239,7 +249,6 @@ export default defineConfig({
             guestCheckout: true,
             shopperContext: {
                 enabled: false,
-                dwsourcecodeCookieSuffix: undefined,
             },
             googleCloudAPI: {
                 apiKey: '',
@@ -252,8 +261,8 @@ export default defineConfig({
         // Also, make sure the supportedLngs are always presented in site.supportedLocale to
         // make sure the app can fully be translated to another language
         i18n: {
-            fallbackLng: 'en-US',
-            supportedLngs: ['it-IT', 'en-US'], // Your supported languages, the fallback should be LAST
+            fallbackLng: 'en-GB',
+            supportedLngs: ['it-IT', 'en-GB'], // Your supported languages, the fallback should be LAST
         },
         // Global UI configuration and component settings
         // See CONFIG-OPTIONS.md#global for detailed documentation
@@ -262,16 +271,9 @@ export default defineConfig({
             //   config.pages.search.components?.productListing ?? config.global.productListing
             branding: { name: 'Performer', logoAlt: 'Home' },
             productListing: {
-                productsPerPage: 24,
-                enableInfiniteScroll: false,
-                sortOptions: ['relevance', 'price-asc', 'price-desc', 'name-asc'],
-                enableQuickView: true,
                 defaultProductTileImgAspectRatio: 1,
             },
             carousel: { defaultItemCount: 4 },
-            paginatedProductCarousel: {
-                defaultLimit: 8,
-            },
             badges: [
                 { propertyName: 'c_isNew', label: 'New', color: 'green', priority: 1 },
                 { propertyName: 'c_isSale', label: 'Sale', color: 'orange', priority: 2 },
@@ -320,20 +322,34 @@ export default defineConfig({
         // Link hints for browser resource loading
         // See CONFIG-OPTIONS.md#links for detailed documentation
         links: {
-            preconnect: ['https://edge.disstg.commercecloud.salesforce.com'],
+            // DIS hosts:
+            // - Staging: https://edge.disstg.commercecloud.salesforce.com
+            // - Production: https://edge.dis.commercecloud.salesforce.com
+            preconnect: [DIS_DEFAULT_HOST],
         },
         // Salesforce Dynamic Imaging Service settings
         // See CONFIG-OPTIONS.md#images for detailed documentation
+        // DIS hosts:
+        // - Staging: https://edge.disstg.commercecloud.salesforce.com
+        // - Production: https://edge.dis.commercecloud.salesforce.com
         images: {
             quality: 70,
             formats: ['webp'],
             fallbackFormat: 'jpg',
+            host: DIS_DEFAULT_HOST,
+            enableDis: true,
         },
         // Search-specific settings
         // See CONFIG-OPTIONS.md#search for detailed documentation
         search: {
             products: {
-                orderableOnly: true,
+                refine: {
+                    orderableOnly: true,
+                },
+                hits: {
+                    limit: 24,
+                    critical: 2,
+                },
             },
         },
         // Performance optimization settings
@@ -398,7 +414,7 @@ export default defineConfig({
                     enabled: true,
                     host: 'https://zzrf-001.dx.commercecloud.salesforce.com',
                     siteId: 'RefArchGlobal',
-                    locale: 'en_US',
+                    locale: 'en_GB',
                     siteUUID: '8bb1ea1b04ac3454d36b83a888',
                     eventToggles: {
                         view_page: true,
@@ -447,5 +463,10 @@ export default defineConfig({
         // Development tools and features
         // See CONFIG-OPTIONS.md#development for detailed documentation
         development: { enableDevtools: true, hotReload: true, strictMode: true },
+        url: {
+            // Note: will change when multi-site implementation is integrated into the template
+            prefix: '/',
+            excludeRoutes: ['/resource/**', '/action/**'],
+        },
     },
 });

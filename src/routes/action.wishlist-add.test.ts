@@ -30,7 +30,7 @@ vi.mock('@/middlewares/auth.server', () => ({
     getAuth: () => mockGetAuth(),
 }));
 
-vi.mock('@/lib/api/customer.server', () => ({
+vi.mock('@/lib/api/customer', () => ({
     isRegisteredCustomer: () => mockIsRegisteredCustomer(),
 }));
 
@@ -126,7 +126,7 @@ describe('action.wishlist-add', () => {
         // Setup default mocks
         mockIsRegisteredCustomer.mockReturnValue(true);
         mockGetAuth.mockReturnValue({
-            customer_id: 'customer-123',
+            customerId: 'customer-123',
             userType: 'registered',
             access_token: 'token-123',
         } as any);
@@ -174,6 +174,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             await expect(action(args)).rejects.toThrow();
@@ -185,6 +186,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             // When productId is missing, Error is thrown and caught
@@ -220,6 +222,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -274,6 +277,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -338,6 +342,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             // No timer advancement needed for fallback path - creation fails immediately
@@ -399,6 +404,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             // Start the async operation
@@ -455,6 +461,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -499,6 +506,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -534,6 +542,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -584,6 +593,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -616,6 +626,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -648,6 +659,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             const response = await action(args);
@@ -715,6 +727,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             // Start the async operation
@@ -768,6 +781,7 @@ describe('action.wishlist-add', () => {
                 request,
                 context: mockContext,
                 params: {},
+                unstable_pattern: 'action/wishlist-add',
             };
 
             // Start the async operation

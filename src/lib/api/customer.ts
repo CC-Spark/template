@@ -17,9 +17,11 @@ import type { ActionFunctionArgs } from 'react-router';
 import { type ShopperBasketsV2, type ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 import { customAlphabet, nanoid } from 'nanoid';
 import { createApiClients } from '@/lib/api-clients';
-import { getAuth, updateAuth, clearInvalidSessionAndRestoreGuest } from '@/middlewares/auth.server';
+import { getAuth, clearInvalidSessionAndRestoreGuest } from '@/middlewares/auth.server';
+import { loginRegisteredUser } from '@/lib/api/auth/standard-login';
 import { extractResponseError } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
+import { orderAddressToCustomerAddress } from '@/lib/address-utils';
 
 /**
  * Customer lookup result
@@ -37,7 +39,9 @@ export interface CustomerLookupResult {
  * @param address - The address to validate
  * @throws Error if any required field is missing
  */
-function validateAddress(address: ShopperBasketsV2.schemas['OrderAddress']): void {
+function validateAddress(
+    address: ShopperBasketsV2.schemas['OrderAddress'] | ShopperCustomers.schemas['CustomerAddress']
+): void {
     const { t } = getTranslation();
 
     if (!address.countryCode) {
@@ -87,13 +91,13 @@ export async function lookupCustomerByEmail(
         const session = getAuth(context);
 
         // If this is already a registered user session, check if email matches
-        if (session.userType === 'registered' && session.customer_id) {
+        if (session.userType === 'registered' && session.customerId) {
             try {
                 const clients = createApiClients(context);
                 const { data: customer } = await clients.shopperCustomers.getCustomer({
                     params: {
                         path: {
-                            customerId: session.customer_id,
+                            customerId: session.customerId,
                         },
                     },
                 });
@@ -109,7 +113,7 @@ export async function lookupCustomerByEmail(
             } catch {
                 // Customer lookup failed - continue as guest
                 // Don't rethrow the error - just continue with guest flow below
-                // This handles cases where the session has an invalid customer_id
+                // This handles cases where the session has an invalid customerId
             }
         }
 
@@ -138,10 +142,10 @@ export function isRegisteredCustomer(context: ActionFunctionArgs['context']): bo
     const session = getAuth(context);
     return !!(
         session.userType === 'registered' &&
-        session.customer_id &&
-        session.access_token &&
-        session.access_token_expiry &&
-        session.access_token_expiry > Date.now()
+        session.customerId &&
+        session.accessToken &&
+        session.accessTokenExpiry &&
+        session.accessTokenExpiry > Date.now()
     );
 }
 
@@ -161,7 +165,7 @@ export async function getCurrentCustomer(
 
         const session = getAuth(context);
 
-        if (!session.customer_id) {
+        if (!session.customerId) {
             return null;
         }
 
@@ -170,7 +174,7 @@ export async function getCurrentCustomer(
         const { data: customer } = await clients.shopperCustomers.getCustomer({
             params: {
                 path: {
-                    customerId: session.customer_id,
+                    customerId: session.customerId,
                 },
             },
         });
@@ -180,7 +184,7 @@ export async function getCurrentCustomer(
         const { status_code } = await extractResponseError(error);
         // Handle specific error cases
         if (status_code === '404') {
-            // Customer not found (404) - invalid customer_id in auth cookies
+            // Customer not found (404) - invalid customerId in auth cookies
             // This can happen when:
             // - Customer account was deleted from Commerce Cloud
             // - Using cookies from a different environment (e.g., staging → production)
@@ -346,28 +350,7 @@ async function loginCustomerAfterRegistration(
     success: boolean;
     error?: string;
 }> {
-    const loginResponse = await fetch('/resource/auth/login-registered', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            email,
-            password,
-        }),
-    });
-
-    const loginResult = await loginResponse.json();
-
-    if (loginResult.success) {
-        // Update session with user tokens and info returned by resource.auth
-        const tokenResponse = loginResult.data;
-        updateAuth(context, tokenResponse);
-        updateAuth(context, (session) => ({
-            ...session,
-            userType: 'registered',
-        }));
-    }
+    const loginResult = await loginRegisteredUser(context, { email, password });
     return loginResult;
 }
 
@@ -440,12 +423,12 @@ export async function registerGuestUser(
         const loginResult = await loginCustomerAfterRegistration(context, email, password);
 
         if (loginResult.success) {
-            // Get the updated session after login to retrieve customer_id
+            // Get the updated session after login to retrieve customerId
             const updatedSession = getAuth(context);
 
             return {
                 success: true,
-                customerId: updatedSession.customer_id,
+                customerId: updatedSession.customerId,
                 password,
                 autoLoggedIn: true,
             };
@@ -469,6 +452,41 @@ export async function registerGuestUser(
 }
 
 /**
+ * Save a customer address to their profile
+ *
+ * @param context - React Router context
+ * @param customerId - The customer ID to save the address for
+ * @param address - The customer address to save
+ * @returns Promise<boolean> indicating success
+ */
+export async function saveCustomerAddress(
+    context: ActionFunctionArgs['context'],
+    customerId: string,
+    address: ShopperCustomers.schemas['CustomerAddress']
+): Promise<boolean> {
+    try {
+        const clients = createApiClients(context);
+
+        // Validate required address fields
+        validateAddress(address);
+
+        await clients.shopperCustomers.createCustomerAddress({
+            params: {
+                path: {
+                    customerId,
+                },
+            },
+            body: address,
+        });
+
+        return true;
+    } catch {
+        // Failed to save address
+        return false;
+    }
+}
+
+/**
  * Save customer's shipping address to their profile
  *
  * @param context - React Router context
@@ -481,41 +499,9 @@ export async function saveShippingAddressToCustomer(
     customerId: string,
     address: ShopperBasketsV2.schemas['OrderAddress']
 ): Promise<boolean> {
-    try {
-        const clients = createApiClients(context);
-
-        // Validate required address fields
-        validateAddress(address);
-
-        // Create the address for the customer with validated fields
-        const customerAddress = {
-            addressId: `shipping_${Date.now()}`, // Generate unique address ID
-            address1: address.address1 as string,
-            address2: address.address2,
-            city: address.city as string,
-            countryCode: address.countryCode as string,
-            firstName: address.firstName as string,
-            lastName: address.lastName as string,
-            phone: address.phone,
-            postalCode: address.postalCode as string,
-            stateCode: address.stateCode,
-            preferred: true, // Set as preferred shipping address
-        };
-
-        await clients.shopperCustomers.createCustomerAddress({
-            params: {
-                path: {
-                    customerId,
-                },
-            },
-            body: customerAddress,
-        });
-
-        return true;
-    } catch {
-        // Failed to save shipping address
-        return false;
-    }
+    // Convert OrderAddress to CustomerAddress and delegate to saveCustomerAddress
+    const customerAddress = orderAddressToCustomerAddress(address, true);
+    return saveCustomerAddress(context, customerId, customerAddress);
 }
 
 /**
@@ -740,7 +726,7 @@ export async function getCustomerProfileForCheckout(
         const { status_code } = await extractResponseError(error);
         // Handle specific error cases
         if (status_code === '404') {
-            // Customer not found (404) - invalid customer_id in auth cookies
+            // Customer not found (404) - invalid customerId in auth cookies
             // This can happen when:
             // - Customer account was deleted from Commerce Cloud
             // - Using cookies from a different environment (e.g., staging → production)
@@ -788,13 +774,14 @@ export async function savePaymentMethodToCustomer(
                 ? {
                       // Only include writable properties for customer payment instruments
                       cardType: paymentInstrument.paymentCard.cardType,
-                      creditCardNumber: paymentInstrument.paymentCard.creditCardNumber,
+                      number: paymentInstrument.paymentCard.number,
                       expirationMonth: paymentInstrument.paymentCard.expirationMonth,
                       expirationYear: paymentInstrument.paymentCard.expirationYear,
                       holder: paymentInstrument.paymentCard.holder,
                       // Exclude read-only properties: maskedNumber, issuerNumber, etc.
                   }
                 : undefined,
+            default: paymentInstrument.default,
         };
 
         await clients.shopperCustomers.createCustomerPaymentInstrument({
@@ -803,12 +790,81 @@ export async function savePaymentMethodToCustomer(
                     customerId,
                 },
             },
-            body: customerPaymentInstrument,
+            body: customerPaymentInstrument as ShopperCustomers.schemas['CustomerPaymentInstrumentRequest'],
         });
 
         return true;
     } catch {
         // Failed to save payment method to customer profile
+        return false;
+    }
+}
+
+/**
+ * Delete a payment method from a customer's profile
+ *
+ * @param context - React Router context
+ * @param customerId - The customer ID
+ * @param paymentInstrumentId - The payment instrument ID to delete
+ * @returns Promise<boolean> indicating success
+ */
+export async function deleteCustomerPaymentInstrument(
+    context: ActionFunctionArgs['context'],
+    customerId: string,
+    paymentInstrumentId: string
+): Promise<boolean> {
+    try {
+        const clients = createApiClients(context);
+
+        await clients.shopperCustomers.deleteCustomerPaymentInstrument({
+            params: {
+                path: {
+                    customerId,
+                    paymentInstrumentId,
+                },
+            },
+        });
+
+        return true;
+    } catch {
+        // Failed to delete payment method from customer profile
+        return false;
+    }
+}
+
+/**
+ * Set a payment method as the default for a customer
+ * Note: Payment card details cannot be changed once saved. To update card details,
+ * you must delete the payment method and create a new one.
+ *
+ * @param context - React Router context
+ * @param customerId - The customer ID
+ * @param paymentInstrumentId - The payment instrument ID to set as default
+ * @returns Promise<boolean> indicating success
+ */
+export async function setDefaultPaymentInstrument(
+    context: ActionFunctionArgs['context'],
+    customerId: string,
+    paymentInstrumentId: string
+): Promise<boolean> {
+    try {
+        const clients = createApiClients(context);
+
+        await clients.shopperCustomers.updateCustomerPaymentInstrument({
+            params: {
+                path: {
+                    customerId,
+                    paymentInstrumentId,
+                },
+            },
+            body: {
+                default: true,
+            },
+        });
+
+        return true;
+    } catch {
+        // Failed to set payment method as default
         return false;
     }
 }

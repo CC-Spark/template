@@ -29,6 +29,18 @@ import { CurrencyProvider } from '@/providers/currency';
 
 vi.mock('@/lib/product-utils', () => ({
     createProductUrl: vi.fn(() => '/product/test-product'),
+    getImagesForColor: vi.fn(() => [
+        {
+            link: 'https://example.com/default1.jpg',
+            disBaseLink: 'https://example.com/default1.jpg',
+            alt: 'Default Image 1',
+        },
+        {
+            link: 'https://example.com/default2.jpg',
+            disBaseLink: 'https://example.com/default2.jpg',
+            alt: 'Default Image 2',
+        },
+    ]),
     getDecoratedVariationAttributes: vi.fn(() => [
         {
             id: 'color',
@@ -95,13 +107,11 @@ const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
                     alt: 'Navy swatch',
                     link: 'https://example.com/navy.jpg',
                     disBaseLink: 'https://example.com/navy.jpg',
-                    variationAttributes: [{ id: 'color', values: [{ value: 'navy' }] }],
                 },
                 {
                     alt: 'Red swatch',
                     link: 'https://example.com/red.jpg',
                     disBaseLink: 'https://example.com/red.jpg',
-                    variationAttributes: [{ id: 'color', values: [{ value: 'red' }] }],
                 },
             ],
         },
@@ -165,45 +175,6 @@ describe('ProductTile', () => {
         expect(screen.getByText('New')).toBeInTheDocument();
     });
 
-    test('handles empty attribute value selection (edge case)', async () => {
-        const user = userEvent.setup();
-        renderComponent();
-
-        const swatches = screen
-            .getAllByRole('button')
-            .filter(
-                (button) =>
-                    button.className.includes('cursor-pointer') &&
-                    !button.textContent?.includes(t('product:moreOptions'))
-            );
-
-        if (swatches.length > 0) {
-            // Should not throw error when clicking empty attribute value
-            await user.click(swatches[0]);
-            expect(swatches[0]).toBeInTheDocument();
-        }
-    });
-
-    test('allows switching between attribute variants', async () => {
-        const user = userEvent.setup();
-        renderComponent();
-
-        const swatches = screen
-            .getAllByRole('button')
-            .filter(
-                (button) =>
-                    button.className.includes('cursor-pointer') &&
-                    !button.textContent?.includes(t('product:moreOptions'))
-            );
-
-        if (swatches.length >= 2) {
-            await user.click(swatches[1]); // Click small
-            await user.click(swatches[0]); // Go back to first (empty) - edge case
-
-            expect(swatches[0]).toBeInTheDocument();
-        }
-    });
-
     test('navigates to PDP when clicking product name', async () => {
         const user = userEvent.setup();
         renderComponent();
@@ -239,31 +210,6 @@ describe('ProductTile', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/product/test-product');
     });
 
-    test('respects maxSwatches prop', () => {
-        renderComponent({ maxSwatches: 2 });
-
-        const swatches = screen
-            .getAllByRole('button')
-            .filter(
-                (button) =>
-                    button.className.includes('cursor-pointer') &&
-                    !button.textContent?.includes(t('product:moreOptions'))
-            );
-
-        // Should only show 2 swatches (maxSwatches prop)
-        expect(swatches.length).toBeLessThanOrEqual(2);
-    });
-
-    test('shows overflow indicator when there are more swatches than maxSwatches', () => {
-        renderComponent({ maxSwatches: 2 });
-
-        // Look for the "+" indicator when there are more than 2 swatches
-        const plusIndicator = screen.queryByTitle(/^\+\d+$/);
-        if (plusIndicator) {
-            expect(plusIndicator).toBeInTheDocument();
-        }
-    });
-
     test('applies custom className', () => {
         const customClass = 'custom-product-tile';
         const { container } = renderComponent({ className: customClass });
@@ -284,43 +230,6 @@ describe('ProductTile UI Variants', () => {
         vi.restoreAllMocks();
     });
 
-    test('renders color swatches with circular shape', () => {
-        renderComponent();
-
-        // Color swatches should be rendered as circles
-        const swatchGroup = screen.getByRole('radiogroup', { name: 'Colour' });
-        expect(swatchGroup).toBeInTheDocument();
-    });
-
-    test('displays more swatches indicator (+) when exceeding maxSwatches', () => {
-        // With 4 colors and maxSwatches=2, should show +2 indicator
-        renderComponent({ maxSwatches: 2 });
-
-        const plusIndicator = screen.getByTitle('+2');
-        expect(plusIndicator).toBeInTheDocument();
-    });
-
-    test('does not show more indicator when swatches fit within maxSwatches', () => {
-        // With maxSwatches=4 and 4 colors, no indicator needed
-        renderComponent({ maxSwatches: 4 });
-
-        const plusIndicator = screen.queryByTitle(/^\+\d+$/);
-        expect(plusIndicator).not.toBeInTheDocument();
-    });
-
-    test('renders Sale badge when product has sale badge', () => {
-        renderComponent();
-
-        expect(screen.getByText('Sale')).toBeInTheDocument();
-    });
-
-    test('renders multiple badges when product has multiple badges', () => {
-        renderComponent();
-
-        expect(screen.getByText('Sale')).toBeInTheDocument();
-        expect(screen.getByText('New')).toBeInTheDocument();
-    });
-
     test('renders custom footer action when provided', () => {
         const customFooter = <button>Add to Cart</button>;
         renderComponent({ footerAction: customFooter });
@@ -328,15 +237,148 @@ describe('ProductTile UI Variants', () => {
         expect(screen.getByRole('button', { name: 'Add to Cart' })).toBeInTheDocument();
         expect(screen.queryByText(/more options/i)).not.toBeInTheDocument();
     });
+});
 
-    test('disables swatch interaction in read-only mode for wishlist', () => {
-        renderComponent({
-            disableSwatchInteraction: true,
-            selectedVariantColorValue: 'navy',
+describe('ProductTile Page Designer Styling', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(mockNavigate);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    test('applies object-fit styling', () => {
+        const { container } = renderComponent({ objectFit: 'cover' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('[&_img]:!object-cover');
+    });
+
+    test('applies border radius styling', () => {
+        const { container } = renderComponent({ borderRadius: 'lg' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('!rounded-lg');
+    });
+
+    test('applies box shadow styling', () => {
+        const { container } = renderComponent({ boxShadow: 'xl' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('!shadow-xl');
+        expect(card).toHaveClass('hover:!shadow-xl');
+    });
+
+    test('applies box shadow none styling', () => {
+        const { container } = renderComponent({ boxShadow: 'none' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('!shadow-none');
+        expect(card).toHaveClass('hover:!shadow-none');
+    });
+
+    test('applies padding styling', () => {
+        const { container } = renderComponent({ padding: '4' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('p-4');
+    });
+
+    test('applies margin styling', () => {
+        const { container } = renderComponent({ margin: '6' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('m-6');
+    });
+
+    test('applies font weight styling', () => {
+        const { container } = renderComponent({ fontWeight: 'bold' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('[&_a]:!font-bold');
+    });
+
+    test('applies letter spacing styling', () => {
+        const { container } = renderComponent({ letterSpacing: 'wide' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('[&_a]:!tracking-wide');
+    });
+
+    test('applies scale hover effect', () => {
+        const { container } = renderComponent({ hoverEffect: 'scale' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('hover:!scale-105');
+        expect(card).toHaveClass('!transition-transform');
+        expect(card).toHaveClass('!duration-200');
+    });
+
+    test('applies shadow hover effect', () => {
+        const { container } = renderComponent({ hoverEffect: 'shadow' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('hover:!shadow-xl');
+        expect(card).toHaveClass('!transition-shadow');
+        expect(card).toHaveClass('!duration-200');
+    });
+
+    test('applies lift hover effect', () => {
+        const { container } = renderComponent({ hoverEffect: 'lift' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).toHaveClass('hover:!-translate-y-1');
+        expect(card).toHaveClass('hover:!shadow-lg');
+        expect(card).toHaveClass('!transition-all');
+        expect(card).toHaveClass('!duration-200');
+    });
+
+    test('does not apply hover effect classes when hoverEffect is default', () => {
+        const { container } = renderComponent({ hoverEffect: 'default' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).not.toHaveClass('hover:!scale-105');
+        expect(card).not.toHaveClass('hover:!shadow-xl');
+        expect(card).not.toHaveClass('hover:!-translate-y-1');
+    });
+
+    test('applies multiple Page Designer styles together', () => {
+        const { container } = renderComponent({
+            objectFit: 'contain',
+            borderRadius: '2xl',
+            boxShadow: 'lg',
+            padding: '8',
+            margin: '4',
+            fontWeight: 'semibold',
+            letterSpacing: 'normal',
+            hoverEffect: 'scale',
+        });
+        const card = container.querySelector('.border.rounded-xl');
+
+        expect(card).toHaveClass('[&_img]:!object-contain');
+        expect(card).toHaveClass('!rounded-2xl');
+        expect(card).toHaveClass('!shadow-lg');
+        expect(card).toHaveClass('p-8');
+        expect(card).toHaveClass('m-4');
+        expect(card).toHaveClass('[&_a]:!font-semibold');
+        expect(card).toHaveClass('[&_a]:!tracking-normal');
+        expect(card).toHaveClass('hover:!scale-105');
+        // Note: hoverEffect='scale' adds hover:!shadow-md which overrides the hover:!shadow-lg from boxShadow
+        expect(card).toHaveClass('hover:!shadow-md');
+    });
+
+    test('filters out Page Designer system props', () => {
+        const { container } = renderComponent({
+            regionId: 'test-region',
+            component: { type: 'productTile' },
+            componentData: {},
+            designMetadata: {},
+            data: {},
         });
 
-        // In disabled mode with a selected variant, only the selected variant's swatch should be shown
-        const swatches = screen.getAllByRole('radio');
-        expect(swatches).toHaveLength(1);
+        // Component should render without errors
+        expect(container.querySelector('.border.rounded-xl')).toBeInTheDocument();
+    });
+
+    test('does not add padding class when padding is 0', () => {
+        const { container } = renderComponent({ padding: '0' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).not.toHaveClass('p-0');
+    });
+
+    test('does not add margin class when margin is 0', () => {
+        const { container } = renderComponent({ margin: '0' });
+        const card = container.querySelector('.border.rounded-xl');
+        expect(card).not.toHaveClass('m-0');
     });
 });

@@ -15,11 +15,13 @@
  */
 import type { ResourceLanguage } from 'i18next';
 import translations from '@/locales/it-IT/translations.json';
+import product from '@/locales/it-IT/product.json';
 import extensionTranslations from '@/extensions/locales/it-IT/';
 
 const allTranslations = {
     ...translations,
+    product,
     ...extensionTranslations,
 };
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-export default allTranslations satisfies ResourceLanguage satisfies typeof import('@/locales/en-US/').default;
+export default allTranslations satisfies ResourceLanguage satisfies typeof import('@/locales/en-GB/').default;

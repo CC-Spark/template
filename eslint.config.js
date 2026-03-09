@@ -22,6 +22,21 @@
 // Run 'node scripts/generate-eslint-config.js' to regenerate.
 // ============================================================================
 
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { fileURLToPath } from 'node:url';
 import globals from 'globals';
 import eslint from '@eslint/js';
@@ -29,13 +44,14 @@ import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
 import react from 'eslint-plugin-react';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import { includeIgnoreFile } from '@eslint/compat';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import jsonc from 'eslint-plugin-jsonc';
 import headersPlugin from 'eslint-plugin-headers';
-import { colorLinterRule, noAsyncPageLoaderRule, noClientActionsRule, noClientLoadersRule } from './eslint.rules.js';
+import { colorLinterRule, noClientActionsRule, noClientLoadersRule } from './eslint.rules.js';
 
 const APACHE_LICENSE_HEADER = [
     `Copyright ${new Date().getFullYear()} Salesforce, Inc.`,
@@ -68,7 +84,7 @@ const baseConfig = defineConfig([
     jsonc.configs['flat/recommended-with-json'],
     {
         // Ignore generated SCAPI client files, ejected shadcn/ui components, and Claude settings
-        ignores: ['**/src/scapi-client/generated/**', '**/src/components/ui/**', '.claude/**'],
+        ignores: ['**/src/scapi-client/generated/**', '**/src/components/ui/**', '.claude/**', '**/lighthouserc.cjs'],
     },
     {
         files: ['**/*.js'],
@@ -107,10 +123,10 @@ const baseConfig = defineConfig([
         plugins: {
             'react-hooks': reactHooks,
             'react-refresh': reactRefresh,
+            'jsx-a11y': jsxA11y,
             custom: {
                 rules: {
                     'color-linter': colorLinterRule,
-                    'no-async-page-loader': noAsyncPageLoaderRule,
                     'no-client-actions': noClientActionsRule,
                     'no-client-loaders': noClientLoadersRule,
                 },
@@ -161,6 +177,14 @@ const baseConfig = defineConfig([
             'react/self-closing-comp': 'error',
             'react/style-prop-object': 'error',
             'react/void-dom-elements-no-children': 'error',
+            'jsx-a11y/alt-text': [
+                'error',
+                {
+                    elements: ['img', 'object', 'area', 'input[type="image"]'],
+                    img: ['DynamicImage', 'ProductImage'],
+                },
+            ],
+            'jsx-a11y/img-redundant-alt': 'warn',
 
             // React Hooks rules
             'react-hooks/rules-of-hooks': 'error',
@@ -227,6 +251,7 @@ const baseConfig = defineConfig([
             },
         },
         rules: {
+            '@typescript-eslint/consistent-type-imports': 'off',
             '@typescript-eslint/no-empty-function': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
             'no-console': 'off',
@@ -238,7 +263,6 @@ const baseConfig = defineConfig([
         files: ['**/routes/**/!(*.test).{ts,tsx}'],
         rules: {
             '@typescript-eslint/only-throw-error': ['error', { allow: [{ from: 'lib', name: ['Response'] }] }],
-            'custom/no-async-page-loader': 'warn',
             'custom/no-client-actions': 'error',
             'custom/no-client-loaders': 'error',
         },

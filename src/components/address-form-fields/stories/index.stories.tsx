@@ -20,8 +20,11 @@ import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { action } from 'storybook/actions';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { AddressFormFields } from '../index';
+import { createShippingAddressSchema } from '@/lib/checkout-schemas';
+import { getTranslation } from '@/lib/i18next';
 
 /**
  * The AddressFormFields component provides shared address form fields with Google Maps
@@ -148,6 +151,37 @@ function ShippingAddressFormWrapper({
                     className={className}
                     countryCode="US"
                 />
+            </form>
+        </Form>
+    );
+}
+
+// Wrapper with validation for FieldErrorValidation story
+function ShippingAddressFormWrapperWithValidation() {
+    const { t } = getTranslation();
+    const schema = createShippingAddressSchema(t);
+    const form = useForm<ShippingFormData>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            address1: '',
+            address2: '',
+            city: '',
+            stateCode: '',
+            postalCode: '',
+            phone: '',
+        },
+    });
+
+    return (
+        <Form {...form}>
+            <form
+                data-testid="address-form-fields-form"
+                className="space-y-4"
+                onSubmit={(e) => void form.handleSubmit(() => {})(e)}>
+                <AddressFormFields form={form} showPhone={true} countryCode="US" />
+                <button type="submit">Save</button>
             </form>
         </Form>
     );
@@ -316,15 +350,15 @@ export const PrefilledShippingAddress: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify form fields are populated with initial data
-        await expect(canvas.getByDisplayValue('John')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('Doe')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('123 Main Street')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('Apt 4B')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('New York')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('NY')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('10001')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('5551234567')).toBeInTheDocument();
+        // Verify form fields are populated with initial data (use role+name to avoid multiple matches)
+        await expect(canvas.getByRole('textbox', { name: /first name/i })).toHaveValue('John');
+        await expect(canvas.getByRole('textbox', { name: /last name/i })).toHaveValue('Doe');
+        await expect(canvas.getByRole('textbox', { name: /^address$/i })).toHaveValue('123 Main Street');
+        await expect(canvas.getByRole('textbox', { name: /address line 2/i })).toHaveValue('Apt 4B');
+        await expect(canvas.getByRole('textbox', { name: /^city$/i })).toHaveValue('New York');
+        await expect(canvas.getByRole('combobox', { name: /state/i })).toHaveValue('NY');
+        await expect(canvas.getByRole('textbox', { name: /postal code/i })).toHaveValue('10001');
+        await expect(canvas.getByRole('textbox', { name: /phone/i })).toHaveValue('5551234567');
     },
 };
 
@@ -390,14 +424,14 @@ export const PrefilledBillingAddress: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Verify form fields are populated with billing address data
-        await expect(canvas.getByDisplayValue('Jane')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('Smith')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('456 Oak Avenue')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('Suite 200')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('Los Angeles')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('CA')).toBeInTheDocument();
-        await expect(canvas.getByDisplayValue('90001')).toBeInTheDocument();
+        // Verify form fields are populated with billing address data (use role+name to avoid display-value ambiguity)
+        await expect(canvas.getByRole('textbox', { name: /first name/i })).toHaveValue('Jane');
+        await expect(canvas.getByRole('textbox', { name: /last name/i })).toHaveValue('Smith');
+        await expect(canvas.getByRole('textbox', { name: /^address$/i })).toHaveValue('456 Oak Avenue');
+        await expect(canvas.getByRole('textbox', { name: /address line 2/i })).toHaveValue('Suite 200');
+        await expect(canvas.getByRole('textbox', { name: /^city$/i })).toHaveValue('Los Angeles');
+        await expect(canvas.getByRole('combobox', { name: /state/i })).toHaveValue('CA');
+        await expect(canvas.getByRole('textbox', { name: /postal code/i })).toHaveValue('90001');
     },
 };
 
@@ -431,9 +465,9 @@ export const Interactive: Story = {
         await userEvent.type(cityInput, 'Chicago');
         await expect(cityInput).toHaveValue('Chicago');
 
-        const stateInput = canvas.getByPlaceholderText(/state or province/i);
-        await userEvent.type(stateInput, 'IL');
-        await expect(stateInput).toHaveValue('IL');
+        const stateSelect = canvas.getByRole('combobox', { name: /state/i });
+        await userEvent.selectOptions(stateSelect, 'IL');
+        await expect(stateSelect).toHaveValue('IL');
 
         const postalCodeInput = canvas.getByPlaceholderText(/postal code/i);
         await userEvent.type(postalCodeInput, '60601');
@@ -442,6 +476,30 @@ export const Interactive: Story = {
         const phoneInput = canvas.getByPlaceholderText(/\(555\) 123-4567/i);
         await userEvent.type(phoneInput, '3125551234');
         await expect(phoneInput).toHaveValue('3125551234');
+    },
+};
+
+/**
+ * Field error validation - submit empty form and verify validation errors appear
+ */
+export const FieldErrorValidation: Story = {
+    render: () => <ShippingAddressFormWrapperWithValidation />,
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+
+        const form = canvasElement.querySelector('[data-testid="address-form-fields-form"]');
+        if (!form) {
+            await expect(canvasElement).toBeInTheDocument();
+            return;
+        }
+
+        const saveButton = canvas.getByRole('button', { name: /save/i });
+        await userEvent.click(saveButton);
+
+        // Validation shows multiple errors (firstName, lastName, address1, city) - use getAllByText
+        const errors = canvas.getAllByText(/(first name|last name|address|city).*required/i);
+        await expect(errors.length).toBeGreaterThanOrEqual(1);
     },
 };
 
@@ -458,13 +516,3 @@ export const WithCustomClassName: Story = {
         await expect(container).toBeInTheDocument();
     },
 };
-
-/**
- * Mobile viewport
- */
-/**
- * Tablet viewport
- */
-/**
- * Desktop viewport
- */

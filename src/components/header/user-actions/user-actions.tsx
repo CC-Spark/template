@@ -27,15 +27,15 @@ export default function UserActions(): ReactElement {
     const { t: tAccount } = useTranslation('account');
     const isAuthenticated: boolean = useMemo(() => {
         // Check if user is authenticated (has valid token and is registered)
-        return Boolean(session?.userType === 'registered' && session?.customer_id);
+        return Boolean(session?.userType === 'registered' && session?.customerId);
     }, [session]);
 
     const accountLink = isAuthenticated ? '/account/overview' : '/login';
     const ariaLabel = isAuthenticated ? tAccount('myAccount') : t('signIn');
-    const icon = isAuthenticated ? <User className="size-6" /> : <LogIn className="size-6" />;
+    const icon = isAuthenticated ? <User className="size-5" /> : <LogIn className="size-5" />;
 
     const trigger = (
-        <Button variant="ghost" className="cursor-pointer" asChild>
+        <Button variant="ghost" className="cursor-pointer lg:px-4 px-1" asChild>
             <Link to={accountLink} aria-label={ariaLabel}>
                 {icon}
             </Link>

@@ -17,6 +17,21 @@ import { beforeEach, vi, type Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { mockConfig } from '@/test-utils/config';
 import { isServer } from '@/lib/utils';
+import { useDynamicImageContext } from '@/providers/dynamic-image';
+
+// Mock decorators (minimal mocking to avoid testing them)
+vi.mock('@/lib/decorators/component', () => ({
+    Component: () => (target: any) => target,
+}));
+
+vi.mock('@/lib/decorators/region-definition', () => ({
+    RegionDefinition: () => (target: any) => target,
+}));
+
+vi.mock('@/lib/decorators/attribute-definition', () => ({
+    AttributeDefinition: () => () => {},
+}));
+
 import { DynamicImage } from './index';
 
 const src =
@@ -27,9 +42,9 @@ let mockConfigImages = {
 };
 
 vi.mock('@/config', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<typeof import('@/config')>();
     return {
-        ...(actual as object),
+        ...actual,
         useConfig: () => ({
             ...mockConfig,
             images: mockConfigImages,
@@ -38,18 +53,35 @@ vi.mock('@/config', async (importOriginal) => {
 });
 
 vi.mock('@/lib/utils', async (importOriginal) => {
-    const actual = await importOriginal();
+    const actual = await importOriginal<typeof import('@/lib/utils')>();
     return {
-        ...(actual as object),
+        ...actual,
         isServer: vi.fn().mockReturnValue(false),
     };
 });
+
+const preloadMock = vi.fn();
+vi.mock('react-dom', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('react-dom')>();
+    return {
+        ...actual,
+        preload: (...args: unknown[]) => preloadMock(...args),
+    };
+});
+
+vi.mock('@/providers/dynamic-image', () => ({
+    useDynamicImageContext: vi.fn().mockReturnValue(null),
+}));
 
 describe('Dynamic Image Component', () => {
     beforeEach(() => {
         mockConfigImages = {
             ...mockConfig.images,
         };
+    });
+
+    afterEach(() => {
+        preloadMock.mockClear();
     });
 
     test('renders an image with default props', () => {
@@ -193,6 +225,7 @@ describe('Dynamic Image Component', () => {
         });
 
         test('handles undefined alt', () => {
+            // eslint-disable-next-line jsx-a11y/alt-text
             render(<DynamicImage src={src} />);
 
             const img = screen.getByRole('presentation');
@@ -413,19 +446,19 @@ describe('Dynamic Image Component', () => {
 
     describe('preload links', () => {
         describe('client-side', () => {
-            test('does not render preload links when priority is low (default)', () => {
+            test('does not call preload when priority is low (default)', () => {
                 render(<DynamicImage src={src} alt="Test image" widths={[200, 400]} />);
-                expect(document.querySelectorAll('link[rel="preload"]')).toHaveLength(0);
+                expect(preloadMock).not.toHaveBeenCalled();
             });
 
-            test('does not render preload links when priority is low (explicit)', () => {
+            test('does not call preload when priority is low (explicit)', () => {
                 render(<DynamicImage src={src} alt="Test image" widths={[200, 400]} priority="low" />);
-                expect(document.querySelectorAll('link[rel="preload"]')).toHaveLength(0);
+                expect(preloadMock).not.toHaveBeenCalled();
             });
 
-            test('does not render preload links (even though priority is high)', () => {
-                render(<DynamicImage src={src} alt="Test image" widths={[200]} priority="high" />);
-                expect(document.querySelectorAll('link[rel="preload"]')).toHaveLength(0);
+            test('does not call preload (even though priority is high)', () => {
+                render(<DynamicImage src={src} alt="Test image" widths={[200, 400]} priority="high" />);
+                expect(preloadMock).not.toHaveBeenCalled();
             });
         });
 
@@ -438,47 +471,245 @@ describe('Dynamic Image Component', () => {
                 (isServer as Mock).mockReturnValue(false);
             });
 
-            test('does not render preload links when priority is low (default)', () => {
+            test('does not call preload when priority is low (default)', () => {
                 render(<DynamicImage src={src} alt="Test image" widths={[200, 400]} />);
-                expect(document.querySelectorAll('link[rel="preload"]')).toHaveLength(0);
+                expect(preloadMock).not.toHaveBeenCalled();
             });
 
-            test('does not render preload links when priority is low (explicit)', () => {
+            test('does not call preload when priority is low (explicit)', () => {
                 render(<DynamicImage src={src} alt="Test image" widths={[200, 400]} priority="low" />);
-                expect(document.querySelectorAll('link[rel="preload"]')).toHaveLength(0);
+                expect(preloadMock).not.toHaveBeenCalled();
             });
 
-            test('renders preload links when priority is high', () => {
+            test('calls preload for each link when priority is high', () => {
                 render(<DynamicImage src={src} alt="Test image" widths={[200, 400]} priority="high" />);
-                const preloadLinks = document.querySelectorAll('link[rel="preload"]');
-                expect(preloadLinks).toHaveLength(2);
-                expect(preloadLinks.item(0)).toBeInstanceOf(HTMLLinkElement);
-                expect(preloadLinks.item(1)).toBeInstanceOf(HTMLLinkElement);
-                expect(
-                    Object.fromEntries(Array.from(preloadLinks.item(0).attributes, (attr) => [attr.name, attr.value]))
-                ).toEqual({
-                    as: 'image',
-                    fetchpriority: 'high',
-                    imagesizes: '200px',
-                    imagesrcset:
-                        'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=200&q=70&sfrm=jpg 200w, https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=400&q=70&sfrm=jpg 400w',
-                    media: '(max-width: 639px)',
-                    rel: 'preload',
-                    type: 'image/webp',
-                });
-                expect(
-                    Object.fromEntries(Array.from(preloadLinks.item(1).attributes, (attr) => [attr.name, attr.value]))
-                ).toEqual({
-                    as: 'image',
-                    fetchpriority: 'high',
-                    imagesizes: '400px',
-                    imagesrcset:
-                        'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=400&q=70&sfrm=jpg 400w, https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=800&q=70&sfrm=jpg 800w',
-                    media: '(min-width: 640px)',
-                    rel: 'preload',
-                    type: 'image/webp',
-                });
+                expect(preloadMock).toHaveBeenCalledTimes(2);
+                expect(preloadMock).toHaveBeenNthCalledWith(
+                    1,
+                    expect.any(String),
+                    expect.objectContaining({
+                        as: 'image',
+                        fetchPriority: 'high',
+                        imageSizes: '200px',
+                        imageSrcSet:
+                            'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=200&q=70&sfrm=jpg 200w, https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=400&q=70&sfrm=jpg 400w',
+                        media: '(max-width: 639px)',
+                        type: 'image/webp',
+                    })
+                );
+                expect(preloadMock).toHaveBeenNthCalledWith(
+                    2,
+                    expect.any(String),
+                    expect.objectContaining({
+                        as: 'image',
+                        fetchPriority: 'high',
+                        imageSizes: '400px',
+                        imageSrcSet:
+                            'https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=400&q=70&sfrm=jpg 400w, https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw4cd0a798/images/large/PG.10216885.JJ169XX.PZ.webp?sw=800&q=70&sfrm=jpg 800w',
+                        media: '(min-width: 640px)',
+                        type: 'image/webp',
+                    })
+                );
             });
+        });
+    });
+
+    describe('DynamicImageContext integration', () => {
+        beforeEach(() => {
+            (useDynamicImageContext as Mock).mockReturnValue(null);
+        });
+
+        test('renders with default priority when no context is available', () => {
+            render(<DynamicImage src={src} alt="Test image" />);
+
+            const img = screen.getByRole('img');
+            expect(img).toHaveAttribute('fetchpriority', 'auto');
+            expect(img).toHaveAttribute('loading', 'lazy');
+        });
+
+        test('renders with high priority when context.hasSource returns true', () => {
+            const mockHasSource = vi.fn().mockReturnValue(true);
+            (useDynamicImageContext as Mock).mockReturnValue({
+                hasSource: mockHasSource,
+                addSource: vi.fn(),
+            });
+
+            render(<DynamicImage src={src} alt="Test image" />);
+
+            const img = screen.getByRole('img');
+            expect(mockHasSource).toHaveBeenCalledWith(src);
+            expect(img).toHaveAttribute('fetchpriority', 'high');
+            expect(img).toHaveAttribute('loading', 'eager');
+        });
+
+        test('renders with default priority when context.hasSource returns false', () => {
+            const mockHasSource = vi.fn().mockReturnValue(false);
+            (useDynamicImageContext as Mock).mockReturnValue({
+                hasSource: mockHasSource,
+                addSource: vi.fn(),
+            });
+
+            render(<DynamicImage src={src} alt="Test image" />);
+
+            const img = screen.getByRole('img');
+            expect(mockHasSource).toHaveBeenCalledWith(src);
+            expect(img).toHaveAttribute('fetchpriority', 'auto');
+            expect(img).toHaveAttribute('loading', 'lazy');
+        });
+
+        test('explicit priority prop overrides context-based priority', () => {
+            const mockHasSource = vi.fn().mockReturnValue(true);
+            (useDynamicImageContext as Mock).mockReturnValue({
+                hasSource: mockHasSource,
+                addSource: vi.fn(),
+            });
+
+            render(<DynamicImage src={src} alt="Test image" priority="low" />);
+
+            const img = screen.getByRole('img');
+            // hasSource should not be called when priority is explicitly set
+            expect(img).toHaveAttribute('fetchpriority', 'low');
+            expect(img).toHaveAttribute('loading', 'lazy');
+        });
+
+        test('calls preload on server when context.hasSource returns true', () => {
+            (isServer as Mock).mockReturnValue(true);
+            const mockHasSource = vi.fn().mockReturnValue(true);
+            (useDynamicImageContext as Mock).mockReturnValue({
+                hasSource: mockHasSource,
+                addSource: vi.fn(),
+            });
+
+            render(<DynamicImage src={src} alt="Test image" widths={[200]} />);
+
+            expect(preloadMock).toHaveBeenCalledTimes(1);
+            expect(preloadMock).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.objectContaining({
+                    as: 'image',
+                    fetchPriority: 'high',
+                })
+            );
+        });
+
+        test('does not call preload on server when context.hasSource returns false', () => {
+            (isServer as Mock).mockReturnValue(true);
+            const mockHasSource = vi.fn().mockReturnValue(false);
+            (useDynamicImageContext as Mock).mockReturnValue({
+                hasSource: mockHasSource,
+                addSource: vi.fn(),
+            });
+
+            render(<DynamicImage src={src} alt="Test image" widths={[200]} />);
+
+            expect(preloadMock).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Page Designer Styling Props', () => {
+        test('applies objectFit class to image', () => {
+            render(<DynamicImage src={src} alt="Test" objectFit="contain" />);
+            const img = screen.getByRole('img');
+            expect(img.className).toContain('object-contain');
+        });
+
+        test('applies borderRadius class to wrapper', () => {
+            render(<DynamicImage src={src} alt="Test" borderRadius="lg" />);
+            const wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper?.className).toContain('rounded-lg');
+        });
+
+        test('applies boxShadow class to wrapper', () => {
+            render(<DynamicImage src={src} alt="Test" boxShadow="xl" />);
+            const wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper?.className).toContain('shadow-xl');
+        });
+
+        test('applies padding class to wrapper', () => {
+            render(<DynamicImage src={src} alt="Test" padding="4" />);
+            const wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper?.className).toContain('p-4');
+        });
+
+        test('applies margin class to wrapper', () => {
+            render(<DynamicImage src={src} alt="Test" margin="2" />);
+            const wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper?.className).toContain('m-2');
+        });
+
+        test('applies hoverEffect class to wrapper', () => {
+            render(<DynamicImage src={src} alt="Test" hoverEffect="scale" />);
+            const wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper?.className).toContain('hover:scale-105');
+        });
+
+        test('includes overflow-hidden only when borderRadius is applied', () => {
+            // Without borderRadius, should not have overflow-hidden
+            const { rerender } = render(<DynamicImage src={src} alt="Test" />);
+            let wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper?.className).not.toContain('overflow-hidden');
+
+            // With borderRadius, should have overflow-hidden
+            rerender(<DynamicImage src={src} alt="Test" borderRadius="lg" />);
+            wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper?.className).toContain('overflow-hidden');
+        });
+
+        test('applies multiple styling props correctly', () => {
+            render(
+                <DynamicImage
+                    src={src}
+                    alt="Test"
+                    objectFit="contain"
+                    borderRadius="xl"
+                    boxShadow="lg"
+                    padding="4"
+                    margin="2"
+                    hoverEffect="scale"
+                />
+            );
+
+            const wrapper = screen.getByRole('img').parentElement;
+            const img = screen.getByRole('img');
+
+            // Wrapper styles
+            expect(wrapper?.className).toContain('rounded-xl');
+            expect(wrapper?.className).toContain('shadow-lg');
+            expect(wrapper?.className).toContain('p-4');
+            expect(wrapper?.className).toContain('m-2');
+            expect(wrapper?.className).toContain('hover:scale-105');
+            expect(wrapper?.className).toContain('overflow-hidden');
+
+            // Image styles
+            expect(img.className).toContain('object-contain');
+        });
+
+        test('parses widths string from Page Designer', () => {
+            render(<DynamicImage src={src} alt="Test" widths="400,800,1200" />);
+            // The component should render without errors
+            const img = screen.getByRole('img');
+            expect(img).toBeInTheDocument();
+        });
+
+        test('does not pass Page Designer props to DOM', () => {
+            render(
+                <DynamicImage
+                    src={src}
+                    alt="Test"
+                    regionId="test-region"
+                    component={{} as any}
+                    componentData={{}}
+                    designMetadata={{} as any}
+                    data={{}}
+                />
+            );
+
+            const wrapper = screen.getByRole('img').parentElement;
+            expect(wrapper).not.toHaveAttribute('regionId');
+            expect(wrapper).not.toHaveAttribute('component');
+            expect(wrapper).not.toHaveAttribute('componentData');
+            expect(wrapper).not.toHaveAttribute('designMetadata');
+            expect(wrapper).not.toHaveAttribute('data');
         });
     });
 });

@@ -58,19 +58,20 @@ describe('context-provider-utils', () => {
         it('has correct site configuration', () => {
             // config now allows multi site set up. Here we check the first site in the least
             // it is required to have at least on proper site config in the array
-            expect(mockBuildConfig.app.commerce.sites[0].defaultLocale).toBe('en-US');
-            expect(mockBuildConfig.app.commerce.sites[0].defaultCurrency).toBe('USD');
+            expect(mockBuildConfig.app.commerce.sites[0].defaultLocale).toBe('en-GB');
+            expect(mockBuildConfig.app.commerce.sites[0].defaultCurrency).toBe('GBP');
             expect(mockBuildConfig.app.features.guestCheckout).toBe(true);
         });
 
         it('has correct global configuration', () => {
             expect(mockBuildConfig.app.global.branding.name).toBe('Test Store');
-            expect(mockBuildConfig.app.global.productListing.productsPerPage).toBe(24);
+            expect(mockBuildConfig.app.search.products.hits.limit).toBe(24);
             expect(mockBuildConfig.app.global.badges).toHaveLength(2);
         });
 
         it('has correct images configuration', () => {
             expect(mockBuildConfig.app.images).toEqual({
+                host: 'https://edge.disstg.commercecloud.salesforce.com',
                 quality: 80,
                 formats: ['webp'],
                 fallbackFormat: 'jpg',
@@ -186,17 +187,10 @@ describe('context-provider-utils', () => {
                             logoAlt: 'Custom Logo',
                         },
                         productListing: {
-                            productsPerPage: 24,
-                            enableInfiniteScroll: false,
-                            sortOptions: ['relevance'],
-                            enableQuickView: true,
                             defaultProductTileImgAspectRatio: 1,
                         },
                         carousel: {
                             defaultItemCount: 4,
-                        },
-                        paginatedProductCarousel: {
-                            defaultLimit: 4,
                         },
                         badges: [],
                         skeleton: {
@@ -248,7 +242,7 @@ describe('context-provider-utils', () => {
 
             // Non-overridden values should remain
             expect(configData.metadata.projectName).toBe('Test Project');
-            expect(configData.app.commerce.sites[0].defaultLocale).toBe('en-US');
+            expect(configData.app.commerce.sites[0].defaultLocale).toBe('en-GB');
             expect(configData.app.commerce.api.clientId).toBe('test-client');
         });
 

@@ -40,7 +40,7 @@ describe('Configuration System', () => {
         });
 
         it('should have UI configuration with defaults', () => {
-            expect(config.app.global.productListing.productsPerPage).toBeTypeOf('number');
+            expect(config.app.search.products.hits.limit).toBeTypeOf('number');
             expect(Array.isArray(config.app.global.badges)).toBe(true);
         });
 
@@ -61,8 +61,11 @@ describe('Configuration System', () => {
         });
 
         it('should have site configuration with defaults', () => {
-            expect(config.app.commerce.sites[0].defaultLocale).toBe('en-US');
-            expect(config.app.commerce.sites[0].defaultCurrency).toBe('USD');
+            const siteConfig = config.app.commerce.sites[0];
+            expect(siteConfig.defaultLocale).toBeTypeOf('string');
+            expect(siteConfig.supportedLocales.some((locale) => locale.id === siteConfig.defaultLocale)).toBe(true);
+            expect(siteConfig.defaultCurrency).toBeTypeOf('string');
+            expect(siteConfig.supportedCurrencies).toContain(siteConfig.defaultCurrency);
             expect(config.app.commerce.api.proxy).toBe('/mobify/proxy/api');
         });
 
@@ -103,8 +106,8 @@ describe('Configuration System', () => {
             const appConfig = getConfig();
 
             expect(appConfig.commerce.api.clientId).toBe('test-client');
-            expect(appConfig.commerce.sites[0].defaultLocale).toBe('en-US');
-            expect(appConfig.global.productListing.productsPerPage).toBe(24);
+            expect(appConfig.commerce.sites[0].defaultLocale).toBe('en-GB');
+            expect(appConfig.search.products.hits.limit).toBe(24);
         });
 
         it('should not include runtime build settings in app config', () => {

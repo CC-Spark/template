@@ -16,7 +16,12 @@
 
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
-import type { ShopperBasketsV2, ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import type {
+    ShopperBasketsV2,
+    ShopperOrders,
+    ShopperProducts,
+    ShopperSearch,
+} from '@salesforce/storefront-next-runtime/scapi';
 import CurrentPrice from './current-price';
 import ListPrice from './list-price';
 import PromoCallout from './promo-callout';
@@ -25,6 +30,7 @@ import { getPriceData } from './utils';
 type Product =
     | ShopperProducts.schemas['Product']
     | (ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>)
+    | (ShopperOrders.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>)
     | ShopperSearch.schemas['ProductSearchHit'];
 
 interface ProductPriceProps {
@@ -37,6 +43,10 @@ interface ProductPriceProps {
     promoCalloutProps?: Omit<ComponentProps<typeof PromoCallout>, 'product'>;
     type?: 'unit' | 'total';
     className?: string;
+    /** Hide promotional callout text (e.g. in modal/edit mode) */
+    hidePromo?: boolean;
+    /** Show only the current price without "From" prefix, list price, or promo (e.g. in modal/edit mode) */
+    currentPriceOnly?: boolean;
 }
 
 /**
@@ -67,9 +77,26 @@ export default function ProductPrice({
     listPriceProps = {},
     promoCalloutProps = {},
     className,
+    hidePromo = false,
+    currentPriceOnly = false,
 }: ProductPriceProps) {
     const priceData = getPriceData(product, { quantity });
     const { listPrice, currentPrice, isASet, isMaster, isOnSale, isRange } = priceData;
+
+    if (currentPriceOnly) {
+        return (
+            <div className={cn('items-center gap-2', className)}>
+                <CurrentPrice
+                    labelForA11y={labelForA11y}
+                    price={type === 'unit' ? currentPrice : currentPrice * quantity}
+                    as="span"
+                    currency={currency}
+                    isRange={false}
+                    {...currentPriceProps}
+                />
+            </div>
+        );
+    }
 
     const renderCurrentPrice = (flag: boolean) => (
         <CurrentPrice
@@ -103,11 +130,13 @@ export default function ProductPrice({
         return (
             <>
                 <div className={cn('items-center gap-2', className)}>{renderCurrentPrice(true)}</div>
-                <PromoCallout
-                    product={product}
-                    {...promoCalloutProps}
-                    className={cn(className, promoCalloutProps?.className)}
-                />
+                {!hidePromo && (
+                    <PromoCallout
+                        product={product}
+                        {...promoCalloutProps}
+                        className={cn(className, promoCalloutProps?.className)}
+                    />
+                )}
             </>
         );
     }
@@ -116,11 +145,13 @@ export default function ProductPrice({
         return (
             <>
                 <div className={cn('items-center gap-2', className)}>{renderPriceSet(isRange ?? false)}</div>
-                <PromoCallout
-                    product={product}
-                    {...promoCalloutProps}
-                    className={cn(className, promoCalloutProps?.className)}
-                />
+                {!hidePromo && (
+                    <PromoCallout
+                        product={product}
+                        {...promoCalloutProps}
+                        className={cn(className, promoCalloutProps?.className)}
+                    />
+                )}
             </>
         );
     }
@@ -128,11 +159,13 @@ export default function ProductPrice({
     return (
         <>
             <div className={cn('items-center gap-2', className)}>{renderPriceSet(isRange ?? false)}</div>
-            <PromoCallout
-                product={product}
-                {...promoCalloutProps}
-                className={cn(className, promoCalloutProps?.className)}
-            />
+            {!hidePromo && (
+                <PromoCallout
+                    product={product}
+                    {...promoCalloutProps}
+                    className={cn(className, promoCalloutProps?.className)}
+                />
+            )}
         </>
     );
 }

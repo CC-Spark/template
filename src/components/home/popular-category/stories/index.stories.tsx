@@ -165,7 +165,7 @@ export const Default: Story = {
         await expect(shopNowButton).toBeInTheDocument();
 
         // Verify category link
-        const link = canvas.getByRole('link');
+        const link = canvas.getByRole('listitem');
         await expect(link).toHaveAttribute('href', '/category/mens');
     },
 };
@@ -190,7 +190,7 @@ export const WithCategoryProp: Story = {
 
         await expect(canvas.getByText('Ties')).toBeInTheDocument();
         await expect(canvas.getByText(/shop mens's ties/i)).toBeInTheDocument();
-        await expect(canvas.getByRole('link')).toHaveAttribute('href', '/category/mens-accessories-ties');
+        await expect(canvas.getByRole('listitem')).toHaveAttribute('href', '/category/mens-accessories-ties');
     },
 };
 
@@ -227,7 +227,7 @@ export const Fallback: Story = {
     parameters: {
         docs: {
             description: {
-                story: 'Category card in fallback state when no data is provided.',
+                story: 'Category card in fallback state when no data is provided — renders nothing.',
             },
         },
     },
@@ -235,10 +235,8 @@ export const Fallback: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
 
-        // Should still show shop now button
-        await expect(canvas.getByText(/shop now/i)).toBeInTheDocument();
-        // Link should point to root
-        await expect(canvas.getByRole('link')).toHaveAttribute('href', '/category/root');
+        // Component returns null when no data is provided
+        await expect(canvas.queryByRole('listitem')).not.toBeInTheDocument();
     },
 };
 
@@ -265,94 +263,21 @@ export const InteractionTest: Story = {
         await expect(title).toBeInTheDocument();
 
         // Find the shop now button/link
-        const shopNowLink = await canvas.findByRole('link', { name: /shop now/i }, { timeout: 3000 });
-        await expect(shopNowLink).toBeInTheDocument();
+        const card = canvas.getByRole('listitem');
+        await expect(card).toBeInTheDocument();
 
-        // Test clicking the shop now button
-        await userEvent.click(shopNowLink);
+        // Test clicking the category card
+        await userEvent.click(card);
 
         // Test hovering over the card
-        const card = canvas.getByText('Mens').closest('div');
-        if (card) {
-            await userEvent.hover(card);
+        const cardElement = canvas.getByText('Mens').closest('div');
+        if (cardElement) {
+            await userEvent.hover(cardElement);
         }
 
         // Verify all elements are present
         await expect(canvas.getByText('Mens')).toBeInTheDocument();
         await expect(canvas.getByText(/men's range/i)).toBeInTheDocument();
         await expect(canvas.getByRole('img')).toBeInTheDocument();
-    },
-};
-
-export const MobileLayout: Story = {
-    args: {
-        data: mockCategory,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: `
-Popular category card optimized for mobile devices. Shows:
-- Mobile-optimized layout
-- Touch-friendly interactions
-- Responsive image sizing
-
-The component automatically adapts for mobile screens.
-                `,
-            },
-        },
-    },
-    globals: {
-        viewport: 'mobile2',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify category name is displayed
-        const title = await canvas.findByText('Mens', {}, { timeout: 3000 });
-        await expect(title).toBeInTheDocument();
-
-        // Verify shop now button is present
-        const shopNowButton = await canvas.findByText(/shop now/i, {}, { timeout: 3000 });
-        await expect(shopNowButton).toBeInTheDocument();
-    },
-};
-
-export const DesktopLayout: Story = {
-    args: {
-        data: mockCategory,
-    },
-    parameters: {
-        docs: {
-            description: {
-                story: `
-Popular category card for desktop devices. Shows:
-- Desktop-optimized layout
-- Proper spacing and sizing
-- All information clearly displayed
-
-The component provides a clean layout for desktop screens.
-                `,
-            },
-        },
-    },
-    globals: {
-        viewport: 'desktop',
-    },
-    play: async ({ canvasElement }) => {
-        await waitForStorybookReady(canvasElement);
-        const canvas = within(canvasElement);
-
-        // Verify category name is displayed
-        const title = await canvas.findByText('Mens', {}, { timeout: 3000 });
-        await expect(title).toBeInTheDocument();
-
-        // Verify description is displayed
-        await expect(canvas.getByText(/men's range/i)).toBeInTheDocument();
-
-        // Verify shop now button is present
-        const shopNowButton = await canvas.findByText(/shop now/i, {}, { timeout: 3000 });
-        await expect(shopNowButton).toBeInTheDocument();
     },
 };

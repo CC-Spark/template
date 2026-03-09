@@ -78,7 +78,7 @@ function getAnalyticsContext(config: ActiveDataConfig) {
         return {
             visitorID: '__ANONYMOUS__',
             customer: '__ANONYMOUS__',
-            siteCurrency: config.siteCurrency || 'USD',
+            siteCurrency: config.siteCurrency || 'GBP',
             sourceCode: config.sourceCode || '',
             enabled: true,
             timeZone,
@@ -97,7 +97,7 @@ function getAnalyticsContext(config: ActiveDataConfig) {
         repository: tokens[1],
         customer: tokens[2] || '__ANONYMOUS__',
         sourceCode: tokens[3] || config.sourceCode || '',
-        siteCurrency: tokens[4] || config.siteCurrency || 'USD',
+        siteCurrency: tokens[4] || config.siteCurrency || 'GBP',
         enabled: tokens[5] === 'true',
         timeZone: tokens[6] || timeZone,
         dwEnabled: tokens[7] === 'true',
@@ -160,10 +160,10 @@ function getProductId(
     product: ShopperProducts.schemas['Product'] | ShopperSearch.schemas['ProductSearchHit']
 ): string | null {
     if ('id' in product && product.id) {
-        return product.id;
+        return typeof product.id === 'string' ? product.id : String(product.id);
     }
     if ('productId' in product && product.productId) {
-        return product.productId;
+        return typeof product.productId === 'string' ? product.productId : String(product.productId);
     }
     return null;
 }

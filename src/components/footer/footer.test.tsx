@@ -125,21 +125,25 @@ describe('Footer', () => {
         const selectors = screen.getAllByRole('combobox');
         let expectedLength = 2;
         // @sfdc-extension-line SFDC_EXT_INTERNAL_THEME_SWITCHER
-        expectedLength += 1;
+        expectedLength += 2; // Theme switcher now has 2 selectors (family and mode)
         expect(selectors).toHaveLength(expectedLength);
     });
 
     // @sfdc-extension-block-start SFDC_EXT_INTERNAL_THEME_SWITCHER
-    test('renders ThemeSwitcher component with theme options', () => {
+    test('renders ThemeSwitcher component with theme family and mode options', () => {
         renderWithRouter(<Footer />);
-        expect(screen.getByRole('option', { name: 'Light Theme' })).toBeInTheDocument();
-        expect(screen.getByRole('option', { name: 'Dark Theme' })).toBeInTheDocument();
+        // Theme family options
+        expect(screen.getByRole('option', { name: t('themeSwitcher:marketStreet') })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: t('themeSwitcher:foundations') })).toBeInTheDocument();
+        // Theme mode options
+        expect(screen.getByRole('option', { name: t('themeSwitcher:lightTheme') })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: t('themeSwitcher:darkTheme') })).toBeInTheDocument();
     });
     // @sfdc-extension-block-end SFDC_EXT_INTERNAL_THEME_SWITCHER
 
     test('renders LocaleSwitcher component with locale options', () => {
         renderWithRouter(<Footer />);
-        expect(screen.getByRole('option', { name: 'English (US)' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'English (UK)' })).toBeInTheDocument();
         expect(screen.getByRole('option', { name: 'Italian (Italy)' })).toBeInTheDocument();
     });
 
@@ -152,12 +156,12 @@ describe('Footer', () => {
         expect(screen.getByText(copyrightText)).toBeInTheDocument();
     });
 
-    test('renders footer element with correct data-theme attribute', () => {
+    test('renders footer element with theme-aware classes', () => {
         const { container } = renderWithRouter(<Footer />);
 
         const footer = container.querySelector('footer');
         expect(footer).toBeInTheDocument();
-        expect(footer).toHaveAttribute('data-theme', 'inverse');
+        expect(footer).toHaveClass('bg-footer-background');
     });
 
     test('all navigation links have hover:underline class', () => {

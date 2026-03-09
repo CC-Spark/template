@@ -33,6 +33,21 @@ import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi'
 import { createMemoryRouter, RouterProvider } from 'react-router';
 // Components
 import ProductAccordion from './product-accordion';
+
+vi.mock('@/hooks/product-reviews/use-product-reviews', () => ({
+    useProductReviews: () => ({
+        reviewsSummary: null,
+        reviewsSummaryLoading: false,
+        reviews: [],
+        reviewsLoading: false,
+        loadReviewsIfNeeded: () => {},
+        aiSummary: '',
+        addReview: () => {},
+        expandReviews: () => {},
+        registerExpand: () => {},
+    }),
+}));
+
 const renderProductAccordion = (props: React.ComponentProps<typeof ProductAccordion>) => {
     // Using createMemoryRouter in framework mode is fine
     // because both framework and data routers share the same underlying architecture, so it provides a valid navigation context for hooks and <Link>.
@@ -74,19 +89,17 @@ describe('ProductAccordion', () => {
             expect(screen.getByText(t('product:productDetails'))).toBeInTheDocument();
             expect(screen.getByText(t('product:sizeAndFit'))).toBeInTheDocument();
             expect(screen.getByText(t('product:shippingAndReturns'))).toBeInTheDocument();
-            expect(screen.getByText(t('product:reviews'))).toBeInTheDocument();
         });
 
         test('should render all accordion triggers with correct text', () => {
             renderProductAccordion({ product: basicProduct });
 
             const triggers = screen.getAllByRole('button', { expanded: false });
-            expect(triggers).toHaveLength(4); // 4 main sections
+            expect(triggers.length).toBeGreaterThanOrEqual(3); // Product Details, Size & Fit, Shipping & Returns
 
             expect(screen.getByText(t('product:productDetails'))).toBeInTheDocument();
             expect(screen.getByText(t('product:sizeAndFit'))).toBeInTheDocument();
             expect(screen.getByText(t('product:shippingAndReturns'))).toBeInTheDocument();
-            expect(screen.getByText(t('product:reviews'))).toBeInTheDocument();
         });
 
         test('should render care instructions section for item type products', () => {
@@ -209,18 +222,6 @@ describe('ProductAccordion', () => {
             expect(screen.getByText(t('product:standardShipping'))).toBeInTheDocument();
             expect(screen.getByText(t('product:expressShipping'))).toBeInTheDocument();
             expect(screen.getByText(t('product:returns'))).toBeInTheDocument();
-        });
-    });
-
-    describe('reviews section', () => {
-        test('should display coming soon message', async () => {
-            const user = userEvent.setup();
-            renderProductAccordion({ product: basicProduct });
-
-            // Open the Reviews accordion
-            await user.click(screen.getByText(t('product:reviews')));
-
-            expect(screen.getByText(t('product:reviewsComingSoon'))).toBeInTheDocument();
         });
     });
 

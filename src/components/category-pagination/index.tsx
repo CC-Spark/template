@@ -13,69 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use client';
-
 import { type JSX, useCallback, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router';
-import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { Button } from '@/components/ui/button';
+import { useLocation, useNavigate, useNavigation } from 'react-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { getPaginationItems } from '@/lib/pagination-utils';
 
 export default function CategoryPagination({
     limit,
-    result,
+    offset,
+    total,
 }: {
     limit: number;
-    result: ShopperSearch.schemas['ProductSearchResult'];
+    offset: number;
+    total: number;
 }): JSX.Element | null {
     const navigate = useNavigate();
     const location = useLocation();
+    const navigation = useNavigation();
+    const isPending = navigation.state !== 'idle';
 
-    const total = useMemo(() => {
-        return Math.ceil(result.total / limit);
-    }, [limit, result.total]);
+    /**
+     * Optimistic offset derived from the in-flight navigation target.
+     *
+     * While a navigation is pending, `navigation.location` holds the target location, allowing us to read the
+     * intended offset param immediately. Once the navigation settles, we fall back to the server-provided value.
+     */
+    const effectiveOffset = navigation.location
+        ? Number(new URLSearchParams(navigation.location.search).get('offset') || offset)
+        : offset;
 
-    const current = useMemo(() => {
-        return Math.floor(result.offset / limit) + 1;
-    }, [limit, result.offset]);
-
-    const pageNumbers = useMemo((): (number | 'ellipsis')[] => {
-        const pages: (number | 'ellipsis')[] = [];
-
-        // Always show first page
-        pages.push(1);
-
-        // Logic for middle pages
-        if (current > 3) {
-            pages.push('ellipsis');
-        }
-
-        // Pages around current page
-        for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
-            if (i > 1 && i < total) {
-                pages.push(i);
-            }
-        }
-
-        // Ellipsis before last page
-        if (current < total - 2) {
-            pages.push('ellipsis');
-        }
-
-        // Always show last page if more than 1 page
-        if (total > 1) {
-            pages.push(total);
-        }
-
-        return pages;
-    }, [total, current]);
+    const totalPages = Math.ceil(total / limit);
+    const current = Math.floor(effectiveOffset / limit) + 1;
+    const pageNumbers = useMemo(() => getPaginationItems(totalPages, current), [totalPages, current]);
 
     const navigatePage = useCallback(
         (page: number) => {
             const params = new URLSearchParams(location.search);
-            const offset = (page - 1) * limit;
-            params.set('offset', String(offset));
-            return navigate({
+            params.set('offset', String((page - 1) * limit));
+            void navigate({
                 ...location,
                 search: `?${params.toString()}`,
             });
@@ -83,13 +59,15 @@ export default function CategoryPagination({
         [location, navigate, limit]
     );
 
-    if (total <= 1) {
+    if (totalPages <= 1) {
         return null;
     }
 
     return (
         <div className="flex justify-center">
-            <nav className="flex items-center space-x-1" aria-label="Pagination">
+            <nav
+                className={`flex items-center space-x-1${isPending ? ' pointer-events-none opacity-50 transition-opacity' : ''}`}
+                aria-label="Pagination">
                 {/* Previous button */}
                 <Button
                     variant="outline"
@@ -101,22 +79,21 @@ export default function CategoryPagination({
                 </Button>
 
                 {/* Page numbers */}
-                {pageNumbers.map((page, index) =>
-                    page === 'ellipsis' ? (
-                        // eslint-disable-next-line react/no-array-index-key
-                        <span key={`ellipsis-${index}`} className="px-4 py-2 text-foreground/80">
+                {pageNumbers.map((item) =>
+                    typeof item === 'object' ? (
+                        <span key={`ellipsis-${item.key}`} className="px-4 py-2 text-foreground/80">
                             ...
                         </span>
                     ) : (
                         <Button
-                            key={page}
-                            onClick={() => void navigatePage(page)}
-                            disabled={current === page}
+                            key={item}
+                            onClick={() => void navigatePage(item)}
+                            disabled={current === item}
                             variant="outline"
                             className="size-9 cursor-pointer"
-                            aria-label={`Page ${page}`}
-                            aria-current={current === page ? 'page' : undefined}>
-                            {page}
+                            aria-label={`Page ${String(item)}`}
+                            aria-current={current === item ? 'page' : undefined}>
+                            {item}
                         </Button>
                     )
                 )}
@@ -126,7 +103,7 @@ export default function CategoryPagination({
                     variant="outline"
                     className="size-9 cursor-pointer"
                     onClick={() => void navigatePage(current + 1)}
-                    disabled={current === total}
+                    disabled={current === totalPages}
                     aria-label="Next page">
                     <ChevronRight />
                 </Button>

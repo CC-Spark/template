@@ -17,30 +17,17 @@ import { deepMerge, mergeEnvConfig } from './utils';
 import type { EngagementAdapterConfig } from '@/lib/adapters';
 import type { TrackingConsent } from '@/types/tracking-consent';
 
+// NOTE: this will change once we migrate the config to runtime package
+import type { Locale, Site, Url } from '@salesforce/storefront-next-runtime/config';
+
+export type { Locale, Site };
+
 // Badge configuration
 export type BadgeDetail = {
     propertyName: string;
     label: string;
     color: 'green' | 'yellow' | 'orange' | 'purple' | 'red' | 'blue' | 'pink';
     priority?: number;
-};
-
-export type Locale = {
-    id: string;
-    preferredCurrency: string;
-};
-
-// Site configuration type
-export type Site = {
-    cookies?: {
-        domain?: string;
-    };
-    defaultCurrency: string;
-    defaultLocale: string;
-    domain?: string;
-    id: string;
-    supportedCurrencies: string[];
-    supportedLocales: Array<Locale>;
 };
 
 // Main configuration type for config.server.ts
@@ -106,15 +93,20 @@ export type Config = {
             enabled: boolean;
             legacyRoutes?: string[];
         };
+        auth: {
+            otpLength: 6 | 8;
+        };
         features: {
             passwordlessLogin: {
                 enabled: boolean;
-                callbackUri: string;
-                landingUri: string;
+                callbackUri?: string;
+                landingUri?: string;
+                mode: 'callback' | 'email' | 'sms';
             };
             resetPassword: {
                 callbackUri: string;
                 landingUri: string;
+                mode: 'callback' | 'email' | 'sms';
             };
             socialLogin: {
                 enabled: boolean;
@@ -128,7 +120,6 @@ export type Config = {
             guestCheckout: boolean;
             shopperContext: {
                 enabled: boolean;
-                dwsourcecodeCookieSuffix?: string;
             };
             googleCloudAPI: {
                 apiKey: string;
@@ -144,17 +135,10 @@ export type Config = {
                 logoAlt: string;
             };
             productListing: {
-                productsPerPage: number;
-                enableInfiniteScroll: boolean;
-                sortOptions: Array<'relevance' | 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc' | 'newest'>;
-                enableQuickView: boolean;
                 defaultProductTileImgAspectRatio: number;
             };
             carousel: {
                 defaultItemCount: number;
-            };
-            paginatedProductCarousel: {
-                defaultLimit: number;
             };
             badges: BadgeDetail[];
             skeleton: {
@@ -206,10 +190,18 @@ export type Config = {
             quality?: number;
             formats?: Array<'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp'>;
             fallbackFormat?: 'avif' | 'gif' | 'jp2' | 'jpg' | 'jpeg' | 'jxr' | 'png' | 'webp';
+            host?: string;
+            enableDis?: boolean;
         };
-        search?: {
-            products?: {
-                orderableOnly?: boolean;
+        search: {
+            products: {
+                refine?: {
+                    orderableOnly?: boolean;
+                };
+                hits: {
+                    limit: number;
+                    critical?: number;
+                };
             };
         };
         performance: {
@@ -240,10 +232,7 @@ export type Config = {
             hotReload: boolean;
             strictMode: boolean;
         };
-        url?: {
-            prefix: string;
-            search: string;
-        };
+        url?: Url;
     };
 };
 

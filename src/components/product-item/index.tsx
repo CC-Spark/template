@@ -40,12 +40,14 @@ import ProductPrice from '../product-price';
 // Hooks
 import { useItemFetcherLoading } from '@/hooks/use-item-fetcher';
 import { useCurrency } from '@/providers/currency';
+import { useConfig } from '@/config';
 
 // Utils
 import { formatCurrency } from '@/lib/currency';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
 import { createProductUrl, getDisplayVariationValues, type EnrichedProductItem } from '@/lib/product-utils';
 import { cn } from '@/lib/utils';
+import { toImageUrl } from '@/lib/dynamic-image';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -64,6 +66,9 @@ export function ProductItemVariantImage({
     className?: string;
     width?: string;
 }): ReactElement {
+    const config = useConfig();
+    const { t: tProduct } = useTranslation('product');
+
     if (!productItem) {
         return (
             <div className={cn('bg-muted rounded flex-shrink-0 w-16', className)}>
@@ -78,6 +83,8 @@ export function ProductItemVariantImage({
         selectedVariationAttributes: productItem?.variationValues,
     });
     const image = imageGroup?.images?.[0];
+    const imageAltFallback = productItem?.productName || productItem?.name || tProduct('imageAlt') || 'Product Image';
+    const optimizedImageUrl = toImageUrl({ image, config }) || '';
 
     return (
         <div
@@ -85,10 +92,10 @@ export function ProductItemVariantImage({
                 'bg-muted rounded flex-shrink-0 flex items-center justify-center aspect-square overflow-hidden',
                 className
             )}>
-            {image ? (
+            {image && optimizedImageUrl ? (
                 <img
-                    src={`${image.disBaseLink || image.link}?sw=160&q=60`}
-                    alt={image.alt || productItem?.productName || productItem?.name || 'Product image'}
+                    src={optimizedImageUrl}
+                    alt={image?.alt || imageAltFallback}
                     className="h-full w-full object-contain"
                 />
             ) : (
@@ -105,7 +112,7 @@ export function ProductItemVariantImage({
  * @param props.product - Product data containing name and ID information
  * @returns JSX element with product name link
  */
-function ProductItemVariantName({ productItem }: { productItem: EnrichedProductItem }): ReactElement {
+export function ProductItemVariantName({ productItem }: { productItem: EnrichedProductItem }): ReactElement {
     const { t: tCart } = useTranslation('cart');
     const { t: tProduct } = useTranslation('product');
     if (!productItem) {

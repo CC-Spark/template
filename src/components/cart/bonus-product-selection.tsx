@@ -28,6 +28,7 @@ import { getBonusProductCountsForPromotion } from '@/lib/bonus-product-utils';
 import { requiresVariantSelection, getPrimaryProductImageUrl, isRuleBasedPromotion } from '@/lib/product-utils';
 import { useRuleBasedBonusProducts } from '@/hooks/use-rule-based-bonus-products';
 import { useConfig } from '@/config/get-config';
+import { toImageUrl } from '@/lib/dynamic-image';
 
 interface BonusProductSelectionProps {
     bonusDiscountLineItem: ShopperBasketsV2.schemas['BonusDiscountLineItem'];
@@ -92,6 +93,8 @@ export default function BonusProductSelection({
                     return {
                         productId: productLink.productId,
                         productName: productLink.productName || product.name || 'Product',
+                        imageAlt:
+                            product.imageGroups?.[0]?.images?.[0]?.alt || productLink.productName || product.name || '',
                         imageUrl: getPrimaryProductImageUrl(product, 'large', product.variationValues),
                         product,
                     };
@@ -108,6 +111,7 @@ export default function BonusProductSelection({
                           return {
                               productId,
                               productName: product.productName || 'Product',
+                              imageAlt: product.image?.alt || product.productName || '',
                               imageUrl: product.image?.disBaseLink ?? product.image?.link ?? '',
                               product: product as unknown as ShopperProducts.schemas['Product'],
                           };
@@ -214,10 +218,18 @@ export default function BonusProductSelection({
                                                 <div className="bg-background border border-border rounded-xl overflow-hidden">
                                                     <div className="h-36 w-full relative">
                                                         {item.imageUrl ? (
+                                                            // Bonus product cards are content images, so provide descriptive alt text.
                                                             <img
-                                                                src={item.imageUrl}
-                                                                alt=""
-                                                                role="presentation"
+                                                                src={
+                                                                    toImageUrl({ src: item.imageUrl, config }) ??
+                                                                    item.imageUrl
+                                                                }
+                                                                alt={
+                                                                    item.imageAlt ||
+                                                                    item.productName ||
+                                                                    t('common:productImageAlt') ||
+                                                                    'Product Image'
+                                                                }
                                                                 loading="lazy"
                                                                 className="absolute inset-0 h-full w-full object-cover"
                                                                 onError={(e) => {

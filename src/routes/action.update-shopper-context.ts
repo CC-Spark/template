@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import type { ActionFunctionArgs } from 'react-router';
-import { extractQualifiersFromInput, safeParseCookie, updateShopperContext } from '@/lib/shopper-context-utils';
+import { extractQualifiersFromInput, updateShopperContext } from '@/lib/shopper-context-utils';
+import { extractStatusCode, parseJsonToStringRecord } from '@/lib/utils';
 import { getAuth } from '@/middlewares/auth.server';
 import { getTranslation } from '@/lib/i18next';
-import { extractStatusCode } from '@/lib/utils';
 
 type UpdateShopperContextResponse = {
     success: boolean;
@@ -53,7 +53,7 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
 
         // Parse new qualifiers
         const allNewQualifiers =
-            qualifiersJson && typeof qualifiersJson === 'string' ? safeParseCookie(qualifiersJson) : {};
+            qualifiersJson && typeof qualifiersJson === 'string' ? parseJsonToStringRecord(qualifiersJson) : {};
 
         const { qualifiers: newShopperContext, sourceCodeQualifiers: newSourceCodeContext } =
             extractQualifiersFromInput(allNewQualifiers);
@@ -69,17 +69,25 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
         }
 
         // Use shared function to update shopper context
-        await updateShopperContext({
+        const { setCookieHeaders } = await updateShopperContext({
             context,
             usid: session.usid,
             newShopperContext,
             newSourceCodeContext,
+            cookieHeader: request.headers.get('Cookie'),
         });
 
-        return Response.json({
+        const response = Response.json({
             success: true,
             message: t('Shopper context has been updated.'),
         } satisfies UpdateShopperContextResponse);
+
+        // Apply Set-Cookie headers from updateShopperContext
+        for (const header of setCookieHeaders) {
+            response.headers.append('Set-Cookie', header);
+        }
+
+        return response;
     } catch (error) {
         const statusCode = extractStatusCode(error) ? Number(extractStatusCode(error)) : 500;
         const errorMessage = error instanceof Error ? error.message : t('Shopper context failed to update');

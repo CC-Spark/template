@@ -13,103 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Custom async page loader rule
-export const noAsyncPageLoaderRule = {
-    meta: {
-        type: 'suggestion',
-        docs: {
-            description:
-                "Recommend avoiding async 'loader' and 'clientLoader' functions or returning Promises in page routes for better performance",
-            category: 'Best Practices',
-        },
-        schema: [],
-        messages: {
-            asyncOrPromiseLoader:
-                "For better performance in page routes consider avoiding asynchronous 'loader' or 'clientLoader' functions or returning Promises",
-        },
-    },
-
-    create(context) {
-        function checkFunction(node) {
-            // Flag async functions
-            if (node.async) {
-                context.report({ node, messageId: 'asyncOrPromiseLoader' });
-                return;
-            }
-
-            // Flag return statements returning new Promise(...)
-            if (node.body && node.body.type === 'BlockStatement') {
-                for (const stmt of node.body.body) {
-                    if (
-                        stmt.type === 'ReturnStatement' &&
-                        stmt.argument &&
-                        stmt.argument.type === 'NewExpression' &&
-                        stmt.argument.callee.type === 'Identifier' &&
-                        stmt.argument.callee.name === 'Promise'
-                    ) {
-                        context.report({ node: stmt, messageId: 'asyncOrPromiseLoader' });
-                    }
-                }
-            }
-        }
-
-        function handleExportedLoader(node, loaderFn) {
-            if (loaderFn) checkFunction(loaderFn);
-        }
-
-        function isLoaderFunction(name) {
-            return name === 'loader' || name === 'clientLoader';
-        }
-
-        return {
-            // Named exports
-            ExportNamedDeclaration(node) {
-                if (!node.declaration) return;
-
-                // export function loader() {} or export function clientLoader() {}
-                if (node.declaration.type === 'FunctionDeclaration') {
-                    if (node.declaration.id?.name && isLoaderFunction(node.declaration.id.name)) {
-                        handleExportedLoader(node, node.declaration);
-                    }
-                }
-
-                // export const loader = () => {} or export const clientLoader = () => {} or function expression
-                if (node.declaration.type === 'VariableDeclaration') {
-                    for (const declarator of node.declaration.declarations) {
-                        if (
-                            declarator.id.type === 'Identifier' &&
-                            isLoaderFunction(declarator.id.name) &&
-                            declarator.init &&
-                            (declarator.init.type === 'ArrowFunctionExpression' ||
-                                declarator.init.type === 'FunctionExpression')
-                        ) {
-                            handleExportedLoader(node, declarator.init);
-                        }
-                    }
-                }
-            },
-
-            // Default export object: export default { loader: ..., clientLoader: ... }
-            ExportDefaultDeclaration(node) {
-                if (node.declaration.type === 'ObjectExpression') {
-                    for (const prop of node.declaration.properties) {
-                        if (
-                            (prop.type === 'Property' || prop.type === 'ObjectProperty') &&
-                            ((prop.key.type === 'Identifier' && isLoaderFunction(prop.key.name)) ||
-                                (prop.key.type === 'Literal' && isLoaderFunction(prop.key.value)))
-                        ) {
-                            const value = prop.value;
-                            if (value.type === 'ArrowFunctionExpression' || value.type === 'FunctionExpression') {
-                                handleExportedLoader(node, value);
-                            }
-                        }
-                    }
-                }
-            },
-        };
-    },
-};
-
 // Custom no client actions rule
 export const noClientActionsRule = {
     meta: {
@@ -285,7 +188,7 @@ function isHardcodedColor(className) {
     }
 
     const allowedPatterns = [
-        /^(bg|text|border|ring|shadow|divide|placeholder|accent|caret|decoration|outline|fill|stroke)-(background|foreground|card|card-foreground|popover|popover-foreground|primary|primary-foreground|secondary|secondary-foreground|muted|muted-foreground|accent|accent-foreground|destructive|border|input|ring|chart-1|chart-2|chart-3|chart-4|chart-5|sidebar|sidebar-foreground|sidebar-primary|sidebar-primary-foreground|sidebar-accent|sidebar-accent-foreground|sidebar-border|sidebar-ring)$/,
+        /^(bg|text|border|ring|shadow|divide|placeholder|accent|caret|decoration|outline|fill|stroke)-(background|foreground|card|card-foreground|popover|popover-foreground|primary|primary-foreground|secondary|secondary-foreground|muted|muted-foreground|accent|accent-foreground|destructive|destructive-foreground|border|input|ring|chart-1|chart-2|chart-3|chart-4|chart-5|sidebar|sidebar-foreground|sidebar-primary|sidebar-primary-foreground|sidebar-accent|sidebar-accent-foreground|sidebar-border|sidebar-ring|success|success-foreground|info|info-foreground|warning|warning-foreground|separator|separator-foreground|rating|rating-foreground|paypal-gold|venmo-blue|order-status-new|order-status-new-foreground|order-status-warning|order-status-warning-foreground|order-status-completed|order-status-completed-foreground|order-status-cancelled|order-status-cancelled-foreground|order-border|order-pickup|order-pickup-border)$/,
         /^(bg|text|border|ring|shadow|divide|placeholder|accent|caret|decoration|outline|fill|stroke)-\[var\(--[^)]+\)\]$/,
         /^(bg|text|border|ring|shadow|divide|placeholder|accent|caret|decoration|outline|fill|stroke)-\[\$\{[^}]+\}\]$/,
         /^(bg|text|border|ring|shadow|divide|placeholder|accent|caret|decoration|outline|fill|stroke)-\[--[^\]]+\]$/,

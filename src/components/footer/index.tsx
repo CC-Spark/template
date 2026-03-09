@@ -17,7 +17,7 @@ import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 import { SiFacebook, SiInstagram, SiX, SiYoutube } from '@icons-pack/react-simple-icons';
 import Signup from './signup';
-import { PluginComponent } from '@/plugins/plugin-component';
+import { UITarget } from '@/targets/ui-target';
 import { useTranslation } from 'react-i18next';
 import LocaleSwitcher from '@/components/locale-switcher';
 import CurrencySwitcher from '@/components/currency-switcher';
@@ -26,14 +26,14 @@ export default function Footer(): ReactElement {
     const { t } = useTranslation('footer');
 
     return (
-        <footer data-theme="inverse" className="bg-background/90 py-12 mt-auto border-accent ring-secondary/40">
-            <div className="container mx-auto px-4 text-foreground border-secondary/50">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 bg/40">
+        <footer className="bg-footer-background py-12 mt-auto">
+            <div className="container mx-auto px-4 text-footer-foreground text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Customer Support */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">{t('sections.customerSupport')}</h3>
+                        <h3 className="text-xs font-semibold mb-4">{t('sections.customerSupport')}</h3>
                         <ul className="space-y-2">
-                            <PluginComponent pluginId="footer.customersupport.start" />
+                            <UITarget targetId="footer.customersupport.start" />
                             <li>
                                 <Link to="/contact" className="hover:underline">
                                     {t('links.contactUs')}
@@ -44,13 +44,13 @@ export default function Footer(): ReactElement {
                                     {t('links.shipping')}
                                 </Link>
                             </li>
-                            <PluginComponent pluginId="footer.customersupport.end" />
+                            <UITarget targetId="footer.customersupport.end" />
                         </ul>
-                        <h3 className="text-lg font-semibold my-4">{t('sections.switchLanguage')}</h3>
+                        <h3 className="text-xs font-semibold my-4">{t('sections.switchLanguage')}</h3>
                         <div className="flex items-center gap-2">
                             <LocaleSwitcher />
                         </div>
-                        <h3 className="text-lg font-semibold my-4">{t('sections.switchCurrency')}</h3>
+                        <h3 className="text-xs font-semibold my-4">{t('sections.switchCurrency')}</h3>
                         <div className="flex items-center gap-2">
                             <CurrencySwitcher />
                         </div>
@@ -58,9 +58,9 @@ export default function Footer(): ReactElement {
 
                     {/* Account */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">{t('sections.account')}</h3>
+                        <h3 className="text-xs font-semibold mb-4">{t('sections.account')}</h3>
                         <ul className="space-y-2">
-                            <PluginComponent pluginId="footer.account.start" />
+                            <UITarget targetId="footer.account.start" />
                             <li>
                                 <Link to="/orders" className="hover:underline">
                                     {t('links.orderStatus')}
@@ -71,21 +71,21 @@ export default function Footer(): ReactElement {
                                     {t('links.signInOrCreateAccount')}
                                 </Link>
                             </li>
-                            <PluginComponent pluginId="footer.account.end" />
+                            <UITarget targetId="footer.account.end" />
                         </ul>
                     </div>
 
                     {/* Our Company */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">{t('sections.ourCompany')}</h3>
+                        <h3 className="text-xs font-semibold mb-4">{t('sections.ourCompany')}</h3>
                         <ul className="space-y-2">
-                            <PluginComponent pluginId="footer.ourcompany.start" />
+                            <UITarget targetId="footer.ourcompany.start" />
                             <li>
                                 <Link to="/about-us" className="hover:underline">
                                     {t('links.aboutUs')}
                                 </Link>
                             </li>
-                            <PluginComponent pluginId="footer.ourcompany.end" />
+                            <UITarget targetId="footer.ourcompany.end" />
                         </ul>
                     </div>
 
@@ -123,7 +123,7 @@ export default function Footer(): ReactElement {
                 </div>
 
                 <div className="mt-12 pt-8 border-t border-border/60">
-                    <p className="text-center text-muted-foreground text-sm">
+                    <p className="text-center text-muted-foreground text-xs">
                         © {new Date().getFullYear()} {t('copyright')}
                     </p>
                 </div>

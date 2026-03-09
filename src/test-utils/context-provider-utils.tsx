@@ -71,13 +71,13 @@ export const mockBuildConfig: Config = {
             sites: [
                 {
                     id: 'RefArchGlobal',
-                    defaultLocale: 'en-US',
-                    defaultCurrency: 'USD',
+                    defaultLocale: 'en-GB',
+                    defaultCurrency: 'GBP',
                     supportedLocales: [
-                        { id: 'en-US', preferredCurrency: 'USD' },
+                        { id: 'en-GB', preferredCurrency: 'GBP' },
                         { id: 'it-IT', preferredCurrency: 'EUR' },
                     ],
-                    supportedCurrencies: ['USD', 'EUR'],
+                    supportedCurrencies: ['EUR', 'GBP'],
                 },
             ],
         },
@@ -105,20 +105,15 @@ export const mockBuildConfig: Config = {
             legacyRoutes: [],
         },
         i18n: {
-            fallbackLng: 'en-US',
-            supportedLngs: ['en-US'],
+            fallbackLng: 'en-GB',
+            supportedLngs: ['en-GB'],
         },
         global: {
             branding: { name: 'Test Store', logoAlt: 'Home' },
             productListing: {
-                productsPerPage: 24,
-                enableInfiniteScroll: false,
-                sortOptions: ['relevance'],
-                enableQuickView: true,
                 defaultProductTileImgAspectRatio: 1,
             },
             carousel: { defaultItemCount: 4 },
-            paginatedProductCarousel: { defaultLimit: 4 },
             badges: [
                 { propertyName: 'c_isSale', label: 'Sale', color: 'orange', priority: 1 },
                 { propertyName: 'c_isNew', label: 'New', color: 'green', priority: 2 },
@@ -162,9 +157,21 @@ export const mockBuildConfig: Config = {
             preconnect: ['https://edge.disstg.commercecloud.salesforce.com'],
         },
         images: {
+            host: 'https://edge.disstg.commercecloud.salesforce.com',
             quality: 80,
             formats: ['webp'],
             fallbackFormat: 'jpg',
+        },
+        search: {
+            products: {
+                refine: {
+                    orderableOnly: true,
+                },
+                hits: {
+                    limit: 24,
+                    critical: 2,
+                },
+            },
         },
         performance: {
             caching: { apiCacheTtl: 300, staticAssetCacheTtl: 31536000 },
@@ -229,7 +236,7 @@ export const mockBuildConfig: Config = {
                     enabled: true,
                     host: 'https://zzrf-001.dx.commercecloud.salesforce.com',
                     siteId: 'RefArchGlobal',
-                    locale: 'en_US',
+                    locale: 'en_GB',
                     siteUUID: '8bb1ea1b04ac3454d36b83a888',
                     eventToggles: {
                         view_page: true,

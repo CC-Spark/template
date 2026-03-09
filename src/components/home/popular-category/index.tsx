@@ -16,12 +16,16 @@
 import type { ComponentProps } from 'react';
 import type { ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
-import ContentCard from '@/components/content-card';
+import type { ComponentType } from '@/components/region';
+import { Link } from 'react-router';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
+import { DynamicImage } from '@/components/dynamic-image';
+import { toImageUrl } from '@/lib/dynamic-image';
 import { useTranslation } from 'react-i18next';
 import heroImage from '/images/hero-cube.webp';
 import { loader as loaders } from './loaders';
+import { useConfig } from '@/config';
 
 interface PopularCategoryProps extends ComponentProps<'div'> {
     // Category data from Page Designer (via loader) or programmatic use
@@ -29,7 +33,7 @@ interface PopularCategoryProps extends ComponentProps<'div'> {
     // Page Designer props (passed by Component wrapper, must be extracted to avoid passing to DOM)
     regionId?: string;
     page?: ShopperExperience.schemas['Page'];
-    component?: ShopperExperience.schemas['Component'];
+    component?: ComponentType;
     componentData?: Record<string, Promise<unknown>>;
     designMetadata?: ComponentDesignMetadata;
     // Loader data - full category object fetched by loader
@@ -55,8 +59,8 @@ export class PopularCategoryMetadata {
 export const loader = loaders.server;
 
 /**
- * PopularCategory component that displays a single category as a content card
- * Can be used in Page Designer or programmatically
+ * PopularCategory component that displays a single category as an image card
+ * with gradient overlay, title, description, and hover "Shop Now" animation.
  *
  * When used in Page Designer:
  * - Uses a single 'category' attribute (type: 'category') which stores the category ID
@@ -75,9 +79,9 @@ export default function PopularCategory({
     designMetadata: _designMetadata,
     // Loader data - full category object fetched by loader
     data,
-    ...props
 }: PopularCategoryProps) {
     const { t } = useTranslation('home');
+    const config = useConfig();
 
     // Use data from loader (Page Designer) or category prop (programmatic use)
     // If category is a string, it's from Page Designer and we should ignore it (wait for loader data)
@@ -85,21 +89,7 @@ export default function PopularCategory({
     const categoryData = data || (typeof category === 'object' && category !== null ? category : undefined);
 
     if (!categoryData) {
-        // Fallback if no category data is provided
-        return (
-            <ContentCard
-                title=""
-                description=""
-                imageUrl={heroImage}
-                imageAlt=""
-                buttonText={t('categoryGrid.shopNowButton')}
-                buttonLink="/category/root"
-                showBackground={true}
-                showBorder={true}
-                loading="eager"
-                {...props}
-            />
-        );
+        return null;
     }
 
     const finalCategoryId = categoryData.id || '';
@@ -107,22 +97,47 @@ export default function PopularCategory({
     const finalDescription = categoryData.pageDescription || categoryData.description || '';
 
     // Determine image URL - priority: category image > category banner > hero fallback
-    const categoryImageUrl = categoryData.image || categoryData.c_slotBannerImage;
-    const finalImageUrl = categoryImageUrl || heroImage;
-    const finalImageAlt = categoryData.name || '';
+    const categoryImageUrl =
+        (typeof categoryData.image === 'string' && categoryData.image) ||
+        (typeof categoryData.c_slotBannerImage === 'string' && categoryData.c_slotBannerImage) ||
+        undefined;
+    const transformedCategoryImage = toImageUrl({ src: categoryImageUrl, config }) ?? categoryImageUrl;
+    const finalImageUrl: string = transformedCategoryImage || heroImage;
 
     return (
-        <ContentCard
-            title={finalName}
-            description={finalDescription}
-            imageUrl={finalImageUrl as string}
-            imageAlt={finalImageAlt}
-            buttonText={t('categoryGrid.shopNowButton')}
-            buttonLink={`/category/${finalCategoryId}`}
-            showBackground={true}
-            showBorder={true}
-            loading="eager"
-            {...props}
-        />
+        <Link
+            to={`/category/${finalCategoryId}`}
+            className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl flex-shrink-0 w-[240px] sm:w-[260px] md:w-[280px] lg:w-[300px]"
+            role="listitem">
+            <div className="group relative overflow-hidden rounded-xl bg-muted h-full">
+                <div className="aspect-square overflow-hidden">
+                    <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105">
+                        <DynamicImage
+                            src={finalImageUrl}
+                            alt={finalName}
+                            className="w-full h-full"
+                            imageProps={{ className: 'w-full h-full object-cover' }}
+                            widths={[240, 260, 280, 300]}
+                            loading="eager"
+                        />
+                    </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
+                    <div className="absolute bottom-0 left-0 right-0 px-6 pb-6 pt-12 flex flex-col justify-end">
+                        <div>
+                            <h3 className="text-xl md:text-2xl font-semibold text-primary-foreground mb-1 tracking-tight">
+                                {finalName}
+                            </h3>
+                            {finalDescription && <p className="text-sm text-white/90">{finalDescription}</p>}
+                        </div>
+                        <div className="overflow-hidden max-h-0 transition-[max-height] duration-300 ease-out group-hover:max-h-8 mt-1">
+                            <span className="inline-block text-sm font-medium text-primary-foreground">
+                                {t('categoryGrid.shopNowButton')}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Link>
     );
 }

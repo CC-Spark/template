@@ -40,14 +40,6 @@ vi.mock('@/components/navigation-menu-mega', () => ({
     ),
 }));
 
-/**
- * HydrateFallback is required when using createRoutesStub with components that have loaders.
- * Without it, React Router throws errors during the hydration phase.
- */
-function HydrateFallback() {
-    return <div data-testid="hydrate-fallback">Loading...</div>;
-}
-
 describe('_app.tsx - Default Layout Route', () => {
     const mockCategory: ShopperProducts.schemas['Category'] = {
         id: 'root',
@@ -70,7 +62,6 @@ describe('_app.tsx - Default Layout Route', () => {
                     id: 'root',
                     path: '/',
                     Component: DefaultLayout,
-                    HydrateFallback,
                     loader: () => ({
                         root: Promise.resolve(mockCategory),
                         subs: Promise.resolve(mockSubCategories),
@@ -103,7 +94,6 @@ describe('_app.tsx - Default Layout Route', () => {
                     id: 'root',
                     path: '/',
                     Component: DefaultLayout,
-                    HydrateFallback,
                     loader: () => ({
                         root: Promise.resolve(mockCategory),
                         subs: Promise.resolve(mockSubCategories),
@@ -132,7 +122,6 @@ describe('_app.tsx - Default Layout Route', () => {
                     id: 'root',
                     path: '/',
                     Component: DefaultLayout,
-                    HydrateFallback,
                     loader: () => ({
                         root: Promise.resolve(mockCategory),
                         subs: Promise.resolve(mockSubCategories),
@@ -161,7 +150,6 @@ describe('_app.tsx - Default Layout Route', () => {
                     id: 'root',
                     path: '/',
                     Component: DefaultLayout,
-                    HydrateFallback,
                     loader: () => ({
                         // No root or subs data
                     }),
@@ -195,7 +183,6 @@ describe('_app.tsx - Default Layout Route', () => {
                     id: 'root',
                     path: '/',
                     Component: DefaultLayout,
-                    HydrateFallback,
                     loader: () => ({
                         root: Promise.resolve(mockCategory),
                         subs: Promise.resolve(mockSubCategories),

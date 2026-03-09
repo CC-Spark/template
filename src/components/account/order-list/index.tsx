@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 import type { ReactElement } from 'react';
+import { Link } from 'react-router';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Typography } from '@/components/typography';
 import { useTranslation } from 'react-i18next';
-import { Check, X, Clock } from 'lucide-react';
-import { formatCurrency } from '@/lib/currency';
+import {
+    OrderListItem,
+    type OrderListItemData,
+    type OrderProductItem,
+    type PickupLocation,
+} from '@/components/account/order-list-item';
 
 /**
  * Order status constants.
  * These are the supported status values from SCAPI.
  */
 export const OrderStatus = {
+    CREATED: 'created',
     NEW: 'new',
+    FAILED: 'failed',
+    FAILED_WITH_REOPEN: 'failed_with_reopen',
     COMPLETED: 'completed',
     CANCELLED: 'cancelled',
 } as const;
@@ -35,12 +43,18 @@ export type OrderStatusType = (typeof OrderStatus)[keyof typeof OrderStatus];
 
 /**
  * Order data structure for display.
+ * Extended to support the new OrderListItem component.
  */
 export type Order = {
     orderNo: string;
+    orderDate: string;
     status: string;
-    method: string;
-    amount: number;
+    statusLabel?: string;
+    total: number;
+    currency?: string;
+    itemCount: number;
+    productItems?: OrderProductItem[];
+    pickupLocation?: PickupLocation;
 };
 
 /**
@@ -51,167 +65,143 @@ export type OrderListProps = {
     subtitle?: string;
     orders: Order[];
     emptyMessage?: string;
-    /** Callback when View Details button is clicked */
-    onViewDetails?: (order: Order) => void;
+    /** Maximum number of product thumbnails per order */
+    maxThumbnails?: number;
+    /** Callback when View Details is clicked */
+    onViewDetails?: (orderNo: string) => void;
 };
 
 /**
- * Status configuration mapping.
- * Maps each order status to its styling and icon.
- * Uses semantic color classes from the design system.
+ * Convert Order to OrderListItemData format.
  */
-const STATUS_CONFIG: Record<OrderStatusType, { className: string; icon: React.ComponentType<{ className?: string }> }> =
-    {
-        [OrderStatus.COMPLETED]: {
-            className: 'border-transparent bg-success/85 text-success-foreground',
-            icon: Check,
-        },
-        [OrderStatus.CANCELLED]: {
-            className: 'border-transparent bg-destructive/20 text-destructive',
-            icon: X,
-        },
-        [OrderStatus.NEW]: {
-            className: 'border-transparent bg-primary/20 text-primary',
-            icon: Clock,
-        },
+function toOrderListItemData(order: Order): OrderListItemData {
+    return {
+        orderNo: order.orderNo,
+        orderDate: order.orderDate,
+        total: order.total,
+        currency: order.currency,
+        status: order.status,
+        statusLabel: order.statusLabel,
+        itemCount: order.itemCount,
+        productItems: order.productItems,
+        pickupLocation: order.pickupLocation,
     };
-
-/**
- * Get the appropriate styling and icon for an order status.
- */
-function getStatusConfig(status: string): {
-    className: string;
-    icon: React.ComponentType<{ className?: string }>;
-} {
-    const normalizedStatus = status.toLowerCase() as OrderStatusType;
-    return STATUS_CONFIG[normalizedStatus] ?? STATUS_CONFIG[OrderStatus.NEW];
 }
 
 /**
- * Status badge component that displays order status with appropriate styling.
- * Supports multiple statuses with distinct colors matching Market Street design.
- *
- * @param status - The order status value
- * @param label - The display label for the status
- * @returns JSX element representing the status badge
+ * Empty state displayed when the customer has no orders.
  */
-function StatusBadge({ status, label }: { status: string; label: string }): ReactElement {
-    const { className, icon: Icon } = getStatusConfig(status);
+function OrderListEmpty({ message }: { message?: string }): ReactElement {
+    const { t } = useTranslation('account');
 
     return (
-        <Badge className={className}>
-            {Icon && <Icon className="size-3 mr-1" />}
-            {label}
-        </Badge>
+        <Card className="border-order-border m-0 rounded-none shadow-none border-b-0">
+            <CardContent className="p-0">
+                <div className="py-4 space-y-4 flex flex-col items-center justify-center">
+                    <Typography variant="h4" className="text-muted-foreground w-fit">
+                        {message || t('orders.empty')}
+                    </Typography>
+                    <Button asChild>
+                        <Link to="/">{t('orders.continueShopping')}</Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 
 /**
- * Reusable order list component that displays a table of orders.
- * Supports customizable header, description, and item limit.
- *
- * @param props - Component props
- * @returns JSX element representing the order list
+ * Page header for the order list with title and optional subtitle.
+ * Extracted so the route can render it outside Suspense for instant display.
  */
-export function OrderList({ title, subtitle, orders, emptyMessage, onViewDetails }: OrderListProps): ReactElement {
-    const { t } = useTranslation('account');
-
-    // Display whatever orders are passed
-    const displayOrders = orders;
-
+export function OrderListHeader({ title, subtitle }: { title: string; subtitle?: string }): ReactElement {
     return (
-        <div className="space-y-6">
-            {/* Page Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-foreground" tabIndex={0}>
-                    {title}
-                </h1>
-                {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
-            </div>
-
-            {/* Orders Table */}
-            <Card className="border-border">
-                <CardContent className="p-0">
-                    {displayOrders.length === 0 ? (
-                        <div className="text-center py-12">
-                            <p className="text-muted-foreground">{emptyMessage || t('orders.empty')}</p>
-                        </div>
-                    ) : (
-                        <>
-                            {/* Table Header */}
-                            <div className="hidden sm:grid sm:grid-cols-5 gap-4 px-6 py-3 border-b border-border bg-muted/30">
-                                <div className="text-sm font-medium text-foreground">
-                                    {t('orders.tableHeaders.orderNumber')}
-                                </div>
-                                <div className="text-sm font-medium text-foreground">
-                                    {t('orders.tableHeaders.status')}
-                                </div>
-                                <div className="text-sm font-medium text-foreground">
-                                    {t('orders.tableHeaders.method')}
-                                </div>
-                                <div className="text-sm font-medium text-foreground">
-                                    {t('orders.tableHeaders.amount')}
-                                </div>
-                                <div className="text-sm font-medium text-foreground sr-only">
-                                    {t('orders.tableHeaders.actions')}
-                                </div>
-                            </div>
-
-                            {/* Table Body */}
-                            <div className="divide-y divide-border">
-                                {displayOrders.map((order) => (
-                                    <div
-                                        key={order.orderNo}
-                                        className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 px-6 py-4 items-center hover:bg-muted/20 transition-colors">
-                                        {/* Order Number */}
-                                        <div>
-                                            <span className="sm:hidden text-xs text-muted-foreground">
-                                                {t('orders.tableHeaders.orderNumber')}:{' '}
-                                            </span>
-                                            <span className="text-sm font-medium text-foreground">{order.orderNo}</span>
-                                        </div>
-
-                                        {/* Status */}
-                                        <div>
-                                            <span className="sm:hidden text-xs text-muted-foreground mr-2">
-                                                {t('orders.tableHeaders.status')}:{' '}
-                                            </span>
-                                            <StatusBadge status={order.status} label={order.status} />
-                                        </div>
-
-                                        {/* Method */}
-                                        <div>
-                                            <span className="sm:hidden text-xs text-muted-foreground">
-                                                {t('orders.tableHeaders.method')}:{' '}
-                                            </span>
-                                            <span className="text-sm text-foreground">{order.method}</span>
-                                        </div>
-
-                                        {/* Amount */}
-                                        <div>
-                                            <span className="sm:hidden text-xs text-muted-foreground">
-                                                {t('orders.tableHeaders.amount')}:{' '}
-                                            </span>
-                                            <span className="text-sm text-foreground">
-                                                {formatCurrency(order.amount)}
-                                            </span>
-                                        </div>
-
-                                        {/* Actions */}
-                                        <div className="sm:text-right mt-2 sm:mt-0">
-                                            <Button variant="outline" size="sm" onClick={() => onViewDetails?.(order)}>
-                                                {t('orders.viewDetails')}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </CardContent>
-            </Card>
+        <div className="p-6 m-0 border-t border-x border-order-border rounded-t-xl">
+            <Typography variant="h3" className="text-foreground font-semibold" tabIndex={0}>
+                {title}
+            </Typography>
+            {subtitle && (
+                <Typography variant="small" as="p" className="text-muted-foreground mt-1">
+                    {subtitle}
+                </Typography>
+            )}
         </div>
     );
 }
+
+/**
+ * Order items body with footer. Renders order cards, empty state, and total count.
+ * Designed to be used inside Suspense/Await so the header can render instantly.
+ */
+export function OrderListBody({
+    orders,
+    emptyMessage,
+    maxThumbnails = 12,
+    onViewDetails,
+}: Omit<OrderListProps, 'title' | 'subtitle'>): ReactElement {
+    const { t } = useTranslation('account');
+
+    return (
+        <>
+            {orders.length === 0 ? (
+                <OrderListEmpty message={emptyMessage} />
+            ) : (
+                <div className="space-y-4 m-0 border-x border-t border-order-border">
+                    {orders.map((order) => (
+                        <OrderListItem
+                            key={order.orderNo}
+                            order={toOrderListItemData(order)}
+                            maxThumbnails={maxThumbnails}
+                            onViewDetails={onViewDetails}
+                        />
+                    ))}
+                </div>
+            )}
+            <div className="p-6 m-0 border-b border-x border-order-border rounded-b-xl">
+                <Typography variant="small" as="p" className="text-muted-foreground" data-testid="total-orders-text">
+                    {t('orders.totalOrders', { count: orders.length })}
+                </Typography>
+            </div>
+        </>
+    );
+}
+
+/**
+ * Reusable order list component that displays a list of order cards.
+ * Composes OrderListHeader + OrderListBody for convenience.
+ *
+ * @example
+ * ```tsx
+ * <OrderList
+ *   title="Order History"
+ *   subtitle="View and track your orders"
+ *   orders={orders}
+ *   onViewDetails={(orderNo) => navigate(`/orders/${orderNo}`)}
+ * />
+ * ```
+ */
+export function OrderList({
+    title,
+    subtitle,
+    orders,
+    emptyMessage,
+    maxThumbnails = 12,
+    onViewDetails,
+}: OrderListProps): ReactElement {
+    return (
+        <div className="space-y-6">
+            <OrderListHeader title={title} subtitle={subtitle} />
+            <OrderListBody
+                orders={orders}
+                emptyMessage={emptyMessage}
+                maxThumbnails={maxThumbnails}
+                onViewDetails={onViewDetails}
+            />
+        </div>
+    );
+}
+
+// Re-export types from OrderListItem for convenience
+export type { OrderProductItem, PickupLocation, OrderListItemData };
 
 export default OrderList;

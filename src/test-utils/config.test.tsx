@@ -26,7 +26,7 @@ describe('Config Test Utils', () => {
 
             expect(result.current).toBeDefined();
             expect(result.current.commerce.api.clientId).toBe('test-client');
-            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-US');
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-GB');
         });
 
         it('should provide access to all config sections', () => {
@@ -47,7 +47,7 @@ describe('Config Test Utils', () => {
             const { result } = renderHook(() => useConfig(), { wrapper: CustomWrapper });
 
             expect(result.current.commerce.api.clientId).toBe('test-client');
-            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-US');
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-GB');
         });
 
         it('should merge overrides with base config', () => {
@@ -67,7 +67,7 @@ describe('Config Test Utils', () => {
             const { result } = renderHook(() => useConfig(), { wrapper: CustomWrapper });
 
             expect(result.current.commerce.api.clientId).toBe('custom-client');
-            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-US'); // Original value preserved
+            expect(result.current.commerce.sites[0].defaultLocale).toBe('en-GB'); // Original value preserved
         });
 
         it('should allow overriding site configuration', () => {
@@ -97,11 +97,14 @@ describe('Config Test Utils', () => {
             const CustomWrapper = createConfigWrapper({
                 app: {
                     ...mockBuildConfig.app,
-                    global: {
-                        ...mockBuildConfig.app.global,
-                        productListing: {
-                            ...mockBuildConfig.app.global.productListing,
-                            productsPerPage: 48,
+                    search: {
+                        ...mockBuildConfig.app.search,
+                        products: {
+                            ...mockBuildConfig.app.search.products,
+                            hits: {
+                                ...mockBuildConfig.app.search.products.hits,
+                                limit: 48,
+                            },
                         },
                     },
                 },
@@ -109,7 +112,7 @@ describe('Config Test Utils', () => {
 
             const { result } = renderHook(() => useConfig(), { wrapper: CustomWrapper });
 
-            expect(result.current.global.productListing.productsPerPage).toBe(48);
+            expect(result.current.search.products.hits.limit).toBe(48);
         });
     });
 
@@ -125,8 +128,8 @@ describe('Config Test Utils', () => {
             expect(mockConfig.commerce.api.clientId).toBe('test-client');
             expect(mockConfig.commerce.api.organizationId).toBe('test-org');
             expect(mockConfig.commerce.api.siteId).toBe('test-site');
-            expect(mockConfig.commerce.sites[0].defaultLocale).toBe('en-US');
-            expect(mockConfig.commerce.sites[0].defaultCurrency).toBe('USD');
+            expect(mockConfig.commerce.sites[0].defaultLocale).toBe('en-GB');
+            expect(mockConfig.commerce.sites[0].defaultCurrency).toBe('GBP');
         });
     });
 
@@ -169,7 +172,7 @@ describe('Config Test Utils', () => {
 
         it('should have valid global configurations', () => {
             expect(mockBuildConfig.app.global.branding.name).toBe('Test Store');
-            expect(mockBuildConfig.app.global.productListing.productsPerPage).toBe(24);
+            expect(mockBuildConfig.app?.search.products.hits.limit).toBe(24);
             expect(mockBuildConfig.app.global.carousel.defaultItemCount).toBe(4);
             expect(mockBuildConfig.app.global.badges).toHaveLength(2);
         });

@@ -184,3 +184,164 @@ Inline grid display mode.
         await expect(itemA).toBeInTheDocument();
     },
 };
+
+export const WithMaxWidth: Story = {
+    render: () => (
+        <Grid columns="3" maxWidth="lg" columnGap="4" className="mx-auto">
+            <div className="bg-muted p-4 rounded">Item 1</div>
+            <div className="bg-muted p-4 rounded">Item 2</div>
+            <div className="bg-muted p-4 rounded">Item 3</div>
+        </Grid>
+    ),
+    parameters: {
+        docs: {
+            story: `
+Grid with max-width constraint.
+
+### Features:
+- Max width of lg
+- Centered with mx-auto
+- Responsive layout
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        const item1 = await canvas.findByText(/item 1/i, {}, { timeout: 5000 });
+        await expect(item1).toBeInTheDocument();
+    },
+};
+
+export const WithVerticalAlignment: Story = {
+    render: () => (
+        <Grid columns="3" verticalAlignment="center" columnGap="4" className="h-64">
+            <div className="bg-muted p-4 rounded h-16">Short Item</div>
+            <div className="bg-muted p-4 rounded h-32">Tall Item</div>
+            <div className="bg-muted p-4 rounded h-24">Medium Item</div>
+        </Grid>
+    ),
+    parameters: {
+        docs: {
+            story: `
+Grid with vertical center alignment.
+
+### Features:
+- Items vertically centered
+- Different height items
+- Demonstrates alignment behavior
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        const shortItem = await canvas.findByText(/short item/i, {}, { timeout: 5000 });
+        await expect(shortItem).toBeInTheDocument();
+    },
+};
+
+export const WithBackgroundGradient: Story = {
+    render: () => (
+        <Grid columns="2" backgroundGradient="blue" columnGap="6" className="p-8 rounded-lg">
+            <div className="bg-white p-4 rounded shadow">Item 1</div>
+            <div className="bg-white p-4 rounded shadow">Item 2</div>
+        </Grid>
+    ),
+    parameters: {
+        docs: {
+            story: `
+Grid with blue gradient background.
+
+### Features:
+- Blue gradient background
+- White cards on top
+- Visual depth with shadows
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        const item1 = await canvas.findByText(/item 1/i, {}, { timeout: 5000 });
+        await expect(item1).toBeInTheDocument();
+    },
+};
+
+export const WithBackgroundBlur: Story = {
+    render: () => (
+        <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg" />
+            <Grid columns="2" backgroundBlur="md" columnGap="4" className="relative p-6 rounded-lg bg-white/30">
+                <div className="bg-white/80 p-4 rounded">Blurred Background</div>
+                <div className="bg-white/80 p-4 rounded">Glassmorphism Effect</div>
+            </Grid>
+        </div>
+    ),
+    parameters: {
+        docs: {
+            story: `
+Grid with backdrop blur (glassmorphism).
+
+### Features:
+- Backdrop blur effect
+- Semi-transparent background
+- Modern glassmorphism design
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        const item1 = await canvas.findByText(/blurred background/i, {}, { timeout: 5000 });
+        await expect(item1).toBeInTheDocument();
+    },
+};
+
+export const FullFeatured: Story = {
+    render: () => (
+        <Grid
+            columns="4"
+            maxWidth="2xl"
+            columnGap="6"
+            verticalAlignment="stretch"
+            backgroundGradient="purple"
+            className="mx-auto p-8 rounded-xl">
+            <div className="bg-white p-4 rounded shadow">Feature 1</div>
+            <div className="bg-white p-4 rounded shadow">Feature 2</div>
+            <div className="bg-white p-4 rounded shadow">Feature 3</div>
+            <div className="bg-white p-4 rounded shadow">Feature 4</div>
+        </Grid>
+    ),
+    parameters: {
+        docs: {
+            story: `
+Grid showcasing all Page Designer features.
+
+### Features:
+- 4 columns
+- Max width 2xl
+- Column gap 6
+- Vertical stretch alignment
+- Purple gradient background
+- Fully customizable
+            `,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        await waitForStorybookReady(canvasElement);
+
+        const feature1 = await canvas.findByText(/feature 1/i, {}, { timeout: 5000 });
+        await expect(feature1).toBeInTheDocument();
+    },
+};

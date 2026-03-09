@@ -15,7 +15,7 @@
  */
 'use client';
 
-import { useEffect, lazy, Suspense, use, useRef, useState } from 'react';
+import { useEffect, lazy, Suspense, use, useRef, useState, type FormEvent } from 'react';
 import { useCheckoutContext } from '@/hooks/use-checkout';
 import { useBasket } from '@/providers/basket';
 import { useCheckoutActions } from '@/hooks/use-checkout-actions';
@@ -25,9 +25,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Typography } from '@/components/typography';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
+import type { PaymentData } from '@/lib/checkout-schemas';
 import { useTranslation } from 'react-i18next';
 import { useAnalytics } from '@/hooks/use-analytics';
-import { PluginComponent } from '@/plugins/plugin-component';
+import { UITarget } from '@/targets/ui-target';
 import CheckoutErrorBanner from './components/checkout-error-banner';
 import { CHECKOUT_STEPS, type CheckoutStep } from './utils/checkout-context-types';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
@@ -52,6 +53,18 @@ const RegisterCustomerSelection = lazy(() => import('./components/register-custo
 const OrderSummary = lazy(() => import('@/components/order-summary'));
 const MyCart = lazy(() => import('@/components/my-cart'));
 const ExpressPayments = lazy(() => import('./components/express-payments'));
+
+// Import skeleton components for accurate loading states
+import {
+    ContactInfoSkeleton,
+    ExpressPaymentsSkeleton,
+    MyCartSkeleton,
+    OrderSummarySkeleton,
+    PaymentSkeleton,
+    PickupSkeleton,
+    ShippingAddressSkeleton,
+    ShippingOptionsSkeleton,
+} from './components/checkout-skeletons';
 
 interface GuestAccountCreationProps {
     cart: ShopperBasketsV2.schemas['Basket'];
@@ -185,6 +198,8 @@ export default function CheckoutFormPage({
     const analytics = useAnalytics();
     const hasTrackedCheckoutStartRef = useRef(false);
     const previousStepRef = useRef<CheckoutStep | null>(null);
+    const paymentFormDataRef = useRef<(() => PaymentData) | null>(null);
+    const placeOrderAfterPaymentRef = useRef(false);
 
     useEffect(() => {
         // Only track checkout start once on mount if baseket is not empty
@@ -217,54 +232,17 @@ export default function CheckoutFormPage({
     const handleShippingOptionsSubmit = submitShippingOptions;
     const handlePaymentSubmit = submitPayment;
 
-    // Apple Pay Express Checkout handler
-    const handleApplePayClick = () => {
-        // TODO: Implement Apple Pay integration
-        // For now, show an alert to demonstrate the integration point
-        // eslint-disable-next-line no-alert
-        alert(
-            'Apple Pay express checkout would be processed here. This would skip all form steps and go directly to payment confirmation.'
-        );
-    };
-
-    // Google Pay Express Checkout handler
-    const handleGooglePayClick = () => {
-        // TODO: Implement Google Pay integration
-        // For now, show an alert to demonstrate the integration point
-        // eslint-disable-next-line no-alert
-        alert(
-            'Google Pay express checkout would be processed here. This would skip all form steps and go directly to payment confirmation.'
-        );
-    };
-
-    // Amazon Pay Express Checkout handler
-    const handleAmazonPayClick = () => {
-        // TODO: Implement Amazon Pay integration
-        // For now, show an alert to demonstrate the integration point
-        // eslint-disable-next-line no-alert
-        alert(
-            'Amazon Pay express checkout would be processed here. This would skip all form steps and go directly to payment confirmation.'
-        );
-    };
-
-    // Venmo Express Checkout handler
-    const handleVenmoClick = () => {
-        // TODO: Implement Venmo integration
-        // For now, show an alert to demonstrate the integration point
-        // eslint-disable-next-line no-alert
-        alert(
-            'Venmo express checkout would be processed here. This would skip all form steps and go directly to payment confirmation.'
-        );
-    };
-
-    // PayPal Express Checkout handler
-    const handlePayPalClick = () => {
-        // TODO: Implement PayPal integration
-        // For now, show an alert to demonstrate the integration point
-        // eslint-disable-next-line no-alert
-        alert(
-            'PayPal express checkout would be processed here. This would skip all form steps and go directly to payment confirmation.'
-        );
+    const handlePlaceOrderSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (step === STEPS.PAYMENT) {
+            const paymentData = paymentFormDataRef.current?.();
+            if (paymentData) {
+                placeOrderAfterPaymentRef.current = true;
+                submitPayment(paymentData);
+            }
+        } else {
+            submitPlaceOrder();
+        }
     };
 
     // Step state logic - centralized in container for single page layout
@@ -299,13 +277,6 @@ export default function CheckoutFormPage({
     // The place order action automatically redirects to the confirmation page
     // Session storage cleanup is also handled in the action route
 
-    // Auto-scroll to top when reaching review step
-    useEffect(() => {
-        if (step === STEPS.REVIEW_ORDER) {
-            window.scrollTo({ top: 0 });
-        }
-    }, [step, STEPS.REVIEW_ORDER]);
-
     useEffect(() => {
         if (
             placeOrderFetcher.state === 'idle' &&
@@ -317,6 +288,14 @@ export default function CheckoutFormPage({
             placeOrderErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [placeOrderFetcher.state, placeOrderFetcher.data]);
+
+    // Place the order once payment succeeds
+    useEffect(() => {
+        if (placeOrderAfterPaymentRef.current && paymentFetcher.state === 'idle' && paymentFetcher.data?.success) {
+            placeOrderAfterPaymentRef.current = false;
+            submitPlaceOrder();
+        }
+    }, [paymentFetcher.state, paymentFetcher.data, submitPlaceOrder]);
 
     // Check if cart is empty (no items) - also handle basketId to ensure we have a valid basket
     if (!cart || !cart.basketId || !cart.productItems || cart.productItems.length === 0) {
@@ -388,7 +367,7 @@ export default function CheckoutFormPage({
 
     return (
         <div className="min-h-screen bg-background">
-            <PluginComponent pluginId="checkout.page.before" />
+            <UITarget targetId="checkout.page.before" />
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Mobile Order Summary + My Cart */}
                 <div className="lg:hidden mb-6">
@@ -403,8 +382,7 @@ export default function CheckoutFormPage({
                                 <div className="px-4 pb-4 space-y-6">
                                     <Card className="shadow-none border border-border">
                                         <CardContent className="p-4">
-                                            <Suspense
-                                                fallback={<div className="h-56 bg-muted animate-pulse rounded" />}>
+                                            <Suspense fallback={<OrderSummarySkeleton />}>
                                                 <OrderSummary
                                                     basket={cart}
                                                     showCartItems={false}
@@ -416,7 +394,7 @@ export default function CheckoutFormPage({
                                         </CardContent>
                                     </Card>
 
-                                    <Suspense fallback={<div className="h-48 bg-muted animate-pulse rounded" />}>
+                                    <Suspense fallback={<MyCartSkeleton itemCount={cart?.productItems?.length || 2} />}>
                                         <MyCartWithData
                                             basket={cart}
                                             productMapPromise={productMapPromise}
@@ -432,41 +410,35 @@ export default function CheckoutFormPage({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Checkout Content - Single Page Layout */}
                     <div className="lg:col-span-2 space-y-8">
-                        <PluginComponent pluginId="checkout.mainContent.before" />
+                        <UITarget targetId="checkout.mainContent.before" />
                         {/* Express Payments - Apple Pay, Google Pay, Amazon Pay, PayPal & Venmo (mobile only) */}
-                        <PluginComponent pluginId="checkout.expressPayments.header.before" />
-                        <Suspense fallback={<div className="h-20 bg-muted animate-pulse rounded" />}>
-                            <PluginComponent pluginId="checkout.expressPayments.before" />
-                            <PluginComponent pluginId="checkout.expressPayments">
-                                <ExpressPayments
-                                    onApplePayClick={handleApplePayClick}
-                                    onGooglePayClick={handleGooglePayClick}
-                                    onAmazonPayClick={handleAmazonPayClick}
-                                    onVenmoClick={handleVenmoClick}
-                                    onPayPalClick={handlePayPalClick}
-                                />
-                            </PluginComponent>
-                            <PluginComponent pluginId="checkout.expressPayments.after" />
+                        <UITarget targetId="checkout.expressPayments.header.before" />
+                        <Suspense fallback={<ExpressPaymentsSkeleton />}>
+                            <UITarget targetId="checkout.expressPayments.before" />
+                            <UITarget targetId="checkout.expressPayments">
+                                <ExpressPayments separatorText={t('expressPayments.separator')} />
+                            </UITarget>
+                            <UITarget targetId="checkout.expressPayments.after" />
                         </Suspense>
 
-                        <PluginComponent pluginId="checkout.contactInfo.header.before" />
-                        <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                            <PluginComponent pluginId="checkout.contactInfo.before" />
-                            <PluginComponent pluginId="checkout.contactInfo">
+                        <UITarget targetId="checkout.contactInfo.header.before" />
+                        <Suspense fallback={<ContactInfoSkeleton />}>
+                            <UITarget targetId="checkout.contactInfo.before" />
+                            <UITarget targetId="checkout.contactInfo">
                                 <ContactInfo
                                     onSubmit={handleContactSubmit}
                                     isLoading={isSubmitting('contact')}
                                     actionData={contactFetcher.data}
                                     {...contactInfoState}
                                 />
-                            </PluginComponent>
-                            <PluginComponent pluginId="checkout.contactInfo.after" />
+                            </UITarget>
+                            <UITarget targetId="checkout.contactInfo.after" />
                         </Suspense>
 
                         {/* @sfdc-extension-block-start SFDC_EXT_BOPIS */}
                         {/* Store Pickup Information */}
                         {hasPickupItems && (
-                            <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
+                            <Suspense fallback={<PickupSkeleton />}>
                                 <CheckoutPickupWithData
                                     cart={cart}
                                     productMapPromise={productMapPromise}
@@ -483,54 +455,51 @@ export default function CheckoutFormPage({
                         {/* Shipping Address & Options */}
                         {showAddressAndOptions && (
                             <>
-                                <PluginComponent pluginId="checkout.shippingAddress.header.before" />
-                                <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                                    <PluginComponent pluginId="checkout.shippingAddress.before" />
-                                    <PluginComponent pluginId="checkout.shippingAddress">
-                                        {shippingAddressComponent}
-                                    </PluginComponent>
-                                    <PluginComponent pluginId="checkout.shippingAddress.after" />
+                                <UITarget targetId="checkout.shippingAddress.header.before" />
+                                <Suspense fallback={<ShippingAddressSkeleton />}>
+                                    <UITarget targetId="checkout.shippingAddress.before" />
+                                    <UITarget targetId="checkout.shippingAddress">{shippingAddressComponent}</UITarget>
+                                    <UITarget targetId="checkout.shippingAddress.after" />
                                 </Suspense>
 
-                                <PluginComponent pluginId="checkout.shippingOptions.header.before" />
-                                <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                                    <PluginComponent pluginId="checkout.shippingOptions.before" />
-                                    <PluginComponent pluginId="checkout.shippingOptions">
-                                        {shippingOptionsComponent}
-                                    </PluginComponent>
-                                    <PluginComponent pluginId="checkout.shippingOptions.after" />
+                                <UITarget targetId="checkout.shippingOptions.header.before" />
+                                <Suspense fallback={<ShippingOptionsSkeleton />}>
+                                    <UITarget targetId="checkout.shippingOptions.before" />
+                                    <UITarget targetId="checkout.shippingOptions">{shippingOptionsComponent}</UITarget>
+                                    <UITarget targetId="checkout.shippingOptions.after" />
                                 </Suspense>
                             </>
                         )}
 
-                        <PluginComponent pluginId="checkout.payment.header.before" />
-                        <Suspense fallback={<div className="h-32 bg-muted animate-pulse rounded" />}>
-                            <PluginComponent pluginId="checkout.payment.before" />
-                            <PluginComponent pluginId="checkout.payment">
+                        <UITarget targetId="checkout.payment.header.before" />
+                        <Suspense fallback={<PaymentSkeleton />}>
+                            <UITarget targetId="checkout.payment.before" />
+                            <UITarget targetId="checkout.payment">
                                 <Payment
                                     onSubmit={handlePaymentSubmit}
                                     isLoading={isSubmitting('payment')}
                                     actionData={paymentFetcher.data}
                                     showBillingSameAsShipping={showAddressAndOptions}
+                                    paymentFormDataRef={paymentFormDataRef}
                                     {...paymentState}
                                 />
-                            </PluginComponent>
-                            <PluginComponent pluginId="checkout.payment.after" />
+                            </UITarget>
+                            <UITarget targetId="checkout.payment.after" />
                         </Suspense>
 
                         {/* Create Account Option - Show for guest users after payment */}
-                        <PluginComponent pluginId="checkout.createAccount.before" />
-                        <PluginComponent pluginId="checkout.createAccount">
+                        <UITarget targetId="checkout.createAccount.before" />
+                        <UITarget targetId="checkout.createAccount">
                             <GuestAccountCreation
                                 cart={cart}
                                 customerProfile={customerProfile}
                                 onSaved={handleCreateAccountPreferenceChange}
                             />
-                        </PluginComponent>
-                        <PluginComponent pluginId="checkout.createAccount.after" />
+                        </UITarget>
+                        <UITarget targetId="checkout.createAccount.after" />
 
                         {/* Place Order Section */}
-                        {step === STEPS.REVIEW_ORDER && (
+                        {(step === STEPS.PAYMENT || step === STEPS.REVIEW_ORDER) && (
                             <div className="flex flex-col items-end gap-4 w-full lg:w-auto">
                                 {placeOrderFetcher.data &&
                                     !placeOrderFetcher.data.success &&
@@ -541,32 +510,33 @@ export default function CheckoutFormPage({
                                             className="w-full"
                                         />
                                     )}
-                                <PluginComponent pluginId="checkout.placeOrder.before" />
-                                <PluginComponent pluginId="checkout.placeOrder">
-                                    <form
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            submitPlaceOrder();
-                                        }}
-                                        className="w-full lg:w-auto">
+                                <UITarget targetId="checkout.placeOrder.before" />
+                                <UITarget targetId="checkout.placeOrder">
+                                    <form onSubmit={handlePlaceOrderSubmit} className="w-full lg:w-auto">
                                         <Button
                                             type="submit"
-                                            disabled={isPlacingOrder}
+                                            disabled={
+                                                isPlacingOrder ||
+                                                (step === STEPS.PAYMENT && isSubmitting('payment')) ||
+                                                paymentFetcher.state === 'submitting'
+                                            }
                                             className="w-full lg:max-w-sm"
                                             size="lg">
-                                            {isPlacingOrder ? t('placeOrder.processing') : t('placeOrder.button')}
+                                            {isPlacingOrder || (step === STEPS.PAYMENT && isSubmitting('payment'))
+                                                ? t('placeOrder.processing')
+                                                : t('placeOrder.button')}
                                         </Button>
                                     </form>
-                                </PluginComponent>
-                                <PluginComponent pluginId="checkout.placeOrder.after" />
+                                </UITarget>
+                                <UITarget targetId="checkout.placeOrder.after" />
                             </div>
                         )}
-                        <PluginComponent pluginId="checkout.mainContent.after" />
+                        <UITarget targetId="checkout.mainContent.after" />
                     </div>
 
                     {/* Order Summary Sidebar */}
                     <div className="hidden lg:block lg:col-span-1">
-                        <PluginComponent pluginId="checkout.sidebar.before" />
+                        <UITarget targetId="checkout.sidebar.before" />
                         <div className="sticky top-8 space-y-6">
                             {/* Order Summary */}
                             <Card>
@@ -578,9 +548,9 @@ export default function CheckoutFormPage({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <PluginComponent pluginId="checkout.orderSummary.before" />
-                                    <PluginComponent pluginId="checkout.orderSummary">
-                                        <Suspense fallback={<div className="h-96 bg-muted animate-pulse rounded" />}>
+                                    <UITarget targetId="checkout.orderSummary.before" />
+                                    <UITarget targetId="checkout.orderSummary">
+                                        <Suspense fallback={<OrderSummarySkeleton />}>
                                             <OrderSummary
                                                 basket={cart}
                                                 showCartItems={false}
@@ -589,28 +559,28 @@ export default function CheckoutFormPage({
                                                 productsByItemId={{}}
                                             />
                                         </Suspense>
-                                    </PluginComponent>
-                                    <PluginComponent pluginId="checkout.orderSummary.after" />
+                                    </UITarget>
+                                    <UITarget targetId="checkout.orderSummary.after" />
                                 </CardContent>
                             </Card>
 
-                            <PluginComponent pluginId="checkout.myCart.before" />
-                            <PluginComponent pluginId="checkout.myCart">
-                                <Suspense fallback={<div className="h-64 bg-muted animate-pulse rounded" />}>
+                            <UITarget targetId="checkout.myCart.before" />
+                            <UITarget targetId="checkout.myCart">
+                                <Suspense fallback={<MyCartSkeleton itemCount={cart?.productItems?.length || 2} />}>
                                     <MyCartWithData
                                         basket={cart}
                                         productMapPromise={productMapPromise}
                                         promotionsPromise={promotionsPromise}
                                     />
                                 </Suspense>
-                            </PluginComponent>
-                            <PluginComponent pluginId="checkout.myCart.after" />
+                            </UITarget>
+                            <UITarget targetId="checkout.myCart.after" />
                         </div>
-                        <PluginComponent pluginId="checkout.sidebar.after" />
+                        <UITarget targetId="checkout.sidebar.after" />
                     </div>
                 </div>
             </div>
-            <PluginComponent pluginId="checkout.page.after" />
+            <UITarget targetId="checkout.page.after" />
         </div>
     );
 }

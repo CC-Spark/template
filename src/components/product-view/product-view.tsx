@@ -22,7 +22,11 @@ import ProductViewProvider from '@/providers/product-view';
 import { useProductImages } from '@/hooks/product/use-product-images';
 import { useSelectedVariations } from '@/hooks/product/use-selected-variations';
 import CategoryBreadcrumbs from '../category-breadcrumbs';
+import EstimatedDelivery from '@/components/estimated-delivery';
+import ReturnsAndWarranty from '@/components/returns-and-warranty';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
+import CollapsibleHtmlSection from '@/components/collapsible-section/collapsible-html-section';
+import { useTranslation } from 'react-i18next';
 
 interface ProductViewProps {
     product: ShopperProducts.schemas['Product'];
@@ -63,12 +67,30 @@ export default function ProductView({ product, category }: ProductViewProps): Re
         selectedAttributes,
     });
 
+    const { t } = useTranslation('product');
+
     return (
         <ProductViewProvider product={product} mode="add">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 space-y-6">
-                {/* Left Column - Image Gallery */}
+                {/* Left Column - Image Gallery + Description */}
                 <div className="order-1">
-                    <ImageGallery key={product.id} images={galleryImages} eager={!isProductASet && !isProductABundle} />
+                    <ImageGallery
+                        key={product.id}
+                        images={galleryImages}
+                        eager={!isProductASet && !isProductABundle}
+                        showNavigationArrows
+                        navigationArrowSize="lg"
+                        productName={product.name}
+                    />
+                    {product.longDescription && product.longDescription !== product.shortDescription && (
+                        <CollapsibleHtmlSection
+                            label={`${t('description')}:`}
+                            content={product.longDescription}
+                            contentType="bulleted-list"
+                            defaultOpen
+                            className="mt-6"
+                        />
+                    )}
                 </div>
 
                 {/* Right Column - Product Info */}
@@ -81,6 +103,8 @@ export default function ProductView({ product, category }: ProductViewProps): Re
                     )}
                     <ProductInfo product={product} />
                     <ProductCartActions product={product} />
+                    <ReturnsAndWarranty productId={product.id} />
+                    <EstimatedDelivery productId={product.id} />
                 </div>
             </div>
         </ProductViewProvider>

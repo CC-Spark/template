@@ -18,6 +18,7 @@ import ProductTile from '../index';
 import {
     mockProductSearchItem,
     mockMasterProductHitWithMultipleVariants,
+    // @ts-expect-error mock file is JS
 } from '../../__mocks__/product-search-hit-data';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
@@ -25,6 +26,7 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
+import DynamicImageProvider from '@/providers/dynamic-image';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -76,9 +78,11 @@ const meta: Meta<typeof ProductTile> = {
         (Story) => (
             <ConfigProvider config={mockConfig}>
                 <ActionLogger>
-                    <div className="w-64">
-                        <Story />
-                    </div>
+                    <DynamicImageProvider value={{ widths: ['50vw', '50vw', '15vw'] }}>
+                        <div className="w-64">
+                            <Story />
+                        </div>
+                    </DynamicImageProvider>
                 </ActionLogger>
             </ConfigProvider>
         ),
@@ -96,8 +100,8 @@ export const Default: Story = {
         await waitForStorybookReady(canvasElement);
         const canvas = within(canvasElement);
         await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
-        // Check for price - master products show lowest variant price including promotions ($143.99)
-        const prices = canvas.getAllByText(/\$143\.99/);
+        // Check for price - master products show lowest variant price including promotions (£143.99)
+        const prices = canvas.getAllByText(/£143\.99/);
         await expect(prices.length).toBeGreaterThan(0);
         // Check for image
         const image = canvas.getByRole('img');
@@ -161,5 +165,123 @@ export const CustomAction: Story = {
         const canvas = within(canvasElement);
         await expect(canvas.getByText('Custom Action')).toBeInTheDocument();
         await expect(canvas.queryByText('More Options')).not.toBeInTheDocument();
+    },
+};
+
+// Page Designer Styling Stories
+export const PageDesignerImageCover: Story = {
+    args: {
+        product: mockProductSearchItem,
+        objectFit: 'cover',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerBorderRadius: Story = {
+    args: {
+        product: mockProductSearchItem,
+        borderRadius: '2xl',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerShadowXL: Story = {
+    args: {
+        product: mockProductSearchItem,
+        boxShadow: 'xl',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerPaddingMargin: Story = {
+    args: {
+        product: mockProductSearchItem,
+        padding: '8',
+        margin: '4',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerTypography: Story = {
+    args: {
+        product: mockProductSearchItem,
+        fontWeight: 'bold',
+        letterSpacing: 'wide',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerHoverScale: Story = {
+    args: {
+        product: mockProductSearchItem,
+        hoverEffect: 'scale',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerHoverShadow: Story = {
+    args: {
+        product: mockProductSearchItem,
+        hoverEffect: 'shadow',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerHoverLift: Story = {
+    args: {
+        product: mockProductSearchItem,
+        hoverEffect: 'lift',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
+    },
+};
+
+export const PageDesignerFullCustomization: Story = {
+    args: {
+        product: mockProductSearchItem,
+        objectFit: 'contain',
+        borderRadius: '2xl',
+        boxShadow: 'lg',
+        padding: '6',
+        margin: '2',
+        fontWeight: 'bold',
+        letterSpacing: 'wide',
+        hoverEffect: 'scale',
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText(mockProductSearchItem.productName)).toBeInTheDocument();
     },
 };

@@ -15,7 +15,7 @@
  */
 'use client';
 
-import { useState, type ReactElement } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
@@ -31,6 +31,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { BonusProductModal } from '@/components/bonus-product-modal';
 import BonusProductSelection from '@/components/cart/bonus-product-selection';
 import { useTranslation } from 'react-i18next';
+import { useBasketUpdater } from '@/providers/basket';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
 import CartPickup from '@/extensions/bopis/components/cart-pickup';
 import { getFirstPickupStore, filterPickupProductItems } from '@/extensions/bopis/lib/basket-utils';
@@ -95,6 +96,14 @@ export default function CartContent({
     const store = getFirstPickupStore(basket, pickup?.pickupStores);
     const pickupItems = filterPickupProductItems(basket);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
+    // Sync cart page loader basket into basket context
+    const updateBasket = useBasketUpdater();
+    useEffect(() => {
+        if (basket?.basketId) {
+            updateBasket(basket);
+        }
+    }, [basket, updateBasket]);
 
     // Check if cart is empty using the basket prop from loader data
     if (!basket?.productItems?.length) {

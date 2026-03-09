@@ -17,21 +17,14 @@
 
 import type { ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
-import type { FilterValue } from './types';
+import type { RefinementProps } from './types';
 
 export default function RefineSize({
     values,
     attributeId,
     isFilterSelected,
     toggleFilter,
-}: {
-    values: FilterValue[];
-    attributeId: string;
-
-    isFilterSelected: (attributeId: string, value: string) => boolean;
-
-    toggleFilter: (attributeId: string, value: string) => void;
-}): ReactElement {
+}: RefinementProps): ReactElement {
     return (
         <div className="flex flex-wrap gap-2 mt-2">
             {values.map((value) => {

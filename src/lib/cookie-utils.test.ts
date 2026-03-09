@@ -15,7 +15,13 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { AppConfig } from '@/config';
-import { getCookieNameWithSiteId, getCookieConfig, COOKIE_NAMESPACE_EXCLUSIONS } from './cookie-utils';
+import {
+    getCookieNameWithSiteId,
+    getCookieConfig,
+    COOKIE_NAMESPACE_EXCLUSIONS,
+    parseAllCookies,
+    createCookie,
+} from './cookie-utils';
 import { mockBuildConfig } from '@/test-utils/config';
 // Mock getConfig
 vi.mock('@/config/get-config', () => ({
@@ -480,6 +486,119 @@ describe('cookie-utils', () => {
                     secure: true,
                 });
             });
+        });
+    });
+
+    describe('parseAllCookies', () => {
+        it('should return empty object for null cookie header', () => {
+            const result = parseAllCookies(null);
+            expect(result).toEqual({});
+        });
+
+        it('should return empty object for empty cookie header', () => {
+            const result = parseAllCookies('');
+            expect(result).toEqual({});
+        });
+
+        it('should parse a single cookie', () => {
+            const result = parseAllCookies('token=abc123');
+            expect(result).toEqual({ token: 'abc123' });
+        });
+
+        it('should parse multiple cookies', () => {
+            const result = parseAllCookies('token=abc123; user=john; count=42');
+            expect(result).toEqual({
+                token: 'abc123',
+                user: 'john',
+                count: '42',
+            });
+        });
+
+        it('should handle cookie values with equals sign', () => {
+            const result = parseAllCookies('token=base64==; other=value');
+            expect(result).toEqual({
+                token: 'base64==',
+                other: 'value',
+            });
+        });
+
+        it('should trim cookie parts but preserve spaces in keys and values', () => {
+            const result = parseAllCookies('token=abc123; user=john');
+            expect(result).toEqual({
+                token: 'abc123',
+                user: 'john',
+            });
+        });
+
+        it('should ignore empty cookie parts', () => {
+            const result = parseAllCookies('token=abc123;; ;user=john');
+            expect(result).toEqual({
+                token: 'abc123',
+                user: 'john',
+            });
+        });
+
+        it('should exclude cookies with empty values', () => {
+            const result = parseAllCookies('token=; user=john; empty=');
+            expect(result).toEqual({
+                user: 'john',
+            });
+        });
+    });
+
+    describe('createCookie', () => {
+        beforeEach(() => {
+            vi.mocked(getConfig).mockReturnValue(mockAppConfig);
+        });
+
+        afterEach(() => {
+            vi.clearAllMocks();
+        });
+
+        it('should parse a cookie value from a Cookie header', async () => {
+            const cookie = createCookie<string>('token', { path: '/' });
+            const value = await cookie.parse('token_RefArch=abc123; other=value');
+            expect(value).toBe('abc123');
+        });
+
+        it('should return null when cookie is not found', async () => {
+            const cookie = createCookie<string>('token', { path: '/' });
+            const value = await cookie.parse('other=value');
+            expect(value).toBeNull();
+        });
+
+        it('should return null for null cookie header', async () => {
+            const cookie = createCookie<string>('token', { path: '/' });
+            const value = await cookie.parse(null);
+            expect(value).toBeNull();
+        });
+
+        it('should serialize a cookie value to Set-Cookie header', async () => {
+            const cookie = createCookie<string>('token', { path: '/', secure: true, sameSite: 'lax' });
+            const header = await cookie.serialize('abc123');
+            expect(header).toContain('token_RefArch=abc123');
+            expect(header).toContain('Path=/');
+            expect(header).toContain('Secure');
+            expect(header).toContain('SameSite=Lax');
+        });
+
+        it('should serialize empty value for cookie deletion', async () => {
+            const cookie = createCookie<string>('token', { path: '/' });
+            const header = await cookie.serialize('');
+            expect(header).toContain('token_RefArch=');
+        });
+
+        it('should store values as-is without encoding', async () => {
+            const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.signature';
+            const cookie = createCookie<string>('cc-at', { path: '/' });
+            const header = await cookie.serialize(jwt);
+            expect(header).toContain(`cc-at_RefArch=${jwt}`);
+        });
+
+        it('should handle cookie values with equals signs', async () => {
+            const cookie = createCookie<string>('token', { path: '/' });
+            const value = await cookie.parse('token_RefArch=base64value==; other=x');
+            expect(value).toBe('base64value==');
         });
     });
 });

@@ -35,7 +35,10 @@ import { useTranslation } from 'react-i18next';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
 import { getDisplayVariationValues } from '@/lib/product-utils';
 import { useCurrency } from '@/providers/currency';
+import { toImageUrl } from '@/lib/dynamic-image';
 import ProductPrice from '@/components/product-price';
+import PromoCallout from '@/components/product-price/promo-callout';
+import { Typography } from '@/components/typography';
 
 /**
  * Basket item data enriched with product details for mini cart display
@@ -97,6 +100,7 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
     const { t: tActionCard } = useTranslation('actionCard');
     const { t: tRemoveItem } = useTranslation('removeItem');
     const currency = useCurrency();
+    const productAltFallback = tMiniCart('productAltFallback') || 'Product';
 
     const fetcher = useItemFetcher({
         itemId: product.itemId || '',
@@ -115,6 +119,7 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
         selectedVariationAttributes: product?.variationValues,
     });
     const image = imageGroup?.images?.[0];
+    const optimizedImageUrl = toImageUrl({ image, config }) || '';
 
     // Get display variation values using the helper function (following template pattern)
     const displayVariationValues = useMemo(
@@ -206,15 +211,15 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
                     productUrl ? (
                         <Link to={productUrl} className="block w-full h-full">
                             <img
-                                src={`${image.disBaseLink || image.link}?sw=160&q=60`}
-                                alt={image.alt || product?.productName || 'Product'}
+                                src={optimizedImageUrl}
+                                alt={image.alt || product?.productName || productAltFallback}
                                 className="w-full h-full object-cover rounded"
                             />
                         </Link>
                     ) : (
                         <img
-                            src={`${image.disBaseLink || image.link}?sw=160&q=60`}
-                            alt={image.alt || product?.productName || 'Product'}
+                            src={optimizedImageUrl}
+                            alt={image.alt || product?.productName || productAltFallback}
                             className="w-full h-full object-cover rounded"
                         />
                     )
@@ -241,11 +246,15 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
                             </h3>
                         )}
                         {Object.keys(displayVariationValues).length > 0 && (
-                            <div className="text-sm text-muted-foreground mt-1">
+                            <div className="mt-1 space-y-0.5">
                                 {Object.entries(displayVariationValues).map(([name, value]) => (
-                                    <div key={name}>
-                                        {name}: {value}
-                                    </div>
+                                    <Typography
+                                        key={name}
+                                        variant="body-small"
+                                        className="text-muted-foreground inline-block w-full">
+                                        <span>{name}: </span>
+                                        <span>{value}</span>
+                                    </Typography>
                                 ))}
                             </div>
                         )}
@@ -258,12 +267,15 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
                             currency={currency}
                             quantity={1}
                             type="unit"
-                            labelForA11y={product.productName}
+                            labelForA11y={product.productName || productAltFallback}
                             currentPriceProps={{
                                 className: 'text-base font-semibold text-foreground',
                             }}
                             listPriceProps={{
                                 className: 'text-base',
+                            }}
+                            promoCalloutProps={{
+                                className: 'hidden',
                             }}
                             className="flex flex-col items-end"
                         />
@@ -283,7 +295,7 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
                             onBlur={handleCustomInputBlur}
                             onKeyDown={handleCustomInputKeyDown}
                             min="1"
-                            className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                            className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:border-border"
                             aria-label={tMiniCart('customQuantityAriaLabel')}
                             autoFocus
                         />
@@ -307,7 +319,7 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
                                 id={`quantity-${product.itemId}`}
                                 value={quantity}
                                 onChange={handleSelectChange}
-                                className="w-full border border-border rounded px-2 py-1.5 pr-8 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring appearance-none cursor-pointer"
+                                className="w-full border border-border rounded px-2 py-1.5 pr-8 text-sm bg-background focus:outline-none focus:border-border appearance-none cursor-pointer"
                                 aria-label={tMiniCart('quantityAriaLabel')}>
                                 {quantityOptions.map((num) => (
                                     <option key={num} value={num}>
@@ -334,6 +346,9 @@ export default function MiniCartItem({ product, onRemove, bonusProductSlot }: Mi
                         </div>
                     )}
                 </div>
+
+                {/* Show promotional message after quantity */}
+                <PromoCallout product={product} className="text-sm text-primary mb-2" />
 
                 {/* Bonus Product Selection Card */}
                 {bonusProductSlot && <div className="mt-3">{bonusProductSlot}</div>}

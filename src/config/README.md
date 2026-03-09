@@ -14,13 +14,13 @@ import { getConfig } from '@/config';
 // ✅ Server loader/action - pass context
 export function loader({ context }: LoaderFunctionArgs) {
   const config = getConfig(context);
-  return { limit: config.global.productListing.productsPerPage };
+  return { limit: config.search.products.hits.limit };
 }
 
 // ✅ Client loader - no context needed
 export function clientLoader() {
   const config = getConfig();
-  return { limit: config.global.productListing.productsPerPage };
+  return { limit: config.search.products.hits.limit };
 }
 ```
 
@@ -31,7 +31,7 @@ import { useConfig } from '@/config';
 
 export function MyComponent() {
   const config = useConfig();
-  return <div>Showing {config.global.productListing.productsPerPage} products</div>;
+  return <div>Showing {config.search.products.hits.limit} products</div>;
 }
 ```
 ## Environment Variables
@@ -44,7 +44,7 @@ The double underscore (`__`) lets you navigate nested config paths. Think of it 
 
 ```bash
 # This environment variable:
-PUBLIC__app__site__locale=en-US
+PUBLIC__app__site__locale=en-GB
 
 # Maps to this config path:
 config.app.site.locale
@@ -53,7 +53,7 @@ config.app.site.locale
 {
   app: {
     site: {
-      locale: 'en-US'
+      locale: 'en-GB'
     }
   }
 }
@@ -100,15 +100,15 @@ PUBLIC__app__myFeature='{"option1":"value1","option2":"value2","nested":{"enable
 **Case doesn't matter:** You can use any casing (lowercase, UPPERCASE, or MixedCase), and it will normalize to match your `config.server.ts`:
 
 ```bash
-PUBLIC__app__site__locale=en-US    # ✅ Works
-PUBLIC__APP__SITE__LOCALE=en-US    # ✅ Also works
-PUBLIC__App__Site__Locale=en-US    # ✅ Also works
+PUBLIC__app__site__locale=en-GB    # ✅ Works
+PUBLIC__APP__SITE__LOCALE=en-GB    # ✅ Also works
+PUBLIC__App__Site__Locale=en-GB    # ✅ Also works
 ```
 
 **Paths must exist in config:** You can only override paths that are already defined in `config.server.ts`. This prevents typos from silently failing:
 
 ```bash
-PUBLIC__app__site__local=en-US  # ❌ Error: "local" doesn't exist (did you mean "locale"?)
+PUBLIC__app__site__local=en-GB  # ❌ Error: "local" doesn't exist (did you mean "locale"?)
 ```
 
 **More specific paths win:** When paths overlap, deeper paths take precedence:

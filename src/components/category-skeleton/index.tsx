@@ -14,140 +14,41 @@
  * limitations under the License.
  */
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
-export function CategoryBreadcrumbsSkeleton() {
+export function ProductTileSwatchesSkeleton({ count = 2 }: { count?: number }) {
     return (
-        <nav aria-label="Breadcrumb" className="mb-6">
-            <div className="flex flex-wrap items-center text-sm">
-                <Skeleton className="h-5 w-20" />
-                <Skeleton className="h-3 mx-1 w-3" />
-                <Skeleton className="h-5 w-24" />
-            </div>
-        </nav>
-    );
-}
-
-export function CategoryHeaderSkeleton({ className }: { className?: string }) {
-    return (
-        <>
-            <Skeleton className={cn('h-9 w-64', className)} />
-            <div className="flex-shrink-0">
-                <div className="flex items-center space-x-2">
-                    <Skeleton className="h-5 w-12" />
-                    <Skeleton className="h-9 w-32" />
-                </div>
-            </div>
-        </>
-    );
-}
-
-export function CategoryRefinementsSkeleton() {
-    return (
-        <div className="space-y-4">
-            {/* Active filters */}
-            <div className="border rounded-md p-4">
-                <Skeleton className="h-4 w-24 mb-2" />
-                <div className="flex flex-wrap gap-2">
-                    <Skeleton className="h-6 w-16 rounded-full" />
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                </div>
-            </div>
-
-            {/* Filter accordions */}
-            <div className="border rounded-md">
-                <div className="p-4 border-b">
-                    <Skeleton className="h-5 w-32" />
-                </div>
-                <div className="p-4 space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                </div>
-            </div>
-
-            <div className="border rounded-md">
-                <div className="p-4 border-b">
-                    <Skeleton className="h-5 w-24" />
-                </div>
-                <div className="p-4 space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-4 w-2/3" />
-                </div>
-            </div>
+        <div className="product-tile-swatches-skeleton flex flex-wrap gap-2">
+            {Array.from({ length: count }, (_, i) => (
+                <Skeleton key={i} className="h-7 w-7 rounded-full" />
+            ))}
         </div>
     );
 }
 
-/**
- * CategorySkeleton component provides a loading state placeholder for category pages.
- *
- * This skeleton component mimics the layout of a category page including:
- * - Breadcrumb navigation
- * - Category header with title and sorting controls
- * - Sidebar with filter options and active filters
- * - Product grid with multiple product cards
- * - Pagination controls
- *
- * Used to improve perceived performance while category data is being fetched
- * from the commerce API, providing visual feedback to users during loading states.
- *
- * @returns {JSX.Element} A skeleton layout matching the category page structure
- */
-export default function CategorySkeleton() {
+export function ProductTileSkeleton() {
     return (
-        <>
-            {/* Product grid skeleton */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8">
-                {Array.from({ length: 12 }, (_, i) => i).map((index) => (
-                    <ProductTileSkeleton key={index} />
-                ))}
-            </div>
+        <Card className="product-tile-skeleton rounded-xl overflow-hidden w-full min-w-0 max-w-full flex flex-col h-full gap-0 py-0">
+            {/* Product image */}
+            <CardHeader className="p-0">
+                <Skeleton className="aspect-square w-full" />
+            </CardHeader>
 
-            {/* Pagination skeleton */}
-            <div className="mt-10 flex justify-center">
-                <div className="flex items-center space-x-2">
-                    <Skeleton className="h-10 w-10" />
-                    <Skeleton className="h-10 w-10" />
-                    <Skeleton className="h-10 w-10" />
-                    <Skeleton className="h-10 w-10" />
-                    <Skeleton className="h-10 w-10" />
-                </div>
-            </div>
-        </>
-    );
-}
-
-function ProductTileSkeleton() {
-    return (
-        <Card className="ring-secondary/40 bg-muted/50">
-            <CardContent className="text-secondary border-destructive/30">
-                <div className="group bg-accent/30">
-                    {/* Product image skeleton */}
-                    <Skeleton className="aspect-square w-full rounded-md" />
-
-                    {/* Swatches skeleton */}
-                    <div className="mt-2 flex space-x-1">
-                        <Skeleton className="h-4 w-4 rounded-full" />
-                        <Skeleton className="h-4 w-4 rounded-full" />
-                        <Skeleton className="h-4 w-4 rounded-full" />
-                        <Skeleton className="h-4 w-4 rounded-full" />
-                    </div>
-                </div>
+            {/* Swatches */}
+            <CardContent className="px-4 pt-3 pb-0">
+                <ProductTileSwatchesSkeleton count={2} />
             </CardContent>
 
-            <CardFooter>
-                <div className="block w-full">
-                    {/* Product title skeleton */}
-                    <Skeleton className="h-5 w-full mb-2" />
-                    <Skeleton className="h-5 w-3/4 mb-2" />
+            {/* Product name */}
+            <CardContent className="px-4 pt-2 pb-0">
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-3/4" />
+            </CardContent>
 
-                    {/* Product price skeleton */}
-                    <Skeleton className="h-6 w-20" />
-                </div>
-            </CardFooter>
+            {/* Price */}
+            <CardContent className="px-4 pt-2 pb-4">
+                <Skeleton className="h-5 w-16" />
+            </CardContent>
         </Card>
     );
 }

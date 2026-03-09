@@ -631,14 +631,6 @@ function MockCheckoutFormPage({
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div className="flex justify-center pt-2">
-                                            <Button disabled={isLoading} size="lg" className="min-w-48">
-                                                {isLoading
-                                                    ? t('checkout:payment.saving')
-                                                    : t('checkout:payment.continue')}
-                                            </Button>
-                                        </div>
                                     </div>
                                 </ToggleCardEdit>
 
@@ -677,13 +669,13 @@ function MockCheckoutFormPage({
                             </ToggleCard>
                         )}
 
-                        {/* Review Order Step */}
-                        {step >= STEPS.REVIEW_ORDER && (
+                        {/* Place Order */}
+                        {(step === STEPS.PAYMENT || step >= STEPS.REVIEW_ORDER) && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>
                                         <Typography variant="h4" as="h2">
-                                            Review & Place Order
+                                            Place Order
                                         </Typography>
                                     </CardTitle>
                                 </CardHeader>

@@ -21,51 +21,14 @@ import {
     type QualifierMapping,
     QUALIFIER_MAPPING_API_FIELD_NAME,
     SOURCE_CODE_API_FIELD_NAME,
+    SHOPPER_CONTEXT_COOKIE_NAME_BASE,
+    SOURCE_CODE_COOKIE_NAME_BASE,
+    SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS,
+    SOURCE_CODE_COOKIE_EXPIRY_SECONDS,
 } from '@/lib/shopper-context-constants';
-import { getConfig } from '@/config';
-import { getCookie, setNamespacedCookie } from '@/lib/cookies.client';
+import { createCookie, getCookieConfig } from '@/lib/cookie-utils';
+import { parseJsonToStringRecord } from '@/lib/utils';
 import { isDesignModeActive, isPreviewModeActive } from '@salesforce/storefront-next-runtime/design/mode';
-
-/**
- * Base cookie names (without USID suffix)
- */
-export const SHOPPER_CONTEXT_COOKIE_NAME_BASE = 'storefront-next-context';
-export const SOURCE_CODE_COOKIE_NAME_BASE = 'dwsourcecode';
-
-/**
- * Get shopper context cookie name with USID suffix
- * In client or server shopper context middlewares, when usid is empty, the middleware will be skipped by next()
- * It's possible Shopper Context will be used in UI directly later
- */
-export function getShopperContextCookieName(usid: string): string {
-    return `${SHOPPER_CONTEXT_COOKIE_NAME_BASE}-${usid}`;
-}
-
-/**
- * Get source code cookie name with configurable suffix
- * Commerce Cloud pattern: dwsourcecode_{suffix}
- * Suffix comes from config, which defaults to siteId if not overridden
- * TODO : Hash of siteId
- */
-export function getSourceCodeCookieName(context: Readonly<RouterContextProvider>): string {
-    const config = getConfig(context);
-    const _suffix = config.features.shopperContext.dwsourcecodeCookieSuffix;
-    // In setNamespacedCookie, cookie name with siteId suffix is already added, so we don't need to add it here
-    const suffix = _suffix ? `_${_suffix}` : '';
-    return `${SOURCE_CODE_COOKIE_NAME_BASE}${suffix}`;
-}
-
-export const SHOPPER_CONTEXT_ACTION_NAME = 'update-shopper-context';
-
-/**
- * Shopper context cookie expiry in seconds (6 hours)
- */
-export const SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS = 6 * 60 * 60;
-
-/**
- * Source code cookie expiry in seconds (30 days)
- */
-export const SOURCE_CODE_COOKIE_EXPIRY_SECONDS = 30 * 24 * 60 * 60;
 
 /**
  * Check if Page Designer edit or preview mode is active
@@ -109,36 +72,10 @@ export const isCouponCode = (key: string): boolean => {
 };
 
 /**
- * Safely parse JSON from cookie value
- * Returns empty object if parsing fails
+ * Shared logic: extract qualifiers from key-value entries.
+ * Used by extractQualifiersFromUrl and extractQualifiersFromInput.
  */
-export function safeParseCookie(cookieValue: string): Record<string, string> {
-    if (!cookieValue) {
-        return {};
-    }
-
-    try {
-        const parsed = JSON.parse(cookieValue);
-        // Ensure parsed value is an object
-        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-            return parsed as Record<string, string>;
-        }
-        // eslint-disable-next-line no-console
-        console.warn('Parsed shopper context cookie is not a Record<string, string> object', parsed);
-        return {};
-    } catch (error) {
-        // Invalid JSON in cookie - log warning and return empty object
-        // eslint-disable-next-line no-console
-        console.warn('Failed to parse shopper context cookie:', error instanceof Error ? error.message : String(error));
-        return {};
-    }
-}
-
-/**
- * Extract qualifiers from URL query parameters into a map
- * Uses SHOPPER_CONTEXT_SEARCH_PARAMS to determine which qualifiers to extract
- */
-export function extractQualifiersFromUrl(url: URL): {
+function extractQualifiersFromEntries(entries: Iterable<[string, string]>): {
     qualifiers: Record<string, string>;
     sourceCodeQualifiers: Record<string, string>;
 } {
@@ -149,8 +86,7 @@ export function extractQualifiersFromUrl(url: URL): {
     // For example: couponCodes
     const tempQualifiers: Record<string, string[]> = {};
 
-    // Iterate through all URL search params
-    for (const [searchParamKey, searchParamValue] of url.searchParams.entries()) {
+    for (const [searchParamKey, searchParamValue] of entries) {
         if (!searchParamKey) continue;
 
         const mapping = SHOPPER_CONTEXT_SEARCH_PARAMS[searchParamKey];
@@ -200,6 +136,17 @@ export function extractQualifiersFromUrl(url: URL): {
 }
 
 /**
+ * Extract qualifiers from URL query parameters into a map
+ * Uses SHOPPER_CONTEXT_SEARCH_PARAMS to determine which qualifiers to extract
+ */
+export function extractQualifiersFromUrl(url: URL): {
+    qualifiers: Record<string, string>;
+    sourceCodeQualifiers: Record<string, string>;
+} {
+    return extractQualifiersFromEntries(url.searchParams.entries());
+}
+
+/**
  * Extract qualifiers from input record into a map
  * Similar to extractQualifiersFromUrl but accepts a Record<string, string> directly
  * Uses SHOPPER_CONTEXT_SEARCH_PARAMS to determine which qualifiers to extract
@@ -217,61 +164,7 @@ export function extractQualifiersFromInput(input: Record<string, string>): {
     qualifiers: Record<string, string>;
     sourceCodeQualifiers: Record<string, string>;
 } {
-    const qualifiers: Record<string, string> = {};
-    const sourceCodeQualifiers: Record<string, string> = {};
-
-    // For temporary storage of qualifiers with value as string array
-    // For example: couponCodes
-    const tempQualifiers: Record<string, string[]> = {};
-
-    // Iterate through all input entries
-    for (const [inputKey, inputValue] of Object.entries(input)) {
-        if (!inputKey) continue;
-
-        const mapping = SHOPPER_CONTEXT_SEARCH_PARAMS[inputKey];
-        let apiFieldName: string | undefined;
-        let qualifierMapping: QualifierMapping | undefined;
-
-        // Check if it's a root-level qualifier (e.g., src)
-        if (mapping && QUALIFIER_MAPPING_PARAM_NAME in mapping) {
-            qualifierMapping = mapping as QualifierMapping;
-        }
-        // Check if it's a customQualifier (e.g., customQualifiers.device)
-        else if (isCustomQualifier(inputKey)) {
-            qualifierMapping = customQualifiersMapping[inputKey];
-        }
-        // Check if it's an assignmentQualifier (e.g., assignmentQualifiers.store)
-        else if (isAssignmentQualifier(inputKey)) {
-            qualifierMapping = assignmentQualifiersMapping[inputKey];
-        }
-
-        if (qualifierMapping && qualifierMapping[QUALIFIER_MAPPING_PARAM_NAME] === inputKey) {
-            apiFieldName =
-                qualifierMapping[QUALIFIER_MAPPING_API_FIELD_NAME] ?? qualifierMapping[QUALIFIER_MAPPING_PARAM_NAME];
-
-            // Separate sourceCode from other qualifiers
-            if (apiFieldName === SOURCE_CODE_API_FIELD_NAME) {
-                sourceCodeQualifiers[apiFieldName] = inputValue;
-            } else {
-                if (!tempQualifiers[apiFieldName]) {
-                    tempQualifiers[apiFieldName] = [];
-                }
-                // Add to regular qualifiers (for other qualifiers than sourceCode)
-                tempQualifiers[apiFieldName].push(inputValue);
-            }
-        }
-    }
-
-    // Convert temporary qualifiers with value as string array to qualifiers with value as string
-    // As cookies only support string values
-    // Will use string.split(',') to get the values as string array in buildShopperContextBody
-    // As API call will need payload as string or string array
-    for (const key in tempQualifiers) {
-        const values = tempQualifiers[key];
-        qualifiers[key] = values.join(',');
-    }
-
-    return { qualifiers, sourceCodeQualifiers };
+    return extractQualifiersFromEntries(Object.entries(input));
 }
 
 /**
@@ -328,28 +221,38 @@ export function computeEffectiveShopperContext(
  * @param params - Parameters for updating shopper context
  * @param params.context - React Router context
  * @param params.usid - Shopper's unique identifier
- * @param params.newQualifiers - New qualifiers to merge (excluding sourceCode)
- * @param params.newSourceCodeQualifiers - New source code qualifiers to merge
- * @returns Promise resolving to void
+ * @param params.newShopperContext - New qualifiers to merge (excluding sourceCode)
+ * @param params.newSourceCodeContext - New source code qualifiers to merge
+ * @param params.cookieHeader - Raw Cookie header string from the request
+ * @returns Promise resolving to an object with setCookieHeaders to apply to the response
  */
 export async function updateShopperContext({
     context,
     usid,
     newShopperContext,
     newSourceCodeContext,
+    cookieHeader,
 }: {
     context: Readonly<RouterContextProvider>;
     usid: string;
     newShopperContext: Record<string, string>;
     newSourceCodeContext: Record<string, string>;
-}): Promise<void> {
-    // Get current context from cookies
-    const shopperContextCookieName = getShopperContextCookieName(usid);
-    const sourceCodeCookieName = getSourceCodeCookieName(context);
-    const shopperContextCookie = getCookie(shopperContextCookieName);
-    const sourceCodeCookie = getCookie(sourceCodeCookieName);
-    const currentShopperContext = safeParseCookie(shopperContextCookie);
-    const currentSourceCodeContext = safeParseCookie(sourceCodeCookie);
+    cookieHeader: string | null;
+}): Promise<{ setCookieHeaders: string[] }> {
+    const setCookieHeaders: string[] = [];
+
+    // Get current context from cookies using cookie-utils (same as other app cookies; adds siteId suffix)
+    // httpOnly: true (server-only); action reads from request Cookie header
+    const cookieConfig = getCookieConfig({ httpOnly: true }, context);
+    const shopperContextCookieHandler = createCookie<string>(SHOPPER_CONTEXT_COOKIE_NAME_BASE, cookieConfig, context);
+    const sourceCodeCookieHandler = createCookie<string>(SOURCE_CODE_COOKIE_NAME_BASE, cookieConfig, context);
+
+    const currentShopperContext = cookieHeader
+        ? parseJsonToStringRecord(await shopperContextCookieHandler.parse(cookieHeader))
+        : {};
+    const currentSourceCodeContext = cookieHeader
+        ? parseJsonToStringRecord(await sourceCodeCookieHandler.parse(cookieHeader))
+        : {};
 
     // Compute effective context by merging new with current
     const effectiveShopperContext = computeEffectiveShopperContext(newShopperContext, currentShopperContext);
@@ -368,29 +271,31 @@ export async function updateShopperContext({
         await createShopperContext(context, usid, shopperContextBody);
     }
 
-    // Update cookies even if API call failed (graceful degradation)
-    // This ensures context is preserved locally even if API is temporarily unavailable
+    // Serialize updated cookies as Set-Cookie headers (cookie-utils stores string values; we JSON-encode objects)
     try {
         if (hasNewSourceCodeContext) {
-            setNamespacedCookie(sourceCodeCookieName, JSON.stringify(effectiveSourceCodeContext), {
-                expires: new Date(Date.now() + SOURCE_CODE_COOKIE_EXPIRY_SECONDS * 1000),
+            const header = await sourceCodeCookieHandler.serialize(JSON.stringify(effectiveSourceCodeContext), {
+                maxAge: SOURCE_CODE_COOKIE_EXPIRY_SECONDS,
             });
+            setCookieHeaders.push(header);
         }
 
         if (hasNewContext) {
-            // Store the entire effectiveShopperContext object as JSON string, including all qualifiers
-            setNamespacedCookie(shopperContextCookieName, JSON.stringify(effectiveShopperContext), {
-                expires: new Date(Date.now() + SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS * 1000),
+            const header = await shopperContextCookieHandler.serialize(JSON.stringify(effectiveShopperContext), {
+                maxAge: SHOPPER_CONTEXT_COOKIE_EXPIRY_SECONDS,
             });
+            setCookieHeaders.push(header);
         }
     } catch (cookieError) {
-        // Cookie setting failed - log but don't throw
+        // Cookie serialization failed - log but don't throw
         // eslint-disable-next-line no-console
         console.error(
-            'Failed to set shopper context cookie at client side:',
+            'Failed to serialize shopper context cookie:',
             cookieError instanceof Error ? cookieError.message : String(cookieError)
         );
     }
+
+    return { setCookieHeaders };
 }
 
 /**

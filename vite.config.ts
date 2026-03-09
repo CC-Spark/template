@@ -24,7 +24,7 @@ import coverageConfigThresholds from './vitest.thresholds';
 import tailwindcss from '@tailwindcss/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import devtoolsJson from 'vite-plugin-devtools-json';
-import storefrontNextPlugin from '@salesforce/storefront-next-dev';
+import storefrontNextTargets from '@salesforce/storefront-next-dev';
 import bundlesize from 'vite-plugin-bundlesize';
 import { visualizer } from 'rollup-plugin-visualizer';
 
@@ -39,13 +39,14 @@ const enableReadableChunkNames = enableBundlesizeCheck || enableBundlesizeAnalyz
  * @see {@link https://github.com/http-party/node-http-proxy?tab=readme-ov-file#modify-response}
  */
 export default defineConfig(({ mode }) => {
-    // Load environment variables for dev proxy target
+    // Load environment variables with PUBLIC_ prefix for client-side config
     const environment = loadEnv(mode, __dirname, 'PUBLIC');
 
     const shortCode = environment.PUBLIC__app__commerce__api__shortCode;
+    const scapiProxyHost = process.env.SCAPI_PROXY_HOST;
 
-    // Only validate shortCode in development mode (when dev proxy is used)
-    if (!shortCode && mode === 'development') {
+    // Only validate shortCode in development mode (when dev proxy is used) and no proxyHost override
+    if (!shortCode && !scapiProxyHost && mode === 'development') {
         throw new Error(
             'Missing required Commerce API short code for Vite dev proxy.\n\n' +
                 'Set PUBLIC__app__commerce__api__shortCode in your .env file:\n' +
@@ -54,7 +55,7 @@ export default defineConfig(({ mode }) => {
         );
     }
 
-    const target = `https://${shortCode}.api.commercecloud.salesforce.com`;
+    const target = scapiProxyHost || (shortCode && `https://${shortCode}.api.commercecloud.salesforce.com`);
 
     return {
         build: {
@@ -88,7 +89,7 @@ export default defineConfig(({ mode }) => {
             tailwindcss(),
             tsconfigPaths(),
             devtoolsJson(),
-            storefrontNextPlugin({
+            storefrontNextTargets({
                 readableChunkNames: enableReadableChunkNames,
                 staticRegistry: {
                     componentPath: 'src/components',
@@ -169,6 +170,7 @@ export default defineConfig(({ mode }) => {
                     '^/mobify/proxy/api/experience/shopper-experience/.*/pages': {
                         target,
                         changeOrigin: true,
+                        secure: !scapiProxyHost,
                         rewrite: (path) => path.replace(/^\/mobify\/proxy\/api/, ''),
                         selfHandleResponse: true,
                         configure: (proxy, _options) => {

@@ -80,13 +80,13 @@ export const mockBuildConfig: Config = {
             sites: [
                 {
                     id: 'RefArchGlobal',
-                    defaultLocale: 'en-US',
-                    defaultCurrency: 'USD',
+                    defaultLocale: 'en-GB',
+                    defaultCurrency: 'GBP',
                     supportedLocales: [
-                        { id: 'en-US', preferredCurrency: 'USD' },
+                        { id: 'en-GB', preferredCurrency: 'GBP' },
                         { id: 'it-IT', preferredCurrency: 'EUR' },
                     ],
-                    supportedCurrencies: ['EUR', 'USD'],
+                    supportedCurrencies: ['EUR', 'GBP'],
                 },
             ],
         },
@@ -109,7 +109,6 @@ export const mockBuildConfig: Config = {
             socialShare: { enabled: true, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
             shopperContext: {
                 enabled: false,
-                dwsourcecodeCookieSuffix: 'test-site',
             },
         },
         hybrid: {
@@ -117,22 +116,15 @@ export const mockBuildConfig: Config = {
             legacyRoutes: [],
         },
         i18n: {
-            fallbackLng: 'en-US',
-            supportedLngs: ['it-IT', 'en-US'], // Fallback language should be last
+            fallbackLng: 'en-GB',
+            supportedLngs: ['it-IT', 'en-GB'], // Fallback language should be last
         },
         global: {
             branding: { name: 'Test Store', logoAlt: 'Home' },
             productListing: {
-                productsPerPage: 24,
-                enableInfiniteScroll: false,
-                sortOptions: ['relevance'],
-                enableQuickView: true,
                 defaultProductTileImgAspectRatio: 1,
             },
             carousel: { defaultItemCount: 4 },
-            paginatedProductCarousel: {
-                defaultLimit: 8,
-            },
             badges: [
                 { propertyName: 'c_isSale', label: 'Sale', color: 'orange', priority: 1 },
                 { propertyName: 'c_isNew', label: 'New', color: 'green', priority: 2 },
@@ -176,13 +168,20 @@ export const mockBuildConfig: Config = {
             preconnect: ['https://edge.disstg.commercecloud.salesforce.com'],
         },
         images: {
+            host: 'https://edge.disstg.commercecloud.salesforce.com',
             quality: 70,
             formats: ['webp'],
             fallbackFormat: 'jpg',
         },
         search: {
             products: {
-                orderableOnly: true,
+                refine: {
+                    orderableOnly: true,
+                },
+                hits: {
+                    limit: 24,
+                    critical: 2,
+                },
             },
         },
         performance: {

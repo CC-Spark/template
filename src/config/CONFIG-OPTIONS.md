@@ -11,6 +11,7 @@ This reference provides detailed documentation for all configuration options ava
   - [commerce](#commerce) - Commerce Cloud API details
   - [siteAliasMap](#sitealiasmap) - Site alias mapping configuration
   - [hybrid](#hybrid) - Hybrid mode configuration
+  - [auth](#auth) - Authentication configuration shared across all auth features
   - [features](#features) - Feature flags
   - [i18n](#i18n) - Internationalization settings
   - [global](#global) - Global UI and component settings
@@ -461,7 +462,7 @@ Site configuration array. Each site can have its own locale, currency, cookies d
 
 **Example (single-line JSON):**
 ```bash
-PUBLIC__app__commerce__sites='[{"cookies":{"domain":null},"defaultSiteId":"RefArchGlobal","defaultLocale":"en-US","defaultCurrency":"USD","supportedLocales":[{"id":"en-US","preferredCurrency":"USD"},{"id":"de-DE","preferredCurrency":"EUR"}],"supportedCurrencies":["EUR","USD"]}]'
+PUBLIC__app__commerce__sites='[{"cookies":{"domain":null},"defaultSiteId":"RefArchGlobal","defaultLocale":"en-GB","defaultCurrency":"USD","supportedLocales":[{"id":"en-GB","preferredCurrency":"USD"},{"id":"de-DE","preferredCurrency":"EUR"}],"supportedCurrencies":["EUR","USD"]}]'
 ```
 
 **Example (multi-line JSON for readability):**
@@ -470,10 +471,10 @@ PUBLIC__app__commerce__sites='[
   {
     "cookies": {"domain": null},
     "id": "RefArchGlobal",
-    "defaultLocale": "en-US",
+    "defaultLocale": "en-GB",
     "defaultCurrency": "USD",
     "supportedLocales": [
-      {"id": "en-US", "preferredCurrency": "USD"},
+      {"id": "en-GB", "preferredCurrency": "USD"},
       {"id": "de-DE", "preferredCurrency": "EUR"},
       {"id": "fr-FR", "preferredCurrency": "EUR"}
     ],
@@ -521,6 +522,27 @@ PUBLIC__app__hybrid__legacyRoutes='["/account", "/checkout"]'
 
 ---
 
+## auth
+
+Authentication configuration shared across all auth features. These settings apply to passwordless login, password reset, WebAuthn, passkey, and any other authentication methods that use OTP (One-Time Password) verification.
+
+### auth.otpLength
+
+Type: `number` | Default: `8`
+
+The length of the OTP (One-Time Password) code used for authentication. This value is set by SLAS (Shopper Login and API Access Service) and is shared across all authentication features including passwordless login, password reset, WebAuthn, and passkey authentication.
+
+**Important:** This is a global setting that affects all authentication flows. SLAS enforces a single OTP length for all auth features, so this value should remain consistent across your application.
+
+Example:
+```bash
+PUBLIC__app__auth__otpLength=8
+```
+
+**Usage:** When implementing new authentication features (e.g., passkey login), use `config.auth.otpLength` instead of defining a separate `otpLength` property in the feature configuration. This ensures consistency and prevents configuration drift.
+
+---
+
 ## features
 
 Site feature flags that enable or disable specific functionality.
@@ -538,6 +560,22 @@ PUBLIC__app__features__passwordlessLogin__enabled=true
 
 ---
 
+### features.passwordlessLogin.mode
+
+Type: `'email' | 'callback'` | Default: `'email'`
+
+Determines how passwordless login links are delivered to users.
+
+- **`'email'`** (default): The system sends the passwordless login link email directly to the user.
+- **`'callback'`**: Uses a callback flow where the system calls your server's callback endpoint with the token and user information. This mode requires the `callbackUri` to be configured and registered for your SLAS client and is useful when using an external email or SMS provider.
+
+Example:
+```bash
+PUBLIC__app__features__passwordlessLogin__mode="email"
+```
+
+---
+
 ### features.passwordlessLogin.callbackUri
 
 Type: `string` | Default: `'/passwordless-login-callback'`
@@ -548,9 +586,9 @@ The URI path where users are redirected after clicking the passwordless login li
 
 ### features.passwordlessLogin.landingUri
 
-Type: `string` | Default: `'/passwordless-login-landing'`
+Type: `string` | Default: `'/login'`
 
-The URI path where users land after successful passwordless authentication.
+The URI path of the magic link. A magic link is a single-use URL that contains the TOTP and that shoppers click to log into the storefront.
 
 ---
 
@@ -679,7 +717,7 @@ Array of language codes that have translation files available. The fallback lang
 
 Example:
 ```bash
-PUBLIC__app__i18n__supportedLngs='["en-US","de-DE","fr-FR"]'
+PUBLIC__app__i18n__supportedLngs='["en-GB","de-DE","fr-FR"]'
 ```
 
 Each language in this array must have corresponding translation files in your project. Languages must also be included in your site's `supportedLocales` (configured in `commerce.sites`) for full support. The fallback language should be listed last. See `src/middlewares/i18next.ts` for middleware configuration.
@@ -716,58 +754,6 @@ PUBLIC__app__global__branding__logoAlt="Acme Store Home"
 
 ---
 
-### global.productListing.productsPerPage
-
-Type: `number` | Default: `24`
-
-The number of products to display per page in product listing pages, such as search result and category pages. This option affects pagination and the initial API request size for product listings.
-
-Example:
-```bash
-PUBLIC__app__global__productListing__productsPerPage=36
-```
-
----
-
-### global.productListing.enableInfiniteScroll
-
-Type: `boolean` | Default: `false`
-
-When enabled, automatically loads more products as the user scrolls down instead of using pagination buttons.
-
-Example:
-```bash
-PUBLIC__app__global__productListing__enableInfiniteScroll=true
-```
-
----
-
-### global.productListing.sortOptions
-
-Type: `('relevance' | 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc' | 'newest')[]` | Default: `['relevance', 'price-asc', 'price-desc', 'name-asc']`
-
-Array of sort options available in product listing pages. The order determines the display order in the sort dropdown.
-
-Example:
-```bash
-PUBLIC__app__global__productListing__sortOptions='["relevance","price-asc","price-desc","newest"]'
-```
-
----
-
-### global.productListing.enableQuickView
-
-Type: `boolean` | Default: `true`
-
-When enabled, shows a quick view modal when users hover over or tap product tiles, allowing them to see product details without leaving the listing page.
-
-Example:
-```bash
-PUBLIC__app__global__productListing__enableQuickView=false
-```
-
----
-
 ### global.productListing.defaultProductTileImgAspectRatio
 
 Type: `number` | Default: `1`
@@ -791,14 +777,6 @@ Example:
 ```bash
 PUBLIC__app__global__carousel__defaultItemCount=5
 ```
-
----
-
-### global.paginatedProductCarousel.defaultLimit
-
-Type: `number` | Default: `8`
-
-The default number of products to load per page in paginated product carousels. Page Designer components may override this value with their own configuration.
 
 ---
 
@@ -919,12 +897,24 @@ Type: `string[]` Optional | Default: `['https://edge.disstg.commercecloud.salesf
 
 An array of origin URLs to preconnect to. The browser establishes early connections (DNS lookup, TCP handshake, TLS negotiation) to these origins before they're needed, reducing latency when fetching resources.
 
-Example:
+**Available DIS Hosts:**
+
+| Environment | Host URL |
+|-------------|----------|
+| **Staging** | `https://edge.disstg.commercecloud.salesforce.com` |
+| **Production** | `https://edge.dis.commercecloud.salesforce.com` |
+
+Example for staging (default):
 ```bash
-PUBLIC__app__links__preconnect='["https://edge.commercecloud.salesforce.com"]'
+PUBLIC__app__links__preconnect='["https://edge.disstg.commercecloud.salesforce.com"]'
 ```
 
-**Important:** The default value uses the staging DIS (Dynamic Image Service) origin. For production deployments, update this to your production DIS origin (e.g., `https://edge.commercecloud.salesforce.com`).
+Example for production:
+```bash
+PUBLIC__app__links__preconnect='["https://edge.dis.commercecloud.salesforce.com"]'
+```
+
+**Important:** The default value uses the staging DIS (Dynamic Image Service) origin. For production deployments, update this to the production DIS origin. This should match your `images.host` configuration.
 
 **Note:** Only provide origin URLs (scheme + host + port), not full paths. Any path in the URL will be ignored by the browser.
 
@@ -1016,11 +1006,35 @@ PUBLIC__app__images__fallbackFormat='png'
 
 ---
 
+### images.host
+
+Type: `string` | Default: `https://edge.disstg.commercecloud.salesforce.com`
+
+The Salesforce Dynamic Imaging Service (DIS) host URL. This is the CDN endpoint that serves optimized images with on-the-fly transformations (resizing, format conversion, quality adjustment).
+
+**Available DIS Hosts:**
+
+| Environment | Host URL |
+|-------------|----------|
+| **Staging** | `https://edge.disstg.commercecloud.salesforce.com` |
+| **Production** | `https://edge.dis.commercecloud.salesforce.com` |
+
+Example for production:
+```bash
+PUBLIC__app__images__host='https://edge.dis.commercecloud.salesforce.com'
+```
+
+**Important:** When deploying to production, update this value to the production DIS host. Using the staging host in production may result in slower image loading or availability issues.
+
+**Note:** Also update the corresponding `links.preconnect` value to match, so browsers can establish early connections to the correct DIS host.
+
+---
+
 ## search
 
 Search-specific configuration options.
 
-### search.products.orderableOnly
+### search.products.refine.orderableOnly
 
 Type: `boolean` Optional | Default: `true`
 
@@ -1034,7 +1048,31 @@ Property to define whether to only return search results with products that are 
 
 Example:
 ```bash
-PUBLIC__app__search__orderableOnly=true
+PUBLIC__app__search__products__refine__orderableOnly=true
+```
+
+---
+
+### search.products.hits.limit
+
+Type: `number` | Default: `24`
+
+The number of products to display per page in product listing pages, such as search result and category pages. This option affects pagination and the initial API request size for product listings.
+
+Example:
+```bash
+PUBLIC__app__search__products__hits__limit=36
+```
+
+---
+
+### search.products.hits.critical
+
+Define the number of product search hits to load in a blocking manner, i.e., critical.
+
+Example:
+```bash
+PUBLIC__app__search__products__hits__critical=4
 ```
 
 ---
@@ -1411,10 +1449,10 @@ PUBLIC__app__commerce__sites='[
   {
     "cookies": {"domain": null},
     "id": "RefArchGlobal",
-    "defaultLocale": "en-US",
+    "defaultLocale": "en-GB",
     "defaultCurrency": "USD",
     "supportedLocales": [
-      {"id": "en-US", "preferredCurrency": "USD"},
+      {"id": "en-GB", "preferredCurrency": "USD"},
       {"id": "de-DE", "preferredCurrency": "EUR"},
       {"id": "fr-FR", "preferredCurrency": "EUR"}
     ],
@@ -1423,7 +1461,7 @@ PUBLIC__app__commerce__sites='[
 ]'
 
 # Configure i18n with all supported languages
-PUBLIC__app__i18n__supportedLngs='["en-US", "de-DE", "fr-FR"]'
+PUBLIC__app__i18n__supportedLngs='["en-GB", "de-DE", "fr-FR"]'
 PUBLIC__app__i18n__fallbackLng="en-US"
 ```
 
@@ -1478,10 +1516,7 @@ To customize how products appear in search and category pages, use these setting
 
 ```bash
 # Show more products per page
-PUBLIC__app__global__productListing__productsPerPage=36
-
-# Enable infinite scroll instead of pagination
-PUBLIC__app__global__productListing__enableInfiniteScroll=true
+PUBLIC__app__search__products__hits__limit=36
 
 # Customize sort options
 PUBLIC__app__global__productListing__sortOptions='["relevance","price-asc","price-desc","newest"]'
