@@ -172,6 +172,7 @@ function AccountDetailsContent({
         setProfileOverride({
             firstName: formData.firstName,
             lastName: formData.lastName,
+            phoneHome: formData.phone ?? undefined,
             gender: formData.gender ? Number(formData.gender) : undefined,
             birthday: formData.birthday ?? undefined,
         });

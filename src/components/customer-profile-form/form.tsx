@@ -138,20 +138,28 @@ export const CustomerProfileForm = ({
      * @param data - The validated form data containing profile information
      * @param data.firstName - The customer's first name
      * @param data.lastName - The customer's last name
-     * @param data.email - The customer's email address - READ-ONLY
-     * @param data.phone - The customer's phone number - READ-ONLY
+     * @param data.email - The customer's email address - READ-ONLY (until SLAS email verification is available)
+     * @param data.phone - The customer's phone number (optional)
      * @param data.gender - The customer's gender (1=Male, 2=Female)
      * @param data.birthday - The customer's date of birth
      */
     const handleSubmit = form.handleSubmit((data) => {
         // Prepare customer data in the format expected by Commerce SDK
         // Only include fields that have values to avoid sending empty strings
-        // Note: email and phone are read-only until SLAS email verification is available
+        // Note: email is read-only until SLAS email verification is available
         const customerUpdateData: Record<string, string | number> = {
             firstName: data.firstName,
             lastName: data.lastName,
         };
+
+        // Add optional fields if they have values
         customerUpdateData.gender = data.gender ?? '';
+
+        // Phone is editable and optional - include if provided
+        if (data.phone) {
+            customerUpdateData.phoneHome = data.phone;
+        }
+
         // Bugfix: Birthday is supposed to be optional field, but submitting the form with empty birthday resulted in an error.
         // Now we no longer pass in an empty string, but skipping it instead.
         if (data.birthday) customerUpdateData.birthday = data.birthday;

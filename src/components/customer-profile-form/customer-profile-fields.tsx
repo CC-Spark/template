@@ -98,7 +98,7 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                 />
             </div>
 
-            {/* Email and Phone Row (both read-only until SLAS email verification is available) */}
+            {/* Email and Phone Row (email is read-only until SLAS email verification is available) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Email Field */}
                 <FormField
@@ -134,12 +134,12 @@ export function CustomerProfileFields({ form, updateFetcher, onCancel }: Custome
                                 <Input
                                     type="tel"
                                     autoComplete="tel"
-                                    readOnly
-                                    tabIndex={-1}
-                                    className="rounded-md bg-muted text-muted-foreground cursor-default focus-visible:ring-0 focus-visible:border-input"
+                                    placeholder={t('profile.phonePlaceholder')}
+                                    className="rounded-md"
                                     {...field}
                                 />
                             </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
