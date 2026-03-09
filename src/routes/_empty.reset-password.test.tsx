@@ -380,7 +380,7 @@ describe('reset-password route', () => {
         });
 
         describe('API errors', () => {
-            it('should return generic error when password reset fails', async () => {
+            it('should return invalidToken error when the API reports an invalid token', async () => {
                 mockIsPasswordValid.mockReturnValue(true);
                 mockResetPasswordWithToken.mockRejectedValue(new Error('Invalid token'));
 
@@ -407,41 +407,9 @@ describe('reset-password route', () => {
                 const result = await action(args);
 
                 expect(mockResetPasswordWithToken).toHaveBeenCalled();
-                // Returns error data, not redirect
+                // "Invalid token" matches INVALID_TOKEN_ERROR — shows user-friendly invalid-token message
                 expect(result).toEqual({
-                    error: t('errors:somethingWentWrong'),
-                });
-            });
-
-            it('should not expose actual error message from API', async () => {
-                mockIsPasswordValid.mockReturnValue(true);
-                mockResetPasswordWithToken.mockRejectedValue(new Error('Token expired at 2025-01-01 12:00:00'));
-
-                const formData = new URLSearchParams();
-                formData.append('token', 'abc123');
-                formData.append('email', 'test@example.com');
-                formData.append('newPassword', 'Test123!');
-                formData.append('confirmPassword', 'Test123!');
-
-                const mockRequest = new Request('http://localhost/reset-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData.toString(),
-                });
-
-                const args: ActionFunctionArgs = {
-                    request: mockRequest,
-                    params: {},
-                    context: mockContext,
-                };
-
-                const result = await action(args);
-
-                // Should show generic error, not the actual token expiration error
-                expect(result).toEqual({
-                    error: t('errors:somethingWentWrong'),
+                    error: t('errors:invalidToken'),
                 });
             });
         });
@@ -609,7 +577,7 @@ describe('reset-password route', () => {
         // Full-flow testing is not possible here because client-side validation in
         // usePasswordValidation hook disables the submit button for weak passwords.
 
-        it('should display error when API call fails', async () => {
+        it('should display invalidToken error when API reports an invalid token', async () => {
             const user = userEvent.setup();
             mockIsPasswordValid.mockReturnValue(true);
             mockResetPasswordWithToken.mockRejectedValue(new Error('Invalid token'));
@@ -628,7 +596,7 @@ describe('reset-password route', () => {
             await user.click(submitButton);
 
             await waitFor(() => {
-                expect(screen.getByText(t('errors:somethingWentWrong'))).toBeInTheDocument();
+                expect(screen.getByText(t('errors:invalidToken'))).toBeInTheDocument();
             });
         });
 

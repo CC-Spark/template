@@ -22,6 +22,7 @@ import { ForgotPasswordForm } from '@/components/forgot-password-form';
 import { getAuth, getPasswordResetToken } from '@/middlewares/auth.server';
 import { getTranslation } from '@/lib/i18next';
 import { useTranslation } from 'react-i18next';
+import { getPasswordResetErrorMessageKey, extractErrorMessage } from '@/lib/auth-error-handler';
 
 type ForgotPasswordActionData = {
     error?: string;
@@ -53,9 +54,10 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
         //Send password reset token using SLAS and Marketing Cloud
         await getPasswordResetToken(context, { email });
         return { success: true, email };
-    } catch {
-        // Generic error message for security - don't expose actual error to user
-        return { error: t('errors:somethingWentWrong') };
+    } catch (error) {
+        const errorMessage = extractErrorMessage(error);
+        const errorKey = getPasswordResetErrorMessageKey(errorMessage);
+        return { error: t(errorKey) };
     }
 }
 

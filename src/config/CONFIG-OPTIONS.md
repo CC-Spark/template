@@ -578,31 +578,48 @@ PUBLIC__app__features__passwordlessLogin__mode="email"
 
 ### features.passwordlessLogin.callbackUri
 
-Type: `string` | Default: `'/passwordless-login-callback'`
+Type: `string` Optional | Default: `'/passwordless-login-callback'`
 
-The URI path where users are redirected after clicking the passwordless login link in their email.
+The URI path where users are redirected after clicking the passwordless login link in their email. Required when mode is `callback.
 
 ---
 
 ### features.passwordlessLogin.landingUri
 
-Type: `string` | Default: `'/login'`
+Type: `string` Optional | Default: `'/login'`
 
 The URI path of the magic link. A magic link is a single-use URL that contains the TOTP and that shoppers click to log into the storefront.
 
 ---
 
+### features.resetPassword.mode
+
+Type: `'email' | 'callback'` | Default: `'email'`
+
+Determines how password reset tokens are delivered to users.
+
+- **`'email'`** (default): SLAS sends the password reset link email directly to the user.
+
+- **`'callback'`**: Uses a callback flow where SLAS calls your server's callback endpoint with the token and user information. This mode requires the `callbackUri` to be configured and registered for your SLAS client and is useful when using an external email or sms provider.
+
+Example:
+```bash
+PUBLIC__app__features__resetPassword__mode="email"
+```
+
+---
+
 ### features.resetPassword.callbackUri
 
-Type: `string` | Default: `'/reset-password-callback'`
+Type: `string` Optional | Default: `'/reset-password-callback'`
 
-The URI path for the password reset callback handler.
+The URI path for the password reset callback handler. Required when mode is `callback.
 
 ---
 
 ### features.resetPassword.landingUri
 
-Type: `string` | Default: `'/reset-password-landing'`
+Type: `string` Optional | Default: `'/reset-password'`
 
 The URI path where users land to create a new password after requesting a reset.
 

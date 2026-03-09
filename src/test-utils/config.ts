@@ -98,10 +98,12 @@ export const mockBuildConfig: Config = {
             },
             passwordlessLogin: {
                 enabled: false,
+                mode: 'email',
                 callbackUri: '/passwordless-login-callback',
                 landingUri: '/passwordless-login-landing',
             },
             resetPassword: {
+                mode: 'email',
                 callbackUri: '/reset-password-callback',
                 landingUri: '/reset-password-landing',
             },

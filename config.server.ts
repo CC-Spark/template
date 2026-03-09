@@ -233,9 +233,9 @@ export default defineConfig({
                 landingUri: '/login',
             },
             resetPassword: {
-                callbackUri: '/reset-password-callback',
-                landingUri: '/reset-password-landing',
                 mode: 'email',
+                callbackUri: '/reset-password-callback',
+                landingUri: '/reset-password',
             },
             socialLogin: {
                 enabled: false,

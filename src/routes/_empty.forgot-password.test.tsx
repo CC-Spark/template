@@ -275,7 +275,7 @@ describe('forgot-password route', () => {
                 });
                 // Should show generic error, not the actual API error
                 expect(result).toEqual({
-                    error: t('errors:somethingWentWrong'),
+                    error: t('errors:genericTryAgain'),
                 });
             });
 
@@ -305,7 +305,7 @@ describe('forgot-password route', () => {
 
                 // Should not reveal that email doesn't exist (security best practice)
                 expect(result).toEqual({
-                    error: t('errors:somethingWentWrong'),
+                    error: t('errors:genericTryAgain'),
                 });
             });
 
@@ -335,7 +335,7 @@ describe('forgot-password route', () => {
 
                 // Should not expose Marketing Cloud error details
                 expect(result).toEqual({
-                    error: t('errors:somethingWentWrong'),
+                    error: t('errors:genericTryAgain'),
                 });
             });
         });

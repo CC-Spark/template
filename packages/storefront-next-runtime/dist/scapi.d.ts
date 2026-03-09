@@ -27905,6 +27905,10 @@ interface PasswordRequestResetOptions {
   locale?: string;
   /** Method to receive OTP */
   mode: PasswordActionMode;
+  /** PKCE code challenge (required when hint is not cross_device) */
+  codeChallenge?: string;
+  /** Hint for password action. If not provided, 'cross_device' is sent by default. */
+  hint?: string;
 }
 /**
  * Options for resetting a password with a token.
@@ -27916,6 +27920,10 @@ interface PasswordResetOptions {
   token: string;
   /** New password to set */
   newPassword: string;
+  /** PKCE code verifier (required when hint is not cross_device) */
+  codeVerifier?: string;
+  /** Hint for password action. If not provided, 'cross_device' is sent by default. */
+  hint?: string;
 }
 /**
  * Options for getting a social login authorization URL.

@@ -128,6 +128,7 @@
     "resetPassword": {
         "title": "Reset Password",
         "subtitle": "Enter your email to receive instructions on how to reset your password",
+        "enterNewPassword": "Enter your new password below",
         "checkEmailTitle": "Check Your Email",
         "checkEmailDescription": "You will receive an email at {{email}} with a link to reset your password shortly.",
         "backToSignIn": "Back To Sign In",
@@ -188,7 +189,6 @@
     },
     "errors": {
         "genericTryAgain": "Something went wrong. Try again.",
-        "somethingWentWrong": "Something went wrong. Try again.",
         "loginFailed": "Login failed. Check your credentials.",
         "accessTokenRefreshFailed": "Retrieving the refreshed access token failed.",
         "guestAccessTokenFailed": "Retrieving the new access token failed.",
@@ -200,7 +200,6 @@
         "tooManyLoginAttempts": "You reached the limit for login attempts. For your security, wait 10 minutes and try again.",
         "tooManyPasswordResetAttempts": "You reached the limit for password resets. For your security, wait 10 minutes and try again.",
         "invalidToken": "The verification code is invalid. Please try again.",
-        "expiredToken": "The verification code has expired. Please request a new one.",
         "promoCodeRequired": "Promo code is required.",
         "couponItemIdRequired": "Coupon item ID is required.",
         "noBasketFound": "No basket found.",

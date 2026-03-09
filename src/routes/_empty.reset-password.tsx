@@ -21,6 +21,7 @@ import { resetPasswordWithToken } from '@/middlewares/auth.server';
 import { isPasswordValid } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
 import { useTranslation } from 'react-i18next';
+import { getPasswordResetErrorMessageKey, extractErrorMessage } from '@/lib/auth-error-handler';
 
 type ResetPasswordLoaderData = {
     token: string;
@@ -85,10 +86,10 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
 
         // Password reset successful - redirect to login
         return redirect('/login');
-    } catch {
-        // Show generic error message to avoid exposing token validation errors (security)
-        // This matches PWA Kit behavior
-        return { error: t('errors:somethingWentWrong') };
+    } catch (error) {
+        const errorMessage = extractErrorMessage(error);
+        const errorKey = getPasswordResetErrorMessageKey(errorMessage);
+        return { error: t(errorKey) };
     }
 }
 
@@ -102,9 +103,7 @@ export default function ResetPassword({ loaderData }: { loaderData: ResetPasswor
             <div className="max-w-md w-full space-y-8">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">{t('title')}</h2>
-                    <p className="mt-2 text-center text-sm text-muted-foreground">
-                        {t('subtitle') || 'Enter your new password below'}
-                    </p>
+                    <p className="mt-2 text-center text-sm text-muted-foreground">{t('enterNewPassword')}</p>
                 </div>
 
                 <Card className="p-8">

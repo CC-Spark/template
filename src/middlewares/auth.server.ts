@@ -228,10 +228,14 @@ export async function getPasswordResetToken(
     const clients = createApiClients(context);
     const appConfig = getConfig(context);
     const resetPasswordCallbackUri = appConfig.features.resetPassword.callbackUri;
+    let callbackUri: string | undefined;
+    if (resetPasswordCallbackUri) {
+        callbackUri = isAbsoluteURL(resetPasswordCallbackUri)
+            ? resetPasswordCallbackUri
+            : `${getAppOrigin()}${resetPasswordCallbackUri}`;
+    }
+
     const mode = appConfig.features.resetPassword.mode;
-    const callbackUri = isAbsoluteURL(resetPasswordCallbackUri)
-        ? resetPasswordCallbackUri
-        : `${getAppOrigin()}${resetPasswordCallbackUri}`;
 
     // Get locale from i18next context for email/SMS template localization
     const i18nextData = context.get(i18nextContext);

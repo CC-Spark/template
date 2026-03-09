@@ -170,7 +170,6 @@
     },
     "errors": {
         "genericTryAgain": "Qualcosa non va. Riprovi.",
-        "somethingWentWrong": "Qualcosa è andato storto. Riprovi!",
         "loginFailed": "Accesso non riuscito. Controlli le Sue credenziali.",
         "accessTokenRefreshFailed": "Recupero del token di accesso aggiornato non riuscito",
         "guestAccessTokenFailed": "Recupero del nuovo token di accesso non riuscito",
@@ -182,7 +181,6 @@
         "tooManyLoginAttempts": "Ha raggiunto il limite di tentativi di accesso. Per la Sua sicurezza, attenda 10 minuti e riprovi.",
         "tooManyPasswordResetAttempts": "Ha raggiunto il limite di reimpostazioni della password. Per la Sua sicurezza, attenda 10 minuti e riprovi.",
         "invalidToken": "Il codice di verifica non è valido. Riprovi.",
-        "expiredToken": "Il codice di verifica è scaduto. Ne richieda uno nuovo.",
         "promoCodeRequired": "Il codice promozionale è obbligatorio",
         "couponItemIdRequired": "L'ID dell'articolo del coupon è obbligatorio",
         "noBasketFound": "Nessun carrello trovato",

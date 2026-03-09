@@ -613,7 +613,27 @@ describe('createAuthHelpers', () => {
 
     describe('passwordless', () => {
         describe('authorize', () => {
-            it('should initiate passwordless login with default callback mode', async () => {
+            it.each([
+                {
+                    mode: 'email' as const,
+                    expectedBody: {
+                        mode: 'email',
+                    },
+                },
+                {
+                    mode: 'callback' as const,
+                    expectedBody: {
+                        mode: 'callback',
+                        callback_uri: 'https://example.com/passwordless-callback',
+                    },
+                },
+                {
+                    mode: 'sms' as const,
+                    expectedBody: {
+                        mode: 'sms',
+                    },
+                },
+            ])('should authorize passwordless with $mode mode', async ({ mode, expectedBody }) => {
                 const config: AuthConfig = {
                     ...baseConfig,
                     clientSecret: 'test-secret',
@@ -627,8 +647,9 @@ describe('createAuthHelpers', () => {
                 const auth = createAuthHelpers(config);
                 await auth.passwordless.authorize({
                     userId: 'user@example.com',
+                    mode,
+                    // callbackUri will only be included when mode is callback
                     callbackUri: 'https://example.com/passwordless-callback',
-                    mode: 'callback',
                 });
 
                 expect(mockShopperLoginClient.authorizePasswordlessCustomer).toHaveBeenCalledWith({
@@ -640,37 +661,10 @@ describe('createAuthHelpers', () => {
                     headers: FORM_URLENCODED_HEADER,
                     body: {
                         user_id: 'user@example.com',
-                        mode: 'callback',
                         channel_id: 'RefArch',
-                        callback_uri: 'https://example.com/passwordless-callback',
+                        ...expectedBody,
                     },
                 });
-            });
-
-            it('should pass mode=sms when specified', async () => {
-                const config: AuthConfig = {
-                    ...baseConfig,
-                    clientSecret: 'test-secret',
-                };
-
-                mockShopperLoginClient.authorizePasswordlessCustomer.mockResolvedValue({
-                    data: { status: 'ok' },
-                    response: new Response(),
-                });
-
-                const auth = createAuthHelpers(config);
-                await auth.passwordless.authorize({
-                    userId: '+1234567890',
-                    mode: 'sms',
-                });
-
-                expect(mockShopperLoginClient.authorizePasswordlessCustomer).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        body: expect.objectContaining({
-                            mode: 'sms',
-                        }),
-                    })
-                );
             });
 
             it('should throw error when clientSecret is not provided', async () => {
@@ -682,6 +676,22 @@ describe('createAuthHelpers', () => {
                         mode: 'email',
                     })
                 ).rejects.toThrow('Client secret is required for passwordless login');
+            });
+
+            it('should throw error when mode is callback but callbackUri is not provided', async () => {
+                const config: AuthConfig = {
+                    ...baseConfig,
+                    clientSecret: 'test-secret',
+                };
+
+                const auth = createAuthHelpers(config);
+
+                await expect(
+                    auth.passwordless.authorize({
+                        userId: 'user@example.com',
+                        mode: 'callback',
+                    })
+                ).rejects.toThrow('callbackUri is required for callback mode');
             });
 
             it('should include usid when provided', async () => {
@@ -954,6 +964,116 @@ describe('createAuthHelpers', () => {
                     }),
                 });
             });
+
+            it('should throw error when mode is callback but callbackUri is not provided', async () => {
+                const auth = createAuthHelpers(baseConfig);
+
+                await expect(
+                    auth.password.requestReset({
+                        userId: 'user@example.com',
+                        mode: 'callback',
+                    })
+                ).rejects.toThrow('callbackUri is required when mode is "callback"');
+            });
+
+            it.each([
+                {
+                    mode: 'email' as const,
+                    expectedBody: {
+                        mode: 'email',
+                    },
+                },
+                {
+                    mode: 'callback' as const,
+                    expectedBody: {
+                        mode: 'callback',
+                        callback_uri: 'https://example.com/reset-password',
+                    },
+                },
+                {
+                    mode: 'sms' as const,
+                    expectedBody: {
+                        mode: 'sms',
+                    },
+                },
+            ])('should request password reset with $mode mode', async ({ mode, expectedBody }) => {
+                const config: AuthConfig = {
+                    ...baseConfig,
+                    clientSecret: 'test-secret',
+                };
+
+                mockShopperLoginClient.getPasswordResetToken.mockResolvedValue({
+                    data: { status: 'ok' },
+                    response: new Response(),
+                });
+
+                const auth = createAuthHelpers(config);
+                await auth.password.requestReset({
+                    mode,
+                    userId: 'user@example.com',
+                    // callbackUri will only be included when mode is callback
+                    callbackUri: 'https://example.com/reset-password',
+                });
+
+                expect(mockShopperLoginClient.getPasswordResetToken).toHaveBeenCalledWith({
+                    params: {},
+                    headers: expect.objectContaining({
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization: expect.stringContaining('Basic'),
+                    }),
+                    body: {
+                        user_id: 'user@example.com',
+                        channel_id: 'RefArch',
+                        client_id: 'test-client-id',
+                        hint: 'cross_device',
+                        ...expectedBody,
+                    },
+                });
+            });
+
+            it('should include code_challenge when provided', async () => {
+                mockShopperLoginClient.getPasswordResetToken.mockResolvedValue({
+                    data: { status: 'ok' },
+                    response: new Response(),
+                });
+
+                const auth = createAuthHelpers(baseConfig);
+                await auth.password.requestReset({
+                    mode: 'email',
+                    userId: 'user@example.com',
+                    codeChallenge: 'test-code-challenge',
+                });
+
+                expect(mockShopperLoginClient.getPasswordResetToken).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        body: expect.objectContaining({
+                            code_challenge: 'test-code-challenge',
+                        }),
+                    })
+                );
+            });
+
+            it('should use custom hint when provided', async () => {
+                mockShopperLoginClient.getPasswordResetToken.mockResolvedValue({
+                    data: { status: 'ok' },
+                    response: new Response(),
+                });
+
+                const auth = createAuthHelpers(baseConfig);
+                await auth.password.requestReset({
+                    mode: 'email',
+                    userId: 'user@example.com',
+                    hint: 'custom_hint',
+                });
+
+                expect(mockShopperLoginClient.getPasswordResetToken).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        body: expect.objectContaining({
+                            hint: 'custom_hint',
+                        }),
+                    })
+                );
+            });
         });
 
         describe('reset', () => {
@@ -979,6 +1099,7 @@ describe('createAuthHelpers', () => {
                         pwd_action_token: 'password-reset-token',
                         new_password: 'newSecurePassword123',
                         channel_id: 'RefArch',
+                        hint: 'cross_device',
                     },
                 });
             });
@@ -1014,6 +1135,52 @@ describe('createAuthHelpers', () => {
                         new_password: 'newSecurePassword123',
                     }),
                 });
+            });
+
+            it('should include code_verifier when provided', async () => {
+                mockShopperLoginClient.resetPassword.mockResolvedValue({
+                    data: mockTokenResponse,
+                    response: new Response(),
+                });
+
+                const auth = createAuthHelpers(baseConfig);
+                await auth.password.reset({
+                    userId: 'user@example.com',
+                    token: 'password-reset-token',
+                    newPassword: 'newSecurePassword123',
+                    codeVerifier: 'test-code-verifier',
+                });
+
+                expect(mockShopperLoginClient.resetPassword).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        body: expect.objectContaining({
+                            code_verifier: 'test-code-verifier',
+                        }),
+                    })
+                );
+            });
+
+            it('should use custom hint when provided', async () => {
+                mockShopperLoginClient.resetPassword.mockResolvedValue({
+                    data: mockTokenResponse,
+                    response: new Response(),
+                });
+
+                const auth = createAuthHelpers(baseConfig);
+                await auth.password.reset({
+                    userId: 'user@example.com',
+                    token: 'password-reset-token',
+                    newPassword: 'newSecurePassword123',
+                    hint: 'custom_hint',
+                });
+
+                expect(mockShopperLoginClient.resetPassword).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        body: expect.objectContaining({
+                            hint: 'custom_hint',
+                        }),
+                    })
+                );
             });
         });
     });

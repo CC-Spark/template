@@ -19,6 +19,7 @@ import type { SessionData as AuthData } from '@/lib/api/types';
 import { type AuthStorageData, AUTH_TOKEN_INVALID_ERROR, authStorageContext } from '@/middlewares/auth.utils';
 import { performanceTimerContext } from '@/middlewares/performance-metrics';
 import { appConfigContext, type AppConfig } from '@/config';
+import { i18nextContext } from '@/lib/i18next';
 import { mockConfig } from '@/test-utils/config';
 import { TrackingConsent } from '@/types/tracking-consent';
 import authMiddleware, {
@@ -112,6 +113,11 @@ vi.mock('@/lib/utils', () => ({
     stringToBase64: vi.fn((str: string) => Buffer.from(str).toString('base64')),
 }));
 
+const mockI18next = {
+    getLocale: vi.fn(() => 'en-US'),
+    getI18nextInstance: vi.fn(),
+};
+
 function getMockTokenResponse(): ShopperLogin.schemas['TokenResponse'] {
     return {
         access_token: 'access-token-123',
@@ -158,16 +164,11 @@ function mockContext(
     );
 
     // Create mock app config
-    const appConfig: AppConfig = {
-        ...mockConfig,
-        commerce: {
-            ...mockConfig.commerce,
-            api: {
-                ...mockConfig.commerce.api,
-                privateKeyEnabled: isSlasPrivate,
-            },
-        },
-    };
+    // Use structuredClone to create a deep copy of the mockConfig object to prevent test pollution
+    const appConfig: AppConfig = structuredClone(mockConfig);
+
+    // Override commerce.api.privateKeyEnabled after cloning
+    appConfig.commerce.api.privateKeyEnabled = isSlasPrivate;
 
     // Mock provider.get to return storage, performance timer, i18next, or appConfig based on context key
     vi.spyOn(provider, 'get').mockImplementation((key) => {
@@ -177,11 +178,8 @@ function mockContext(
         if (key === appConfigContext) {
             return appConfig;
         }
-        // Check if key is i18next context (check symbol description)
-        if (key && typeof key === 'symbol' && String(key).includes('i18nextContext')) {
-            return {
-                getLocale: () => 'en-US',
-            };
+        if (key === i18nextContext) {
+            return mockI18next;
         }
         return storage;
     });
@@ -932,13 +930,12 @@ describe('auth middleware (server)', () => {
 
             await getPasswordResetToken(provider, { email });
 
-            expect(mockAuth.password.requestReset).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    userId: email,
-                    callbackUri: 'https://example.com/reset-password-callback',
-                    locale: 'en-US',
-                })
-            );
+            expect(mockAuth.password.requestReset).toHaveBeenCalledWith({
+                userId: email,
+                callbackUri: 'https://example.com/reset-password-callback',
+                mode: 'email',
+                locale: 'en-US',
+            });
 
             // Verify performance timer was called
             expect(mockPerformanceTimer.mark).toHaveBeenCalledWith('authGetPasswordResetToken', 'start');
@@ -954,13 +951,29 @@ describe('auth middleware (server)', () => {
             await getPasswordResetToken(provider, { email });
 
             // Note: Authorization header is now handled internally by createApiClients
-            expect(mockAuth.password.requestReset).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    userId: email,
-                    callbackUri: 'https://example.com/reset-password-callback',
-                    locale: 'en-US',
-                })
-            );
+            expect(mockAuth.password.requestReset).toHaveBeenCalledWith({
+                userId: email,
+                callbackUri: 'https://example.com/reset-password-callback',
+                mode: 'email',
+                locale: 'en-US',
+            });
+        });
+
+        it('should request password reset token with callback mode', async () => {
+            const { provider, appConfig } = mockContext({}, false);
+            appConfig.features.resetPassword.mode = 'callback';
+            const email = 'test@example.com';
+
+            mockAuth.password.requestReset.mockResolvedValue(undefined);
+
+            await getPasswordResetToken(provider, { email });
+
+            expect(mockAuth.password.requestReset).toHaveBeenCalledWith({
+                userId: email,
+                callbackUri: 'https://example.com/reset-password-callback',
+                mode: 'callback',
+                locale: 'en-US',
+            });
         });
 
         it('should handle absolute callback URI', async () => {
@@ -972,13 +985,29 @@ describe('auth middleware (server)', () => {
 
             await getPasswordResetToken(provider, { email });
 
-            expect(mockAuth.password.requestReset).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    userId: email,
-                    callbackUri: 'https://custom-domain.com/reset',
-                    locale: 'en-US',
-                })
-            );
+            expect(mockAuth.password.requestReset).toHaveBeenCalledWith({
+                userId: email,
+                callbackUri: 'https://custom-domain.com/reset',
+                mode: 'email',
+                locale: 'en-US',
+            });
+        });
+
+        it('should handle undefined callback URI', async () => {
+            const { provider, appConfig } = mockContext({}, false);
+            delete appConfig.features.resetPassword.callbackUri;
+            const email = 'test@example.com';
+
+            mockAuth.password.requestReset.mockResolvedValue(undefined);
+
+            await getPasswordResetToken(provider, { email });
+            // When callbackUri is undefined, it should be passed as undefined to requestReset
+            expect(mockAuth.password.requestReset).toHaveBeenCalledWith({
+                userId: email,
+                callbackUri: undefined,
+                mode: 'email',
+                locale: 'en-US',
+            });
         });
 
         it('should handle relative callback URI and prepend app origin', async () => {
@@ -990,13 +1019,12 @@ describe('auth middleware (server)', () => {
 
             await getPasswordResetToken(provider, { email });
 
-            expect(mockAuth.password.requestReset).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    userId: email,
-                    callbackUri: 'https://example.com/reset-password',
-                    locale: 'en-US',
-                })
-            );
+            expect(mockAuth.password.requestReset).toHaveBeenCalledWith({
+                userId: email,
+                callbackUri: 'https://example.com/reset-password',
+                mode: 'email',
+                locale: 'en-US',
+            });
         });
 
         it('should handle password reset token request failure', async () => {

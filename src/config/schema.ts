@@ -104,8 +104,8 @@ export type Config = {
                 mode: 'callback' | 'email' | 'sms';
             };
             resetPassword: {
-                callbackUri: string;
-                landingUri: string;
+                callbackUri?: string;
+                landingUri?: string;
                 mode: 'callback' | 'email' | 'sms';
             };
             socialLogin: {

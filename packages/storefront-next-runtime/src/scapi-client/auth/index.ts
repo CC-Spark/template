@@ -441,7 +441,7 @@ export function createAuthHelpers(config: AuthConfig): AuthNamespace {
                     user_id: userId,
                     mode,
                     channel_id: siteId,
-                    ...(callbackUri && { callback_uri: callbackUri }),
+                    ...(mode === 'callback' && callbackUri && { callback_uri: callbackUri }),
                     ...(usid && { usid }),
                     ...(locale && { locale }),
                     ...(registerCustomer && lastName && { last_name: lastName }),
@@ -502,7 +502,7 @@ export function createAuthHelpers(config: AuthConfig): AuthNamespace {
          */
         password: {
             requestReset: async (options: PasswordRequestResetOptions) => {
-                const { userId, callbackUri, mode = 'email', locale } = options;
+                const { userId, callbackUri, mode = 'email', locale, codeChallenge, hint = 'cross_device' } = options;
 
                 if (mode === 'callback' && !callbackUri) {
                     throw new Error('callbackUri is required when mode is "callback"');
@@ -525,32 +525,25 @@ export function createAuthHelpers(config: AuthConfig): AuthNamespace {
                         mode,
                         channel_id: siteId,
                         client_id: clientId,
-                        ...(callbackUri && { callback_uri: callbackUri }),
-                        hint: 'cross_device',
+                        ...(mode === 'callback' && callbackUri && { callback_uri: callbackUri }),
+                        hint,
                         ...(locale && { locale }),
+                        ...(codeChallenge && { code_challenge: codeChallenge }),
                     },
                 });
             },
 
             reset: async (options: PasswordResetOptions) => {
-                const { userId, token, newPassword } = options;
+                const { userId, token, newPassword, codeVerifier, hint = 'cross_device' } = options;
 
-                // The OpenAPI spec for SLAS resetPassword is inaccurate:
-                // 1. code_verifier is marked as required, but it's NOT needed when the token was
-                //    generated with hint: 'cross_device' (which is what requestReset uses)
-                // 2. user_id is NOT in the spec, but it IS required for the API call to succeed
-                // We create a custom type to match the actual API requirements.
-                type ResetPasswordBody = NonNullable<Parameters<typeof shopperLoginClient.resetPassword>[0]>['body'];
-                type ResetPasswordBodyWithUserIdNoCodeVerifier = Omit<ResetPasswordBody, 'code_verifier'> & {
-                    user_id: string;
-                };
-
-                const body: ResetPasswordBodyWithUserIdNoCodeVerifier = {
+                const requestBody = {
                     client_id: clientId,
                     user_id: userId,
                     pwd_action_token: token,
                     new_password: newPassword,
                     channel_id: siteId,
+                    hint,
+                    ...(codeVerifier && { code_verifier: codeVerifier }),
                 };
 
                 // For private client, include client secret in auth header
@@ -562,16 +555,14 @@ export function createAuthHelpers(config: AuthConfig): AuthNamespace {
                             },
                         },
                         headers: FORM_URLENCODED_HEADER,
-                        // Use type assertion to bypass SDK's code_verifier requirement since we're using cross_device hint
-                        body: body as unknown as ResetPasswordBody,
+                        body: requestBody,
                     });
                 }
 
                 return shopperLoginClient.resetPassword({
                     params: {},
                     headers: FORM_URLENCODED_HEADER,
-                    // Use type assertion to bypass SDK's code_verifier requirement since we're using cross_device hint
-                    body: body as unknown as ResetPasswordBody,
+                    body: requestBody,
                 });
             },
         },
