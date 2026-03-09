@@ -359,7 +359,7 @@ importers:
         version: 4.4.0(@types/aws-lambda@8.10.159)(@types/body-parser@1.19.6)(@types/cors@2.8.19)(@types/express@4.17.23)(body-parser@1.20.3)(express@4.21.2)(http-errors@2.0.0)(reflect-metadata@0.2.2)
       '@oclif/core':
         specifier: ^4.2.10
-        version: 4.8.3
+        version: 4.8.4
       '@oclif/plugin-help':
         specifier: ^6.2.36
         version: 6.2.37
@@ -374,7 +374,7 @@ importers:
         version: 7.12.0(express@4.21.2)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
       '@salesforce/b2c-tooling-sdk':
         specifier: ^0.5.4
-        version: 0.5.5(@oclif/core@4.8.3)(tslib@2.8.1)(typescript@5.9.3)
+        version: 0.5.5(@oclif/core@4.8.4)(typescript@5.9.3)
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -441,7 +441,7 @@ importers:
     devDependencies:
       '@oclif/test':
         specifier: ^4.1.15
-        version: 4.1.16(@oclif/core@4.8.3)
+        version: 4.1.16(@oclif/core@4.8.4)
       '@react-router/dev':
         specifier: 7.12.0
         version: 7.12.0(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.30.1)(react-router@7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(tsx@4.21.0)(typescript@5.9.3)(vite@7.1.7(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.21.0))
@@ -1962,8 +1962,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@oclif/core@4.8.3':
-    resolution: {integrity: sha512-f7Rc1JBZO0wNMyDmNzP5IFOv5eM97S9pO4JUFdu2OLyk73YeBI9wog1Yyf666NOQvyptkbG1xh8inzMDQLNTyQ==}
+  '@oclif/core@4.8.4':
+    resolution: {integrity: sha512-UTAqwXJJyRvLBvosL+1uPZYSpr8lEHgUb/EVGbPXo5WZqUIBHfJ0sR2bkBEsrj00/ar4IegKxx4YK0wn2c8SQg==}
     engines: {node: '>=18.0.0'}
 
   '@oclif/plugin-help@6.2.37':
@@ -2960,8 +2960,8 @@ packages:
       '@oclif/core':
         optional: true
 
-  '@salesforce/core@8.26.3':
-    resolution: {integrity: sha512-lPNFHjHFeC4V3KuH88xuVLGhAqmtM8meUcvyejNh8bQ5w642APKRTGDZ0pOnWHJAe5SQy7cSQ1WqvO3V73ouQw==}
+  '@salesforce/core@8.27.0':
+    resolution: {integrity: sha512-Je//0ySHRJRTD16dFxdm6J624i+oufKNq+o8O1AoUNYlT/k4SJi/YGt+iGlKesZGxPf7X1zzUPY1S6C99c/UBA==}
     engines: {node: '>=18.0.0'}
 
   '@salesforce/kit@3.2.4':
@@ -6669,6 +6669,10 @@ packages:
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
+
+  memfs@4.38.1:
+    resolution: {integrity: sha512-exfrOkkU3m0EpbQ0iQJP93HUbkprnIBU7IUnobSNAzHkBUzsklLwENGLEm8ZwJmMuLoFEfv1pYQ54wSpkay4kQ==}
+    engines: {node: '>= 4.0.0'}
 
   memfs@4.56.11:
     resolution: {integrity: sha512-/GodtwVeKVIHZKLUSr2ZdOxKBC5hHki4JNCU22DoCGPEHr5o2PD5U721zvESKyWwCfTfavFl9WZYgA13OAYK0g==}
@@ -10466,7 +10470,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@oclif/core@4.8.3':
+  '@oclif/core@4.8.4':
     dependencies:
       ansi-escapes: 4.3.2
       ansis: 3.17.0
@@ -10489,12 +10493,12 @@ snapshots:
 
   '@oclif/plugin-help@6.2.37':
     dependencies:
-      '@oclif/core': 4.8.3
+      '@oclif/core': 4.8.4
 
   '@oclif/plugin-not-found@3.2.74(@types/node@24.12.0)':
     dependencies:
       '@inquirer/prompts': 7.10.1(@types/node@24.12.0)
-      '@oclif/core': 4.8.3
+      '@oclif/core': 4.8.4
       ansis: 3.17.0
       fast-levenshtein: 3.0.0
     transitivePeerDependencies:
@@ -10502,7 +10506,7 @@ snapshots:
 
   '@oclif/plugin-plugins@5.4.58':
     dependencies:
-      '@oclif/core': 4.8.3
+      '@oclif/core': 4.8.4
       ansis: 3.17.0
       debug: 4.4.3(supports-color@10.2.2)
       npm: 10.9.5
@@ -10516,9 +10520,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@oclif/test@4.1.16(@oclif/core@4.8.3)':
+  '@oclif/test@4.1.16(@oclif/core@4.8.4)':
     dependencies:
-      '@oclif/core': 4.8.3
+      '@oclif/core': 4.8.4
       ansis: 3.17.0
       debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
@@ -11433,9 +11437,9 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@salesforce/b2c-tooling-sdk@0.5.5(@oclif/core@4.8.3)(tslib@2.8.1)(typescript@5.9.3)':
+  '@salesforce/b2c-tooling-sdk@0.5.5(@oclif/core@4.8.4)(typescript@5.9.3)':
     dependencies:
-      '@salesforce/telemetry': 6.4.6(tslib@2.8.1)
+      '@salesforce/telemetry': 6.4.6
       archiver: 7.0.1
       chokidar: 5.0.0
       cliui: 9.0.1
@@ -11453,7 +11457,7 @@ snapshots:
       undici: 7.19.2
       xml2js: 0.6.2
     optionalDependencies:
-      '@oclif/core': 4.8.3
+      '@oclif/core': 4.8.4
     transitivePeerDependencies:
       - applicationinsights-native-metrics
       - bare-abort-controller
@@ -11461,10 +11465,9 @@ snapshots:
       - encoding
       - react-native-b4a
       - supports-color
-      - tslib
       - typescript
 
-  '@salesforce/core@8.26.3(tslib@2.8.1)':
+  '@salesforce/core@8.27.0':
     dependencies:
       '@jsforce/jsforce-node': 3.10.14
       '@salesforce/kit': 3.2.4
@@ -11477,7 +11480,7 @@ snapshots:
       js2xmlparser: 4.0.2
       jsonwebtoken: 9.0.3
       jszip: 3.10.1
-      memfs: 4.56.11(tslib@2.8.1)
+      memfs: 4.38.1
       pino: 9.14.0
       pino-abstract-transport: 1.2.0
       pino-pretty: 11.3.0
@@ -11488,7 +11491,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
-      - tslib
 
   '@salesforce/kit@3.2.4':
     dependencies:
@@ -11499,9 +11501,9 @@ snapshots:
       o11y: 258.22.0
       o11y_schema: 256.154.0
 
-  '@salesforce/telemetry@6.4.6(tslib@2.8.1)':
+  '@salesforce/telemetry@6.4.6':
     dependencies:
-      '@salesforce/core': 8.26.3(tslib@2.8.1)
+      '@salesforce/core': 8.27.0
       '@salesforce/kit': 3.2.4
       '@salesforce/o11y-reporter': 1.7.0
       applicationinsights: 2.9.8
@@ -11511,7 +11513,6 @@ snapshots:
       - applicationinsights-native-metrics
       - encoding
       - supports-color
-      - tslib
 
   '@salesforce/ts-types@2.0.12': {}
 
@@ -16045,6 +16046,15 @@ snapshots:
   mdn-data@2.27.1: {}
 
   media-typer@0.3.0: {}
+
+  memfs@4.38.1:
+    dependencies:
+      '@jsonjoy.com/json-pack': 1.21.0(tslib@2.8.1)
+      '@jsonjoy.com/util': 1.9.0(tslib@2.8.1)
+      glob-to-regex.js: 1.2.0(tslib@2.8.1)
+      thingies: 2.5.0(tslib@2.8.1)
+      tree-dump: 1.1.0(tslib@2.8.1)
+      tslib: 2.8.1
 
   memfs@4.56.11(tslib@2.8.1):
     dependencies:
