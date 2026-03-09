@@ -42,6 +42,8 @@ export const multiSiteMiddleware: MiddlewareFunction<Response> = async (args, ne
         })),
         defaultSiteId,
         defaultLocale: defaultSite.defaultLocale,
+        siteDetectionConfig: config.siteDetectionConfig,
+        localeDetectionConfig: config.localeDetectionConfig,
     };
 
     // Create and invoke the multi-site middleware

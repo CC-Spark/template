@@ -16,7 +16,7 @@
 
 import { createContext, type MiddlewareFunction, type RouterContextProvider } from 'react-router';
 import { resolveSite } from './site-detection';
-import type { MultiSiteConfig, MultiSiteContext, MultiSiteSettings } from './types';
+import type { MultiSiteConfig, MultiSiteContext, MultiSiteSettings, Site, Locale } from './types';
 import { DEFAULT_SITE_DETECTION, DEFAULT_LOCALE_DETECTION } from './configs';
 import { createMultiSiteCookie, requestToLocaleMap } from './cookies';
 import { resolveLocale } from './locale-detection';
@@ -55,18 +55,22 @@ export function getMultiSiteCookies(context: Readonly<RouterContextProvider>) {
 /**
  * Helper function to determine if cookies should be set based on:
  * 1. Whether caching is enabled for each cookie type
- * 2. Whether cookies already exist in the incoming request
+ * 2. Whether the resolved value differs from the existing cookie
  * 3. Whether cookies were already set by actions/loaders in the response
  *
  * @param request - Incoming request
  * @param response - Response from next()
  * @param settings - Multi-site settings with cookie instances and detection config
+ * @param site - Resolved site for this request
+ * @param locale - Resolved locale for this request
  * @returns Object with shouldSetSiteCookie and shouldSetLocaleCookie booleans
  */
 async function shouldSetCookies(
     request: Request,
     response: Response,
-    settings: MultiSiteSettings
+    settings: MultiSiteSettings,
+    site: Site,
+    locale: Locale
 ): Promise<{ shouldSetSiteCookie: boolean; shouldSetLocaleCookie: boolean }> {
     const cacheSite = settings.siteDetectionConfig.caches?.includes('cookie');
     const cacheLocale = settings.localeDetectionConfig.caches?.includes('cookie');
@@ -76,16 +80,8 @@ async function shouldSetCookies(
         return { shouldSetSiteCookie: false, shouldSetLocaleCookie: false };
     }
 
-    // Check if cookies already exist in the incoming request
-    // If cookies already exist, we don't need to set them here
-    const requestCookieHeader = request.headers.get('Cookie');
-    const [existingSiteCookie, existingLocaleCookie] = await Promise.all([
-        settings.siteCookie.parse(requestCookieHeader),
-        settings.localeCookie.parse(requestCookieHeader),
-    ]);
-
-    // Check if cookies were already set by actions/loaders
-    // If they were then we don't want to override them
+    // Check if cookies were already set by actions/loaders in the response.
+    // If they were, we don't want to override them.
     const responseSetCookies = response.headers.getSetCookie?.() || [];
     const isSettingSiteCookieInResponse = responseSetCookies.some((cookie) =>
         cookie.startsWith(`${settings.siteCookie.name}=`)
@@ -94,12 +90,17 @@ async function shouldSetCookies(
         cookie.startsWith(`${settings.localeCookie.name}=`)
     );
 
-    // Only set cookies if they don't exist in request AND weren't set in response
-    // In other words, we create the cookies if they are not initialized
-    // Othewise, rely only actions to update the cookies
+    const requestCookieHeader = request.headers.get('Cookie');
+    const [existingSiteCookie, existingLocaleCookie] = await Promise.all([
+        settings.siteCookie.parse(requestCookieHeader),
+        settings.localeCookie.parse(requestCookieHeader),
+    ]);
+
+    // Set cookie if: doesn't exist yet OR resolved value differs from existing.
+    // Skip if an action/loader already set it in the response.
     return {
-        shouldSetSiteCookie: cacheSite && !existingSiteCookie && !isSettingSiteCookieInResponse,
-        shouldSetLocaleCookie: cacheLocale && !existingLocaleCookie && !isSettingLocaleCookieInResponse,
+        shouldSetSiteCookie: cacheSite && !isSettingSiteCookieInResponse && existingSiteCookie !== site.id,
+        shouldSetLocaleCookie: cacheLocale && !isSettingLocaleCookieInResponse && existingLocaleCookie !== locale.id,
     };
 }
 
@@ -155,7 +156,13 @@ export function createMultiSiteMiddleware(config: MultiSiteConfig): MiddlewareFu
         const response = await next();
 
         // Determine if cookies should be set
-        const { shouldSetSiteCookie, shouldSetLocaleCookie } = await shouldSetCookies(request, response, settings);
+        const { shouldSetSiteCookie, shouldSetLocaleCookie } = await shouldSetCookies(
+            request,
+            response,
+            settings,
+            site,
+            locale
+        );
 
         // Early return if no cookies need to be set
         if (!shouldSetSiteCookie && !shouldSetLocaleCookie) {

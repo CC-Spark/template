@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterEach } from 'vitest';
 import type { MiddlewareFunction, RouterContextProvider } from 'react-router';
 import type { DetectionConfig, MultiSiteConfig, MultiSiteContext } from './types';
 
@@ -259,5 +259,58 @@ describe('createMultiSiteMiddleware', () => {
             )
         ).rejects.toThrow('Default locale fr-FR not found in the list of supported locales for site site-us');
         expect(next).not.toHaveBeenCalled();
+    });
+
+    describe('cookie sync (stale cookie handling)', () => {
+        let mockCreateCookie: ReturnType<typeof vi.fn>;
+
+        beforeAll(async () => {
+            const cookies = await import('./cookies');
+            mockCreateCookie = cookies.createMultiSiteCookie as ReturnType<typeof vi.fn>;
+        });
+
+        afterEach(() => {
+            // Restore the default mock where parse returns undefined (no existing cookie)
+            mockCreateCookie.mockImplementation((name: string) => ({
+                name,
+                serialize: (value: string) => cookieSerialize(value, name),
+                parse: vi.fn(),
+            }));
+        });
+
+        function withExistingCookies(siteId: string, localeId: string) {
+            mockCreateCookie.mockImplementation((name: string) => ({
+                name,
+                serialize: (value: string) => cookieSerialize(value, name),
+                parse: vi.fn().mockResolvedValue(name === defaultSiteDetection.lookupCookie ? siteId : localeId),
+            }));
+        }
+
+        it('updates cookies when resolved site/locale differ from existing cookie values', async () => {
+            // Cookie says site-mx/es-MX, but URL path resolves to site-us/en-US
+            withExistingCookies('site-mx', 'es-MX');
+
+            const request = new Request('https://example.com/us/en-US/page');
+            const { response, context: ctx } = await run(configWithCaches(['cookie'], ['cookie']), request);
+
+            expect(ctx.site.id).toBe('site-us');
+            expect(ctx.locale.id).toBe('en-US');
+            expect(cookieSerialize).toHaveBeenCalledWith('site-us', 'site_id');
+            expect(cookieSerialize).toHaveBeenCalledWith('en-US', 'lng');
+            expect(response.headers.getSetCookie()).toHaveLength(2);
+        });
+
+        it('does not set cookies when resolved values match existing cookies', async () => {
+            // Cookie already matches what the URL resolves to
+            withExistingCookies('site-us', 'en-US');
+
+            const request = new Request('https://example.com/us/en-US/page');
+            const { response, context: ctx } = await run(configWithCaches(['cookie'], ['cookie']), request);
+
+            expect(ctx.site.id).toBe('site-us');
+            expect(ctx.locale.id).toBe('en-US');
+            expect(cookieSerialize).not.toHaveBeenCalled();
+            expect(response.headers.getSetCookie?.() ?? []).toHaveLength(0);
+        });
     });
 });

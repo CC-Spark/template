@@ -317,29 +317,31 @@ function getMultiSiteCookies(context) {
 /**
 * Helper function to determine if cookies should be set based on:
 * 1. Whether caching is enabled for each cookie type
-* 2. Whether cookies already exist in the incoming request
+* 2. Whether the resolved value differs from the existing cookie
 * 3. Whether cookies were already set by actions/loaders in the response
 *
 * @param request - Incoming request
 * @param response - Response from next()
 * @param settings - Multi-site settings with cookie instances and detection config
+* @param site - Resolved site for this request
+* @param locale - Resolved locale for this request
 * @returns Object with shouldSetSiteCookie and shouldSetLocaleCookie booleans
 */
-async function shouldSetCookies(request, response, settings) {
+async function shouldSetCookies(request, response, settings, site, locale) {
 	const cacheSite = settings.siteDetectionConfig.caches?.includes("cookie");
 	const cacheLocale = settings.localeDetectionConfig.caches?.includes("cookie");
 	if (!cacheSite && !cacheLocale) return {
 		shouldSetSiteCookie: false,
 		shouldSetLocaleCookie: false
 	};
-	const requestCookieHeader = request.headers.get("Cookie");
-	const [existingSiteCookie, existingLocaleCookie] = await Promise.all([settings.siteCookie.parse(requestCookieHeader), settings.localeCookie.parse(requestCookieHeader)]);
 	const responseSetCookies = response.headers.getSetCookie?.() || [];
 	const isSettingSiteCookieInResponse = responseSetCookies.some((cookie) => cookie.startsWith(`${settings.siteCookie.name}=`));
 	const isSettingLocaleCookieInResponse = responseSetCookies.some((cookie) => cookie.startsWith(`${settings.localeCookie.name}=`));
+	const requestCookieHeader = request.headers.get("Cookie");
+	const [existingSiteCookie, existingLocaleCookie] = await Promise.all([settings.siteCookie.parse(requestCookieHeader), settings.localeCookie.parse(requestCookieHeader)]);
 	return {
-		shouldSetSiteCookie: cacheSite && !existingSiteCookie && !isSettingSiteCookieInResponse,
-		shouldSetLocaleCookie: cacheLocale && !existingLocaleCookie && !isSettingLocaleCookieInResponse
+		shouldSetSiteCookie: cacheSite && !isSettingSiteCookieInResponse && existingSiteCookie !== site.id,
+		shouldSetLocaleCookie: cacheLocale && !isSettingLocaleCookieInResponse && existingLocaleCookie !== locale.id
 	};
 }
 /**
@@ -378,7 +380,7 @@ function createMultiSiteMiddleware(config) {
 		});
 		requestToLocaleMap.set(request, locale.id);
 		const response = await next();
-		const { shouldSetSiteCookie, shouldSetLocaleCookie } = await shouldSetCookies(request, response, settings);
+		const { shouldSetSiteCookie, shouldSetLocaleCookie } = await shouldSetCookies(request, response, settings, site, locale);
 		if (!shouldSetSiteCookie && !shouldSetLocaleCookie) return response;
 		const [siteSetCookie, localeSetCookie] = await Promise.all([shouldSetSiteCookie ? settings.siteCookie.serialize(site.id, { path: "/" }) : Promise.resolve(null), shouldSetLocaleCookie ? settings.localeCookie.serialize(locale.id, { path: "/" }) : Promise.resolve(null)]);
 		if (siteSetCookie) response.headers.append("Set-Cookie", siteSetCookie);

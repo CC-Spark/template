@@ -19,6 +19,7 @@ import type { TrackingConsent } from '@/types/tracking-consent';
 
 // NOTE: this will change once we migrate the config to runtime package
 import type { Locale, Site, Url } from '@salesforce/storefront-next-runtime/config';
+import type { DetectionConfig } from '@salesforce/storefront-next-runtime/multi-site';
 
 export type { Locale, Site };
 
@@ -89,6 +90,8 @@ export type Config = {
         };
         defaultSiteId: string;
         siteAliasMap?: Record<string, string>;
+        siteDetectionConfig?: DetectionConfig;
+        localeDetectionConfig?: DetectionConfig;
         hybrid: {
             enabled: boolean;
             legacyRoutes?: string[];
