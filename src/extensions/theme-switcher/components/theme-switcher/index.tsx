@@ -28,7 +28,7 @@ export default function ThemeSwitcher(): ReactElement {
     const familyId = useId();
     const { t } = useTranslation('themeSwitcher');
 
-    const [themeFamily, setThemeFamily] = useState<ThemeFamily>('foundations');
+    const [themeFamily, setThemeFamily] = useState<ThemeFamily>('market-street');
     const [themeMode, setThemeMode] = useState<ThemeMode>('light');
 
     // Apply theme whenever it changes
@@ -38,9 +38,9 @@ export default function ThemeSwitcher(): ReactElement {
         // Handle dark mode class
         html.classList.toggle('dark', themeMode === 'dark');
 
-        // Handle data-theme attribute for market street
-        if (themeFamily === 'market-street') {
-            html.setAttribute('data-theme', `market-street-${themeMode}`);
+        // Handle data-theme attribute for foundations
+        if (themeFamily === 'foundations') {
+            html.setAttribute('data-theme', `foundations-${themeMode}`);
         } else {
             html.removeAttribute('data-theme');
         }
@@ -65,8 +65,8 @@ export default function ThemeSwitcher(): ReactElement {
                     value={themeFamily}
                     onChange={handleFamilyChange}
                     aria-label={t('themeFamilyAriaLabel')}>
-                    <option value="foundations">{t('foundations')}</option>
                     <option value="market-street">{t('marketStreet')}</option>
+                    <option value="foundations">{t('foundations')}</option>
                 </NativeSelect>
             </div>
             <div>

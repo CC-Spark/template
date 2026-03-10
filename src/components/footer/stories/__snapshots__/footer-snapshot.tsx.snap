@@ -79,14 +79,14 @@ exports[`Footer stories snapshot > DarkBackground story renders and matches snap
                             id="_r_d_"
                           >
                             <option
-                              value="foundations"
-                            >
-                              Foundations
-                            </option>
-                            <option
                               value="market-street"
                             >
                               Market Street
+                            </option>
+                            <option
+                              value="foundations"
+                            >
+                              Foundations
                             </option>
                           </select>
                           <svg
@@ -531,14 +531,14 @@ exports[`Footer stories snapshot > Default story renders and matches snapshot 1`
                           id="_r_1_"
                         >
                           <option
-                            value="foundations"
-                          >
-                            Foundations
-                          </option>
-                          <option
                             value="market-street"
                           >
                             Market Street
+                          </option>
+                          <option
+                            value="foundations"
+                          >
+                            Foundations
                           </option>
                         </select>
                         <svg
@@ -1069,14 +1069,14 @@ exports[`Footer stories snapshot > LongPage story renders and matches snapshot 1
                             id="_r_5_"
                           >
                             <option
-                              value="foundations"
-                            >
-                              Foundations
-                            </option>
-                            <option
                               value="market-street"
                             >
                               Market Street
+                            </option>
+                            <option
+                              value="foundations"
+                            >
+                              Foundations
                             </option>
                           </select>
                           <svg
@@ -1521,14 +1521,14 @@ exports[`Footer stories snapshot > MobileView story renders and matches snapshot
                           id="_r_9_"
                         >
                           <option
-                            value="foundations"
-                          >
-                            Foundations
-                          </option>
-                          <option
                             value="market-street"
                           >
                             Market Street
+                          </option>
+                          <option
+                            value="foundations"
+                          >
+                            Foundations
                           </option>
                         </select>
                         <svg
