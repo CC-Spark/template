@@ -20,6 +20,7 @@ This reference provides detailed documentation for all configuration options ava
   - [search](#search) - Search-specific settings
   - [performance](#performance) - Performance optimization settings
   - [engagement](#engagement) - Analytics and engagement adapters
+  - [commerceAgent](#commerceagent) - Shopper Agent (Embedded Messaging / Agentforce)
   - [development](#development) - Development tools and features
 
 ---
@@ -1389,6 +1390,26 @@ Example:
 ```bash
 PUBLIC__app__engagement__analytics__pageViewsResetDuration=2000
 ```
+
+---
+
+## commerceAgent
+
+Shopper Agent (Salesforce Embedded Messaging / Agentforce) configuration. When enabled, the storefront loads the embedded service script and exposes a chat window that can be opened via the **Open chat** button or `useShopperAgent().actions.open()`.
+
+All values are overridden via `PUBLIC__app__commerceAgent__*` environment variables. Defaults in `config.server.ts` are empty or disabled. See [Shopper Agent README](../../components/shopper-agent/README.md) and `.env.default` for setup and per-environment configuration.
+
+| Path | Type | Description |
+|------|------|-------------|
+| `enabled` | `string` | `'true'` or `'false'`. Use `'false'` or omit to disable. |
+| `embeddedServiceName` | `string` | Deployment name from Embedded Service Deployments. |
+| `embeddedServiceEndpoint` | `string` | Base URL of the deployment. |
+| `scriptSourceUrl` | `string` | Full URL to the bootstrap script. |
+| `scrt2Url` | `string` | SCRT2 URL for your org. |
+| `salesforceOrgId` | `string` | Salesforce org ID (18 characters). |
+| `siteId` | `string` | Commerce site ID. |
+| `enableConversationContext` | `string` (optional) | `'true'` to send conversation context. |
+| `conversationContext` | `string[]` (optional) | Context keys when conversation context is enabled. |
 
 ---
 

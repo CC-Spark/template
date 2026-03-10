@@ -74,6 +74,7 @@ import RecommendersProvider from '@/providers/recommenders';
 // Components
 import { ToasterTheme } from '@/components/toast';
 import { TrackingConsentBanner } from '@/components/tracking-consent-banner';
+import ShopperAgent from '@/components/shopper-agent';
 
 // Hooks
 import { useExecutePendingAction } from '@/hooks/use-execute-pending-action';
@@ -365,6 +366,14 @@ export default function App({
     return (
         <ComposeProviders providers={providers}>
             <TargetProviders>{content}</TargetProviders>
+            {appConfig.commerceAgent?.enabled === 'true' && (
+                <ShopperAgent
+                    commerceAgentConfiguration={appConfig.commerceAgent}
+                    locale={i18next?.language ?? 'en-GB'}
+                    currency={currency}
+                    userId={clientAuth?.customerId}
+                />
+            )}
         </ComposeProviders>
     );
 }

@@ -230,6 +230,17 @@ export type Config = {
                 pageViewsResetDuration: number;
             };
         };
+        commerceAgent?: {
+            enabled: string;
+            embeddedServiceName: string;
+            embeddedServiceEndpoint: string;
+            scriptSourceUrl: string;
+            scrt2Url: string;
+            salesforceOrgId: string;
+            siteId: string;
+            enableConversationContext?: string;
+            conversationContext?: string[];
+        };
         development: {
             enableDevtools: boolean;
             hotReload: boolean;
