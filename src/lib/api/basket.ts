@@ -127,6 +127,7 @@ export async function mergeBasket(
         params: {
             query: {
                 merge: true,
+                populateCustomerDetails: true,
             },
         },
     });

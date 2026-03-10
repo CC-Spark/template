@@ -60,7 +60,11 @@ describe('getOrCreateBasket', () => {
         });
 
         expect(mockShopperBasketsClient.createBasket).toHaveBeenCalledWith({
-            params: {},
+            params: {
+                query: {
+                    populateCustomerDetails: true,
+                },
+            },
             body: { currency: 'USD' },
         });
         expect(result).toEqual(mockBasket);
@@ -93,7 +97,11 @@ describe('getOrCreateBasket', () => {
         });
 
         expect(mockShopperBasketsClient.createBasket).toHaveBeenCalledWith({
-            params: {},
+            params: {
+                query: {
+                    populateCustomerDetails: true,
+                },
+            },
             body: { currency: 'USD' },
         });
         expect(result).toEqual(mockBasket);
@@ -145,7 +153,11 @@ describe('getOrCreateBasket', () => {
         });
 
         expect(mockShopperBasketsClient.createBasket).toHaveBeenCalledWith({
-            params: {},
+            params: {
+                query: {
+                    populateCustomerDetails: true,
+                },
+            },
             body: { currency: 'USD' },
         });
         expect(result).toEqual(mockBasket);

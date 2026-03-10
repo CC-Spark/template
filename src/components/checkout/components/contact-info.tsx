@@ -71,7 +71,7 @@ export default function ContactInfo({
         defaultValues: {
             email: cart?.customerInfo?.email || customerContactInfo.email || '',
             countryCode: '',
-            phone: customerContactInfo.phone || '',
+            phone: cart?.customerInfo?.phone || customerContactInfo.phone || '',
         },
     });
 

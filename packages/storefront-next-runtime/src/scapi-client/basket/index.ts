@@ -67,7 +67,11 @@ export function createBasketHelpers(config: BasketHelpersConfig): BasketHelpersN
         const createBasket = async (): Promise<Basket> => {
             try {
                 const { data } = await shopperBasketsClient.createBasket({
-                    params: {},
+                    params: {
+                        query: {
+                            populateCustomerDetails: true,
+                        },
+                    },
                     body: { currency },
                 });
                 return data;

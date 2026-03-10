@@ -21,6 +21,7 @@ import CheckoutFormPage from '@/components/checkout/checkout-form-page';
 import CheckoutProvider from '@/components/checkout/utils/checkout-context';
 import { CheckoutErrorBoundary } from '@/components/checkout-error-boundary';
 import { Skeleton } from '@/components/ui/skeleton';
+import BasketProvider from '@/providers/basket';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
 import GoogleCloudApiProvider from '@/providers/google-cloud-api';
@@ -87,6 +88,7 @@ function CheckoutSkeleton() {
 
 function CheckoutView({
     loaderData: {
+        basket,
         customerProfile,
         shippingMethodsMap,
         productMap,
@@ -96,19 +98,26 @@ function CheckoutView({
         storesByStoreId,
     },
 }: RouteComponentProps<CheckoutPageData>) {
+    // Block rendering if basket is not available
+    if (!basket?.basketId) {
+        return <CheckoutSkeleton />;
+    }
+
     const customerProfileData = customerProfile ? use(customerProfile) : null;
     const shippingMethodsMapData = shippingMethodsMap ? use(shippingMethodsMap) : {};
 
     const content = (
-        <CheckoutProvider
-            customerProfile={customerProfileData ?? undefined}
-            shippingDefaultSet={shippingDefaultSet ?? Promise.resolve(undefined)}>
-            <CheckoutFormPage
-                shippingMethodsMap={shippingMethodsMapData}
-                productMapPromise={productMap}
-                promotionsPromise={promotions}
-            />
-        </CheckoutProvider>
+        <BasketProvider basket={basket}>
+            <CheckoutProvider
+                customerProfile={customerProfileData ?? undefined}
+                shippingDefaultSet={shippingDefaultSet ?? Promise.resolve(undefined)}>
+                <CheckoutFormPage
+                    shippingMethodsMap={shippingMethodsMapData}
+                    productMapPromise={productMap}
+                    promotionsPromise={promotions}
+                />
+            </CheckoutProvider>
+        </BasketProvider>
     );
 
     let finalContent = content;

@@ -72,7 +72,7 @@ interface GuestAccountCreationProps {
     onSaved: (shouldCreate: boolean) => void;
 }
 
-function GuestAccountCreation({ cart, customerProfile, onSaved }: GuestAccountCreationProps) {
+function GuestAccountCreation({ cart: _cart, customerProfile, onSaved }: GuestAccountCreationProps) {
     const isRegisteredUser = Boolean(customerProfile?.customer?.customerId);
 
     if (isRegisteredUser) {
@@ -89,8 +89,10 @@ function GuestAccountCreation({ cart, customerProfile, onSaved }: GuestAccountCr
         // Failed to parse customer lookup result
     }
 
-    const shouldShow =
-        customerLookupResult?.recommendation === 'guest' || (!cart?.customerInfo?.customerId && !customerLookupResult);
+    // Show registration option for guest users
+    // Note: cart.customerInfo.customerId may be populated by populateCustomerDetails hook for guest users,
+    // so we rely on customerProfile.customer.customerId (checked above) to determine registered vs guest status
+    const shouldShow = !customerLookupResult || customerLookupResult?.recommendation === 'guest';
 
     if (!shouldShow) {
         return null;

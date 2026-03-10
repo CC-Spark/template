@@ -50,6 +50,7 @@ import { isAddressEmpty } from '@/lib/address-utils';
  * Checkout page data type
  */
 export type CheckoutPageData = {
+    basket: ShopperBasketsV2.schemas['Basket'] | null;
     shippingMethodsMap?: Promise<Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>>;
     customerProfile?: Promise<CustomerProfile | null>;
     productMap: Promise<Record<string, ShopperProducts.schemas['Product']>>;
@@ -490,9 +491,10 @@ async function handleBasketPrefill(
         // Load the basket if it's not already loaded.
         const currentBasket = (await getBasket(context)).current ?? undefined;
 
-        if (shouldPrefillBasket(currentBasket, profile)) {
-            // Prefill basket with customer's saved data (email, shipping address, billing address)
+        const needsPrefill = shouldPrefillBasket(currentBasket, profile);
 
+        if (needsPrefill) {
+            // Prefill basket with customer's saved data (email, shipping address, billing address)
             return await initializeBasketForReturningCustomer(context, profile);
         }
 
@@ -554,6 +556,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<CheckoutPageData
                 const shippingMethodsMapPromise = fetchShippingMethodsForAllShipments(context, updatedBasket);
 
                 return {
+                    basket: updatedBasket,
                     shippingMethodsMap: shippingMethodsMapPromise,
                     customerProfile: Promise.resolve(customerProfile),
                     productMap: productMapPromise,
@@ -569,6 +572,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<CheckoutPageData
         const shippingMethodsMapPromise = fetchShippingMethodsForAllShipments(context, basket);
 
         return {
+            basket,
             shippingMethodsMap: shippingMethodsMapPromise,
             productMap: productMapPromise,
             promotions: promotionsPromise,
@@ -579,6 +583,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<CheckoutPageData
         };
     } catch {
         return {
+            basket: null,
             shippingMethodsMap: Promise.resolve({}),
             productMap: Promise.resolve({}),
             promotions: Promise.resolve({}),
