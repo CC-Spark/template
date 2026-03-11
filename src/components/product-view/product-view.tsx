@@ -26,7 +26,10 @@ import EstimatedDelivery from '@/components/estimated-delivery';
 import ReturnsAndWarranty from '@/components/returns-and-warranty';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import CollapsibleHtmlSection from '@/components/collapsible-section/collapsible-html-section';
+import CollapsibleSection from '@/components/collapsible-section';
+import ProductAdapterSection from '@/components/product-adapter-section';
 import { useTranslation } from 'react-i18next';
+import { resolvePdpSections } from '@/lib/pdp-sections';
 
 interface ProductViewProps {
     product: ShopperProducts.schemas['Product'];
@@ -68,6 +71,7 @@ export default function ProductView({ product, category }: ProductViewProps): Re
     });
 
     const { t } = useTranslation('product');
+    const sections = resolvePdpSections(product);
 
     return (
         <ProductViewProvider product={product} mode="add">
@@ -105,6 +109,18 @@ export default function ProductView({ product, category }: ProductViewProps): Re
                     <ProductCartActions product={product} />
                     <ReturnsAndWarranty productId={product.id} />
                     <EstimatedDelivery productId={product.id} />
+                    {sections.length > 0 && (
+                        <div className="mt-4">
+                            {sections.map((section) => (
+                                <CollapsibleSection key={section.adapterMethod} label={t(section.labelKey)}>
+                                    <ProductAdapterSection
+                                        adapterMethod={section.adapterMethod}
+                                        productId={product.id}
+                                    />
+                                </CollapsibleSection>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </ProductViewProvider>

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CollapsibleHtmlSection stories snapshot > BulletedList story renders and matches snapshot 1`] = `
+exports[`ProductAdapterSection stories snapshot > CareInstructions story renders and matches snapshot 1`] = `
 <details
   class="group border-b border-border"
   open=""
@@ -8,7 +8,7 @@ exports[`CollapsibleHtmlSection stories snapshot > BulletedList story renders an
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Features:
+    Care Instructions
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -36,13 +36,16 @@ exports[`CollapsibleHtmlSection stories snapshot > BulletedList story renders an
     >
       <ul>
         <li>
-          Premium cotton blend
+          Clean with a soft, dry cloth
         </li>
         <li>
-          Machine washable
+          Use leather conditioner monthly
         </li>
         <li>
-          Breathable fabric
+          Store in a cool, dry place
+        </li>
+        <li>
+          Use shoe trees to maintain shape
         </li>
       </ul>
     </div>
@@ -50,7 +53,39 @@ exports[`CollapsibleHtmlSection stories snapshot > BulletedList story renders an
 </details>
 `;
 
-exports[`CollapsibleHtmlSection stories snapshot > OpenByDefault story renders and matches snapshot 1`] = `
+exports[`ProductAdapterSection stories snapshot > CollapsedByDefault story renders and matches snapshot 1`] = `
+<details
+  class="group border-b border-border"
+>
+  <summary
+    class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
+  >
+    Materials
+    <svg
+      aria-hidden="true"
+      class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
+      fill="none"
+      height="24"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="m6 9 6 6 6-6"
+      />
+    </svg>
+  </summary>
+  <div
+    class="pb-4"
+  />
+</details>
+`;
+
+exports[`ProductAdapterSection stories snapshot > ContentComingSoon story renders and matches snapshot 1`] = `
 <details
   class="group border-b border-border"
   open=""
@@ -58,7 +93,46 @@ exports[`CollapsibleHtmlSection stories snapshot > OpenByDefault story renders a
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Details:
+    Materials
+    <svg
+      aria-hidden="true"
+      class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
+      fill="none"
+      height="24"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="m6 9 6 6 6-6"
+      />
+    </svg>
+  </summary>
+  <div
+    class="pb-4"
+  >
+    <p
+      class="text-sm text-muted-foreground"
+    >
+      Content coming soon.
+    </p>
+  </div>
+</details>
+`;
+
+exports[`ProductAdapterSection stories snapshot > Materials story renders and matches snapshot 1`] = `
+<details
+  class="group border-b border-border"
+  open=""
+>
+  <summary
+    class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
+  >
+    Materials
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -81,16 +155,29 @@ exports[`CollapsibleHtmlSection stories snapshot > OpenByDefault story renders a
     class="pb-4"
   >
     <div
-      class="text-sm text-foreground leading-relaxed"
+      class="text-sm text-foreground [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:list-none [&_ul]:m-0 [&_ul]:p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2 [&_li]:before:content-[''] [&_li]:before:h-1.5 [&_li]:before:w-1.5 [&_li]:before:flex-shrink-0 [&_li]:before:rounded-full [&_li]:before:bg-foreground"
       data-testid="html-fragment"
     >
-      This content is visible on load because defaultOpen is true.
+      <ul>
+        <li>
+          Premium full-grain leather upper
+        </li>
+        <li>
+          Cushioned leather insole
+        </li>
+        <li>
+          Durable rubber outsole
+        </li>
+        <li>
+          Metal hardware accents
+        </li>
+      </ul>
     </div>
   </div>
 </details>
 `;
 
-exports[`CollapsibleHtmlSection stories snapshot > PlainText story renders and matches snapshot 1`] = `
+exports[`ProductAdapterSection stories snapshot > Specifications story renders and matches snapshot 1`] = `
 <details
   class="group border-b border-border"
   open=""
@@ -98,47 +185,7 @@ exports[`CollapsibleHtmlSection stories snapshot > PlainText story renders and m
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Description:
-    <svg
-      aria-hidden="true"
-      class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
-      fill="none"
-      height="24"
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      viewBox="0 0 24 24"
-      width="24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="m6 9 6 6 6-6"
-      />
-    </svg>
-  </summary>
-  <div
-    class="pb-4"
-  >
-    <div
-      class="text-sm text-foreground leading-relaxed"
-      data-testid="html-fragment"
-    >
-      This is a premium quality product with excellent durability and comfort.
-    </div>
-  </div>
-</details>
-`;
-
-exports[`CollapsibleHtmlSection stories snapshot > Table2Column story renders and matches snapshot 1`] = `
-<details
-  class="group border-b border-border"
-  open=""
->
-  <summary
-    class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
-  >
-    Specifications:
+    Specifications
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -168,7 +215,15 @@ exports[`CollapsibleHtmlSection stories snapshot > Table2Column story renders an
         <tbody>
           <tr>
             <td>
-              Material:
+              Heel Height
+            </td>
+            <td>
+              1.5 inches
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Material
             </td>
             <td>
               Full-grain leather
@@ -176,10 +231,18 @@ exports[`CollapsibleHtmlSection stories snapshot > Table2Column story renders an
           </tr>
           <tr>
             <td>
-              Sole:
+              Sole
             </td>
             <td>
               Rubber
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Closure
+            </td>
+            <td>
+              Lace-up with side zip
             </td>
           </tr>
         </tbody>
@@ -189,14 +252,15 @@ exports[`CollapsibleHtmlSection stories snapshot > Table2Column story renders an
 </details>
 `;
 
-exports[`CollapsibleHtmlSection stories snapshot > ToggleInteraction story renders and matches snapshot 1`] = `
+exports[`ProductAdapterSection stories snapshot > UsageInstructions story renders and matches snapshot 1`] = `
 <details
   class="group border-b border-border"
+  open=""
 >
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Click to expand:
+    Usage Instructions
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -217,6 +281,15 @@ exports[`CollapsibleHtmlSection stories snapshot > ToggleInteraction story rende
   </summary>
   <div
     class="pb-4"
-  />
+  >
+    <div
+      class="text-sm text-foreground leading-relaxed"
+      data-testid="html-fragment"
+    >
+      <p>
+        For best results, condition leather regularly with a quality leather conditioner. Avoid prolonged exposure to water and direct sunlight.
+      </p>
+    </div>
+  </div>
 </details>
 `;

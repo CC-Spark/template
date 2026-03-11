@@ -27,9 +27,13 @@ exports[`CollapsibleSection stories snapshot > Default story renders and matches
       />
     </svg>
   </summary>
-  <p>
-    This is the collapsible body content.
-  </p>
+  <div
+    class="pb-4"
+  >
+    <p>
+      This is the collapsible body content.
+    </p>
+  </div>
 </details>
 `;
 
@@ -60,9 +64,13 @@ exports[`CollapsibleSection stories snapshot > OpenByDefault story renders and m
       />
     </svg>
   </summary>
-  <p>
-    This content is visible on load.
-  </p>
+  <div
+    class="pb-4"
+  >
+    <p>
+      This content is visible on load.
+    </p>
+  </div>
 </details>
 `;
 
@@ -92,9 +100,9 @@ exports[`CollapsibleSection stories snapshot > ToggleInteraction story renders a
       />
     </svg>
   </summary>
-  <p>
-    Expanded body content.
-  </p>
+  <div
+    class="pb-4"
+  />
 </details>
 `;
 
@@ -124,8 +132,8 @@ exports[`CollapsibleSection stories snapshot > WithCustomClass story renders and
       />
     </svg>
   </summary>
-  <p>
-    Custom-styled collapsible content.
-  </p>
+  <div
+    class="pb-4"
+  />
 </details>
 `;

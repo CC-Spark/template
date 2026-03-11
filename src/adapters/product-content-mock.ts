@@ -246,48 +246,32 @@ const MOCK_PRODUCT_DESCRIPTION_DATA: ProductDescriptionData = {
  * Mock ingredients & materials (Ingredients & Materials collapsible section).
  */
 const MOCK_INGREDIENTS_DATA: IngredientsData = {
-    heading: 'Ingredients & Materials',
-    items: [
-        'Premium full-grain leather upper',
-        'Cushioned leather insole',
-        'Durable rubber outsole',
-        'Metal hardware accents',
-    ],
+    html: '<ul><li>Premium full-grain leather upper</li><li>Cushioned leather insole</li><li>Durable rubber outsole</li><li>Metal hardware accents</li></ul>',
+    contentType: 'bulleted-list',
 };
 
 /**
  * Mock usage instructions (Usage Instructions collapsible section).
  */
 const MOCK_USAGE_INSTRUCTIONS_DATA: UsageInstructionsData = {
-    heading: 'Usage Instructions',
-    content:
-        'For best results, condition leather regularly with a quality leather conditioner. Avoid prolonged exposure to water and direct sunlight.',
+    html: '<p>For best results, condition leather regularly with a quality leather conditioner. Avoid prolonged exposure to water and direct sunlight.</p>',
+    contentType: 'plain-text',
 };
 
 /**
  * Mock care instructions (Care Instructions collapsible section).
  */
 const MOCK_CARE_INSTRUCTIONS_DATA: CareInstructionsData = {
-    heading: 'Care Instructions',
-    items: [
-        'Clean with a soft, dry cloth',
-        'Use leather conditioner monthly',
-        'Store in a cool, dry place',
-        'Use shoe trees to maintain shape',
-    ],
+    html: '<ul><li>Clean with a soft, dry cloth</li><li>Use leather conditioner monthly</li><li>Store in a cool, dry place</li><li>Use shoe trees to maintain shape</li></ul>',
+    contentType: 'bulleted-list',
 };
 
 /**
  * Mock tech specs (Technical Specs collapsible section).
  */
 const MOCK_TECH_SPECS_DATA: TechSpecsData = {
-    heading: 'Technical Specs',
-    specs: [
-        { key: 'Heel Height', value: '1.5 inches' },
-        { key: 'Material', value: 'Full-grain leather' },
-        { key: 'Sole', value: 'Rubber' },
-        { key: 'Closure', value: 'Lace-up with side zip' },
-    ],
+    html: '<table><tr><td>Heel Height</td><td>1.5 inches</td></tr><tr><td>Material</td><td>Full-grain leather</td></tr><tr><td>Sole</td><td>Rubber</td></tr><tr><td>Closure</td><td>Lace-up with side zip</td></tr></table>',
+    contentType: 'table-2-column',
 };
 
 /**
@@ -468,9 +452,12 @@ export interface ProductContentMockAdapterConfig {
 }
 
 /**
- * Simulates network delay for mock API calls
+ * Simulates network delay for mock API calls.
+ * Zero delay resolves as a microtask (Promise.resolve) rather than a macrotask
+ * (setTimeout 0), which allows test utilities like act() to flush it correctly.
  */
-const simulateDelay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const simulateDelay = (ms: number): Promise<void> =>
+    ms === 0 ? Promise.resolve() : new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Creates a mock Product Content adapter for development.

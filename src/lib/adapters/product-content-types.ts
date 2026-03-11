@@ -18,6 +18,7 @@ import type {
     BuyNowPayLaterMessageData,
     CareInstructionsData,
     EstimatedDeliveryData,
+    HtmlContent,
     IngredientsData,
     ProductDescriptionData,
     ReturnsAndWarrantyData,
@@ -128,3 +129,18 @@ export interface ProductContentAdapter {
      */
     getShippingEstimates?(productId?: string, zipcode?: string): Promise<ShippingEstimate>;
 }
+
+/**
+ * Union of ProductContentAdapter method names whose return type is Promise<HtmlContent>.
+ * Automatically stays in sync as the adapter interface evolves — no manual string union to maintain.
+ *
+ * Required<> strips the optional ? marker from each property so the extends check matches
+ * the function type rather than `functionType | undefined`.
+ */
+export type HtmlContentAdapterMethod = {
+    [K in keyof ProductContentAdapter]-?: Required<ProductContentAdapter>[K] extends (
+        productId?: string
+    ) => Promise<HtmlContent>
+        ? K
+        : never;
+}[keyof ProductContentAdapter];
