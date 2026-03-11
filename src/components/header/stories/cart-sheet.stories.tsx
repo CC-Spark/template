@@ -26,6 +26,7 @@ import { basketWithOneItem } from '@/components/__mocks__/basket-with-dress';
 import basketWithOneItemSnapshot from '@/components/__mocks__/basket-with-dress-snapshot';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 function CartSheetStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -124,11 +125,13 @@ In Storybook, this route returns mock product data for demonstration purposes.
     decorators: [
         (Story) => (
             <ConfigProvider config={mockConfig}>
-                <CartSheetStoryHarness>
-                    <div className="p-8">
-                        <Story />
-                    </div>
-                </CartSheetStoryHarness>
+                <CurrencyWrapper currency="GBP">
+                    <CartSheetStoryHarness>
+                        <div className="p-8">
+                            <Story />
+                        </div>
+                    </CartSheetStoryHarness>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

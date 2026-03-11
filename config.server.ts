@@ -262,7 +262,7 @@ export default defineConfig({
         // make sure the app can fully be translated to another language
         i18n: {
             fallbackLng: 'en-GB',
-            supportedLngs: ['it-IT', 'en-GB'], // Your supported languages, the fallback should be LAST
+            supportedLngs: ['it-IT', 'en-US', 'en-GB'], // Your supported languages, the fallback should be LAST
         },
         // Global UI configuration and component settings
         // See CONFIG-OPTIONS.md#global for detailed documentation

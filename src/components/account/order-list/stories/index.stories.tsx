@@ -20,6 +20,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { OrderList, OrderListHeader, OrderListBody, type Order } from '../index';
 import heroNewArrivals from '/images/hero-new-arrivals.webp';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 function ActionLogger({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -167,7 +168,9 @@ const meta: Meta<typeof OrderList> = {
     decorators: [
         (Story) => (
             <ActionLogger>
-                <Story />
+                <CurrencyWrapper currency="GBP">
+                    <Story />
+                </CurrencyWrapper>
             </ActionLogger>
         ),
     ],

@@ -21,6 +21,7 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { checkoutWithMultipleItems, checkoutWithOneItem } from '@/components/__mocks__/checkout-data';
 import { standardProd } from '@/components/__mocks__/standard-product-2';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 
 function MyCartStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -76,7 +77,9 @@ A collapsible cart component that displays cart items in an accordion format. Us
     decorators: [
         (Story) => (
             <MyCartStoryHarness>
-                <Story />
+                <CurrencyWrapper currency="GBP">
+                    <Story />
+                </CurrencyWrapper>
             </MyCartStoryHarness>
         ),
     ],

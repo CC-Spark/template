@@ -20,11 +20,11 @@ const formatterCache = new Map<string, Intl.NumberFormat>();
 /**
  * Format a number as a currency string
  * @param price - The price to format
- * @param locale - The locale to use for formatting (default: en-GB)
- * @param currency - The currency code to use (default: GBP)
+ * @param locale - The locale to use for formatting
+ * @param currency - The currency code to use
  * @returns Formatted currency string
  */
-export function formatCurrency(price: number, locale = 'en-GB', currency = 'GBP'): string {
+export function formatCurrency(price: number, locale: string, currency: string): string {
     const key = `${locale}:${currency}`;
     if (!formatterCache.has(key)) {
         formatterCache.set(

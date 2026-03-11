@@ -20,6 +20,7 @@ import { action } from 'storybook/actions';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import ProductGrid from '../index';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import {
     mockProductSearchItem,
     mockStandardProductHit,
@@ -148,9 +149,11 @@ Features:
     decorators: [
         (Story) => (
             <ActionLogger>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-background">
-                    <Story />
-                </div>
+                <CurrencyWrapper currency="GBP">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-background">
+                        <Story />
+                    </div>
+                </CurrencyWrapper>
             </ActionLogger>
         ),
     ],

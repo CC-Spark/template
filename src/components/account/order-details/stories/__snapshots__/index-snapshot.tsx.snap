@@ -146,11 +146,11 @@ exports[`OrderDetails stories snapshot > Default story renders and matches snaps
                             class="items-center gap-2"
                           >
                             <span
-                              aria-label="Current price: $61.99"
+                              aria-label="Current price: £61.99"
                               aria-live="polite"
                               class="leading-7 [&:not(:first-child)]:mt-6 text-left font-semibold"
                             >
-                              $61.99
+                              £61.99
                             </span>
                             <span
                               aria-atomic="true"
@@ -158,7 +158,7 @@ exports[`OrderDetails stories snapshot > Default story renders and matches snaps
                               class="sr-only"
                             >
                               First Product
-                              Current price: $61.99
+                              Current price: £61.99
                             </span>
                              
                           </div>
@@ -291,7 +291,7 @@ exports[`OrderDetails stories snapshot > Default story renders and matches snaps
                         Subtotal
                       </span>
                       <span>
-                        $61.99
+                        £61.99
                       </span>
                     </div>
                     <div
@@ -337,7 +337,7 @@ exports[`OrderDetails stories snapshot > Default story renders and matches snaps
                       <span
                         class="font-bold"
                       >
-                        $71.38
+                        £71.38
                       </span>
                     </div>
                   </div>
@@ -500,7 +500,7 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                                 <span
                                   class="text-success font-medium"
                                 >
-                                  $0.00
+                                  £0.00
                                 </span>
                               </span>
                               <div
@@ -560,11 +560,11 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                             class="items-center gap-2"
                           >
                             <span
-                              aria-label="Current price: $0.00"
+                              aria-label="Current price: £0.00"
                               aria-live="polite"
                               class="leading-7 [&:not(:first-child)]:mt-6 text-left font-semibold"
                             >
-                              $0.00
+                              £0.00
                             </span>
                             <span
                               aria-atomic="true"
@@ -572,7 +572,7 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                               class="sr-only"
                             >
                               Product for Alice
-                              Current price: $0.00
+                              Current price: £0.00
                             </span>
                              
                           </div>
@@ -704,7 +704,7 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                                 <span
                                   class="text-success font-medium"
                                 >
-                                  $0.00
+                                  £0.00
                                 </span>
                               </span>
                               <div
@@ -764,11 +764,11 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                             class="items-center gap-2"
                           >
                             <span
-                              aria-label="Current price: $0.00"
+                              aria-label="Current price: £0.00"
                               aria-live="polite"
                               class="leading-7 [&:not(:first-child)]:mt-6 text-left font-semibold"
                             >
-                              $0.00
+                              £0.00
                             </span>
                             <span
                               aria-atomic="true"
@@ -776,7 +776,7 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                               class="sr-only"
                             >
                               Product for Bob
-                              Current price: $0.00
+                              Current price: £0.00
                             </span>
                              
                           </div>
@@ -873,7 +873,7 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                         Subtotal
                       </span>
                       <span>
-                        $30.00
+                        £30.00
                       </span>
                     </div>
                     <div
@@ -919,7 +919,7 @@ exports[`OrderDetails stories snapshot > MultipleShipments story renders and mat
                       <span
                         class="font-bold"
                       >
-                        $30.00
+                        £30.00
                       </span>
                     </div>
                   </div>
@@ -1086,11 +1086,11 @@ exports[`OrderDetails stories snapshot > ShippedStatus story renders and matches
                             class="items-center gap-2"
                           >
                             <span
-                              aria-label="Current price: $61.99"
+                              aria-label="Current price: £61.99"
                               aria-live="polite"
                               class="leading-7 [&:not(:first-child)]:mt-6 text-left font-semibold"
                             >
-                              $61.99
+                              £61.99
                             </span>
                             <span
                               aria-atomic="true"
@@ -1098,7 +1098,7 @@ exports[`OrderDetails stories snapshot > ShippedStatus story renders and matches
                               class="sr-only"
                             >
                               First Product
-                              Current price: $61.99
+                              Current price: £61.99
                             </span>
                              
                           </div>
@@ -1231,7 +1231,7 @@ exports[`OrderDetails stories snapshot > ShippedStatus story renders and matches
                         Subtotal
                       </span>
                       <span>
-                        $61.99
+                        £61.99
                       </span>
                     </div>
                     <div
@@ -1277,7 +1277,7 @@ exports[`OrderDetails stories snapshot > ShippedStatus story renders and matches
                       <span
                         class="font-bold"
                       >
-                        $71.38
+                        £71.38
                       </span>
                     </div>
                   </div>

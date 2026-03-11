@@ -16,6 +16,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { action } from 'storybook/actions';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { OrderListItem, type OrderListItemData } from '../index';
 import heroNewArrivals from '/images/hero-new-arrivals.webp';
 
@@ -23,7 +24,7 @@ const baseOrder: OrderListItemData = {
     orderNo: 'ORD-2024-001',
     orderDate: '2024-09-14T10:30:00Z',
     total: 48.38,
-    currency: 'USD',
+    currency: 'GBP',
     status: 'ready_for_pickup',
     statusLabel: 'Ready for Pickup',
     itemCount: 2,
@@ -60,6 +61,13 @@ const meta: Meta<typeof OrderListItem> = {
     args: {
         onViewDetails: action('onViewDetails'),
     },
+    decorators: [
+        (Story) => (
+            <CurrencyWrapper currency="GBP">
+                <Story />
+            </CurrencyWrapper>
+        ),
+    ],
 };
 
 export default meta;

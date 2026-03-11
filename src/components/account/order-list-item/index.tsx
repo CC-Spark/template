@@ -22,6 +22,7 @@ import { Typography } from '@/components/typography';
 import { useTranslation } from 'react-i18next';
 import { Check, X, ChevronRight, MapPin } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
+import { useCurrency } from '@/providers/currency';
 import { cn } from '@/lib/utils';
 
 /**
@@ -315,6 +316,7 @@ export function OrderListItem({
 }: OrderListItemProps): ReactElement {
     const { t, i18n } = useTranslation('account');
     const invalidDateLabel = t('orders.invalidDate');
+    const siteCurrency = useCurrency();
 
     const productItems = order.productItems ?? [];
     const visibleProducts = productItems.slice(0, maxThumbnails);
@@ -345,7 +347,7 @@ export function OrderListItem({
                                     {t('orders.total')}
                                 </Typography>
                                 <Typography variant="small" as="p" className="text-foreground">
-                                    {formatCurrency(order.total, order.currency)}
+                                    {formatCurrency(order.total, i18n.language, order.currency ?? siteCurrency)}
                                 </Typography>
                             </div>
                             <div>

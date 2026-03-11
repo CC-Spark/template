@@ -19,6 +19,7 @@ import {
     SLAS_AUTH_ENDPOINTS,
     type Middleware,
 } from '@salesforce/storefront-next-runtime/scapi';
+import { multiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
 import { AUTH_TOKEN_INVALID_ERROR, authContext, authStorageContext } from '@/middlewares/auth.utils';
 import { correlationContext } from '@/lib/correlation';
 import { maintenanceContext } from '@/lib/maintenance';
@@ -59,7 +60,12 @@ export const MAINTENANCE_ERROR = 'MAINTENANCE_ERROR';
 export function createApiClients(context: RouterContextProvider | Readonly<RouterContextProvider>) {
     const appOrigin = getAppOrigin();
     const config = getConfig(context);
-    const { shortCode, proxy, callback, organizationId, siteId, clientId } = config.commerce.api;
+    const { shortCode, proxy, callback, organizationId, siteId: configSiteId, clientId } = config.commerce.api;
+
+    // Use the site from multi-site context (set by multi-site middleware on the server)
+    // Falls back to config.commerce.api.siteId on the client where multi-site context is not available
+    const multiSite = context.get(multiSiteContext);
+    const siteId = multiSite?.site.id ?? configSiteId;
     const scapiProxyHost = typeof window === 'undefined' ? process.env.SCAPI_PROXY_HOST : undefined;
 
     // @ts-expect-error: __DEV__ is a global variable existing to support dead code elimination

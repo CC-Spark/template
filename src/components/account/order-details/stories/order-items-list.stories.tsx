@@ -36,7 +36,7 @@ const meta: Meta<typeof OrderItemsList> = {
         (Story) => (
             <MemoryRouter>
                 <ConfigWrapper>
-                    <CurrencyWrapper>
+                    <CurrencyWrapper currency="GBP">
                         <Story />
                     </CurrencyWrapper>
                 </ConfigWrapper>

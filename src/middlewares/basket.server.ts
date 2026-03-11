@@ -17,6 +17,7 @@ import { createContext, createCookie, type MiddlewareFunction, type RouterContex
 import { type ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
 import { getCookieConfig } from '@/lib/cookie-utils';
+import { currencyContext } from '@/lib/currency';
 
 // Types
 type Basket = ShopperBasketsV2.schemas['Basket'];
@@ -83,16 +84,12 @@ export const BASKET_COOKIE_NAME = '__sfdc_basket';
 const GUEST_BASKET_COOKIE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const REGISTERED_BASKET_COOKIE_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 const DEFAULT_BASKET_MIDDLEWARE_CONFIG: Required<
-    Pick<
-        BasketMiddlewareConfig,
-        'mode' | 'cookieName' | 'cookieDurationRegistered' | 'cookieDurationGuest' | 'currency'
-    >
+    Pick<BasketMiddlewareConfig, 'mode' | 'cookieName' | 'cookieDurationRegistered' | 'cookieDurationGuest'>
 > = {
     mode: 'lazy',
     cookieName: BASKET_COOKIE_NAME,
     cookieDurationRegistered: REGISTERED_BASKET_COOKIE_DURATION_MS,
     cookieDurationGuest: GUEST_BASKET_COOKIE_DURATION_MS,
-    currency: import.meta.env.PUBLIC__app__site__currency ?? 'GBP',
 };
 
 export const basketResourceContext = createContext<BasketResource | undefined>();
@@ -258,12 +255,15 @@ const getBasketExpiryDate = (
  * ```
  */
 export const createBasketMiddleware = (config: BasketMiddlewareConfig = {}): MiddlewareFunction<Response> => {
-    const { mode, cookieName, cookieDurationRegistered, cookieDurationGuest, currency, calculateBasketSnapshot } = {
+    const { mode, cookieName, cookieDurationRegistered, cookieDurationGuest, calculateBasketSnapshot } = {
         ...DEFAULT_BASKET_MIDDLEWARE_CONFIG,
         ...config,
     };
+    const configCurrency = config.currency;
 
     return async ({ request, context }, next) => {
+        // Resolve currency: explicit config override → currencyContext (set by currency middleware)
+        const currency = configCurrency ?? context.get(currencyContext) ?? '';
         let basket: Basket | undefined = undefined;
         let snapshot: BasketSnapshot | null = null;
 
@@ -364,7 +364,7 @@ export const getBasket = async (
 
     const basketId = basketResource.snapshot?.basketId;
     const metadata = context.get(basketMetadataContext);
-    const currency = metadata?.currency ?? DEFAULT_BASKET_MIDDLEWARE_CONFIG.currency;
+    const currency = metadata?.currency ?? context.get(currencyContext) ?? '';
     const calculateBasketSnapshot = metadata?.calculateSnapshot;
 
     try {
@@ -466,7 +466,7 @@ export const destroyBasket = (context: Readonly<RouterContextProvider>): void =>
     const metadata = context.get(basketMetadataContext);
     context.set(basketMetadataContext, {
         calculateSnapshot: metadata?.calculateSnapshot,
-        currency: metadata?.currency ?? DEFAULT_BASKET_MIDDLEWARE_CONFIG.currency,
+        currency: metadata?.currency ?? context.get(currencyContext) ?? '',
         basketMarkedForDeletion: true,
     });
 };

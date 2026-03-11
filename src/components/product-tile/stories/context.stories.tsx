@@ -18,6 +18,7 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { ConfigProvider } from '@/config/context';
 import { mockConfig } from '@/test-utils/config';
+import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { ProductTileProvider, useProductTileContext } from '../context';
 
 /**
@@ -63,9 +64,11 @@ const meta: Meta = {
     decorators: [
         (Story) => (
             <ConfigProvider config={mockConfig}>
-                <ProductTileProvider>
-                    <Story />
-                </ProductTileProvider>
+                <CurrencyWrapper currency="GBP">
+                    <ProductTileProvider>
+                        <Story />
+                    </ProductTileProvider>
+                </CurrencyWrapper>
             </ConfigProvider>
         ),
     ],

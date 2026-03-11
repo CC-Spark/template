@@ -100,7 +100,7 @@ const meta: Meta<typeof OrderDetails> = {
                 const inRouter = useInRouterContext();
                 const content = (
                     <ConfigWrapper>
-                        <CurrencyWrapper>
+                        <CurrencyWrapper currency="GBP">
                             <Story />
                         </CurrencyWrapper>
                     </ConfigWrapper>

@@ -15,7 +15,7 @@
  */
 import { render, screen } from '@testing-library/react';
 import { describe, test, expect } from 'vitest';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { OrderItemsList } from './order-items-list';
 import { getTranslation } from '@/lib/i18next';
 import { ConfigWrapper } from '@/test-utils/config';
@@ -24,16 +24,24 @@ import { CurrencyWrapper } from '@/test-utils/context-provider';
 const { t } = getTranslation();
 
 describe('OrderItemsList', () => {
-    const renderOrderItemsList = (items: any[], productsById: Record<string, any> = {}) =>
-        render(
-            <MemoryRouter>
-                <ConfigWrapper>
-                    <CurrencyWrapper>
-                        <OrderItemsList items={items} productsById={productsById} />
-                    </CurrencyWrapper>
-                </ConfigWrapper>
-            </MemoryRouter>
+    const renderOrderItemsList = (items: any[], productsById: Record<string, any> = {}) => {
+        const router = createMemoryRouter(
+            [
+                {
+                    path: '/',
+                    element: (
+                        <ConfigWrapper>
+                            <CurrencyWrapper>
+                                <OrderItemsList items={items} productsById={productsById} />
+                            </CurrencyWrapper>
+                        </ConfigWrapper>
+                    ),
+                },
+            ],
+            { initialEntries: ['/'] }
         );
+        return render(<RouterProvider router={router} />);
+    };
 
     test('renders empty fallback when no items', () => {
         renderOrderItemsList([]);
@@ -143,32 +151,6 @@ describe('OrderItemsList', () => {
         ];
         renderOrderItemsList(items, {});
         expect(screen.getByText(t('account:orders.quantityLabel', { count: 1 }))).toBeInTheDocument();
-    });
-
-    test('does not render price when currency is not available', () => {
-        render(
-            <MemoryRouter>
-                <ConfigWrapper>
-                    <OrderItemsList
-                        items={[
-                            {
-                                itemId: 'item-1',
-                                productId: 'prod-1',
-                                productName: 'Product',
-                                quantity: 1,
-                                basePrice: 25,
-                                price: 25,
-                                priceAfterItemDiscount: 25,
-                                shipmentId: 'me',
-                            },
-                        ]}
-                        productsById={{}}
-                    />
-                </ConfigWrapper>
-            </MemoryRouter>
-        );
-        expect(screen.getByText('Product')).toBeInTheDocument();
-        expect(screen.queryByText('$25.00')).not.toBeInTheDocument();
     });
 
     test('renders product image when product has imageGroups', () => {

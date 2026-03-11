@@ -22,6 +22,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
 import i18next from 'i18next';
 import { ConfigProvider } from '@/config';
+import { SiteProvider, type Site } from '@salesforce/storefront-next-runtime/multi-site';
 import LocaleSwitcher from './index';
 
 const { t } = getTranslation();
@@ -33,6 +34,18 @@ const mockConfig = {
         supportedLngs: ['en-GB', 'it-IT'],
     },
 } as any;
+
+// Mock site with supported locales that match the i18n config
+const mockSite: Site = {
+    id: 'RefArchGlobal',
+    defaultLocale: 'en-GB',
+    defaultCurrency: 'GBP',
+    supportedLocales: [
+        { id: 'en-GB', preferredCurrency: 'GBP' },
+        { id: 'it-IT', preferredCurrency: 'EUR' },
+    ],
+    supportedCurrencies: ['GBP', 'EUR'],
+};
 
 const mockFetcherSubmit = vi.fn();
 const mockFetcher = {
@@ -60,7 +73,9 @@ const renderWithRouter = ({ initialLanguage = 'en-GB' }: { initialLanguage?: str
                 path: '/',
                 element: (
                     <ConfigProvider config={mockConfig}>
-                        <LocaleSwitcher />
+                        <SiteProvider value={mockSite}>
+                            <LocaleSwitcher />
+                        </SiteProvider>
                     </ConfigProvider>
                 ),
             },
@@ -255,7 +270,9 @@ describe('LocaleSwitcher', () => {
                         path: '/',
                         element: (
                             <ConfigProvider config={mockConfig}>
-                                <LocaleSwitcher />
+                                <SiteProvider value={mockSite}>
+                                    <LocaleSwitcher />
+                                </SiteProvider>
                             </ConfigProvider>
                         ),
                     },

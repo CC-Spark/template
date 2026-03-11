@@ -25,10 +25,15 @@ export function CurrencyProvider({ value, children }: PropsWithChildren<{ value:
  * React hook to get currency from context (for use in components).
  * Currency is automatically derived from the current locale.
  * @returns The current currency code
+ * @throws If called outside of a CurrencyProvider
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export function useCurrency(): string | undefined {
+export function useCurrency(): string {
     const currency = useContext(CurrencyContext);
 
-    return currency ?? undefined;
+    if (!currency) {
+        throw new Error('useCurrency must be used within a CurrencyProvider');
+    }
+
+    return currency;
 }

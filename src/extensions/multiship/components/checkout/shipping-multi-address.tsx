@@ -437,7 +437,7 @@ export default function ShippingMultiAddress({
                                         <Typography variant="h3" className="font-bold text-lg">
                                             <CurrentPrice
                                                 price={currentPrice}
-                                                currency={currency as string}
+                                                currency={currency}
                                                 className="text-foreground text-lg font-bold"
                                             />
                                         </Typography>
