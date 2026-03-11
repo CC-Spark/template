@@ -24,6 +24,18 @@ exports[`OrderListItem stories snapshot > Cancelled story renders and matches sn
             <p
               class="text-muted-foreground text-left text-xs"
             >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-004
+            </p>
+          </div>
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
               Order Date
             </p>
             <p
@@ -184,6 +196,18 @@ exports[`OrderListItem stories snapshot > Default story renders and matches snap
             <p
               class="text-muted-foreground text-left text-xs"
             >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-001
+            </p>
+          </div>
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
               Order Date
             </p>
             <p
@@ -314,6 +338,18 @@ exports[`OrderListItem stories snapshot > Delivered story renders and matches sn
         <div
           class="flex flex-wrap gap-x-8 gap-y-2"
         >
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-003
+            </p>
+          </div>
           <div>
             <p
               class="text-muted-foreground text-left text-xs"
@@ -620,6 +656,18 @@ exports[`OrderListItem stories snapshot > InTransit story renders and matches sn
             <p
               class="text-muted-foreground text-left text-xs"
             >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-002
+            </p>
+          </div>
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
               Order Date
             </p>
             <p
@@ -736,6 +784,18 @@ exports[`OrderListItem stories snapshot > MixedImages story renders and matches 
         <div
           class="flex flex-wrap gap-x-8 gap-y-2"
         >
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-008
+            </p>
+          </div>
           <div>
             <p
               class="text-muted-foreground text-left text-xs"
@@ -901,6 +961,18 @@ exports[`OrderListItem stories snapshot > OrdersList story renders and matches s
           <div
             class="flex flex-wrap gap-x-8 gap-y-2"
           >
+            <div>
+              <p
+                class="text-muted-foreground text-left text-xs"
+              >
+                Order Number
+              </p>
+              <p
+                class="text-sm leading-none text-left text-foreground font-medium"
+              >
+                ORD-2024-001
+              </p>
+            </div>
             <div>
               <p
                 class="text-muted-foreground text-left text-xs"
@@ -1105,6 +1177,18 @@ exports[`OrderListItem stories snapshot > OrdersList story renders and matches s
               <p
                 class="text-muted-foreground text-left text-xs"
               >
+                Order Number
+              </p>
+              <p
+                class="text-sm leading-none text-left text-foreground font-medium"
+              >
+                ORD-2024-002
+              </p>
+            </div>
+            <div>
+              <p
+                class="text-muted-foreground text-left text-xs"
+              >
                 Order Date
               </p>
               <p
@@ -1218,6 +1302,18 @@ exports[`OrderListItem stories snapshot > OrdersList story renders and matches s
           <div
             class="flex flex-wrap gap-x-8 gap-y-2"
           >
+            <div>
+              <p
+                class="text-muted-foreground text-left text-xs"
+              >
+                Order Number
+              </p>
+              <p
+                class="text-sm leading-none text-left text-foreground font-medium"
+              >
+                ORD-2024-003
+              </p>
+            </div>
             <div>
               <p
                 class="text-muted-foreground text-left text-xs"
@@ -1525,6 +1621,18 @@ exports[`OrderListItem stories snapshot > PartiallyDelivered story renders and m
             <p
               class="text-muted-foreground text-left text-xs"
             >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-005
+            </p>
+          </div>
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
               Order Date
             </p>
             <p
@@ -1699,6 +1807,18 @@ exports[`OrderListItem stories snapshot > WithImageAlt story renders and matches
             <p
               class="text-muted-foreground text-left text-xs"
             >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-007
+            </p>
+          </div>
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
               Order Date
             </p>
             <p
@@ -1829,6 +1949,18 @@ exports[`OrderListItem stories snapshot > WithPickupLocation story renders and m
         <div
           class="flex flex-wrap gap-x-8 gap-y-2"
         >
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-001
+            </p>
+          </div>
           <div>
             <p
               class="text-muted-foreground text-left text-xs"
@@ -2032,6 +2164,18 @@ exports[`OrderListItem stories snapshot > WithoutImages story renders and matche
         <div
           class="flex flex-wrap gap-x-8 gap-y-2"
         >
+          <div>
+            <p
+              class="text-muted-foreground text-left text-xs"
+            >
+              Order Number
+            </p>
+            <p
+              class="text-sm leading-none text-left text-foreground font-medium"
+            >
+              ORD-2024-006
+            </p>
+          </div>
           <div>
             <p
               class="text-muted-foreground text-left text-xs"

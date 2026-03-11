@@ -57,7 +57,7 @@ export function OrderItemsList({ items, productsById }: OrderItemsListProps): Re
         <ul className="space-y-4">
             {items.map((item, index) => {
                 const productData = item.productId ? productsById[item.productId] : undefined;
-                const productKey = item.itemId ?? `${item.productId}-${index}`;
+                const productKey = item.itemId ? `${item.itemId}-${index}` : `${item.productId ?? 'item'}-${index}`;
                 const productName = item.productName;
                 const enrichedItem: EnrichedProductItem = { ...productData, ...item } as EnrichedProductItem;
                 return (

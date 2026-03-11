@@ -92,7 +92,12 @@ describe('AccountOrders Page', () => {
     });
 
     const renderAccountOrders = async (ordersData: Order[] = mockOrders) => {
-        vi.mocked(fetchCustomerOrders).mockResolvedValue(ordersData);
+        vi.mocked(fetchCustomerOrders).mockResolvedValue({
+            orders: ordersData,
+            total: ordersData.length,
+            offset: 0,
+            limit: 10,
+        });
 
         const router = createMemoryRouter(
             [
@@ -131,7 +136,12 @@ describe('AccountOrders Page', () => {
     describe('loader', () => {
         test('fetches orders for authenticated customer', () => {
             const context = createTestContext();
-            vi.mocked(fetchCustomerOrders).mockResolvedValue(mockOrders);
+            vi.mocked(fetchCustomerOrders).mockResolvedValue({
+                orders: mockOrders,
+                total: mockOrders.length,
+                offset: 0,
+                limit: 10,
+            });
 
             const result = loader({
                 context,
@@ -225,7 +235,19 @@ describe('AccountOrders Page', () => {
         test('shows loading skeleton while fetching orders', async () => {
             // Mock a delayed response
             vi.mocked(fetchCustomerOrders).mockImplementation(
-                () => new Promise((resolve) => setTimeout(() => resolve(mockOrders), 200))
+                () =>
+                    new Promise((resolve) =>
+                        setTimeout(
+                            () =>
+                                resolve({
+                                    orders: mockOrders,
+                                    total: mockOrders.length,
+                                    offset: 0,
+                                    limit: 10,
+                                }),
+                            200
+                        )
+                    )
             );
 
             const router = createMemoryRouter(

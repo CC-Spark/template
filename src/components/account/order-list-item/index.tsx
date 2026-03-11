@@ -331,9 +331,17 @@ export function OrderListItem({
             onClick={() => onViewDetails?.(order.orderNo)}>
             <Card className="py-0 rounded-none border-0 border-order-border shadow-none">
                 <CardContent className="p-6 space-y-4 border-b border-order-border hover:bg-muted">
-                    {/* Header: Order Info + Status */}
+                    {/* Header: Order ID, Date, Total, Items + Status */}
                     <div className="flex flex-wrap items-start justify-between border-b border-order-border -mx-6 -mt-6 px-6 pt-3 pb-3 mb-6 bg-muted">
                         <div className="flex flex-wrap gap-x-8 gap-y-2">
+                            <div>
+                                <Typography variant="muted" as="p" className="text-xs">
+                                    {t('orders.tableHeaders.orderNumber')}
+                                </Typography>
+                                <Typography variant="small" as="p" className="text-foreground font-medium">
+                                    {order.orderNo}
+                                </Typography>
+                            </div>
                             <div>
                                 <Typography variant="muted" as="p" className="text-xs">
                                     {t('orders.orderDate')}
@@ -366,8 +374,9 @@ export function OrderListItem({
                     {/* Product Thumbnails */}
                     {productItems.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                            {visibleProducts.map((item) => (
-                                <ProductThumbnail key={item.productId} item={item} />
+                            {visibleProducts.map((item, idx) => (
+                                // eslint-disable-next-line react/no-array-index-key -- same productId can appear in multiple line items
+                                <ProductThumbnail key={`${item.productId}-${idx}`} item={item} />
                             ))}
                             {overflowCount > 0 && <OverflowIndicator count={overflowCount} />}
                         </div>

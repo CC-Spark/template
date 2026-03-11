@@ -16,15 +16,17 @@
 import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Typography } from '@/components/typography';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import {
     OrderListItem,
     type OrderListItemData,
     type OrderProductItem,
     type PickupLocation,
 } from '@/components/account/order-list-item';
+import { getOffsetLimitPaginationState } from '@/lib/pagination-utils';
 
 /**
  * Order status constants.
@@ -130,16 +132,46 @@ export function OrderListHeader({ title, subtitle }: { title: string; subtitle?:
 }
 
 /**
- * Order items body with footer. Renders order cards, empty state, and total count.
+ * Order items body with footer. Renders order cards, empty state, total count, and optional pagination.
  * Designed to be used inside Suspense/Await so the header can render instantly.
+ * When total, offset, and limit are provided, shows "X–Y of Z orders" and prev/next links.
  */
 export function OrderListBody({
     orders,
     emptyMessage,
     maxThumbnails = 12,
     onViewDetails,
-}: Omit<OrderListProps, 'title' | 'subtitle'>): ReactElement {
+    total: totalCount,
+    offset,
+    limit,
+}: Omit<OrderListProps, 'title' | 'subtitle'> & {
+    total?: number;
+    offset?: number;
+    limit?: number;
+}): ReactElement {
     const { t } = useTranslation('account');
+
+    const hasPaginationData = typeof totalCount === 'number' && typeof offset === 'number' && typeof limit === 'number';
+
+    const { safeLimit, startIndex, endIndex, totalPages, hasNext, hasPrevious, nextOffset, prevOffset } =
+        hasPaginationData
+            ? getOffsetLimitPaginationState({
+                  offset: offset ?? 0,
+                  limit: limit ?? 10,
+                  total: totalCount ?? 0,
+                  defaultLimit: 10,
+                  currentPageSize: orders.length,
+              })
+            : {
+                  safeLimit: limit ?? 10,
+                  startIndex: 1,
+                  endIndex: orders.length,
+                  totalPages: 1,
+                  hasNext: false,
+                  hasPrevious: false,
+                  nextOffset: 0,
+                  prevOffset: 0,
+              };
 
     return (
         <>
@@ -157,10 +189,78 @@ export function OrderListBody({
                     ))}
                 </div>
             )}
-            <div className="p-6 m-0 border-b border-x border-order-border rounded-b-xl">
-                <Typography variant="small" as="p" className="text-muted-foreground" data-testid="total-orders-text">
-                    {t('orders.totalOrders', { count: orders.length })}
+            <div className="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4">
+                <Typography
+                    variant="small"
+                    as="p"
+                    className="text-muted-foreground min-w-0 shrink"
+                    data-testid="total-orders-text">
+                    {hasPaginationData
+                        ? totalPages === 1
+                            ? t('orders.totalOrders', { count: totalCount })
+                            : t('orders.totalOrdersRange', {
+                                  start: startIndex,
+                                  end: endIndex,
+                                  total: totalCount,
+                              })
+                        : t('orders.totalOrders', { count: orders.length })}
                 </Typography>
+                {hasPaginationData && (
+                    <nav aria-label={t('orders.paginationLabel')} className="ml-auto shrink-0 flex items-center gap-2">
+                        {hasPrevious ? (
+                            <Link
+                                to={`/account/orders?offset=${prevOffset}&limit=${safeLimit}`}
+                                prefetch="intent"
+                                aria-label={t('orders.paginationPrevious')}
+                                className={buttonVariants({
+                                    variant: 'outline',
+                                    size: 'default',
+                                    className: 'gap-1.5 px-4 py-2 rounded-lg shadow-sm',
+                                })}>
+                                <ChevronLeftIcon />
+                                <span className="hidden sm:inline">{t('orders.paginationPrevious')}</span>
+                            </Link>
+                        ) : (
+                            <span
+                                aria-disabled
+                                className={buttonVariants({
+                                    variant: 'outline',
+                                    size: 'default',
+                                    className:
+                                        'gap-1.5 px-4 py-2 rounded-lg shadow-sm pointer-events-none opacity-50 cursor-not-allowed',
+                                })}>
+                                <ChevronLeftIcon />
+                                <span className="hidden sm:inline">{t('orders.paginationPrevious')}</span>
+                            </span>
+                        )}
+                        {hasNext ? (
+                            <Link
+                                to={`/account/orders?offset=${nextOffset}&limit=${safeLimit}`}
+                                prefetch="intent"
+                                aria-label={t('orders.paginationNext')}
+                                className={buttonVariants({
+                                    variant: 'outline',
+                                    size: 'default',
+                                    className: 'gap-1.5 px-4 py-2 rounded-lg shadow-sm',
+                                })}>
+                                <span className="hidden sm:inline">{t('orders.paginationNext')}</span>
+                                <ChevronRightIcon />
+                            </Link>
+                        ) : (
+                            <span
+                                aria-disabled
+                                className={buttonVariants({
+                                    variant: 'outline',
+                                    size: 'default',
+                                    className:
+                                        'gap-1.5 px-4 py-2 rounded-lg shadow-sm pointer-events-none opacity-50 cursor-not-allowed',
+                                })}>
+                                <span className="hidden sm:inline">{t('orders.paginationNext')}</span>
+                                <ChevronRightIcon />
+                            </span>
+                        )}
+                    </nav>
+                )}
             </div>
         </>
     );

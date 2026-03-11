@@ -17,14 +17,19 @@
 import { type ReactElement, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Await, useNavigate, useLoaderData, type LoaderFunctionArgs, redirect } from 'react-router';
-import { OrderListHeader, OrderListBody, type Order } from '@/components/account/order-list';
-import { fetchCustomerOrders, DEFAULT_ORDERS_OFFSET, DEFAULT_ORDERS_LIMIT } from '@/lib/api/order';
+import { OrderListHeader, OrderListBody } from '@/components/account/order-list';
+import {
+    fetchCustomerOrders,
+    DEFAULT_ORDERS_OFFSET,
+    DEFAULT_ORDERS_LIMIT,
+    type CustomerOrdersResult,
+} from '@/lib/api/order';
 import { Card, CardContent } from '@/components/ui/card';
 import { Typography } from '@/components/typography';
 import { getAuth } from '@/middlewares/auth.server';
 
 type OrderListLoaderData = {
-    ordersPromise: Promise<Order[]>;
+    ordersPromise: Promise<CustomerOrdersResult>;
 };
 
 /**
@@ -119,7 +124,15 @@ export default function OrderListPage(): ReactElement {
             <OrderListHeader title={t('navigation.orderHistory')} subtitle={t('orders.subtitle')} />
             <Suspense fallback={<OrderListSkeleton />}>
                 <Await resolve={loaderData.ordersPromise} errorElement={<OrderListError />}>
-                    {(orders) => <OrderListBody orders={orders} onViewDetails={handleViewDetails} />}
+                    {(result) => (
+                        <OrderListBody
+                            orders={result.orders}
+                            total={result.total}
+                            offset={result.offset}
+                            limit={result.limit}
+                            onViewDetails={handleViewDetails}
+                        />
+                    )}
                 </Await>
             </Suspense>
         </div>

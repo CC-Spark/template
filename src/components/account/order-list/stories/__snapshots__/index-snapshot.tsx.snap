@@ -32,10 +32,10 @@ exports[`OrderList stories snapshot > BodyEmpty story renders and matches snapsh
     </div>
   </div>
   <div
-    class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+    class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
   >
     <p
-      class="text-sm font-medium leading-none text-left text-muted-foreground"
+      class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
       data-testid="total-orders-text"
     >
       Viewing 0 orders
@@ -76,10 +76,10 @@ exports[`OrderList stories snapshot > BodyWithCustomEmptyMessage story renders a
     </div>
   </div>
   <div
-    class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+    class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
   >
     <p
-      class="text-sm font-medium leading-none text-left text-muted-foreground"
+      class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
       data-testid="total-orders-text"
     >
       Viewing 0 orders
@@ -113,6 +113,18 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV001
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -317,6 +329,18 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                   <p
                     class="text-muted-foreground text-left text-xs"
                   >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV002
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
                     Order Date
                   </p>
                   <p
@@ -430,6 +454,18 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV003
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -605,6 +641,18 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                   <p
                     class="text-muted-foreground text-left text-xs"
                   >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV004
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
                     Order Date
                   </p>
                   <p
@@ -758,6 +806,18 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV005
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -1057,10 +1117,10 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
       </a>
     </div>
     <div
-      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
     >
       <p
-        class="text-sm font-medium leading-none text-left text-muted-foreground"
+        class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
         data-testid="total-orders-text"
       >
         Viewing 5 orders
@@ -1116,6 +1176,18 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                   <p
                     class="text-muted-foreground text-left text-xs"
                   >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV001
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
                     Order Date
                   </p>
                   <p
@@ -1316,6 +1388,18 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                   <p
                     class="text-muted-foreground text-left text-xs"
                   >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV002
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
                     Order Date
                   </p>
                   <p
@@ -1429,6 +1513,18 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV003
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -1604,6 +1700,18 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                   <p
                     class="text-muted-foreground text-left text-xs"
                   >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV004
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
                     Order Date
                   </p>
                   <p
@@ -1757,6 +1865,18 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV005
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -2056,10 +2176,10 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
       </a>
     </div>
     <div
-      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
     >
       <p
-        class="text-sm font-medium leading-none text-left text-muted-foreground"
+        class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
         data-testid="total-orders-text"
       >
         Viewing 5 orders
@@ -2119,10 +2239,10 @@ exports[`OrderList stories snapshot > EmptyState story renders and matches snaps
       </div>
     </div>
     <div
-      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
     >
       <p
-        class="text-sm font-medium leading-none text-left text-muted-foreground"
+        class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
         data-testid="total-orders-text"
       >
         Viewing 0 orders
@@ -2213,6 +2333,18 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                   <p
                     class="text-muted-foreground text-left text-xs"
                   >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV005
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
                     Order Date
                   </p>
                   <p
@@ -2508,10 +2640,10 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
       </a>
     </div>
     <div
-      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
     >
       <p
-        class="text-sm font-medium leading-none text-left text-muted-foreground"
+        class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
         data-testid="total-orders-text"
       >
         Viewing 1 order
@@ -2563,6 +2695,18 @@ exports[`OrderList stories snapshot > WithPickupLocation story renders and match
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV001
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -2746,10 +2890,10 @@ exports[`OrderList stories snapshot > WithPickupLocation story renders and match
       </a>
     </div>
     <div
-      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
     >
       <p
-        class="text-sm font-medium leading-none text-left text-muted-foreground"
+        class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
         data-testid="total-orders-text"
       >
         Viewing 1 order
@@ -2801,6 +2945,18 @@ exports[`OrderList stories snapshot > WithProductImages story renders and matche
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV010
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -2926,10 +3082,10 @@ exports[`OrderList stories snapshot > WithProductImages story renders and matche
       </a>
     </div>
     <div
-      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
     >
       <p
-        class="text-sm font-medium leading-none text-left text-muted-foreground"
+        class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
         data-testid="total-orders-text"
       >
         Viewing 1 order
@@ -2981,6 +3137,18 @@ exports[`OrderList stories snapshot > WithoutProductImages story renders and mat
               <div
                 class="flex flex-wrap gap-x-8 gap-y-2"
               >
+                <div>
+                  <p
+                    class="text-muted-foreground text-left text-xs"
+                  >
+                    Order Number
+                  </p>
+                  <p
+                    class="text-sm leading-none text-left text-foreground font-medium"
+                  >
+                    INV011
+                  </p>
+                </div>
                 <div>
                   <p
                     class="text-muted-foreground text-left text-xs"
@@ -3089,10 +3257,10 @@ exports[`OrderList stories snapshot > WithoutProductImages story renders and mat
       </a>
     </div>
     <div
-      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl"
+      class="p-6 m-0 border-b border-x border-order-border rounded-b-xl flex flex-row items-center w-full gap-4"
     >
       <p
-        class="text-sm font-medium leading-none text-left text-muted-foreground"
+        class="text-sm font-medium leading-none text-left text-muted-foreground min-w-0 shrink"
         data-testid="total-orders-text"
       >
         Viewing 1 order

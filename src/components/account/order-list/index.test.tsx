@@ -334,6 +334,33 @@ describe('OrderListBody Component', () => {
         expect(screen.getByText('Viewing 0 orders')).toBeInTheDocument();
     });
 
+    test('renders pagination range and controls when total exceeds limit', () => {
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={testOrders} total={25} offset={0} limit={10} />
+            </CurrencyWrapper>
+        );
+        expect(screen.getByText('Viewing 1–3 of 25 orders')).toBeInTheDocument();
+        expect(screen.getByRole('navigation', { name: /order history pagination/i })).toBeInTheDocument();
+        const nextLink = screen.getByRole('link', { name: /next/i });
+        expect(nextLink).toHaveAttribute('href', '/account/orders?offset=10&limit=10');
+        expect(screen.getByText('Previous page')).toBeInTheDocument();
+    });
+
+    test('renders "Viewing X orders" and disabled Previous/Next when single page', () => {
+        render(
+            <CurrencyWrapper>
+                <OrderListBody orders={testOrders} total={5} offset={0} limit={10} />
+            </CurrencyWrapper>
+        );
+        expect(screen.getByText('Viewing 5 orders')).toBeInTheDocument();
+        expect(screen.getByRole('navigation', { name: /order history pagination/i })).toBeInTheDocument();
+        expect(screen.getByText('Previous page')).toBeInTheDocument();
+        expect(screen.getByText('Next page')).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /previous/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /next/i })).not.toBeInTheDocument();
+    });
+
     test('calls onViewDetails callback', async () => {
         const user = userEvent.setup();
         const mockOnViewDetails = vi.fn();
