@@ -23,8 +23,8 @@ import type { FetcherWithComponents } from 'react-router';
 export interface FetcherEffectConfig<TData = unknown> {
     /** Callback function called when the fetcher operation succeeds */
     onSuccess?: (data: TData | undefined) => void;
-    /** Callback function called when the fetcher operation fails */
-    onError?: (error: string | string[]) => void;
+    /** Callback function called when the fetcher operation fails; receives error message(s) and optional response data */
+    onError?: (error: string | string[], data?: TData) => void;
 }
 
 /**
@@ -167,7 +167,7 @@ export function useFetcherEffect<TData = unknown>(
                 }
             } else if (!success && error !== undefined && onError) {
                 try {
-                    onError(error);
+                    onError(error, currentData);
                 } catch (callbackError) {
                     // Silently handle callback errors to prevent breaking the component
                     // eslint-disable-next-line no-console

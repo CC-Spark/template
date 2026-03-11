@@ -52,29 +52,29 @@ export async function getSubscriptions(
 }
 
 /**
- * Update a single marketing consent subscription (opt-in/opt-out) (server-side).
+ * Update multiple consent subscriptions in one bulk request (server-side).
  *
- * Use in route actions that handle the HTTP request; parse FormData/body then call this.
- * Throws ApiError on SCAPI failure so the action can map to status/error response.
+ * Uses SCAPI POST .../subscriptions/actions/bulk. Supports 1–50 updates per request.
+ * Returns 200 when all succeed; 207 with per-item results when some fail.
  *
  * @param context - React Router context from loader/action
- * @param body - subscriptionId, channel, contactPointValue, status
- * @returns Update response from SCAPI
- * @throws ApiError when the API returns an error
- * @see https://developer.salesforce.com/docs/commerce/commerce-api/references/consents?meta=updateSubscription
+ * @param bodies - Array of subscriptionId, channel, contactPointValue, status
+ * @returns Bulk response with results per subscription
+ * @throws ApiError when the bulk request fails (e.g. 400)
+ * @see https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-consents?meta=updateSubscriptions
  */
-export async function updateSubscription(
+export async function updateSubscriptionsBulk(
     context: LoaderFunctionArgs['context'],
-    body: UpdateSubscriptionBody
-): Promise<ShopperConsents.schemas['ConsentSubscriptionUpdateResponse']> {
+    bodies: UpdateSubscriptionBody[]
+): Promise<ShopperConsents.schemas['ConsentSubscriptionBulkResponse']> {
     const config = getConfig(context);
     const clients = createApiClients(context);
-    const { data } = await clients.shopperConsents.updateSubscription({
+    const { data } = await clients.shopperConsents.updateSubscriptions({
         params: {
             path: { organizationId: config.commerce.api.organizationId },
             query: { siteId: config.commerce.api.siteId },
         },
-        body,
+        body: { subscriptions: bodies },
     });
     return data;
 }

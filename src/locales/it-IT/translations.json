@@ -900,6 +900,27 @@
                 "hasNumber": "Almeno un numero",
                 "hasSpecial": "Almeno un carattere speciale"
             }
+        },
+        "common": {
+            "save": "Salva",
+            "saving": "Salvataggio in corso...",
+            "cancel": "Annulla",
+            "edit": "Modifica",
+            "done": "Fatto",
+            "enabled": "Attivato",
+            "disabled": "Disattivato"
+        },
+        "marketingConsent": {
+            "title": "Preferenze di marketing e comunicazione",
+            "edit": "Modifica",
+            "editA11y": "Modifica preferenze di marketing",
+            "optedIn": "Iscritto",
+            "optedOut": "Non iscritto",
+            "channelEmail": "Email",
+            "channelSms": "SMS / Messaggi di testo",
+            "disclaimer": "Abilitando queste preferenze di comunicazione, accetti di ricevere comunicazioni di marketing da noi, inclusi offerte esclusive, ultime informazioni sui prodotti e novità sulle prossime collezioni. Consulta i nostri Termini e condizioni e l'Informativa sulla privacy per maggiori dettagli.",
+            "updateError": "Impossibile aggiornare la preferenza di marketing. Riprova.",
+            "partialSuccess": "Alcune preferenze sono state salvate. Aggiorna la pagina per vedere le impostazioni attuali."
         }
     },
     "home": {
