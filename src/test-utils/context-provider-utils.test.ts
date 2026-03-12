@@ -189,6 +189,7 @@ describe('context-provider-utils', () => {
                         productListing: {
                             defaultProductTileImgAspectRatio: 1,
                         },
+                        inventory: { lowStockThreshold: 5 },
                         carousel: {
                             defaultItemCount: 4,
                         },

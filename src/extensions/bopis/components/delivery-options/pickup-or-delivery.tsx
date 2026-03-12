@@ -114,12 +114,10 @@ export default function PickupOrDelivery({
                     <div className="mt-0.5 shrink-0">
                         <div
                             className={cn(
-                                'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors',
+                                'w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors',
                                 value === DELIVERY_OPTIONS.DELIVERY ? 'border-primary' : 'border-muted-foreground/20'
                             )}>
-                            {value === DELIVERY_OPTIONS.DELIVERY && (
-                                <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                            )}
+                            {value === DELIVERY_OPTIONS.DELIVERY && <div className="w-2 h-2 rounded-pill bg-primary" />}
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -166,12 +164,10 @@ export default function PickupOrDelivery({
                     <div className="mt-0.5 shrink-0">
                         <div
                             className={cn(
-                                'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors',
+                                'w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors',
                                 value === DELIVERY_OPTIONS.PICKUP ? 'border-primary' : 'border-muted-foreground/20'
                             )}>
-                            {value === DELIVERY_OPTIONS.PICKUP && (
-                                <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                            )}
+                            {value === DELIVERY_OPTIONS.PICKUP && <div className="w-2 h-2 rounded-pill bg-primary" />}
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">

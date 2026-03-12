@@ -131,10 +131,15 @@ export default function ProductInfo({
                 </>
             )}
 
-            {/* Desktop Product Title - hidden on mobile when not compact */}
+            {/* Product Title, SKU, Description */}
             {!isCompactStyle && (
-                <div className="hidden md:block">
-                    <h1 className="text-3xl font-bold text-foreground">{product.name}</h1>
+                <div>
+                    <h1 className="text-2xl lg:text-3xl font-medium text-foreground tracking-tight">{product.name}</h1>
+                    {product.id && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                            {t('sku')} {product.id}
+                        </p>
+                    )}
                     {product.shortDescription && (
                         <p className="mt-2 text-lg text-muted-foreground">{product.shortDescription}</p>
                     )}
@@ -144,7 +149,7 @@ export default function ProductInfo({
             {!isCompactStyle && <ProductRatingSummary />}
 
             {/* Price - show unit price on PDP */}
-            <div>
+            <div className="space-y-3">
                 <ProductPrice
                     type="unit"
                     product={product}
@@ -160,7 +165,13 @@ export default function ProductInfo({
             </div>
 
             {/* Inventory Status Message - hidden in compact/edit mode */}
-            {!isCompactStyle && <InventoryMessage product={product} currentVariant={currentVariant} />}
+            {!isCompactStyle && (
+                <InventoryMessage
+                    product={product}
+                    currentVariant={currentVariant}
+                    lowStockThreshold={config.global.inventory.lowStockThreshold}
+                />
+            )}
 
             {/* Swatch Groups for Product Variations */}
             {sortedVariationAttributes.map(({ id, name, selectedValue, values }) => {
@@ -179,11 +190,24 @@ export default function ProductInfo({
                     const { href, name: valueName, image, value: swatchValue, orderable } = value;
                     const swatchImageUrl = (image && toImageUrl({ image, config })) || '';
                     const content = image ? (
-                        <div
-                            className="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
-                            style={{ backgroundImage: swatchImageUrl ? `url(${swatchImageUrl})` : undefined }}
-                            aria-label={image.alt || valueName}
-                        />
+                        <>
+                            <span
+                                className="rounded-pill bg-cover bg-center bg-no-repeat"
+                                style={{
+                                    width: 'var(--swatch-color-dot, 100%)',
+                                    height: 'var(--swatch-color-dot, 100%)',
+                                    backgroundColor: valueName?.toLowerCase(),
+                                    backgroundImage: swatchImageUrl ? `url(${swatchImageUrl})` : undefined,
+                                    border: 'var(--swatch-color-dot-border, none)',
+                                }}
+                                aria-label={image.alt || valueName}
+                            />
+                            <span
+                                className="text-xs font-medium capitalize ml-1"
+                                style={{ display: 'var(--swatch-color-label)' }}>
+                                {valueName}
+                            </span>
+                        </>
                     ) : (
                         <span className="text-xs font-medium">{valueName}</span>
                     );
@@ -196,7 +220,8 @@ export default function ProductInfo({
                             disabled={!orderable}
                             value={swatchValue}
                             name={valueName}
-                            shape={id === 'color' ? 'circle' : 'square'}>
+                            shape={id === 'color' ? 'color' : 'label'}
+                            labeled>
                             {content}
                         </Swatch>
                     );

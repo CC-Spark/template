@@ -75,7 +75,8 @@ export default function ProductView({ product, category }: ProductViewProps): Re
 
     return (
         <ProductViewProvider product={product} mode="add">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 space-y-6">
+            {breadcrumbData.length > 0 && category && <CategoryBreadcrumbs category={category} />}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-12">
                 {/* Left Column - Image Gallery + Description */}
                 <div className="order-1">
                     <ImageGallery
@@ -99,12 +100,6 @@ export default function ProductView({ product, category }: ProductViewProps): Re
 
                 {/* Right Column - Product Info */}
                 <div className="order-2">
-                    {/* Breadcrumbs */}
-                    {breadcrumbData.length > 0 && category && (
-                        <div className="hidden md:block">
-                            <CategoryBreadcrumbs category={category} />
-                        </div>
-                    )}
                     <ProductInfo product={product} />
                     <ProductCartActions product={product} />
                     <ReturnsAndWarranty productId={product.id} />

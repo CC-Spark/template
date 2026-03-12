@@ -140,6 +140,9 @@ export type Config = {
             productListing: {
                 defaultProductTileImgAspectRatio: number;
             };
+            inventory: {
+                lowStockThreshold: number;
+            };
             carousel: {
                 defaultItemCount: number;
             };

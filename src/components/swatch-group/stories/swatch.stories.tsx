@@ -119,7 +119,7 @@ const meta: Meta<typeof Swatch> = {
         shape: {
             description: 'Shape of the swatch',
             control: 'select',
-            options: ['circle', 'square'],
+            options: ['color', 'label'],
         },
         mode: {
             description: 'Interaction mode',
@@ -199,7 +199,7 @@ export const Square: Story = {
     args: {
         value: 'large',
         label: 'Large',
-        shape: 'square',
+        shape: 'label',
         size: 'lg',
         children: 'L',
         handleSelect: action('handleSelect'),

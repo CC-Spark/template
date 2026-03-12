@@ -162,7 +162,7 @@ export function ProductRatingSummary(): ReactElement | null {
                     side="bottom"
                     align="start"
                     sideOffset={4}
-                    className="min-w-[280px] max-w-[304px] p-4"
+                    className="min-w-[280px] max-w-[304px] p-4 bg-card text-card-foreground"
                     aria-label="Star rating distribution"
                     onMouseEnter={clearCloseTimeout}
                     onMouseLeave={scheduleClose}>

@@ -9,29 +9,64 @@ exports[`InventoryMessage stories snapshot > AllVariants story renders and match
       class="flex flex-wrap gap-4"
     >
       <div
-        class="inline-flex items-center px-3 py-1.5 rounded-md border text-sm font-medium text-success bg-success/10 border-success/20"
+        class="flex items-center gap-2"
       >
-        In stock
+        <span
+          class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+        />
+        <p
+          class="text-sm font-medium text-[var(--inventory-in-stock)]"
+        >
+          In Stock (10 units) ready to be shipped
+        </p>
       </div>
       <div
-        class="inline-flex items-center px-3 py-1.5 rounded-md border text-sm font-medium text-info bg-info/10 border-info/20"
+        class="flex items-center gap-2"
       >
-        Available for pre-order
+        <span
+          class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-pre-order)]"
+        />
+        <p
+          class="text-sm font-medium text-[var(--inventory-pre-order)]"
+        >
+          Available for pre-order
+        </p>
       </div>
       <div
-        class="inline-flex items-center px-3 py-1.5 rounded-md border text-sm font-medium text-warning bg-warning/10 border-warning/20"
+        class="flex items-center gap-2"
       >
-        Available for back order
+        <span
+          class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-back-order)]"
+        />
+        <p
+          class="text-sm font-medium text-[var(--inventory-back-order)]"
+        >
+          Available for back order
+        </p>
       </div>
       <div
-        class="inline-flex items-center px-3 py-1.5 rounded-md border text-sm font-medium text-destructive bg-destructive/10 border-destructive/20"
+        class="flex items-center gap-2"
       >
-        Out of stock
+        <span
+          class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-out-of-stock)]"
+        />
+        <p
+          class="text-sm font-medium text-[var(--inventory-out-of-stock)]"
+        >
+          Out of stock
+        </p>
       </div>
       <div
-        class="inline-flex items-center px-3 py-1.5 rounded-md border text-sm font-medium text-muted-foreground bg-muted border-border"
+        class="flex items-center gap-2"
       >
-        Inventory unavailable
+        <span
+          class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-muted-foreground"
+        />
+        <p
+          class="text-sm font-medium text-muted-foreground"
+        >
+          Inventory unavailable
+        </p>
       </div>
     </div>
   </div>

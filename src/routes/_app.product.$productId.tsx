@@ -20,9 +20,7 @@ import { createApiClients } from '@/lib/api-clients';
 import { currencyContext } from '@/lib/currency';
 import ProductSkeleton from '@/components/product-skeleton';
 import ProductView from '@/components/product-view';
-import { Typography } from '@/components/typography';
 import ChildProducts from '@/components/product-view/child-products';
-import { ProductRatingSummary } from '@/components/product-view/product-rating-summary';
 
 // Lazy-load reviews section to reduce initial PDP bundle (reviews chunk loads with product page)
 const CustomerReviewsSection = lazy(() =>
@@ -327,18 +325,6 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
     // Main product content - product view with details and images
     const mainProductContent = (
         <div className="space-y-8">
-            {/* Mobile Product Title - shown on mobile only */}
-            <div className="block md:hidden">
-                <Typography variant="h1" className="text-2xl font-bold text-foreground">
-                    {productData.name}
-                </Typography>
-                {productData.shortDescription && (
-                    <Typography variant="p" className="mt-2 text-muted-foreground">
-                        {productData.shortDescription}
-                    </Typography>
-                )}
-                <ProductRatingSummary />
-            </div>
             {isProductASet || isProductABundle ? (
                 <>
                     <ProductView product={productData} category={categoryData} />
@@ -363,18 +349,6 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
                 {/* Promo Content Region - Promotional content above main product */}
                 <Region className="mb-8" page={page} regionId="promoContent" />
 
-                {/* Mobile Product Title - shown on mobile only */}
-                <div className="block md:hidden mb-8">
-                    <Typography variant="h1" className="text-2xl font-bold text-foreground">
-                        {productData.name}
-                    </Typography>
-                    {productData.shortDescription && (
-                        <Typography variant="p" className="mt-2 text-muted-foreground">
-                            {productData.shortDescription}
-                        </Typography>
-                    )}
-                </div>
-
                 {/* Main Product Content - Always shown */}
                 {mainProductContent}
 
@@ -394,7 +368,7 @@ function ProductDetailView({ loaderData }: { loaderData: ProductPageData }) {
             <ProductContentProvider>
                 <ProductReviewsProvider>
                     <div className="min-h-screen bg-background">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-4 lg:py-8">
                             {renderPageContent(loaderData.page)}
                         </div>
                     </div>

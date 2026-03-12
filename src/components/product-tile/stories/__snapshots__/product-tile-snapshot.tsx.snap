@@ -84,12 +84,12 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -100,7 +100,7 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -108,7 +108,7 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -119,7 +119,7 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -250,7 +250,7 @@ exports[`ProductTile stories snapshot > CustomAction story renders and matches s
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -355,12 +355,12 @@ exports[`ProductTile stories snapshot > Default story renders and matches snapsh
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -371,7 +371,7 @@ exports[`ProductTile stories snapshot > Default story renders and matches snapsh
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -379,7 +379,7 @@ exports[`ProductTile stories snapshot > Default story renders and matches snapsh
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -390,7 +390,7 @@ exports[`ProductTile stories snapshot > Default story renders and matches snapsh
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -521,7 +521,7 @@ exports[`ProductTile stories snapshot > Default story renders and matches snapsh
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -629,12 +629,12 @@ exports[`ProductTile stories snapshot > MasterProductWithSwatches story renders 
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Begonia Pink"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -645,7 +645,7 @@ exports[`ProductTile stories snapshot > MasterProductWithSwatches story renders 
                 >
                   <div
                     aria-label="Begonia Pink"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw2b23d065/images/swatch/PG.10217069.JJ5QZXX.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -653,7 +653,7 @@ exports[`ProductTile stories snapshot > MasterProductWithSwatches story renders 
               <button
                 aria-checked="true"
                 aria-label="Grey Heather"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -664,7 +664,7 @@ exports[`ProductTile stories snapshot > MasterProductWithSwatches story renders 
                 >
                   <div
                     aria-label="Grey Heather"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw747c5f3e/images/swatch/PG.10217069.JJ908XX.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -809,7 +809,7 @@ exports[`ProductTile stories snapshot > MasterProductWithSwatches story renders 
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             Buy one Long Center Seam Skirt and get 2 tops
           </span>
@@ -917,12 +917,12 @@ exports[`ProductTile stories snapshot > PageDesignerBorderRadius story renders a
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -933,7 +933,7 @@ exports[`ProductTile stories snapshot > PageDesignerBorderRadius story renders a
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -941,7 +941,7 @@ exports[`ProductTile stories snapshot > PageDesignerBorderRadius story renders a
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -952,7 +952,7 @@ exports[`ProductTile stories snapshot > PageDesignerBorderRadius story renders a
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -1083,7 +1083,7 @@ exports[`ProductTile stories snapshot > PageDesignerBorderRadius story renders a
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -1191,12 +1191,12 @@ exports[`ProductTile stories snapshot > PageDesignerFullCustomization story rend
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -1207,7 +1207,7 @@ exports[`ProductTile stories snapshot > PageDesignerFullCustomization story rend
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -1215,7 +1215,7 @@ exports[`ProductTile stories snapshot > PageDesignerFullCustomization story rend
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -1226,7 +1226,7 @@ exports[`ProductTile stories snapshot > PageDesignerFullCustomization story rend
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -1357,7 +1357,7 @@ exports[`ProductTile stories snapshot > PageDesignerFullCustomization story rend
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -1465,12 +1465,12 @@ exports[`ProductTile stories snapshot > PageDesignerHoverLift story renders and 
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -1481,7 +1481,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverLift story renders and 
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -1489,7 +1489,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverLift story renders and 
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -1500,7 +1500,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverLift story renders and 
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -1631,7 +1631,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverLift story renders and 
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -1739,12 +1739,12 @@ exports[`ProductTile stories snapshot > PageDesignerHoverScale story renders and
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -1755,7 +1755,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverScale story renders and
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -1763,7 +1763,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverScale story renders and
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -1774,7 +1774,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverScale story renders and
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -1905,7 +1905,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverScale story renders and
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -2013,12 +2013,12 @@ exports[`ProductTile stories snapshot > PageDesignerHoverShadow story renders an
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -2029,7 +2029,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverShadow story renders an
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -2037,7 +2037,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverShadow story renders an
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -2048,7 +2048,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverShadow story renders an
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -2179,7 +2179,7 @@ exports[`ProductTile stories snapshot > PageDesignerHoverShadow story renders an
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -2287,12 +2287,12 @@ exports[`ProductTile stories snapshot > PageDesignerImageCover story renders and
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -2303,7 +2303,7 @@ exports[`ProductTile stories snapshot > PageDesignerImageCover story renders and
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -2311,7 +2311,7 @@ exports[`ProductTile stories snapshot > PageDesignerImageCover story renders and
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -2322,7 +2322,7 @@ exports[`ProductTile stories snapshot > PageDesignerImageCover story renders and
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -2453,7 +2453,7 @@ exports[`ProductTile stories snapshot > PageDesignerImageCover story renders and
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -2561,12 +2561,12 @@ exports[`ProductTile stories snapshot > PageDesignerPaddingMargin story renders 
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -2577,7 +2577,7 @@ exports[`ProductTile stories snapshot > PageDesignerPaddingMargin story renders 
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -2585,7 +2585,7 @@ exports[`ProductTile stories snapshot > PageDesignerPaddingMargin story renders 
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -2596,7 +2596,7 @@ exports[`ProductTile stories snapshot > PageDesignerPaddingMargin story renders 
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -2727,7 +2727,7 @@ exports[`ProductTile stories snapshot > PageDesignerPaddingMargin story renders 
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -2835,12 +2835,12 @@ exports[`ProductTile stories snapshot > PageDesignerShadowXL story renders and m
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -2851,7 +2851,7 @@ exports[`ProductTile stories snapshot > PageDesignerShadowXL story renders and m
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -2859,7 +2859,7 @@ exports[`ProductTile stories snapshot > PageDesignerShadowXL story renders and m
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -2870,7 +2870,7 @@ exports[`ProductTile stories snapshot > PageDesignerShadowXL story renders and m
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -3001,7 +3001,7 @@ exports[`ProductTile stories snapshot > PageDesignerShadowXL story renders and m
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -3109,12 +3109,12 @@ exports[`ProductTile stories snapshot > PageDesignerTypography story renders and
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -3125,7 +3125,7 @@ exports[`ProductTile stories snapshot > PageDesignerTypography story renders and
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -3133,7 +3133,7 @@ exports[`ProductTile stories snapshot > PageDesignerTypography story renders and
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -3144,7 +3144,7 @@ exports[`ProductTile stories snapshot > PageDesignerTypography story renders and
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -3275,7 +3275,7 @@ exports[`ProductTile stories snapshot > PageDesignerTypography story renders and
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>
@@ -3399,12 +3399,12 @@ exports[`ProductTile stories snapshot > WithBadges story renders and matches sna
             role="radiogroup"
           >
             <div
-              class="flex flex-wrap gap-2 focus:outline-none"
+              class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
             >
               <button
                 aria-checked="false"
                 aria-label="Navy"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                 position="relative"
                 role="radio"
                 tabindex="-1"
@@ -3415,7 +3415,7 @@ exports[`ProductTile stories snapshot > WithBadges story renders and matches sna
                 >
                   <div
                     aria-label="Navy"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-color: navy; background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw7fabf1ff/images/swatch/PG.52002RUBN4Q.NAVYWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -3423,7 +3423,7 @@ exports[`ProductTile stories snapshot > WithBadges story renders and matches sna
               <button
                 aria-checked="true"
                 aria-label="Charcoal"
-                class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                 position="relative"
                 role="radio"
                 tabindex="0"
@@ -3434,7 +3434,7 @@ exports[`ProductTile stories snapshot > WithBadges story renders and matches sna
                 >
                   <div
                     aria-label="Charcoal"
-                    class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                    class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                     style="background-image: url("https://edge.disstg.commercecloud.salesforce.com/dw/image/v2/ZZRF_001/on/demandware.static/-/Sites-apparel-m-catalog/default/dw5cb61ec2/images/swatch/PG.33698RUBN4Q.CHARCWL.CP.webp?sfrm=jpg&q=70");"
                   />
                 </div>
@@ -3565,7 +3565,7 @@ exports[`ProductTile stories snapshot > WithBadges story renders and matches sna
           class="items-center gap-2 text-xs text-green-600 mt-1"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             25% off.
           </span>

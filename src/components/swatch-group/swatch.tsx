@@ -83,7 +83,8 @@ export const Swatch: FC<SwatchProps> = ({
     value = '',
     handleSelect,
     size = 'lg',
-    shape = 'circle',
+    shape = 'color',
+    labeled = false,
     mode = 'click',
 }) => {
     const onSelect = useCallback(
@@ -105,6 +106,7 @@ export const Swatch: FC<SwatchProps> = ({
             shape,
             selected,
             disabled,
+            labeled,
         })
     );
 
@@ -113,6 +115,7 @@ export const Swatch: FC<SwatchProps> = ({
     const commonProps = {
         'aria-label': name || label,
         'aria-checked': selected,
+        'data-labeled': labeled || undefined,
         position: 'relative',
         role: 'radio',
         tabIndex: isFocusable ? 0 : -1,

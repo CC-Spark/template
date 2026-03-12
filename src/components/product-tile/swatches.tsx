@@ -21,7 +21,7 @@ import { useConfig } from '@/config';
 // Simple component to display the "+X more" indicator for additional swatches
 const MoreSwatchesIndicator = ({ count }: { count: number }) => (
     <div
-        className="relative shrink-0 rounded-full border-2 border-border bg-background flex items-center justify-center cursor-pointer w-7 h-7"
+        className="relative shrink-0 rounded-pill border-[length:var(--swatch-border-width,2px)] border-border bg-background flex items-center justify-center cursor-pointer w-[var(--swatch-pill-size,1.75rem)] h-[var(--swatch-pill-size,1.75rem)]"
         title={`+${count}`}>
         <svg className="text-muted-foreground w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -72,7 +72,7 @@ const Swatches = ({
                             const content =
                                 swatch && id === 'color' ? (
                                     <div
-                                        className="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+                                        className="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
                                         style={{
                                             backgroundColor: valueName?.toLowerCase(),
                                             backgroundImage: `url(${toImageUrl({ image: swatch, config })})`,
@@ -88,7 +88,7 @@ const Swatches = ({
                                     key={value}
                                     value={value}
                                     name={valueName}
-                                    shape={id === 'color' ? 'circle' : 'square'}
+                                    shape={id === 'color' ? 'color' : 'label'}
                                     size="md"
                                     selected={selectedAttributeValue === value}
                                     disabled={false}

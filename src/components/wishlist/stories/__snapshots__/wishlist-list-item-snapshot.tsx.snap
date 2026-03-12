@@ -56,9 +56,16 @@ exports[`WishlistListItem stories snapshot > Default renders and matches snapsho
           </div>
         </div>
         <div
-          class="inline-flex items-center rounded-md border font-medium text-success bg-success/10 border-success/20 text-xs px-2 py-0.5"
+          class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
-          In stock
+          <span
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+          />
+          <p
+            class="text-sm font-medium text-[var(--inventory-in-stock)]"
+          >
+            In Stock (996 units) ready to be shipped
+          </p>
         </div>
         <button
           aria-label="Remove from wishlist."
@@ -107,7 +114,7 @@ exports[`WishlistListItem stories snapshot > Default renders and matches snapsho
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             50% off for Salesforce employees
           </span>
@@ -180,9 +187,16 @@ exports[`WishlistListItem stories snapshot > MasterProduct renders and matches s
           </div>
         </div>
         <div
-          class="inline-flex items-center rounded-md border font-medium text-success bg-success/10 border-success/20 text-xs px-2 py-0.5"
+          class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
-          In stock
+          <span
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+          />
+          <p
+            class="text-sm font-medium text-[var(--inventory-in-stock)]"
+          >
+            In Stock (996 units) ready to be shipped
+          </p>
         </div>
         <button
           aria-label="Remove from wishlist."
@@ -231,7 +245,7 @@ exports[`WishlistListItem stories snapshot > MasterProduct renders and matches s
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             50% off for Salesforce employees
           </span>
@@ -277,9 +291,16 @@ exports[`WishlistListItem stories snapshot > MinimalData renders and matches sna
           Simple Product
         </a>
         <div
-          class="inline-flex items-center rounded-md border font-medium text-success bg-success/10 border-success/20 text-xs px-2 py-0.5"
+          class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
-          In stock
+          <span
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+          />
+          <p
+            class="text-sm font-medium text-[var(--inventory-in-stock)]"
+          >
+            In Stock (5 units) ready to be shipped
+          </p>
         </div>
         <button
           aria-label="Remove from wishlist."
@@ -354,9 +375,16 @@ exports[`WishlistListItem stories snapshot > OnSale renders and matches snapshot
           Laptop Briefcase with wheels (37L)
         </a>
         <div
-          class="inline-flex items-center rounded-md border font-medium text-warning bg-warning/10 border-warning/20 text-xs px-2 py-0.5"
+          class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
-          Available for back order
+          <span
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-back-order)]"
+          />
+          <p
+            class="text-sm font-medium text-[var(--inventory-back-order)]"
+          >
+            Available for back order
+          </p>
         </div>
         <button
           aria-label="Remove from wishlist."
@@ -405,7 +433,7 @@ exports[`WishlistListItem stories snapshot > OnSale renders and matches snapshot
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             50% off for Salesforce employees
           </span>
@@ -453,9 +481,16 @@ exports[`WishlistListItem stories snapshot > OutOfStock renders and matches snap
           Laptop Briefcase with wheels (37L)
         </a>
         <div
-          class="inline-flex items-center rounded-md border font-medium text-destructive bg-destructive/10 border-destructive/20 text-xs px-2 py-0.5"
+          class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
-          Out of stock
+          <span
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-out-of-stock)]"
+          />
+          <p
+            class="text-sm font-medium text-[var(--inventory-out-of-stock)]"
+          >
+            Out of stock
+          </p>
         </div>
         <button
           aria-label="Remove from wishlist."
@@ -504,7 +539,7 @@ exports[`WishlistListItem stories snapshot > OutOfStock renders and matches snap
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2"
+            class="line-clamp-2 text-sm text-success font-medium"
           >
             50% off for Salesforce employees
           </span>

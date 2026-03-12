@@ -106,12 +106,12 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                 </span>
               </div>
               <div
-                class="flex flex-wrap gap-2 focus:outline-none"
+                class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
               >
                 <a
                   aria-checked="true"
                   aria-label="Gold"
-                  class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                  class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                   href="/?013742002836M=color%3DJJ887XX"
                   position="relative"
                   role="radio"
@@ -122,7 +122,7 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                   >
                     <div
                       aria-label="Turquoise and Gold Bracelet, Gold, swatch"
-                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
+                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-pill"
                       style="background-image: url("https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dwe64c51d1/images/swatch/PG.60119239.JJ887XX.CP.jpg");"
                     />
                   </div>
@@ -239,12 +239,12 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                 </span>
               </div>
               <div
-                class="flex flex-wrap gap-2 focus:outline-none"
+                class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
               >
                 <a
                   aria-checked="true"
                   aria-label="Gold"
-                  class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                  class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                   href="/?013742002805M=color%3DJJ887XX"
                   position="relative"
                   role="radio"
@@ -255,7 +255,7 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                   >
                     <div
                       aria-label="Turquoise and Gold Necklace, Gold, swatch"
-                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
+                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-pill"
                       style="background-image: url("https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dwef2fba24/images/swatch/PG.60119236.JJ887XX.CP.jpg");"
                     />
                   </div>
@@ -372,12 +372,12 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                 </span>
               </div>
               <div
-                class="flex flex-wrap gap-2 focus:outline-none"
+                class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
               >
                 <a
                   aria-checked="true"
                   aria-label="Gold"
-                  class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+                  class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
                   href="/?013742002799M=color%3DJJ887XX"
                   position="relative"
                   role="radio"
@@ -388,7 +388,7 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                   >
                     <div
                       aria-label="Turquoise and Gold Hoop Earring, Gold, swatch"
-                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
+                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-pill"
                       style="background-image: url("https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dwde3c3e85/images/swatch/PG.60119235.JJ887XX.CP.jpg");"
                     />
                   </div>
@@ -495,7 +495,7 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                   class="mt-0.5 shrink-0"
                 >
                   <div
-                    class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                    class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                   />
                 </div>
                 <div
@@ -538,7 +538,7 @@ exports[`ChildProducts stories snapshot > ProductBundle story renders and matche
                   class="mt-0.5 shrink-0"
                 >
                   <div
-                    class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                    class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                   />
                 </div>
                 <div
@@ -665,7 +665,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             class="items-center gap-2"
           >
             <span
-              class="line-clamp-2"
+              class="line-clamp-2 text-sm text-success font-medium"
             >
               $10 off product set
             </span>
@@ -762,12 +762,12 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 </span>
               </div>
               <div
-                class="flex flex-wrap gap-2 focus:outline-none"
+                class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
               >
                 <a
                   aria-checked="false"
                   aria-label="royal"
-                  class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                  class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518447M=color%3DJJ5FUXX"
                   position="relative"
                   role="radio"
@@ -778,7 +778,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                   >
                     <div
                       aria-label="Quilted Jacket, royal, swatch"
-                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
+                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-pill"
                       style="background-image: url("https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dw1d0ec998/images/swatch/PG.10205921.JJ5FUXX.CP.jpg");"
                     />
                   </div>
@@ -805,12 +805,12 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 </span>
               </div>
               <div
-                class="inline-flex flex-wrap gap-2 focus:outline-none bg-gray-100 dark:bg-muted rounded-lg p-1"
+                class="inline-flex flex-wrap gap-2 focus:outline-none bg-swatch-group-bg rounded-lg p-1"
               >
                 <a
                   aria-checked="false"
                   aria-label="S"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518447M=size%3D9SM"
                   position="relative"
                   role="radio"
@@ -829,7 +829,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="M"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518447M=size%3D9MD"
                   position="relative"
                   role="radio"
@@ -848,7 +848,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="L"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518447M=size%3D9LG"
                   position="relative"
                   role="radio"
@@ -867,7 +867,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="XL"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518447M=size%3D9XL"
                   position="relative"
                   role="radio"
@@ -973,7 +973,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                       class="mt-0.5 shrink-0"
                     >
                       <div
-                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                        class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                       />
                     </div>
                     <div
@@ -1016,7 +1016,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                       class="mt-0.5 shrink-0"
                     >
                       <div
-                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                        class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                       />
                     </div>
                     <div
@@ -1100,7 +1100,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             class="items-center gap-2"
           >
             <span
-              class="line-clamp-2"
+              class="line-clamp-2 text-sm text-success font-medium"
             >
               $10 off product set
             </span>
@@ -1197,12 +1197,12 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 </span>
               </div>
               <div
-                class="flex flex-wrap gap-2 focus:outline-none"
+                class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
               >
                 <a
                   aria-checked="false"
                   aria-label="Grey Heather"
-                  class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                  class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518704M=color%3DJJ2XNXX"
                   position="relative"
                   role="radio"
@@ -1213,7 +1213,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                   >
                     <div
                       aria-label="Pull On Pant, Grey Heather, swatch"
-                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
+                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-pill"
                       style="background-image: url("https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dw811d3399/images/swatch/PG.10218785.JJ2XNXX.CP.jpg");"
                     />
                   </div>
@@ -1240,12 +1240,12 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 </span>
               </div>
               <div
-                class="inline-flex flex-wrap gap-2 focus:outline-none bg-gray-100 dark:bg-muted rounded-lg p-1"
+                class="inline-flex flex-wrap gap-2 focus:outline-none bg-swatch-group-bg rounded-lg p-1"
               >
                 <a
                   aria-checked="false"
                   aria-label="XS"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518704M=size%3D9XS"
                   position="relative"
                   role="radio"
@@ -1264,7 +1264,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="S"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518704M=size%3D9SM"
                   position="relative"
                   role="radio"
@@ -1283,7 +1283,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="M"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518704M=size%3D9MD"
                   position="relative"
                   role="radio"
@@ -1302,7 +1302,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="L"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518704M=size%3D9LG"
                   position="relative"
                   role="radio"
@@ -1321,7 +1321,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="XL"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25518704M=size%3D9XL"
                   position="relative"
                   role="radio"
@@ -1427,7 +1427,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                       class="mt-0.5 shrink-0"
                     >
                       <div
-                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                        class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                       />
                     </div>
                     <div
@@ -1470,7 +1470,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                       class="mt-0.5 shrink-0"
                     >
                       <div
-                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                        class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                       />
                     </div>
                     <div
@@ -1554,7 +1554,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             class="items-center gap-2"
           >
             <span
-              class="line-clamp-2"
+              class="line-clamp-2 text-sm text-success font-medium"
             >
               $10 off product set
             </span>
@@ -1651,12 +1651,12 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 </span>
               </div>
               <div
-                class="flex flex-wrap gap-2 focus:outline-none"
+                class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
               >
                 <a
                   aria-checked="false"
                   aria-label="Black"
-                  class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                  class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=color%3DBLACKLE"
                   position="relative"
                   role="radio"
@@ -1667,7 +1667,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                   >
                     <div
                       aria-label="Zerrick, Black, swatch"
-                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
+                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-pill"
                       style="background-image: url("https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dwaaf5a5ba/images/swatch/PG.CJZERRICK.BLACKLE.CP.jpg");"
                     />
                   </div>
@@ -1675,7 +1675,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="Taupe"
-                  class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+                  class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=color%3DTAUPETX"
                   position="relative"
                   role="radio"
@@ -1686,7 +1686,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                   >
                     <div
                       aria-label="Zerrick, Taupe, swatch"
-                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-full"
+                      class="w-full h-full bg-cover bg-center bg-no-repeat rounded-pill"
                       style="background-image: url("https://zzrf-001.dx.commercecloud.salesforce.com/on/demandware.static/-/Sites-apparel-m-catalog/default/dw114ea19c/images/swatch/PG.CJZERRICK.TAUPETX.CP.jpg");"
                     />
                   </div>
@@ -1713,12 +1713,12 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 </span>
               </div>
               <div
-                class="inline-flex flex-wrap gap-2 focus:outline-none bg-gray-100 dark:bg-muted rounded-lg p-1"
+                class="inline-flex flex-wrap gap-2 focus:outline-none bg-swatch-group-bg rounded-lg p-1"
               >
                 <a
                   aria-checked="false"
                   aria-label="6"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D060"
                   position="relative"
                   role="radio"
@@ -1737,7 +1737,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="6.5"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D065"
                   position="relative"
                   role="radio"
@@ -1756,7 +1756,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="7"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D070"
                   position="relative"
                   role="radio"
@@ -1775,7 +1775,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="7.5"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D075"
                   position="relative"
                   role="radio"
@@ -1794,7 +1794,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="8"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D080"
                   position="relative"
                   role="radio"
@@ -1813,7 +1813,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="8.5"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D085"
                   position="relative"
                   role="radio"
@@ -1832,7 +1832,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="9"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D090"
                   position="relative"
                   role="radio"
@@ -1851,7 +1851,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="9.5"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D095"
                   position="relative"
                   role="radio"
@@ -1870,7 +1870,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="10"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D100"
                   position="relative"
                   role="radio"
@@ -1889,7 +1889,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 <a
                   aria-checked="false"
                   aria-label="11"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=size%3D110"
                   position="relative"
                   role="radio"
@@ -1927,12 +1927,12 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                 </span>
               </div>
               <div
-                class="inline-flex flex-wrap gap-2 focus:outline-none bg-gray-100 dark:bg-muted rounded-lg p-1"
+                class="inline-flex flex-wrap gap-2 focus:outline-none bg-swatch-group-bg rounded-lg p-1"
               >
                 <a
                   aria-checked="false"
                   aria-label="M"
-                  class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+                  class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-8 min-h-8 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
                   href="/?25772717M=width%3DM"
                   position="relative"
                   role="radio"
@@ -2038,7 +2038,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                       class="mt-0.5 shrink-0"
                     >
                       <div
-                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                        class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                       />
                     </div>
                     <div
@@ -2081,7 +2081,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                       class="mt-0.5 shrink-0"
                     >
                       <div
-                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                        class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                       />
                     </div>
                     <div
@@ -2168,7 +2168,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                   class="mt-0.5 shrink-0"
                 >
                   <div
-                    class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                    class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                   />
                 </div>
                 <div
@@ -2211,7 +2211,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
                   class="mt-0.5 shrink-0"
                 >
                   <div
-                    class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                    class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
                   />
                 </div>
                 <div

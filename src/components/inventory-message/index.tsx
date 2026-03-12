@@ -21,6 +21,7 @@ import { useTranslation, type TFunction } from 'react-i18next';
 
 export const InventoryStatus = {
     IN_STOCK: 'in-stock',
+    LOW_STOCK: 'low-stock',
     PRE_ORDER: 'pre-order',
     BACK_ORDER: 'back-order',
     OUT_OF_STOCK: 'out-of-stock',
@@ -33,6 +34,11 @@ interface InventoryMessageProps {
     product: ShopperProducts.schemas['Product'];
     currentVariant?: ShopperProducts.schemas['Variant'] | null;
     className?: string;
+    /**
+     * Stock level at or below which the item is considered "low stock".
+     * When stockLevel > 0 && stockLevel <= lowStockThreshold, shows a warning-colored message.
+     */
+    lowStockThreshold?: number;
     /**
      * Whether to show unknown inventory status messages. Defaults to false.
      * When false, unknown status messages are visually hidden.
@@ -54,7 +60,8 @@ interface InventoryMessageProps {
  */
 function getInventoryStatus(
     product: ShopperProducts.schemas['Product'],
-    currentVariant?: ShopperProducts.schemas['Variant'] | null
+    currentVariant?: ShopperProducts.schemas['Variant'] | null,
+    lowStockThreshold = 0
 ): InventoryStatusType {
     // Use variant inventory if available, otherwise use product inventory
     const inventory = currentVariant?.inventory || product.inventory;
@@ -76,6 +83,10 @@ function getInventoryStatus(
         return InventoryStatus.BACK_ORDER;
     }
 
+    if (stockLevel > 0 && stockLevel <= lowStockThreshold) {
+        return InventoryStatus.LOW_STOCK;
+    }
+
     if (stockLevel > 0) {
         return InventoryStatus.IN_STOCK;
     }
@@ -84,37 +95,43 @@ function getInventoryStatus(
 }
 
 /**
- * Gets the appropriate message and styling for inventory status
+ * Gets the appropriate message and styling for inventory status.
  *
- * TODO: Fix these colors once the UX team has updated the colors.
+ * Uses inventory-specific CSS custom properties (--inventory-*) so that themes
+ * can colour stock indicators independently of the global semantic tokens.
  */
-function getInventoryMessage(status: InventoryStatusType, t: TFunction) {
+function getInventoryMessage(status: InventoryStatusType, t: TFunction, stockLevel?: number) {
     switch (status) {
         case InventoryStatus.IN_STOCK:
             return {
-                message: t('inStock'),
-                className: 'text-success bg-success/10 border-success/20',
+                message: stockLevel != null ? t('inStockCount', { count: stockLevel }) : t('inStock'),
+                className: 'text-[var(--inventory-in-stock)]',
+            };
+        case InventoryStatus.LOW_STOCK:
+            return {
+                message: stockLevel != null ? t('lowStockCount', { count: stockLevel }) : t('lowStock'),
+                className: 'text-[var(--inventory-low-stock)]',
             };
         case InventoryStatus.PRE_ORDER:
             return {
                 message: t('preOrder'),
-                className: 'text-info bg-info/10 border-info/20',
+                className: 'text-[var(--inventory-pre-order)]',
             };
         case InventoryStatus.BACK_ORDER:
             return {
                 message: t('backOrder'),
-                className: 'text-warning bg-warning/10 border-warning/20',
+                className: 'text-[var(--inventory-back-order)]',
             };
         case InventoryStatus.OUT_OF_STOCK:
             return {
                 message: t('outOfStockLabel'),
-                className: 'text-destructive bg-destructive/10 border-destructive/20',
+                className: 'text-[var(--inventory-out-of-stock)]',
             };
         case InventoryStatus.UNKNOWN:
         default:
             return {
                 message: 'Inventory unavailable',
-                className: 'text-muted-foreground bg-muted border-border',
+                className: 'text-muted-foreground',
             };
     }
 }
@@ -132,27 +149,26 @@ export default function InventoryMessage({
     product,
     currentVariant,
     className,
+    lowStockThreshold = 0,
     showUnknownStatus = false,
     getInventoryStatus: customGetInventoryStatus,
 }: InventoryMessageProps): ReactElement {
     const { t } = useTranslation('product');
+    const inventory = currentVariant?.inventory || product.inventory;
+    const stockLevel = inventory?.ats;
     const status = customGetInventoryStatus
         ? customGetInventoryStatus(product, currentVariant)
-        : getInventoryStatus(product, currentVariant);
+        : getInventoryStatus(product, currentVariant, lowStockThreshold);
 
-    const statusInfo = getInventoryMessage(status, t);
+    const statusInfo = getInventoryMessage(status, t, stockLevel);
     const isUnknown = status === InventoryStatus.UNKNOWN;
 
     return (
         <div
-            className={cn(
-                'inline-flex items-center px-3 py-1.5 rounded-md border text-sm font-medium',
-                statusInfo.className,
-                className,
-                isUnknown && !showUnknownStatus && 'hidden' // Tailwind's display:none
-            )}
+            className={cn('flex items-center gap-2', className, isUnknown && !showUnknownStatus && 'hidden')}
             {...(isUnknown && !showUnknownStatus && { 'aria-hidden': true })}>
-            {statusInfo.message}
+            <span className={cn('h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current', statusInfo.className)} />
+            <p className={cn('text-sm font-medium', statusInfo.className)}>{statusInfo.message}</p>
         </div>
     );
 }

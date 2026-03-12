@@ -13,12 +13,12 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
       role="radiogroup"
     >
       <div
-        class="flex flex-wrap gap-2 focus:outline-none"
+        class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
       >
         <button
           aria-checked="true"
           aria-label="Navy"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
           position="relative"
           role="radio"
           tabindex="0"
@@ -29,7 +29,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
           >
             <div
               aria-label="Navy"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: navy; background-image: url("https://example.com/navy.jpg");"
             />
           </div>
@@ -37,7 +37,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
         <button
           aria-checked="false"
           aria-label="Red"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -48,7 +48,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
           >
             <div
               aria-label="Red"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: red; background-image: url("https://example.com/red.jpg");"
             />
           </div>
@@ -56,7 +56,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
         <button
           aria-checked="false"
           aria-label="Blue"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -67,7 +67,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
           >
             <div
               aria-label="Blue"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: blue; background-image: url("https://example.com/blue.jpg");"
             />
           </div>
@@ -75,7 +75,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
         <button
           aria-checked="false"
           aria-label="Black"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -86,7 +86,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
           >
             <div
               aria-label="Black"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: black; background-image: url("https://example.com/black.jpg");"
             />
           </div>
@@ -94,7 +94,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
         <button
           aria-checked="false"
           aria-label="Green"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -105,7 +105,7 @@ exports[`Swatches stories snapshot > ColorSwatches story renders and matches sna
           >
             <div
               aria-label="Green"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: green; background-image: url("https://example.com/green.jpg");"
             />
           </div>
@@ -129,12 +129,12 @@ exports[`Swatches stories snapshot > ColorSwatchesWithOverflow story renders and
       role="radiogroup"
     >
       <div
-        class="flex flex-wrap gap-2 focus:outline-none"
+        class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
       >
         <button
           aria-checked="false"
           aria-label="Navy"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -145,7 +145,7 @@ exports[`Swatches stories snapshot > ColorSwatchesWithOverflow story renders and
           >
             <div
               aria-label="Navy"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: navy; background-image: url("https://example.com/navy.jpg");"
             />
           </div>
@@ -153,7 +153,7 @@ exports[`Swatches stories snapshot > ColorSwatchesWithOverflow story renders and
         <button
           aria-checked="true"
           aria-label="Red"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-black"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border-selected,black)] bg-[var(--swatch-color-bg-selected,transparent)] text-[var(--swatch-color-text-selected,inherit)] shadow-[var(--swatch-color-shadow,none)]"
           position="relative"
           role="radio"
           tabindex="0"
@@ -164,7 +164,7 @@ exports[`Swatches stories snapshot > ColorSwatchesWithOverflow story renders and
           >
             <div
               aria-label="Red"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: red; background-image: url("https://example.com/red.jpg");"
             />
           </div>
@@ -172,7 +172,7 @@ exports[`Swatches stories snapshot > ColorSwatchesWithOverflow story renders and
         <button
           aria-checked="false"
           aria-label="Blue"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -183,13 +183,13 @@ exports[`Swatches stories snapshot > ColorSwatchesWithOverflow story renders and
           >
             <div
               aria-label="Blue"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: blue; background-image: url("https://example.com/blue.jpg");"
             />
           </div>
         </button>
         <div
-          class="relative shrink-0 rounded-full border-2 border-border bg-background flex items-center justify-center cursor-pointer w-7 h-7"
+          class="relative shrink-0 rounded-pill border-[length:var(--swatch-border-width,2px)] border-border bg-background flex items-center justify-center cursor-pointer w-[var(--swatch-pill-size,1.75rem)] h-[var(--swatch-pill-size,1.75rem)]"
           title="+2"
         >
           <svg
@@ -231,12 +231,12 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
       role="radiogroup"
     >
       <div
-        class="flex flex-wrap gap-2 focus:outline-none"
+        class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
       >
         <button
           aria-checked="false"
           aria-label="Navy"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="0"
@@ -247,7 +247,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
           >
             <div
               aria-label="Navy"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: navy; background-image: url("https://example.com/navy.jpg");"
             />
           </div>
@@ -255,7 +255,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
         <button
           aria-checked="false"
           aria-label="Red"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -266,7 +266,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
           >
             <div
               aria-label="Red"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: red; background-image: url("https://example.com/red.jpg");"
             />
           </div>
@@ -274,7 +274,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
         <button
           aria-checked="false"
           aria-label="Blue"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -285,7 +285,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
           >
             <div
               aria-label="Blue"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: blue; background-image: url("https://example.com/blue.jpg");"
             />
           </div>
@@ -293,7 +293,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
         <button
           aria-checked="false"
           aria-label="Black"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -304,7 +304,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
           >
             <div
               aria-label="Black"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: black; background-image: url("https://example.com/black.jpg");"
             />
           </div>
@@ -312,7 +312,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
         <button
           aria-checked="false"
           aria-label="Green"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -323,7 +323,7 @@ exports[`Swatches stories snapshot > NoSelection story renders and matches snaps
           >
             <div
               aria-label="Green"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: green; background-image: url("https://example.com/green.jpg");"
             />
           </div>
@@ -347,12 +347,12 @@ exports[`Swatches stories snapshot > SizeSwatches story renders and matches snap
       role="radiogroup"
     >
       <div
-        class="inline-flex flex-wrap gap-2 focus:outline-none bg-gray-100 dark:bg-muted rounded-lg p-1"
+        class="inline-flex flex-wrap gap-2 focus:outline-none bg-swatch-group-bg rounded-lg p-1"
       >
         <button
           aria-checked="false"
           aria-label="S"
-          class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+          class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -371,7 +371,7 @@ exports[`Swatches stories snapshot > SizeSwatches story renders and matches snap
         <button
           aria-checked="true"
           aria-label="M"
-          class="text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-white dark:bg-muted border border-gray-300 dark:border-2 dark:border-input shadow-sm dark:shadow-none"
+          class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-swatch-bg-selected border border-swatch-border-selected text-swatch-text-selected shadow-sm"
           position="relative"
           role="radio"
           tabindex="0"
@@ -390,7 +390,7 @@ exports[`Swatches stories snapshot > SizeSwatches story renders and matches snap
         <button
           aria-checked="false"
           aria-label="L"
-          class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+          class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -409,7 +409,7 @@ exports[`Swatches stories snapshot > SizeSwatches story renders and matches snap
         <button
           aria-checked="false"
           aria-label="XL"
-          class="border-black/50 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-gray-100 dark:bg-muted border-0 shadow-none"
+          class="flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-md px-3 py-1 cursor-pointer bg-swatch border border-swatch-border text-swatch-text hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="-1"
@@ -444,12 +444,12 @@ exports[`Swatches stories snapshot > VariantReadOnly story renders and matches s
       role="radiogroup"
     >
       <div
-        class="flex flex-wrap gap-2 focus:outline-none"
+        class="flex flex-wrap gap-[var(--swatch-pill-gap,0.5rem)] focus:outline-none"
       >
         <button
           aria-checked="false"
           aria-label="Navy"
-          class="border-2 text-foreground flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-full w-7 h-7 p-1 cursor-pointer border-transparent"
+          class="border-[length:var(--swatch-border-width)] flex-shrink-0 relative group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-w-6 min-h-6 rounded-pill w-[var(--swatch-pill-size)] h-[var(--swatch-pill-size)] p-[var(--swatch-pill-padding)] cursor-pointer border-[var(--swatch-color-border,transparent)] bg-[var(--swatch-color-bg,transparent)] text-[var(--swatch-color-text,inherit)] hover:border-[var(--swatch-color-border-hover,transparent)]"
           position="relative"
           role="radio"
           tabindex="0"
@@ -460,7 +460,7 @@ exports[`Swatches stories snapshot > VariantReadOnly story renders and matches s
           >
             <div
               aria-label="Navy"
-              class="bg-no-repeat bg-cover bg-center rounded-full w-full h-full"
+              class="bg-no-repeat bg-cover bg-center rounded-pill w-full h-full"
               style="background-color: navy; background-image: url("https://example.com/navy.jpg");"
             />
           </div>

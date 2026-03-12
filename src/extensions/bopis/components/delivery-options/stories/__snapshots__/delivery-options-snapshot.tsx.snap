@@ -42,7 +42,7 @@ exports[`DeliveryOptions stories snapshot > Default story renders and matches sn
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div
@@ -85,7 +85,7 @@ exports[`DeliveryOptions stories snapshot > Default story renders and matches sn
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div
@@ -157,7 +157,7 @@ exports[`DeliveryOptions stories snapshot > DesktopLayout story renders and matc
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div
@@ -200,7 +200,7 @@ exports[`DeliveryOptions stories snapshot > DesktopLayout story renders and matc
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div
@@ -282,7 +282,7 @@ exports[`DeliveryOptions stories snapshot > MobileLayout story renders and match
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div
@@ -325,7 +325,7 @@ exports[`DeliveryOptions stories snapshot > MobileLayout story renders and match
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div
@@ -397,7 +397,7 @@ exports[`DeliveryOptions stories snapshot > WithStoreSelected story renders and 
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div
@@ -440,7 +440,7 @@ exports[`DeliveryOptions stories snapshot > WithStoreSelected story renders and 
               class="mt-0.5 shrink-0"
             >
               <div
-                class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
+                class="w-4 h-4 rounded-pill border-2 flex items-center justify-center transition-colors border-muted-foreground/20"
               />
             </div>
             <div

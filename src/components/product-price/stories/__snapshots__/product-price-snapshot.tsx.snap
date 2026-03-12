@@ -136,7 +136,7 @@ exports[`ProductPrice stories snapshot > WithCustomPromoCalloutStyling story ren
     class="items-center gap-2 text-sm text-muted-foreground"
   >
     <span
-      class="line-clamp-2"
+      class="line-clamp-2 text-sm text-success font-medium"
     >
       Get 20% off of this item.
     </span>
@@ -182,7 +182,7 @@ exports[`ProductPrice stories snapshot > WithPromoCallout story renders and matc
     class="items-center gap-2"
   >
     <span
-      class="line-clamp-2"
+      class="line-clamp-2 text-sm text-success font-medium"
     >
       Get 20% off of this item.
     </span>
