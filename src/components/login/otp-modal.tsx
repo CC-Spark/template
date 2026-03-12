@@ -15,7 +15,7 @@
  */
 'use client';
 
-import { useState, useEffect, useRef, type ReactElement } from 'react';
+import { useState, useEffect, useRef, useMemo, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -34,7 +34,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Typography } from '@/components/typography';
 import { useTranslation } from 'react-i18next';
-import { useOtpInputs } from '@/hooks/use-otp-inputs';
+import { useOtpVerification } from '@/hooks/use-otp-verification';
+
 interface OtpModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -80,7 +81,7 @@ export default function OtpModal({
     const [isVerifying, setIsVerifying] = useState(false);
 
     const [resendTimer, setResendTimer] = useState(0);
-    const schema = createOtpSchema(t, otpLength);
+    const schema = useMemo(() => createOtpSchema(t, otpLength), [t, otpLength]);
     const form = useForm<z.infer<ReturnType<typeof createOtpSchema>>>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -91,15 +92,6 @@ export default function OtpModal({
     const isLoading = fetcher.state === 'submitting' || fetcher.state === 'loading';
 
     const handleVerify = (code: string) => {
-        if (code.length !== otpLength) return;
-
-        // Basic validation - code should be exactly otpLength digits
-        if (!new RegExp(`^\\d{${otpLength}}$`).test(code)) {
-            setError(t('otpInvalidFormat'));
-            setIsVerifying(false);
-            return;
-        }
-
         setIsVerifying(true);
         setError(null);
 
@@ -116,31 +108,10 @@ export default function OtpModal({
         });
     };
 
-    const handleVerifyRef = useRef(handleVerify);
-    handleVerifyRef.current = handleVerify;
-
-    const otpInputs = useOtpInputs(otpLength, (code) => {
-        if (code.length === otpLength) {
-            void handleVerifyRef.current(code);
-        }
+    const { otpInputs, otpInputsRef, refCallbacks } = useOtpVerification({
+        otpLength,
+        onVerify: handleVerify,
     });
-
-    const inputRefsStable = useRef(otpInputs.inputRefs);
-    inputRefsStable.current = otpInputs.inputRefs;
-
-    // Keep stable refs to otpInputs methods to avoid infinite loops in effects
-    const otpInputsRef = useRef(otpInputs);
-    otpInputsRef.current = otpInputs;
-
-    const refCallbacks = useRef<Array<(el: HTMLInputElement | null) => void> | null>(null);
-    if (!refCallbacks.current || refCallbacks.current.length !== otpLength) {
-        refCallbacks.current = Array.from({ length: otpLength }, (_, index) => {
-            return (el: HTMLInputElement | null) => {
-                inputRefsStable.current.current[index] = el;
-            };
-        });
-    }
-
     // Resend countdown (same behavior as avinash branch)
     useEffect(() => {
         if (resendTimer > 0) {
@@ -245,7 +216,7 @@ export default function OtpModal({
                         {Array.from({ length: otpLength }, (_, index) => `otp-input-${index}`).map((inputId, index) => (
                             <Input
                                 key={inputId}
-                                ref={refCallbacks.current?.[index] ?? undefined}
+                                ref={refCallbacks[index]}
                                 type="text"
                                 inputMode="numeric"
                                 maxLength={1}
@@ -254,6 +225,7 @@ export default function OtpModal({
                                 onKeyDown={(e) => otpInputs.handleKeyDown(index, e)}
                                 onPaste={otpInputs.handlePaste}
                                 disabled={isVerifying || isLoading}
+                                autoFocus={index === 0}
                                 className="w-12 h-14 text-center text-lg font-bold border-2"
                                 aria-label={`${t('otpCodeLabel')} ${index + 1} of ${otpLength}`}
                             />
