@@ -100,9 +100,10 @@ const legacyRoutesMiddleware: MiddlewareFunction<Record<string, DataStrategyResu
     if (typeof window === 'undefined') {
         return next();
     }
+
     const config = context.get(appConfigContext);
-    const enabled = config?.site?.hybrid?.enabled ?? false;
-    const legacyRoutes = config?.site?.hybrid?.legacyRoutes;
+    const enabled = config?.hybrid?.enabled ?? false;
+    const legacyRoutes = config?.hybrid?.legacyRoutes;
 
     // If hybrid mode is disabled or no legacy routes configured, skip
     if (!enabled || !legacyRoutes || legacyRoutes.length === 0) {
@@ -128,9 +129,14 @@ const legacyRoutesMiddleware: MiddlewareFunction<Record<string, DataStrategyResu
         // The CDN routing rules or server middleware will handle routing to the legacy backend
         window.location.href = url.toString();
 
-        // Return empty result to prevent further processing
-        // (though navigation will interrupt execution anyway)
-        return {};
+        // Suspend indefinitely while the browser navigates away.
+        // Returning an empty object would cause React Router to error with
+        // "No result returned from dataStrategy" since it expects a DataStrategyResult
+        // for every matched route. This never-resolving promise keeps React Router
+        // waiting until the page unloads. It's zero-cost (no timers or listeners)
+        // and is garbage collected when the browser completes the navigation.
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return new Promise(() => {});
     }
 
     // Not a legacy route, continue with normal client-side navigation

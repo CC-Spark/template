@@ -1,0 +1,460 @@
+/**
+ * Copyright 2026 Salesforce, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Vite plugin for hybrid proxying between Storefront Next and legacy SFRA.
+ *
+ * **LOCAL DEVELOPMENT ONLY** - This plugin only works with `pnpm dev` (Vite dev server).
+ * For MRT/production deployments, use Cloudflare eCDN routing instead.
+ *
+ * ## Dependency injection via `routeMatcher`
+ *
+ * This plugin accepts a `routeMatcher` callback instead of importing routing logic
+ * directly. The template owns the routing logic (e.g., `ecdn-matcher.ts`) and passes
+ * it in when configuring the plugin. This keeps the SDK package pure — it knows nothing
+ * about template internals — while allowing the template to inject merchant-specific
+ * routing rules.
+ *
+ * The same `routeMatcher` pattern can be used by the future MRT server middleware.
+ *
+ * ## How it works
+ *
+ * 1. Intercepts HTTP requests BEFORE React Router sees them
+ * 2. Checks routing rules: matching routes → React Router, non-matching → proxy to SFCC
+ * 3. Rewrites paths: /cart → /s/{siteId}/{locale}/cart (SFRA format)
+ * 4. Rewrites cookies: Domain=.salesforce.com → Domain=localhost (session continuity)
+ * 5. Rewrites HTML/JSON bodies: replaces SFCC origin URLs with localhost (keeps client-side nav proxied)
+ *
+ * This enables seamless navigation between Next pages (/) and SFRA pages (/cart) without
+ * visible redirects or session loss. The browser URL stays localhost:5173/cart.
+ *
+ * ## Environment variables
+ *
+ * - HYBRID_PROXY_ENABLED (required) - 'true' to enable the plugin
+ * - HYBRID_ROUTING_RULES (required) - Cloudflare routing expression (routes matching go to Next)
+ * - SFCC_ORIGIN (required) - SFCC sandbox URL (e.g., https://zzrf-001.dx.commercecloud.salesforce.com)
+ * - PUBLIC__app__commerce__api__siteId (required) - Site ID for SFRA path transformation (e.g., 'RefArchGlobal')
+ * - HYBRID_PROXY_LOCALE (optional) - Locale for SFRA path transformation (e.g., 'en-GB')
+ * - PUBLIC__app__i18n__fallbackLng (fallback) - Used if HYBRID_PROXY_LOCALE not set
+ */
+
+/* eslint-disable no-console */
+import type { Plugin, ViteDevServer } from 'vite';
+import httpProxy from 'http-proxy';
+import type { IncomingMessage } from 'http';
+import { gunzipSync, brotliDecompressSync, inflateSync } from 'zlib';
+
+export interface HybridProxyPluginOptions {
+    /** Whether hybrid proxying is enabled */
+    enabled: boolean;
+    /** SFCC origin URL to proxy non-matching routes to */
+    targetOrigin: string;
+    /** Cloudflare routing expression (routes matching go to Next) */
+    routingRules: string;
+    /**
+     * Callback that decides if a pathname should be handled by Storefront Next.
+     * Called for every request that isn't a Vite internal or SFCC path.
+     * Receives the pathname and the raw `routingRules` string; returns true to
+     * let React Router handle it, false to proxy to SFCC.
+     *
+     * @example
+     * import { shouldRouteToNext } from './src/lib/ecdn-matcher';
+     * hybridProxyPlugin({ routeMatcher: shouldRouteToNext, ... })
+     */
+    routeMatcher: (pathname: string, routingRules: string) => boolean;
+    /** SFCC Site ID (e.g., 'RefArchGlobal') */
+    siteId: string;
+    /** Locale for SFRA paths (e.g., 'en-GB'). Defaults to 'default' if not provided. */
+    locale?: string;
+}
+
+/**
+ * Check if a request path should skip proxying (Vite internals, assets, etc.)
+ *
+ * @param pathname - URL pathname to check
+ * @returns true if the request should NOT be proxied
+ */
+export function shouldSkipProxy(pathname: string): boolean {
+    // Vite virtual modules (@vite/client, @fs/, @id/, etc.)
+    if (pathname.startsWith('/@')) return true;
+
+    // Vite dev server internals
+    if (pathname.startsWith('/__')) return true;
+
+    // Source files served by Vite
+    if (pathname.startsWith('/src/')) return true;
+
+    // Node modules
+    if (pathname.startsWith('/node_modules/')) return true;
+
+    // React Router data requests
+    if (pathname.endsWith('.data')) return true;
+
+    // SCAPI proxy paths (handled by React Router)
+    if (pathname.startsWith('/mobify/')) return true;
+
+    // SFRA static assets - these MUST be proxied to SFCC
+    // /on/demandware.static/... - static assets (CSS, JS, images)
+    // /on/demandware.store/... - dynamic endpoints
+    if (pathname.startsWith('/on/demandware.')) {
+        return false; // DO proxy these to SFCC
+    }
+
+    // Vite build output and other asset files (served by Vite/React Router)
+    // Only skip if NOT an SFRA path (checked above)
+    if (/\.(js|jsx|ts|tsx|css|json|map|woff2?|ttf|svg|png|jpe?g|gif|webp|ico|mp4)$/i.test(pathname)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Rewrite Set-Cookie header for localhost development.
+ *
+ * Rewrites SFCC Set-Cookie headers so they work on localhost during local development.
+ *
+ * **LOCAL DEVELOPMENT ONLY** — This function is part of the hybrid proxy Vite plugin
+ * which only runs during `pnpm dev`. In production (MRT deployments), SFCC cookies
+ * flow through the eCDN unmodified.
+ *
+ * Rewrites applied:
+ * - **Domain**: `.salesforce.com` → `localhost` (browsers reject cross-domain cookies)
+ *
+ * Attributes intentionally preserved:
+ * - **Secure**: Kept. Localhost is a secure context — browsers accept `Secure` cookies
+ *   on `http://localhost` (see https://w3c.github.io/webappsec-secure-contexts/).
+ * - **SameSite**: Kept. `SameSite=None; Secure` is valid on localhost since `Secure`
+ *   is accepted. This keeps SFCC cookies transparent and in sync with Storefront Next
+ *   cookies, which is critical for hybrid auth session bridging.
+ *
+ * @param cookie - Original Set-Cookie header value from SFCC
+ * @returns Rewritten cookie suitable for localhost
+ *
+ * @example
+ * Input:  "dwsid=abc123; Domain=.salesforce.com; Path=/; Secure; SameSite=None; HttpOnly"
+ * Output: "dwsid=abc123; Domain=localhost; Path=/; Secure; SameSite=None; HttpOnly"
+ */
+export function rewriteCookieForLocalhost(cookie: string): string {
+    let rewritten = cookie;
+
+    // Replace Domain= with localhost (case-insensitive)
+    rewritten = rewritten.replace(/Domain=[^;]+/gi, 'Domain=localhost');
+
+    // Add Domain=localhost if not present
+    if (!/Domain=/i.test(cookie)) {
+        // Insert after first attribute (cookie name=value)
+        rewritten = rewritten.replace(/^([^;]+)/, '$1; Domain=localhost');
+    }
+
+    return rewritten.trim();
+}
+
+/**
+ * Inline script injected into proxied HTML responses to intercept `document.cookie` writes.
+ *
+ * **Why this is needed (Layer 3 cookie rewriting):**
+ *
+ * The hybrid proxy rewrites Set-Cookie headers from SFCC responses (Layer 1), but after
+ * the SFRA page fully loads, client-side JavaScript sets cookies via `document.cookie`.
+ * These writes bypass the proxy entirely.
+ *
+ * SFRA's JS typically checks `window.location.protocol` to decide whether to add `Secure`.
+ * On `http://localhost`, it sees `http:` and omits `Secure`, producing cookies like:
+ *
+ *     document.cookie = "dwsid=abc; SameSite=None"   // No Secure → browser rejects
+ *
+ * This interceptor patches `document.cookie` to:
+ * 1. Rewrite `Domain=...` → `Domain=localhost`
+ * 2. Ensure `Secure` is present (localhost is a secure context)
+ * 3. If `SameSite=None` is present without `Secure`, add `Secure`
+ *
+ * This keeps client-side cookie writes consistent with the proxy's Layer 1 rewrites
+ * and ensures hybrid auth cookies (dwsid, cc-*) stay in sync between Storefront Next
+ * and SFRA.
+ *
+ * **LOCAL DEVELOPMENT ONLY** — This script is only injected by the Vite dev server proxy.
+ */
+const COOKIE_INTERCEPTOR_SCRIPT = `<script data-hybrid-proxy="cookie-interceptor">
+(function() {
+    var desc = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+    if (!desc || !desc.set) return;
+    Object.defineProperty(document, 'cookie', {
+        get: function() { return desc.get.call(this); },
+        set: function(val) {
+            // Rewrite Domain to localhost
+            val = val.replace(/Domain=[^;]+/gi, 'Domain=localhost');
+            // Ensure Secure is present if SameSite=None (localhost is a secure context)
+            if (/SameSite=None/i.test(val) && !/;\\s*Secure\\b/i.test(val)) {
+                val += '; Secure';
+            }
+            desc.set.call(this, val);
+        },
+        configurable: true
+    });
+})();
+</script>`;
+
+/**
+ * Escape special regex characters in a string for use in `new RegExp()`.
+ */
+function escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Vite plugin for hybrid proxying between Storefront Next and legacy SFRA.
+ *
+ * Uses http-proxy to silently forward non-matching requests to SFCC without visible
+ * redirects. Rewrites Set-Cookie headers, Location headers, and HTML/JSON response
+ * bodies to keep all navigation within the localhost proxy.
+ *
+ * Routing decisions are delegated to the `routeMatcher` callback injected via options,
+ * keeping the SDK free of template-specific routing logic.
+ *
+ * @param options - Plugin configuration
+ * @returns Vite plugin
+ */
+export function hybridProxyPlugin(options: HybridProxyPluginOptions): Plugin {
+    if (!options.enabled) {
+        console.log('[Hybrid Proxy] Disabled (HYBRID_PROXY_ENABLED is not true)');
+        return {
+            name: 'hybrid-proxy',
+        };
+    }
+
+    if (!options.targetOrigin) {
+        console.warn('[Hybrid Proxy] No target origin configured (SFCC_ORIGIN required)');
+        return {
+            name: 'hybrid-proxy',
+        };
+    }
+
+    console.log('[Hybrid Proxy] Enabled');
+    console.log(`[Hybrid Proxy] Target origin: ${options.targetOrigin}`);
+    console.log(`[Hybrid Proxy] Routing rules: ${options.routingRules.slice(0, 100)}...`);
+    const locale = options.locale || 'default';
+    console.log(`[Hybrid Proxy] Path transformation: /path → /s/${options.siteId}/${locale}/path`);
+
+    // Pre-compile regex for URL rewriting in response bodies
+    const targetOriginPattern = new RegExp(escapeRegExp(options.targetOrigin), 'g');
+
+    // Create http-proxy instance
+    // selfHandleResponse: true prevents http-proxy from automatically piping the
+    // proxy response to the client. This lets us buffer HTML responses and rewrite
+    // SFCC URLs to localhost, keeping client-side navigation within the proxy.
+    const proxy = httpProxy.createProxyServer({
+        changeOrigin: true,
+        followRedirects: false,
+        selfHandleResponse: true,
+    });
+
+    // Rewrite request path to SFRA format (/s/{siteId}/{locale}/path)
+    proxy.on('proxyReq', (proxyReq, req) => {
+        const url = new URL(req.url || '', `http://${req.headers.host}`);
+        const pathname = url.pathname;
+
+        // Check if path needs SFRA decoration
+        // Skip if:
+        // - Already has /s/ prefix
+        // - Is an /on/demandware.* path (already in SFCC format)
+        // - Missing siteId or locale config
+        const needsTransformation = !pathname.startsWith('/s/') && !pathname.startsWith('/on/demandware.');
+
+        if (needsTransformation) {
+            const originalPath = proxyReq.path;
+            // Rewrite internal proxy path without changing browser URL
+            proxyReq.path = `/s/${options.siteId}/${locale}${pathname}${url.search}`;
+            console.log(`[Hybrid Proxy] Path rewrite: ${originalPath} → ${proxyReq.path}`);
+        }
+    });
+
+    // Handle all proxy responses manually (required by selfHandleResponse: true).
+    // For HTML responses: buffer body, decompress, rewrite SFCC URLs to localhost.
+    // For non-HTML responses: pipe through with header rewrites only.
+    proxy.on('proxyRes', (proxyRes: IncomingMessage, req, res) => {
+        const clientRes = res;
+
+        // --- Safety net: detect SFCC error redirects ---
+        // When SFCC doesn't recognize a URL it redirects to its 404 page and clears
+        // session cookies. This usually means the routing rules are misconfigured —
+        // a path that should go to Storefront Next is being proxied to SFCC instead.
+        // Strip Set-Cookie headers from these responses to prevent cookie corruption.
+        const locationHeader = proxyRes.headers.location;
+        const statusCode = proxyRes.statusCode || 200;
+        const isRedirectToError =
+            statusCode >= 300 &&
+            statusCode < 400 &&
+            typeof locationHeader === 'string' &&
+            /\/404\b/.test(locationHeader);
+
+        if (isRedirectToError) {
+            console.warn(
+                `[Hybrid Proxy] ⚠️  SFCC returned a redirect to 404 for ${req.url}\n` +
+                    `  This usually means your HYBRID_ROUTING_RULES are missing a pattern for this path.\n` +
+                    `  Stripping Set-Cookie headers to prevent session cookie corruption.\n` +
+                    `  Fix: add a matching pattern to HYBRID_ROUTING_RULES (e.g., "^${req.url?.split('?')[0]}.*")`
+            );
+            delete proxyRes.headers['set-cookie'];
+        }
+
+        // --- Header rewrites (apply to ALL responses) ---
+
+        // Rewrite Set-Cookie headers for localhost (skip if already stripped above)
+        const setCookieHeaders = proxyRes.headers['set-cookie'];
+        if (setCookieHeaders && Array.isArray(setCookieHeaders)) {
+            proxyRes.headers['set-cookie'] = setCookieHeaders.map((cookie) => {
+                const rewritten = rewriteCookieForLocalhost(cookie);
+                console.log(`[Hybrid Proxy] Cookie rewrite: ${cookie.slice(0, 50)}... → ${rewritten.slice(0, 50)}...`);
+                return rewritten;
+            });
+        }
+
+        // Rewrite Location header in redirects to keep user on localhost
+        if (locationHeader && typeof locationHeader === 'string') {
+            try {
+                const locationUrl = new URL(locationHeader, options.targetOrigin);
+                if (locationUrl.origin === options.targetOrigin) {
+                    const localUrl = `http://${req.headers.host}${locationUrl.pathname}${locationUrl.search}${locationUrl.hash}`;
+                    proxyRes.headers.location = localUrl;
+                    console.log(`[Hybrid Proxy] Location rewrite: ${locationHeader} → ${localUrl}`);
+                }
+            } catch {
+                console.warn('[Hybrid Proxy] Invalid Location header:', locationHeader);
+            }
+        }
+
+        // --- Response body handling ---
+
+        const contentType = (proxyRes.headers['content-type'] || '').split(';')[0].trim();
+        const isRewritable = contentType === 'text/html' || contentType === 'application/json';
+
+        if (!isRewritable) {
+            // Non-HTML/JSON: write headers and pipe body through unchanged
+            clientRes.writeHead(proxyRes.statusCode || 200, proxyRes.headers);
+            proxyRes.pipe(clientRes);
+            return;
+        }
+
+        // HTML or JSON: buffer the response body for URL rewriting
+        const chunks: Buffer[] = [];
+        proxyRes.on('data', (chunk: Buffer) => chunks.push(chunk));
+        proxyRes.on('end', () => {
+            let body: Buffer<ArrayBufferLike> = Buffer.concat(chunks);
+
+            // Decompress if needed
+            const encoding = proxyRes.headers['content-encoding'];
+            if (encoding === 'gzip') {
+                body = gunzipSync(body);
+            } else if (encoding === 'br') {
+                body = brotliDecompressSync(body);
+            } else if (encoding === 'deflate') {
+                body = inflateSync(body);
+            }
+
+            // Rewrite SFCC origin URLs to localhost so client-side navigation stays proxied
+            const proxyOrigin = `http://${req.headers.host}`;
+            let text = body.toString('utf8');
+            // Reset lastIndex since the regex has the global flag and is reused across calls
+            targetOriginPattern.lastIndex = 0;
+            text = text.replace(targetOriginPattern, proxyOrigin);
+
+            // Inject document.cookie interceptor into HTML responses.
+            // Must run before any SFRA script, so inject at the start of <head>.
+            if (contentType === 'text/html') {
+                const headIndex = text.indexOf('<head');
+                if (headIndex !== -1) {
+                    const insertAfter = text.indexOf('>', headIndex);
+                    if (insertAfter !== -1) {
+                        text = text.slice(0, insertAfter + 1) + COOKIE_INTERCEPTOR_SCRIPT + text.slice(insertAfter + 1);
+                    }
+                }
+            }
+
+            // Update headers: remove content-encoding (we decompressed) and fix content-length
+            const headers = { ...proxyRes.headers };
+            delete headers['content-encoding'];
+            delete headers['transfer-encoding'];
+            headers['content-length'] = String(Buffer.byteLength(text, 'utf8'));
+
+            clientRes.writeHead(proxyRes.statusCode || 200, headers);
+            clientRes.end(text);
+
+            console.log(`[Hybrid Proxy] Rewrote ${contentType} body URLs for ${req.url}`);
+        });
+    });
+
+    // Error handling
+    proxy.on('error', (err, req, res) => {
+        console.error('[Hybrid Proxy] Proxy error:', err.message, req.url);
+        if ('writeHead' in res && !res.headersSent) {
+            res.writeHead(502, { 'Content-Type': 'text/plain' });
+            res.end('Bad Gateway: Failed to proxy to SFCC');
+        }
+    });
+
+    return {
+        name: 'hybrid-proxy',
+        enforce: 'pre', // Run before Vite's internal middleware
+
+        configureServer(server: ViteDevServer) {
+            server.middlewares.use((req, res, next) => {
+                const pathname = req.url?.split('?')[0] || '';
+
+                // Skip Vite internals and assets
+                if (shouldSkipProxy(pathname)) {
+                    return next();
+                }
+
+                // SFCC paths always proxy (even if routing rules don't explicitly exclude them)
+                // These are internal SFCC endpoints and static assets
+                const isSFCCPath = pathname.startsWith('/on/demandware.');
+
+                // Check routing rules (unless it's an SFCC path)
+                let shouldRouteToNextApp = false;
+                if (!isSFCCPath) {
+                    try {
+                        shouldRouteToNextApp = options.routeMatcher(pathname, options.routingRules);
+                    } catch (error) {
+                        // Fail-safe: if routing check fails, let React Router handle it
+                        console.error('[Hybrid Proxy] Error checking routing rules:', error);
+                        return next();
+                    }
+
+                    if (shouldRouteToNextApp) {
+                        // Let React Router handle this route
+                        return next();
+                    }
+                }
+
+                // Proxy to SFCC
+                console.log(`[Hybrid Proxy] Proxying: ${req.method} ${pathname} → ${options.targetOrigin}`);
+
+                try {
+                    proxy.web(req, res, {
+                        target: options.targetOrigin,
+                    });
+                } catch (error) {
+                    console.error('[Hybrid Proxy] Failed to proxy request:', error);
+                    if (!res.headersSent) {
+                        res.writeHead(502, { 'Content-Type': 'text/plain' });
+                        res.end('Bad Gateway: Failed to proxy to SFCC');
+                    }
+                }
+            });
+        },
+    };
+}

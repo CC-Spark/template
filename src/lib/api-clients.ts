@@ -106,11 +106,23 @@ export function createApiClients(context: RouterContextProvider | Readonly<Route
             const authPromise = context.get(authContext);
             const session = await authPromise.ref;
 
-            // Always inject sfdc_dwsid when available — for SCAPI it maintains app-server
-            // affinity, and for SLAS it reuses the existing ECOM session instead of triggering
-            // an unnecessary session bridge call.
+            // Inject sfdc_dwsid when available:
+            // - For SCAPI endpoints: always send it (maintains app-server affinity)
+            // - For SLAS refresh_token calls: send it (reuses existing bridged session)
+            // - For other SLAS calls (login, guest, social, passwordless): skip it
+            //   so SLAS issues a fresh session-bridged dwsid for the new auth state
             if (session?.dwsid) {
-                request.headers.set(DWSID_HEADER, session.dwsid);
+                if (!isSlasAuthEndpoint) {
+                    request.headers.set(DWSID_HEADER, session.dwsid);
+                } else {
+                    // For SLAS token endpoint, only send dwsid for refresh_token grant
+                    const clonedRequest = request.clone();
+                    const bodyText = await clonedRequest.text();
+                    const params = new URLSearchParams(bodyText);
+                    if (params.get('grant_type') === 'refresh_token') {
+                        request.headers.set(DWSID_HEADER, session.dwsid);
+                    }
+                }
             }
 
             // SLAS auth endpoints handle their own Authorization header (Basic auth or PKCE)

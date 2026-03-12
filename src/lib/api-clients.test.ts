@@ -458,9 +458,40 @@ describe('createApiClients', () => {
                 expect(result.url).toBe(mockRequest.url);
             });
 
-            it('should skip Authorization but inject sfdc_dwsid for SLAS auth endpoints', async () => {
+            it('should skip Authorization and sfdc_dwsid for non-refresh SLAS auth endpoints', async () => {
                 const mockRequest = new Request(
-                    'https://api.example.com/shopper/auth/v1/organizations/test/oauth2/token'
+                    'https://api.example.com/shopper/auth/v1/organizations/test/oauth2/token',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'grant_type=authorization_code_pkce&code=test-code',
+                    }
+                );
+                const mockSession: SessionData = {
+                    accessToken: 'test-token',
+                    customerId: 'test-customer',
+                    userType: 'registered',
+                    dwsid: 'test-dwsid',
+                };
+
+                mockContextProvider.set(authContext, {
+                    ref: Promise.resolve(mockSession),
+                });
+
+                const result = await authMiddleware.onRequest({ request: mockRequest });
+
+                expect(result.headers.get('Authorization')).toBeNull();
+                expect(result.headers.get('sfdc_dwsid')).toBeNull();
+            });
+
+            it('should inject sfdc_dwsid for SLAS refresh_token calls', async () => {
+                const mockRequest = new Request(
+                    'https://api.example.com/shopper/auth/v1/organizations/test/oauth2/token',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'grant_type=refresh_token&refresh_token=test-refresh',
+                    }
                 );
                 const mockSession: SessionData = {
                     accessToken: 'test-token',

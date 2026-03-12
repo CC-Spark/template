@@ -5,12 +5,14 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { parse } from "@babel/parser";
 import { isArrayPattern, isClassDeclaration, isExportSpecifier, isFunctionDeclaration, isIdentifier, isJSXAttribute, isJSXElement, isJSXFragment, isJSXIdentifier, isMemberExpression, isObjectPattern, isObjectProperty, isRestElement, isVariableDeclaration, jsxClosingElement, jsxClosingFragment, jsxElement, jsxFragment, jsxIdentifier, jsxOpeningElement, jsxOpeningFragment, jsxText } from "@babel/types";
 import { generate } from "@babel/generator";
-import _traverse from "@babel/traverse";
+import traverseModule from "@babel/traverse";
 import fs$1, { existsSync, readFileSync, writeFileSync } from "fs";
 import { glob } from "glob";
 import { Node, Project, ts } from "ts-morph";
 import fs$2, { existsSync as existsSync$1, readFileSync as readFileSync$1, unlinkSync } from "node:fs";
 import { deadCodeElimination, findReferencedIdentifiers } from "babel-dead-code-elimination";
+import httpProxy from "http-proxy";
+import { brotliDecompressSync, gunzipSync, inflateSync } from "zlib";
 import express from "express";
 import { createRequestHandler } from "@react-router/express";
 import { pathToFileURL as pathToFileURL$1 } from "node:url";
@@ -312,7 +314,7 @@ const patchReactRouterPlugin = () => {
 
 //#endregion
 //#region src/extensibility/target-utils.ts
-const traverse$1 = _traverse.default || _traverse;
+const traverse$1 = traverseModule.default || traverseModule;
 const TARGET_COMPONENT_TAG = "UITarget";
 const TARGET_PROVIDERS_TAG = "TargetProviders";
 const TARGET_ID_ATTRIBUTE = "targetId";
@@ -1255,7 +1257,7 @@ const workspacePlugin = () => {
 
 //#endregion
 //#region src/plugins/componentLoaders.ts
-const traverse = _traverse.default || _traverse;
+const traverse = traverseModule.default || traverseModule;
 const generate$1 = generate.default || generate;
 /**
 * Names of exports to strip per environment.
@@ -1541,6 +1543,384 @@ function storefrontNextTargets(config = {}) {
 	if (eventInstrumentationValidator !== false) plugins.push(eventInstrumentationValidatorPlugin(eventInstrumentationValidator));
 	if (readableChunkNames) plugins.push(readableChunkFileNamesPlugin());
 	return plugins;
+}
+
+//#endregion
+//#region src/plugins/hybridProxy.ts
+/**
+* Check if a request path should skip proxying (Vite internals, assets, etc.)
+*
+* @param pathname - URL pathname to check
+* @returns true if the request should NOT be proxied
+*/
+function shouldSkipProxy(pathname) {
+	if (pathname.startsWith("/@")) return true;
+	if (pathname.startsWith("/__")) return true;
+	if (pathname.startsWith("/src/")) return true;
+	if (pathname.startsWith("/node_modules/")) return true;
+	if (pathname.endsWith(".data")) return true;
+	if (pathname.startsWith("/mobify/")) return true;
+	if (pathname.startsWith("/on/demandware.")) return false;
+	if (/\.(js|jsx|ts|tsx|css|json|map|woff2?|ttf|svg|png|jpe?g|gif|webp|ico|mp4)$/i.test(pathname)) return true;
+	return false;
+}
+/**
+* Rewrite Set-Cookie header for localhost development.
+*
+* Rewrites SFCC Set-Cookie headers so they work on localhost during local development.
+*
+* **LOCAL DEVELOPMENT ONLY** — This function is part of the hybrid proxy Vite plugin
+* which only runs during `pnpm dev`. In production (MRT deployments), SFCC cookies
+* flow through the eCDN unmodified.
+*
+* Rewrites applied:
+* - **Domain**: `.salesforce.com` → `localhost` (browsers reject cross-domain cookies)
+*
+* Attributes intentionally preserved:
+* - **Secure**: Kept. Localhost is a secure context — browsers accept `Secure` cookies
+*   on `http://localhost` (see https://w3c.github.io/webappsec-secure-contexts/).
+* - **SameSite**: Kept. `SameSite=None; Secure` is valid on localhost since `Secure`
+*   is accepted. This keeps SFCC cookies transparent and in sync with Storefront Next
+*   cookies, which is critical for hybrid auth session bridging.
+*
+* @param cookie - Original Set-Cookie header value from SFCC
+* @returns Rewritten cookie suitable for localhost
+*
+* @example
+* Input:  "dwsid=abc123; Domain=.salesforce.com; Path=/; Secure; SameSite=None; HttpOnly"
+* Output: "dwsid=abc123; Domain=localhost; Path=/; Secure; SameSite=None; HttpOnly"
+*/
+function rewriteCookieForLocalhost(cookie) {
+	let rewritten = cookie;
+	rewritten = rewritten.replace(/Domain=[^;]+/gi, "Domain=localhost");
+	if (!/Domain=/i.test(cookie)) rewritten = rewritten.replace(/^([^;]+)/, "$1; Domain=localhost");
+	return rewritten.trim();
+}
+/**
+* Inline script injected into proxied HTML responses to intercept `document.cookie` writes.
+*
+* **Why this is needed (Layer 3 cookie rewriting):**
+*
+* The hybrid proxy rewrites Set-Cookie headers from SFCC responses (Layer 1), but after
+* the SFRA page fully loads, client-side JavaScript sets cookies via `document.cookie`.
+* These writes bypass the proxy entirely.
+*
+* SFRA's JS typically checks `window.location.protocol` to decide whether to add `Secure`.
+* On `http://localhost`, it sees `http:` and omits `Secure`, producing cookies like:
+*
+*     document.cookie = "dwsid=abc; SameSite=None"   // No Secure → browser rejects
+*
+* This interceptor patches `document.cookie` to:
+* 1. Rewrite `Domain=...` → `Domain=localhost`
+* 2. Ensure `Secure` is present (localhost is a secure context)
+* 3. If `SameSite=None` is present without `Secure`, add `Secure`
+*
+* This keeps client-side cookie writes consistent with the proxy's Layer 1 rewrites
+* and ensures hybrid auth cookies (dwsid, cc-*) stay in sync between Storefront Next
+* and SFRA.
+*
+* **LOCAL DEVELOPMENT ONLY** — This script is only injected by the Vite dev server proxy.
+*/
+const COOKIE_INTERCEPTOR_SCRIPT = `<script data-hybrid-proxy="cookie-interceptor">
+(function() {
+    var desc = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+    if (!desc || !desc.set) return;
+    Object.defineProperty(document, 'cookie', {
+        get: function() { return desc.get.call(this); },
+        set: function(val) {
+            // Rewrite Domain to localhost
+            val = val.replace(/Domain=[^;]+/gi, 'Domain=localhost');
+            // Ensure Secure is present if SameSite=None (localhost is a secure context)
+            if (/SameSite=None/i.test(val) && !/;\\s*Secure\\b/i.test(val)) {
+                val += '; Secure';
+            }
+            desc.set.call(this, val);
+        },
+        configurable: true
+    });
+})();
+<\/script>`;
+/**
+* Escape special regex characters in a string for use in `new RegExp()`.
+*/
+function escapeRegExp(str) {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+/**
+* Vite plugin for hybrid proxying between Storefront Next and legacy SFRA.
+*
+* Uses http-proxy to silently forward non-matching requests to SFCC without visible
+* redirects. Rewrites Set-Cookie headers, Location headers, and HTML/JSON response
+* bodies to keep all navigation within the localhost proxy.
+*
+* Routing decisions are delegated to the `routeMatcher` callback injected via options,
+* keeping the SDK free of template-specific routing logic.
+*
+* @param options - Plugin configuration
+* @returns Vite plugin
+*/
+function hybridProxyPlugin(options) {
+	if (!options.enabled) {
+		console.log("[Hybrid Proxy] Disabled (HYBRID_PROXY_ENABLED is not true)");
+		return { name: "hybrid-proxy" };
+	}
+	if (!options.targetOrigin) {
+		console.warn("[Hybrid Proxy] No target origin configured (SFCC_ORIGIN required)");
+		return { name: "hybrid-proxy" };
+	}
+	console.log("[Hybrid Proxy] Enabled");
+	console.log(`[Hybrid Proxy] Target origin: ${options.targetOrigin}`);
+	console.log(`[Hybrid Proxy] Routing rules: ${options.routingRules.slice(0, 100)}...`);
+	const locale = options.locale || "default";
+	console.log(`[Hybrid Proxy] Path transformation: /path → /s/${options.siteId}/${locale}/path`);
+	const targetOriginPattern = new RegExp(escapeRegExp(options.targetOrigin), "g");
+	const proxy = httpProxy.createProxyServer({
+		changeOrigin: true,
+		followRedirects: false,
+		selfHandleResponse: true
+	});
+	proxy.on("proxyReq", (proxyReq, req) => {
+		const url = new URL(req.url || "", `http://${req.headers.host}`);
+		const pathname = url.pathname;
+		if (!pathname.startsWith("/s/") && !pathname.startsWith("/on/demandware.")) {
+			const originalPath = proxyReq.path;
+			proxyReq.path = `/s/${options.siteId}/${locale}${pathname}${url.search}`;
+			console.log(`[Hybrid Proxy] Path rewrite: ${originalPath} → ${proxyReq.path}`);
+		}
+	});
+	proxy.on("proxyRes", (proxyRes, req, res) => {
+		const clientRes = res;
+		const locationHeader = proxyRes.headers.location;
+		const statusCode = proxyRes.statusCode || 200;
+		if (statusCode >= 300 && statusCode < 400 && typeof locationHeader === "string" && /\/404\b/.test(locationHeader)) {
+			console.warn(`[Hybrid Proxy] ⚠️  SFCC returned a redirect to 404 for ${req.url}\n  This usually means your HYBRID_ROUTING_RULES are missing a pattern for this path.\n  Stripping Set-Cookie headers to prevent session cookie corruption.\n  Fix: add a matching pattern to HYBRID_ROUTING_RULES (e.g., "^${req.url?.split("?")[0]}.*")`);
+			delete proxyRes.headers["set-cookie"];
+		}
+		const setCookieHeaders = proxyRes.headers["set-cookie"];
+		if (setCookieHeaders && Array.isArray(setCookieHeaders)) proxyRes.headers["set-cookie"] = setCookieHeaders.map((cookie) => {
+			const rewritten = rewriteCookieForLocalhost(cookie);
+			console.log(`[Hybrid Proxy] Cookie rewrite: ${cookie.slice(0, 50)}... → ${rewritten.slice(0, 50)}...`);
+			return rewritten;
+		});
+		if (locationHeader && typeof locationHeader === "string") try {
+			const locationUrl = new URL(locationHeader, options.targetOrigin);
+			if (locationUrl.origin === options.targetOrigin) {
+				const localUrl = `http://${req.headers.host}${locationUrl.pathname}${locationUrl.search}${locationUrl.hash}`;
+				proxyRes.headers.location = localUrl;
+				console.log(`[Hybrid Proxy] Location rewrite: ${locationHeader} → ${localUrl}`);
+			}
+		} catch {
+			console.warn("[Hybrid Proxy] Invalid Location header:", locationHeader);
+		}
+		const contentType = (proxyRes.headers["content-type"] || "").split(";")[0].trim();
+		if (!(contentType === "text/html" || contentType === "application/json")) {
+			clientRes.writeHead(proxyRes.statusCode || 200, proxyRes.headers);
+			proxyRes.pipe(clientRes);
+			return;
+		}
+		const chunks = [];
+		proxyRes.on("data", (chunk) => chunks.push(chunk));
+		proxyRes.on("end", () => {
+			let body = Buffer.concat(chunks);
+			const encoding = proxyRes.headers["content-encoding"];
+			if (encoding === "gzip") body = gunzipSync(body);
+			else if (encoding === "br") body = brotliDecompressSync(body);
+			else if (encoding === "deflate") body = inflateSync(body);
+			const proxyOrigin = `http://${req.headers.host}`;
+			let text = body.toString("utf8");
+			targetOriginPattern.lastIndex = 0;
+			text = text.replace(targetOriginPattern, proxyOrigin);
+			if (contentType === "text/html") {
+				const headIndex = text.indexOf("<head");
+				if (headIndex !== -1) {
+					const insertAfter = text.indexOf(">", headIndex);
+					if (insertAfter !== -1) text = text.slice(0, insertAfter + 1) + COOKIE_INTERCEPTOR_SCRIPT + text.slice(insertAfter + 1);
+				}
+			}
+			const headers = { ...proxyRes.headers };
+			delete headers["content-encoding"];
+			delete headers["transfer-encoding"];
+			headers["content-length"] = String(Buffer.byteLength(text, "utf8"));
+			clientRes.writeHead(proxyRes.statusCode || 200, headers);
+			clientRes.end(text);
+			console.log(`[Hybrid Proxy] Rewrote ${contentType} body URLs for ${req.url}`);
+		});
+	});
+	proxy.on("error", (err, req, res) => {
+		console.error("[Hybrid Proxy] Proxy error:", err.message, req.url);
+		if ("writeHead" in res && !res.headersSent) {
+			res.writeHead(502, { "Content-Type": "text/plain" });
+			res.end("Bad Gateway: Failed to proxy to SFCC");
+		}
+	});
+	return {
+		name: "hybrid-proxy",
+		enforce: "pre",
+		configureServer(server) {
+			server.middlewares.use((req, res, next) => {
+				const pathname = req.url?.split("?")[0] || "";
+				if (shouldSkipProxy(pathname)) return next();
+				const isSFCCPath = pathname.startsWith("/on/demandware.");
+				let shouldRouteToNextApp = false;
+				if (!isSFCCPath) {
+					try {
+						shouldRouteToNextApp = options.routeMatcher(pathname, options.routingRules);
+					} catch (error) {
+						console.error("[Hybrid Proxy] Error checking routing rules:", error);
+						return next();
+					}
+					if (shouldRouteToNextApp) return next();
+				}
+				console.log(`[Hybrid Proxy] Proxying: ${req.method} ${pathname} → ${options.targetOrigin}`);
+				try {
+					proxy.web(req, res, { target: options.targetOrigin });
+				} catch (error) {
+					console.error("[Hybrid Proxy] Failed to proxy request:", error);
+					if (!res.headersSent) {
+						res.writeHead(502, { "Content-Type": "text/plain" });
+						res.end("Bad Gateway: Failed to proxy to SFCC");
+					}
+				}
+			});
+		}
+	};
+}
+
+//#endregion
+//#region src/plugins/ecdnMatcher.ts
+/**
+* Copyright 2026 Salesforce, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
+* Cloudflare eCDN Routing Rule Matcher
+*
+* Parses Cloudflare-style routing expressions and tests pathnames against them.
+* This utility is environment-agnostic and works in both Node.js and browser contexts.
+*
+* @example
+* ```typescript
+* const rules = '(http.request.uri.path matches "^/$" or http.request.uri.path matches "^/search.*")';
+* shouldRouteToNext('/', rules);          // true - route to Storefront Next
+* shouldRouteToNext('/search', rules);    // true - route to Storefront Next
+* shouldRouteToNext('/checkout', rules);  // false - proxy to SFRA/legacy
+* ```
+*
+* Environment variables used:
+* - HYBRID_PROXY_ENABLED (optional) - Boolean flag to enable/disable hybrid proxy
+* - HYBRID_ROUTING_RULES (optional) - Cloudflare routing expression string
+* - SFCC_ORIGIN (optional) - Base URL for SFCC sandbox redirects
+*/
+const regexCache = /* @__PURE__ */ new Map();
+/**
+* Extracts regex patterns from a Cloudflare routing expression.
+*
+* Parses Cloudflare "matches" expressions like:
+*   (http.request.uri.path matches "^/$" or http.request.uri.path matches "^/category.*")
+*
+* And extracts the regex patterns: ["^/$", "^/category.*"]
+*
+* @param expression - Cloudflare expression string
+* @returns Array of regex pattern strings
+*
+* @example
+* ```typescript
+* extractPatterns('(http.request.uri.path matches "^/$")');
+* // Returns: ["^/$"]
+*
+* extractPatterns('(http.request.uri.path matches "^/$" or http.request.uri.path matches "^/search.*")');
+* // Returns: ["^/$", "^/search.*"]
+* ```
+*/
+function extractPatterns(expression) {
+	if (!expression || typeof expression !== "string") return [];
+	const regex = /http\.request\.uri\.path\s+matches\s+["']([^"']+)["']/gi;
+	const patterns = [];
+	let match;
+	while ((match = regex.exec(expression)) !== null) patterns.push(match[1]);
+	return patterns;
+}
+/**
+* Tests if a pathname matches any of the provided regex patterns (logical OR).
+* Uses caching to optimize repeated pattern compilations.
+*
+* @param pathname - URL pathname to test (e.g., "/search", "/category/shoes")
+* @param patterns - Array of regex pattern strings
+* @returns true if pathname matches any pattern, false otherwise
+*
+* @example
+* ```typescript
+* testPatterns('/category/shoes', ['^/category.*', '^/search.*']);
+* // Returns: true (matches first pattern)
+*
+* testPatterns('/checkout', ['^/category.*', '^/search.*']);
+* // Returns: false (matches no patterns)
+* ```
+*/
+function testPatterns(pathname, patterns) {
+	if (!pathname || !patterns || patterns.length === 0) return false;
+	for (const pattern of patterns) try {
+		let regex = regexCache.get(pattern);
+		if (!regex) {
+			regex = new RegExp(pattern);
+			regexCache.set(pattern, regex);
+		}
+		if (regex.test(pathname)) return true;
+	} catch (error) {
+		console.warn(`[Hybrid Proxy] Invalid regex pattern: ${pattern}`, error);
+		continue;
+	}
+	return false;
+}
+/**
+* Main function: Determines if a pathname should route to Storefront Next
+* or be proxied/redirected to SFRA/legacy backend.
+*
+* @param pathname - URL pathname (e.g., "/search", "/checkout")
+* @param routingRules - Cloudflare routing expression string (optional)
+* @returns true if should route to Storefront Next, false if should proxy to SFRA
+*
+* @example
+* ```typescript
+* const rules = '(http.request.uri.path matches "^/$" or http.request.uri.path matches "^/category.*")';
+*
+* shouldRouteToNext('/', rules);              // true - route to Next
+* shouldRouteToNext('/category/mens', rules); // true - route to Next
+* shouldRouteToNext('/checkout', rules);      // false - proxy to SFRA
+* shouldRouteToNext('/any-path', undefined);  // true - no rules = default to Next
+* ```
+*/
+function shouldRouteToNext(pathname, routingRules) {
+	if (!routingRules) return true;
+	const patterns = extractPatterns(routingRules);
+	if (patterns.length === 0) {
+		console.warn("[Hybrid Proxy] No valid patterns found in routing rules");
+		return true;
+	}
+	return testPatterns(pathname, patterns);
+}
+/**
+* Clears the regex cache. Useful for testing or when routing rules change.
+*
+* @example
+* ```typescript
+* clearCache();
+* // All cached regex patterns are removed
+* ```
+*/
+function clearCache() {
+	regexCache.clear();
 }
 
 //#endregion
@@ -2734,5 +3114,5 @@ async function generateMetadata(projectDirectory, metadataDirectory, options) {
 }
 
 //#endregion
-export { createServer, storefrontNextTargets as default, generateMetadata, loadConfigFromEnv, loadProjectConfig, transformTargetPlaceholderPlugin, trimExtensions };
+export { clearCache, createServer, storefrontNextTargets as default, extractPatterns, generateMetadata, hybridProxyPlugin, loadConfigFromEnv, loadProjectConfig, shouldRouteToNext, testPatterns, transformTargetPlaceholderPlugin, trimExtensions };
 //# sourceMappingURL=index.js.map

@@ -24,7 +24,7 @@ import coverageConfigThresholds from './vitest.thresholds';
 import tailwindcss from '@tailwindcss/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import devtoolsJson from 'vite-plugin-devtools-json';
-import storefrontNextTargets from '@salesforce/storefront-next-dev';
+import storefrontNextTargets, { hybridProxyPlugin, shouldRouteToNext } from '@salesforce/storefront-next-dev';
 import bundlesize from 'vite-plugin-bundlesize';
 import { visualizer } from 'rollup-plugin-visualizer';
 
@@ -116,6 +116,38 @@ export default defineConfig(({ mode }) => {
                 }
                 return visualizer({ filename: `./build/${env.name}-bundle-size.html`, open: true });
             }),
+            // Hybrid proxy: routes matching eCDN rules → Storefront Next, everything else → SFCC.
+            //
+            // The `routeMatcher` callback controls which routes are handled by Storefront Next.
+            // The default `shouldRouteToNext` parses Cloudflare eCDN routing expressions.
+            //
+            // To customize routing, you can wrap or replace the default matcher:
+            //
+            //   // Add custom overrides on top of eCDN rules:
+            //   routeMatcher: (pathname, rules) => {
+            //       if (pathname === '/my-custom-page') return true;  // always route to Next
+            //       if (pathname === '/legacy-page') return false;    // always proxy to SFCC
+            //       return shouldRouteToNext(pathname, rules);
+            //   },
+            //
+            //   // Or replace entirely with custom logic:
+            //   routeMatcher: (pathname) => myCustomMatcher(pathname),
+            //
+            mode === 'development' &&
+                hybridProxyPlugin({
+                    enabled: process.env.HYBRID_PROXY_ENABLED === 'true',
+                    targetOrigin:
+                        process.env.SFCC_ORIGIN ||
+                        scapiProxyHost ||
+                        (shortCode && `https://${shortCode}.api.commercecloud.salesforce.com`) ||
+                        '',
+                    routingRules: process.env.HYBRID_ROUTING_RULES ?? '',
+                    routeMatcher: shouldRouteToNext,
+                    siteId: environment.PUBLIC__app__commerce__api__siteId,
+                    // Locale for SFRA path transformation
+                    // Priority: HYBRID_PROXY_LOCALE > fallbackLng > 'default' (plugin fallback)
+                    locale: process.env.HYBRID_PROXY_LOCALE || environment.PUBLIC__app__i18n__fallbackLng,
+                }),
         ],
         resolve: {
             alias: {
@@ -171,7 +203,7 @@ export default defineConfig(({ mode }) => {
                         target,
                         changeOrigin: true,
                         secure: !scapiProxyHost,
-                        rewrite: (path) => path.replace(/^\/mobify\/proxy\/api/, ''),
+                        rewrite: (path) => path.replace(/^\/mobify\/proxy/, ''),
                         selfHandleResponse: true,
                         configure: (proxy, _options) => {
                             proxy.on('proxyReq', (proxyReq, req) => {

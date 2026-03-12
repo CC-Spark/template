@@ -99,10 +99,6 @@ import { PageDesignerInit } from '@/page-designer-init';
 import appStylesHref from './app.css?url';
 
 // Extensions
-/** @sfdc-extension-line SFDC_EXT_HYBRID_PROXY */
-import { HybridProxyNavigationInterceptor } from '@/extensions/hybrid-proxy/navigation-interceptor';
-/** @sfdc-extension-line SFDC_EXT_HYBRID_PROXY */
-import { HYBRID_PROXY_CONFIG, isProxyPath } from '@/extensions/hybrid-proxy/config';
 import { TargetProviders } from '@/targets/target-providers';
 import { type Maintenance, maintenanceContext } from '@/lib/maintenance';
 
@@ -347,35 +343,24 @@ export default function App({
         [correlationId, i18next, appConfig, currency, clientAuth, basketSnapshot]
     );
 
-    // App config "hybrid" (site.hybrid.enabled); hybrid-proxy adds its check in extension block below
-    let hybridEnabled = Boolean(appConfig?.site?.hybrid?.enabled);
-    // @sfdc-extension-line SFDC_EXT_HYBRID_PROXY
-    hybridEnabled = hybridEnabled || Boolean(HYBRID_PROXY_CONFIG?.enabled);
-
-    let content = (
-        <>
-            <AuthActionExecutor />
-            {hybridEnabled && <BackNavigationRevalidator />}
-            <PageDesignerProvider clientId="odyssey" targetOrigin="*" usid={clientAuth?.usid} mode={pageDesignerMode}>
-                <PageDesignerInit />
-                <Outlet />
-            </PageDesignerProvider>
-            <TrackingConsentBanner />
-            {/* Track page views asynchronously */}
-            {typeof window !== 'undefined' && <PageViewTracker />}
-        </>
-    );
-
-    // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
-    const location = useLocation();
-    if (typeof window !== 'undefined' && isProxyPath(location.pathname)) {
-        content = <HybridProxyNavigationInterceptor />;
-    }
-    // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
+    const hybridEnabled = Boolean(appConfig?.hybrid?.enabled);
 
     return (
         <ComposeProviders providers={providers}>
-            <TargetProviders>{content}</TargetProviders>
+            <TargetProviders>
+                <AuthActionExecutor />
+                {hybridEnabled && <BackNavigationRevalidator />}
+                <PageDesignerProvider
+                    clientId="odyssey"
+                    targetOrigin="*"
+                    usid={clientAuth?.usid}
+                    mode={pageDesignerMode}>
+                    <PageDesignerInit />
+                    <Outlet />
+                </PageDesignerProvider>
+                <TrackingConsentBanner />
+                {typeof window !== 'undefined' && <PageViewTracker />}
+            </TargetProviders>
             {appConfig.commerceAgent?.enabled === 'true' && (
                 <ShopperAgent
                     commerceAgentConfiguration={appConfig.commerceAgent}
@@ -399,7 +384,7 @@ function AuthActionExecutor() {
 
 /**
  * Revalidates loader data once on back/forward (e.g. back from SFRA). Mounted only when
- * hybrid or hybrid-proxy is on; ensures UI is fresh after a full-page redirect. No-op when both are off.
+ * hybrid is enabled; ensures UI is fresh after a full-page redirect. No-op when hybrid is off.
  */
 function BackNavigationRevalidator() {
     const revalidator = useRevalidator();

@@ -17,7 +17,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { render, waitFor } from '@testing-library/react';
 import { createTestContext } from '@/lib/test-utils';
 import { type PropsWithChildren } from 'react';
-import { createRoutesStub } from 'react-router';
+import { createRoutesStub, RouterContextProvider } from 'react-router';
 import type { PublicSessionData } from '@/lib/api/types';
 import type AppComponent from './root';
 import type { ErrorBoundary as RootErrorBoundary, Layout as RootLayout, loader as RootLoader } from './root';
@@ -31,9 +31,6 @@ const defaultClientAuth: PublicSessionData = {
     userType: 'registered',
 };
 import { mockConfig } from '@/test-utils/config';
-// @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
-import { isProxyPath } from './extensions/hybrid-proxy/config';
-// @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
 
 vi.mock('@/lib/i18next.client', async () => {
     const i18next = await import('i18next');
@@ -163,7 +160,7 @@ beforeAll(async () => {
 });
 
 function createLoaderContext(options: Parameters<typeof createTestContext>[0] = {}) {
-    const context = createTestContext(options);
+    const context = createTestContext(options) as RouterContextProvider;
     const baseGet = context.get.bind(context);
     const authFallback = new Map() as Map<string, unknown> & { ref?: PublicSessionData };
     const authSession =
@@ -522,97 +519,7 @@ describe('root.tsx', () => {
             delete (window as any).__APP_CONFIG__;
         });
 
-        // @sfdc-extension-block-start SFDC_EXT_HYBRID_PROXY
-        describe('Hybrid Proxy Integration', () => {
-            it('should render normal app structure when not on proxy path', async () => {
-                vi.mocked(isProxyPath).mockReturnValue(false);
-
-                // Create a mock i18next instance for testing
-                const i18next = await import('i18next');
-                const { initReactI18next } = await import('react-i18next');
-                const testI18nInstance = i18next.default.createInstance();
-                await testI18nInstance.use(initReactI18next).init({
-                    lng: 'en-US',
-                    fallbackLng: 'en-US',
-                    resources: { 'en-US': { translation: {} } },
-                });
-
-                const Stub = createRoutesStub([
-                    {
-                        id: 'root',
-                        path: '/',
-                        Component: App,
-                        loader: () => ({
-                            clientAuth: {
-                                customerId: 'test-customer',
-                                userType: 'registered',
-                            },
-                            basketSnapshot: null,
-                            appConfig: mockConfig,
-                            locale: 'en-US',
-                            currency: 'USD',
-                            getI18next: () => testI18nInstance,
-                        }),
-                    },
-                ]);
-
-                const { getByTestId, queryByTestId } = render(<Stub initialEntries={['/']} />);
-
-                await waitFor(() => {
-                    expect(getByTestId('page-designer-provider')).toBeInTheDocument(); // <-- part of the conditional App content
-                    expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
-                    expect(queryByTestId('hybrid-proxy-interceptor')).not.toBeInTheDocument();
-                });
-            });
-
-            it('should render interceptor and hide app structure when on proxy path', async () => {
-                vi.mocked(isProxyPath).mockReturnValue(true);
-
-                // Create a mock i18next instance for testing
-                const i18next = await import('i18next');
-                const { initReactI18next } = await import('react-i18next');
-                const testI18nInstance = i18next.default.createInstance();
-                await testI18nInstance.use(initReactI18next).init({
-                    lng: 'en-US',
-                    fallbackLng: 'en-US',
-                    resources: { 'en-US': { translation: {} } },
-                });
-
-                const Stub = createRoutesStub([
-                    {
-                        id: 'root',
-                        // The actual path doesn't matter here since we mock isProxyPath() to return true
-                        path: '/cart',
-                        Component: App,
-                        loader: () => ({
-                            clientAuth: {
-                                customerId: 'test-customer',
-                                userType: 'registered',
-                            },
-                            basketSnapshot: null,
-                            appConfig: mockConfig,
-                            locale: 'en-US',
-                            currency: 'USD',
-                            getI18next: () => testI18nInstance,
-                        }),
-                    },
-                ]);
-
-                const { getByTestId, queryByTestId } = render(<Stub initialEntries={['/cart']} />);
-
-                await waitFor(() => {
-                    expect(getByTestId('hybrid-proxy-interceptor')).toBeInTheDocument();
-                    expect(getByTestId('config-provider')).toBeInTheDocument(); // <-- always there
-                    expect(queryByTestId('page-designer-provider')).not.toBeInTheDocument(); // <-- part of the conditional App content
-                });
-            });
-        });
-
         describe('BackNavigationRevalidator', () => {
-            beforeEach(() => {
-                vi.mocked(isProxyPath).mockReturnValue(false);
-            });
-
             it('calls revalidate once when hybrid is enabled and navigation type is back_forward', async () => {
                 const revalidateMock = vi.fn();
                 const reactRouter = await import('react-router');
@@ -634,7 +541,7 @@ describe('root.tsx', () => {
                     resources: { 'en-US': { translation: {} } },
                 });
 
-                const appConfigWithHybrid = { ...mockConfig, site: { hybrid: { enabled: true } } };
+                const appConfigWithHybrid = { ...mockConfig, hybrid: { enabled: true } };
 
                 const Stub = createRoutesStub([
                     {
@@ -687,7 +594,7 @@ describe('root.tsx', () => {
                     resources: { 'en-US': { translation: {} } },
                 });
 
-                const appConfigWithHybrid = { ...mockConfig, site: { hybrid: { enabled: true } } };
+                const appConfigWithHybrid = { ...mockConfig, hybrid: { enabled: true } };
 
                 const Stub = createRoutesStub([
                     {
@@ -774,7 +681,6 @@ describe('root.tsx', () => {
                 vi.restoreAllMocks();
             });
         });
-        // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
     });
 
     describe('loader function', () => {

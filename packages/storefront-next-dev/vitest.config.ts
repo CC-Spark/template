@@ -10,6 +10,10 @@ export default defineConfig({
                 'src/**/*.test.{ts,tsx}',
                 'src/**/*.spec.{ts,tsx}',
                 'src/**/*config.d.ts',
+                // Exclude the hybrid proxy plugin — its configureServer middleware requires
+                // a running Vite server and is not unit-testable. Helper functions
+                // (shouldSkipProxy, rewriteCookieForLocalhost) are tested in hybridProxy.test.ts.
+                'src/plugins/hybridProxy.ts',
                 // Exclude CLI/deployment files that don't have Vitest tests
                 'src/bundle.ts',
                 'src/cloud-api.ts',

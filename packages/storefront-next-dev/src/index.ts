@@ -19,6 +19,12 @@ export { storefrontNextTargets as default, type StorefrontNextTargetsConfig } fr
 // Named export: Transform target placeholder components (UITarget & TargetProviders)
 export { transformTargetPlaceholderPlugin } from './plugins/transformTargets';
 
+// Named export: Hybrid proxy plugin for local development against legacy SFRA
+export { hybridProxyPlugin, type HybridProxyPluginOptions } from './plugins/hybridProxy';
+
+// Named export: eCDN routing rule matcher (used by hybrid proxy and MRT hybrid middleware)
+export { shouldRouteToNext, extractPatterns, testPatterns, clearCache } from './plugins/ecdnMatcher';
+
 // Server factory for production use
 export { createServer, loadProjectConfig, loadConfigFromEnv } from './server/index';
 
