@@ -9,7 +9,7 @@ import StoreLocatorProvider from '../src/extensions/store-locator/providers/stor
 import CheckoutOneClickProvider from '../src/components/checkout/utils/checkout-context';
 import BasketProvider from '../src/providers/basket';
 import AuthProvider from '../src/providers/auth';
-import { ConfigProvider } from '../src/config';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '../src/test-utils/config';
 import { inBasketProductDetails } from '@/components/__mocks__/basket-with-dress';
 

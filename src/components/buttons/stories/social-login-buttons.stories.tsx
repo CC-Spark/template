@@ -18,7 +18,7 @@ import { allModes } from '../../../../.storybook/modes';
 import { SocialLoginButtons } from '../social-login-buttons';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
-import { ConfigProvider } from '@/config/context';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 
 import { expect, within, userEvent } from 'storybook/test';

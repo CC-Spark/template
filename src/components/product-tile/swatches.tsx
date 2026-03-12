@@ -16,7 +16,8 @@
 import type { DecoratedVariationAttribute } from '@/lib/product-utils';
 import { SwatchGroup, Swatch } from '@/components/swatch-group';
 import { toImageUrl } from '@/lib/dynamic-image';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // Simple component to display the "+X more" indicator for additional swatches
 const MoreSwatchesIndicator = ({ count }: { count: number }) => (
@@ -46,7 +47,7 @@ const Swatches = ({
     selectedVariantColorValue?: string | null;
     swatchMode: 'hover' | 'click';
 }) => {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     return (
         <>
             {variationAttributes?.map(({ id, name, values }) => {

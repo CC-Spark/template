@@ -16,10 +16,10 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { getBasketCurrency } from './basket';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import type { RouterContextProvider } from 'react-router';
 
-vi.mock('@/config');
+vi.mock('@salesforce/storefront-next-runtime/config');
 
 describe('getBasketCurrency', () => {
     const mockContext = {} as Readonly<RouterContextProvider>;

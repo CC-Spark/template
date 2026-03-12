@@ -16,7 +16,7 @@
 import { createApiClients } from '@/lib/api-clients';
 import type { RouterContextProvider } from 'react-router';
 import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 
 /**
  * Get the appropriate currency for basket calculations

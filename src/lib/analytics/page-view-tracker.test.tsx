@@ -46,7 +46,7 @@ vi.mock('@/providers/auth', () => ({
     useAuth: () => mockUseAuth(),
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: () => mockUseConfig(),
 }));
 

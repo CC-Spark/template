@@ -51,7 +51,7 @@ vi.mock('@/hooks/use-cart-quantity-update', () => ({
     }),
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: () => ({
         pages: {
             cart: {

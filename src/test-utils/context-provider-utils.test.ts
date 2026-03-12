@@ -19,20 +19,22 @@ import { render } from '@testing-library/react';
 import { createConfigWrapper, mockBuildConfig, mockConfig } from './context-provider-utils';
 import React from 'react';
 
-// Mock the config context
-vi.mock('@/config/context', () => ({
-    ConfigProvider: ({ children, config }: { children: React.ReactNode; config: any }) => {
-        return React.createElement(
-            'div',
-            {
-                'data-testid': 'config-provider',
-                'data-config': JSON.stringify(config),
-            },
-            children
-        );
-    },
-    createAppConfig: (config: any) => config,
-}));
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
+    const original = await importOriginal<Record<string, unknown>>();
+    return {
+        ...original,
+        ConfigProvider: ({ children, config }: { children: React.ReactNode; config: any }) => {
+            return React.createElement(
+                'div',
+                {
+                    'data-testid': 'config-provider',
+                    'data-config': JSON.stringify(config),
+                },
+                children
+            );
+        },
+    };
+});
 
 describe('context-provider-utils', () => {
     describe('mockBuildConfig', () => {
@@ -72,7 +74,7 @@ describe('context-provider-utils', () => {
         it('has correct images configuration', () => {
             expect(mockBuildConfig.app.images).toEqual({
                 host: 'https://edge.disstg.commercecloud.salesforce.com',
-                quality: 80,
+                quality: 70,
                 formats: ['webp'],
                 fallbackFormat: 'jpg',
             });
@@ -90,9 +92,9 @@ describe('context-provider-utils', () => {
                 staticAssetCacheTtl: 31536000,
             });
             expect(mockBuildConfig.app.performance.metrics).toEqual({
-                serverPerformanceMetricsEnabled: false,
+                serverPerformanceMetricsEnabled: true,
                 serverTimingHeaderEnabled: false,
-                clientPerformanceMetricsEnabled: false,
+                clientPerformanceMetricsEnabled: true,
             });
         });
 
@@ -104,8 +106,8 @@ describe('context-provider-utils', () => {
     });
 
     describe('mockConfig', () => {
-        it('is created from mockBuildConfig', () => {
-            expect(mockConfig).toEqual(mockBuildConfig);
+        it('is created from mockBuildConfig app section', () => {
+            expect(mockConfig).toEqual(mockBuildConfig.app);
         });
     });
 
@@ -128,10 +130,12 @@ describe('context-provider-utils', () => {
                     features: {
                         passwordlessLogin: {
                             enabled: true,
+                            mode: 'email' as const,
                             callbackUri: '/callback',
                             landingUri: '/account',
                         },
                         resetPassword: {
+                            mode: 'email' as const,
                             callbackUri: '/reset-callback',
                             landingUri: '/reset-landing',
                         },
@@ -141,9 +145,9 @@ describe('context-provider-utils', () => {
                         shopperContext: { enabled: false },
                         googleCloudAPI: { apiKey: '' },
                     },
+                    defaultSiteId: 'RefArchGlobal',
                     commerce: {
                         ...mockBuildConfig.app.commerce,
-                        defaultSiteId: 'RefArch',
                         sites: [
                             {
                                 id: 'RefArch',
@@ -169,11 +173,11 @@ describe('context-provider-utils', () => {
             expect(configProvider).toBeInTheDocument();
 
             const configData = JSON.parse(configProvider?.getAttribute('data-config') || '{}');
-            expect(configData.app.commerce.sites[0].defaultLocale).toBe('fr-FR');
-            expect(configData.app.commerce.sites[0].defaultCurrency).toBe('EUR');
-            expect(configData.app.features.passwordlessLogin.enabled).toBe(true);
-            expect(configData.app.features.socialLogin.enabled).toBe(false);
-            expect(configData.app.features.guestCheckout).toBe(false);
+            expect(configData.commerce.sites[0].defaultLocale).toBe('fr-FR');
+            expect(configData.commerce.sites[0].defaultCurrency).toBe('EUR');
+            expect(configData.features.passwordlessLogin.enabled).toBe(true);
+            expect(configData.features.socialLogin.enabled).toBe(false);
+            expect(configData.features.guestCheckout).toBe(false);
         });
 
         it('merges overrides with base config', () => {
@@ -238,13 +242,12 @@ describe('context-provider-utils', () => {
             const configData = JSON.parse(configProvider?.getAttribute('data-config') || '{}');
 
             // Overridden values
-            expect(configData.app.global.branding.name).toBe('Custom Store');
-            expect(configData.app.global.branding.logoAlt).toBe('Custom Logo');
+            expect(configData.global.branding.name).toBe('Custom Store');
+            expect(configData.global.branding.logoAlt).toBe('Custom Logo');
 
             // Non-overridden values should remain
-            expect(configData.metadata.projectName).toBe('Test Project');
-            expect(configData.app.commerce.sites[0].defaultLocale).toBe('en-GB');
-            expect(configData.app.commerce.api.clientId).toBe('test-client');
+            expect(configData.commerce.sites[0].defaultLocale).toBe('en-GB');
+            expect(configData.commerce.api.clientId).toBe('test-client');
         });
 
         it('handles nested overrides correctly', () => {
@@ -269,12 +272,12 @@ describe('context-provider-utils', () => {
             const configData = JSON.parse(configProvider?.getAttribute('data-config') || '{}');
 
             // Overridden values
-            expect(configData.app.pages.cart.quantityUpdateDebounce).toBe(1000);
-            expect(configData.app.pages.cart.enableRemoveConfirmation).toBe(false);
+            expect(configData.pages.cart.quantityUpdateDebounce).toBe(1000);
+            expect(configData.pages.cart.enableRemoveConfirmation).toBe(false);
 
             // Other cart values should remain
-            expect(configData.app.pages.cart.maxQuantityPerItem).toBe(999);
-            expect(configData.app.pages.cart.enableSaveForLater).toBe(false);
+            expect(configData.pages.cart.maxQuantityPerItem).toBe(999);
+            expect(configData.pages.cart.enableSaveForLater).toBe(false);
         });
 
         it('handles empty overrides', () => {
@@ -286,8 +289,7 @@ describe('context-provider-utils', () => {
             const configProvider = container.querySelector('[data-testid="config-provider"]');
             const configData = JSON.parse(configProvider?.getAttribute('data-config') || '{}');
 
-            // Should be identical to base config
-            expect(configData).toEqual(mockBuildConfig);
+            expect(configData).toEqual(mockBuildConfig.app);
         });
 
         it('handles undefined overrides', () => {
@@ -299,8 +301,7 @@ describe('context-provider-utils', () => {
             const configProvider = container.querySelector('[data-testid="config-provider"]');
             const configData = JSON.parse(configProvider?.getAttribute('data-config') || '{}');
 
-            // Should be identical to base config
-            expect(configData).toEqual(mockBuildConfig);
+            expect(configData).toEqual(mockBuildConfig.app);
         });
     });
 });

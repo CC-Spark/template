@@ -29,7 +29,8 @@ import PasswordlessLoginForm from '@/components/login/passwordless-login-form';
 import OtpModal from '@/components/login/otp-modal';
 import { SocialLoginButtons } from '@/components/buttons/social-login-buttons';
 import { getAppOrigin, isAbsoluteURL } from '@/lib/utils';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { getTranslation } from '@/lib/i18next';
 
 // services
@@ -97,7 +98,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const error = url.searchParams.get('error');
 
     // Get runtime config to determine if passwordless login is enabled
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const isSlasPrivate = config.commerce.api.privateKeyEnabled;
     const isPasswordlessLoginEnabled = config.features.passwordlessLogin.enabled && isSlasPrivate;
     const isSocialLoginEnabled = Boolean(config.features.socialLogin?.enabled);
@@ -168,7 +169,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export async function action({ request, context }: ActionFunctionArgs): Promise<LoginActionResponse> {
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const { t } = getTranslation(context);
     const genericError = t('errors:genericTryAgain');
 

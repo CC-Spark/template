@@ -91,9 +91,9 @@ vi.mock('@/extensions/hybrid-proxy/config', () => ({
 }));
 // @sfdc-extension-block-end SFDC_EXT_HYBRID_PROXY
 
-vi.mock('@/config', async () => {
-    const actual = await vi.importActual('@/config');
-    const { ConfigContext, createAppConfig } = await import('@/config/context');
+vi.mock('@salesforce/storefront-next-runtime/config', async () => {
+    const actual = await vi.importActual('@salesforce/storefront-next-runtime/config');
+    const { ConfigContext, createAppConfig } = await import('@salesforce/storefront-next-runtime/config');
     const { mockBuildConfig } = await import('@/test-utils/config');
 
     return {

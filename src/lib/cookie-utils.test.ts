@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { AppConfig } from '@/config';
 import {
     getCookieNameWithSiteId,
     getCookieConfig,
@@ -23,12 +22,13 @@ import {
     createCookie,
 } from './cookie-utils';
 import { mockBuildConfig } from '@/test-utils/config';
-// Mock getConfig
-vi.mock('@/config/get-config', () => ({
+
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     getConfig: vi.fn(),
 }));
 
-import { getConfig } from '@/config/get-config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 describe('cookie-utils', () => {
     const mockAppConfig = {

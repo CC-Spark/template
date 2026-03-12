@@ -23,7 +23,8 @@ import {
     type EventMediator,
     type AnalyticsEvent,
 } from '@salesforce/storefront-next-runtime/events';
-import { useConfig, type AppConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { ensureAdaptersInitialized } from '@/lib/adapters/initialize-adapters';
 import { getAllAdapters } from '@/lib/adapters';
 import { useTrackingConsent } from './use-tracking-consent';
@@ -90,7 +91,7 @@ async function trackEvent<TEventType extends AnalyticsEvent['eventType']>(
  */
 export const useAnalytics = () => {
     const auth = useAuth();
-    const appConfig = useConfig();
+    const appConfig = useConfig<AppConfig>();
     const { trackingConsent } = useTrackingConsent();
 
     // Store the promise resolver so we can resolve it when auth becomes available

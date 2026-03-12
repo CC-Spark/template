@@ -22,7 +22,7 @@ import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'r
 
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
-import { ConfigProvider } from '@/config/context';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 
 const WISHLIST_HARNESS_ATTR = 'data-wishlist-harness';

@@ -44,10 +44,8 @@ export const deepMerge = <T extends Record<string, unknown>>(target: T, source: 
         const targetValue = result[key];
 
         if (isPlainObject(sourceValue) && isPlainObject(targetValue)) {
-            // Both are plain objects, merge recursively
             result[key] = deepMerge(targetValue, sourceValue);
         } else {
-            // Otherwise, replace with source value (including arrays, primitives, null, undefined)
             result[key] = sourceValue;
         }
     }
@@ -87,7 +85,6 @@ export const pathToObject = (
     for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
 
-        // Find actual key in baseConfig (case-insensitive)
         let normalizedKey = key;
         if (configCurrent && typeof configCurrent === 'object' && !Array.isArray(configCurrent)) {
             const actualKey = Object.keys(configCurrent).find((k) => k.toLowerCase() === key.toLowerCase());
@@ -95,7 +92,7 @@ export const pathToObject = (
                 normalizedKey = actualKey;
                 configCurrent = (configCurrent as Record<string, unknown>)[actualKey];
             } else {
-                configCurrent = null; // Path diverges from base
+                configCurrent = null;
             }
         }
 
@@ -103,7 +100,6 @@ export const pathToObject = (
         current = current[normalizedKey] as Record<string, unknown>;
     }
 
-    // Handle last key
     const lastKey = keys[keys.length - 1];
     let normalizedLastKey = lastKey;
     if (configCurrent && typeof configCurrent === 'object' && !Array.isArray(configCurrent)) {
@@ -144,22 +140,16 @@ export const pathToObject = (
  *   {"id": "fr-FR"}
  * ]') // → [{id: 'en-GB'}, {id: 'fr-FR'}] (array)
  */
-const parseEnvValue = (varValue: string, varName?: string): unknown => {
-    // Optimistic JSON parsing - try to parse as JSON, fall back to string
+export const parseEnvValue = (varValue: string, varName?: string): unknown => {
     try {
         return JSON.parse(varValue);
     } catch {
-        // For JSON-like values, try normalizing whitespace before parsing
-        // This allows multi-line formatted JSON in .env files
         const trimmed = varValue.trim();
         if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
             try {
-                // Normalize whitespace: replace newlines and multiple spaces with single space
-                // This preserves JSON structure while removing formatting
                 const normalized = varValue.replace(/\s+/g, ' ').trim();
                 return JSON.parse(normalized);
             } catch {
-                // Still failed after normalization
                 if (process.env.NODE_ENV === 'development') {
                     const preview = varValue.length > 50 ? `${varValue.substring(0, 50)}...` : varValue;
                     const varInfo = varName ? ` in "${varName}"` : '';
@@ -171,7 +161,6 @@ const parseEnvValue = (varValue: string, varName?: string): unknown => {
                 }
             }
         }
-        // If it's not valid JSON, return as string
         return varValue;
     }
 };
@@ -188,7 +177,7 @@ const parseEnvValue = (varValue: string, varName?: string): unknown => {
  * extractValidPaths({ app: { site: { locale: 'en-GB' } } })
  * // Returns: ['app__site__locale']
  */
-const extractValidPaths = (obj: unknown, prefix = ''): string[] => {
+export const extractValidPaths = (obj: unknown, prefix = ''): string[] => {
     if (!isPlainObject(obj)) {
         return prefix ? [prefix] : [];
     }
@@ -199,10 +188,8 @@ const extractValidPaths = (obj: unknown, prefix = ''): string[] => {
         const currentPath = prefix ? `${prefix}__${normalizedKey}` : normalizedKey;
 
         if (isPlainObject(value)) {
-            // Recursively extract paths from nested objects
             paths.push(...extractValidPaths(value, currentPath));
         } else {
-            // Leaf node - this is a valid config path
             paths.push(currentPath);
         }
     }
@@ -210,35 +197,6 @@ const extractValidPaths = (obj: unknown, prefix = ''): string[] => {
     return paths;
 };
 
-/**
- * Merge environment variables with PUBLIC__ prefix into config
- *
- * Uses double underscore (__) to target nested config paths.
- * All PUBLIC__ prefixed variables are exposed to the client (bundled into window.__APP_CONFIG__).
- *
- * Server-only secrets should NEVER use this - read them directly from process.env in server code.
- *
- * @param env - Environment variables object (defaults to process.env)
- * @returns Object with overrides to merge into base config
- *
- * @example
- * // Environment variables:
- * // PUBLIC__app__commerce__api__clientId=abc123
- * // PUBLIC__app__site__locale=en-GB
- * // PUBLIC__app__pages__cart__quantityUpdateDebounce=1000
- * // PUBLIC__app__site__features__socialLogin__providers=["Apple","Google"]
- *
- * mergeEnvConfig()
- * // Returns:
- * // {
- * //   app: {
- * //     commerce: { api: { clientId: 'abc123' } },
- * //     site: { locale: 'en-GB' },
- * //     pages: { cart: { quantityUpdateDebounce: 1000 } },
- * //     site: { features: { socialLogin: { providers: ['Apple', 'Google'] } } }
- * //   }
- * // }
- */
 interface EnvVar {
     name: string;
     path: string;
@@ -246,27 +204,72 @@ interface EnvVar {
     depth: number;
 }
 
+/**
+ * Options for mergeEnvConfig
+ */
+export interface MergeEnvConfigOptions {
+    /**
+     * Config paths that cannot be overridden by environment variables.
+     * Paths are matched case-insensitively with double underscore separators.
+     * Any env var targeting a protected path or a sub-path of it will throw an error.
+     *
+     * @example ['app__engagement'] — prevents PUBLIC__app__engagement__* from being set via env
+     */
+    protectedPaths?: string[];
+}
+
+/**
+ * Merge environment variables with PUBLIC__ prefix into config.
+ *
+ * Uses double underscore (__) to target nested config paths.
+ * All PUBLIC__ prefixed variables are exposed to the client (bundled into window.__APP_CONFIG__).
+ *
+ * Server-only secrets should NEVER use this — read them directly from process.env in server code.
+ *
+ * Environment variables:
+ * - `PUBLIC__<path>` (optional): Override any config path. e.g. `PUBLIC__app__commerce__api__clientId=abc123`
+ * - `NODE_ENV` (optional): When set to 'development', enables conflict warnings for overlapping paths
+ *
+ * @param env - Environment variables object (defaults to process.env)
+ * @param baseConfig - Optional base config for strict path validation and case normalization
+ * @param options - Optional configuration including protected paths
+ * @returns Object with overrides to merge into base config
+ *
+ * @example
+ * // Environment variables:
+ * // PUBLIC__app__commerce__api__clientId=abc123
+ * // PUBLIC__app__pages__cart__quantityUpdateDebounce=1000
+ * // PUBLIC__app__features__socialLogin__providers=["Apple","Google"]
+ *
+ * mergeEnvConfig()
+ * // Returns:
+ * // {
+ * //   app: {
+ * //     commerce: { api: { clientId: 'abc123' } },
+ * //     pages: { cart: { quantityUpdateDebounce: 1000 } },
+ * //     features: { socialLogin: { providers: ['Apple', 'Google'] } }
+ * //   }
+ * // }
+ */
 export const mergeEnvConfig = (
     env: Record<string, string | undefined> = typeof process !== 'undefined' ? process.env : {},
-    baseConfig?: Record<string, unknown>
+    baseConfig?: Record<string, unknown>,
+    options?: MergeEnvConfigOptions
 ): Record<string, unknown> => {
     const PUBLIC_PREFIX = 'PUBLIC__';
     const MAX_VAR_NAME_LENGTH = 512; // MRT limit: 512 characters
     const MAX_TOTAL_VALUE_SIZE = 32 * 1024; // MRT limit: 32 KB
-    const MAX_DEPTH = 10; // Maximum nesting depth to prevent stack overflow
+    const MAX_DEPTH = 10;
 
-    // Extract valid paths from base config for validation
+    const protectedPaths = options?.protectedPaths ?? [];
     const validPaths = baseConfig ? extractValidPaths(baseConfig) : [];
 
-    // Step 1: Collect and validate all PUBLIC__ environment variables
     const envVars: EnvVar[] = [];
     let totalValueSize = 0;
 
     for (const [varName, varValue] of Object.entries(env)) {
-        // Allow empty strings, but skip undefined/null values
         if (varValue === undefined || varValue === null || !varName.startsWith(PUBLIC_PREFIX)) continue;
 
-        // Validate variable name length (MRT requirement)
         if (varName.length > MAX_VAR_NAME_LENGTH) {
             throw new Error(
                 `Environment variable name "${varName}" exceeds MRT limit of ${MAX_VAR_NAME_LENGTH} characters. ` +
@@ -277,7 +280,6 @@ export const mergeEnvConfig = (
 
         const path = varName.substring(PUBLIC_PREFIX.length);
 
-        // Validate path is not empty
         if (!path) {
             throw new Error(
                 `Invalid environment variable "${varName}": Path cannot be empty after PUBLIC__ prefix. ` +
@@ -285,7 +287,6 @@ export const mergeEnvConfig = (
             );
         }
 
-        // Validate path depth to prevent stack overflow
         const depth = path.split('__').length;
         if (depth > MAX_DEPTH) {
             throw new Error(
@@ -295,11 +296,8 @@ export const mergeEnvConfig = (
             );
         }
 
-        // Protected paths that cannot be overridden by environment variables
-        // The engagement config must be set in config.server.ts for build-time validation
-        const PROTECTED_PATHS = ['app__engagement'];
         const normalizedPath = path.toLowerCase();
-        const isProtected = PROTECTED_PATHS.some(
+        const isProtected = protectedPaths.some(
             (protectedPath) => normalizedPath === protectedPath || normalizedPath.startsWith(`${protectedPath}__`)
         );
 
@@ -311,7 +309,6 @@ export const mergeEnvConfig = (
             );
         }
 
-        // Validate path exists in base config (strict mode)
         if (baseConfig && validPaths.length > 0) {
             if (!validPaths.includes(normalizedPath)) {
                 throw new Error(
@@ -321,7 +318,6 @@ export const mergeEnvConfig = (
             }
         }
 
-        // Track total size of PUBLIC__ variable values (MRT requirement)
         totalValueSize += varValue.length;
 
         envVars.push({
@@ -332,7 +328,6 @@ export const mergeEnvConfig = (
         });
     }
 
-    // Validate total size of all PUBLIC__ variable values (MRT requirement)
     if (totalValueSize > MAX_TOTAL_VALUE_SIZE) {
         throw new Error(
             `Total size of PUBLIC__ environment variable values exceeds MRT limit of ${MAX_TOTAL_VALUE_SIZE} bytes (32 KB). ` +
@@ -342,17 +337,13 @@ export const mergeEnvConfig = (
         );
     }
 
-    // Step 2: Sort by specificity (depth) - less specific first, more specific last
-    // This ensures more specific paths override less specific ones
     envVars.sort((a, b) => a.depth - b.depth);
 
-    // Step 3: Detect conflicts (overlapping paths)
     const conflicts: Array<{ parent: string; child: string }> = [];
     for (let i = 0; i < envVars.length; i++) {
         for (let j = i + 1; j < envVars.length; j++) {
             const shorter = envVars[i].path;
             const longer = envVars[j].path;
-            // Check if longer path starts with shorter path followed by __
             if (longer.startsWith(`${shorter}__`)) {
                 conflicts.push({
                     parent: envVars[i].name,
@@ -362,7 +353,6 @@ export const mergeEnvConfig = (
         }
     }
 
-    // Step 4: Warn about conflicts in development mode
     if (conflicts.length > 0 && process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
         console.warn(
@@ -372,7 +362,6 @@ export const mergeEnvConfig = (
         );
     }
 
-    // Step 5: Merge in specificity order (more specific wins)
     let merged: Record<string, unknown> = {};
 
     for (const envVar of envVars) {

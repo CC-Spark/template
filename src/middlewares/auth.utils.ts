@@ -23,7 +23,8 @@ import {
     unpackStorage,
     updateStorageObject,
 } from '@/lib/middleware';
-import { getConfig, type AppConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { TrackingConsent, booleanToTrackingConsent } from '@/types/tracking-consent';
 
 // Maximum allowed refresh token expiry times (in seconds) per Salesforce Commerce Cloud limits
@@ -65,7 +66,7 @@ export const AUTH_TOKEN_INVALID_ERROR = 'AUTH_TOKEN_INVALID';
  * }
  */
 export function isTrackingConsentEnabled(context?: Readonly<RouterContextProvider>): boolean {
-    const appConfig = getConfig(context);
+    const appConfig = getConfig<AppConfig>(context);
     return appConfig.engagement?.analytics?.trackingConsent?.enabled ?? false;
 }
 
@@ -274,7 +275,7 @@ export const updateStorageAndCache = async (
     userType: 'guest' | 'registered'
 ): Promise<void> => {
     const promiseCache = context.get(authContext);
-    const appConfig = getConfig(context);
+    const appConfig = getConfig<AppConfig>(context);
     promiseCache.ref = Promise.resolve(tokenResponse).then((response) => {
         const { dwsid, ...tokenData } = response;
         updateAuthStorageDataByTokenResponse(storage, tokenData, userType, appConfig, dwsid);

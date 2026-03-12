@@ -38,7 +38,7 @@ vi.mock('@/lib/api-clients', () => ({
     createApiClients: () => mockCreateApiClients(),
 }));
 
-vi.mock('@/config', async (importOriginal) => {
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
     const actual = (await importOriginal()) as any;
     return {
         ...actual,

@@ -19,7 +19,8 @@ import { type ReactElement, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFetcher } from 'react-router';
 import { NativeSelect } from '@/components/ui/native-select';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { useCurrency } from '@/providers/currency';
 import { useToast } from '@/components/toast';
 
@@ -34,7 +35,7 @@ export default function CurrencySwitcher(): ReactElement {
     const id = useId();
     const { t } = useTranslation('currencySwitcher');
     const fetcher = useFetcher();
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const currentCurrency = useCurrency();
     const { addToast } = useToast();
     //TODO: will change when multi site implementation starts

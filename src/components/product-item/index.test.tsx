@@ -27,7 +27,7 @@ import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@sale
 
 // Components
 import ProductItem from './index';
-import { ConfigProvider } from '@/config/context';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 import { CurrencyProvider } from '@/providers/currency';
 

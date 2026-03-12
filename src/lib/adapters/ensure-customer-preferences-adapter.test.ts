@@ -16,7 +16,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ensureCustomerPreferencesAdapterRegistered } from './ensure-customer-preferences-adapter';
-import type { AppConfig } from '@/config';
+import type { AppConfig } from '@/types/config';
 
 const mockHasCustomerPreferencesAdapters = vi.fn();
 const mockAddCustomerPreferencesAdapter = vi.fn();

@@ -22,7 +22,7 @@ import { getTranslation } from '@/lib/i18next';
 const { t } = getTranslation();
 import CartQuantityPicker from './cart-quantity-picker';
 import { useCartQuantityUpdate } from '@/hooks/use-cart-quantity-update';
-import { ConfigProvider } from '@/config/context';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 
 // Mock the useCartQuantityUpdate hook

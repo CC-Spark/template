@@ -40,7 +40,8 @@ import ProductPrice from '../product-price';
 // Hooks
 import { useItemFetcherLoading } from '@/hooks/use-item-fetcher';
 import { useCurrency } from '@/providers/currency';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // Utils
 import { formatCurrency } from '@/lib/currency';
@@ -66,7 +67,7 @@ export function ProductItemVariantImage({
     className?: string;
     width?: string;
 }): ReactElement {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const { t: tProduct } = useTranslation('product');
 
     if (!productItem) {

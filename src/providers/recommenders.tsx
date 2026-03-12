@@ -18,7 +18,8 @@ import type { RecommendersAdapter } from '@/hooks/recommenders/use-recommenders'
 import { getAdapter } from '@/lib/adapters';
 import { ensureAdaptersInitialized } from '@/lib/adapters/initialize-adapters';
 import { EINSTEIN_ADAPTER_NAME } from '@/adapters/einstein';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 const RecommendersContext = createContext<RecommendersAdapter | undefined>(undefined);
 
@@ -39,7 +40,7 @@ type RecommendersProviderProps = PropsWithChildren<{
  * @param adapterName - Name of the adapter to use (default: EINSTEIN_ADAPTER_NAME)
  */
 const RecommendersProvider = ({ children, adapterName = EINSTEIN_ADAPTER_NAME }: RecommendersProviderProps) => {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const [adapter, setAdapter] = useState<RecommendersAdapter | undefined>(undefined);
 
     useEffect(() => {

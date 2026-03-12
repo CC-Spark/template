@@ -15,7 +15,8 @@
  */
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 /**
  * ProductCarouselSkeleton component provides a loading state placeholder for product carousels.
@@ -49,7 +50,7 @@ import { useConfig } from '@/config';
  * @since 1.0.0
  */
 export default function ProductCarouselSkeleton({ title, itemCount }: { title?: string; itemCount?: number }) {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const finalItemCount = itemCount ?? config.global.carousel.defaultItemCount;
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 animate-pulse">

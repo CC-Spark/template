@@ -98,7 +98,7 @@ vi.mock('@/lib/product-badges', () => ({
     })),
 }));
 
-vi.mock('@/config/get-config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: () => mockConfig,
 }));
 

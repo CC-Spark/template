@@ -18,7 +18,8 @@
 import { type PropsWithChildren, type ReactElement, useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Link, useFetcher, useNavigate } from 'react-router';
 import { useBasket } from '@/providers/basket';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -78,7 +79,7 @@ const CartSheetPanel = function CartSheetPanel({ onClose }: { onClose: () => voi
     const { t, i18n } = useTranslation('header');
     const { t: tMiniCart } = useTranslation('miniCart');
     const basket = useBasket();
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const navigate = useNavigate();
     const currency = useCurrency();
 

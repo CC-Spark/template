@@ -15,7 +15,7 @@
  */
 
 import defaultTheme from 'tailwindcss/defaultTheme';
-import type { AppConfig } from '@/config/context';
+import type { AppConfig } from '@/types/config';
 
 export type DynamicImageWidths = Array<number | string> | Record<string, number | string>;
 

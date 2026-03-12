@@ -25,7 +25,7 @@ import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtim
 import { cn } from '@/lib/utils';
 import { createProductUrl, getDecoratedVariationAttributes } from '@/lib/product-utils';
 import { getProductBrand, getProductShortDescription, getProductRating } from '@/lib/product-utils-plp';
-import { getBadgeVariant } from '@/config';
+import { getBadgeVariant } from '@/lib/badge-variants';
 import { useProductTileContext } from './context';
 
 // Page Designer Decorators

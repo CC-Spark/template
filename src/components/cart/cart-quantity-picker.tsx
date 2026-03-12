@@ -23,7 +23,8 @@ import { useTranslation } from 'react-i18next';
 // Hooks
 import { useItemFetcher } from '@/hooks/use-item-fetcher';
 import { useCartQuantityUpdate } from '@/hooks/use-cart-quantity-update';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // Components
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
@@ -69,7 +70,7 @@ export default function CartQuantityPicker({
     max,
     disabled = false,
 }: CartQuantityPickerProps): ReactElement {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const { t: tQuantity } = useTranslation('quantitySelector');
     const { t: tRemove } = useTranslation('removeItem');
     const { t: tCart } = useTranslation('cart');

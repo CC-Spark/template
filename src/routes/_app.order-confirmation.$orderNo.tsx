@@ -25,7 +25,8 @@ import { formatCurrency } from '@/lib/currency';
 import { fetchOrderWithProducts } from '@/lib/api/order';
 import { useCurrency } from '@/providers/currency';
 import { useBasketReset } from '@/providers/basket';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import type {
     ShopperOrders,
     ShopperProducts,
@@ -172,7 +173,7 @@ function OrderConfirmationContent({
     // @sfdc-extension-line SFDC_EXT_BOPIS
     storesByStoreId,
 }: OrderConfirmationData): ReactElement {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const { t, i18n } = useTranslation('checkout');
     const currency = useCurrency();
     const resetBasket = useBasketReset();

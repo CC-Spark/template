@@ -15,8 +15,9 @@
  */
 
 import type { ReactNode } from 'react';
-import { ConfigProvider, type AppConfig } from '@/config/context';
-import { mockConfig } from './context-provider-utils';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
+import { mockConfig } from './config';
 import { TargetProviders } from '@/targets/target-providers';
 import { CurrencyProvider } from '@/providers/currency';
 // @sfdc-extension-line SFDC_EXT_STORE_LOCATOR

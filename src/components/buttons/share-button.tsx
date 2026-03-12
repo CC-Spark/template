@@ -21,7 +21,8 @@ import { Button } from '@/components/ui/button';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/toast';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -65,7 +66,7 @@ const providerLabels: Record<ShareProvider, string> = {
  */
 export function ShareButton({ product, className }: ShareButtonProps): ReactElement {
     const { addToast } = useToast();
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const { t } = useTranslation('product');
 
     const productName = product.name || 'Check out this product';

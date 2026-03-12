@@ -16,8 +16,8 @@
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { RouterContextProvider } from 'react-router';
 import legacyRoutesMiddleware, { matchesRoutePattern } from '@/middlewares/legacy-routes.client';
-import { appConfigContext } from '@/config/context';
-import type { AppConfig } from '@/config';
+import { appConfigContext } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 describe('legacyRoutesMiddleware', () => {
     let mockContext: RouterContextProvider;

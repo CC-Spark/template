@@ -10,7 +10,8 @@ This is a React Server Component (RSC) template application for Salesforce Comme
   - `./src/routes/` - React Router routes (file-based routing)
   - `./src/components/` - React components
   - `./src/lib/` - Shared utilities, hooks, and business logic
-  - `./src/config/` - Configuration files
+  - `./src/types/config.ts` - Template-specific config types (`AppConfig`, `Config`)
+  - `./config.server.ts` - Configuration defaults (project root)
   - `./src/extensions/` - Optional feature extensions
 - `./.storybook/` - Storybook configuration and stories
 - `./public/` - Static assets

@@ -1,6 +1,6 @@
 # Configuration Options Reference
 
-This reference provides detailed documentation for all configuration options available in `config.server.ts`. You can override any configuration value using environment variables with the `PUBLIC__` prefix. See the [Configuration Guide](./README.md) for details on environment variables.
+This reference provides detailed documentation for all configuration options available in `config.server.ts`. You can override any configuration value using environment variables with the `PUBLIC__` prefix. See the [Configuration Guide](./README-CONFIG.md) for details on environment variables.
 
 ## Configuration Categories
 
@@ -552,7 +552,7 @@ Site feature flags that enable or disable specific functionality.
 
 Type: `boolean` | Default: `false`
 
-Enables passwordless login functionality, allowing users to log in via email link without entering a password. Requires Marketing Cloud configuration for sending login emails. See [Marketing Cloud Configuration](./README.md#marketing-cloud-configuration-server-only).
+Enables passwordless login functionality, allowing users to log in via email link without entering a password. Requires Marketing Cloud configuration for sending login emails. See [Marketing Cloud Configuration](./README-CONFIG.md#marketing-cloud-configuration-server-only).
 
 Example:
 ```bash
@@ -1585,7 +1585,7 @@ PUBLIC__app__global__productListing__enableQuickView=false
 **Problem:** TypeScript shows errors after adding new configuration options.
 
 **Possible Solutions:**
-1. Update both `src/config/schema.ts` (type definitions) and `config.server.ts` (default values).
+1. Update both `src/types/config.ts` (type definitions) and `config.server.ts` (default values).
 2. Ensure the types match between both files.
 3. Run `pnpm typecheck` to verify all files.
 4. Restart your IDE's TypeScript server.
@@ -1637,5 +1637,5 @@ PUBLIC__app__global__productListing__enableQuickView=false
 
 ## Additional Resources
 
-- [Configuration Guide](./README.md) - Detailed guide on using the configuration system
+- [Configuration Guide](./README-CONFIG.md) - Detailed guide on using the configuration system
 - [Environment Variables in MRT](https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/environment-variables.html) - Managed Runtime environment configuration

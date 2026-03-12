@@ -54,6 +54,8 @@ import {
 } from '@/middlewares/performance-metrics';
 import { appConfigMiddlewareServer } from '@/middlewares/app-config.server';
 import { appConfigMiddlewareClient } from '@/middlewares/app-config.client';
+import { ConfigProvider, getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { multiSiteMiddleware } from '@/middlewares/multi-site.server';
 import { i18nextMiddleware } from '@/middlewares/i18next.server';
 import { currencyMiddleware } from '@/middlewares/currency.server';
@@ -65,7 +67,6 @@ import { maintenanceMiddleware } from '@/middlewares/maintenance.server';
 import AuthProvider from '@/providers/auth';
 import BasketProvider from '@/providers/basket';
 import { ComposeProviders } from '@/providers/compose-providers';
-import { type AppConfig, ConfigProvider, getConfig } from '@/config';
 import { CurrencyProvider } from '@/providers/currency';
 import { CorrelationProvider } from '@/providers/correlation';
 import { correlationContext } from '@/lib/correlation';
@@ -162,7 +163,7 @@ export const loader = ({
 } => {
     const session = getAuthServer(context);
 
-    const appConfig = getConfig(context);
+    const appConfig = getConfig<AppConfig>(context);
 
     // Get i18next accessor functions from context (stored by middleware)
     const i18nextData = context.get(i18nextContext);

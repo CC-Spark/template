@@ -18,7 +18,7 @@ import type React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { EstimatedDeliveryModalContent } from './estimated-delivery-modal-content';
-import { ConfigProvider } from '@/config/context';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 import type { EstimatedDeliveryData } from '@/lib/adapters/product-content-data-types';
 

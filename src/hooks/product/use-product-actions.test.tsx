@@ -56,7 +56,7 @@ vi.mock('@/hooks/product/use-current-variant', () => ({
     useCurrentVariant: () => null,
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: vi.fn(() => ({
         engagement: {
             adapters: {

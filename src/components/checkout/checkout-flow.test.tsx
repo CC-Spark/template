@@ -326,7 +326,7 @@ vi.mock('@/hooks/checkout/use-completed-steps', () => ({
     useCompletedSteps: () => [],
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: vi.fn(() => ({
         engagement: {
             adapters: {

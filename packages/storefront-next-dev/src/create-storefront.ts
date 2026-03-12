@@ -180,7 +180,10 @@ export const createStorefront = async (
         }
     }
     // interview for config overrides
-    const configMeta = JSON.parse(fs.readFileSync(path.join(storefront, 'src', 'config', 'config-meta.json'), 'utf8'));
+    const configMetaPath = fs.existsSync(path.join(storefront, 'config-meta.json'))
+        ? path.join(storefront, 'config-meta.json')
+        : path.join(storefront, 'src', 'config', 'config-meta.json');
+    const configMeta = JSON.parse(fs.readFileSync(configMetaPath, 'utf8'));
     // Load default config values from .env.default if it exists
     const envDefaultPath = path.join(storefront, '.env.default');
     let envDefaultValues: Record<string, string> = {};

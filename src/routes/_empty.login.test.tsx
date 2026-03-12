@@ -63,7 +63,7 @@ vi.mock('@/components/buttons/social-login-buttons', () => ({
     SocialLoginButtons: () => <div data-testid="social-buttons" />,
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     getConfig: vi.fn(() => ({
         auth: {
             otpLength: 8,

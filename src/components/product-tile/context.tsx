@@ -19,7 +19,8 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import defaultTheme from 'tailwindcss/defaultTheme';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { type AppConfig, type BadgeDetail, useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig, BadgeDetail } from '@/types/config';
 import { useCurrency } from '@/providers/currency';
 import { getProductBadges } from '@/lib/product-badges';
 
@@ -80,7 +81,7 @@ function useSwatchMode(): 'click' | 'hover' {
  */
 export function ProductTileProvider({ children }: PropsWithChildren) {
     const navigate = useNavigate();
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const { t } = useTranslation('product');
     const currency = useCurrency();
     const swatchMode = useSwatchMode();
@@ -109,7 +110,7 @@ export function useProductTileContext(): ProductTileContextValue {
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
 
     return {
         // eslint-disable-next-line react-hooks/rules-of-hooks

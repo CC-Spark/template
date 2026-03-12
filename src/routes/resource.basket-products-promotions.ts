@@ -17,7 +17,8 @@
 import type { LoaderFunctionArgs } from 'react-router';
 import { getBasket } from '@/middlewares/basket.server';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import type { ProductWithPromotions } from '@/hooks/use-basket-with-promotions';
 
 /**
@@ -40,7 +41,7 @@ export async function loader({ context }: LoaderFunctionArgs): Promise<Record<st
     }
 
     try {
-        const config = getConfig(context);
+        const config = getConfig<AppConfig>(context);
         const clients = createApiClients(context);
 
         // Fetch product details with promotions expanded

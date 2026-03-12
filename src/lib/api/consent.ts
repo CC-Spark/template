@@ -15,7 +15,8 @@
  */
 import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperConsents } from '@salesforce/storefront-next-runtime/scapi';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { createApiClients } from '@/lib/api-clients';
 
 /** Expand param for getSubscriptions: include consentStatus so responses have per-channel opt-in/opt-out. */
@@ -37,7 +38,7 @@ export async function getSubscriptions(
     context: LoaderFunctionArgs['context']
 ): Promise<ShopperConsents.schemas['ConsentSubscriptionResponse'] | null> {
     try {
-        const config = getConfig(context);
+        const config = getConfig<AppConfig>(context);
         const clients = createApiClients(context);
         const { data } = await clients.shopperConsents.getSubscriptions({
             params: {
@@ -67,7 +68,7 @@ export async function updateSubscriptionsBulk(
     context: LoaderFunctionArgs['context'],
     bodies: UpdateSubscriptionBody[]
 ): Promise<ShopperConsents.schemas['ConsentSubscriptionBulkResponse']> {
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const clients = createApiClients(context);
     const { data } = await clients.shopperConsents.updateSubscriptions({
         params: {

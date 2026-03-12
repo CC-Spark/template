@@ -19,7 +19,8 @@ import { type ReactElement, useEffect, useRef } from 'react';
 import { Link, useFetcher } from 'react-router';
 import type { ShopperCustomers, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { useTranslation } from 'react-i18next';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { useCurrency } from '@/providers/currency';
 import { findImageGroupBy } from '@/lib/image-groups-utils';
 import { toImageUrl } from '@/lib/dynamic-image';
@@ -44,7 +45,7 @@ interface WishlistListItemProps {
  */
 export function WishlistListItem({ product, wishlistItem, onRemove }: WishlistListItemProps): ReactElement {
     const { t } = useTranslation('product');
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const currency = useCurrency();
     const { addToast } = useToast();
     const removeFetcher = useFetcher<{ success: boolean; error?: string }>();

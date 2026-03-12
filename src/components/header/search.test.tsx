@@ -48,7 +48,7 @@ const mockUseTransformSearchSuggestions = useTransformSearchSuggestions as Mocke
     typeof useTransformSearchSuggestions
 >;
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: vi.fn(() => ({
         pages: {
             search: {

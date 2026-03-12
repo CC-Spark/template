@@ -50,6 +50,12 @@
         "default": "./dist/config.js"
       }
     },
+    "./config/load-config": {
+      "import": {
+        "types": "./dist/config-load.d.ts",
+        "default": "./dist/config-load.js"
+      }
+    },
     "./events": {
       "import": {
         "types": "./dist/events.d.ts",

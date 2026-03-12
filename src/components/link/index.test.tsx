@@ -29,7 +29,7 @@ vi.mock('@salesforce/storefront-next-runtime/multi-site', async (importOriginal)
 });
 
 const mockUseConfig = vi.fn();
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: (...args: unknown[]) => mockUseConfig(...args),
 }));
 

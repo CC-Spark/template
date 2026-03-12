@@ -15,7 +15,7 @@
  */
 import type { MiddlewareFunction } from 'react-router';
 import config from '@/config/server';
-import { appConfigContext } from '@/config';
+import { appConfigContext } from '@salesforce/storefront-next-runtime/config';
 
 let validationRun = false;
 
@@ -61,7 +61,7 @@ function validateConfig(): void {
                 `PUBLIC__app__commerce__api__organizationId=your-org-id\n` +
                 `PUBLIC__app__commerce__api__siteId=your-site-id\n` +
                 `PUBLIC__app__commerce__api__shortCode=your-short-code\n\n` +
-                `See src/config/README.md for complete configuration documentation.`
+                `See docs/README-CONFIG.md for complete configuration documentation.`
         );
     }
 

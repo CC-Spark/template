@@ -22,7 +22,8 @@ import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { getBasket } from '@/middlewares/basket.server';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { currencyContext } from '@/lib/currency';
 
 /**
@@ -46,7 +47,7 @@ export async function loader({
     }
 
     try {
-        const config = getConfig(context);
+        const config = getConfig<AppConfig>(context);
         const clients = createApiClients(context);
         const currency = context.get(currencyContext) as string;
 

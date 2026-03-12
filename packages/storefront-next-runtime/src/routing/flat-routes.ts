@@ -20,6 +20,7 @@ import path from 'node:path';
 import { mergeRoutes } from './merge-routes';
 import { applyUrlConfig } from '../multi-site/apply-url-config';
 import { loadConfig } from '../config/load-config';
+import type { Url } from '../config/types';
 
 const APP_SRC_DIR = 'src';
 const EXTENSIONS_DIR = 'extensions';
@@ -83,7 +84,8 @@ export async function flatRoutes(options?: {
     await discoverExtensionRoutes(ignoredRouteFiles, routes);
 
     // 3. Try to load URL config from template's config file
-    const { url: urlConfig } = await loadConfig();
+    const { app } = await loadConfig();
+    const urlConfig = app?.url as Url | undefined;
     if (urlConfig?.prefix) {
         try {
             await fs.access(path.join('.', APP_SRC_DIR, APP_WRAPPER_FILE));

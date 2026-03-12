@@ -29,7 +29,8 @@ import { createTestContext } from '@/lib/test-utils';
 import { fetchCategory } from '@/lib/api/categories';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { fetchPageWithComponentData } from '@/lib/util/pageLoader';
-import { type AppConfig, getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { getRegionDefinition } from '@/lib/decorators/region-definition';
 import { ConfigWrapper } from '@/test-utils/context-provider';
 import { generateCategorySchema } from '@/utils/category-schema';
@@ -180,7 +181,7 @@ vi.mock('@/hooks/use-analytics', () => ({
 }));
 
 // Mock config
-vi.mock('@/config', async (importOriginal) => {
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
     const actual = await importOriginal<object>();
     const mockConfigValue = {
         commerce: {

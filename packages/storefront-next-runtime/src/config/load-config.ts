@@ -16,27 +16,30 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import type { BaseConfig } from './schema';
 
 /**
  * Dynamically imports `config.server.ts` from the project root (CWD) and returns
- * the `app` configuration object. This runs at route discovery time under vite-node
+ * the full configuration object. This runs at route discovery time under vite-node
  * (typegen, dev, build), which handles the TS transformation.
  *
- * - If the config file is missing, warns and returns an empty config.
+ * Returns the full config including `metadata`, `runtime`, and `app` sections.
+ * Callers that only need `app` can destructure: `const { app } = await loadConfig()`.
+ *
+ * - If the config file is missing, throws with a clear message.
  * - If the config file exists but fails to import, throws with the original error as cause.
  *
- * @returns The `app` configuration object, or an empty object if not available.
+ * @returns The full configuration object.
+ * @throws If `config.server.ts` is not found or fails to import.
  */
-// TODO: add a proper type when config schema is moved to runtime from the template
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function loadConfig(): Promise<Record<string, any>> {
+export async function loadConfig<T extends BaseConfig = BaseConfig>(): Promise<T> {
     const configPath = path.resolve(process.cwd(), 'config.server.ts');
 
     if (!fs.existsSync(configPath)) {
-        console.warn(
-            `[storefront-next-runtime] config.server.ts not found at ${configPath}. ` + `Returning empty config.`
+        throw new Error(
+            `[storefront-next-runtime] config.server.ts is required but not found at ${configPath}. ` +
+                `Create this file with defineConfig() to configure your storefront application.`
         );
-        return {};
     }
 
     try {
@@ -48,7 +51,7 @@ export async function loadConfig(): Promise<Record<string, any>> {
 
         const mod = await import(importPath);
         const config = mod.default ?? mod;
-        return config?.app ?? {};
+        return config as T;
     } catch (error) {
         throw new Error(`[storefront-next-runtime] Found config.server.ts at ${configPath} but failed to import it.`, {
             cause: error,

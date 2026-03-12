@@ -15,7 +15,8 @@
  */
 import { type MiddlewareFunction } from 'react-router';
 import { createMultiSiteMiddleware, type MultiSiteConfig } from '@salesforce/storefront-next-runtime/multi-site';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 /**
  * Creates and returns the multi-site middleware configured with the app's site and locale settings.
@@ -24,7 +25,7 @@ import { getConfig } from '@/config';
  * Must run BEFORE i18next and currency middlewares.
  */
 export const multiSiteMiddleware: MiddlewareFunction<Response> = async (args, next) => {
-    const config = getConfig(args.context);
+    const config = getConfig<AppConfig>(args.context);
     const sites = config.commerce.sites;
     const defaultSiteId = config.defaultSiteId;
     const siteAliasMap = config.siteAliasMap;

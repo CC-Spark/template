@@ -18,7 +18,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import type { RouterContextProvider } from 'react-router';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { loader } from './_app.product.$productId';
-import { appConfigContext } from '@/config';
+import { appConfigContext } from '@salesforce/storefront-next-runtime/config';
 import { authContext } from '@/middlewares/auth.utils';
 import { currencyContext } from '@/lib/currency';
 

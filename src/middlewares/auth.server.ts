@@ -47,7 +47,8 @@ import {
 import { getAppOrigin, isAbsoluteURL } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { performanceTimerContext, PERFORMANCE_MARKS } from '@/middlewares/performance-metrics';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { createCookie, getCookieConfig, getCookieNameWithSiteId, parseAllCookies } from '@/lib/cookie-utils';
 import { getTranslation, i18nextContext } from '@/lib/i18next';
 import { TrackingConsent, trackingConsentToBoolean } from '@/types/tracking-consent';
@@ -100,7 +101,7 @@ export async function loginGuestUser(
 ): Promise<AuthResponse> {
     const clients = createApiClients(context);
     const performanceTimer = context.get(performanceTimerContext);
-    const appConfig = getConfig(context);
+    const appConfig = getConfig<AppConfig>(context);
     const isSlasPrivate = appConfig.commerce.api.privateKeyEnabled;
     const performanceName = isSlasPrivate
         ? PERFORMANCE_MARKS.authLoginGuestUserPrivate
@@ -175,7 +176,7 @@ export async function authorizePasswordless(
     const session = getAuth(context);
     const userId = parameters.userid;
 
-    const appConfig = getConfig(context);
+    const appConfig = getConfig<AppConfig>(context);
     const passwordlessCallback = appConfig.features.passwordlessLogin.callbackUri;
     const mode = appConfig.features.passwordlessLogin.mode;
 
@@ -226,7 +227,7 @@ export async function getPasswordResetToken(
     performanceTimer?.mark(PERFORMANCE_MARKS.authGetPasswordResetToken, 'start');
 
     const clients = createApiClients(context);
-    const appConfig = getConfig(context);
+    const appConfig = getConfig<AppConfig>(context);
     const resetPasswordCallbackUri = appConfig.features.resetPassword.callbackUri;
     let callbackUri: string | undefined;
     if (resetPasswordCallbackUri) {
@@ -989,7 +990,7 @@ export const updateAuth = (
     const storage = context.get(authStorageContext);
     const cache = context.get(authCacheContext);
     const promiseCache = context.get(authContext);
-    const appConfig = getConfig(context);
+    const appConfig = getConfig<AppConfig>(context);
     if (!storage || !cache || !promiseCache) {
         throw new Error('updateAuth must be used within the Commerce API middleware');
     }

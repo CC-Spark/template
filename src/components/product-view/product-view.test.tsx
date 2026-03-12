@@ -29,7 +29,7 @@ import { standardProd } from '@/components/__mocks__/standard-product-2';
 import { bundleProd } from '@/components/__mocks__/bundle-product';
 import { setProduct } from '@/components/__mocks__/set-product';
 import { mockBuildConfig } from '@/test-utils/config';
-import { createAppConfig } from '@/config/context';
+import { createAppConfig } from '@salesforce/storefront-next-runtime/config';
 
 // Mock useToast
 const mockAddToast = vi.fn();

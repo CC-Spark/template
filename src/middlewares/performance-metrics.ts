@@ -16,7 +16,7 @@
 
 /* eslint-disable no-console */
 import { createContext, type DataStrategyResult, type MiddlewareFunction } from 'react-router';
-import { appConfigContext } from '@/config';
+import { appConfigContext } from '@salesforce/storefront-next-runtime/config';
 
 type MarkerType = 'start' | 'end';
 

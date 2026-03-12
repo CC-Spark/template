@@ -87,7 +87,7 @@ PUBLIC__app__site__currency=EUR   →  config.app.site.currency
 
 Values are automatically parsed (numbers, booleans, JSON arrays/objects).
 
-See [Configuration Guide](./src/config/README.md) for complete documentation.
+See [Configuration Guide](./docs/README-CONFIG.md) for complete documentation.
 
 ## Deployment
 

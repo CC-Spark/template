@@ -16,7 +16,8 @@
 import { describe, it, expect } from 'vitest';
 import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { mockBuildConfig } from '@/test-utils/config';
-import { type Config, createAppConfig } from '@/config';
+import { createAppConfig } from '@salesforce/storefront-next-runtime/config';
+import type { Config } from '@/types/config';
 import { generateCategorySchema } from './category-schema';
 
 describe('generateCategorySchema', () => {

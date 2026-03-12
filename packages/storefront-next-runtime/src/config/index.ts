@@ -13,4 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Configuration module for storefront applications.
+ *
+ * Provides the config system: type-safe schema definition via `defineConfig()`,
+ * access via `getConfig()` / `useConfig()`, React context, middleware factory,
+ * and environment variable overrides via `mergeEnvConfig()`.
+ */
+
+// Types
 export type { Locale, Site, Url } from './types';
+export type { BaseConfig, DefineConfigOptions } from './schema';
+
+// Config definition (server-only by convention)
+export { defineConfig } from './schema';
+
+// Config access (isomorphic)
+export { getConfig, useConfig } from './get-config';
+
+// Context primitives (isomorphic)
+export { appConfigContext, ConfigContext, ConfigProvider, createAppConfig } from './context';
+
+// Middleware factory (follows createMultiSiteMiddleware pattern)
+export { createAppConfigMiddleware } from './middleware';
+
+// Utilities (for dev server and advanced use)
+export { deepMerge, mergeEnvConfig, pathToObject, parseEnvValue, extractValidPaths } from './utils';
+export type { MergeEnvConfigOptions } from './utils';
+
+// Dynamic loading (for dev server / build tools — node-only)
+// Exported via separate entry point: @salesforce/storefront-next-runtime/config/load-config

@@ -20,7 +20,8 @@ import {
     CUSTOMER_PREFERENCES_MOCK_ADAPTER_NAME,
 } from '@/lib/adapters/customer-preferences-store';
 import { ensureCustomerPreferencesAdapterRegistered } from '@/lib/adapters/ensure-customer-preferences-adapter';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 const CustomerPreferencesContext = createContext<CustomerInterestsPreferencesAdapter | undefined>(undefined);
 
@@ -42,7 +43,7 @@ const CustomerPreferencesProvider = ({
     children,
     adapterName = CUSTOMER_PREFERENCES_MOCK_ADAPTER_NAME,
 }: CustomerPreferencesProviderProps) => {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const [adapter, setAdapter] = useState<CustomerInterestsPreferencesAdapter | undefined>(undefined);
 
     useEffect(() => {

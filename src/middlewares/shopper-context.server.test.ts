@@ -20,6 +20,7 @@ import { createTestContext } from '@/lib/test-utils';
 import { createShopperContext } from '@/lib/api/shopper-context';
 import { getAuth } from './auth.server';
 import { createCookie, getCookieConfig } from '@/lib/cookie-utils';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 
 vi.mock('@/lib/api/shopper-context', () => ({
     createShopperContext: vi.fn(),
@@ -42,22 +43,34 @@ vi.mock('@/lib/cookie-utils', async (importOriginal) => {
     };
 });
 
-vi.mock('@/config', async (importOriginal) => {
+const defaultMockConfig = {
+    commerce: {
+        api: {
+            siteId: 'test-site',
+        },
+        sites: [
+            {
+                id: 'test-site',
+                defaultLocale: 'en-GB',
+                defaultCurrency: 'GBP',
+                supportedLocales: [{ id: 'en-GB', preferredCurrency: 'GBP' }],
+                supportedCurrencies: ['GBP'],
+            },
+        ],
+    },
+    defaultSiteId: 'test-site',
+    features: {
+        shopperContext: {
+            enabled: true,
+        },
+    },
+};
+
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
     const actual = await importOriginal();
     return {
         ...(actual || {}),
-        getConfig: vi.fn().mockReturnValue({
-            commerce: {
-                api: {
-                    siteId: 'test-site',
-                },
-            },
-            features: {
-                shopperContext: {
-                    enabled: true,
-                },
-            },
-        }),
+        getConfig: vi.fn(() => defaultMockConfig),
     };
 });
 
@@ -78,6 +91,8 @@ describe('shopper-context.server', () => {
     beforeEach(() => {
         vi.clearAllMocks();
 
+        vi.mocked(getConfig).mockReturnValue(defaultMockConfig as any);
+
         mockRequest = new Request('https://example.com/test');
         mockContext = createTestContext({
             authSession: { usid: 'test-usid' },
@@ -96,7 +111,7 @@ describe('shopper-context.server', () => {
     describe('middleware execution flow', () => {
         test('should call next() when feature flag is disabled', async () => {
             // Temporarily override getConfig to disable feature
-            const configModule = await import('@/config');
+            const configModule = await import('@salesforce/storefront-next-runtime/config');
             vi.mocked(configModule.getConfig).mockReturnValueOnce({
                 commerce: {
                     api: {

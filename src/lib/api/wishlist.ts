@@ -16,7 +16,8 @@
 import type { LoaderFunctionArgs } from 'react-router';
 import type { ShopperCustomers, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { currencyContext } from '@/lib/currency';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
@@ -42,7 +43,7 @@ export async function fetchProductsForWishlist(
     }
 
     const clients = createApiClients(context);
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const maxIdsPerRequest = config.search.products.hits.limit;
     const productsByProductId: Record<string, Product> = {};
 

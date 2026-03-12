@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 import type { MiddlewareFunction } from 'react-router';
-import { appConfigContext, type AppConfig } from '@/config';
-
-declare global {
-    interface Window {
-        __APP_CONFIG__?: AppConfig;
-    }
-}
+import { appConfigContext } from '@salesforce/storefront-next-runtime/config';
 
 /**
  * Client middleware to ensure app config is in context before other middleware runs

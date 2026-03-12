@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// Note: this type will have become granular when we start moving config setup/config from template to runtime
 export type Locale = {
     id: string;
     preferredCurrency: string;

@@ -24,7 +24,7 @@ import {
     getPublicSessionData,
 } from './auth.utils';
 import type { SessionData } from '@/lib/api/types';
-import type { AppConfig } from '@/config';
+import type { AppConfig } from '@/types/config';
 import { createTestContext } from '@/lib/test-utils';
 import { mockBuildConfig } from '@/test-utils/config';
 import { TrackingConsent } from '@/types/tracking-consent';

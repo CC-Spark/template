@@ -43,40 +43,39 @@ describe('loadConfig', () => {
         mockConfigModule = {};
     });
 
-    test('should warn and return empty config when config file does not exist', async () => {
+    test('should throw when config file does not exist', async () => {
         const { loadConfig } = await import('./load-config');
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-        try {
-            const result = await loadConfig();
-
-            expect(result).toEqual({});
-            expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('config.server.ts not found'));
-        } finally {
-            warnSpy.mockRestore();
-        }
+        await expect(loadConfig()).rejects.toThrow('config.server.ts is required but not found');
     });
 
-    test('should return the full app config object', async () => {
+    test('should return the full config object including app, metadata, and runtime', async () => {
         vi.mocked(fs.existsSync).mockReturnValue(true);
 
-        const appConfig = {
-            url: {
-                prefix: '/:siteId/:localeId',
-                excludeRoutes: ['/resource/**'],
+        const fullConfig = {
+            metadata: { projectName: 'Test', projectSlug: 'test' },
+            runtime: { ssrOnly: ['server.js'] },
+            app: {
+                url: {
+                    prefix: '/:siteId/:localeId',
+                    excludeRoutes: ['/resource/**'],
+                },
+                someOtherSetting: 'value',
             },
-            someOtherSetting: 'value',
         };
 
-        mockConfigModule = { default: { app: appConfig } };
+        mockConfigModule = { default: fullConfig };
 
         const { loadConfig } = await import('./load-config');
         const result = await loadConfig();
 
-        expect(result).toEqual(appConfig);
+        expect(result).toEqual(fullConfig);
+        expect(result.app).toEqual(fullConfig.app);
+        expect(result.metadata).toEqual(fullConfig.metadata);
+        expect(result.runtime).toEqual(fullConfig.runtime);
     });
 
-    test('should return empty config when config exists but has no app key', async () => {
+    test('should return empty config when config exists but has no content', async () => {
         vi.mocked(fs.existsSync).mockReturnValue(true);
         mockConfigModule = { default: {} };
 
@@ -84,5 +83,17 @@ describe('loadConfig', () => {
         const result = await loadConfig();
 
         expect(result).toEqual({});
+    });
+
+    test('should support destructuring app from result', async () => {
+        vi.mocked(fs.existsSync).mockReturnValue(true);
+
+        const appConfig = { commerce: { api: { clientId: 'test' } } };
+        mockConfigModule = { default: { app: appConfig } };
+
+        const { loadConfig } = await import('./load-config');
+        const { app } = await loadConfig();
+
+        expect(app).toEqual(appConfig);
     });
 });

@@ -115,7 +115,8 @@ const createStorefront = async (options = {}) => {
 			trimExtensions(storefront, enabledExtensions, { extensions: extensionConfig.extensions }, options?.verbose || false);
 		}
 	}
-	const configMeta = JSON.parse(fs.readFileSync(path.join(storefront, "src", "config", "config-meta.json"), "utf8"));
+	const configMetaPath = fs.existsSync(path.join(storefront, "config-meta.json")) ? path.join(storefront, "config-meta.json") : path.join(storefront, "src", "config", "config-meta.json");
+	const configMeta = JSON.parse(fs.readFileSync(configMetaPath, "utf8"));
 	const envDefaultPath = path.join(storefront, ".env.default");
 	let envDefaultValues = {};
 	if (fs.existsSync(envDefaultPath)) envDefaultValues = dotenv.parse(fs.readFileSync(envDefaultPath, "utf8"));

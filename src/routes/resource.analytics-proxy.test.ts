@@ -16,10 +16,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RouterContextProvider } from 'react-router';
 import { loader, action } from './resource.analytics-proxy';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import { getAuth } from '@/middlewares/auth.server';
 
-vi.mock('@/config');
+vi.mock('@salesforce/storefront-next-runtime/config');
 vi.mock('@/middlewares/auth.server');
 
 const mockGetConfig = vi.mocked(getConfig);

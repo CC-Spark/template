@@ -21,7 +21,8 @@ import { currencyContext } from '@/lib/currency';
 import { Region } from '@/components/region';
 import PopularCategories from '@/components/home/popular-categories';
 import ContentCard from '@/components/content-card';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { PageType } from '@/lib/decorators/page-type';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 
@@ -77,7 +78,7 @@ export function loader(args: LoaderFunctionArgs): HomePageData {
         }),
         searchResult: fetchSearchProducts(args.context, {
             refine: ['cgid=root'],
-            limit: getConfig(args.context).pages.home.featuredProductsCount,
+            limit: getConfig<AppConfig>(args.context).pages.home.featuredProductsCount,
             currency: currency ?? undefined,
         }),
         categories: fetchCategories(args.context, 'root', 1),

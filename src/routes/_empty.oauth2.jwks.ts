@@ -22,7 +22,8 @@
  *
  */
 import type { LoaderFunctionArgs } from 'react-router';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { getTranslation } from '@/lib/i18next';
 import { getScapiBaseUrl } from '@/lib/utils';
 
@@ -47,7 +48,7 @@ interface JWKSResponse {
  */
 async function fetchUpstreamJWKS(context: LoaderFunctionArgs['context']): Promise<JWKSResponse> {
     const { t } = getTranslation(context);
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     if (!config) {
         throw new Error('App configuration not found in context');
     }

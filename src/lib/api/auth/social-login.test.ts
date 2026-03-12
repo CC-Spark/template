@@ -18,7 +18,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { authorizeIDP, loginIDPUser, handleSocialLoginLanding } from './social-login';
 import { getAuth, updateAuth } from '@/middlewares/auth.server';
 import { isTrackingConsentEnabled } from '@/middlewares/auth.utils';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import { mergeBasket } from '@/lib/api/basket';
 import { getTranslation } from '@/lib/i18next';
 import { TrackingConsent } from '@/types/tracking-consent';
@@ -48,7 +48,7 @@ vi.mock('@/middlewares/auth.utils', () => ({
     isTrackingConsentEnabled: vi.fn(() => false),
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     getConfig: vi.fn(() => ({
         commerce: {
             api: {

@@ -17,7 +17,7 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import MaintenancePage, { loader } from './_empty.maintenance';
-import type { AppConfig } from '@/config';
+import type { AppConfig } from '@/types/config';
 
 // Mock the config module
 const mockConfig: AppConfig = {
@@ -30,7 +30,7 @@ const mockConfig: AppConfig = {
     },
 } as AppConfig;
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     getConfig: vi.fn(() => mockConfig),
 }));
 

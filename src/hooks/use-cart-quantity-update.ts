@@ -29,7 +29,8 @@ import debounce from 'lodash.debounce';
 import { useToast } from '@/components/toast';
 
 // Hooks
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // Constants
 // Types
@@ -107,7 +108,7 @@ export function useCartQuantityUpdate({
     debounceDelay,
     fetcher,
 }: UseCartQuantityUpdateProps): UseCartQuantityUpdateReturn {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const { addToast } = useToast();
     const { t } = useTranslation('quantitySelector');
 

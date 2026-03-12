@@ -20,7 +20,7 @@ import type { ReactNode } from 'react';
 import ProductAdapterSection from '..';
 import CollapsibleSection from '@/components/collapsible-section';
 import ProductContentProvider from '@/providers/product-content';
-import { ConfigProvider } from '@/config/context';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 import { addProductContentAdapter, removeProductContentAdapter } from '@/lib/adapters/product-content-store';
 

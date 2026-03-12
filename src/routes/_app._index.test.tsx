@@ -22,7 +22,8 @@ import { getTranslation } from '@/lib/i18next';
 import HomePage, { type HomePageData, loader } from './_app._index';
 import { createTestContext } from '@/lib/test-utils';
 import { fetchPageWithComponentData } from '@/lib/util/pageLoader';
-import { type AppConfig, getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 const { t } = getTranslation();
 
@@ -215,7 +216,7 @@ vi.mock('@/lib/api/categories', () => ({
     fetchCategories: vi.fn(() => Promise.resolve(mockCategories)),
 }));
 
-vi.mock('@/config', async (importOriginal) => {
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
     const actual = await importOriginal<object>();
     return {
         ...actual,

@@ -19,7 +19,7 @@ const { t } = getTranslation();
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { ConfigProvider } from '@/config';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 import { CurrencyProvider } from '@/providers/currency';
 import Footer from './index';

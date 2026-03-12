@@ -32,7 +32,7 @@ vi.mock('@/providers/auth', () => ({
     useAuth: vi.fn(),
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: vi.fn(),
 }));
 
@@ -58,7 +58,7 @@ vi.mock('@/lib/adapters/initialize-adapters', () => ({
 }));
 
 import { useAuth } from '@/providers/auth';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
 import { getAllAdapters } from '@/lib/adapters';
 import { initializeEngagementAdapters } from '@/adapters';
 import { createEvent, getEventMediator, type EventMediator } from '@salesforce/storefront-next-runtime/events';

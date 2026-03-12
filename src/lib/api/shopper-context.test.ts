@@ -17,7 +17,7 @@ import { describe, expect, test, vi, beforeEach } from 'vitest';
 import type { RouterContextProvider } from 'react-router';
 import { createShopperContext } from './shopper-context';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import { createTestContext } from '@/lib/test-utils';
 
 // Mock dependencies
@@ -25,7 +25,7 @@ vi.mock('@/lib/api-clients', () => ({
     createApiClients: vi.fn(),
 }));
 
-vi.mock('@/config', async (importOriginal) => {
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
     const actual = await importOriginal();
     return {
         ...(actual || {}),

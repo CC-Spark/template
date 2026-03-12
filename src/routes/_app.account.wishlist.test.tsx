@@ -62,8 +62,8 @@ vi.mock('@/middlewares/auth.server', () => ({
     getAuth: () => mockGetAuthServer(),
 }));
 
-vi.mock('@/config', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('@/config')>();
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@salesforce/storefront-next-runtime/config')>();
     return {
         ...actual,
         getConfig: () => mockGetConfig(),

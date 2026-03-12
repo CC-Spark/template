@@ -18,7 +18,8 @@ import { getAuth, updateAuth } from '@/middlewares/auth.server';
 import { isTrackingConsentEnabled } from '@/middlewares/auth.utils';
 import { getAppOrigin, getErrorMessage, isAbsoluteURL } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { mergeBasket } from '@/lib/api/basket';
 import { getTranslation } from '@/lib/i18next';
 import { trackingConsentToBoolean } from '@/types/tracking-consent';
@@ -45,7 +46,7 @@ export const authorizeIDP = async (
     redirectUrl?: string;
 }> => {
     try {
-        const config = getConfig(context);
+        const config = getConfig<AppConfig>(context);
         const session = getAuth(context);
         const clients = createApiClients(context);
 
@@ -154,7 +155,7 @@ export async function handleSocialLoginLanding({ request, context }: LoaderFunct
     const { t } = getTranslation(context);
 
     try {
-        const config = getConfig(context);
+        const config = getConfig<AppConfig>(context);
         const url = new URL(request.url);
 
         // SLAS may send different parameter names than direct OAuth

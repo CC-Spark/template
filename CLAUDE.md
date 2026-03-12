@@ -102,7 +102,7 @@ PUBLIC__app__site__locale=en-GB    # Maps to config.app.site.locale
 - `PUBLIC__` prefix → Exposed to browser (client IDs, feature flags, locales)
 - No prefix → Server-only (secrets, private keys, credentials)
 
-See `src/config/README.md` for complete documentation.
+See `docs/README-CONFIG.md` for complete documentation.
 
 #### 4. File-Based Routing
 Routes are defined in `src/routes/` using React Router v7 conventions:
@@ -300,7 +300,7 @@ See `src/extensions/README.md` for details.
 - [docs/README-I18N.md](./docs/README-I18N.md) - Internationalization
 - [docs/README-TESTS.md](./docs/README-TESTS.md) - Testing strategy
 - [docs/README-ADAPTER-PATTERN-GUIDE.md](./docs/README-ADAPTER-PATTERN-GUIDE.md) - Adapter implementation guide
-- [src/config/README.md](./src/config/README.md) - Configuration system
+- [docs/README-CONFIG.md](./docs/README-CONFIG.md) - Configuration system
 - [.storybook/README-STORYBOOK.md](./.storybook/README-STORYBOOK.md) - Storybook patterns
 
 ## Common Workflows

@@ -20,14 +20,15 @@ import { useTranslation } from 'react-i18next';
 import { useFetcher } from 'react-router';
 
 import { NativeSelect } from '@/components/ui/native-select';
-import { useConfig } from '@/config';
 import { useSite } from '@salesforce/storefront-next-runtime/multi-site';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 export default function LocaleSwitcher(): ReactElement {
     const id = useId();
     const { t, i18n } = useTranslation('localeSwitcher');
     const fetcher = useFetcher();
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const site = useSite();
 
     // Show only languages the app has translations for AND the current site supports.

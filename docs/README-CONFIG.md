@@ -9,17 +9,18 @@ One TypeScript file for all your app settings. Configure via `.env` files for di
 ### For Loaders, Actions, Utilities: `getConfig()`
 
 ```typescript
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // ✅ Server loader/action - pass context
 export function loader({ context }: LoaderFunctionArgs) {
-  const config = getConfig(context);
+  const config = getConfig<AppConfig>(context);
   return { limit: config.search.products.hits.limit };
 }
 
 // ✅ Client loader - no context needed
 export function clientLoader() {
-  const config = getConfig();
+  const config = getConfig<AppConfig>();
   return { limit: config.search.products.hits.limit };
 }
 ```
@@ -27,10 +28,11 @@ export function clientLoader() {
 ### For React Components: `useConfig()`
 
 ```typescript
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 export function MyComponent() {
-  const config = useConfig();
+  const config = useConfig<AppConfig>();
   return <div>Showing {config.search.products.hits.limit} products</div>;
 }
 ```
@@ -181,22 +183,44 @@ export default defineConfig({
 
 ## Adding Configuration
 
-### 1. Update the type (`src/config/schema.ts`)
+### 1. Update the type (`src/types/config.ts`)
+
+The template defines its own `AppConfig` type with all the fields it needs — SCAPI credentials,
+pages, features, and any custom domain fields. `BaseConfig<AppConfig>` wraps it with `metadata`
+and `runtime` sections:
+
 ```typescript
-export type Config = {
-  app: {
-    myFeature: {
-      enabled: boolean;
-      maxItems: number;
-    };
+import type { BaseConfig } from '@salesforce/storefront-next-runtime/config';
+import type { Site, Url } from '@salesforce/storefront-next-runtime/config';
+
+// Define all app fields in one flat type
+export type AppConfig = {
+  commerce: { api: { clientId: string; /* ... */ }; sites: Array<Site> };
+  defaultSiteId: string;
+  url?: Url;
+  myFeature: {
+    enabled: boolean;
+    maxItems: number;
   };
+  // ...other template-specific fields (pages, features, global, etc.)
 };
+
+// Full config type used by config.server.ts
+export type Config = BaseConfig<AppConfig>;
 ```
 
 ### 2. Add default value (`config.server.ts`)
 ```typescript
-export default defineConfig({
+import { defineConfig } from '@salesforce/storefront-next-runtime/config';
+import type { Config } from './src/types/config';
+
+export default defineConfig<Config>({
+  metadata: { projectName: 'My Store', projectSlug: 'my-store' },
   app: {
+    // SCAPI fields
+    commerce: { api: { clientId: '', organizationId: '', siteId: '', shortCode: '' }, sites: [] },
+    defaultSiteId: 'RefArch',
+    // Template-specific fields
     myFeature: {
       enabled: false,  // Just the default - no process.env needed!
       maxItems: 10,
@@ -216,10 +240,11 @@ PUBLIC__app__myFeature__maxItems=20
 
 **In React components:**
 ```typescript
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 export function MyComponent() {
-  const config = useConfig();
+  const config = useConfig<AppConfig>();
 
   if (config.myFeature.enabled) {
     const maxItems = config.myFeature.maxItems;
@@ -230,10 +255,11 @@ export function MyComponent() {
 
 **In loaders/actions:**
 ```typescript
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 export function loader({ context }: LoaderFunctionArgs) {
-  const config = getConfig(context);
+  const config = getConfig<AppConfig>(context);
   
   if (config.myFeature.enabled) {
     // Your loader code here
@@ -242,7 +268,7 @@ export function loader({ context }: LoaderFunctionArgs) {
 ```
 
 ### 4. Add a new config value during app creation
-**In srce/config/config-meta,json:**
+**In config-meta.json:**
 - Add the name and key value to the config array
 - This will cause the create-storefront script to ask for user input, using the value in `.env.default` as default value
 ```json
@@ -266,11 +292,13 @@ export function loader({ context }: LoaderFunctionArgs) {
 
 ## How It Works
 
-1. **Defaults defined** in `config.server.ts` (clean, no `process.env` references)
-2. **Environment variables** with `PUBLIC__` prefix are automatically merged at runtime
-3. **Final config** is made available via:
-   - `getConfig(context)` for loaders/actions
-   - `useConfig()` for React components
+1. **Types defined** in `src/types/config.ts` — `AppConfig` defines all app fields, `Config = BaseConfig<AppConfig>`
+2. **Defaults defined** in `config.server.ts` — clean, no `process.env` references
+3. **Environment variables** with `PUBLIC__` prefix are automatically merged by `defineConfig()`
+4. **Final config** is made available via:
+   - `getConfig<AppConfig>(context)` for server loaders/actions
+   - `getConfig<AppConfig>()` for client loaders
+   - `useConfig<AppConfig>()` for React components
    - `window.__APP_CONFIG__` for client code
 
 The `.server.ts` suffix prevents accidental direct imports. The `PUBLIC__` prefix ensures only client-safe values are exposed.
@@ -278,6 +306,37 @@ The `.server.ts` suffix prevents accidental direct imports. The `PUBLIC__` prefi
 **What gets shared:**
 - The `app` section → Available on both server and client
 - The `runtime` and `metadata` sections → Server-only (not injected to client)
+
+**Where things live:**
+- Config utilities (`defineConfig`, `getConfig`, `useConfig`, `ConfigProvider`, `createAppConfig`, `mergeEnvConfig`, `deepMerge`) → `@salesforce/storefront-next-runtime/config`
+- Build-time config loader (`loadConfig`) → `@salesforce/storefront-next-runtime/load-config`
+- Template-specific types (`Config`, `AppConfig`) → `src/types/config.ts`
+- Default values → `config.server.ts`
+
+## Testing
+
+The template provides shared test utilities for components and hooks that depend on config:
+
+```typescript
+import { mockConfig, mockBuildConfig, ConfigWrapper, createConfigWrapper } from '@/test-utils/config';
+
+// Use the default wrapper
+renderHook(() => useConfig<AppConfig>(), { wrapper: ConfigWrapper });
+
+// Use a wrapper with custom overrides (deep merged)
+const CustomWrapper = createConfigWrapper({
+  app: { ...mockBuildConfig.app, pages: { ...mockBuildConfig.app.pages, cart: { ...mockBuildConfig.app.pages.cart, maxQuantityPerItem: 5 } } },
+});
+renderHook(() => useConfig<AppConfig>(), { wrapper: CustomWrapper });
+```
+
+- `mockBuildConfig` — a full `Config` object with realistic test values
+- `mockConfig` — the `app` section extracted via `createAppConfig(mockBuildConfig)`
+- `ConfigWrapper` — a ready-to-use wrapper component for `renderHook` / `render`
+- `createConfigWrapper(overrides?)` — creates a wrapper with custom config (uses `deepMerge` for nested overrides)
+
+For tests that need all providers (config + currency + store locator), use `AllProvidersWrapper` from `@/test-utils/context-provider`.
+
 ## Common Issues
 
 **Changed `.env` but nothing happened?**
@@ -289,7 +348,7 @@ The `.server.ts` suffix prevents accidental direct imports. The `PUBLIC__` prefi
 - For booleans, use string `"true"` not bare `true`
 
 **Type errors after adding config?**
-- Update both `schema.ts` and `config.server.ts` to match
+- Update both `src/types/config.ts` (type definitions) and `config.server.ts` (default values) to match
 - Run `pnpm typecheck` to verify all files are correct
 
 **App won't start - missing credentials?**

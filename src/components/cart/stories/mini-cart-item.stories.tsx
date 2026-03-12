@@ -18,7 +18,7 @@ import MiniCartItem from '../mini-cart-item';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent, waitFor } from 'storybook/test';
-import { ConfigProvider } from '@/config/context';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { Check, Truck, X } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';

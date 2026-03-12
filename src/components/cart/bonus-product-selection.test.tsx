@@ -78,7 +78,7 @@ vi.mock('@/lib/product-utils', () => ({
 }));
 
 // Mock useConfig
-vi.mock('@/config/get-config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: vi.fn(() => ({
         pages: {
             cart: {

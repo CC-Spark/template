@@ -29,7 +29,7 @@ vi.mock('@/lib/utils', async (importOriginal) => {
     };
 });
 
-vi.mock('@/config', async (importOriginal) => {
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
     const actual = await importOriginal<typeof vi.importActual>();
     return {
         ...actual,
@@ -97,7 +97,7 @@ describe('createApiClients', () => {
         const utilsModule = await import('@/lib/utils');
         mockGetAppOrigin = utilsModule.getAppOrigin as ReturnType<typeof vi.fn>;
 
-        const configModule = await import('@/config');
+        const configModule = await import('@salesforce/storefront-next-runtime/config');
         mockGetConfig = configModule.getConfig as ReturnType<typeof vi.fn>;
 
         const scapiModule = await import('@salesforce/storefront-next-runtime/scapi');

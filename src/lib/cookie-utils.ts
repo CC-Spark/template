@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getConfig } from '@/config/get-config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import type { RouterContextProvider } from 'react-router';
 import { COOKIE_TRACKING_CONSENT, COOKIE_DWSID } from '@/middlewares/auth.utils';
 import { modeDetectionContext } from '@/middlewares/mode-detection';
@@ -78,7 +79,7 @@ export const getCookieNameWithSiteId = (name: string, context?: Readonly<RouterC
     }
 
     // Get config using getConfig() - handles both server (with context) and client (without)
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const siteId = config.commerce.api.siteId;
 
     if (!siteId) {
@@ -177,7 +178,7 @@ export const getCookieConfig = <T extends object = CookieConfig>(
     const cookieConfigOverrides: CookieConfig = {};
 
     // Get config using getConfig() - handles both server (with context) and client (without)
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
 
     // this will change when multi site implementation starts, for now we use first site in the list
     const currentSite = config.commerce.sites[0];

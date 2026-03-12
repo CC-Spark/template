@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { BadgeDetail } from '@/types/config';
 
-/**
- * Configuration
- *
- * - `getConfig()` - For loaders, actions, and utilities
- * - `useConfig()` - For React components
- */
-export { ConfigProvider, createAppConfig, appConfigContext } from './context';
-export { getConfig, useConfig } from './get-config';
+export const BADGE_VARIANTS = {
+    green: 'success',
+    orange: 'warning',
+    yellow: 'warning',
+    purple: 'secondary',
+    red: 'destructive',
+    blue: 'info',
+    pink: 'default',
+} as const;
 
-export type { Config, BadgeDetail } from './schema';
-export { getBadgeVariant } from './schema';
-export type { AppConfig } from './context';
+export type BadgeVariant = (typeof BADGE_VARIANTS)[keyof typeof BADGE_VARIANTS];
+
+export const getBadgeVariant = (color: BadgeDetail['color']): BadgeVariant => {
+    return BADGE_VARIANTS[color];
+};

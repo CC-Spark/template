@@ -24,10 +24,10 @@ import {
     buildShopperContextBody,
     updateShopperContext,
 } from './shopper-context-utils';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import type { RouterContextProvider } from 'react-router';
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     getConfig: vi.fn(),
 }));
 

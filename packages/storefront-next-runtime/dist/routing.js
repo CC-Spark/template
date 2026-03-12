@@ -1,9 +1,8 @@
+import { t as loadConfig } from "./load-config.js";
 import { t as applyUrlConfig } from "./apply-url-config.js";
+import path from "node:path";
 import { flatRoutes as flatRoutes$1 } from "@react-router/fs-routes";
 import fs from "node:fs/promises";
-import path from "node:path";
-import fs$1 from "node:fs";
-import { pathToFileURL } from "node:url";
 
 //#region src/routing/merge-routes.ts
 /**
@@ -78,35 +77,6 @@ function mergeRoutes(routes, extensionRoutes, extensionIdPrefix) {
 }
 
 //#endregion
-//#region src/config/load-config.ts
-/**
-* Dynamically imports `config.server.ts` from the project root (CWD) and returns
-* the `app` configuration object. This runs at route discovery time under vite-node
-* (typegen, dev, build), which handles the TS transformation.
-*
-* - If the config file is missing, warns and returns an empty config.
-* - If the config file exists but fails to import, throws with the original error as cause.
-*
-* @returns The `app` configuration object, or an empty object if not available.
-*/
-async function loadConfig() {
-	const configPath = path.resolve(process.cwd(), "config.server.ts");
-	if (!fs$1.existsSync(configPath)) {
-		console.warn(`[storefront-next-runtime] config.server.ts not found at ${configPath}. Returning empty config.`);
-		return {};
-	}
-	try {
-		const mod = await import(
-			/* @vite-ignore */
-			pathToFileURL(configPath).href
-);
-		return (mod.default ?? mod)?.app ?? {};
-	} catch (error) {
-		throw new Error(`[storefront-next-runtime] Found config.server.ts at ${configPath} but failed to import it.`, { cause: error });
-	}
-}
-
-//#endregion
 //#region src/routing/flat-routes.ts
 const APP_SRC_DIR = "src";
 const EXTENSIONS_DIR = "extensions";
@@ -150,7 +120,8 @@ async function flatRoutes(options) {
 		rootDirectory
 	});
 	await discoverExtensionRoutes(ignoredRouteFiles, routes);
-	const { url: urlConfig } = await loadConfig();
+	const { app } = await loadConfig();
+	const urlConfig = app?.url;
 	if (urlConfig?.prefix) {
 		try {
 			await fs.access(path.join(".", APP_SRC_DIR, APP_WRAPPER_FILE));

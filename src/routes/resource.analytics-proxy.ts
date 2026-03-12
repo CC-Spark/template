@@ -28,7 +28,8 @@
  * matching how PWA Kit's MRT proxy handles cookie domains.
  */
 import type { LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { getAuth } from '@/middlewares/auth.server';
 
 /**
@@ -51,7 +52,7 @@ async function proxyAnalytics({ request, context }: LoaderFunctionArgs | ActionF
         return new Response('Missing url parameter', { status: 400 });
     }
 
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const activeDataHost = config.engagement?.adapters?.activeData?.host;
 
     if (!activeDataHost) {

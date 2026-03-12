@@ -20,7 +20,8 @@ import resources from '@/locales'; // Import translations from all of your local
 import 'i18next';
 import { i18nextContext } from '@/lib/i18next';
 import { requestToLocaleMap } from '@salesforce/storefront-next-runtime/multi-site';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // Lazy-initialized on first request so we can read supported languages from config
 // rather than hard-coding them. Contains [middleware, getLocale, getInstance].
@@ -28,7 +29,7 @@ let cached: ReturnType<typeof createI18nextMiddleware> | null = null;
 
 const i18nextMiddleware: MiddlewareFunction<Response> = async (args, next) => {
     if (!cached) {
-        const config = getConfig(args.context);
+        const config = getConfig<AppConfig>(args.context);
         const { supportedLngs: supportedLanguages, fallbackLng: fallbackLanguage } = config.i18n;
 
         cached = createI18nextMiddleware({

@@ -19,7 +19,8 @@ import { ApiError, type ShopperProducts, type ShopperSearch } from '@salesforce/
 import { fetchCategory } from '@/lib/api/categories';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { getAllQueryParams, getQueryParam, PRODUCT_SEARCH_QUERY_PARAMS } from '@/lib/query-params';
-import { getConfig, useConfig } from '@/config';
+import { getConfig, useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { currencyContext } from '@/lib/currency';
 import CategoryBreadcrumbs from '@/components/category-breadcrumbs';
 import CategoryPagination from '@/components/category-pagination';
@@ -92,7 +93,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<CategoryPageData
     const refine = getAllQueryParams(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.REFINE);
 
     // Get currency and locale for cache-busting the page key
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const currency = context.get(currencyContext) as string;
     // TODO: replace this with locale detection when multi site implementation starts
     const currentSite = config.commerce.sites[0];
@@ -216,7 +217,7 @@ export default function CategoryPage({
 }: {
     loaderData: CategoryPageData;
 }) {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const limit = config.search.products.hits.limit;
 
     // Determine the maximum number of skeletons to display in the product grid

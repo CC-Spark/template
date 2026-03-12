@@ -22,7 +22,8 @@ import {
 import { AUTH_TOKEN_INVALID_ERROR, authContext, authStorageContext } from '@/middlewares/auth.utils';
 import { correlationContext } from '@/lib/correlation';
 import { maintenanceContext } from '@/lib/maintenance';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { getAppOrigin, getScapiBaseUrl, isAbsoluteURL } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
 
@@ -58,7 +59,7 @@ export const MAINTENANCE_ERROR = 'MAINTENANCE_ERROR';
  */
 export function createApiClients(context: RouterContextProvider | Readonly<RouterContextProvider>) {
     const appOrigin = getAppOrigin();
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     const { shortCode, proxy, callback, organizationId, siteId, clientId } = config.commerce.api;
     const scapiProxyHost = typeof window === 'undefined' ? process.env.SCAPI_PROXY_HOST : undefined;
 

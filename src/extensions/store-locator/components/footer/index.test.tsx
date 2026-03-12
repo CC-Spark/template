@@ -17,7 +17,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import StoreLocatorFooter from './index';
-import { ConfigProvider } from '@/config';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
 import { mockConfig } from '@/test-utils/config';
 import StoreLocatorProvider from '@/extensions/store-locator/providers/store-locator';
 

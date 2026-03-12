@@ -22,8 +22,8 @@
  */
 
 import { createElement, type ReactNode } from 'react';
-import { ConfigProvider, createAppConfig } from '@/config/context';
-import type { Config } from '@/config/schema';
+import { ConfigProvider, createAppConfig, deepMerge } from '@salesforce/storefront-next-runtime/config';
+import type { Config } from '@/types/config';
 import { TrackingConsent } from '@/types/tracking-consent';
 
 /**
@@ -64,6 +64,11 @@ export const mockBuildConfig: Config = {
                 enableRecentSearches: true,
                 suggestionsDebounce: 100,
             },
+            maintenancePage: {
+                sharedMaintenancePage: false,
+                cdnUrl: 'http://prd.cmp.cdn.commercecloud.salesforce.com',
+                forwardedHost: '',
+            },
         },
         commerce: {
             api: {
@@ -98,12 +103,12 @@ export const mockBuildConfig: Config = {
             },
             passwordlessLogin: {
                 enabled: false,
-                mode: 'email',
+                mode: 'email' as const,
                 callbackUri: '/passwordless-login-callback',
                 landingUri: '/passwordless-login-landing',
             },
             resetPassword: {
-                mode: 'email',
+                mode: 'email' as const,
                 callbackUri: '/reset-password-callback',
                 landingUri: '/reset-password-landing',
             },
@@ -116,6 +121,9 @@ export const mockBuildConfig: Config = {
         hybrid: {
             enabled: false,
             legacyRoutes: [],
+        },
+        auth: {
+            otpLength: 6 as const,
         },
         i18n: {
             fallbackLng: 'en-GB',
@@ -321,7 +329,9 @@ export function ConfigWrapper({ children }: { children: ReactNode }) {
  * ```
  */
 export function createConfigWrapper(configOverrides?: Partial<Config>) {
-    const customConfig = configOverrides ? createAppConfig({ ...mockBuildConfig, ...configOverrides }) : mockConfig;
+    const customConfig = configOverrides
+        ? createAppConfig(deepMerge(mockBuildConfig, configOverrides as Record<string, unknown>))
+        : mockConfig;
 
     return function CustomConfigWrapper({ children }: { children: ReactNode }) {
         return createElement(ConfigProvider, { config: customConfig, children } as never);

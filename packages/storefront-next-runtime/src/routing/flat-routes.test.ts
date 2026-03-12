@@ -15,6 +15,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { RouteConfigEntry } from '@react-router/dev/routes';
+import type { BaseConfig } from '../config/schema';
 
 // Mock @react-router/fs-routes
 vi.mock('@react-router/fs-routes', () => ({
@@ -31,7 +32,7 @@ vi.mock('node:fs/promises', () => ({
 
 // Mock loadConfig — returns empty config by default (no URL customisation)
 vi.mock('../config/load-config', () => ({
-    loadConfig: vi.fn().mockResolvedValue({}),
+    loadConfig: vi.fn().mockResolvedValue({} as BaseConfig),
 }));
 
 import { flatRoutes } from './flat-routes';
@@ -56,7 +57,7 @@ describe('flatRoutes', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         // Default: no URL config
-        mockLoadConfig.mockResolvedValue({});
+        mockLoadConfig.mockResolvedValue({} as BaseConfig);
     });
 
     it('should return routes as-is when no options are provided', async () => {
@@ -116,11 +117,16 @@ describe('flatRoutes', () => {
         ];
         mockFlatRoutes.mockResolvedValue(baseRoutes);
         mockLoadConfig.mockResolvedValue({
-            url: {
-                prefix: '/:siteId/:localeId',
-                excludeRoutes: [],
+            metadata: { projectName: 'Test', projectSlug: 'test' },
+            app: {
+                commerce: { api: { clientId: '', organizationId: '', siteId: '', shortCode: '' }, sites: [] },
+                defaultSiteId: '',
+                url: {
+                    prefix: '/:siteId/:localeId',
+                    excludeRoutes: [],
+                },
             },
-        });
+        } as BaseConfig);
 
         vi.mocked(fs.access).mockImplementation((p) => {
             if (String(p) === path.join('.', 'src', 'app-wrapper.tsx')) return Promise.resolve();
@@ -138,10 +144,15 @@ describe('flatRoutes', () => {
     it('should throw if wrapper file does not exist', async () => {
         mockFlatRoutes.mockResolvedValue([]);
         mockLoadConfig.mockResolvedValue({
-            url: {
-                prefix: '/:siteId/:localeId',
+            metadata: { projectName: 'Test', projectSlug: 'test' },
+            app: {
+                commerce: { api: { clientId: '', organizationId: '', siteId: '', shortCode: '' }, sites: [] },
+                defaultSiteId: '',
+                url: {
+                    prefix: '/:siteId/:localeId',
+                },
             },
-        });
+        } as BaseConfig);
 
         vi.mocked(fs.access).mockRejectedValue(new Error('ENOENT'));
 
@@ -153,7 +164,7 @@ describe('flatRoutes', () => {
             layoutRoute('routes/_app', 'routes/_app.tsx', [indexRoute('routes/_app._index', 'routes/_app._index.tsx')]),
         ];
         mockFlatRoutes.mockResolvedValue(baseRoutes);
-        mockLoadConfig.mockResolvedValue({});
+        mockLoadConfig.mockResolvedValue({} as BaseConfig);
 
         const result = await flatRoutes();
 
@@ -163,7 +174,7 @@ describe('flatRoutes', () => {
 
     it('should call loadConfig to get URL configuration', async () => {
         mockFlatRoutes.mockResolvedValue([]);
-        mockLoadConfig.mockResolvedValue({});
+        mockLoadConfig.mockResolvedValue({} as BaseConfig);
 
         await flatRoutes();
 

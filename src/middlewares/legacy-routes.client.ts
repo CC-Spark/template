@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import type { DataStrategyResult, MiddlewareFunction } from 'react-router';
-import { appConfigContext } from '@/config';
+import { appConfigContext } from '@salesforce/storefront-next-runtime/config';
 
 /**
  * Client-side middleware that intercepts navigation to legacy routes and forces a full page navigation.

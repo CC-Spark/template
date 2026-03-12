@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import type { ShopperProducts, ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import type { AppConfig } from '@/config';
+import type { AppConfig } from '@/types/config';
 
 /**
  * Schema.org CollectionPage with ItemList for Product Listing Pages

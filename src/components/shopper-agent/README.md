@@ -49,4 +49,4 @@ Default values in `config.server.ts` are empty or disabled. Set the variables ab
 
 - [Embedded Messaging API](https://developer.salesforce.com/docs/service/messaging-web/guide/embedded-messaging-api.html)
 - Config base: `config.server.ts` → `app.commerceAgent`
-- Env convention: `src/config/README.md`, `src/config/CONFIG-OPTIONS.md`
+- Env convention: `docs/README-CONFIG.md`, `docs/README-CONFIG-OPTIONS.md`

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 import { type LoaderFunctionArgs, useLoaderData, useSearchParams, Link } from 'react-router';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export async function loader(args: LoaderFunctionArgs) {
-    const config = getConfig(args.context);
+    const config = getConfig<AppConfig>(args.context);
     const { sharedMaintenancePage, cdnUrl, forwardedHost } = config.pages.maintenancePage;
 
     if (sharedMaintenancePage) {

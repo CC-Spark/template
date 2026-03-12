@@ -29,7 +29,7 @@ vi.mock('@/lib/api-clients', () => ({
 }));
 
 // Mock getConfig - use importOriginal to preserve other exports like appConfigContext
-vi.mock('@/config', async (importOriginal) => {
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
     const actual = await importOriginal();
     return {
         ...(actual as Record<string, unknown>),

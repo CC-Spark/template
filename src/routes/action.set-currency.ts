@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import { data, type ActionFunction } from 'react-router';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { updateCurrency } from '@/middlewares/currency.server';
 
 /**
@@ -35,7 +36,7 @@ export const action: ActionFunction = async ({ request, context }) => {
         throw new Response('Currency is required', { status: 400 });
     }
 
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     // this will change when multi site implementation starts, for now we use first site in the list
     const currentSite = config.commerce.sites[0];
     // Validate currency

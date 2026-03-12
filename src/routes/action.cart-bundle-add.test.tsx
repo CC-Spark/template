@@ -18,7 +18,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { action } from './action.cart-bundle-add';
 import { ensureBasketId } from '@/middlewares/basket.server';
 import { createApiClients } from '@/lib/api-clients';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 
 vi.mock('@/middlewares/basket.server');
@@ -32,7 +32,7 @@ const { createContext: reactCreateContext, actualReactRouter } = vi.hoisted(() =
 });
 
 vi.mock('@/lib/api-clients');
-vi.mock('@/config');
+vi.mock('@salesforce/storefront-next-runtime/config');
 vi.mock('@/lib/i18next', () => ({
     getTranslation: () => ({ t: (key: string) => key }),
 }));

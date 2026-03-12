@@ -16,7 +16,8 @@
 import { type ElementType, type ImgHTMLAttributes, useMemo } from 'react';
 import { preload } from 'react-dom';
 import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { cn, isServer } from '@/lib/utils';
 import {
     defaultImageFormats,
@@ -310,7 +311,7 @@ const DynamicImage = ({
     data: _data,
     ...rest
 }: DynamicImageProps) => {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const {
         images: {
             quality: defaultQuality = 70,

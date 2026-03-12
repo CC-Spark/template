@@ -38,7 +38,7 @@ vi.mock('@/lib/api/auth/reset-password', () => ({
 }));
 
 // Mock config
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     getConfig: vi.fn(() => ({
         features: {
             passwordlessLogin: {
@@ -240,7 +240,7 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
     describe('absolute URL support', () => {
         it('should handle social login callback with absolute URL in config', async () => {
             // Mock getConfig to return absolute URL for callbackUri
-            const { getConfig } = await import('@/config');
+            const { getConfig } = await import('@salesforce/storefront-next-runtime/config');
             vi.mocked(getConfig).mockReturnValueOnce({
                 features: {
                     passwordlessLogin: {
@@ -278,7 +278,7 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
 
         it('should handle passwordless landing with absolute URL in config', async () => {
             // Mock getConfig to return absolute URL for landingUri
-            const { getConfig } = await import('@/config');
+            const { getConfig } = await import('@salesforce/storefront-next-runtime/config');
             vi.mocked(getConfig).mockReturnValueOnce({
                 features: {
                     passwordlessLogin: {
@@ -316,7 +316,7 @@ describe('_empty.$.ts - Catch-all route (no layout)', () => {
 
         it('should handle reset password callback with absolute URL in config', async () => {
             // Mock getConfig to return absolute URL for callbackUri
-            const { getConfig } = await import('@/config');
+            const { getConfig } = await import('@salesforce/storefront-next-runtime/config');
             vi.mocked(getConfig).mockReturnValueOnce({
                 features: {
                     passwordlessLogin: {

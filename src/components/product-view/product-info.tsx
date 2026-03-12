@@ -22,7 +22,8 @@ import { useVariationAttributes } from '@/hooks/product/use-variation-attributes
 import { useProductView } from '@/providers/product-view';
 import { useCurrency } from '@/providers/currency';
 import { toImageUrl } from '@/lib/dynamic-image';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import ProductPrice from '../product-price';
 import { isProductSet, isProductBundle } from '@/lib/product-utils';
 import InventoryMessage from '../inventory-message';
@@ -78,7 +79,7 @@ export default function ProductInfo({
     variantStyle = 'full',
     showQuantityInEditMode = false,
 }: ProductInfoProps): ReactElement {
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const isProductASet = isProductSet(product);
     const isProductABundle = isProductBundle(product);
     // Use variation attributes hook for URL-aware swatches

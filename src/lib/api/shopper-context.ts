@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import type { RouterContextProvider } from 'react-router';
-import { getConfig } from '@/config';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { createApiClients } from '@/lib/api-clients';
 import type { ShopperContext as ShopperContextNamespace } from '@salesforce/storefront-next-runtime/scapi';
 
@@ -63,7 +64,7 @@ export async function createShopperContext(
     }
 
     try {
-        const config = getConfig(context);
+        const config = getConfig<AppConfig>(context);
         const clients = createApiClients(context);
 
         await clients.shopperContext.createShopperContext({

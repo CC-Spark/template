@@ -304,7 +304,7 @@ vi.mock('@/components/my-cart', () => ({
     default: () => <div data-testid="my-cart">My Cart</div>,
 }));
 
-vi.mock('@/config', () => ({
+vi.mock('@salesforce/storefront-next-runtime/config', () => ({
     useConfig: vi.fn(() => ({
         engagement: {
             adapters: {

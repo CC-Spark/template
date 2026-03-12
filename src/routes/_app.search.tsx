@@ -17,7 +17,8 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useTransition } from
 import { type LoaderFunctionArgs, useLocation } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchSearchProducts } from '@/lib/api/search';
-import { getConfig, useConfig } from '@/config';
+import { getConfig, useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { currencyContext } from '@/lib/currency';
 import CategoryPagination from '@/components/category-pagination';
 import ActiveFilters from '@/components/category-refinements/active-filters';
@@ -83,7 +84,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<SearchPageData> 
     const refine = searchParams.getAll('refine');
     const currency = context.get(currencyContext) as string;
 
-    const config = getConfig(context);
+    const config = getConfig<AppConfig>(context);
     // TODO: replace this with locale detection when multi site implementation starts
     const currentSite = config.commerce.sites[0];
     const locale = currentSite.defaultLocale;
@@ -126,7 +127,7 @@ export default function SearchPage({
     loaderData: SearchPageData;
 }) {
     const { t } = useTranslation('search');
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const limit = config.search.products.hits.limit;
 
     // Determine the maximum number of skeletons to display in the product grid

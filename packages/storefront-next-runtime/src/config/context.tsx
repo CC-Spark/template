@@ -23,45 +23,48 @@
 
 import { createContext, type ReactNode } from 'react';
 import { createContext as createRouterContext } from 'react-router';
-import type { Config } from './schema';
+import type { BaseConfig } from './schema';
 
 /**
- * Application configuration type
+ * Router context for application configuration.
  *
- * Contains only the 'app' section from Config.
- * The 'runtime' section is build/deployment config and not needed by the running app.
- * The 'metadata' section is project info and not needed at runtime.
+ * Populated by `createAppConfigMiddleware` with the `app` section of config.
+ * Accessible in loaders, actions, and middleware via `context.get(appConfigContext)`.
  */
-export type AppConfig = Config['app'];
+// eslint-disable-next-line react-refresh/only-export-components
+export const appConfigContext = createRouterContext<Record<string, unknown>>();
 
 /**
- * Router context for application configuration
+ * React context for application configuration.
  *
- * This is populated by middleware with AppConfig from process.env (via config.server.ts)
- * and can be accessed by any code that has access to the router context.
+ * Used by the `useConfig()` hook in React components.
+ * Populated by `ConfigProvider` in the component tree.
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export const appConfigContext = createRouterContext<AppConfig>();
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const ConfigContext = createContext<AppConfig | null>(null);
+export const ConfigContext = createContext<Record<string, unknown> | null>(null);
 
 /**
- * Create application configuration from config.server.ts
+ * Extract the `app` section from a full config object.
  *
- * Returns the app configuration directly from config.server.ts.
- * All defaults are handled in config.server.ts, which reads from process.env at module load time.
+ * @param staticConfig - The full config object (output of `defineConfig()`)
+ * @returns The `app` section of the config
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export function createAppConfig(staticConfig: Config): AppConfig {
+export function createAppConfig<T extends BaseConfig>(staticConfig: T): T['app'] {
     return staticConfig.app;
 }
 
 interface ConfigProviderProps {
-    config: AppConfig;
+    config: Record<string, unknown>;
     children: ReactNode;
 }
 
+/**
+ * React context provider for application configuration.
+ *
+ * Wrap your component tree with this to enable `useConfig()` in child components.
+ * Typically placed in the root layout component.
+ */
 export function ConfigProvider({ config, children }: ConfigProviderProps) {
     return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>;
 }

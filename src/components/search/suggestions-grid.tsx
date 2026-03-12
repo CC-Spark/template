@@ -20,7 +20,8 @@ import { Link } from 'react-router';
 import { DynamicImage } from '@/components/dynamic-image';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { toImageUrl } from '@/lib/dynamic-image';
-import { useConfig } from '@/config';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 import { useTranslation } from 'react-i18next';
 
 interface Suggestion {
@@ -42,7 +43,7 @@ const SearchSuggestionsPopup: React.FC<SearchSuggestionsPopupProps> = ({
     closeAndNavigate,
 }) => {
     const analytics = useAnalytics();
-    const config = useConfig();
+    const config = useConfig<AppConfig>();
     const { t } = useTranslation('common');
     if (!suggestions || suggestions.length === 0) {
         return null;
