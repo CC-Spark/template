@@ -100,7 +100,7 @@ describe('PopularCategories', () => {
 
         // Wait for categories to load
         await waitFor(() => {
-            expect(screen.getByText('Step into Elegance')).toBeInTheDocument();
+            expect(screen.getByText('Style for Real Life')).toBeInTheDocument();
         });
     });
 
@@ -129,7 +129,7 @@ describe('PopularCategories', () => {
         // Wait for component to load
         await waitFor(
             () => {
-                expect(screen.getByText('Step into Elegance')).toBeInTheDocument();
+                expect(screen.getByText('Style for Real Life')).toBeInTheDocument();
             },
             { timeout: 3000 }
         );
@@ -147,7 +147,7 @@ describe('PopularCategories', () => {
         // Wait for component to load
         await waitFor(
             () => {
-                expect(screen.getByText('Step into Elegance')).toBeInTheDocument();
+                expect(screen.getByText('Style for Real Life')).toBeInTheDocument();
             },
             { timeout: 3000 }
         );

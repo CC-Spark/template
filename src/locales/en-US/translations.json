@@ -1030,64 +1030,39 @@
         }
     },
     "home": {
-        "hero-foundations": {
-            "slide1": {
-                "title": "The React Starter Store for High Performers",
-                "subtitle": "Discover our latest collection of products",
-                "ctaText": "Shop Now",
-                "imageAlt": "Minimalist white cube on clean background"
-            },
-            "slide2": {
-                "title": "Premium Quality Products",
-                "subtitle": "Handpicked items for the modern lifestyle",
-                "ctaText": "Explore Collection",
-                "imageAlt": "Minimalist white cube on clean background"
-            },
-            "slide3": {
-                "title": "Fast & Reliable Delivery",
-                "subtitle": "Get your orders delivered quickly and safely",
-                "ctaText": "Learn More",
-                "imageAlt": "Minimalist white cube on clean background"
-            }
-        },
-        "hero-market-street": {
+        "hero": {
             "slide1": {
                 "title": "The New Season",
                 "subtitle": "A new collection shaped by contrast, proportion, and modern attitude. Introducing key pieces for the season ahead.",
-                "ctaText": "Discover The Collection",
+                "ctaText": "Discover the Collection",
                 "imageAlt": "Women's Slacks Jackets and Purses"
             },
             "slide2": {
                 "title": "The Modern Wardrobe",
-                "subtitle": "Statement pieces and refined layers designed for nights out, late moments, and everything in between.",
-                "ctaText": "Shop The Edit",
+                "subtitle": "Elevated silhouettes, refined textures, and a bold approach to everyday dressing. Designed to move with you.",
+                "ctaText": "Shop the Look",
                 "imageAlt": "Women's White Linen Dress"
             },
             "slide3": {
                 "title": "After Hours",
                 "subtitle": "Statement pieces and refined layers designed for nights out, late moments, and everything in between.",
-                "ctaText": "Explore The Collection",
+                "ctaText": "Explore the Collection",
                 "imageAlt": "Women's Black Suit"
             },
             "slide4": {
                 "title": "New Perspectives",
                 "subtitle": "A curated drop of standout pieces that redefine contemporary fashion. Confident. Expressive. Uncompromising.",
                 "ctaText": "Shop Now",
-                "imageAlt": "Wonmen's Grey Dress"
+                "imageAlt": "Women's Grey Dress"
             }
         },
         "featuredProducts": {
             "title": "Featured Products",
             "shopAll": "Shop all"
         },
-        "newArrivals": {
-            "title": "New Arrivals",
-            "description": "Discover the latest additions to our collection. From statement pieces to everyday essentials.",
-            "ctaText": "SHOP NEW ARRIVALS"
-        },
         "categoryGrid": {
-            "title": "Step into Elegance",
-            "description": "At Salesforce Foundations, we believe design should be accessible, innovative, and timeless. Our collections are crafted for the modern individual who values quality, form, and lasting beauty.",
+            "title": "Style for Real Life",
+            "description": "At Market Street, we believe fashion should be effortless, authentic, and accessible. Our collections are designed for the modern individual who values quality, versatility, and timeless style.",
             "shopNowButton": "Shop Now"
         },
         "featuredContent": {
@@ -1102,6 +1077,10 @@
                 "description": "Timeless craftsmanship meets contemporary style in our men's footwear collection.",
                 "ctaText": "EXPLORE COLLECTION",
                 "imageAlt": "Men's Collection"
+            },
+            "styleForRealLife": {
+                "title": "Style for Real Life",
+                "description": "At Market Street, we believe fashion should be effortless, authentic, and accessible. Our collections are designed for the modern individual who values quality, versatility, and timeless style.\n\nDiscover pieces that move with you, adapt to your life, and become the foundation of a wardrobe that works—every day, everywhere."
             }
         }
     },

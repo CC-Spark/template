@@ -183,7 +183,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Classic Shirt"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -197,7 +197,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Dress Pants"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -395,7 +395,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Summer Dress"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -524,7 +524,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Item 1"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -544,7 +544,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Item 2"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -564,7 +564,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Item 3"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -584,7 +584,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Item 4"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -727,7 +727,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Cancelled Item 1"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -747,7 +747,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Cancelled Item 2"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -893,7 +893,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 1"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -913,7 +913,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 2"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -927,7 +927,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 3"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -941,7 +941,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 4"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -961,7 +961,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 5"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -975,7 +975,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 6"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -989,7 +989,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 7"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1009,7 +1009,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 8"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -1023,7 +1023,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 9"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -1037,7 +1037,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 10"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1057,7 +1057,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 11"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -1071,7 +1071,7 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
                     alt="Product 12"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -1248,7 +1248,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Classic Shirt"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -1262,7 +1262,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Dress Pants"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1460,7 +1460,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Summer Dress"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1589,7 +1589,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Item 1"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1609,7 +1609,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Item 2"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1629,7 +1629,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Item 3"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1649,7 +1649,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Item 4"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -1792,7 +1792,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Cancelled Item 1"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1812,7 +1812,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Cancelled Item 2"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1958,7 +1958,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 1"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -1978,7 +1978,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 2"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -1992,7 +1992,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 3"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2006,7 +2006,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 4"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -2026,7 +2026,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 5"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2040,7 +2040,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 6"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2054,7 +2054,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 7"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -2074,7 +2074,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 8"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2088,7 +2088,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 9"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2102,7 +2102,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 10"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -2122,7 +2122,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 11"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2136,7 +2136,7 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
                     alt="Product 12"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2446,7 +2446,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 1"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -2466,7 +2466,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 2"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2480,7 +2480,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 3"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2494,7 +2494,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 4"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -2514,7 +2514,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 5"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2528,7 +2528,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 6"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2542,7 +2542,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 7"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -2562,7 +2562,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 8"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2576,7 +2576,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 9"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2590,7 +2590,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 10"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -2610,7 +2610,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 11"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2624,7 +2624,7 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
                     alt="Product 12"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2801,7 +2801,7 @@ exports[`OrderList stories snapshot > WithPickupLocation story renders and match
                     alt="Classic Shirt"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -2815,7 +2815,7 @@ exports[`OrderList stories snapshot > WithPickupLocation story renders and match
                     alt="Dress Pants"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
                 <span
@@ -3074,7 +3074,7 @@ exports[`OrderList stories snapshot > WithProductImages story renders and matche
                     alt="Classic White Shirt - Front View"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>
@@ -3088,7 +3088,7 @@ exports[`OrderList stories snapshot > WithProductImages story renders and matche
                     alt="Blue Dress Pants - Side View"
                     class="w-full h-full object-cover"
                     loading="lazy"
-                    src="/images/hero-new-arrivals.webp"
+                    src="/images/hero-02.webp"
                   />
                 </div>
               </div>

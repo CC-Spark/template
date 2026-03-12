@@ -113,14 +113,13 @@ export function MobileMenuDropdown(): ReactElement | null {
     return (
         <div
             className={cn(
-                'lg:hidden absolute left-0 right-0 top-full bg-background border-b border-border shadow-lg z-40 max-h-[70vh] overflow-y-auto',
+                'lg:hidden absolute left-0 right-0 top-full bg-header-background text-header-foreground border-b border-border shadow-lg z-40 max-h-[70vh] overflow-y-auto',
                 { hidden: !context.isOpen }
             )}
             aria-hidden={!context.isOpen}>
             <nav className="px-4 py-4" aria-label={t('mobileNavigation', 'Mobile navigation menu')}>
                 <ul className="space-y-1">
                     {context.categories.map((category) => {
-                        const colorClass = category.id === 'top-seller' ? '!text-primary' : '';
                         const hasChildren = hasSubcategories(category);
                         const isExpanded = expandedCategories.has(category.id);
 
@@ -131,10 +130,7 @@ export function MobileMenuDropdown(): ReactElement | null {
                                     <NavLink
                                         to={`/category/${category.id}`}
                                         onClick={context.close}
-                                        className={cn(
-                                            'flex-1 py-3 text-base font-medium hover:text-primary',
-                                            colorClass
-                                        )}>
+                                        className="flex-1 py-3 text-base font-medium hover:opacity-70 transition-opacity">
                                         {category.name}
                                     </NavLink>
 
@@ -144,7 +140,7 @@ export function MobileMenuDropdown(): ReactElement | null {
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => toggleCategory(category.id)}
-                                            className="ml-2 p-2 h-auto shrink-0"
+                                            className="ml-2 p-2 h-auto shrink-0 hover:bg-transparent hover:opacity-50 transition-opacity"
                                             aria-label={
                                                 isExpanded
                                                     ? t('collapseCategory', `Collapse ${category.name}`)
@@ -168,7 +164,7 @@ export function MobileMenuDropdown(): ReactElement | null {
                                                 <NavLink
                                                     to={`/category/${subcategory.id}`}
                                                     onClick={context.close}
-                                                    className="block py-2 text-sm hover:text-primary">
+                                                    className="block py-2 text-sm hover:opacity-70 transition-opacity">
                                                     {subcategory.name}
                                                 </NavLink>
                                             </li>
@@ -230,7 +226,7 @@ export default function ResponsiveNavigationMenu({
                             variant="ghost"
                             size="icon"
                             onClick={mobileMenuContext.toggle}
-                            className="lg:hidden"
+                            className="lg:hidden hover:bg-transparent hover:opacity-50 transition-opacity"
                             aria-label={mobileMenuOpen ? t('closeMenu', 'Close menu') : t('openMenu', 'Open menu')}
                             aria-expanded={mobileMenuOpen}>
                             {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -255,7 +251,7 @@ export default function ResponsiveNavigationMenu({
                                 })}
                                 propsContent={({ category }) => ({
                                     className: cn(
-                                        'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8',
+                                        'px-9',
                                         hasBanner(category) &&
                                             (isVertical(category)
                                                 ? 'grid md:grid-cols-[1fr_.3fr] items-start'
@@ -279,11 +275,8 @@ export default function ResponsiveNavigationMenu({
                                         };
                                     }
                                 }}
-                                propsElement={({ category, level }) => {
-                                    const colorClass =
-                                        level === 0 && category.id === 'top-seller' ? 'text-primary' : '';
-                                    const sizeClass = 'text-sm font-medium';
-                                    return { className: `${colorClass} ${sizeClass}` };
+                                propsElement={() => {
+                                    return { className: 'text-sm font-medium' };
                                 }}
                                 renderSlotListAfter={({ level, parent }) => {
                                     if (level === 1 && hasBanner(parent)) {

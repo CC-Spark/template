@@ -928,43 +928,23 @@
         }
     },
     "home": {
-        "hero-foundations": {
-            "slide1": {
-                "title": "Lo Store React Starter per alte prestazioni",
-                "subtitle": "Scopra la nostra ultima collezione di prodotti",
-                "ctaText": "Acquista ora",
-                "imageAlt": "Cubo bianco minimalista su sfondo pulito"
-            },
-            "slide2": {
-                "title": "Prodotti di qualità premium",
-                "subtitle": "Articoli selezionati per lo stile di vita moderno",
-                "ctaText": "Esplora la collezione",
-                "imageAlt": "Cubo bianco minimalista su sfondo pulito"
-            },
-            "slide3": {
-                "title": "Consegna veloce e affidabile",
-                "subtitle": "Riceva i Suoi ordini rapidamente e in sicurezza",
-                "ctaText": "Scopra di più",
-                "imageAlt": "Cubo bianco minimalista su sfondo pulito"
-            }
-        },
-        "hero-market-street": {
+        "hero": {
             "slide1": {
                 "title": "La Nuova Stagione",
                 "subtitle": "Una nuova collezione plasmata da contrasto, proporzioni e attitudine moderna. Vi presentiamo i pezzi chiave per la stagione a venire.",
-                "ctaText": "Scopra La Collezione",
+                "ctaText": "Scopra la Collezione",
                 "imageAlt": "Pantaloni, giacche e borse da donna"
             },
             "slide2": {
                 "title": "Il Guardaroba Moderno",
-                "subtitle": "Pezzi di tendenza e strati raffinati progettati per le serate fuori, i momenti tardivi e tutto ciò che sta nel mezzo.",
-                "ctaText": "Acquista La Selezione",
+                "subtitle": "Silhouette elevate, tessuti raffinati e un approccio audace all'abbigliamento quotidiano. Progettato per muoversi con te.",
+                "ctaText": "Acquista il Look",
                 "imageAlt": "Abito di lino bianco da donna"
             },
             "slide3": {
                 "title": "Dopo Le Ore",
                 "subtitle": "Pezzi di tendenza e strati raffinati progettati per le serate fuori, i momenti tardivi e tutto ciò che sta nel mezzo.",
-                "ctaText": "Esplora La Collezione",
+                "ctaText": "Esplora la Collezione",
                 "imageAlt": "Completo nero da donna"
             },
             "slide4": {
@@ -1000,6 +980,10 @@
                 "description": "Artigianato senza tempo incontra lo stile contemporaneo nella nostra collezione di calzature da uomo.",
                 "ctaText": "ESPLORA LA COLLEZIONE",
                 "imageAlt": "Collezione uomo"
+            },
+            "styleForRealLife": {
+                "title": "Stile per la Vita Reale",
+                "description": "Da Market Street, crediamo che la moda debba essere semplice, autentica e accessibile. Le nostre collezioni sono progettate per la persona moderna che apprezza qualità, versatilità e stile senza tempo.\n\nScopri capi che si muovono con te, si adattano alla tua vita e diventano la base di un guardaroba che funziona—ogni giorno, ovunque."
             }
         }
     },

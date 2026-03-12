@@ -35,7 +35,10 @@ export default function UserActions(): ReactElement {
     const icon = isAuthenticated ? <User className="size-5" /> : <LogIn className="size-5" />;
 
     const trigger = (
-        <Button variant="ghost" className="cursor-pointer lg:px-4 px-1" asChild>
+        <Button
+            variant="ghost"
+            className="cursor-pointer lg:px-4 px-1 hover:bg-transparent hover:opacity-50 transition-opacity"
+            asChild>
             <Link to={accountLink} aria-label={ariaLabel}>
                 {icon}
             </Link>

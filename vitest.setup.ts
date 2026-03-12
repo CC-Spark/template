@@ -26,11 +26,25 @@ import 'vitest-localstorage-mock';
 // Windows converts '/path' to 'file:///path' which is invalid (missing drive letter)
 vi.mock('/favicon.ico', () => ({ default: '/favicon.ico' }));
 vi.mock('/images/GoogleMaps_Logo_Gray_4x.png', () => ({ default: '/images/GoogleMaps_Logo_Gray_4x.png' }));
-vi.mock('/images/hero-cube.webp', () => ({
-    default: '/images/hero-cube.webp',
+// Market Street hero images (default theme)
+vi.mock('/images/hero-01.webp', () => ({
+    default: '/images/hero-01.webp',
 }));
-vi.mock('/images/hero-new-arrivals.webp', () => ({
-    default: '/images/hero-new-arrivals.webp',
+vi.mock('/images/hero-02.webp', () => ({
+    default: '/images/hero-02.webp',
+}));
+vi.mock('/images/hero-03.webp', () => ({
+    default: '/images/hero-03.webp',
+}));
+vi.mock('/images/hero-04.webp', () => ({
+    default: '/images/hero-04.webp',
+}));
+// Foundations theme images
+vi.mock('/images/foundations/hero-carousel/hero-cube.webp', () => ({
+    default: '/images/foundations/hero-carousel/hero-cube.webp',
+}));
+vi.mock('/images/foundations/hero-carousel/hero-new-arrivals.webp', () => ({
+    default: '/images/foundations/hero-carousel/hero-new-arrivals.webp',
 }));
 vi.mock('/images/foundations/foundations-logo.svg', () => ({
     default: '/images/foundations/foundations-logo.svg',

@@ -23,7 +23,7 @@ import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import withSuspense from '@/components/with-suspense';
 import HeroCarouselSkeleton from './skeleton';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
-import heroImage from '/images/hero-cube.webp';
+import heroImage from '/images/hero-01.webp';
 import type { ComponentType } from '@/components/region';
 
 @Component('heroCarousel', {

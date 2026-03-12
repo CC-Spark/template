@@ -28,7 +28,7 @@ import Contact from '@/components/contact';
 import { Typography } from '@/components/typography';
 import { PageType } from '@/lib/decorators/page-type';
 import { useTranslation } from 'react-i18next';
-import visionImage from '/images/hero-new-arrivals.webp';
+import visionImage from '/images/hero-02.webp';
 
 @PageType({
     name: 'About Us Page',

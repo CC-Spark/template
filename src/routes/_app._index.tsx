@@ -21,15 +21,16 @@ import { currencyContext } from '@/lib/currency';
 import { Region } from '@/components/region';
 import PopularCategories from '@/components/home/popular-categories';
 import ContentCard from '@/components/content-card';
-import { Button } from '@/components/ui/button';
 import { getConfig } from '@/config';
 import { PageType } from '@/lib/decorators/page-type';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 
 import { fetchPageWithComponentData, type PageWithComponentData } from '@/lib/util/pageLoader';
 
-import heroNewArrivals from '/images/hero-new-arrivals.webp';
-import heroCube from '/images/hero-cube.webp';
+import hero01 from '/images/hero-01.webp';
+import hero02 from '/images/hero-02.webp';
+import hero03 from '/images/hero-03.webp';
+import hero04 from '/images/hero-04.webp';
 import HeroCarousel, { HeroCarouselSkeleton, type HeroSlide } from '@/components/hero-carousel';
 import { ProductCarouselSkeleton, ProductCarouselWithSuspense } from '@/components/product-carousel';
 import { useTranslation } from 'react-i18next';
@@ -94,29 +95,38 @@ export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
     const heroSlides: HeroSlide[] = [
         {
             id: 'slide-1',
-            title: t('hero-foundations.slide1.title'),
-            subtitle: t('hero-foundations.slide1.subtitle'),
-            imageUrl: heroCube,
-            imageAlt: t('hero-foundations.slide1.imageAlt'),
-            ctaText: t('hero-foundations.slide1.ctaText'),
+            title: t('hero.slide1.title'),
+            subtitle: t('hero.slide1.subtitle'),
+            imageUrl: hero01,
+            imageAlt: t('hero.slide1.imageAlt'),
+            ctaText: t('hero.slide1.ctaText'),
             ctaLink: '/category/root',
         },
         {
             id: 'slide-2',
-            title: t('hero-foundations.slide2.title'),
-            subtitle: t('hero-foundations.slide2.subtitle'),
-            imageUrl: heroCube,
-            imageAlt: t('hero-foundations.slide2.imageAlt'),
-            ctaText: t('hero-foundations.slide2.ctaText'),
+            title: t('hero.slide2.title'),
+            subtitle: t('hero.slide2.subtitle'),
+            imageUrl: hero02,
+            imageAlt: t('hero.slide2.imageAlt'),
+            ctaText: t('hero.slide2.ctaText'),
             ctaLink: '/category/root',
         },
         {
             id: 'slide-3',
-            title: t('hero-foundations.slide3.title'),
-            subtitle: t('hero-foundations.slide3.subtitle'),
-            imageUrl: heroCube,
-            imageAlt: t('hero-foundations.slide3.imageAlt'),
-            ctaText: t('hero-foundations.slide3.ctaText'),
+            title: t('hero.slide3.title'),
+            subtitle: t('hero.slide3.subtitle'),
+            imageUrl: hero03,
+            imageAlt: t('hero.slide3.imageAlt'),
+            ctaText: t('hero.slide3.ctaText'),
+            ctaLink: '/category/root',
+        },
+        {
+            id: 'slide-4',
+            title: t('hero.slide4.title'),
+            subtitle: t('hero.slide4.subtitle'),
+            imageUrl: hero04,
+            imageAlt: t('hero.slide4.imageAlt'),
+            ctaText: t('hero.slide4.ctaText'),
             ctaLink: '/category/root',
         },
     ];
@@ -167,33 +177,6 @@ export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
                         {/* Popular Categories - full-width section with its own gray bg and container */}
                         <PopularCategories categoriesPromise={loaderData.categories} />
 
-                        {/* New Arrivals - Static content */}
-                        <div className="py-16">
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center rounded-2xl overflow-hidden">
-                                    <div className="relative h-64 lg:h-96 rounded-lg overflow-hidden">
-                                        <img
-                                            src={heroNewArrivals}
-                                            alt={t('newArrivals.title')}
-                                            className="w-full h-full object-contain"
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                    <div className="p-8 lg:p-12">
-                                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground mb-4">
-                                            {t('newArrivals.title')}
-                                        </h2>
-                                        <p className="text-lg text-muted-foreground mb-6">
-                                            {t('newArrivals.description')}
-                                        </p>
-                                        <Button size="lg" asChild>
-                                            <a href="/category/newarrivals">{t('newArrivals.ctaText')}</a>
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         {/* Featured Content Cards - Static content */}
                         <div className="pt-16">
                             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -201,7 +184,7 @@ export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
                                     <ContentCard
                                         title={t('featuredContent.women.title')}
                                         description={t('featuredContent.women.description')}
-                                        imageUrl={heroNewArrivals}
+                                        imageUrl={hero03}
                                         imageAlt={t('featuredContent.women.imageAlt')}
                                         buttonText={t('featuredContent.women.ctaText')}
                                         buttonLink="/category/womens"
@@ -212,13 +195,26 @@ export default function HomePage({ loaderData }: { loaderData: HomePageData }) {
                                     <ContentCard
                                         title={t('featuredContent.men.title')}
                                         description={t('featuredContent.men.description')}
-                                        imageUrl={heroNewArrivals}
+                                        imageUrl={hero04}
                                         imageAlt={t('featuredContent.men.imageAlt')}
                                         buttonText={t('featuredContent.men.ctaText')}
                                         buttonLink="/category/mens"
                                         showBackground={false}
                                         showBorder={false}
                                         loading="lazy"
+                                    />
+                                </div>
+
+                                {/* Text-only card below women/men cards */}
+                                <div className="mt-16 max-w-4xl mx-auto layout-gutter text-center">
+                                    <ContentCard
+                                        title={t('featuredContent.styleForRealLife.title')}
+                                        description={t('featuredContent.styleForRealLife.description')}
+                                        showBackground={false}
+                                        showBorder={false}
+                                        cardFooterClassName="items-center text-center p-0"
+                                        cardDescriptionClassName="text-center"
+                                        className="[&_h3]:text-3xl [&_h3]:md:text-4xl [&_h3]:font-normal [&_h3]:text-brand-black [&_h3]:mb-6 [&_h3]:tracking-tight [&_p]:text-lg [&_p]:text-brand-gray-700 [&_p]:leading-relaxed [&_p]:font-normal [&_p:last-of-type]:text-base [&_p:last-of-type]:text-brand-gray-600"
                                     />
                                 </div>
                             </div>

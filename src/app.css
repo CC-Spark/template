@@ -233,9 +233,12 @@
     --header-menu-background: #000000;
     --header-menu-foreground: #ffffff;
     --header-menu-border: rgba(255, 255, 255, 0.1);
-    --header-menu-hover-background: rgba(255, 255, 255, 0.1);
+    --header-menu-hover-background: #ffffff;
+    --header-menu-hover-foreground: #000000;
     --header-menu-active-background: rgba(255, 255, 255, 0.05);
     --header-menu-icon: rgba(255, 255, 255, 0.7);
+    /* logo.svg is black; invert to white on dark header */
+    --header-logo-filter: brightness(0) invert(1);
 
     /* footer */
     --footer-background: #ffffff;
@@ -405,9 +408,12 @@
     --header-menu-background: #ffffff;
     --header-menu-foreground: #000000;
     --header-menu-border: rgba(0, 0, 0, 0.08);
-    --header-menu-hover-background: rgba(0, 0, 0, 0.05);
+    --header-menu-hover-background: #000000;
+    --header-menu-hover-foreground: #ffffff;
     --header-menu-active-background: rgba(0, 0, 0, 0.02);
     --header-menu-icon: rgba(0, 0, 0, 0.5);
+    /* logo.svg is black; no filter on light header */
+    --header-logo-filter: none;
 
     /* footer */
     --footer-background: #121212;
@@ -588,6 +594,8 @@ html.dark [data-theme='inverse'] {
     --header-menu-hover-background: rgba(0, 0, 0, 0.05);
     --header-menu-active-background: rgba(0, 0, 0, 0.02);
     --header-menu-icon: rgba(0, 0, 0, 0.5);
+    /* logo.svg is black; no filter on light header */
+    --header-logo-filter: none;
 
     /* footer */
     --footer-background: var(--background);
@@ -728,6 +736,8 @@ html:not(.dark) [data-theme='inverse'] {
     --header-menu-hover-background: rgba(255, 255, 255, 0.1);
     --header-menu-active-background: rgba(255, 255, 255, 0.05);
     --header-menu-icon: rgba(255, 255, 255, 0.7);
+    /* logo.svg is black; invert to white on dark header */
+    --header-logo-filter: brightness(0) invert(1);
 
     /* footer */
     --footer-background: var(--background);
@@ -836,4 +846,14 @@ header [data-slot="navigation-menu-viewport"] {
 header ~ * [data-slot="navigation-menu-viewport"],
 .absolute.top-full.left-0.isolate.z-50:has([data-slot="navigation-menu-viewport"]) {
     margin-top: 0 !important;
+}
+
+/* Navigation menu trigger hover text color */
+[data-slot="navigation-menu-trigger"]:hover,
+[data-slot="navigation-menu-trigger"]:focus,
+[data-slot="navigation-menu-trigger"][data-state="open"]:hover,
+[data-slot="navigation-menu-trigger"][data-state="open"]:focus,
+[data-slot="navigation-menu-link"]:hover,
+[data-slot="navigation-menu-link"]:focus {
+    color: var(--header-menu-hover-foreground) !important;
 }

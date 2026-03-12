@@ -169,6 +169,7 @@ export default function SearchBar(): ReactElement {
                             aria-expanded={showSuggestions}
                             aria-haspopup="listbox"
                             role="combobox"
+                            data-testid="header-search"
                         />
                     </PopoverTrigger>
                     <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2" />

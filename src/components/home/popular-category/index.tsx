@@ -23,7 +23,7 @@ import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { DynamicImage } from '@/components/dynamic-image';
 import { toImageUrl } from '@/lib/dynamic-image';
 import { useTranslation } from 'react-i18next';
-import heroImage from '/images/hero-cube.webp';
+import heroImage from '/images/hero-01.webp';
 import { loader as loaders } from './loaders';
 import { useConfig } from '@/config';
 
