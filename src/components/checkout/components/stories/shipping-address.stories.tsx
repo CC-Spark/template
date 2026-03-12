@@ -497,10 +497,10 @@ export const Default: Story = {
         // Verify form labels are present
         void expect(canvas.getByText('First Name')).toBeInTheDocument();
         void expect(canvas.getByText('Last Name')).toBeInTheDocument();
-        void expect(canvas.getByText('Address')).toBeInTheDocument();
+        void expect(canvas.getByText('Address Line 1')).toBeInTheDocument();
         void expect(canvas.getByText('City')).toBeInTheDocument();
-        void expect(canvas.getByText('State/Province')).toBeInTheDocument();
-        void expect(canvas.getByText('Postal Code')).toBeInTheDocument();
+        void expect(canvas.getByText('State')).toBeInTheDocument();
+        void expect(canvas.getByText('Zip Code')).toBeInTheDocument();
 
         // Verify component structure
         void expect(canvasElement).toBeInTheDocument();
@@ -542,7 +542,7 @@ export const WithExistingAddress: Story = {
         // Verify this story has the same form structure as Default
         void expect(canvas.getByText('First Name')).toBeInTheDocument();
         void expect(canvas.getByText('Last Name')).toBeInTheDocument();
-        void expect(canvas.getByText('Address')).toBeInTheDocument();
+        void expect(canvas.getByText('Address Line 1')).toBeInTheDocument();
 
         // Test that inputs are accessible and functional
         const firstNameInput = canvas.getByLabelText('First Name');
@@ -727,7 +727,7 @@ export const WithValidationErrors: Story = {
         // Test that required form labels are present
         void expect(canvas.getByText('First Name')).toBeInTheDocument();
         void expect(canvas.getByText('Last Name')).toBeInTheDocument();
-        void expect(canvas.getByText('Address')).toBeInTheDocument();
+        void expect(canvas.getByText('Address Line 1')).toBeInTheDocument();
         void expect(canvas.getByText('City')).toBeInTheDocument();
 
         // Verify inputs remain accessible for error correction
@@ -773,10 +773,10 @@ export const InternationalAddress: Story = {
 
         // Test international-specific field handling
         void expect(canvas.getByText('First Name')).toBeInTheDocument();
-        void expect(canvas.getByText('Address')).toBeInTheDocument();
+        void expect(canvas.getByText('Address Line 1')).toBeInTheDocument();
 
         // Verify international address form accessibility
-        const addressInput = canvas.getByLabelText('Address');
+        const addressInput = canvas.getByLabelText('Address Line 1');
         void expect(addressInput).toBeInTheDocument();
 
         void expect(canvasElement).toBeInTheDocument();

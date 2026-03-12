@@ -442,7 +442,7 @@ vi.mock('./components/shipping-options', () => ({
 vi.mock('./components/payment', () => ({
     default: ({ isCompleted, isEditing }: { isCompleted: boolean; isEditing: boolean }) => (
         <div data-testid="payment-form">
-            <h2>Payment Information</h2>
+            <h2>Payment</h2>
             {(isEditing || !isCompleted) && (
                 <div>
                     <label htmlFor="cardNumber">Card Number</label>

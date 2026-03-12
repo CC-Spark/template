@@ -91,7 +91,7 @@ describe('ShippingAddress Integration Tests', () => {
             expect(screen.getByPlaceholderText(/city/i)).toBeInTheDocument();
             // State is a dropdown (combobox) when country is US
             expect(screen.getByRole('combobox', { name: /state/i })).toBeInTheDocument();
-            expect(screen.getByPlaceholderText(/postal code/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/zip code|postal code/i)).toBeInTheDocument();
         });
 
         test('allows entering address data', async () => {

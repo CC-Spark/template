@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 import type { RouterContextProvider } from 'react-router';
+import type { ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import { getBasket, updateBasketResource } from '@/middlewares/basket.server';
 import { createPaymentSchema, parsePaymentFromFormData } from '@/lib/checkout-schemas';
-import { addPaymentInstrumentToBasket, updateBillingAddressForBasket } from '@/lib/api/basket';
-import { detectCardType } from '@/lib/payment-utils';
+import {
+    addPaymentInstrumentToBasket,
+    removePaymentInstrumentFromBasket,
+    updateBillingAddressForBasket,
+} from '@/lib/api/basket';
+import { detectCardType, normalizeCardType } from '@/lib/payment-utils';
 import { getTranslation } from '@/lib/i18next';
+import { getAuth } from '@/middlewares/auth.server';
+import { getCustomerProfileForCheckout } from '@/lib/api/customer';
+import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
 
 /**
  * Server action for submitting checkout payment information.
@@ -63,11 +71,52 @@ export async function action(formData: FormData, context: RouterContextProvider)
     let paymentInfo;
 
     if (useSavedPaymentMethod && selectedSavedPaymentMethod) {
-        // Use saved payment instrument (PWA Kit pattern)
-        paymentInfo = {
-            paymentMethodId: 'CREDIT_CARD',
-            customerPaymentInstrumentId: selectedSavedPaymentMethod,
-        };
+        // Look up card details from customer profile and send them directly.
+        // The v2 basket API does not support customerPaymentInstrumentId; when sent, SFCC
+        // resolves the stored customer instrument which may have paymentMethodId
+        // "CREDIT_CARD (visa)" causing a 400 "Invalid Payment Method Id".
+        const auth = getAuth(context as Parameters<typeof getAuth>[0]);
+        const customerId = auth?.customerId;
+        if (customerId) {
+            try {
+                const customerProfile = await getCustomerProfileForCheckout(
+                    context as Parameters<typeof getCustomerProfileForCheckout>[0],
+                    customerId
+                );
+                const savedMethods = getPaymentMethodsFromCustomer(customerProfile ?? undefined);
+                const savedMethod = savedMethods.find((m) => m.id === selectedSavedPaymentMethod) || savedMethods[0];
+                if (savedMethod) {
+                    const normalizedCardType = normalizeCardType(savedMethod.cardType);
+                    paymentInfo = {
+                        paymentMethodId: 'CREDIT_CARD',
+                        amount: basket?.orderTotal ?? 0,
+                        ...(normalizedCardType && normalizedCardType !== 'unknown'
+                            ? {
+                                  paymentCard: {
+                                      cardType: normalizedCardType,
+                                      holder: savedMethod.cardholderName || '',
+                                      maskedNumber: savedMethod.maskedNumber || '',
+                                      expirationMonth: savedMethod.expirationMonth,
+                                      expirationYear: savedMethod.expirationYear,
+                                  },
+                              }
+                            : {}),
+                    };
+                }
+            } catch {
+                // Fall through to error below if paymentInfo is still unset
+            }
+        }
+        if (!paymentInfo) {
+            return Response.json(
+                {
+                    success: false,
+                    error: t('errors:checkout.paymentProcessingFailed'),
+                    step: 'payment',
+                },
+                { status: 400 }
+            );
+        }
     } else {
         // Process new payment data
 
@@ -90,16 +139,19 @@ export async function action(formData: FormData, context: RouterContextProvider)
             );
         }
 
+        // SFCC expects cardType to match Business Manager (e.g. "Visa", "Mastercard", "Amex").
+        // detectCardType returns "American Express" for Amex; normalizeCardType maps it to "Amex".
+        const detectedType = detectCardType(cleanCardNumber);
+        const cardType = normalizeCardType(detectedType) ?? detectedType;
         paymentInfo = {
             paymentMethodId: 'CREDIT_CARD',
+            amount: basket?.orderTotal ?? 0,
             paymentCard: {
+                cardType,
                 holder: cardholderName,
                 maskedNumber: cleanCardNumber.slice(0, -4).replace(/\d/g, '*') + cleanCardNumber.slice(-4),
-                cardType: detectCardType(cleanCardNumber),
                 expirationMonth: parseInt(expiryMonth),
                 expirationYear: parseInt(`20${expiryYear}`),
-                // Note: issueNumber, validFromMonth, validFromYear are legacy fields
-                // for older card systems and are not needed for modern credit cards
             },
         };
     }
@@ -132,12 +184,65 @@ export async function action(formData: FormData, context: RouterContextProvider)
                   countryCode: result.data.billingCountryCode || 'US',
               };
 
+    // Remove existing payment instrument (if any) so the basket has exactly the chosen one.
+    // If remove fails, we cannot safely add a new card (could charge both); fail the step.
+    const existingPaymentId = basket.paymentInstruments?.[0]?.paymentInstrumentId;
+    if (existingPaymentId) {
+        try {
+            await removePaymentInstrumentFromBasket(context, basketId, existingPaymentId);
+        } catch (err) {
+            // eslint-disable-next-line no-console -- server-side error log for payment debugging
+            console.error('Failed to remove existing payment instrument from basket; cannot safely add new payment.', {
+                basketId,
+                existingPaymentId,
+                error: err instanceof Error ? err.message : String(err),
+                stack: err instanceof Error ? err.stack : undefined,
+            });
+            return Response.json(
+                {
+                    success: false,
+                    error: t('errors:checkout.paymentProcessingFailed'),
+                    step: 'payment',
+                },
+                { status: 400 }
+            );
+        }
+    }
+
     // Add payment instrument to basket via Commerce API
+    let updatedBasket: ShopperBasketsV2.schemas['Basket'];
+    try {
+        updatedBasket = await addPaymentInstrumentToBasket(context, basketId, paymentInfo);
+    } catch (err) {
+        // eslint-disable-next-line no-console -- server-side error log for payment debugging
+        console.error(
+            'Failed to add payment instrument to basket after removing previous instrument; basket may have no payment.',
+            {
+                basketId,
+                error: err instanceof Error ? err.message : String(err),
+                stack: err instanceof Error ? err.stack : undefined,
+            }
+        );
+        const apiDetail =
+            err && typeof err === 'object' && 'body' in err
+                ? typeof (err as { body?: unknown }).body === 'object' &&
+                  (err as { body?: { detail?: string } }).body?.detail
+                    ? (err as { body: { detail?: string } }).body.detail
+                    : ''
+                : '';
+        return Response.json(
+            {
+                success: false,
+                error: t('errors:checkout.paymentProcessingFailed'),
+                step: 'payment',
+                ...(apiDetail && { apiError: apiDetail }),
+            },
+            { status: 400 }
+        );
+    }
+
     let finalUpdatedBasket;
     try {
-        // First add the payment instrument
-        const updatedBasket = await addPaymentInstrumentToBasket(context, basketId, paymentInfo);
-
         // Then update the billing address (this should also trigger calculations)
         const finalBasket = await updateBillingAddressForBasket(context, basketId, billingAddress);
 

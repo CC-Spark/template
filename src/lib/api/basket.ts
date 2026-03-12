@@ -37,6 +37,23 @@ export function getBasketCurrency(
 }
 
 /**
+ * Remove a payment instrument from the basket using the Commerce API
+ */
+export async function removePaymentInstrumentFromBasket(
+    context: Readonly<RouterContextProvider>,
+    basketId: string,
+    paymentInstrumentId: string
+): Promise<ShopperBasketsV2.schemas['Basket']> {
+    const clients = createApiClients(context);
+    const { data: basket } = await clients.shopperBasketsV2.removePaymentInstrumentFromBasket({
+        params: {
+            path: { basketId, paymentInstrumentId },
+        },
+    });
+    return basket;
+}
+
+/**
  * Add a payment instrument to the basket using the Commerce API
  */
 export async function addPaymentInstrumentToBasket(

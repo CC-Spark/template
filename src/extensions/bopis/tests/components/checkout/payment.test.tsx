@@ -72,7 +72,7 @@ describe('Payment Component - BOPIS/Store Pickup Scenarios', () => {
         // Billing uses placeholders: "First Name*", "Address*", etc.
         const firstNameInput = screen.getByRole('textbox', { name: /first name/i });
         const lastNameInput = screen.getByRole('textbox', { name: /last name/i });
-        const addressInput = screen.getByPlaceholderText(/address/i);
+        const addressInput = screen.getByRole('textbox', { name: /address line 1/i });
 
         // These should be empty, not filled with "Store", "Location", "456 Store Avenue"
         expect(firstNameInput).toHaveValue('');
@@ -117,10 +117,10 @@ describe('Payment Component - BOPIS/Store Pickup Scenarios', () => {
         // Billing uses placeholders-only UX: "First Name*", "Address*", etc. State is a dropdown (combobox).
         expect(screen.getByRole('textbox', { name: /first name/i })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: /last name/i })).toBeInTheDocument();
-        expect(screen.getByPlaceholderText(/address/i)).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: /address line 1/i })).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: /city/i })).toBeInTheDocument();
         expect(screen.getByRole('combobox', { name: /state/i })).toBeInTheDocument();
-        expect(screen.getByRole('textbox', { name: /postal code/i })).toBeInTheDocument();
+        expect(screen.getByPlaceholderText(/zip code|postal code/i)).toBeInTheDocument();
 
         const user = userEvent.setup();
 

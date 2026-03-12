@@ -18,14 +18,13 @@
 import { useEffect, lazy, Suspense, use, useRef, useState, type FormEvent } from 'react';
 import { useCheckoutContext } from '@/hooks/use-checkout';
 import { useBasket } from '@/providers/basket';
-import { useCheckoutActions } from '@/hooks/use-checkout-actions';
+import { useCheckoutActions, type PaymentSubmissionRef } from '@/hooks/use-checkout-actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Typography } from '@/components/typography';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';
-import type { PaymentData } from '@/lib/checkout-schemas';
 import { useTranslation } from 'react-i18next';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { UITarget } from '@/targets/ui-target';
@@ -136,6 +135,13 @@ export default function CheckoutFormPage({
     const cart = useBasket();
     const { step, STEPS, goToStep, editingStep, shipmentDistribution } = useCheckoutContext();
     const customerProfile = useCustomerProfile();
+    const isRegisteredUser = Boolean(customerProfile?.customer?.customerId);
+
+    const paymentSubmissionRef = useRef<PaymentSubmissionRef['current']>({
+        formDataGetter: null,
+        shouldPlaceOrderAfterPayment: false,
+        options: null,
+    });
 
     // Checkout actions hook with all fetchers and submission handlers
     const {
@@ -151,7 +157,7 @@ export default function CheckoutFormPage({
         placeOrderFetcher,
         isSubmitting,
         handleCreateAccountPreferenceChange,
-    } = useCheckoutActions();
+    } = useCheckoutActions({ paymentSubmissionRef });
 
     let showAddressAndOptions = true;
 
@@ -200,8 +206,6 @@ export default function CheckoutFormPage({
     const analytics = useAnalytics();
     const hasTrackedCheckoutStartRef = useRef(false);
     const previousStepRef = useRef<CheckoutStep | null>(null);
-    const paymentFormDataRef = useRef<(() => PaymentData) | null>(null);
-    const placeOrderAfterPaymentRef = useRef(false);
 
     useEffect(() => {
         // Only track checkout start once on mount if baseket is not empty
@@ -236,13 +240,18 @@ export default function CheckoutFormPage({
 
     const handlePlaceOrderSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (step === STEPS.PAYMENT) {
-            const paymentData = paymentFormDataRef.current?.();
-            if (paymentData) {
-                placeOrderAfterPaymentRef.current = true;
-                submitPayment(paymentData);
-            }
+        // Sync basket with current payment selection before placing order so the chosen payment
+        // (saved card or new) is applied. Always submit payment when we have form data so returning
+        // shoppers who changed from the default to another saved card or new payment get their
+        // selection applied (step may be REVIEW_ORDER when Place Order is visible).
+        const paymentData = paymentSubmissionRef.current.formDataGetter?.();
+        if (paymentData) {
+            paymentSubmissionRef.current.shouldPlaceOrderAfterPayment = true;
+            paymentSubmissionRef.current.options = { savePaymentToProfile: paymentData.savePaymentToProfile ?? false };
+            submitPayment(paymentData);
         } else {
+            paymentSubmissionRef.current.shouldPlaceOrderAfterPayment = false;
+            paymentSubmissionRef.current.options = null;
             submitPlaceOrder();
         }
     };
@@ -273,6 +282,8 @@ export default function CheckoutFormPage({
         isCompleted: step > STEPS.PAYMENT,
         isEditing: step === STEPS.PAYMENT || editingStep === STEPS.PAYMENT,
         onEdit: () => goToStep(STEPS.PAYMENT),
+        // Guest: show only "Payment" title until contact, shipping address and options are done
+        disabled: !isRegisteredUser && step < STEPS.PAYMENT,
     };
 
     // Note: Order placement success is now handled by action route redirect
@@ -291,11 +302,14 @@ export default function CheckoutFormPage({
         }
     }, [placeOrderFetcher.state, placeOrderFetcher.data]);
 
-    // Place the order once payment succeeds
+    // Place the order once payment succeeds; reset ref on failure so we never place order without valid payment
     useEffect(() => {
-        if (placeOrderAfterPaymentRef.current && paymentFetcher.state === 'idle' && paymentFetcher.data?.success) {
-            placeOrderAfterPaymentRef.current = false;
+        if (!paymentSubmissionRef.current.shouldPlaceOrderAfterPayment || paymentFetcher.state !== 'idle') return;
+        if (paymentFetcher.data?.success) {
+            paymentSubmissionRef.current.shouldPlaceOrderAfterPayment = false;
             submitPlaceOrder();
+        } else {
+            paymentSubmissionRef.current.shouldPlaceOrderAfterPayment = false;
         }
     }, [paymentFetcher.state, paymentFetcher.data, submitPlaceOrder]);
 
@@ -486,7 +500,7 @@ export default function CheckoutFormPage({
                                     isLoading={isSubmitting('payment')}
                                     actionData={paymentFetcher.data}
                                     showBillingSameAsShipping={showAddressAndOptions}
-                                    paymentFormDataRef={paymentFormDataRef}
+                                    paymentSubmissionRef={paymentSubmissionRef}
                                     {...paymentState}
                                 />
                             </UITarget>
@@ -505,7 +519,7 @@ export default function CheckoutFormPage({
                         <UITarget targetId="checkout.createAccount.after" />
 
                         {/* Place Order Section */}
-                        {(step === STEPS.PAYMENT || step === STEPS.REVIEW_ORDER) && (
+                        {step >= STEPS.PAYMENT && (
                             <div className="flex flex-col items-end gap-4 w-full lg:w-auto">
                                 {placeOrderFetcher.data &&
                                     !placeOrderFetcher.data.success &&
@@ -523,12 +537,12 @@ export default function CheckoutFormPage({
                                             type="submit"
                                             disabled={
                                                 isPlacingOrder ||
-                                                (step === STEPS.PAYMENT && isSubmitting('payment')) ||
+                                                isSubmitting('payment') ||
                                                 paymentFetcher.state === 'submitting'
                                             }
                                             className="w-full lg:max-w-sm"
                                             size="lg">
-                                            {isPlacingOrder || (step === STEPS.PAYMENT && isSubmitting('payment'))
+                                            {isPlacingOrder || isSubmitting('payment')
                                                 ? t('placeOrder.processing')
                                                 : t('placeOrder.button')}
                                         </Button>

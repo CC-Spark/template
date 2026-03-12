@@ -25,6 +25,7 @@ import {
 } from '@/lib/api/basket';
 import {
     savePaymentMethodToCustomer,
+    type PaymentInstrumentForSave,
     registerGuestUser,
     saveShippingAddressToCustomer,
     saveBillingAddressToCustomer,
@@ -44,9 +45,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
     const { t } = getTranslation();
 
     try {
-        // Parse form data to get create account preference
+        // Parse form data to get create account preference and save-payment option
         const formData = await request.formData();
         const shouldCreateAccount = formData.get('shouldCreateAccount') === 'true';
+        const savePaymentToProfile = formData.get('savePaymentToProfile') === 'true';
 
         // Get current basket
         const basketResource = await getBasket(context);
@@ -127,13 +129,16 @@ export async function action({ request, context }: ActionFunctionArgs) {
                     const savedPaymentMethods = getPaymentMethodsFromCustomer(customerProfile);
 
                     if (savedPaymentMethods.length > 0) {
-                        // Apply the first/preferred saved payment method to the basket
                         const preferredMethod =
                             savedPaymentMethods.find((method) => method.preferred) || savedPaymentMethods[0];
 
+                        // SFCC requires customerPaymentInstrumentId to charge a saved payment instrument.
+                        // paymentCard (cardType, maskedNumber, etc.) is display metadata only and cannot
+                        // be used to charge a saved card.
                         const paymentInfo = {
                             paymentMethodId: 'CREDIT_CARD',
                             customerPaymentInstrumentId: preferredMethod.id,
+                            amount: basket.orderTotal ?? 0,
                         };
 
                         // Get billing address (use shipping address or customer's billing address)
@@ -281,8 +286,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
                                 savePaymentMethodToCustomer(
                                     context,
                                     registrationResult.customerId,
-                                    order.paymentInstruments[0]
-                                )
+                                    order.paymentInstruments[0] as PaymentInstrumentForSave
+                                ).catch((error) => {
+                                    // eslint-disable-next-line no-console -- log payment save failure for new account
+                                    console.error('Failed to save payment method for new account:', error);
+                                })
                             );
                         }
 
@@ -332,6 +340,21 @@ export async function action({ request, context }: ActionFunctionArgs) {
                 }
             } catch {
                 // Don't fail the order if account creation fails
+            }
+        }
+
+        // Save payment method to existing registered customer if they opted in at checkout
+        if (savePaymentToProfile && order.paymentInstruments?.[0]) {
+            const auth = getAuth(context);
+            if (auth.customerId) {
+                savePaymentMethodToCustomer(
+                    context,
+                    auth.customerId,
+                    order.paymentInstruments[0] as PaymentInstrumentForSave
+                ).catch((error) => {
+                    // eslint-disable-next-line no-console -- log payment save failure; order still succeeds
+                    console.error('Failed to save payment method:', error);
+                });
             }
         }
 

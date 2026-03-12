@@ -305,26 +305,23 @@ function shouldPrefillBasket(
     const profileCustomerId = customerProfile.customer.customerId;
     const customerMismatch = !basketCustomerId || basketCustomerId !== profileCustomerId;
     const missingShippingAddress = isAddressEmpty(basket?.shipments?.[0]?.shippingAddress);
+    const missingPaymentInstrument = !basket?.paymentInstruments?.[0];
     const hasAddresses = !!customerProfile.addresses?.length;
 
     /**
-     * Based is always tied baskets to the session (e.g. usid), not to a customer ID. customerMismatch may happen when:
-     *
-     * Guest adds items to cart → basket is created with no customerId.
-     * User logs in.
-     * The basket is still the same session’s basket, but it was created as a guest and hasn’t been updated with the new customer yet.
-     * We need to update this basket with the logged‑in customer’s info so createOrder can succeed.
-     * basketCustomerId !== profileCustomerId: This is an edge case: the basket has a customerId that doesn’t match the logged‑in user.
-     * Can happen if the basket was created/updated before login and the transfer/merge hasn’t completed yet, or there’s a brief race.
+     * Baskets are tied to the session (e.g. usid), not to a customer ID. customerMismatch may happen when:
+     * Guest adds items → basket has no customerId. User logs in. We need to update the basket with the logged-in customer.
+     * basketCustomerId !== profileCustomerId: basket has a different customerId (e.g. before merge completed).
      */
     if (missingEmail || customerMismatch) {
         return true;
     }
-    // Prefill shipping address when missing and customer has saved addresses
     if (missingShippingAddress && hasAddresses) {
         return true;
     }
-
+    if (missingPaymentInstrument) {
+        return true;
+    }
     return false;
 }
 
@@ -477,18 +474,33 @@ export async function initializeBasketForReturningCustomer(
                 const { addPaymentInstrumentToBasket } = await import('@/lib/api/basket');
                 const { getPaymentMethodsFromCustomer } = await import('@/lib/customer-profile-utils');
 
+                const { normalizeCardType } = await import('@/lib/payment-utils');
                 const savedPaymentMethods = getPaymentMethodsFromCustomer(customerProfile);
                 if (savedPaymentMethods.length > 0) {
                     const preferredMethod =
                         savedPaymentMethods.find((method) => method.preferred) || savedPaymentMethods[0];
+                    const normalizedCardType = normalizeCardType(preferredMethod.cardType);
 
-                    const paymentInfo = {
-                        paymentMethodId: 'CREDIT_CARD',
-                        customerPaymentInstrumentId: preferredMethod.id,
-                    };
+                    if (!normalizedCardType || normalizedCardType === 'unknown') {
+                        // eslint-disable-next-line no-console -- server-side log when skipping invalid saved card type
+                        console.warn('Invalid card type for saved payment method:', preferredMethod.cardType);
+                        // Skip auto-applying invalid payment method to avoid incomplete basket payment
+                    } else {
+                        const paymentInfo = {
+                            paymentMethodId: 'CREDIT_CARD',
+                            amount: updatedBasket.orderTotal ?? 0,
+                            paymentCard: {
+                                cardType: normalizedCardType,
+                                holder: preferredMethod.cardholderName || '',
+                                maskedNumber: preferredMethod.maskedNumber || '',
+                                expirationMonth: preferredMethod.expirationMonth,
+                                expirationYear: preferredMethod.expirationYear,
+                            },
+                        };
 
-                    updatedBasket = await addPaymentInstrumentToBasket(context, basketId, paymentInfo);
-                    updateBasketResource(context, updatedBasket);
+                        updatedBasket = await addPaymentInstrumentToBasket(context, basketId, paymentInfo);
+                        updateBasketResource(context, updatedBasket);
+                    }
                 }
             } catch {
                 // Payment instrument addition failed - continue without it

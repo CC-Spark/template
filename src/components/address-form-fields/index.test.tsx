@@ -119,11 +119,11 @@ describe('AddressFormFields', () => {
             expect(screen.getByPlaceholderText(/first name/i)).toBeInTheDocument();
             expect(screen.getByPlaceholderText(/last name/i)).toBeInTheDocument();
             expect(screen.getByPlaceholderText(/street address/i)).toBeInTheDocument();
-            expect(screen.getByPlaceholderText(/apartment, suite/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/address line 2|apartment|suite/i)).toBeInTheDocument();
             expect(screen.getByPlaceholderText(/^city$/i)).toBeInTheDocument();
             // State is a combobox (NativeSelect) when countryCode is US (default)
             expect(screen.getByRole('combobox', { name: /state/i })).toBeInTheDocument();
-            expect(screen.getByPlaceholderText(/postal code/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/zip code|postal code/i)).toBeInTheDocument();
             expect(screen.getByPlaceholderText(/\(555\) 123-4567/)).toBeInTheDocument();
         });
 
@@ -137,11 +137,11 @@ describe('AddressFormFields', () => {
             expect(screen.getByPlaceholderText(/first name/i)).toBeInTheDocument();
             expect(screen.getByPlaceholderText(/last name/i)).toBeInTheDocument();
             expect(screen.getByPlaceholderText(/street address/i)).toBeInTheDocument();
-            expect(screen.getByPlaceholderText(/apartment, suite/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/address line 2|apartment|suite/i)).toBeInTheDocument();
             expect(screen.getByPlaceholderText(/^city$/i)).toBeInTheDocument();
             // State is a combobox when countryCode is US (default)
             expect(screen.getByRole('combobox', { name: /state/i })).toBeInTheDocument();
-            expect(screen.getByPlaceholderText(/postal code/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/zip code|postal code/i)).toBeInTheDocument();
         });
 
         test('hides phone field when showPhone is false', () => {
@@ -171,11 +171,11 @@ describe('AddressFormFields', () => {
 
             expect(screen.getByText(/first name/i)).toBeInTheDocument();
             expect(screen.getByText(/last name/i)).toBeInTheDocument();
-            expect(screen.getByText(/^address$/i)).toBeInTheDocument();
+            expect(screen.getByText(/address line 1|^address$/i)).toBeInTheDocument();
             expect(screen.getByText(/address line 2/i)).toBeInTheDocument();
             expect(screen.getByText(/^city$/i)).toBeInTheDocument();
-            expect(screen.getByText(/state\/province/i)).toBeInTheDocument();
-            expect(screen.getByText(/postal code/i)).toBeInTheDocument();
+            expect(screen.getByRole('combobox', { name: /state/i })).toBeInTheDocument();
+            expect(screen.getByText(/zip code|postal code/i)).toBeInTheDocument();
             expect(screen.getByText(/phone number/i)).toBeInTheDocument();
         });
     });
@@ -186,7 +186,7 @@ describe('AddressFormFields', () => {
 
             expect(screen.getByPlaceholderText(/first name/i)).toHaveAttribute('autocomplete', 'shipping given-name');
             expect(screen.getByPlaceholderText(/last name/i)).toHaveAttribute('autocomplete', 'shipping family-name');
-            expect(screen.getByPlaceholderText(/apartment, suite/i)).toHaveAttribute(
+            expect(screen.getByPlaceholderText(/address line 2|apartment|suite/i)).toHaveAttribute(
                 'autocomplete',
                 'shipping address-line2'
             );
@@ -196,7 +196,10 @@ describe('AddressFormFields', () => {
                 'autocomplete',
                 'shipping address-level1'
             );
-            expect(screen.getByPlaceholderText(/postal code/i)).toHaveAttribute('autocomplete', 'shipping postal-code');
+            expect(screen.getByPlaceholderText(/zip code|postal code/i)).toHaveAttribute(
+                'autocomplete',
+                'shipping postal-code'
+            );
         });
 
         test('sets billing autoComplete values when billing prefix', () => {
@@ -208,7 +211,7 @@ describe('AddressFormFields', () => {
 
             expect(screen.getByPlaceholderText(/first name/i)).toHaveAttribute('autocomplete', 'billing given-name');
             expect(screen.getByPlaceholderText(/last name/i)).toHaveAttribute('autocomplete', 'billing family-name');
-            expect(screen.getByPlaceholderText(/apartment, suite/i)).toHaveAttribute(
+            expect(screen.getByPlaceholderText(/address line 2|apartment|suite/i)).toHaveAttribute(
                 'autocomplete',
                 'billing address-line2'
             );
@@ -218,7 +221,10 @@ describe('AddressFormFields', () => {
                 'autocomplete',
                 'billing address-level1'
             );
-            expect(screen.getByPlaceholderText(/postal code/i)).toHaveAttribute('autocomplete', 'billing postal-code');
+            expect(screen.getByPlaceholderText(/zip code|postal code/i)).toHaveAttribute(
+                'autocomplete',
+                'billing postal-code'
+            );
         });
 
         test('sets autocomplete off for address1 field (for autocomplete dropdown)', () => {
@@ -288,7 +294,7 @@ describe('AddressFormFields', () => {
             expect(screen.getByPlaceholderText(/street address/i)).toHaveValue('456 Oak Ave');
             expect(screen.getByPlaceholderText(/^city$/i)).toHaveValue('Boston');
             expect(screen.getByRole('combobox', { name: /state/i })).toHaveValue('MA');
-            expect(screen.getByPlaceholderText(/postal code/i)).toHaveValue('02101');
+            expect(screen.getByPlaceholderText(/zip code|postal code/i)).toHaveValue('02101');
             expect(screen.getByPlaceholderText(/\(555\) 123-4567/)).toHaveValue('5551234567');
         });
 
@@ -312,7 +318,7 @@ describe('AddressFormFields', () => {
             expect(screen.getByPlaceholderText(/street address/i)).toHaveValue('789 Pine St');
             expect(screen.getByPlaceholderText(/^city$/i)).toHaveValue('Chicago');
             expect(screen.getByRole('combobox', { name: /state/i })).toHaveValue('IL');
-            expect(screen.getByPlaceholderText(/postal code/i)).toHaveValue('60601');
+            expect(screen.getByPlaceholderText(/zip code|postal code/i)).toHaveValue('60601');
         });
     });
 

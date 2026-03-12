@@ -77,10 +77,10 @@ describe('AddressModal', () => {
 
         await user.type(screen.getByPlaceholderText(/first name/i), 'Jane');
         await user.type(screen.getByPlaceholderText(/last name/i), 'Doe');
-        await user.type(screen.getByPlaceholderText(/^Address\*?$/i), '123 Main St');
+        await user.type(screen.getByRole('textbox', { name: /^(Address|Address\s*Line\s*1)$/i }), '123 Main St');
         await user.type(screen.getByPlaceholderText(/city/i), 'San Francisco');
         await user.selectOptions(screen.getByRole('combobox', { name: /state/i }), 'CA');
-        await user.type(screen.getByPlaceholderText(/postal code/i), '94102');
+        await user.type(screen.getByPlaceholderText(/(postal code|zip code)/i), '94102');
 
         await user.click(screen.getByRole('button', { name: /^save$/i }));
 
@@ -104,10 +104,10 @@ describe('AddressModal', () => {
 
         await user.type(screen.getByPlaceholderText(/first name/i), 'Jane');
         await user.type(screen.getByPlaceholderText(/last name/i), 'Doe');
-        await user.type(screen.getByPlaceholderText(/^Address\*?$/i), '123 Main St');
+        await user.type(screen.getByRole('textbox', { name: /^(Address|Address\s*Line\s*1)$/i }), '123 Main St');
         await user.type(screen.getByPlaceholderText(/city/i), 'San Francisco');
         await user.selectOptions(screen.getByRole('combobox', { name: /state/i }), 'CA');
-        await user.type(screen.getByPlaceholderText(/postal code/i), '94102');
+        await user.type(screen.getByPlaceholderText(/(postal code|zip code)/i), '94102');
         await user.click(screen.getByRole('button', { name: /^save$/i }));
 
         await waitFor(() => {
@@ -172,10 +172,10 @@ describe('AddressModal', () => {
 
         await user.type(screen.getByPlaceholderText(/first name/i), 'John');
         await user.type(screen.getByPlaceholderText(/last name/i), 'Doe');
-        await user.type(screen.getByPlaceholderText(/^Address\*?$/i), '123 Main St');
+        await user.type(screen.getByRole('textbox', { name: /^(Address|Address\s*Line\s*1)$/i }), '123 Main St');
         await user.type(screen.getByPlaceholderText(/city/i), 'Seattle');
         await user.selectOptions(screen.getByRole('combobox', { name: /state/i }), 'WA');
-        await user.type(screen.getByPlaceholderText(/postal code/i), '98101');
+        await user.type(screen.getByPlaceholderText(/(postal code|zip code)/i), '98101');
 
         await user.click(screen.getByRole('button', { name: /^save$/i }));
 

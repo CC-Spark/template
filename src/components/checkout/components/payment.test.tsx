@@ -75,11 +75,11 @@ describe('Payment Integration Tests', () => {
         test('renders payment form in editing mode', () => {
             render(<Payment {...createDefaultProps()} />);
 
-            // Check if the title and form fields are rendered (card title is "Payment")
-            expect(screen.getByText(/^Payment$/)).toBeInTheDocument();
-            // Card fields use placeholders: Card Number*, Name on Card*, mm/yy*, CVV*
+            // Check if the title and form fields are rendered
+            expect(screen.getByText('Payment')).toBeInTheDocument();
+            // Card Number doesn't have accessible name, use placeholder
             expect(screen.getByPlaceholderText(/card number/i)).toBeInTheDocument();
-            expect(screen.getByRole('textbox', { name: /name on card/i })).toBeInTheDocument();
+            expect(screen.getByRole('textbox', { name: /cardholder name|name on card/i })).toBeInTheDocument();
         });
     });
 
@@ -230,6 +230,77 @@ describe('Payment Integration Tests', () => {
         });
     });
 
+    describe('Save payment to profile checkbox', () => {
+        test('shows save payment checkbox when customer is logged in and entering new card', () => {
+            const profileWithCustomerId = {
+                customer: { email: 'test@example.com', customerId: 'cust-123' },
+                addresses: [],
+                paymentInstruments: [],
+            };
+            useCustomerProfile.mockReturnValue(profileWithCustomerId);
+
+            render(<Payment {...createDefaultProps()} />);
+
+            expect(
+                screen.getByRole('checkbox', { name: /save this payment|savePaymentToProfile|future use/i })
+            ).toBeInTheDocument();
+        });
+
+        test('does not show save payment checkbox when guest has no customer profile', () => {
+            useCustomerProfile.mockReturnValue(null);
+
+            render(<Payment {...createDefaultProps()} />);
+
+            expect(
+                screen.queryByRole('checkbox', { name: /save this payment|savePaymentToProfile|future use/i })
+            ).not.toBeInTheDocument();
+        });
+
+        test('does not show save payment checkbox when profile has no customerId', () => {
+            const profileNoCustomerId = {
+                customer: { email: 'test@example.com' },
+                addresses: [],
+                paymentInstruments: [],
+            };
+            useCustomerProfile.mockReturnValue(profileNoCustomerId);
+
+            render(<Payment {...createDefaultProps()} />);
+
+            expect(
+                screen.queryByRole('checkbox', { name: /save this payment|savePaymentToProfile|future use/i })
+            ).not.toBeInTheDocument();
+        });
+
+        test('save payment checkbox can be toggled when visible', async () => {
+            const user = userEvent.setup();
+            const profileWithCustomerId = {
+                customer: { email: 'test@example.com', customerId: 'cust-123' },
+                addresses: [],
+                paymentInstruments: [],
+            };
+            useCustomerProfile.mockReturnValue(profileWithCustomerId);
+
+            render(<Payment {...createDefaultProps()} />);
+
+            const checkbox = screen.getByRole('checkbox', {
+                name: /save this payment|savePaymentToProfile|future use/i,
+            });
+            expect(checkbox).not.toBeChecked();
+
+            await user.click(checkbox);
+
+            await waitFor(() => {
+                expect(checkbox).toBeChecked();
+            });
+
+            await user.click(checkbox);
+
+            await waitFor(() => {
+                expect(checkbox).not.toBeChecked();
+            });
+        });
+    });
+
     describe('Saved Payment Methods with Real Hooks', () => {
         test('renders saved payment methods when profile has them', () => {
             const profileWithPayments = {
@@ -255,9 +326,9 @@ describe('Payment Integration Tests', () => {
 
             render(<Payment {...createDefaultProps()} />);
 
-            // Check for the presence of saved payment method radio button
+            // Check for the presence of saved payment method radio button and ending-in text
             expect(screen.getByRole('radio', { name: /visa/i })).toBeInTheDocument();
-            expect(screen.getByText(/john doe/i)).toBeInTheDocument();
+            expect(screen.getByText(/ending in.*1234/i)).toBeInTheDocument();
         });
 
         test('auto-selects preferred payment method', async () => {
@@ -375,8 +446,7 @@ describe('Payment Integration Tests', () => {
 
             render(<Payment {...createDefaultProps()} />);
 
-            // Should render saved payment method text
-            expect(screen.getByText(/choose a saved payment method or add a new one/i)).toBeInTheDocument();
+            // Should render saved payment methods
             expect(screen.getByText('Visa')).toBeInTheDocument();
         });
 
@@ -401,8 +471,7 @@ describe('Payment Integration Tests', () => {
 
             render(<Payment {...createDefaultProps()} />);
 
-            // Should still render
-            expect(screen.getByText(/choose a saved payment method or add a new one/i)).toBeInTheDocument();
+            // Should still render saved payment methods
             expect(screen.getByText('Mastercard')).toBeInTheDocument();
         });
 
@@ -449,6 +518,70 @@ describe('Payment Integration Tests', () => {
         });
     });
 
+    describe('View All (n more) / View less', () => {
+        const createProfileWithSavedCards = (count: number) => ({
+            customer: { email: 'user@example.com' },
+            addresses: [],
+            paymentInstruments: Array.from({ length: count }, (_, i) => ({
+                paymentInstrumentId: `card-${i + 1}`,
+                paymentMethodId: 'CREDIT_CARD',
+                paymentCard: {
+                    holder: `Cardholder ${i + 1}`,
+                    cardType: 'Visa',
+                    maskedNumber: `************${String(1000 + i).slice(-4)}`,
+                },
+            })),
+        });
+
+        test('shows "View all (n more)" when more than 3 payment options', async () => {
+            useCustomerProfile.mockReturnValue(createProfileWithSavedCards(5));
+            render(<Payment {...createDefaultProps()} />);
+
+            await waitFor(() => {
+                expect(screen.getByRole('button', { name: /view all \(\d+ more\)/i })).toBeInTheDocument();
+            });
+        });
+
+        test('clicking "View all (n more)" expands options and shows "view less"', async () => {
+            const user = userEvent.setup();
+            useCustomerProfile.mockReturnValue(createProfileWithSavedCards(5));
+            render(<Payment {...createDefaultProps()} />);
+
+            const viewAllButton = await screen.findByRole('button', { name: /view all \(\d+ more\)/i });
+            await user.click(viewAllButton);
+
+            await waitFor(() => {
+                expect(screen.getByRole('button', { name: /view less/i })).toBeInTheDocument();
+            });
+            expect(screen.queryByRole('button', { name: /view all \(\d+ more\)/i })).not.toBeInTheDocument();
+        });
+
+        test('clicking "View less" collapses options and shows "View all (n more)" again', async () => {
+            const user = userEvent.setup();
+            useCustomerProfile.mockReturnValue(createProfileWithSavedCards(5));
+            render(<Payment {...createDefaultProps()} />);
+
+            const viewAllButton = await screen.findByRole('button', { name: /view all \(\d+ more\)/i });
+            await user.click(viewAllButton);
+
+            const viewLessButton = await screen.findByRole('button', { name: /view less/i });
+            await user.click(viewLessButton);
+
+            await waitFor(() => {
+                expect(screen.getByRole('button', { name: /view all \(\d+ more\)/i })).toBeInTheDocument();
+            });
+            expect(screen.queryByRole('button', { name: /view less/i })).not.toBeInTheDocument();
+        });
+
+        test('does not show "View all" or "View less" when 3 or fewer payment options (e.g. 2 saved + new)', () => {
+            useCustomerProfile.mockReturnValue(createProfileWithSavedCards(2));
+            render(<Payment {...createDefaultProps()} />);
+
+            expect(screen.queryByRole('button', { name: /view all \(\d+ more\)/i })).not.toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: /view less/i })).not.toBeInTheDocument();
+        });
+    });
+
     describe('Edge Cases - Field Errors', () => {
         test('displays field-level validation errors from server', () => {
             const actionDataWithErrors = {
@@ -471,7 +604,7 @@ describe('Payment Integration Tests', () => {
                 success: false,
                 fieldErrors: {
                     cardNumber: 'Card number is required',
-                    holder: 'Cardholder name is required',
+                    cardholderName: 'Cardholder name is required',
                     expiryDate: 'Expiry date is required',
                     cvv: 'CVV is required',
                 },
@@ -479,7 +612,7 @@ describe('Payment Integration Tests', () => {
 
             render(<Payment {...createDefaultProps({ actionData: actionDataWithMultipleErrors })} />);
 
-            // All errors should be visible
+            // All errors should be visible inline (FormMessage under each field)
             expect(screen.getByText('Card number is required')).toBeInTheDocument();
             expect(screen.getByText('Cardholder name is required')).toBeInTheDocument();
             expect(screen.getByText('Expiry date is required')).toBeInTheDocument();
@@ -649,8 +782,8 @@ describe('Payment Integration Tests', () => {
             render(<Payment {...createDefaultProps()} />);
 
             // Tests cardType || 'Unknown' and maskedNumber?.slice(-4) || '****' branches
-            // Just verify saved payment section renders
-            expect(screen.getByText(/choose a saved payment method/i)).toBeInTheDocument();
+            // Just verify saved payment section renders (Credit Card option for new payment is present)
+            expect(screen.getByText(/credit card/i)).toBeInTheDocument();
         });
 
         test('auto-selects first payment when no preferred method exists', async () => {
@@ -752,7 +885,7 @@ describe('Payment Integration Tests', () => {
             render(<Payment {...createDefaultProps()} />);
 
             // Tests maskedNumber?.slice(-4) || '****' branch
-            expect(screen.getByText(/choose a saved payment/i)).toBeInTheDocument();
+            expect(screen.getByText(/credit card/i)).toBeInTheDocument();
         });
 
         test('renders saved payment with undefined cardType', () => {
@@ -777,7 +910,7 @@ describe('Payment Integration Tests', () => {
             render(<Payment {...createDefaultProps()} />);
 
             // Tests both: getCardIcon(method.cardType || 'Unknown') AND {method.cardType || 'Unknown'}
-            expect(screen.getByText(/choose a saved payment/i)).toBeInTheDocument();
+            expect(screen.getByText(/credit card/i)).toBeInTheDocument();
         });
     });
 });

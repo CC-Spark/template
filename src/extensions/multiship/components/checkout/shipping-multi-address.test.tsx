@@ -705,10 +705,10 @@ describe('ShippingMultiAddress', () => {
             await user.type(screen.getByPlaceholderText(/e\.g\., Home, Work/i), 'Home');
             await user.type(screen.getByPlaceholderText(/first name/i), 'Jane');
             await user.type(screen.getByPlaceholderText(/last name/i), 'Doe');
-            await user.type(screen.getByPlaceholderText(/^Address\*?$/i), '789 New St');
+            await user.type(screen.getByRole('textbox', { name: /^(Address|Address\s*Line\s*1)$/i }), '789 New St');
             await user.type(screen.getByPlaceholderText(/city/i), 'Seattle');
             await user.selectOptions(screen.getByRole('combobox', { name: /state/i }), 'WA');
-            await user.type(screen.getByPlaceholderText(/postal code/i), '98101');
+            await user.type(screen.getByPlaceholderText(/(postal code|zip code)/i), '98101');
             await user.type(screen.getByRole('textbox', { name: /phone/i }), '2065551234');
 
             // Submit the form
@@ -770,10 +770,10 @@ describe('ShippingMultiAddress', () => {
             await user.type(screen.getByPlaceholderText(/e\.g\., Home, Work/i), 'Work');
             await user.type(screen.getByPlaceholderText(/first name/i), 'John');
             await user.type(screen.getByPlaceholderText(/last name/i), 'Smith');
-            await user.type(screen.getByPlaceholderText(/^Address\*?$/i), '123 Test Ave');
+            await user.type(screen.getByRole('textbox', { name: /^(Address|Address\s*Line\s*1)$/i }), '123 Test Ave');
             await user.type(screen.getByPlaceholderText(/city/i), 'Portland');
             await user.selectOptions(screen.getByRole('combobox', { name: /state/i }), 'OR');
-            await user.type(screen.getByPlaceholderText(/postal code/i), '97201');
+            await user.type(screen.getByPlaceholderText(/(postal code|zip code)/i), '97201');
             await user.type(screen.getByRole('textbox', { name: /phone/i }), '5035551234');
 
             const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -839,10 +839,10 @@ describe('ShippingMultiAddress', () => {
             await user.type(screen.getByPlaceholderText(/e\.g\., Home, Work/i), 'Shared');
             await user.type(screen.getByPlaceholderText(/first name/i), 'Shared');
             await user.type(screen.getByPlaceholderText(/last name/i), 'Address');
-            await user.type(screen.getByPlaceholderText(/^Address\*?$/i), '999 Shared St');
+            await user.type(screen.getByRole('textbox', { name: /^(Address|Address\s*Line\s*1)$/i }), '999 Shared St');
             await user.type(screen.getByPlaceholderText(/city/i), 'Boston');
             await user.selectOptions(screen.getByRole('combobox', { name: /state/i }), 'MA');
-            await user.type(screen.getByPlaceholderText(/postal code/i), '02101');
+            await user.type(screen.getByPlaceholderText(/(postal code|zip code)/i), '02101');
             await user.type(screen.getByRole('textbox', { name: /phone/i }), '6175551234');
 
             const saveButton = screen.getByRole('button', { name: 'Save' });

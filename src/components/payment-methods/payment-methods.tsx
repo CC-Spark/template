@@ -23,6 +23,7 @@ import { RemovePaymentMethodDialog } from './remove-payment-method-dialog';
 import { AddPaymentMethodDialog } from './add-payment-method-dialog';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/toast';
+import { getLastFourDigits } from '@/lib/payment-utils';
 
 export interface PaymentMethodsProps {
     customer: ShopperCustomers.schemas['Customer'] | null;
@@ -39,8 +40,7 @@ function convertToPaymentMethod(
     }
 
     const card = instrument.paymentCard;
-    const maskedNumber = card.maskedNumber || card.numberLastDigits || '';
-    const last4 = maskedNumber.slice(-4);
+    const last4 = getLastFourDigits(card.maskedNumber, card.numberLastDigits);
 
     return {
         id: instrument.paymentInstrumentId,

@@ -462,6 +462,7 @@
         },
         "payment": {
             "title": "Payment",
+            "changeLabel": "Change",
             "methodTitle": "Payment Method",
             "savedMethodDescription": "Choose a saved payment method or add a new one",
             "addNewPaymentMethod": "Add new payment method",
@@ -502,11 +503,16 @@
             "unknownCardType": "Unknown",
             "defaultCardLabel": "Card",
             "preferredBadge": "Preferred",
+            "defaultBadge": "Default",
+            "endingIn": "Ending in {{lastDigits}}",
             "expiresLabel": "Expires {{expiry}}",
             "summaryLabel": "{{methodLabel}} ending in {{lastDigits}}",
             "summarySavedLabel": "Saved payment method: {{methodLabel}} ending in {{lastDigits}}",
             "noPaymentMethodSaved": "No payment method saved",
-            "billingSummaryTitle": "Billing Address"
+            "billingSummaryTitle": "Billing Address",
+            "viewAllMore": "View all ({{count}} more)",
+            "viewLess": "View less",
+            "savePaymentToProfile": "Save this payment for future use"
         },
         "expressPayments": {
             "separator": "Or",

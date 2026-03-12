@@ -151,7 +151,7 @@ exports[`ShippingAddress stories snapshot > Default story renders and matches sn
                 data-slot="form-label"
                 for="_r_2_-form-item"
               >
-                Address
+                Address Line 1
               </label>
               <input
                 aria-describedby="_r_2_-form-item-description"
@@ -189,7 +189,7 @@ exports[`ShippingAddress stories snapshot > Default story renders and matches sn
                 data-slot="form-control"
                 id="_r_3_-form-item"
                 name="address2"
-                placeholder="Apartment, suite, etc. (optional)"
+                placeholder="Address Line 2"
                 value=""
               />
             </div>
@@ -207,7 +207,7 @@ exports[`ShippingAddress stories snapshot > Default story renders and matches sn
                 data-slot="form-label"
                 for="_r_4_-form-item"
               >
-                Postal Code
+                Zip Code
               </label>
               <input
                 aria-describedby="_r_4_-form-item-description"
@@ -217,7 +217,7 @@ exports[`ShippingAddress stories snapshot > Default story renders and matches sn
                 data-slot="form-control"
                 id="_r_4_-form-item"
                 name="postalCode"
-                placeholder="Postal code"
+                placeholder="Zip code"
                 value=""
               />
             </div>
@@ -255,7 +255,7 @@ exports[`ShippingAddress stories snapshot > Default story renders and matches sn
                 data-slot="form-label"
                 for="_r_6_-form-item"
               >
-                State/Province
+                State
               </label>
               <div
                 class="group/native-select relative w-fit has-[select:disabled]:opacity-50"
@@ -801,7 +801,7 @@ exports[`ShippingAddress stories snapshot > InternationalAddress story renders a
                 data-slot="form-label"
                 for="_r_1s_-form-item"
               >
-                Address
+                Address Line 1
               </label>
               <input
                 aria-describedby="_r_1s_-form-item-description"
@@ -839,7 +839,7 @@ exports[`ShippingAddress stories snapshot > InternationalAddress story renders a
                 data-slot="form-control"
                 id="_r_1t_-form-item"
                 name="address2"
-                placeholder="Apartment, suite, etc. (optional)"
+                placeholder="Address Line 2"
                 value=""
               />
             </div>
@@ -857,7 +857,7 @@ exports[`ShippingAddress stories snapshot > InternationalAddress story renders a
                 data-slot="form-label"
                 for="_r_1u_-form-item"
               >
-                Postal Code
+                Zip Code
               </label>
               <input
                 aria-describedby="_r_1u_-form-item-description"
@@ -867,7 +867,7 @@ exports[`ShippingAddress stories snapshot > InternationalAddress story renders a
                 data-slot="form-control"
                 id="_r_1u_-form-item"
                 name="postalCode"
-                placeholder="Postal code"
+                placeholder="Zip code"
                 value=""
               />
             </div>
@@ -905,7 +905,7 @@ exports[`ShippingAddress stories snapshot > InternationalAddress story renders a
                 data-slot="form-label"
                 for="_r_20_-form-item"
               >
-                State/Province
+                State
               </label>
               <div
                 class="group/native-select relative w-fit has-[select:disabled]:opacity-50"
@@ -1401,7 +1401,7 @@ exports[`ShippingAddress stories snapshot > LoadingState story renders and match
                 data-slot="form-label"
                 for="_r_o_-form-item"
               >
-                Address
+                Address Line 1
               </label>
               <input
                 aria-describedby="_r_o_-form-item-description"
@@ -1439,7 +1439,7 @@ exports[`ShippingAddress stories snapshot > LoadingState story renders and match
                 data-slot="form-control"
                 id="_r_p_-form-item"
                 name="address2"
-                placeholder="Apartment, suite, etc. (optional)"
+                placeholder="Address Line 2"
                 value=""
               />
             </div>
@@ -1457,7 +1457,7 @@ exports[`ShippingAddress stories snapshot > LoadingState story renders and match
                 data-slot="form-label"
                 for="_r_q_-form-item"
               >
-                Postal Code
+                Zip Code
               </label>
               <input
                 aria-describedby="_r_q_-form-item-description"
@@ -1467,7 +1467,7 @@ exports[`ShippingAddress stories snapshot > LoadingState story renders and match
                 data-slot="form-control"
                 id="_r_q_-form-item"
                 name="postalCode"
-                placeholder="Postal code"
+                placeholder="Zip code"
                 value=""
               />
             </div>
@@ -1505,7 +1505,7 @@ exports[`ShippingAddress stories snapshot > LoadingState story renders and match
                 data-slot="form-label"
                 for="_r_s_-form-item"
               >
-                State/Province
+                State
               </label>
               <div
                 class="group/native-select relative w-fit has-[select:disabled]:opacity-50"
@@ -2013,7 +2013,7 @@ exports[`ShippingAddress stories snapshot > WithExistingAddress story renders an
                 data-slot="form-label"
                 for="_r_d_-form-item"
               >
-                Address
+                Address Line 1
               </label>
               <input
                 aria-describedby="_r_d_-form-item-description"
@@ -2051,7 +2051,7 @@ exports[`ShippingAddress stories snapshot > WithExistingAddress story renders an
                 data-slot="form-control"
                 id="_r_e_-form-item"
                 name="address2"
-                placeholder="Apartment, suite, etc. (optional)"
+                placeholder="Address Line 2"
                 value=""
               />
             </div>
@@ -2069,7 +2069,7 @@ exports[`ShippingAddress stories snapshot > WithExistingAddress story renders an
                 data-slot="form-label"
                 for="_r_f_-form-item"
               >
-                Postal Code
+                Zip Code
               </label>
               <input
                 aria-describedby="_r_f_-form-item-description"
@@ -2079,7 +2079,7 @@ exports[`ShippingAddress stories snapshot > WithExistingAddress story renders an
                 data-slot="form-control"
                 id="_r_f_-form-item"
                 name="postalCode"
-                placeholder="Postal code"
+                placeholder="Zip code"
                 value=""
               />
             </div>
@@ -2117,7 +2117,7 @@ exports[`ShippingAddress stories snapshot > WithExistingAddress story renders an
                 data-slot="form-label"
                 for="_r_h_-form-item"
               >
-                State/Province
+                State
               </label>
               <div
                 class="group/native-select relative w-fit has-[select:disabled]:opacity-50"
@@ -2620,7 +2620,7 @@ exports[`ShippingAddress stories snapshot > WithFormError story renders and matc
                 data-slot="form-label"
                 for="_r_16_-form-item"
               >
-                Address
+                Address Line 1
               </label>
               <input
                 aria-describedby="_r_16_-form-item-description"
@@ -2658,7 +2658,7 @@ exports[`ShippingAddress stories snapshot > WithFormError story renders and matc
                 data-slot="form-control"
                 id="_r_17_-form-item"
                 name="address2"
-                placeholder="Apartment, suite, etc. (optional)"
+                placeholder="Address Line 2"
                 value=""
               />
             </div>
@@ -2676,7 +2676,7 @@ exports[`ShippingAddress stories snapshot > WithFormError story renders and matc
                 data-slot="form-label"
                 for="_r_18_-form-item"
               >
-                Postal Code
+                Zip Code
               </label>
               <input
                 aria-describedby="_r_18_-form-item-description"
@@ -2686,7 +2686,7 @@ exports[`ShippingAddress stories snapshot > WithFormError story renders and matc
                 data-slot="form-control"
                 id="_r_18_-form-item"
                 name="postalCode"
-                placeholder="Postal code"
+                placeholder="Zip code"
                 value=""
               />
             </div>
@@ -2724,7 +2724,7 @@ exports[`ShippingAddress stories snapshot > WithFormError story renders and matc
                 data-slot="form-label"
                 for="_r_1a_-form-item"
               >
-                State/Province
+                State
               </label>
               <div
                 class="group/native-select relative w-fit has-[select:disabled]:opacity-50"
@@ -3252,7 +3252,7 @@ exports[`ShippingAddress stories snapshot > WithValidationErrors story renders a
                 data-slot="form-label"
                 for="_r_1h_-form-item"
               >
-                Address
+                Address Line 1
               </label>
               <input
                 aria-describedby="_r_1h_-form-item-description"
@@ -3290,7 +3290,7 @@ exports[`ShippingAddress stories snapshot > WithValidationErrors story renders a
                 data-slot="form-control"
                 id="_r_1i_-form-item"
                 name="address2"
-                placeholder="Apartment, suite, etc. (optional)"
+                placeholder="Address Line 2"
                 value=""
               />
             </div>
@@ -3308,7 +3308,7 @@ exports[`ShippingAddress stories snapshot > WithValidationErrors story renders a
                 data-slot="form-label"
                 for="_r_1j_-form-item"
               >
-                Postal Code
+                Zip Code
               </label>
               <input
                 aria-describedby="_r_1j_-form-item-description"
@@ -3318,7 +3318,7 @@ exports[`ShippingAddress stories snapshot > WithValidationErrors story renders a
                 data-slot="form-control"
                 id="_r_1j_-form-item"
                 name="postalCode"
-                placeholder="Postal code"
+                placeholder="Zip code"
                 value=""
               />
             </div>
@@ -3356,7 +3356,7 @@ exports[`ShippingAddress stories snapshot > WithValidationErrors story renders a
                 data-slot="form-label"
                 for="_r_1l_-form-item"
               >
-                State/Province
+                State
               </label>
               <div
                 class="group/native-select relative w-fit has-[select:disabled]:opacity-50"

@@ -138,11 +138,10 @@ export function AddPaymentMethodDialog({
         }
 
         const cardNumber = (formData.cardNumber || '').replace(/\s/g, '');
-        const cardType = detectCardType(cardNumber);
         const formDataToSend = new FormData();
         formDataToSend.append('cardNumber', cardNumber);
         formDataToSend.append('cardholderName', formData.cardholderName || '');
-        formDataToSend.append('cardType', cardType);
+        formDataToSend.append('cardType', detectCardType(cardNumber));
         formDataToSend.append('expirationMonth', String(expirationMonth));
         formDataToSend.append('expirationYear', String(expirationYear));
         if (paymentForm.getValues('saveAsDefault' as keyof PaymentData)) {

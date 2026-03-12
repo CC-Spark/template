@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useFetcher } from 'react-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { useCheckoutContext } from '@/hooks/use-checkout';
 import { useBasket, useBasketUpdater } from '@/providers/basket';
 import type { ContactInfoData, PaymentData } from '@/lib/checkout-schemas';
@@ -55,6 +55,16 @@ type ActionLifecycle = {
     state: ActionState;
 };
 
+/** Options passed when placing order (e.g. from payment form at time of Place Order click) */
+export type PlaceOrderOptionsRef = MutableRefObject<{ savePaymentToProfile?: boolean } | null>;
+
+/** Single ref coordinating payment submission and place-order flow to avoid race conditions */
+export type PaymentSubmissionRef = MutableRefObject<{
+    formDataGetter: (() => PaymentData) | null;
+    shouldPlaceOrderAfterPayment: boolean;
+    options: { savePaymentToProfile?: boolean } | null;
+}>;
+
 /**
  * Custom hook for managing checkout form actions using React Router fetchers.
  *
@@ -62,6 +72,8 @@ type ActionLifecycle = {
  * using React Router's useFetcher for handling form submissions without navigation.
  * Each fetcher is keyed to maintain separate state for each checkout step.
  *
+ * @param options.paymentSubmissionRef - Ref holding form data getter, place-order-after-payment flag, and options (preferred over placeOrderOptionsRef)
+ * @param options.placeOrderOptionsRef - Optional ref for place-order options (legacy; use paymentSubmissionRef for new code)
  * @returns Object containing checkout action functions and fetcher states
  * @returns submitContactInfo - Function to submit contact information
  * @returns submitShippingAddress - Function to submit shipping address
@@ -73,7 +85,10 @@ type ActionLifecycle = {
  * @returns paymentFetcher - React Router fetcher for payment requests
  * @returns isSubmitting - Function to check if a specific step is submitting
  */
-export function useCheckoutActions() {
+export function useCheckoutActions(options?: {
+    paymentSubmissionRef?: PaymentSubmissionRef;
+    placeOrderOptionsRef?: PlaceOrderOptionsRef;
+}) {
     const { exitEditMode, editingStep } = useCheckoutContext();
     const updateBasket = useBasketUpdater();
     const basket = useBasket();
@@ -323,6 +338,11 @@ export function useCheckoutActions() {
         }
         const formData = new FormData();
         formData.append('shouldCreateAccount', shouldCreateAccount ? 'true' : 'false');
+        const placeOrderOpts =
+            options?.paymentSubmissionRef?.current?.options ?? options?.placeOrderOptionsRef?.current;
+        if (placeOrderOpts?.savePaymentToProfile) {
+            formData.append('savePaymentToProfile', 'true');
+        }
         void placeOrderFetcher.submit(formData, {
             method: 'post',
             action: placeOrderActionRoute,

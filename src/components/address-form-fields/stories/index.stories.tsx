@@ -313,11 +313,11 @@ export const Default: Story = {
         // Verify all field labels are present
         await expect(canvas.getByText(/first name/i)).toBeInTheDocument();
         await expect(canvas.getByText(/last name/i)).toBeInTheDocument();
-        await expect(canvas.getByText(/^address$/i)).toBeInTheDocument();
+        await expect(canvas.getByText(/address line 1/i)).toBeInTheDocument();
         await expect(canvas.getByText(/address line 2/i)).toBeInTheDocument();
         await expect(canvas.getByText(/^city$/i)).toBeInTheDocument();
-        await expect(canvas.getByText(/state\/province/i)).toBeInTheDocument();
-        await expect(canvas.getByText(/postal code/i)).toBeInTheDocument();
+        await expect(canvas.getByText(/^state$/i)).toBeInTheDocument();
+        await expect(canvas.getByText(/zip code/i)).toBeInTheDocument();
         await expect(canvas.getByText(/phone number/i)).toBeInTheDocument();
 
         // Test typing in first name field
@@ -353,11 +353,11 @@ export const PrefilledShippingAddress: Story = {
         // Verify form fields are populated with initial data (use role+name to avoid multiple matches)
         await expect(canvas.getByRole('textbox', { name: /first name/i })).toHaveValue('John');
         await expect(canvas.getByRole('textbox', { name: /last name/i })).toHaveValue('Doe');
-        await expect(canvas.getByRole('textbox', { name: /^address$/i })).toHaveValue('123 Main Street');
+        await expect(canvas.getByRole('textbox', { name: /address line 1/i })).toHaveValue('123 Main Street');
         await expect(canvas.getByRole('textbox', { name: /address line 2/i })).toHaveValue('Apt 4B');
         await expect(canvas.getByRole('textbox', { name: /^city$/i })).toHaveValue('New York');
         await expect(canvas.getByRole('combobox', { name: /state/i })).toHaveValue('NY');
-        await expect(canvas.getByRole('textbox', { name: /postal code/i })).toHaveValue('10001');
+        await expect(canvas.getByRole('textbox', { name: /zip code/i })).toHaveValue('10001');
         await expect(canvas.getByRole('textbox', { name: /phone/i })).toHaveValue('5551234567');
     },
 };
@@ -427,11 +427,11 @@ export const PrefilledBillingAddress: Story = {
         // Verify form fields are populated with billing address data (use role+name to avoid display-value ambiguity)
         await expect(canvas.getByRole('textbox', { name: /first name/i })).toHaveValue('Jane');
         await expect(canvas.getByRole('textbox', { name: /last name/i })).toHaveValue('Smith');
-        await expect(canvas.getByRole('textbox', { name: /^address$/i })).toHaveValue('456 Oak Avenue');
+        await expect(canvas.getByRole('textbox', { name: /address line 1/i })).toHaveValue('456 Oak Avenue');
         await expect(canvas.getByRole('textbox', { name: /address line 2/i })).toHaveValue('Suite 200');
         await expect(canvas.getByRole('textbox', { name: /^city$/i })).toHaveValue('Los Angeles');
         await expect(canvas.getByRole('combobox', { name: /state/i })).toHaveValue('CA');
-        await expect(canvas.getByRole('textbox', { name: /postal code/i })).toHaveValue('90001');
+        await expect(canvas.getByRole('textbox', { name: /zip code/i })).toHaveValue('90001');
     },
 };
 
@@ -457,7 +457,7 @@ export const Interactive: Story = {
         await userEvent.type(addressInput, '789 Pine Road');
         await expect(addressInput).toHaveValue('789 Pine Road');
 
-        const address2Input = canvas.getByPlaceholderText(/apartment, suite/i);
+        const address2Input = canvas.getByPlaceholderText(/address line 2|apartment|suite/i);
         await userEvent.type(address2Input, 'Floor 3');
         await expect(address2Input).toHaveValue('Floor 3');
 
@@ -469,7 +469,7 @@ export const Interactive: Story = {
         await userEvent.selectOptions(stateSelect, 'IL');
         await expect(stateSelect).toHaveValue('IL');
 
-        const postalCodeInput = canvas.getByPlaceholderText(/postal code/i);
+        const postalCodeInput = canvas.getByPlaceholderText(/zip code|postal code/i);
         await userEvent.type(postalCodeInput, '60601');
         await expect(postalCodeInput).toHaveValue('60601');
 
