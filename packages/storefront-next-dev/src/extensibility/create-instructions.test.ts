@@ -22,7 +22,7 @@ import { Volume, type Volume as VolumeType } from 'memfs';
 import path from 'path';
 import { normalizePath } from '../test-utils';
 
-const repo = 'https://github.com/SalesforceCommerceCloud/SFCC-Odyssey.git';
+const repo = 'https://github.com/commerce-emu/storefront-next.git';
 const branch = 'main';
 
 // Mock extension config

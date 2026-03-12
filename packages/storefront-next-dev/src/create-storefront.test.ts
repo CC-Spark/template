@@ -557,7 +557,7 @@ describe('create-storefront', () => {
             (prompts as any).inject([
                 'my-storefront',
                 'custom',
-                'file:///home/user/workspace/sfcc-odyssey/packages/template-retail-rsc-app',
+                'file:///home/user/workspace/storefront-next/packages/template-retail-rsc-app',
                 [], // no extensions
             ]);
 
@@ -576,7 +576,7 @@ describe('create-storefront', () => {
             // sourcePackagesDir should be the parent directory of the template
             expect(prepareForLocalDev).toHaveBeenCalledWith({
                 projectDirectory: 'my-storefront',
-                sourcePackagesDir: '/home/user/workspace/sfcc-odyssey/packages',
+                sourcePackagesDir: '/home/user/workspace/storefront-next/packages',
             });
         });
 

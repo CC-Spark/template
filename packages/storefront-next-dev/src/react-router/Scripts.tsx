@@ -56,7 +56,7 @@ const InternalServerScripts = () => {
 };
 
 /**
- * Enhanced Scripts component that wraps React Router's Scripts component with Odyssey-specific functionality.
+ * Enhanced Scripts component that wraps React Router's Scripts component with Storefront Next-specific functionality.
  *
  * This component extends the standard React Router Scripts component by injecting additional
  * bundle configuration scripts during server-side rendering. It ensures that bundle metadata
