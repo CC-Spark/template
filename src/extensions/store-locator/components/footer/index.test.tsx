@@ -46,4 +46,13 @@ describe('StoreLocatorFooter', () => {
         expect(link).toBeInTheDocument();
         expect(link).toHaveAttribute('href', '/store-locator');
     });
+
+    it('has proper styling classes matching footer links', () => {
+        renderWithRouter(<StoreLocatorFooter />);
+        const link = screen.getByRole('link', { name: /store locator/i });
+        expect(link).toHaveClass('text-sm');
+        expect(link).toHaveClass('text-muted-foreground');
+        expect(link).toHaveClass('hover:text-foreground');
+        expect(link).toHaveClass('transition-colors');
+    });
 });

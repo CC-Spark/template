@@ -72,6 +72,17 @@ PUBLIC__app__commerce__api__siteId=your-site-id
 PUBLIC__app__commerce__api__shortCode=your-short-code
 ```
 
+### Commerce Sites (Multi-Site)
+
+Site-level settings (default locale, default currency, supported locales/currencies, cookie domain) come from the **`commerce.sites`** config array. You can override it with the environment variable **`PUBLIC__app__commerce__sites`**, set to a JSON array.
+
+```bash
+# Example: one site with multiple locales and currencies (single line)
+PUBLIC__app__commerce__sites='[{"cookies":{"domain":null},"id":"RefArchGlobal","defaultLocale":"en-GB","defaultCurrency":"USD","supportedLocales":[{"id":"en-GB","preferredCurrency":"USD"},{"id":"de-DE","preferredCurrency":"EUR"}],"supportedCurrencies":["EUR","USD"]}]'
+```
+
+Multi-line JSON is supported in `.env` files. For the full schema, all properties, multi-line examples, and troubleshooting, see **commerce.sites** in [README-CONFIG-OPTIONS.md](./README-CONFIG-OPTIONS.md).
+
 ### Value Types
 
 Values are automatically parsed to the correct type:

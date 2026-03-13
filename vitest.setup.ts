@@ -26,6 +26,7 @@ import 'vitest-localstorage-mock';
 // Windows converts '/path' to 'file:///path' which is invalid (missing drive letter)
 vi.mock('/favicon.ico', () => ({ default: '/favicon.ico' }));
 vi.mock('/images/GoogleMaps_Logo_Gray_4x.png', () => ({ default: '/images/GoogleMaps_Logo_Gray_4x.png' }));
+vi.mock('/images/logo.svg', () => ({ default: '/images/logo.svg' }));
 // Market Street hero images (default theme)
 vi.mock('/images/hero-01.webp', () => ({
     default: '/images/hero-01.webp',

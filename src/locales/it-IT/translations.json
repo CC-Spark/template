@@ -982,7 +982,7 @@
         },
         "categoryGrid": {
             "title": "Entri nell'eleganza",
-            "description": "In Salesforce Foundations, crediamo che il design debba essere accessibile, innovativo e senza tempo. Le nostre collezioni sono create per l'individuo moderno che apprezza la qualit\u00e0, la forma e la bellezza duratura.",
+            "description": "In Salesforce Foundations, crediamo che il design debba essere accessibile, innovativo e senza tempo. Le nostre collezioni sono create per l'individuo moderno che apprezza la qualità, la forma e la bellezza duratura.",
             "shopNowButton": "Acquista ora"
         },
         "featuredContent": {
@@ -1011,14 +1011,21 @@
             "ourCompany": "La nostra azienda",
             "switchThemes": "Cambia tema",
             "switchLanguage": "Lingua",
-            "switchCurrency": "Valuta"
+            "switchCurrency": "Valuta",
+            "shop": "Negozio",
+            "help": "Aiuto",
+            "about": "Chi siamo"
         },
         "links": {
             "contactUs": "Contattaci",
             "shipping": "Spedizione",
             "orderStatus": "Stato ordine",
             "signInOrCreateAccount": "Accedi o crea un account",
-            "aboutUs": "Chi siamo"
+            "aboutUs": "Chi siamo",
+            "accessibility": "Dichiarazione di accessibilità",
+            "privacyPolicy": "Informativa sulla privacy",
+            "privacyChoices": "Le tue scelte sulla privacy",
+            "termsOfUse": "Termini di utilizzo"
         },
         "socialMedia": {
             "youtubeLabel": "Youtube",
@@ -1027,12 +1034,14 @@
             "facebookLabel": "Facebook"
         },
         "newsletter": {
-            "title": "Sia il primo a saperlo",
-            "description": "Si iscriva per rimanere aggiornato sulle migliori offerte",
+            "title": "Unisciti alla Nostra Comunità",
+            "description": "Sii il primo a scoprire nuovi arrivi, offerte esclusive e ispirazione di stile.",
             "emailPlaceholder": "La Sua email",
             "subscribeButton": "Iscriviti"
         },
-        "copyright": "Salesforce o le sue affiliate. Tutti i diritti riservati. Questo è solo uno store dimostrativo. Gli ordini effettuati NON verranno elaborati."
+        "copyright": "Salesforce o le sue affiliate. Tutti i diritti riservati. Questo è solo uno store dimostrativo. Gli ordini effettuati NON verranno elaborati.",
+        "address": "415 Mission St, San Francisco, CA 94105",
+        "logoAlt": "Market Street"
     },
     "countries": {
         "US": {

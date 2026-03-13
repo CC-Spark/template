@@ -104,7 +104,7 @@ export default function DefaultLayout({ loaderData: { root, subs } }: { loaderDa
             <main className="grow pt-8">
                 <Outlet />
             </main>
-            <Footer />
+            <Footer categories={refRoot.current} />
         </>
     );
 }
