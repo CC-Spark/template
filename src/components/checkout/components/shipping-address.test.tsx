@@ -23,6 +23,21 @@ vi.mock('@/providers/basket', () => ({ useBasket: vi.fn() }));
 vi.mock('@/hooks/checkout/use-customer-profile', () => ({
     useCustomerProfile: vi.fn(() => null),
 }));
+vi.mock('@/providers/auth', () => ({
+    useAuth: vi.fn(() => ({ customerId: 'cust-123' })),
+}));
+
+const mockSubmit = vi.fn();
+vi.mock('@/hooks/use-scapi-fetcher', () => ({
+    useScapiFetcher: vi.fn(() => ({
+        data: null,
+        state: 'idle',
+        submit: mockSubmit,
+    })),
+}));
+vi.mock('@/hooks/use-scapi-fetcher-effect', () => ({
+    useScapiFetcherEffect: vi.fn(),
+}));
 
 const createMockBasket = (overrides = {}) => ({
     basketId: 'test-basket-123',
@@ -63,6 +78,7 @@ describe('ShippingAddress Integration Tests', () => {
 
         useBasket.mockReturnValue(createMockBasket());
         useCustomerProfile.mockReturnValue(null);
+        mockSubmit.mockReset();
     });
 
     describe('Basic Rendering', () => {
@@ -334,6 +350,80 @@ describe('ShippingAddress Integration Tests', () => {
 
             expect(screen.getByText('First name is required')).toBeInTheDocument();
             expect(screen.getByText('Invalid postal code')).toBeInTheDocument();
+        });
+    });
+
+    describe('Edit Address Flow', () => {
+        const savedAddressProfile = {
+            customer: { email: 'test@example.com' },
+            addresses: [
+                {
+                    addressId: 'home-addr',
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    address1: '123 Main St',
+                    address2: 'Apt 4',
+                    city: 'San Francisco',
+                    stateCode: 'CA',
+                    postalCode: '94102',
+                    countryCode: 'US',
+                    preferred: true,
+                    phone: '5551234567',
+                },
+                {
+                    addressId: 'work-addr',
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    address1: '456 Office Blvd',
+                    city: 'San Jose',
+                    stateCode: 'CA',
+                    postalCode: '95101',
+                    countryCode: 'US',
+                    preferred: false,
+                },
+            ],
+            preferredShippingAddress: {
+                addressId: 'home-addr',
+                firstName: 'Jane',
+                lastName: 'Doe',
+                address1: '123 Main St',
+                address2: 'Apt 4',
+                city: 'San Francisco',
+                stateCode: 'CA',
+                postalCode: '94102',
+                countryCode: 'US',
+            },
+        };
+
+        test('shows Edit Address links when saved addresses are rendered', () => {
+            useCustomerProfile.mockReturnValue(savedAddressProfile);
+            render(<ShippingAddress {...createDefaultProps()} />);
+            const editLinks = screen.getAllByRole('button', { name: /edit address/i });
+            expect(editLinks.length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('opens Edit Address modal when Edit Address link is clicked', async () => {
+            const user = userEvent.setup();
+            useCustomerProfile.mockReturnValue(savedAddressProfile);
+            render(<ShippingAddress {...createDefaultProps()} />);
+
+            const editLinks = screen.getAllByRole('button', { name: /edit address/i });
+            await user.click(editLinks[0]);
+
+            expect(screen.getByRole('dialog')).toBeInTheDocument();
+            expect(screen.getByRole('heading', { name: 'Edit Address' })).toBeInTheDocument();
+        });
+
+        test('opens Add Address modal when Add New Address is clicked (not edit mode)', async () => {
+            const user = userEvent.setup();
+            useCustomerProfile.mockReturnValue(savedAddressProfile);
+            render(<ShippingAddress {...createDefaultProps()} />);
+
+            const addButton = screen.getByRole('button', { name: /add new address/i });
+            await user.click(addButton);
+
+            expect(screen.getByRole('dialog')).toBeInTheDocument();
+            expect(screen.getByRole('heading', { name: 'Add Address' })).toBeInTheDocument();
         });
     });
 

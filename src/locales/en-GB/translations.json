@@ -409,8 +409,10 @@
         },
         "addressModal": {
             "title": "Add Address",
+            "editTitle": "Edit Address",
             "cancel": "Cancel",
-            "save": "Save"
+            "save": "Save",
+            "saving": "Saving..."
         },
         "shippingAddress": {
             "title": "Shipping Address",
@@ -419,6 +421,7 @@
             "viewAllMore": "({{count}} more)",
             "viewLessAddresses": "View less",
             "addNewAddressButton": "Add New Address",
+            "editAddressLink": "Edit Address",
             "defaultBadge": "Default",
             "firstNameRequired": "Please enter your first name.",
             "lastNameRequired": "Please enter your last name.",

@@ -78,6 +78,8 @@ function createAddressModalSchema(
 export interface AddressModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    /** When true, the modal shows "Edit Address" title instead of "Add Address". Default: false */
+    isEditMode?: boolean;
     /** Optional default country code. Defaults to 'US' if omitted. */
     countryCode?: string;
     onSave?: (data: ShopperCustomers.schemas['CustomerAddress']) => void;
@@ -98,6 +100,11 @@ export interface AddressModalProps {
     strictValidation?: boolean;
     /** Optional fallback generator for addressId when it's empty or not shown */
     generateAddressId?: (firstName: string, lastName: string) => string;
+    /**
+     * When provided, the modal delegates close-on-save to the parent.
+     * Buttons are disabled and the save button shows "Saving..." while true.
+     */
+    isLoading?: boolean;
 }
 
 /**
@@ -110,6 +117,7 @@ export interface AddressModalProps {
 export function AddressModal({
     open,
     onOpenChange,
+    isEditMode = false,
     countryCode = 'US',
     onSave,
     defaultValues,
@@ -119,6 +127,7 @@ export function AddressModal({
     labelsAsPlaceholders = true,
     strictValidation = false,
     generateAddressId,
+    isLoading,
 }: AddressModalProps) {
     const { t } = useTranslation('checkout');
     const { t: tAccount } = useTranslation('account');
@@ -196,7 +205,9 @@ export function AddressModal({
         };
 
         onSave?.(result);
-        onOpenChange(false);
+        if (isLoading === undefined) {
+            onOpenChange(false);
+        }
     };
 
     return (
@@ -210,11 +221,11 @@ export function AddressModal({
                     <DialogTitle
                         id="address-modal-title"
                         className="text-lg font-semibold leading-[1.2] tracking-tight text-card-foreground">
-                        {t('addressModal.title')}
+                        {isEditMode ? t('addressModal.editTitle') : t('addressModal.title')}
                     </DialogTitle>
                 </DialogHeader>
                 <p id="address-modal-desc" className="sr-only">
-                    {t('addressModal.title')}
+                    {isEditMode ? t('addressModal.editTitle') : t('addressModal.title')}
                 </p>
                 <Form {...form}>
                     <form
@@ -256,6 +267,7 @@ export function AddressModal({
                                 variant="outline"
                                 size="default"
                                 className="h-9 px-4 py-2 text-sm font-medium text-foreground rounded-md border border-input bg-background shadow-sm"
+                                disabled={isLoading}
                                 onClick={handleCancel}>
                                 {t('addressModal.cancel')}
                             </Button>
@@ -263,8 +275,9 @@ export function AddressModal({
                                 type="submit"
                                 form="address-modal-form"
                                 size="default"
+                                disabled={isLoading}
                                 className="h-9 px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md shadow-sm">
-                                {t('addressModal.save')}
+                                {isLoading ? t('addressModal.saving') : t('addressModal.save')}
                             </Button>
                         </DialogFooter>
                     </form>

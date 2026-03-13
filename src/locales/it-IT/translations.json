@@ -390,8 +390,10 @@
         },
         "addressModal": {
             "title": "Aggiungi indirizzo",
+            "editTitle": "Modifica indirizzo",
             "cancel": "Annulla",
-            "save": "Salva"
+            "save": "Salva",
+            "saving": "Salvataggio..."
         },
         "shippingAddress": {
             "title": "Indirizzo di spedizione",
@@ -400,6 +402,7 @@
             "viewAllMore": "({{count}} altri)",
             "viewLessAddresses": "Mostra meno",
             "addNewAddressButton": "Aggiungi nuovo indirizzo",
+            "editAddressLink": "Modifica indirizzo",
             "defaultBadge": "Predefinito",
             "firstNameRequired": "Inserisci il tuo nome.",
             "lastNameRequired": "Inserisci il tuo cognome.",

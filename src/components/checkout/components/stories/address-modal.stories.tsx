@@ -92,6 +92,41 @@ export const Default: Story = {
     },
 };
 
+export const EditMode: Story = {
+    args: {
+        open: true,
+        onOpenChange: action('onOpenChange'),
+        countryCode: 'US',
+        onSave: action('onSave'),
+        isEditMode: true,
+        defaultValues: {
+            firstName: 'Jane',
+            lastName: 'Doe',
+            address1: '123 Main St',
+            address2: 'Apt 4',
+            city: 'San Francisco',
+            stateCode: 'CA',
+            postalCode: '94102',
+        },
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: 'Modal in edit mode with pre-populated address fields. Title reads "Edit Address" instead of "Add Address".',
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const body = within(document.body);
+
+        void expect(body.getByRole('dialog')).toBeInTheDocument();
+        void expect(body.getByRole('heading', { name: 'Edit Address' })).toBeInTheDocument();
+        void expect(body.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+        void expect(body.getByRole('button', { name: /^save$/i })).toBeInTheDocument();
+    },
+};
+
 export const Closed: Story = {
     args: {
         open: false,

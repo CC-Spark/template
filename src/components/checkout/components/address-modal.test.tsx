@@ -201,4 +201,69 @@ describe('AddressModal', () => {
         expect(screen.getByPlaceholderText(/first name/i)).toHaveValue('Jane');
         expect(screen.getByPlaceholderText(/last name/i)).toHaveValue('Smith');
     });
+
+    test('shows "Edit Address" title when isEditMode is true', () => {
+        render(<AddressModal open={true} onOpenChange={vi.fn()} isEditMode={true} />);
+        expect(screen.getByRole('heading', { name: 'Edit Address' })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'Add Address' })).not.toBeInTheDocument();
+    });
+
+    test('shows "Add Address" title when isEditMode is false', () => {
+        render(<AddressModal open={true} onOpenChange={vi.fn()} isEditMode={false} />);
+        expect(screen.getByRole('heading', { name: 'Add Address' })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'Edit Address' })).not.toBeInTheDocument();
+    });
+
+    test('defaults to "Add Address" title when isEditMode is not provided', () => {
+        render(<AddressModal open={true} onOpenChange={vi.fn()} />);
+        expect(screen.getByRole('heading', { name: 'Add Address' })).toBeInTheDocument();
+    });
+
+    describe('isLoading prop', () => {
+        test('disables Save and Cancel buttons when isLoading is true', () => {
+            render(<AddressModal open={true} onOpenChange={vi.fn()} isLoading={true} />);
+            expect(screen.getByRole('button', { name: /saving/i })).toBeDisabled();
+            expect(screen.getByRole('button', { name: /cancel/i })).toBeDisabled();
+        });
+
+        test('shows "Saving..." text on save button when isLoading is true', () => {
+            render(<AddressModal open={true} onOpenChange={vi.fn()} isLoading={true} />);
+            expect(screen.getByRole('button', { name: /saving/i })).toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: /^save$/i })).not.toBeInTheDocument();
+        });
+
+        test('does not self-close on save when isLoading is provided', async () => {
+            const user = userEvent.setup();
+            const onOpenChange = vi.fn();
+            const onSave = vi.fn();
+            render(
+                <AddressModal
+                    open={true}
+                    onOpenChange={onOpenChange}
+                    onSave={onSave}
+                    isLoading={false}
+                    countryCode="US"
+                />
+            );
+
+            await user.type(screen.getByPlaceholderText(/first name/i), 'Jane');
+            await user.type(screen.getByPlaceholderText(/last name/i), 'Doe');
+            await user.type(screen.getByRole('textbox', { name: /^(Address|Address\s*Line\s*1)$/i }), '123 Main St');
+            await user.type(screen.getByPlaceholderText(/city/i), 'San Francisco');
+            await user.selectOptions(screen.getByRole('combobox', { name: /state/i }), 'CA');
+            await user.type(screen.getByPlaceholderText(/(postal code|zip code)/i), '94102');
+            await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+            await waitFor(() => {
+                expect(onSave).toHaveBeenCalledTimes(1);
+            });
+            expect(onOpenChange).not.toHaveBeenCalledWith(false);
+        });
+
+        test('buttons are enabled when isLoading is false', () => {
+            render(<AddressModal open={true} onOpenChange={vi.fn()} isLoading={false} />);
+            expect(screen.getByRole('button', { name: /^save$/i })).toBeEnabled();
+            expect(screen.getByRole('button', { name: /cancel/i })).toBeEnabled();
+        });
+    });
 });

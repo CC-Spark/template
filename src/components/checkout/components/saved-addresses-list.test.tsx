@@ -131,4 +131,25 @@ describe('SavedAddressesList', () => {
         render(<SavedAddressesList addresses={[address1]} />);
         expect(screen.queryByRole('button', { name: /add new address/i })).not.toBeInTheDocument();
     });
+
+    test('shows Edit Address link for each address when onEditAddress is provided', () => {
+        const onEditAddress = vi.fn();
+        render(<SavedAddressesList addresses={[address1, address2]} onEditAddress={onEditAddress} />);
+        const editLinks = screen.getAllByRole('button', { name: /edit address/i });
+        expect(editLinks).toHaveLength(2);
+    });
+
+    test('does not show Edit Address link when onEditAddress is not provided', () => {
+        render(<SavedAddressesList addresses={[address1, address2]} />);
+        expect(screen.queryByRole('button', { name: /edit address/i })).not.toBeInTheDocument();
+    });
+
+    test('calls onEditAddress with the correct address id when clicked', async () => {
+        const user = userEvent.setup();
+        const onEditAddress = vi.fn();
+        render(<SavedAddressesList addresses={[address1, address2]} onEditAddress={onEditAddress} />);
+        const editLinks = screen.getAllByRole('button', { name: /edit address/i });
+        await user.click(editLinks[1]);
+        expect(onEditAddress).toHaveBeenCalledWith('addr-2');
+    });
 });

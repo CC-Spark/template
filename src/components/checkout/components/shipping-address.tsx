@@ -13,16 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
 import { ToggleCard, ToggleCardEdit, ToggleCardSummary } from '@/components/toggle-card';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useBasket } from '@/providers/basket';
+import { useAuth } from '@/providers/auth';
 import { createShippingAddressSchema, type ShippingAddressData } from '@/lib/checkout-schemas';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
-import { getShippingAddressFromCustomer, getAddressBookFromCustomer } from '@/lib/customer-profile-utils';
+import { useScapiFetcher } from '@/hooks/use-scapi-fetcher';
+import { useScapiFetcherEffect } from '@/hooks/use-scapi-fetcher-effect';
+import {
+    getShippingAddressFromCustomer,
+    getAddressBookFromCustomer,
+    type AddressBookItem,
+} from '@/lib/customer-profile-utils';
 import { AddressFormFields } from '@/components/address-form-fields';
 import SavedAddressesList from './saved-addresses-list';
 import AddressModal from './address-modal';
@@ -63,6 +71,8 @@ export default function ShippingAddress({
 }: ShippingAddressProps) {
     const cart = useBasket();
     const customerProfile = useCustomerProfile();
+    const auth = useAuth();
+    const customerId = auth?.customerId;
     const { t } = useTranslation('checkout');
     // @sfdc-extension-line SFDC_EXT_MULTISHIP
     const { t: tMultiship } = useTranslation('extMultiship');
@@ -116,7 +126,84 @@ export default function ShippingAddress({
 
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
     const effectiveSelectedId = selectedAddressId ?? defaultSelectedId;
-    const [addNewAddressModalOpen, setAddNewAddressModalOpen] = useState(false);
+
+    const [addressModalOpen, setAddressModalOpen] = useState(false);
+    const [editingAddress, setEditingAddress] = useState<AddressBookItem | null>(null);
+    const pendingEditAddressRef = useRef<FormData | null>(null);
+    const pendingAddAddressRef = useRef(false);
+    const isEditMode = editingAddress !== null;
+
+    const updateAddressFetcher = useScapiFetcher('shopperCustomers', 'updateCustomerAddress', {
+        params: {
+            path: {
+                customerId: customerId ?? '',
+                addressName: editingAddress?.id ?? '',
+            },
+        },
+        body: {} as ShopperCustomers.schemas['CustomerAddress'],
+    });
+
+    const applyPendingAddressToBasket = () => {
+        if (pendingEditAddressRef.current) {
+            onSubmit(pendingEditAddressRef.current);
+            pendingEditAddressRef.current = null;
+            setEditingAddress(null);
+            setAddressModalOpen(false);
+        }
+    };
+
+    const handleUpdateError = () => {
+        pendingEditAddressRef.current = null;
+        setEditingAddress(null);
+        setAddressModalOpen(false);
+        // TODO: Add error alert to the user
+    };
+
+    useScapiFetcherEffect(updateAddressFetcher, {
+        onSuccess: applyPendingAddressToBasket,
+        onError: handleUpdateError,
+    });
+
+    useEffect(() => {
+        if (pendingAddAddressRef.current && !isLoading) {
+            pendingAddAddressRef.current = false;
+            setAddressModalOpen(false);
+        }
+    }, [isLoading]);
+
+    const isModalSaving = isEditMode
+        ? updateAddressFetcher.state === 'submitting' || pendingEditAddressRef.current !== null
+        : pendingAddAddressRef.current && isLoading;
+
+    const handleEditAddress = (addressId: string) => {
+        const address = savedAddresses.find((a) => a.id === addressId);
+        if (!address) return;
+        setEditingAddress(address);
+        setAddressModalOpen(true);
+    };
+
+    const handleAddressModalSave = (data: ShopperCustomers.schemas['CustomerAddress']) => {
+        const formData = new FormData();
+        for (const [key, value] of Object.entries(data)) {
+            if (value != null) formData.append(key, String(value));
+        }
+
+        if (isEditMode && customerId && editingAddress?.id) {
+            pendingEditAddressRef.current = formData;
+            void updateAddressFetcher.submit(data);
+        } else {
+            pendingAddAddressRef.current = true;
+            onSubmit(formData);
+        }
+    };
+
+    const handleAddressModalClose = (open: boolean) => {
+        if (!open) {
+            if (isModalSaving) return;
+            setAddressModalOpen(false);
+            if (!pendingEditAddressRef.current) setEditingAddress(null);
+        }
+    };
 
     const handleFormSubmit = (data: ShippingAddressData) => {
         const formData = new FormData();
@@ -168,7 +255,8 @@ export default function ShippingAddress({
                             addresses={savedAddresses}
                             value={effectiveSelectedId}
                             onValueChange={setSelectedAddressId}
-                            onAddNewAddress={() => setAddNewAddressModalOpen(true)}
+                            onAddNewAddress={() => setAddressModalOpen(true)}
+                            onEditAddress={handleEditAddress}
                         />
                         <div className="flex justify-end pt-4">
                             <Button
@@ -218,16 +306,13 @@ export default function ShippingAddress({
                 </div>
             </ToggleCardSummary>
             <AddressModal
-                open={addNewAddressModalOpen}
-                onOpenChange={setAddNewAddressModalOpen}
-                countryCode={DEFAULT_COUNTRY_CODE}
-                onSave={(data) => {
-                    const formData = new FormData();
-                    for (const [key, value] of Object.entries(data)) {
-                        if (value != null) formData.append(key, String(value));
-                    }
-                    onSubmit(formData);
-                }}
+                open={addressModalOpen}
+                onOpenChange={handleAddressModalClose}
+                isEditMode={isEditMode}
+                countryCode={editingAddress?.countryCode ?? DEFAULT_COUNTRY_CODE}
+                defaultValues={editingAddress ? { ...editingAddress, addressId: editingAddress.id } : undefined}
+                onSave={handleAddressModalSave}
+                isLoading={!!isModalSaving}
             />
         </ToggleCard>
     );

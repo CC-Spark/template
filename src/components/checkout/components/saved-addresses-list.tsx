@@ -35,6 +35,8 @@ export type SavedAddressesListProps = {
     onValueChange?: (value: string) => void;
     /** Called when "Add New Address" is clicked */
     onAddNewAddress?: () => void;
+    /** Called when "Edit Address" is clicked for a specific address */
+    onEditAddress?: (addressId: string) => void;
 };
 
 /**
@@ -47,6 +49,7 @@ export function SavedAddressesList({
     value,
     onValueChange,
     onAddNewAddress,
+    onEditAddress,
 }: SavedAddressesListProps): ReactElement {
     const { t } = useTranslation('checkout');
     const [showAll, setShowAll] = useState(false);
@@ -87,6 +90,20 @@ export function SavedAddressesList({
                                 className={cn('flex-1 cursor-pointer min-w-0', isSelected && 'text-foreground')}>
                                 <div className="space-y-2">
                                     <ShippingAddressDisplay address={addr} variant="card" />
+                                    {onEditAddress && (
+                                        <Button
+                                            type="button"
+                                            variant="link"
+                                            size="sm"
+                                            className="px-0 h-auto font-normal underline"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                onEditAddress(addr.id);
+                                            }}
+                                            aria-label={t('shippingAddress.editAddressLink')}>
+                                            {t('shippingAddress.editAddressLink')}
+                                        </Button>
+                                    )}
                                 </div>
                             </Label>
                         </div>

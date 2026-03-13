@@ -4,6 +4,8 @@ exports[`AddressModal stories snapshot > Closed story renders and matches snapsh
 
 exports[`AddressModal stories snapshot > Default story renders and matches snapshot 1`] = `null`;
 
+exports[`AddressModal stories snapshot > EditMode story renders and matches snapshot 1`] = `null`;
+
 exports[`AddressModal stories snapshot > InteractiveOpenClose story renders and matches snapshot 1`] = `
 <button
   type="button"
