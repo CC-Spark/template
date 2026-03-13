@@ -22,7 +22,8 @@ import { extractResponseError } from '@/lib/utils';
 import { createShippingAddressSchema, parseShippingAddressFromFormData } from '@/lib/checkout-schemas';
 import { getTranslation } from '@/lib/i18next';
 import { fetchShippingMethodsMapForBasket } from '@/lib/checkout-loaders';
-import { saveShippingAddressToCustomer } from '@/lib/api/customer';
+import { saveShippingAddressToCustomer, getCurrentCustomer } from '@/lib/api/customer';
+import { getAddressKey } from '@/lib/address-utils';
 // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
 import { handleMultiShipShippingAddress } from '@/extensions/multiship/lib/actions/checkout-submit-multi-address';
 import { assignProductsToDefaultShipment } from '@/extensions/multiship/lib/api/basket';
@@ -117,10 +118,15 @@ export async function action(formData: FormData, context: RouterContextProvider)
         // For shipping address updates, the API should preserve existing basket data
         updateBasketResource(context, updatedBasket);
 
-        // Save address to customer profile as a logged in user
+        // Save address to customer profile for registered users (if address is new)
         const auth = getAuth(context);
         if (auth?.customerId) {
-            await saveShippingAddressToCustomer(context, auth.customerId, addressDataWithExtras);
+            const customer = await getCurrentCustomer(context);
+            const existingAddresses = customer?.addresses ?? [];
+            const existingKeys = new Set(existingAddresses.map((addr) => getAddressKey(addr)));
+            if (!existingKeys.has(getAddressKey(addressDataWithExtras))) {
+                await saveShippingAddressToCustomer(context, auth.customerId, addressDataWithExtras);
+            }
         }
     } catch (error) {
         let errorMessage = t('errors:checkout.addressValidationFailed');

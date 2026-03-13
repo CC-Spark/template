@@ -57,8 +57,7 @@ import {
     updateItemAddresses,
     initializeItemAddresses,
 } from '@/extensions/multiship/lib/multi-address';
-import { getAddressKey } from '@/extensions/multiship/lib/address-utils';
-import { formatAddress } from '@/lib/address-utils';
+import { getAddressKey, formatAddress } from '@/lib/address-utils';
 import { AddressModal } from '@/components/checkout/components/address-modal';
 import { useCheckoutContext } from '@/hooks/use-checkout';
 import type { CheckoutActionData } from '@/components/checkout/types';

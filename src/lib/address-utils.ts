@@ -22,6 +22,28 @@ import type { AddressBookItem } from '@/lib/customer-profile-utils';
 const normalize = (value: string | undefined | null) => (!value ? '' : value);
 
 /**
+ * Creates a normalized string key from an address for deduplication and comparison.
+ * @param address - OrderAddress or CustomerAddress to create a key for
+ * @returns A hyphen-separated string of normalized core address fields
+ */
+export function getAddressKey(
+    address: ShopperBasketsV2.schemas['OrderAddress'] | ShopperCustomers.schemas['CustomerAddress']
+): string {
+    return `${normalize(address.firstName)}-${normalize(address.lastName)}-${normalize(address.address1)}-${normalize(address.city)}-${normalize(address.stateCode)}-${normalize(address.postalCode)}-${normalize(address.countryCode)}`;
+}
+
+/**
+ * Compares two addresses for equality by their normalized field values.
+ */
+export function isAddressEqual(
+    address1?: ShopperBasketsV2.schemas['OrderAddress'] | null,
+    address2?: ShopperBasketsV2.schemas['OrderAddress'] | null
+): boolean {
+    if (!address1 || !address2) return false;
+    return getAddressKey(address1) === getAddressKey(address2);
+}
+
+/**
  * Converts an OrderAddress to a CustomerAddress format
  * This is useful for creating guest addresses or converting between address types
  *
@@ -144,15 +166,8 @@ export function findMatchingSavedAddressId(
 ): string | undefined {
     if (!shippingAddress || savedAddresses.length === 0) return undefined;
 
-    const match = savedAddresses.find(
-        (saved) =>
-            normalize(saved.firstName) === normalize(shippingAddress.firstName) &&
-            normalize(saved.lastName) === normalize(shippingAddress.lastName) &&
-            normalize(saved.address1) === normalize(shippingAddress.address1) &&
-            normalize(saved.city) === normalize(shippingAddress.city) &&
-            normalize(saved.stateCode) === normalize(shippingAddress.stateCode) &&
-            normalize(saved.postalCode) === normalize(shippingAddress.postalCode)
-    );
+    const key = getAddressKey(shippingAddress);
+    const match = savedAddresses.find((saved) => getAddressKey(saved) === key);
 
     return match?.id;
 }
