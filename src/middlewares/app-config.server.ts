@@ -71,9 +71,14 @@ function validateConfig(): void {
 /**
  * Server middleware to ensure app config is in context before any other middleware runs
  * This MUST run first so that scapi.ts can access config during auth middleware
+ *
+ * Note: We reference config.app.commerceAgent so the server bundle keeps it when tree-shaking.
+ * Root and header read it via getConfig(context); the bundler does not trace that back to this module.
  */
 export const appConfigMiddlewareServer: MiddlewareFunction<Response> = ({ context }, next) => {
     validateConfig();
+    // Ensure commerceAgent is not tree-shaken from the config (used by root.tsx and header for shopper agent)
+    void config.app.commerceAgent;
     context.set(appConfigContext, config.app);
     return next();
 };

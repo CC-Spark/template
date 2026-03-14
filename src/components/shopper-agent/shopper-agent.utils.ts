@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 
+/** Custom event to trigger Shopper Agent chunk load when user interacts before idle (e.g. clicks Open chat). */
+export const SHOPPER_AGENT_LOAD_EVENT = 'shopper-agent:load';
+
+/** Set when user clicked Open chat before utilAPI was ready; cleared when we open on ready. */
+let pendingOpenWhenReady = false;
+
+/** Returns true if launch was requested before ready and clears the flag. Used by ShopperAgentWindow to open chat once ready. */
+export function getAndClearPendingOpen(): boolean {
+    const value = pendingOpenWhenReady;
+    pendingOpenWhenReady = false;
+    return value;
+}
+
 /** Allowed Salesforce hostname suffixes; subdomains (e.g. *.salesforce.com) are allowed via .${domain} check. */
 const TRUSTED_SALESFORCE_DOMAINS = [
     'salesforce.com',
@@ -80,9 +93,15 @@ export const validateShopperAgentConfig = (config: unknown): config is ShopperAg
         'siteId',
     ];
 
-    const isValid = requiredFields.every(
-        (key) => typeof typedConfig[key] === 'string' && typedConfig[key].trim() !== ''
-    );
+    const isRequiredFieldValid = (key: string): boolean => {
+        const value = typedConfig[key];
+        if (key === 'enabled') {
+            return value === true || (typeof value === 'string' && value.trim() !== '');
+        }
+        return typeof value === 'string' && value.trim() !== '';
+    };
+
+    const isValid = requiredFields.every(isRequiredFieldValid);
 
     if (!isValid) {
         // eslint-disable-next-line no-console -- config validation feedback
@@ -123,25 +142,29 @@ export const validateShopperAgentConfig = (config: unknown): config is ShopperAg
 /**
  * Checks if the shopper agent is enabled and running in a browser environment.
  *
- * @param enabled - String representation of enabled state ('true' or 'false')
- * @returns True if enabled is 'true' and running on client, false otherwise
+ * @param enabled - Enabled state (string 'true' or boolean true from config/env)
+ * @returns True if enabled is truthy and running on client, false otherwise
  */
-export const isShopperAgentEnabled = (enabled: string): boolean => {
-    return enabled === 'true' && typeof window !== 'undefined';
+export const isShopperAgentEnabled = (enabled: string | boolean): boolean => {
+    return (enabled === 'true' || enabled === true) && typeof window !== 'undefined';
 };
 
 const onClient = typeof window !== 'undefined';
 
+const LAUNCH_DELAY_MS = 150;
+
 /**
- * Launch the chat using the embedded service bootstrap API
+ * Launch the chat using the embedded service bootstrap API.
  *
- * When the floating chat button is hidden (hideChatButtonOnLoad=true), this function
- * first shows the chat button via utilAPI.showChatButton() before launching the chat,
- * ensuring the chat window opens correctly.
+ * When the floating chat button is hidden (hideChatButtonOnLoad=true), this first
+ * shows the button via utilAPI.showChatButton() then launches the chat. A short
+ * delay is only applied when opening from the "pending ready" path (user clicked
+ * before script was ready), so the widget has time to create the button DOM.
  *
- * @returns void
+ * @param options.fromPendingReady - True when called from the embedded messaging ready
+ *   callback after a prior click; enables a short delay to avoid "Default chat button isn't present".
  */
-export function launchChat(): void {
+export function launchChat(options?: { fromPendingReady?: boolean }): void {
     if (!onClient) return;
 
     try {
@@ -149,15 +172,28 @@ export function launchChat(): void {
         if (!utilAPI) {
             // eslint-disable-next-line no-console -- embedded service API feedback
             console.warn('[ShopperAgent] utilAPI not available');
+            pendingOpenWhenReady = true;
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent(SHOPPER_AGENT_LOAD_EVENT));
+            }
             return;
         }
 
         const hideChatButtonOnLoad = window.embeddedservice_bootstrap?.settings?.hideChatButtonOnLoad === true;
-        if (hideChatButtonOnLoad && typeof utilAPI.showChatButton === 'function') {
-            void utilAPI.showChatButton();
-        }
+        const needDelay = options?.fromPendingReady === true;
 
-        if (typeof utilAPI.launchChat === 'function') {
+        if (hideChatButtonOnLoad && typeof utilAPI.showChatButton === 'function') {
+            utilAPI.showChatButton();
+            if (needDelay) {
+                setTimeout(() => {
+                    if (typeof utilAPI.launchChat === 'function') {
+                        void utilAPI.launchChat();
+                    }
+                }, LAUNCH_DELAY_MS);
+            } else if (typeof utilAPI.launchChat === 'function') {
+                void utilAPI.launchChat();
+            }
+        } else if (typeof utilAPI.launchChat === 'function') {
             void utilAPI.launchChat();
         }
     } catch (error) {

@@ -361,7 +361,7 @@ export default function App({
                 <TrackingConsentBanner />
                 {typeof window !== 'undefined' && <PageViewTracker />}
             </TargetProviders>
-            {appConfig.commerceAgent?.enabled === 'true' && (
+            {(appConfig.commerceAgent?.enabled === 'true' || appConfig.commerceAgent?.enabled === true) && (
                 <ShopperAgent
                     commerceAgentConfiguration={appConfig.commerceAgent}
                     locale={i18next?.language ?? 'en-GB'}

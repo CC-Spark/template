@@ -18,6 +18,7 @@ import { type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { SparklesIcon } from '@/components/icons';
 import { StarIcon } from '@/components/product-ratings/star-icon';
 
 export interface AiReviewSummaryProps {
@@ -55,15 +56,7 @@ function AiSparkleIcon({ className }: { className?: string }): ReactElement {
             className={cn('flex shrink-0 items-center justify-center rounded-lg w-8 h-8 sm:w-10 sm:h-10', className)}
             style={{ backgroundColor: 'var(--brand-blue-100)' }}
             aria-hidden="true">
-            <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-4 h-4 sm:w-5 sm:h-5"
-                style={{ color: 'var(--brand-blue-600)' }}
-                aria-hidden="true">
-                {/* Four-pointed sparkle: top, right, bottom, left */}
-                <path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2z" />
-            </svg>
+            <SparklesIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--brand-blue-600)' }} />
         </div>
     );
 }

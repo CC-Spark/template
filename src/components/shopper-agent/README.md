@@ -1,40 +1,28 @@
 # Shopper Agent (Embedded Messaging)
 
-Integrates **Salesforce Embedded Messaging** (Agentforce) so shoppers can open a chat window from the storefront. The embedded service script is loaded on the client; use the **Open chat** button or `useShopperAgent().actions.open()` to launch the window.
+Integrates **Salesforce Embedded Messaging** (Agentforce) so shoppers can open a chat window from the storefront. The agent chunk and embedded service script are deferred via `requestIdleCallback` so they do not block the main thread during hydration; if the user clicks **Open chat** before the first idle, the chunk loads on demand and the scheduled idle callback is cancelled. Use the **Open chat** button or `useShopperAgent().actions.open()` to launch the window.
 
 ## Configuration
 
-All settings are driven by application config, which can be overridden via **environment variables** (e.g. in `.env` or Managed Runtime env).
+Set one environment variable with the full config as a JSON string.
 
-| Env variable | Description |
-|--------------|-------------|
-| `PUBLIC__app__commerceAgent__enabled` | `'true'` or `'false'`. When `'false'` or unset, the agent is disabled. |
-| `PUBLIC__app__commerceAgent__embeddedServiceName` | Deployment name from your Embedded Service Deployments. |
-| `PUBLIC__app__commerceAgent__embeddedServiceEndpoint` | Base URL of the deployment (e.g. `https://your-org.my.site.com/ESW...`). |
-| `PUBLIC__app__commerceAgent__scriptSourceUrl` | Full URL to the bootstrap script (e.g. `.../assets/js/bootstrap.min.js`). |
-| `PUBLIC__app__commerceAgent__scrt2Url` | SCRT2 URL for your org (e.g. `https://your-org.salesforce-scrt.com`). |
-| `PUBLIC__app__commerceAgent__salesforceOrgId` | Salesforce org ID (18 chars). |
-| `PUBLIC__app__commerceAgent__siteId` | Commerce site ID (e.g. `RefArch`, `storefrontnext`). |
-| `PUBLIC__app__commerceAgent__enableConversationContext` | Optional. `'true'` to send conversation context to the agent. |
-| `PUBLIC__app__commerceAgent__conversationContext` | Optional. JSON array of context keys (when conversation context is enabled). |
-
-Default values in `config.server.ts` are empty or disabled. Set the variables above for each environment (local, staging, production) so the correct deployment and org are used.
+**Value:** Minified JSON object with keys: `enabled`, `embeddedServiceName`, `embeddedServiceEndpoint`, `scriptSourceUrl`, `scrt2Url`, `salesforceOrgId`, `siteId`, and optionally `enableConversationContext`, `conversationContext`. Build the JSON manually from the Embedded Service chat snippet; see documentation for the mapping and an example.
 
 ## Setup for different environments
 
 1. **Local / .env**  
-   Copy the Commerce Agent block from `.env.default` into `.env` and fill in values for your Embedded Service deployment.
+   Set `PUBLIC__app__commerceAgent` to the minified JSON string.
 
 2. **Managed Runtime (MRT)**  
-   In your MRT project, add the same `PUBLIC__app__commerceAgent__*` variables to the environment configuration for each target (e.g. development, staging, production).
+   In Environment Variables, add `PUBLIC__app__commerceAgent` and set its value to the minified JSON. Save; the project redeploys with the new config.
 
 3. **Disable the agent**  
-   Omit the commerceAgent env vars or set `PUBLIC__app__commerceAgent__enabled=false`. The component will not render and the chat button will not open a window.
+   Omit the variable or set `enabled` to `"false"` in the JSON.
 
 ## Usage
 
 - **Root layout**  
-  The app mounts `<ShopperAgent />` when `appConfig.commerceAgent?.enabled === 'true'`. No extra wiring needed if config is set.
+  The app mounts `<ShopperAgent />` when `appConfig.commerceAgent?.enabled` is `'true'` or `true` (string or boolean). No extra wiring needed if config is set.
 
 - **Open chat from code**  
   `import { useShopperAgent } from '@/components/shopper-agent';`  

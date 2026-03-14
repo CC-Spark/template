@@ -20,11 +20,21 @@ import CartBadge from './cart-badge';
 import UserActions from './user-actions/user-actions';
 import { useTranslation } from 'react-i18next';
 import logo from '/images/logo.svg';
+import { Button } from '@/components/ui/button';
+import { SparklesIcon } from '@/components/icons';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
+import { launchChat } from '@/components/shopper-agent';
+import { validateShopperAgentConfig } from '@/components/shopper-agent/shopper-agent.utils';
 import { UITarget } from '@/targets/ui-target';
 
 export default function Header({ children }: PropsWithChildren): ReactElement {
     const { t } = useTranslation('header');
     const location = useLocation();
+    const config = useConfig<AppConfig>();
+    const showChat =
+        (config.commerceAgent?.enabled === 'true' || config.commerceAgent?.enabled === true) &&
+        validateShopperAgentConfig(config.commerceAgent);
 
     return (
         <header className="bg-header-background text-header-foreground border-b border-border sticky top-0 z-50 relative [--header-height:theme(spacing.16)]">
@@ -54,6 +64,16 @@ export default function Header({ children }: PropsWithChildren): ReactElement {
                     {/* Icons group - includes mobile hamburger */}
                     <div className="flex items-center space-x-2">
                         <UITarget targetId="header.before.cart" />
+                        {showChat && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="cursor-pointer lg:px-4 px-1 text-header-foreground hover:bg-transparent hover:opacity-50 transition-opacity"
+                                onClick={() => launchChat()}
+                                aria-label={t('openChat')}>
+                                <SparklesIcon />
+                            </Button>
+                        )}
                         <UserActions />
                         <CartBadge />
                         <div className="lg:hidden">{children}</div>

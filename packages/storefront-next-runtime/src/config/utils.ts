@@ -188,8 +188,11 @@ export const extractValidPaths = (obj: unknown, prefix = ''): string[] => {
         const currentPath = prefix ? `${prefix}__${normalizedKey}` : normalizedKey;
 
         if (isPlainObject(value)) {
+            paths.push(currentPath); // Allow setting whole object (e.g. PUBLIC__app__commerceAgent)
+            // Recursively extract paths from nested objects
             paths.push(...extractValidPaths(value, currentPath));
         } else {
+            // Leaf node - this is a valid config path
             paths.push(currentPath);
         }
     }

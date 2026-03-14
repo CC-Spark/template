@@ -53,7 +53,7 @@ export type AppConfig = {
         sites: Array<Site>;
     };
     commerceAgent?: {
-        enabled: string;
+        enabled: string | boolean;
         embeddedServiceName: string;
         embeddedServiceEndpoint: string;
         scriptSourceUrl: string;

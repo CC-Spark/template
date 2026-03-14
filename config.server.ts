@@ -467,18 +467,16 @@ export default defineConfig<Config>(
             // See CONFIG-OPTIONS.md#development for detailed documentation
             development: { enableDevtools: true, hotReload: true, strictMode: true },
             // Commerce Agent (Embedded Service / Agentforce)
-            // Defaults below are for demo; override via PUBLIC__app__commerceAgent__* env vars (see .env.default and src/components/shopper-agent/README.md).
+            // Override via PUBLIC__app__commerceAgent (single JSON string; see src/components/shopper-agent/README.md).
             commerceAgent: {
-                enabled: 'true',
-                embeddedServiceName: 'storefront_next_madhuri',
-                embeddedServiceEndpoint:
-                    'https://orgfarm-e0ddb72b00.test2.my.pc-rnd.site.com/ESWstorefrontnextmadhur1772063817010',
-                scriptSourceUrl:
-                    'https://orgfarm-e0ddb72b00.test2.my.pc-rnd.site.com/ESWstorefrontnextmadhur1772063817010/assets/js/bootstrap.min.js',
-                scrt2Url: 'https://orgfarm-e0ddb72b00.test2.my.pc-rnd.salesforce-scrt.com',
-                salesforceOrgId: '00DRZ000004vUbl',
-                siteId: 'storefrontnext',
-                enableConversationContext: 'false',
+                enabled: '',
+                embeddedServiceName: '',
+                embeddedServiceEndpoint: '',
+                scriptSourceUrl: '',
+                scrt2Url: '',
+                salesforceOrgId: '',
+                siteId: '',
+                enableConversationContext: '',
                 conversationContext: [],
             },
             url: {

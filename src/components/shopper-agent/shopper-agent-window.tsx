@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useEffect, useState } from 'react';
-import type { ShopperAgentConfig } from './shopper-agent.utils';
+import { getAndClearPendingOpen, launchChat, type ShopperAgentConfig } from './shopper-agent.utils';
 
 /** Prevents multiple simultaneous inits of Embedded Messaging when multiple instances mount. */
 let initGuard = false;
@@ -277,6 +277,11 @@ export function ShopperAgentWindow({
 
                 if (onReady) {
                     onReady();
+                }
+
+                // If user clicked Open chat before script was ready, open now (delay so widget can create chat button)
+                if (getAndClearPendingOpen()) {
+                    launchChat({ fromPendingReady: true });
                 }
             } catch (error) {
                 // eslint-disable-next-line no-console -- embedded service feedback

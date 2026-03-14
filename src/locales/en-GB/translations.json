@@ -69,6 +69,7 @@
     },
     "header": {
         "logoAlt": "Home",
+        "openChat": "Open chat",
         "searchPlaceholder": "Search",
         "welcomeBack": "Welcome back!",
         "signIn": "Sign In",

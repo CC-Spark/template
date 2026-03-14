@@ -157,8 +157,10 @@ const extractValidPaths = (obj, prefix = "") => {
 	for (const [key, value] of Object.entries(obj)) {
 		const normalizedKey = key.toLowerCase();
 		const currentPath = prefix ? `${prefix}__${normalizedKey}` : normalizedKey;
-		if (isPlainObject(value)) paths.push(...extractValidPaths(value, currentPath));
-		else paths.push(currentPath);
+		if (isPlainObject(value)) {
+			paths.push(currentPath);
+			paths.push(...extractValidPaths(value, currentPath));
+		} else paths.push(currentPath);
 	}
 	return paths;
 };

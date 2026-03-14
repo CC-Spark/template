@@ -70,6 +70,10 @@ describe('validateShopperAgentConfig', () => {
         expect(validateShopperAgentConfig(validConfig)).toBe(true);
     });
 
+    test('returns true when enabled is boolean true (e.g. from env/JSON parse)', () => {
+        expect(validateShopperAgentConfig({ ...validConfig, enabled: true })).toBe(true);
+    });
+
     test('returns false for null', () => {
         expect(validateShopperAgentConfig(null)).toBe(false);
     });
@@ -124,9 +128,14 @@ describe('isShopperAgentEnabled', () => {
         expect(isShopperAgentEnabled('true')).toBe(true);
     });
 
-    test('returns false when enabled is not "true"', () => {
+    test('returns true when enabled is boolean true (e.g. from env merge)', () => {
+        expect(isShopperAgentEnabled(true)).toBe(true);
+    });
+
+    test('returns false when enabled is not "true" or true', () => {
         expect(isShopperAgentEnabled('false')).toBe(false);
         expect(isShopperAgentEnabled('')).toBe(false);
+        expect(isShopperAgentEnabled(false)).toBe(false);
     });
 });
 
