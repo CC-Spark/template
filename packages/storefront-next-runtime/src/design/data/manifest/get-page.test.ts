@@ -26,9 +26,10 @@ const makeVariation = (overrides: Partial<VariationEntry> = {}): VariationEntry 
     ...overrides,
 });
 
+const LOCALE = 'en-US';
+
 const makeManifest = (overrides: Partial<PageManifest> = {}): PageManifest => ({
     pageId: 'test-page',
-    locale: 'en-US',
     context: { campaignQualifiers: [], customerGroups: [], dataBindings: [] },
     variationOrder: [],
     variations: {},
@@ -43,7 +44,7 @@ describe('getPageFromManifest', () => {
             variationOrder: ['vip-variation', 'default'],
             variations: {
                 'vip-variation': makeVariation({
-                    visibilityRule: { isActiveForLocale: true, customerGroups: ['vip'] },
+                    visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip'] },
                     ruleRequiresContext: true,
                     page: makePage('vip-page'),
                 }),
@@ -52,6 +53,7 @@ describe('getPageFromManifest', () => {
         });
 
         const result = await getPageFromManifest(manifest, {
+            locale: LOCALE,
             contextResolver: () =>
                 Promise.resolve({
                     customerGroups: { vip: true },
@@ -67,7 +69,7 @@ describe('getPageFromManifest', () => {
             variationOrder: ['vip-variation'],
             variations: {
                 'vip-variation': makeVariation({
-                    visibilityRule: { isActiveForLocale: true, customerGroups: ['vip'] },
+                    visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip'] },
                     ruleRequiresContext: true,
                 }),
                 default: makeVariation({ page: makePage('default-page') }),
@@ -76,6 +78,7 @@ describe('getPageFromManifest', () => {
         });
 
         const result = await getPageFromManifest(manifest, {
+            locale: LOCALE,
             contextResolver: () =>
                 Promise.resolve({
                     customerGroups: {},
@@ -91,7 +94,7 @@ describe('getPageFromManifest', () => {
             variationOrder: ['vip-variation'],
             variations: {
                 'vip-variation': makeVariation({
-                    visibilityRule: { isActiveForLocale: true, customerGroups: ['vip'] },
+                    visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip'] },
                     ruleRequiresContext: true,
                 }),
             },
@@ -99,6 +102,7 @@ describe('getPageFromManifest', () => {
         });
 
         const result = await getPageFromManifest(manifest, {
+            locale: LOCALE,
             contextResolver: () =>
                 Promise.resolve({
                     customerGroups: {},
@@ -117,7 +121,7 @@ describe('getPageFromManifest', () => {
             },
         });
 
-        const result = await getPageFromManifest(manifest, {});
+        const result = await getPageFromManifest(manifest, { locale: LOCALE });
         expect(result?.entry.page.id).toBe('unconditional');
     });
 
@@ -135,12 +139,12 @@ describe('getPageFromManifest', () => {
             variations: {
                 'schedule-only': makeVariation({
                     ruleRequiresContext: false,
-                    visibilityRule: { isActiveForLocale: true },
+                    visibilityRule: { activeLocales: ['en-US'] },
                 }),
             },
         });
 
-        await getPageFromManifest(manifest, { contextResolver });
+        await getPageFromManifest(manifest, { locale: LOCALE, contextResolver });
         expect(contextResolver).not.toHaveBeenCalled();
     });
 
@@ -158,17 +162,17 @@ describe('getPageFromManifest', () => {
             variations: {
                 'var-1': makeVariation({
                     ruleRequiresContext: true,
-                    visibilityRule: { isActiveForLocale: true, customerGroups: ['vip'] },
+                    visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip'] },
                 }),
                 'var-2': makeVariation({
                     ruleRequiresContext: true,
-                    visibilityRule: { isActiveForLocale: true, customerGroups: ['premium'] },
+                    visibilityRule: { activeLocales: ['en-US'], customerGroups: ['premium'] },
                 }),
                 default: makeVariation(),
             },
         });
 
-        await getPageFromManifest(manifest, { contextResolver });
+        await getPageFromManifest(manifest, { locale: LOCALE, contextResolver });
         expect(contextResolver).toHaveBeenCalledTimes(1);
     });
 
@@ -183,12 +187,13 @@ describe('getPageFromManifest', () => {
             variations: {
                 vip: makeVariation({
                     ruleRequiresContext: true,
-                    visibilityRule: { isActiveForLocale: true, customerGroups: ['vip'] },
+                    visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip'] },
                 }),
             },
         });
 
         const result = await getPageFromManifest(manifest, {
+            locale: LOCALE,
             contextResolver: () => Promise.resolve(context),
         });
 
@@ -201,13 +206,13 @@ describe('getPageFromManifest', () => {
             variations: {
                 'needs-context': makeVariation({
                     ruleRequiresContext: true,
-                    visibilityRule: { isActiveForLocale: true, customerGroups: ['vip'] },
+                    visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip'] },
                 }),
                 default: makeVariation(),
             },
         });
 
-        const result = await getPageFromManifest(manifest, {});
+        const result = await getPageFromManifest(manifest, { locale: LOCALE });
         expect(result?.context).toBeNull();
     });
 
@@ -220,7 +225,7 @@ describe('getPageFromManifest', () => {
             defaultVariation: 'default',
         });
 
-        const result = await getPageFromManifest(manifest, {});
+        const result = await getPageFromManifest(manifest, { locale: LOCALE });
         expect(result?.entry.page.id).toBe('default-page');
     });
 });

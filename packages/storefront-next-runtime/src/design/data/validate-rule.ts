@@ -22,17 +22,18 @@ import type { QualifierContext, VisibilityRuleDef } from './types';
  * matching the server's `VisibilityDefinition.isVisible()` logic:
  *
  * - **Campaign-based rule** (has `campaignQualifiers`): only the campaign
- *   qualifiers are checked. Schedule and customer-group fields are ignored
- *   because the campaign qualification already incorporates those checks
- *   server-side.
- * - **Non-campaign rule**: schedule AND customer groups are checked. All
- *   specified conditions must pass.
+ *   qualifiers are checked. Schedule, locale, and customer-group fields are
+ *   ignored because the campaign qualification already incorporates those
+ *   checks server-side.
+ * - **Non-campaign rule**: locale, schedule, AND customer groups are checked.
+ *   All specified conditions must pass.
  *
  * When no context is provided and the rule requires campaign or customer group
  * checks, those checks will fail (returning `false`). Schedule checks do not
  * require context and are evaluated against `Date.now()`.
  *
  * @param rule - The visibility rule to evaluate.
+ * @param locale - The current locale (e.g. `"en_US"`). Used to check whether the rule applies to this locale.
  * @param context - The shopper's active qualifiers, or `null`/`undefined` if not yet resolved.
  * @returns `true` if the rule's conditions pass, `false` otherwise.
  *
@@ -42,11 +43,13 @@ import type { QualifierContext, VisibilityRuleDef } from './types';
  *
  * // Campaign-based rule — only campaign qualifiers are evaluated
  * const campaignRule = {
+ *     activeLocales: ['en_US'],
  *     campaignQualifiers: [{ campaignId: 'holiday-sale-2026', promotionId: 'free-shipping' }],
  * };
  *
- * // Non-campaign rule — schedule AND customer groups are evaluated
+ * // Non-campaign rule — locale, schedule AND customer groups are evaluated
  * const segmentRule = {
+ *     activeLocales: ['en_US', 'fr_FR'],
  *     customerGroups: ['vip-customers'],
  *     schedule: {
  *         start: new Date('2026-12-01').toISOString(),
@@ -55,7 +58,7 @@ import type { QualifierContext, VisibilityRuleDef } from './types';
  * };
  * ```
  */
-export function validateRule(rule: VisibilityRuleDef, context?: QualifierContext | null): boolean {
+export function validateRule(rule: VisibilityRuleDef, locale: string, context?: QualifierContext | null): boolean {
     // Campaign-based rules and non-campaign rules are mutually exclusive
     // paths, mirroring the server's if/else-if branching.
     if (rule.campaignQualifiers) {
@@ -65,7 +68,7 @@ export function validateRule(rule: VisibilityRuleDef, context?: QualifierContext
             }
         }
     } else {
-        if (!rule.isActiveForLocale) {
+        if (rule.activeLocales && !rule.activeLocales.includes(locale)) {
             return false;
         }
 

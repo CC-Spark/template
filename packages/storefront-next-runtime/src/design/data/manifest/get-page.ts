@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { PageManifest, QualifierContext, VariationEntry } from '../types';
+import type { ContextResolver, PageManifest, QualifierContext, VariationEntry } from '../types';
 import { validateRule } from '../validate-rule';
 
 /**
@@ -28,6 +28,7 @@ import { validateRule } from '../validate-rule';
  * @param manifest - The page manifest containing all variations.
  * @param options - Resolution options.
  * @param options.contextResolver - Optional async function that returns the shopper's qualifier context. Only called if a variation's rule needs it.
+ * @param options.locale - The current locale (e.g. `"en_US"`). Used to evaluate locale-based visibility rules.
  * @returns The selected variation entry and resolved context, or `null` if no variation (including default) exists.
  *
  * @example
@@ -36,23 +37,23 @@ import { validateRule } from '../validate-rule';
  *
  * const manifest = {
  *     pageId: 'homepage',
- *     locale: 'en-US',
  *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'], dataBindings: [] },
  *     variationOrder: ['vip-homepage', 'holiday-homepage'],
  *     variations: {
  *         'vip-homepage': {
  *             ruleRequiresContext: true,
  *             pageRequiresContext: false,
- *             visibilityRule: { customerGroups: ['vip-customers'] },
+ *             visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip-customers'] },
  *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
  *         },
  *         'holiday-homepage': {
  *             ruleRequiresContext: false,
  *             pageRequiresContext: false,
  *             visibilityRule: {
+ *                 activeLocales: ['en-US'],
  *                 schedule: {
- *                     start: new Date('2026-12-01').getTime(),
- *                     end: new Date('2026-12-31').getTime(),
+ *                     start: new Date('2026-12-01').toISOString(),
+ *                     end: new Date('2026-12-31').toISOString(),
  *                 },
  *             },
  *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
@@ -64,11 +65,12 @@ import { validateRule } from '../validate-rule';
  *         },
  *     },
  *     defaultVariation: 'default-homepage',
- *     visibilityRules: {},
+ *     componentInfo: {},
  * };
  *
  * // VIP shopper — matches first variation
  * const result = await getPageFromManifest(manifest, {
+ *     locale: 'en-US',
  *     contextResolver: async () => ({
  *         customerGroups: { 'vip-customers': true },
  *         campaignQualifiers: {},
@@ -78,6 +80,7 @@ import { validateRule } from '../validate-rule';
  *
  * // Non-VIP shopper outside holiday window — falls back to default
  * const fallback = await getPageFromManifest(manifest, {
+ *     locale: 'en-US',
  *     contextResolver: async () => ({
  *         customerGroups: {},
  *         campaignQualifiers: {},
@@ -90,8 +93,10 @@ export async function getPageFromManifest(
     manifest: PageManifest,
     {
         contextResolver,
+        locale,
     }: {
-        contextResolver?: () => Promise<QualifierContext>;
+        contextResolver?: ContextResolver;
+        locale: string;
     }
 ): Promise<{
     entry: VariationEntry;
@@ -104,10 +109,10 @@ export async function getPageFromManifest(
         const variation = manifest.variations[variationId];
 
         if (variation?.ruleRequiresContext && !context) {
-            context = (await contextResolver?.()) ?? null;
+            context = (await contextResolver?.(manifest.context)) ?? null;
         }
 
-        if (!variation?.visibilityRule || validateRule(variation.visibilityRule, context)) {
+        if (!variation?.visibilityRule || validateRule(variation.visibilityRule, locale, context)) {
             resolvedVariation = variation;
             break;
         }

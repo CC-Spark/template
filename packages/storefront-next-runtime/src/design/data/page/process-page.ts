@@ -21,13 +21,16 @@ import type { ShopperExperience } from '@/scapi-client/types';
 
 /**
  * Context required for page processing. Contains the shopper's runtime
- * qualifiers and the component-level visibility rules from the page manifest.
+ * qualifiers, the component-level visibility rules, and the locale used
+ * to resolve locale-specific component content from the page manifest.
  */
 export interface PageProcessorContext {
     /** The shopper's active qualifiers (campaigns, customer groups), or `null` if not resolved. */
     qualifiers: QualifierContext | null;
     /** Component visibility rule definitions extracted from the page layout. */
     componentInfo: PageManifest['componentInfo'];
+    /** The locale to use when resolving locale-specific component content (e.g. `"en_US"`). */
+    locale: string;
 }
 
 /**
@@ -66,10 +69,9 @@ export interface PageProcessorContext {
  *
  * // The "loyalty-offer" component requires the shopper to be in "loyalty-members"
  * const componentInfo = {
- *     'public-banner': { visibilityRules: [], hasVisibilityRules: false },
+ *     'public-banner': { visibilityRules: [] },
  *     'loyalty-offer': {
  *         visibilityRules: [{ customerGroups: ['loyalty-members'] }],
- *         hasVisibilityRules: true,
  *     },
  * };
  *
@@ -95,30 +97,38 @@ export function processPage(
             // if ANY rule passes. Only remove it when it has its own
             // rules and none of them pass.
             if (visibilityRules.length > 0) {
-                const anyRulePassed = visibilityRules.some((rule) => validateRule(rule, processorContext.qualifiers));
+                const anyRulePassed = visibilityRules.some((rule) =>
+                    validateRule(rule, processorContext.locale, processorContext.qualifiers)
+                );
 
                 if (!anyRulePassed) {
                     return null;
                 }
             }
 
-            const resolved = resolveComponentDataBindings(ctx.node, processorContext.qualifiers?.dataBindings);
+            // Apply locale-specific content from the manifest to the component's data.
+            // The "default" locale provides base values; the current locale overrides them.
+            const defaultContent = componentInfo?.content?.default ?? {};
+            const localeContent = componentInfo?.content?.[processorContext.locale] ?? {};
+            const content = { ...defaultContent, ...localeContent };
+            const nodeWithContent =
+                Object.keys(content).length > 0
+                    ? {
+                          ...ctx.node,
+                          data: {
+                              ...(ctx.node.data as Record<string, unknown>),
+                              ...content,
+                          } as typeof ctx.node.data,
+                      }
+                    : ctx.node;
 
-            // If this component and any of it's children don't have visibility rules or data bindings,
-            // we can skip processing them and just return the node.
-            // If we can't determine any component info, we can't assume any descendants don't have rules or data bindings.
-            if (
-                !componentInfo ||
-                componentInfo.hasAnyDescendantVisibilityRules ||
-                componentInfo.hasAnyDescendantDataBindings
-            ) {
-                return {
-                    ...resolved,
-                    regions: ctx.visitRegions(ctx.node.regions),
-                };
-            }
+            // Resolve data binding expressions (overrides content for bound attributes).
+            const resolved = resolveComponentDataBindings(nodeWithContent, processorContext.qualifiers?.dataBindings);
 
-            return resolved;
+            return {
+                ...resolved,
+                regions: ctx.visitRegions(ctx.node.regions),
+            };
         },
     }) as ShopperExperience.schemas['Page'];
 }

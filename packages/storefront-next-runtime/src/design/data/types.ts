@@ -24,8 +24,6 @@ import type { ShopperExperience } from '@/scapi-client/types';
 export interface PageManifest {
     /** The unique identifier of the page this manifest represents. */
     pageId: string;
-    /** The locale this manifest applies to (e.g. `"en-US"`). */
-    locale: string;
     /** Campaigns and customer groups referenced across all variations in this manifest. */
     context: PageManifestContext;
     /** Ordered list of variation IDs defining the evaluation sequence. */
@@ -43,10 +41,14 @@ export interface PageManifest {
         [componentId: string]: {
             /** The visibility rules for this component. */
             visibilityRules: VisibilityRuleDef[];
-            /** Whether this component or any of its descendants have visibility rules. */
-            hasAnyDescendantVisibilityRules: boolean;
-            /** Whether this component or any of its descendants has data bindings. */
-            hasAnyDescendantDataBindings: boolean;
+            /**
+             * Locale-specific content attributes for this component. Keyed by locale
+             * (e.g. `"en_US"`), each entry contains attribute values that are merged
+             * into the component's `data` during page processing.
+             */
+            content?: {
+                [locale: string]: Record<string, unknown>;
+            };
         };
     };
 }
@@ -172,8 +174,8 @@ export interface VisibilityRuleDef {
         /** End time as an ISO 8601 UTC string. Rule fails after this time. */
         end?: string;
     };
-    /** Whether this rule is active for the locale of the manifest. */
-    isActiveForLocale: boolean;
+    /** The locales for which this rule is active (e.g. `["en_US", "fr_FR"]`). The rule fails for locales not in this list. When `null`, the rule is valid for every locale. */
+    activeLocales: string[] | null;
 }
 
 /**
@@ -239,6 +241,8 @@ export interface ManifestStorage {
     /** Fetch the site-wide manifest for a given locale. */
     getSiteManifest(locale: string): Promise<SiteManifest>;
 }
+
+export type ContextResolver = (context: PageManifest['context']) => Promise<QualifierContext>;
 
 export type VisitorContextType = 'page' | 'region' | 'component' | 'root';
 

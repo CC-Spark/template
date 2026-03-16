@@ -44,11 +44,10 @@ describe('processPage', () => {
             const page = makePage([makeRegion('main', [makeComponent('banner')])]);
             const context: PageProcessorContext = {
                 qualifiers: null,
+                locale: 'en_US',
                 componentInfo: {
                     banner: {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                 },
             };
@@ -63,16 +62,13 @@ describe('processPage', () => {
 
             const context: PageProcessorContext = {
                 qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+                locale: 'en_US',
                 componentInfo: {
                     'public-banner': {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                     'vip-offer': {
-                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
+                        visibilityRules: [{ activeLocales: ['en_US'], customerGroups: ['vip'] }],
                     },
                 },
             };
@@ -86,11 +82,10 @@ describe('processPage', () => {
 
             const context: PageProcessorContext = {
                 qualifiers: { customerGroups: { vip: true }, campaignQualifiers: {} },
+                locale: 'en_US',
                 componentInfo: {
                     'vip-offer': {
-                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
+                        visibilityRules: [{ activeLocales: ['en_US'], customerGroups: ['vip'] }],
                     },
                 },
             };
@@ -107,17 +102,16 @@ describe('processPage', () => {
                     customerGroups: { vip: true },
                     campaignQualifiers: {},
                 },
+                locale: 'en_US',
                 componentInfo: {
                     promo: {
                         visibilityRules: [
-                            { isActiveForLocale: true, customerGroups: ['vip'] },
+                            { activeLocales: ['en_US'], customerGroups: ['vip'] },
                             {
-                                isActiveForLocale: true,
+                                activeLocales: ['en_US'],
                                 campaignQualifiers: [{ campaignId: 'sale', promotionId: 'discount' }],
                             },
                         ],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                 },
             };
@@ -135,17 +129,16 @@ describe('processPage', () => {
                     customerGroups: {},
                     campaignQualifiers: {},
                 },
+                locale: 'en_US',
                 componentInfo: {
                     promo: {
                         visibilityRules: [
-                            { isActiveForLocale: true, customerGroups: ['vip'] },
+                            { activeLocales: ['en_US'], customerGroups: ['vip'] },
                             {
-                                isActiveForLocale: true,
+                                activeLocales: ['en_US'],
                                 campaignQualifiers: [{ campaignId: 'sale', promotionId: 'discount' }],
                             },
                         ],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                 },
             };
@@ -156,7 +149,7 @@ describe('processPage', () => {
     });
 
     describe('descendant traversal', () => {
-        test('traverses children when hasAnyDescendantVisibilityRules is true', () => {
+        test('filters nested components with failing visibility rules', () => {
             const page = makePage([
                 makeRegion('main', [
                     makeComponent('container', {
@@ -167,16 +160,13 @@ describe('processPage', () => {
 
             const context: PageProcessorContext = {
                 qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+                locale: 'en_US',
                 componentInfo: {
                     container: {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: true,
-                        hasAnyDescendantDataBindings: false,
                     },
                     'nested-vip': {
-                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
+                        visibilityRules: [{ activeLocales: ['en_US'], customerGroups: ['vip'] }],
                     },
                 },
             };
@@ -187,7 +177,7 @@ describe('processPage', () => {
             expect(container?.regions?.[0].components).toHaveLength(0);
         });
 
-        test('traverses children when hasAnyDescendantDataBindings is true', () => {
+        test('resolves data bindings on nested components', () => {
             const page = makePage([
                 makeRegion('main', [
                     makeComponent('container', {
@@ -216,16 +206,13 @@ describe('processPage', () => {
                         content_asset: { 'asset-1': { title: 'Resolved Title' } },
                     },
                 },
+                locale: 'en_US',
                 componentInfo: {
                     container: {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: true,
                     },
                     'bound-child': {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                 },
             };
@@ -246,11 +233,10 @@ describe('processPage', () => {
 
             const context: PageProcessorContext = {
                 qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+                locale: 'en_US',
                 componentInfo: {
                     'nested-vip': {
-                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
+                        visibilityRules: [{ activeLocales: ['en_US'], customerGroups: ['vip'] }],
                     },
                 },
             };
@@ -261,7 +247,7 @@ describe('processPage', () => {
             expect(container?.regions?.[0].components).toHaveLength(0);
         });
 
-        test('skips traversal when both descendant flags are false', () => {
+        test('always traverses descendants regardless of descendant flags', () => {
             const page = makePage([
                 makeRegion('main', [
                     makeComponent('container', {
@@ -272,24 +258,21 @@ describe('processPage', () => {
 
             const context: PageProcessorContext = {
                 qualifiers: null,
+                locale: 'en_US',
                 componentInfo: {
                     container: {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                     child: {
-                        visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
+                        visibilityRules: [{ activeLocales: ['en_US'], customerGroups: ['vip'] }],
                     },
                 },
             };
 
             const result = processPage(page, context);
             const container = result.regions?.[0].components?.[0];
-            // Child is preserved because the container's descendants were not traversed
-            expect(container?.regions?.[0].components).toHaveLength(1);
+            // Child is removed because descendants are always traversed
+            expect(container?.regions?.[0].components).toHaveLength(0);
         });
     });
 
@@ -317,11 +300,10 @@ describe('processPage', () => {
                         content_asset: { 'asset-1': { title: 'Winter Sale' } },
                     },
                 },
+                locale: 'en_US',
                 componentInfo: {
                     banner: {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                 },
             };
@@ -342,11 +324,10 @@ describe('processPage', () => {
 
             const context: PageProcessorContext = {
                 qualifiers: null,
+                locale: 'en_US',
                 componentInfo: {
                     banner: {
                         visibilityRules: [],
-                        hasAnyDescendantVisibilityRules: false,
-                        hasAnyDescendantDataBindings: false,
                     },
                 },
             };
@@ -357,10 +338,205 @@ describe('processPage', () => {
         });
     });
 
+    describe('locale content resolution', () => {
+        test('merges locale-specific content into component data', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('banner', {
+                        data: { heading: 'Default Heading' } as unknown as Component['data'],
+                    }),
+                ]),
+            ]);
+
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                locale: 'en_US',
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        content: {
+                            en_US: { heading: 'English Heading', subtitle: 'English Subtitle' },
+                            fr_FR: { heading: 'Titre Français', subtitle: 'Sous-titre Français' },
+                        },
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            expect(data.heading).toBe('English Heading');
+            expect(data.subtitle).toBe('English Subtitle');
+        });
+
+        test('selects content for the correct locale', () => {
+            const page = makePage([makeRegion('main', [makeComponent('banner')])]);
+
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                locale: 'fr_FR',
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        content: {
+                            en_US: { heading: 'English' },
+                            fr_FR: { heading: 'Français' },
+                        },
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            expect(data.heading).toBe('Français');
+        });
+
+        test('leaves component unchanged when no content exists for locale or default', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('banner', {
+                        data: { heading: 'Original' } as unknown as Component['data'],
+                    }),
+                ]),
+            ]);
+
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                locale: 'ja_JP',
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        content: {
+                            en_US: { heading: 'English' },
+                        },
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            expect(data.heading).toBe('Original');
+        });
+
+        test('leaves component unchanged when componentInfo has no content', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('banner', {
+                        data: { heading: 'Original' } as unknown as Component['data'],
+                    }),
+                ]),
+            ]);
+
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                locale: 'en_US',
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            expect(data.heading).toBe('Original');
+        });
+
+        test('applies default content when no locale-specific content exists', () => {
+            const page = makePage([makeRegion('main', [makeComponent('banner')])]);
+
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                locale: 'ja_JP',
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        content: {
+                            default: { heading: 'Default Heading', subtitle: 'Default Subtitle' },
+                            en_US: { heading: 'English' },
+                        },
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            expect(data.heading).toBe('Default Heading');
+            expect(data.subtitle).toBe('Default Subtitle');
+        });
+
+        test('locale-specific content overrides default content', () => {
+            const page = makePage([makeRegion('main', [makeComponent('banner')])]);
+
+            const context: PageProcessorContext = {
+                qualifiers: null,
+                locale: 'en_US',
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        content: {
+                            default: { heading: 'Default Heading', subtitle: 'Default Subtitle' },
+                            en_US: { heading: 'English Heading' },
+                        },
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            // Locale-specific value overrides default
+            expect(data.heading).toBe('English Heading');
+            // Default value is preserved for attributes not overridden by locale
+            expect(data.subtitle).toBe('Default Subtitle');
+        });
+
+        test('data bindings override locale content for bound attributes', () => {
+            const page = makePage([
+                makeRegion('main', [
+                    makeComponent('banner', {
+                        data: { heading: 'Default', body: 'Default Body' } as unknown as Component['data'],
+                        custom: {
+                            dataBinding: {
+                                expressions: { heading: 'content_asset.title' },
+                                contexts: [{ type: 'content_asset', id: 'asset-1' }],
+                            },
+                        } as unknown as Component['custom'],
+                    }),
+                ]),
+            ]);
+
+            const context: PageProcessorContext = {
+                qualifiers: {
+                    customerGroups: {},
+                    campaignQualifiers: {},
+                    dataBindings: {
+                        content_asset: { 'asset-1': { title: 'Bound Title' } },
+                    },
+                },
+                locale: 'en_US',
+                componentInfo: {
+                    banner: {
+                        visibilityRules: [],
+                        content: {
+                            en_US: { heading: 'Locale Heading', body: 'Locale Body' },
+                        },
+                    },
+                },
+            };
+
+            const result = processPage(page, context);
+            const data = result.regions?.[0].components?.[0].data as Record<string, unknown>;
+            // Data binding overrides the locale content for 'heading'
+            expect(data.heading).toBe('Bound Title');
+            // Locale content is preserved for non-bound attributes
+            expect(data.body).toBe('Locale Body');
+        });
+    });
+
     test('handles page with no regions', () => {
         const page = makePage();
         const context: PageProcessorContext = {
             qualifiers: null,
+            locale: 'en_US',
             componentInfo: {},
         };
 
@@ -372,6 +548,7 @@ describe('processPage', () => {
         const page = makePage([makeRegion('main', [makeComponent('unknown')])]);
         const context: PageProcessorContext = {
             qualifiers: null,
+            locale: 'en_US',
             componentInfo: {},
         };
 
@@ -388,16 +565,13 @@ describe('processPage', () => {
 
         const context: PageProcessorContext = {
             qualifiers: { customerGroups: {}, campaignQualifiers: {} },
+            locale: 'en_US',
             componentInfo: {
                 container: {
                     visibilityRules: [],
-                    hasAnyDescendantVisibilityRules: true,
-                    hasAnyDescendantDataBindings: false,
                 },
                 'nested-vip': {
-                    visibilityRules: [{ isActiveForLocale: true, customerGroups: ['vip'] }],
-                    hasAnyDescendantVisibilityRules: false,
-                    hasAnyDescendantDataBindings: false,
+                    visibilityRules: [{ activeLocales: ['en_US'], customerGroups: ['vip'] }],
                 },
             },
         };

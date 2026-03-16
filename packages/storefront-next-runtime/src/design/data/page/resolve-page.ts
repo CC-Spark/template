@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { IdentifierType, ManifestStorage, QualifierContext } from '../types';
+import type { IdentifierType, ManifestStorage, ContextResolver, QualifierContext } from '../types';
 import type { ShopperExperience } from '@/scapi-client/types';
 import { ContentAssignmentResolvers } from '../manifest/content-assignment-resolvers';
 import { resolveDynamicPageId } from '../manifest/resolve-dynamic-page-id';
@@ -90,7 +90,7 @@ export async function resolvePage({
     aspectType?: string;
     locale: string;
     manifestStorage: ManifestStorage;
-    contextResolver?: () => Promise<QualifierContext>;
+    contextResolver?: ContextResolver;
 }): Promise<ShopperExperience.schemas['Page'] | null> {
     let resolvedId: string | null = null;
 
@@ -116,6 +116,7 @@ export async function resolvePage({
 
     const pageResults = await getPageFromManifest(pageManifest, {
         contextResolver,
+        locale,
     });
 
     if (!pageResults) {
@@ -125,11 +126,12 @@ export async function resolvePage({
     let context: QualifierContext | null = null;
 
     if (pageResults.entry.pageRequiresContext) {
-        context = pageResults.context ?? (await contextResolver?.()) ?? null;
+        context = pageResults.context ?? (await contextResolver?.(pageManifest.context)) ?? null;
     }
 
     return processPage(pageResults.entry.page, {
         qualifiers: context,
         componentInfo: pageManifest.componentInfo,
+        locale,
     });
 }

@@ -11,8 +11,6 @@ import { r as ShopperExperience } from "./types2.js";
 interface PageManifest {
   /** The unique identifier of the page this manifest represents. */
   pageId: string;
-  /** The locale this manifest applies to (e.g. `"en-US"`). */
-  locale: string;
   /** Campaigns and customer groups referenced across all variations in this manifest. */
   context: PageManifestContext;
   /** Ordered list of variation IDs defining the evaluation sequence. */
@@ -30,10 +28,14 @@ interface PageManifest {
     [componentId: string]: {
       /** The visibility rules for this component. */
       visibilityRules: VisibilityRuleDef[];
-      /** Whether this component or any of its descendants have visibility rules. */
-      hasAnyDescendantVisibilityRules: boolean;
-      /** Whether this component or any of its descendants has data bindings. */
-      hasAnyDescendantDataBindings: boolean;
+      /**
+       * Locale-specific content attributes for this component. Keyed by locale
+       * (e.g. `"en_US"`), each entry contains attribute values that are merged
+       * into the component's `data` during page processing.
+       */
+      content?: {
+        [locale: string]: Record<string, unknown>;
+      };
     };
   };
 }
@@ -153,8 +155,8 @@ interface VisibilityRuleDef {
     /** End time as an ISO 8601 UTC string. Rule fails after this time. */
     end?: string;
   };
-  /** Whether this rule is active for the locale of the manifest. */
-  isActiveForLocale: boolean;
+  /** The locales for which this rule is active (e.g. `["en_US", "fr_FR"]`). The rule fails for locales not in this list. When `null`, the rule is valid for every locale. */
+  activeLocales: string[] | null;
 }
 /**
  * Runtime context representing the current shopper's active qualifiers.
@@ -216,19 +218,23 @@ interface ManifestStorage {
   /** Fetch the site-wide manifest for a given locale. */
   getSiteManifest(locale: string): Promise<SiteManifest>;
 }
+type ContextResolver = (context: PageManifest['context']) => Promise<QualifierContext>;
 type VisitorContextType = 'page' | 'region' | 'component' | 'root';
 type InferNodeFromType<TType extends VisitorContextType> = TType extends 'page' ? ShopperExperience.schemas['Page'] : TType extends 'region' ? ShopperExperience.schemas['Region'] : ShopperExperience.schemas['Component'];
 //#endregion
 //#region src/design/data/page/process-page.d.ts
 /**
  * Context required for page processing. Contains the shopper's runtime
- * qualifiers and the component-level visibility rules from the page manifest.
+ * qualifiers, the component-level visibility rules, and the locale used
+ * to resolve locale-specific component content from the page manifest.
  */
 interface PageProcessorContext {
   /** The shopper's active qualifiers (campaigns, customer groups), or `null` if not resolved. */
   qualifiers: QualifierContext | null;
   /** Component visibility rule definitions extracted from the page layout. */
   componentInfo: PageManifest['componentInfo'];
+  /** The locale to use when resolving locale-specific component content (e.g. `"en_US"`). */
+  locale: string;
 }
 /**
  * Filters a page's components based on their visibility rules and resolves
@@ -266,10 +272,9 @@ interface PageProcessorContext {
  *
  * // The "loyalty-offer" component requires the shopper to be in "loyalty-members"
  * const componentInfo = {
- *     'public-banner': { visibilityRules: [], hasVisibilityRules: false },
+ *     'public-banner': { visibilityRules: [] },
  *     'loyalty-offer': {
  *         visibilityRules: [{ customerGroups: ['loyalty-members'] }],
- *         hasVisibilityRules: true,
  *     },
  * };
  *
@@ -735,7 +740,7 @@ declare function resolvePage({
   aspectType?: string;
   locale: string;
   manifestStorage: ManifestStorage;
-  contextResolver?: () => Promise<QualifierContext>;
+  contextResolver?: ContextResolver;
 }): Promise<ShopperExperience.schemas['Page'] | null>;
 //#endregion
 //#region src/design/data/manifest/resolve-dynamic-page-id.d.ts
@@ -813,6 +818,7 @@ declare function resolveDynamicPageId<TIdentifier extends IdentifierType = Ident
  * @param manifest - The page manifest containing all variations.
  * @param options - Resolution options.
  * @param options.contextResolver - Optional async function that returns the shopper's qualifier context. Only called if a variation's rule needs it.
+ * @param options.locale - The current locale (e.g. `"en_US"`). Used to evaluate locale-based visibility rules.
  * @returns The selected variation entry and resolved context, or `null` if no variation (including default) exists.
  *
  * @example
@@ -821,23 +827,23 @@ declare function resolveDynamicPageId<TIdentifier extends IdentifierType = Ident
  *
  * const manifest = {
  *     pageId: 'homepage',
- *     locale: 'en-US',
  *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'], dataBindings: [] },
  *     variationOrder: ['vip-homepage', 'holiday-homepage'],
  *     variations: {
  *         'vip-homepage': {
  *             ruleRequiresContext: true,
  *             pageRequiresContext: false,
- *             visibilityRule: { customerGroups: ['vip-customers'] },
+ *             visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip-customers'] },
  *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
  *         },
  *         'holiday-homepage': {
  *             ruleRequiresContext: false,
  *             pageRequiresContext: false,
  *             visibilityRule: {
+ *                 activeLocales: ['en-US'],
  *                 schedule: {
- *                     start: new Date('2026-12-01').getTime(),
- *                     end: new Date('2026-12-31').getTime(),
+ *                     start: new Date('2026-12-01').toISOString(),
+ *                     end: new Date('2026-12-31').toISOString(),
  *                 },
  *             },
  *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
@@ -849,11 +855,12 @@ declare function resolveDynamicPageId<TIdentifier extends IdentifierType = Ident
  *         },
  *     },
  *     defaultVariation: 'default-homepage',
- *     visibilityRules: {},
+ *     componentInfo: {},
  * };
  *
  * // VIP shopper — matches first variation
  * const result = await getPageFromManifest(manifest, {
+ *     locale: 'en-US',
  *     contextResolver: async () => ({
  *         customerGroups: { 'vip-customers': true },
  *         campaignQualifiers: {},
@@ -863,6 +870,7 @@ declare function resolveDynamicPageId<TIdentifier extends IdentifierType = Ident
  *
  * // Non-VIP shopper outside holiday window — falls back to default
  * const fallback = await getPageFromManifest(manifest, {
+ *     locale: 'en-US',
  *     contextResolver: async () => ({
  *         customerGroups: {},
  *         campaignQualifiers: {},
@@ -872,9 +880,11 @@ declare function resolveDynamicPageId<TIdentifier extends IdentifierType = Ident
  * ```
  */
 declare function getPageFromManifest(manifest: PageManifest, {
-  contextResolver
+  contextResolver,
+  locale
 }: {
-  contextResolver?: () => Promise<QualifierContext>;
+  contextResolver?: ContextResolver;
+  locale: string;
 }): Promise<{
   entry: VariationEntry;
   context: QualifierContext | null;
@@ -944,17 +954,18 @@ declare const ContentAssignmentResolvers: Map<string, ContentAssignmentResolver>
  * matching the server's `VisibilityDefinition.isVisible()` logic:
  *
  * - **Campaign-based rule** (has `campaignQualifiers`): only the campaign
- *   qualifiers are checked. Schedule and customer-group fields are ignored
- *   because the campaign qualification already incorporates those checks
- *   server-side.
- * - **Non-campaign rule**: schedule AND customer groups are checked. All
- *   specified conditions must pass.
+ *   qualifiers are checked. Schedule, locale, and customer-group fields are
+ *   ignored because the campaign qualification already incorporates those
+ *   checks server-side.
+ * - **Non-campaign rule**: locale, schedule, AND customer groups are checked.
+ *   All specified conditions must pass.
  *
  * When no context is provided and the rule requires campaign or customer group
  * checks, those checks will fail (returning `false`). Schedule checks do not
  * require context and are evaluated against `Date.now()`.
  *
  * @param rule - The visibility rule to evaluate.
+ * @param locale - The current locale (e.g. `"en_US"`). Used to check whether the rule applies to this locale.
  * @param context - The shopper's active qualifiers, or `null`/`undefined` if not yet resolved.
  * @returns `true` if the rule's conditions pass, `false` otherwise.
  *
@@ -964,11 +975,13 @@ declare const ContentAssignmentResolvers: Map<string, ContentAssignmentResolver>
  *
  * // Campaign-based rule — only campaign qualifiers are evaluated
  * const campaignRule = {
+ *     activeLocales: ['en_US'],
  *     campaignQualifiers: [{ campaignId: 'holiday-sale-2026', promotionId: 'free-shipping' }],
  * };
  *
- * // Non-campaign rule — schedule AND customer groups are evaluated
+ * // Non-campaign rule — locale, schedule AND customer groups are evaluated
  * const segmentRule = {
+ *     activeLocales: ['en_US', 'fr_FR'],
  *     customerGroups: ['vip-customers'],
  *     schedule: {
  *         start: new Date('2026-12-01').toISOString(),
@@ -977,7 +990,7 @@ declare const ContentAssignmentResolvers: Map<string, ContentAssignmentResolver>
  * };
  * ```
  */
-declare function validateRule(rule: VisibilityRuleDef, context?: QualifierContext | null): boolean;
+declare function validateRule(rule: VisibilityRuleDef, locale: string, context?: QualifierContext | null): boolean;
 //#endregion
-export { CampaignQualifier, type ComponentDataBinding, ContentAssignmentResolvers, type DataBindingContext, DataBindingRequirement, IdentifierType, InferNodeFromType, ManifestStorage, PageManifest, PageManifestContext, type PageProcessorContext, type PageVisitor, QualifierContext, RequiredError, ResolvedDataBinding, SiteManifest, VariationEntry, VisibilityRuleDef, type VisitorContext, VisitorContextType, getPageFromManifest, parseExpression, processPage, resolveComponentDataBindings, resolveDynamicPageId, resolveExpression, resolvePage, transformComponent, transformPage, transformRegion, validateRule };
+export { CampaignQualifier, type ComponentDataBinding, ContentAssignmentResolvers, ContextResolver, type DataBindingContext, DataBindingRequirement, IdentifierType, InferNodeFromType, ManifestStorage, PageManifest, PageManifestContext, type PageProcessorContext, type PageVisitor, QualifierContext, RequiredError, ResolvedDataBinding, SiteManifest, VariationEntry, VisibilityRuleDef, type VisitorContext, VisitorContextType, getPageFromManifest, parseExpression, processPage, resolveComponentDataBindings, resolveDynamicPageId, resolveExpression, resolvePage, transformComponent, transformPage, transformRegion, validateRule };
 //# sourceMappingURL=design-data.d.ts.map

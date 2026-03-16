@@ -460,17 +460,18 @@ function resolveComponentDataBindings(component, dataBindings) {
 * matching the server's `VisibilityDefinition.isVisible()` logic:
 *
 * - **Campaign-based rule** (has `campaignQualifiers`): only the campaign
-*   qualifiers are checked. Schedule and customer-group fields are ignored
-*   because the campaign qualification already incorporates those checks
-*   server-side.
-* - **Non-campaign rule**: schedule AND customer groups are checked. All
-*   specified conditions must pass.
+*   qualifiers are checked. Schedule, locale, and customer-group fields are
+*   ignored because the campaign qualification already incorporates those
+*   checks server-side.
+* - **Non-campaign rule**: locale, schedule, AND customer groups are checked.
+*   All specified conditions must pass.
 *
 * When no context is provided and the rule requires campaign or customer group
 * checks, those checks will fail (returning `false`). Schedule checks do not
 * require context and are evaluated against `Date.now()`.
 *
 * @param rule - The visibility rule to evaluate.
+* @param locale - The current locale (e.g. `"en_US"`). Used to check whether the rule applies to this locale.
 * @param context - The shopper's active qualifiers, or `null`/`undefined` if not yet resolved.
 * @returns `true` if the rule's conditions pass, `false` otherwise.
 *
@@ -480,11 +481,13 @@ function resolveComponentDataBindings(component, dataBindings) {
 *
 * // Campaign-based rule — only campaign qualifiers are evaluated
 * const campaignRule = {
+*     activeLocales: ['en_US'],
 *     campaignQualifiers: [{ campaignId: 'holiday-sale-2026', promotionId: 'free-shipping' }],
 * };
 *
-* // Non-campaign rule — schedule AND customer groups are evaluated
+* // Non-campaign rule — locale, schedule AND customer groups are evaluated
 * const segmentRule = {
+*     activeLocales: ['en_US', 'fr_FR'],
 *     customerGroups: ['vip-customers'],
 *     schedule: {
 *         start: new Date('2026-12-01').toISOString(),
@@ -493,11 +496,11 @@ function resolveComponentDataBindings(component, dataBindings) {
 * };
 * ```
 */
-function validateRule(rule, context) {
+function validateRule(rule, locale, context) {
 	if (rule.campaignQualifiers) {
 		for (const campaignQualifier of rule.campaignQualifiers) if (!context?.campaignQualifiers[campaignQualifier.campaignId]?.[campaignQualifier.promotionId]) return false;
 	} else {
-		if (!rule.isActiveForLocale) return false;
+		if (rule.activeLocales && !rule.activeLocales.includes(locale)) return false;
 		if (rule.schedule) {
 			const now = Date.now();
 			if (rule.schedule.start) {
@@ -554,10 +557,9 @@ function validateRule(rule, context) {
 *
 * // The "loyalty-offer" component requires the shopper to be in "loyalty-members"
 * const componentInfo = {
-*     'public-banner': { visibilityRules: [], hasVisibilityRules: false },
+*     'public-banner': { visibilityRules: [] },
 *     'loyalty-offer': {
 *         visibilityRules: [{ customerGroups: ['loyalty-members'] }],
-*         hasVisibilityRules: true,
 *     },
 * };
 *
@@ -575,14 +577,24 @@ function processPage(page, processorContext) {
 		const componentInfo = processorContext.componentInfo[ctx.node.id];
 		const visibilityRules = componentInfo?.visibilityRules ?? [];
 		if (visibilityRules.length > 0) {
-			if (!visibilityRules.some((rule) => validateRule(rule, processorContext.qualifiers))) return null;
+			if (!visibilityRules.some((rule) => validateRule(rule, processorContext.locale, processorContext.qualifiers))) return null;
 		}
-		const resolved = resolveComponentDataBindings(ctx.node, processorContext.qualifiers?.dataBindings);
-		if (!componentInfo || componentInfo.hasAnyDescendantVisibilityRules || componentInfo.hasAnyDescendantDataBindings) return {
-			...resolved,
+		const defaultContent = componentInfo?.content?.default ?? {};
+		const localeContent = componentInfo?.content?.[processorContext.locale] ?? {};
+		const content = {
+			...defaultContent,
+			...localeContent
+		};
+		return {
+			...resolveComponentDataBindings(Object.keys(content).length > 0 ? {
+				...ctx.node,
+				data: {
+					...ctx.node.data,
+					...content
+				}
+			} : ctx.node, processorContext.qualifiers?.dataBindings),
 			regions: ctx.visitRegions(ctx.node.regions)
 		};
-		return resolved;
 	} });
 }
 
@@ -743,6 +755,7 @@ function resolveDynamicPageId({ id, identifierType, siteManifest, aspectType }) 
 * @param manifest - The page manifest containing all variations.
 * @param options - Resolution options.
 * @param options.contextResolver - Optional async function that returns the shopper's qualifier context. Only called if a variation's rule needs it.
+* @param options.locale - The current locale (e.g. `"en_US"`). Used to evaluate locale-based visibility rules.
 * @returns The selected variation entry and resolved context, or `null` if no variation (including default) exists.
 *
 * @example
@@ -751,23 +764,23 @@ function resolveDynamicPageId({ id, identifierType, siteManifest, aspectType }) 
 *
 * const manifest = {
 *     pageId: 'homepage',
-*     locale: 'en-US',
 *     context: { campaignQualifiers: [], customerGroups: ['vip-customers'], dataBindings: [] },
 *     variationOrder: ['vip-homepage', 'holiday-homepage'],
 *     variations: {
 *         'vip-homepage': {
 *             ruleRequiresContext: true,
 *             pageRequiresContext: false,
-*             visibilityRule: { customerGroups: ['vip-customers'] },
+*             visibilityRule: { activeLocales: ['en-US'], customerGroups: ['vip-customers'] },
 *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
 *         },
 *         'holiday-homepage': {
 *             ruleRequiresContext: false,
 *             pageRequiresContext: false,
 *             visibilityRule: {
+*                 activeLocales: ['en-US'],
 *                 schedule: {
-*                     start: new Date('2026-12-01').getTime(),
-*                     end: new Date('2026-12-31').getTime(),
+*                     start: new Date('2026-12-01').toISOString(),
+*                     end: new Date('2026-12-31').toISOString(),
 *                 },
 *             },
 *             page: { id: 'homepage', typeId: 'storePage', regions: [] },
@@ -779,11 +792,12 @@ function resolveDynamicPageId({ id, identifierType, siteManifest, aspectType }) 
 *         },
 *     },
 *     defaultVariation: 'default-homepage',
-*     visibilityRules: {},
+*     componentInfo: {},
 * };
 *
 * // VIP shopper — matches first variation
 * const result = await getPageFromManifest(manifest, {
+*     locale: 'en-US',
 *     contextResolver: async () => ({
 *         customerGroups: { 'vip-customers': true },
 *         campaignQualifiers: {},
@@ -793,6 +807,7 @@ function resolveDynamicPageId({ id, identifierType, siteManifest, aspectType }) 
 *
 * // Non-VIP shopper outside holiday window — falls back to default
 * const fallback = await getPageFromManifest(manifest, {
+*     locale: 'en-US',
 *     contextResolver: async () => ({
 *         customerGroups: {},
 *         campaignQualifiers: {},
@@ -801,13 +816,13 @@ function resolveDynamicPageId({ id, identifierType, siteManifest, aspectType }) 
 * // fallback.entry === manifest.variations['default-homepage']
 * ```
 */
-async function getPageFromManifest(manifest, { contextResolver }) {
+async function getPageFromManifest(manifest, { contextResolver, locale }) {
 	let context = null;
 	let resolvedVariation = null;
 	for (const variationId of manifest.variationOrder) {
 		const variation = manifest.variations[variationId];
-		if (variation?.ruleRequiresContext && !context) context = await contextResolver?.() ?? null;
-		if (!variation?.visibilityRule || validateRule(variation.visibilityRule, context)) {
+		if (variation?.ruleRequiresContext && !context) context = await contextResolver?.(manifest.context) ?? null;
+		if (!variation?.visibilityRule || validateRule(variation.visibilityRule, locale, context)) {
 			resolvedVariation = variation;
 			break;
 		}
@@ -893,13 +908,17 @@ async function resolvePage({ id, identifierType, aspectType, locale, manifestSto
 	if (!resolvedId) return null;
 	const pageManifest = await manifestStorage.getPageManifest(resolvedId, locale);
 	if (!pageManifest) return null;
-	const pageResults = await getPageFromManifest(pageManifest, { contextResolver });
+	const pageResults = await getPageFromManifest(pageManifest, {
+		contextResolver,
+		locale
+	});
 	if (!pageResults) return null;
 	let context = null;
-	if (pageResults.entry.pageRequiresContext) context = pageResults.context ?? await contextResolver?.() ?? null;
+	if (pageResults.entry.pageRequiresContext) context = pageResults.context ?? await contextResolver?.(pageManifest.context) ?? null;
 	return processPage(pageResults.entry.page, {
 		qualifiers: context,
-		componentInfo: pageManifest.componentInfo
+		componentInfo: pageManifest.componentInfo,
+		locale
 	});
 }
 
