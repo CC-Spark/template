@@ -1,6 +1,6 @@
 {
   "name": "@salesforce/storefront-next-runtime",
-  "version": "0.2.0-dev",
+  "version": "0.3.0-dev",
   "description": "Runtime agnostic libraries for SFCC Storefront Next",
   "type": "module",
   "exports": {
@@ -118,6 +118,7 @@
   "author": "cc-pwa-kit@salesforce.com",
   "license": "Apache-2.0",
   "dependencies": {
+    "jiti": "^2.6.1",
     "openapi-fetch": "0.15.0"
   },
   "devDependencies": {

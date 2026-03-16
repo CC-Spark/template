@@ -9,7 +9,7 @@ import prompts from "prompts";
 * Prompts user for local package paths and replaces workspace:* dependencies with file: references.
 */
 async function prepareForLocalDev(options) {
-	const { projectDirectory, sourcePackagesDir } = options;
+	const { projectDirectory, sourcePackagesDir, defaults } = options;
 	const packageJsonPath = path.join(projectDirectory, "package.json");
 	if (!fs.existsSync(packageJsonPath)) throw new Error(`package.json not found in ${projectDirectory}`);
 	const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
@@ -35,15 +35,18 @@ async function prepareForLocalDev(options) {
 	console.log("");
 	const defaultPaths = {};
 	if (sourcePackagesDir) {
-		defaultPaths["@salesforce/storefront-next-dev"] = path.join(sourcePackagesDir, "storefront-next-dev");
-		defaultPaths["@salesforce/storefront-next-runtime"] = path.join(sourcePackagesDir, "storefront-next-runtime");
+		defaultPaths["@salesforce/storefront-next-dev"] = path.resolve(sourcePackagesDir, "storefront-next-dev");
+		defaultPaths["@salesforce/storefront-next-runtime"] = path.resolve(sourcePackagesDir, "storefront-next-runtime");
 	}
 	const resolvedPaths = {};
 	for (const { pkg } of workspaceDeps) {
 		if (resolvedPaths[pkg]) continue;
 		const defaultPath = defaultPaths[pkg] || "";
 		const defaultExists = defaultPath && fs.existsSync(defaultPath);
-		const { localPath } = await prompts({
+		let localPath;
+		if (defaults && defaultExists) localPath = defaultPath;
+		else if (defaults) warn(`Skipping ${pkg} - default path not found: ${defaultPath}`);
+		else ({localPath} = await prompts({
 			type: "text",
 			name: "localPath",
 			message: `📦 Path to ${pkg}:`,
@@ -54,7 +57,7 @@ async function prepareForLocalDev(options) {
 				if (!fs.existsSync(path.join(value, "package.json"))) return `No package.json found in: ${value}`;
 				return true;
 			}
-		});
+		}));
 		if (!localPath) {
 			warn(`Skipping ${pkg} - no path provided`);
 			continue;

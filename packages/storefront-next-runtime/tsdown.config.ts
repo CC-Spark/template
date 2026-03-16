@@ -31,7 +31,7 @@ export default defineConfig([
         dts: true,
         outDir: 'dist',
         clean: true,
-        external: ['node:fs', 'node:fs/promises', 'node:path', 'node:url'],
+        external: ['node:fs', 'node:fs/promises', 'node:path', 'node:url', 'jiti'],
         alias: {
             '@/*': 'src/*',
         },

@@ -17,35 +17,27 @@
 import fs from 'node:fs';
 import { describe, expect, test, vi, beforeEach } from 'vitest';
 
-let mockConfigModule: Record<string, any> = {};
-
 vi.mock('node:fs', () => ({
     default: { existsSync: vi.fn() },
 }));
 
-vi.mock('node:url', () => {
-    const pathToFileURL = vi.fn(() => ({ href: '/mock-config-server' }));
-    return { pathToFileURL, default: { pathToFileURL } };
-});
+const mockJitiImport = vi.fn();
 
-// Use a getter so the `default` export is always read fresh from mockConfigModule,
-// preventing cached stale values from leaking between tests.
-vi.mock('/mock-config-server', () => ({
-    get default() {
-        return mockConfigModule.default;
-    },
+vi.mock('jiti', () => ({
+    createJiti: vi.fn(() => ({
+        import: mockJitiImport,
+    })),
 }));
+
+import { loadConfig } from './load-config';
 
 describe('loadConfig', () => {
     beforeEach(() => {
-        vi.resetModules();
         vi.mocked(fs.existsSync).mockReturnValue(false);
-        mockConfigModule = {};
+        mockJitiImport.mockReset();
     });
 
     test('should throw when config file does not exist', async () => {
-        const { loadConfig } = await import('./load-config');
-
         await expect(loadConfig()).rejects.toThrow('config.server.ts is required but not found');
     });
 
@@ -64,9 +56,8 @@ describe('loadConfig', () => {
             },
         };
 
-        mockConfigModule = { default: fullConfig };
+        mockJitiImport.mockResolvedValue({ default: fullConfig });
 
-        const { loadConfig } = await import('./load-config');
         const result = await loadConfig();
 
         expect(result).toEqual(fullConfig);
@@ -77,9 +68,8 @@ describe('loadConfig', () => {
 
     test('should return empty config when config exists but has no content', async () => {
         vi.mocked(fs.existsSync).mockReturnValue(true);
-        mockConfigModule = { default: {} };
+        mockJitiImport.mockResolvedValue({ default: {} });
 
-        const { loadConfig } = await import('./load-config');
         const result = await loadConfig();
 
         expect(result).toEqual({});
@@ -89,9 +79,8 @@ describe('loadConfig', () => {
         vi.mocked(fs.existsSync).mockReturnValue(true);
 
         const appConfig = { commerce: { api: { clientId: 'test' } } };
-        mockConfigModule = { default: { app: appConfig } };
+        mockJitiImport.mockResolvedValue({ default: { app: appConfig } });
 
-        const { loadConfig } = await import('./load-config');
         const { app } = await loadConfig();
 
         expect(app).toEqual(appConfig);

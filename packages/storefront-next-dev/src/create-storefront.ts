@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import { generateEnvFile } from './utils';
 import { error, warn } from './utils/logger';
 import prompts from 'prompts';
@@ -31,8 +31,22 @@ import { prepareForLocalDev } from './utils/local-dev-setup';
 const DEFAULT_STOREFRONT = 'sfcc-storefront';
 const STOREFRONT_NEXT_GITHUB_URL = 'https://github.com/SalesforceCommerceCloud/storefront-next-template';
 
+const isLocalPath = (template: string): boolean =>
+    template.startsWith('file://') ||
+    template.startsWith('/') ||
+    template.startsWith('./') ||
+    template.startsWith('../');
+
 export const createStorefront = async (
-    options: { verbose?: boolean; localPackagesDir?: string; name?: string; template?: string } = {}
+    options: {
+        verbose?: boolean;
+        localPackagesDir?: string;
+        name?: string;
+        template?: string;
+        templateBranch?: string;
+        defaults?: boolean;
+        outputDir?: string;
+    } = {}
 ) => {
     // Check if git is available before proceeding
     try {
@@ -59,6 +73,8 @@ export const createStorefront = async (
     }
     // eslint-disable-next-line no-console
     console.log('\n');
+
+    const outputPath = options.outputDir ? path.join(options.outputDir, storefront) : storefront;
 
     // Use provided template or prompt for it
     let template = options.template;
@@ -92,32 +108,69 @@ export const createStorefront = async (
         error('Template is required.');
         process.exit(1);
     }
-    // Clone the template based on the template URL and storefront name
-    // Use --depth 1 for shallow clone since we delete .git anyway - much faster!
-    execSync(`git clone --depth 1 ${template} ${storefront}`);
+    if (options.templateBranch !== undefined && options.templateBranch.trim() === '') {
+        error('--template-branch cannot be empty.');
+        process.exit(1);
+    }
+    // Clone or copy the template into the storefront directory
+    if (isLocalPath(template)) {
+        const resolvedPath = path.resolve(template.replace('file://', ''));
+        if (fs.existsSync(path.join(resolvedPath, '.git'))) {
+            // Local git repo: use git clone (shallow) as usual
+            // (Use execFileSync instead of execSync to avoid shell injection — arguments are passed
+            // directly to the git binary without going through a shell interpreter)
+            const cloneArgs = ['clone', '--depth', '1'];
+            if (options.templateBranch) cloneArgs.push('--branch', options.templateBranch);
+            cloneArgs.push(resolvedPath, outputPath);
+            execFileSync('git', cloneArgs);
+        } else {
+            // Local non-git directory: copy directly, excluding node_modules and .git
+            fs.copySync(resolvedPath, outputPath, {
+                filter: (src) => {
+                    const rel = path.relative(resolvedPath, src);
+                    return (
+                        rel !== 'node_modules' &&
+                        !rel.startsWith(`node_modules${path.sep}`) &&
+                        rel !== '.git' &&
+                        !rel.startsWith(`.git${path.sep}`)
+                    );
+                },
+            });
+        }
+    } else {
+        // Remote URL: use git clone
+        // Use --depth 1 for shallow clone since we delete .git anyway - much faster!
+        // (Use execFileSync instead of execSync to avoid shell injection — arguments are passed
+        // directly to the git binary without going through a shell interpreter)
+        const cloneArgs = ['clone', '--depth', '1'];
+        if (options.templateBranch) cloneArgs.push('--branch', options.templateBranch);
+        cloneArgs.push(template, outputPath);
+        execFileSync('git', cloneArgs);
+    }
     // remove the .git directory so it starts out as a local project
-    const gitDir = path.join(storefront, '.git');
+    const gitDir = path.join(outputPath, '.git');
     if (fs.existsSync(gitDir)) {
         fs.rmSync(gitDir, { recursive: true, force: true });
     }
 
-    // Hook: Prepare for local development if cloned from a local monorepo (file:// URL)
+    // Hook: Prepare for local development if template is a local path
     // or if --local-packages-dir was provided
-    if (template.startsWith('file://') || options.localPackagesDir) {
+    if (isLocalPath(template) || options.localPackagesDir) {
         const templatePath = template.replace('file://', '');
         // Use provided localPackagesDir, or derive from template path
         const sourcePackagesDir = options.localPackagesDir || path.dirname(templatePath);
         await prepareForLocalDev({
-            projectDirectory: storefront,
+            projectDirectory: outputPath,
             sourcePackagesDir,
+            defaults: options.defaults,
         });
     }
 
     // eslint-disable-next-line no-console
     console.log('\n');
     // configure extensions
-    if (fs.existsSync(path.join(storefront, 'src', 'extensions', 'config.json'))) {
-        const extensionConfigText = fs.readFileSync(path.join(storefront, 'src', 'extensions', 'config.json'), 'utf8');
+    if (fs.existsSync(path.join(outputPath, 'src', 'extensions', 'config.json'))) {
+        const extensionConfigText = fs.readFileSync(path.join(outputPath, 'src', 'extensions', 'config.json'), 'utf8');
         const extensionConfig: ExtensionConfig = JSON.parse(extensionConfigText);
         if (extensionConfig.extensions) {
             // Validate no circular dependencies before proceeding
@@ -128,20 +181,27 @@ export const createStorefront = async (
                 process.exit(1);
             }
 
-            const { selectedExtensions } = await prompts({
-                type: 'multiselect',
-                name: 'selectedExtensions',
-                message:
-                    '🔌 Which extension would you like to enable? (Use arrow keys to select, space to toggle, and enter to confirm.)\n',
-                choices: Object.keys(extensionConfig.extensions).map((extension) => ({
-                    title: `${extensionConfig.extensions[extension].name} - ${
-                        extensionConfig.extensions[extension].description
-                    }`,
-                    value: extension,
-                    selected: extensionConfig.extensions[extension].defaultOn ?? true,
-                })),
-                instructions: false,
-            });
+            let selectedExtensions: string[];
+            if (options.defaults) {
+                selectedExtensions = Object.keys(extensionConfig.extensions).filter(
+                    (ext) => extensionConfig.extensions[ext].defaultOn ?? true
+                );
+            } else {
+                ({ selectedExtensions } = await prompts({
+                    type: 'multiselect',
+                    name: 'selectedExtensions',
+                    message:
+                        '🔌 Which extension would you like to enable? (Use arrow keys to select, space to toggle, and enter to confirm.)\n',
+                    choices: Object.keys(extensionConfig.extensions).map((extension) => ({
+                        title: `${extensionConfig.extensions[extension].name} - ${
+                            extensionConfig.extensions[extension].description
+                        }`,
+                        value: extension,
+                        selected: extensionConfig.extensions[extension].defaultOn ?? true,
+                    })),
+                    instructions: false,
+                }));
+            }
 
             // Resolve all dependencies for selected extensions
             const resolvedExtensions = resolveDependenciesForMultiple(selectedExtensions, extensionConfig);
@@ -172,7 +232,7 @@ export const createStorefront = async (
 
             const enabledExtensions = Object.fromEntries(resolvedExtensions.map((ext: string) => [ext, true]));
             trimExtensions(
-                storefront,
+                outputPath,
                 enabledExtensions,
                 { extensions: extensionConfig.extensions },
                 options?.verbose || false
@@ -180,12 +240,12 @@ export const createStorefront = async (
         }
     }
     // interview for config overrides
-    const configMetaPath = fs.existsSync(path.join(storefront, 'config-meta.json'))
-        ? path.join(storefront, 'config-meta.json')
-        : path.join(storefront, 'src', 'config', 'config-meta.json');
+    const configMetaPath = fs.existsSync(path.join(outputPath, 'config-meta.json'))
+        ? path.join(outputPath, 'config-meta.json')
+        : path.join(outputPath, 'src', 'config', 'config-meta.json');
     const configMeta = JSON.parse(fs.readFileSync(configMetaPath, 'utf8'));
     // Load default config values from .env.default if it exists
-    const envDefaultPath = path.join(storefront, '.env.default');
+    const envDefaultPath = path.join(outputPath, '.env.default');
     let envDefaultValues: Record<string, string> = {};
     if (fs.existsSync(envDefaultPath)) {
         const result = dotenv.parse(fs.readFileSync(envDefaultPath, 'utf8'));
@@ -195,17 +255,22 @@ export const createStorefront = async (
     console.log('\n⚙️ We will now configure your storefront before it will be ready to run.\n');
     const configOverrides: Record<string, string> = {};
     for (const config of configMeta.configs) {
-        const answer = await prompts({
-            type: 'text',
-            name: config.key,
-            message: `What is the value for ${config.name}? (default: ${envDefaultValues[config.key]})\n`,
-            initial: envDefaultValues[config.key] ?? '',
-        });
-        configOverrides[config.key] = answer[config.key];
+        if (options.defaults) {
+            configOverrides[config.key] = envDefaultValues[config.key] ?? '';
+        } else {
+            const answer = await prompts({
+                type: 'text',
+                name: config.key,
+                message: `What is the value for ${config.name}? (default: ${envDefaultValues[config.key]})\n`,
+                initial: envDefaultValues[config.key] ?? '',
+            });
+            configOverrides[config.key] = answer[config.key];
+        }
     }
     // Generate the .env file based on the .env.default file and the config overrides from the extension config
-    generateEnvFile(storefront, configOverrides);
+    generateEnvFile(outputPath, configOverrides);
     // Print banner after setup is complete
+    const installCmd = options.localPackagesDir ? 'pnpm install --ignore-workspace' : 'pnpm install';
     const BANNER = `
     ╔══════════════════════════════════════════════════════════════════╗
     ║                       CONGRATULATIONS                            ║
@@ -213,8 +278,8 @@ export const createStorefront = async (
 
         🎉 Congratulations! Your storefront is ready to use! 🎉
         What's next:
-        - Navigate to the storefront directory: cd ${storefront}
-        - Install dependencies: pnpm install
+        - Navigate to the storefront directory: cd ${outputPath}
+        - Install dependencies: ${installCmd}
         - Build the storefront: pnpm run build
         - Run the development server: pnpm run dev
     `;

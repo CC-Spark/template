@@ -1,12 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 
 //#region src/config/load-config.ts
 /**
 * Dynamically imports `config.server.ts` from the project root (CWD) and returns
 * the full configuration object. This runs at route discovery time under vite-node
 * (typegen, dev, build), which handles the TS transformation.
+*
+* Uses jiti to transpile TypeScript on the fly, which works regardless of whether
+* the caller runs under vite-node, a plain Node process, or any other runtime.
+* This avoids the fragile assumption that vite-node will intercept dynamic imports
+* from pre-compiled npm packages (it won't — Vite externalizes node_modules).
 *
 * Returns the full config including `metadata`, `runtime`, and `app` sections.
 * Callers that only need `app` can destructure: `const { app } = await loadConfig()`.
@@ -21,10 +25,11 @@ async function loadConfig() {
 	const configPath = path.resolve(process.cwd(), "config.server.ts");
 	if (!fs.existsSync(configPath)) throw new Error(`[storefront-next-runtime] config.server.ts is required but not found at ${configPath}. Create this file with defineConfig() to configure your storefront application.`);
 	try {
-		const mod = await import(
-			/* @vite-ignore */
-			pathToFileURL(configPath).href
-);
+		const { createJiti } = await import("jiti");
+		const mod = await createJiti(import.meta.url, {
+			fsCache: false,
+			interopDefault: true
+		}).import(configPath);
 		return mod.default ?? mod;
 	} catch (error) {
 		throw new Error(`[storefront-next-runtime] Found config.server.ts at ${configPath} but failed to import it.`, { cause: error });

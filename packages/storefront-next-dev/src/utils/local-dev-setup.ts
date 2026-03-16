@@ -37,6 +37,7 @@ import { warn, info, success } from './logger';
 export interface PrepareLocalOptions {
     projectDirectory: string;
     sourcePackagesDir?: string;
+    defaults?: boolean;
 }
 
 /**
@@ -44,7 +45,7 @@ export interface PrepareLocalOptions {
  * Prompts user for local package paths and replaces workspace:* dependencies with file: references.
  */
 export async function prepareForLocalDev(options: PrepareLocalOptions): Promise<void> {
-    const { projectDirectory, sourcePackagesDir } = options;
+    const { projectDirectory, sourcePackagesDir, defaults } = options;
     const packageJsonPath = path.join(projectDirectory, 'package.json');
 
     if (!fs.existsSync(packageJsonPath)) {
@@ -83,8 +84,11 @@ export async function prepareForLocalDev(options: PrepareLocalOptions): Promise<
     // Default path suggestions based on package name
     const defaultPaths: Record<string, string> = {};
     if (sourcePackagesDir) {
-        defaultPaths['@salesforce/storefront-next-dev'] = path.join(sourcePackagesDir, 'storefront-next-dev');
-        defaultPaths['@salesforce/storefront-next-runtime'] = path.join(sourcePackagesDir, 'storefront-next-runtime');
+        defaultPaths['@salesforce/storefront-next-dev'] = path.resolve(sourcePackagesDir, 'storefront-next-dev');
+        defaultPaths['@salesforce/storefront-next-runtime'] = path.resolve(
+            sourcePackagesDir,
+            'storefront-next-runtime'
+        );
     }
 
     const resolvedPaths: Record<string, string> = {};
@@ -96,20 +100,27 @@ export async function prepareForLocalDev(options: PrepareLocalOptions): Promise<
         const defaultPath = defaultPaths[pkg] || '';
         const defaultExists = defaultPath && fs.existsSync(defaultPath);
 
-        const { localPath } = await prompts({
-            type: 'text',
-            name: 'localPath',
-            message: `📦 Path to ${pkg}:`,
-            initial: defaultExists ? defaultPath : '',
-            validate: (value: string) => {
-                if (!value) return 'Path is required';
-                if (!fs.existsSync(value)) return `Directory not found: ${value}`;
-                if (!fs.existsSync(path.join(value, 'package.json'))) {
-                    return `No package.json found in: ${value}`;
-                }
-                return true;
-            },
-        });
+        let localPath: string | undefined;
+        if (defaults && defaultExists) {
+            localPath = defaultPath;
+        } else if (defaults) {
+            warn(`Skipping ${pkg} - default path not found: ${defaultPath}`);
+        } else {
+            ({ localPath } = await prompts({
+                type: 'text',
+                name: 'localPath',
+                message: `📦 Path to ${pkg}:`,
+                initial: defaultExists ? defaultPath : '',
+                validate: (value: string) => {
+                    if (!value) return 'Path is required';
+                    if (!fs.existsSync(value)) return `Directory not found: ${value}`;
+                    if (!fs.existsSync(path.join(value, 'package.json'))) {
+                        return `No package.json found in: ${value}`;
+                    }
+                    return true;
+                },
+            }));
+        }
 
         if (!localPath) {
             warn(`Skipping ${pkg} - no path provided`);

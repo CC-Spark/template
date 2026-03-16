@@ -7,6 +7,11 @@ import { t as BaseConfig } from "./schema.js";
  * the full configuration object. This runs at route discovery time under vite-node
  * (typegen, dev, build), which handles the TS transformation.
  *
+ * Uses jiti to transpile TypeScript on the fly, which works regardless of whether
+ * the caller runs under vite-node, a plain Node process, or any other runtime.
+ * This avoids the fragile assumption that vite-node will intercept dynamic imports
+ * from pre-compiled npm packages (it won't — Vite externalizes node_modules).
+ *
  * Returns the full config including `metadata`, `runtime`, and `app` sections.
  * Callers that only need `app` can destructure: `const { app } = await loadConfig()`.
  *

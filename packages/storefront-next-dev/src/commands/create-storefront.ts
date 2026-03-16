@@ -26,7 +26,8 @@ export default class CreateStorefront extends Command {
     static examples = [
         '<%= config.bin %> <%= command.id %>',
         '<%= config.bin %> <%= command.id %> -v',
-        '<%= config.bin %> <%= command.id %> -n my-storefront -t https://github.com/org/template',
+        '<%= config.bin %> <%= command.id %> -n my-storefront -t https://github.com/org/template -b release-0.2.x',
+        '<%= config.bin %> <%= command.id %> -n my-storefront -t /path/to/local/template',
         '<%= config.bin %> <%= command.id %> -l /path/to/monorepo/packages',
     ];
 
@@ -42,11 +43,24 @@ export default class CreateStorefront extends Command {
         }),
         template: Flags.string({
             char: 't',
-            description: 'Template GitHub URL to use for the storefront',
+            description: 'Template repository to use for the storefront (GitHub URL or local path)',
+        }),
+        'template-branch': Flags.string({
+            char: 'b',
+            description: 'Branch or tag to clone from the template repository',
         }),
         'local-packages-dir': Flags.string({
             char: 'l',
             description: 'Local monorepo packages directory for file:// templates (pre-fills dependency paths)',
+        }),
+        defaults: Flags.boolean({
+            char: 'd',
+            description: 'Accept all defaults without prompting (for CI/automation)',
+            default: false,
+        }),
+        'output-dir': Flags.string({
+            char: 'o',
+            description: 'Directory where the storefront project will be created',
         }),
     };
 
@@ -57,7 +71,10 @@ export default class CreateStorefront extends Command {
             verbose: flags.verbose,
             name: flags.name,
             template: flags.template,
+            templateBranch: flags['template-branch'],
             localPackagesDir: flags['local-packages-dir'],
+            defaults: flags.defaults,
+            outputDir: flags['output-dir'],
         });
     }
 }

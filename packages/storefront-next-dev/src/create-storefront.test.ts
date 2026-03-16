@@ -15,8 +15,8 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
-import { join } from 'path';
-import { execSync } from 'child_process';
+import { join, resolve } from 'path';
+import { execFileSync, execSync } from 'child_process';
 import prompts from 'prompts';
 import trimExtensions from './extensibility/trim-extensions';
 import { prepareForLocalDev } from './utils/local-dev-setup';
@@ -36,6 +36,7 @@ vi.mock('fs-extra', () => ({
         rmSync: vi.fn(),
         readFileSync: vi.fn(),
         writeFileSync: vi.fn(),
+        copySync: vi.fn(),
     },
 }));
 vi.mock('./extensibility/trim-extensions', () => ({
@@ -84,6 +85,7 @@ vi.mock('prompts', () => {
 
 vi.mock('child_process', () => ({
     execSync: vi.fn(),
+    execFileSync: vi.fn(),
 }));
 
 let createStorefront: (args?: any) => Promise<void>;
@@ -115,13 +117,7 @@ describe('create-storefront', () => {
             throw new Error('command not found: git');
         });
 
-        try {
-            await createStorefront();
-        } catch (e: any) {
-            // because we mocked process.exit, the code will continue and the error will be caught by the try/catch block
-            expect(e).toBeDefined();
-            expect(e.message).toMatch(/command not found: git/i);
-        }
+        await createStorefront().catch(() => {});
 
         expect(exitMock).toHaveBeenCalledWith(1);
         expect(console.log).toHaveBeenCalledWith(
@@ -176,11 +172,46 @@ describe('create-storefront', () => {
         }
         // First call checks git is installed
         expect(execSync).toHaveBeenCalledWith('git --version', { stdio: 'ignore' });
-        // Second call clones with --depth 1 for faster shallow clone
-        expect(execSync).toHaveBeenCalledWith(
-            'git clone --depth 1 https://github.com/SalesforceCommerceCloud/storefront-next sfcc-storefront'
-        );
+        // Clone uses execFileSync with argument array to avoid shell injection
+        expect(execFileSync).toHaveBeenCalledWith('git', [
+            'clone',
+            '--depth',
+            '1',
+            'https://github.com/SalesforceCommerceCloud/storefront-next',
+            'sfcc-storefront',
+        ]);
         expect(fs.rmSync).toHaveBeenCalledWith(join('sfcc-storefront', '.git'), { recursive: true, force: true });
+    });
+
+    it('should create storefront at outputDir/name when outputDir is provided', async () => {
+        vi.mocked(execSync).mockImplementation(() => '');
+        vi.mocked(fs.existsSync as any).mockImplementation((p: string) => {
+            if (p.includes(join('src', 'extensions', 'config.json'))) return false;
+            if (p.endsWith('.env.default')) return false;
+            return true;
+        });
+        vi.mocked(fs.readFileSync).mockImplementation((p: any) => {
+            if (String(p).endsWith('config-meta.json')) return JSON.stringify({ configs: [] });
+            return '';
+        });
+
+        await createStorefront({
+            name: 'my-storefront',
+            template: 'https://example.com/storefront-template.git',
+            outputDir: '/tmp',
+        });
+
+        expect(execFileSync).toHaveBeenCalledWith('git', [
+            'clone',
+            '--depth',
+            '1',
+            'https://example.com/storefront-template.git',
+            join('/tmp', 'my-storefront'),
+        ]);
+        expect(fs.rmSync).toHaveBeenCalledWith(join('/tmp', 'my-storefront', '.git'), {
+            recursive: true,
+            force: true,
+        });
     });
 
     it('should use provided name and template without prompting for them', async () => {
@@ -204,11 +235,67 @@ describe('create-storefront', () => {
             template: 'https://example.com/storefront-template.git',
         });
 
-        expect(execSync).toHaveBeenCalledWith(
-            'git clone --depth 1 https://example.com/storefront-template.git my-storefront'
-        );
+        expect(execFileSync).toHaveBeenCalledWith('git', [
+            'clone',
+            '--depth',
+            '1',
+            'https://example.com/storefront-template.git',
+            'my-storefront',
+        ]);
         expect(prompts).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'storefront' }));
         expect(prompts).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'template' }));
+    });
+
+    it('should pass --branch to git clone when templateBranch is provided', async () => {
+        vi.mocked(fs.existsSync as any).mockImplementation((path: string) => {
+            if (path.includes(join('src', 'extensions', 'config.json'))) return false;
+            if (path.endsWith('.env.default')) return false;
+            return true;
+        });
+        vi.mocked(fs.readFileSync).mockImplementation((path: any) => {
+            if (String(path).endsWith('config-meta.json')) {
+                return JSON.stringify({ configs: [] });
+            }
+            return '';
+        });
+
+        await createStorefront({
+            name: 'my-storefront',
+            template: 'https://example.com/storefront-template.git',
+            templateBranch: 'release-0.2.x',
+        });
+
+        expect(execFileSync).toHaveBeenCalledWith('git', [
+            'clone',
+            '--depth',
+            '1',
+            '--branch',
+            'release-0.2.x',
+            'https://example.com/storefront-template.git',
+            'my-storefront',
+        ]);
+    });
+
+    it('should abort if templateBranch is an empty string', async () => {
+        await createStorefront({
+            name: 'my-storefront',
+            template: 'https://example.com/storefront-template.git',
+            templateBranch: '',
+        }).catch(() => {});
+
+        expect(exitMock).toHaveBeenCalledWith(1);
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('--template-branch cannot be empty'));
+    });
+
+    it('should abort if templateBranch is a whitespace string', async () => {
+        await createStorefront({
+            name: 'my-storefront',
+            template: 'https://example.com/storefront-template.git',
+            templateBranch: '   ',
+        }).catch(() => {});
+
+        expect(exitMock).toHaveBeenCalledWith(1);
+        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('--template-branch cannot be empty'));
     });
 
     it('should configure extensions', async () => {
@@ -609,6 +696,200 @@ describe('create-storefront', () => {
                 projectDirectory: 'my-storefront',
                 sourcePackagesDir: '/override/packages/path',
             });
+        });
+    });
+
+    describe('non-git local directory copy', () => {
+        it('should use fs.copySync instead of git clone for a non-git file:// path', async () => {
+            vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+                // .git inside the source template does NOT exist → non-git directory
+                if (String(p).endsWith('.git')) return false;
+                // config.json and .env.default do not exist for this test
+                if (String(p).includes('config.json') || String(p).endsWith('.env.default')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('config-meta.json')) return JSON.stringify({ configs: [] });
+                return '';
+            });
+
+            await createStorefront({
+                name: 'my-storefront',
+                template: 'file:///local/non-git/template',
+                defaults: true,
+            });
+
+            expect(fs.copySync).toHaveBeenCalledWith(
+                resolve('/local/non-git/template'),
+                'my-storefront',
+                expect.objectContaining({ filter: expect.any(Function) })
+            );
+            expect(execFileSync).not.toHaveBeenCalledWith('git', expect.arrayContaining(['clone']));
+        });
+
+        it('should use git clone for a file:// path that IS a git repo', async () => {
+            vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+                // .git inside source template EXISTS → git repo
+                if (String(p) === join(resolve('/local/git/template'), '.git')) return true;
+                if (String(p).endsWith('.git')) return false;
+                if (String(p).includes('config.json') || String(p).endsWith('.env.default')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('config-meta.json')) return JSON.stringify({ configs: [] });
+                return '';
+            });
+
+            await createStorefront({
+                name: 'my-storefront',
+                template: 'file:///local/git/template',
+                defaults: true,
+            });
+
+            expect(execFileSync).toHaveBeenCalledWith('git', [
+                'clone',
+                '--depth',
+                '1',
+                resolve('/local/git/template'),
+                'my-storefront',
+            ]);
+            expect(fs.copySync).not.toHaveBeenCalled();
+        });
+
+        it('should treat a bare absolute path as a local path', async () => {
+            vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('.git')) return false;
+                if (String(p).includes('config.json') || String(p).endsWith('.env.default')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('config-meta.json')) return JSON.stringify({ configs: [] });
+                return '';
+            });
+
+            await createStorefront({
+                name: 'my-storefront',
+                template: '/abs/path/to/template',
+                defaults: true,
+            });
+
+            // Bare absolute path should trigger copySync (not a git repo)
+            expect(fs.copySync).toHaveBeenCalledWith(
+                resolve('/abs/path/to/template'),
+                'my-storefront',
+                expect.objectContaining({ filter: expect.any(Function) })
+            );
+        });
+    });
+
+    describe('--defaults flag', () => {
+        it('should skip extension and config prompts when defaults is true', async () => {
+            vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('.git')) return false;
+                if (String(p).includes(join('src', 'extensions', 'config.json'))) return true;
+                if (String(p).endsWith('.env.default')) return true;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockImplementation((p: any) => {
+                if (String(p).includes('config.json')) {
+                    return JSON.stringify({
+                        extensions: {
+                            SFDC_EXT_STORE_LOCATOR: {
+                                name: 'Store Locator',
+                                description: 'Store Locator',
+                                defaultOn: true,
+                            },
+                        },
+                    });
+                }
+                if (String(p).endsWith('config-meta.json')) {
+                    return JSON.stringify({
+                        configs: [{ name: 'API Client ID', key: 'PUBLIC__app__commerce__api__clientId' }],
+                    });
+                }
+                if (String(p).endsWith('.env.default')) {
+                    return 'PUBLIC__app__commerce__api__clientId=default-id';
+                }
+                return '';
+            });
+
+            await createStorefront({
+                name: 'my-storefront',
+                template: 'file:///local/template',
+                defaults: true,
+            });
+
+            // No prompts should have been called for extensions or config keys
+            expect(prompts).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'selectedExtensions' }));
+            expect(prompts).not.toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'PUBLIC__app__commerce__api__clientId' })
+            );
+        });
+
+        it('should use defaultOn values for extensions when defaults is true', async () => {
+            vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('.git')) return false;
+                if (String(p).includes(join('src', 'extensions', 'config.json'))) return true;
+                if (String(p).endsWith('.env.default')) return false;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockImplementation((p: any) => {
+                if (String(p).includes('config.json')) {
+                    return JSON.stringify({
+                        extensions: {
+                            SFDC_EXT_ENABLED: { name: 'Enabled Ext', description: 'x', defaultOn: true },
+                            SFDC_EXT_DISABLED: { name: 'Disabled Ext', description: 'x', defaultOn: false },
+                        },
+                    });
+                }
+                if (String(p).endsWith('config-meta.json')) return JSON.stringify({ configs: [] });
+                return '';
+            });
+
+            await createStorefront({
+                name: 'my-storefront',
+                template: 'file:///local/template',
+                defaults: true,
+            });
+
+            // Only the defaultOn: true extension should be enabled
+            expect(trimExtensions).toHaveBeenCalledWith(
+                'my-storefront',
+                { SFDC_EXT_ENABLED: true },
+                expect.any(Object),
+                false
+            );
+        });
+
+        it('should use .env.default values for config when defaults is true', async () => {
+            vi.mocked(fs.existsSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('.git')) return false;
+                if (String(p).includes('config.json')) return false;
+                if (String(p).endsWith('.env.default')) return true;
+                return true;
+            });
+            vi.mocked(fs.readFileSync).mockImplementation((p: any) => {
+                if (String(p).endsWith('config-meta.json')) {
+                    return JSON.stringify({
+                        configs: [{ name: 'API Client ID', key: 'PUBLIC__app__commerce__api__clientId' }],
+                    });
+                }
+                if (String(p).endsWith('.env.default')) {
+                    return 'PUBLIC__app__commerce__api__clientId=default-value';
+                }
+                return '';
+            });
+
+            await createStorefront({
+                name: 'my-storefront',
+                template: 'file:///local/template',
+                defaults: true,
+            });
+
+            expect(fs.writeFileSync).toHaveBeenCalledWith(
+                join('my-storefront', '.env'),
+                'PUBLIC__app__commerce__api__clientId=default-value'
+            );
         });
     });
 });

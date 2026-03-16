@@ -15,13 +15,17 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import type { BaseConfig } from './schema';
 
 /**
  * Dynamically imports `config.server.ts` from the project root (CWD) and returns
  * the full configuration object. This runs at route discovery time under vite-node
  * (typegen, dev, build), which handles the TS transformation.
+ *
+ * Uses jiti to transpile TypeScript on the fly, which works regardless of whether
+ * the caller runs under vite-node, a plain Node process, or any other runtime.
+ * This avoids the fragile assumption that vite-node will intercept dynamic imports
+ * from pre-compiled npm packages (it won't — Vite externalizes node_modules).
  *
  * Returns the full config including `metadata`, `runtime`, and `app` sections.
  * Callers that only need `app` can destructure: `const { app } = await loadConfig()`.
@@ -43,14 +47,15 @@ export async function loadConfig<T extends BaseConfig = BaseConfig>(): Promise<T
     }
 
     try {
-        // The @vite-ignore comment suppresses Vite's "dynamic import cannot be analyzed" warning.
-        // It must be placed on the variable value (not inside import()) so that rolldown's
-        // single-use variable inlining carries it into the import() expression in the built output.
-        // See: https://github.com/nicolo-ribaudo/rolldown/issues/6263
-        const importPath = /* @vite-ignore */ pathToFileURL(configPath).href;
+        const { createJiti } = await import('jiti');
 
-        const mod = await import(importPath);
-        const config = mod.default ?? mod;
+        const jiti = createJiti(import.meta.url, {
+            fsCache: false,
+            interopDefault: true,
+        });
+
+        const mod = await jiti.import(configPath);
+        const config = (mod as Record<string, unknown>).default ?? mod;
         return config as T;
     } catch (error) {
         throw new Error(`[storefront-next-runtime] Found config.server.ts at ${configPath} but failed to import it.`, {

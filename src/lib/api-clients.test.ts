@@ -18,6 +18,7 @@ import type { RouterContextProvider } from 'react-router';
 import { createApiClients } from './api-clients';
 import { createTestContext } from '@/lib/test-utils';
 import { authContext } from '@/middlewares/auth.utils';
+import { multiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
 import type { SessionData } from '@/lib/api/types';
 
 // Mock dependencies
@@ -163,6 +164,37 @@ describe('createApiClients', () => {
             expect(mockUse).toHaveBeenCalledWith(
                 expect.objectContaining({
                     onRequest: expect.any(Function),
+                })
+            );
+        });
+
+        it('should use siteId from multi-site context when available', () => {
+            mockContextProvider.set(multiSiteContext, {
+                site: {
+                    id: 'multi-site-id',
+                    defaultCurrency: 'USD',
+                    defaultLocale: 'en-US',
+                    supportedCurrencies: ['USD'],
+                    supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                },
+                locale: { id: 'en-US', preferredCurrency: 'USD' },
+            } as never);
+
+            createApiClients(mockContextProvider);
+
+            expect(mockCreateCommerceApiClients).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    siteId: 'multi-site-id',
+                })
+            );
+        });
+
+        it('should fall back to config siteId when multi-site context is not set', () => {
+            createApiClients(mockContextProvider);
+
+            expect(mockCreateCommerceApiClients).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    siteId: 'test-site-id',
                 })
             );
         });

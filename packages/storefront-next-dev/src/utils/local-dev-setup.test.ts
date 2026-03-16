@@ -140,6 +140,29 @@ describe('local-dev-setup', () => {
             }
         });
 
+        it('should warn and skip prompts when defaults=true but default path does not exist', async () => {
+            vol.fromJSON({
+                '/test-project/package.json': JSON.stringify({
+                    name: 'test-project',
+                    dependencies: {
+                        '@salesforce/storefront-next-dev': 'workspace:*',
+                    },
+                }),
+                // sourcePackagesDir points somewhere that does NOT contain the package
+            });
+
+            await prepareForLocalDev({
+                projectDirectory: '/test-project',
+                sourcePackagesDir: '/missing/packages',
+                defaults: true,
+            });
+
+            // Should not prompt at all
+            expect(prompts).not.toHaveBeenCalled();
+            // Should warn that the default path was not found
+            expect(warn).toHaveBeenCalledWith(expect.stringContaining('default path not found'));
+        });
+
         it('should replace workspace:* with file: references', async () => {
             vol.fromJSON({
                 '/test-project/package.json': JSON.stringify({
