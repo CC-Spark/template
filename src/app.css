@@ -55,7 +55,13 @@
     --color-info-foreground: var(--info-foreground);
     --color-warning: var(--warning);
     --color-warning-foreground: var(--warning-foreground);
+    --color-warning-bg: var(--warning-bg);
+    --color-warning-border: var(--warning-border);
+    --color-active-bg: var(--active-bg);
+    --color-active-foreground: var(--active-foreground);
     --color-destructive-foreground: var(--destructive-foreground);
+    --color-account-action-destructive: var(--account-action-destructive);
+    --color-account-action-destructive-foreground: var(--account-action-destructive-foreground);
     /* -- separator colors -- */
     --color-separator: var(--separator);
     --color-separator-foreground: var(--separator-foreground);
@@ -132,6 +138,20 @@
 
     --destructive: #000000;
     --destructive-foreground: #ffffff;
+
+    /* warning (e.g. caution messages, default-payment warning) */
+    --warning: #ea580c;
+    --warning-foreground: #9a3412;
+    --warning-bg: #fff7ed;
+    --warning-border: #fed7aa;
+
+    /* active status (e.g. authorized pickup person badge) */
+    --active-bg: #dcfce7;
+    --active-foreground: #15803d;
+
+    /* account/payment destructive actions (remove payment, remove address, etc.) — scoped so global --destructive is unchanged */
+    --account-action-destructive: #ef4444;
+    --account-action-destructive-foreground: #ffffff;
 
     --success: #000000;
     --success-foreground: #ffffff;
@@ -274,6 +294,8 @@
     --font-sans: 'Sen', -apple-system, 'system-ui', 'Helvetica Neue', Arial, sans-serif;
     --text-lg: 0.875rem;
     --text-lg--line-height: 1.422rem;
+    --text-lg-xl: 1.1875rem;
+    --text-lg-xl--line-height: 1.75rem;
     --text-xl: 1.5rem;
     --text-xl--line-height: 2rem;
     /** Account section headers (Welcome back, Account Details, Wishlist, etc.). Override to adjust size. */
@@ -317,6 +339,10 @@
 
     --destructive: #9e9e9e;
     --destructive-foreground: #000000;
+
+    /* account/payment destructive actions (same red as light for consistency) */
+    --account-action-destructive: #ef4444;
+    --account-action-destructive-foreground: #ffffff;
 
     --success: #fafafa;
     --success-foreground: #000000;

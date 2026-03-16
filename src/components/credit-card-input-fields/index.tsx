@@ -211,7 +211,7 @@ export function CreditCardInputFields<TFormValues extends FieldValues & Partial<
                             <FormControl>
                                 <Checkbox id="save-default" checked={field.value} onCheckedChange={field.onChange} />
                             </FormControl>
-                            <FormLabel htmlFor="save-default" className="text-sm cursor-pointer">
+                            <FormLabel htmlFor="save-default" className="text-sm text-foreground/80 cursor-pointer">
                                 {defaultOptionLabel ?? (t as (key: string) => string)('payment.saveAsDefault')}
                             </FormLabel>
                         </FormItem>

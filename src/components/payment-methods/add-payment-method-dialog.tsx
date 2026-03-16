@@ -55,9 +55,9 @@ export function AddPaymentMethodDialog({
     isLoading = false,
 }: AddPaymentMethodDialogProps): ReactElement {
     const { t } = useTranslation('account');
+    const [countryCode] = useState<CountryCode>('US');
     const [selectedAddress, setSelectedAddress] = useState('');
     const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
-    const [countryCode] = useState<CountryCode>('US');
     const [formError, setFormError] = useState<string | null>(null);
 
     const paymentSchema = createPaymentSchema(t as unknown as TFunction);
@@ -168,14 +168,16 @@ export function AddPaymentMethodDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold">
+                <DialogHeader className="mb-4">
+                    <DialogTitle
+                        className="font-semibold text-foreground"
+                        style={{ fontSize: 'var(--text-lg-xl)', lineHeight: 'var(--text-lg-xl--line-height)' }}>
                         {t('paymentMethods.addPaymentMethodTitle')}
                     </DialogTitle>
                 </DialogHeader>
 
                 {formError && (
-                    <Alert variant="destructive">
+                    <Alert variant="accountDestructive">
                         <AlertDescription>{formError}</AlertDescription>
                     </Alert>
                 )}
