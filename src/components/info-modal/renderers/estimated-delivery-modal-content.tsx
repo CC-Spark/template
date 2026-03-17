@@ -18,8 +18,7 @@
 import { type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/lib/currency';
-import { useConfig } from '@salesforce/storefront-next-runtime/config';
-import type { AppConfig } from '@/types/config';
+import { useSite, type Site } from '@salesforce/storefront-next-runtime/multi-site';
 import { Typography } from '@/components/typography';
 import type { EstimatedDeliveryData } from '@/lib/adapters/product-content-data-types';
 
@@ -36,9 +35,8 @@ export function EstimatedDeliveryModalContent({
     currency: string;
 }): ReactElement {
     const { t } = useTranslation('estimatedDelivery');
-    const config = useConfig<AppConfig>();
-    const currentSite = config.commerce.sites[0];
-    const locale = currentSite?.defaultLocale;
+    const currentSite = useSite() as Site;
+    const locale = currentSite.defaultLocale;
     const { estimatedDelivery, shippingOptions, internationalShipping, orderTracking } = deliveryData;
 
     return (

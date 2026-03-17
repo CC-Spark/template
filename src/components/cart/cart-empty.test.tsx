@@ -17,6 +17,7 @@ import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 const { t } = getTranslation();
 
@@ -26,7 +27,9 @@ import CartEmpty from './cart-empty';
 // Use createMemoryRouter (data mode) instead of MemoryRouter (declarative mode)
 // since the app uses React Router's framework mode which shares core APIs with data mode
 const renderWithRouter = (ui: React.ReactElement) => {
-    const router = createMemoryRouter([{ path: '/', element: ui }], { initialEntries: ['/'] });
+    const router = createMemoryRouter([{ path: '*', element: <AllProvidersWrapper>{ui}</AllProvidersWrapper> }], {
+        initialEntries: ['/'],
+    });
     return render(<RouterProvider router={router} />);
 };
 

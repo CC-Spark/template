@@ -15,7 +15,8 @@
  */
 import { render, screen } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 // Mock the hero image import
 vi.mock('/images/hero-01.webp', () => ({
@@ -44,11 +45,20 @@ describe('Hero Component', () => {
     });
 
     const renderHero = (props = {}) => {
-        return render(
-            <MemoryRouter>
-                <Hero {...props} />
-            </MemoryRouter>
+        const router = createMemoryRouter(
+            [
+                {
+                    path: '*',
+                    element: (
+                        <AllProvidersWrapper>
+                            <Hero {...props} />
+                        </AllProvidersWrapper>
+                    ),
+                },
+            ],
+            { initialEntries: ['/'] }
         );
+        return render(<RouterProvider router={router} />);
     };
 
     describe('Content Rendering', () => {
@@ -58,7 +68,7 @@ describe('Hero Component', () => {
                 props: {},
                 expectedTitle: 'Shop Now',
                 expectedCta: 'Shop Now',
-                expectedLink: '/category/root',
+                expectedLink: '/global/en-GB/category/root',
                 expectedImageSrc: '/mock-hero-image.png',
                 expectedImageAlt: '',
                 hasSubtitle: false,
@@ -75,7 +85,7 @@ describe('Hero Component', () => {
                 },
                 expectedTitle: 'Custom Title',
                 expectedCta: 'Learn More',
-                expectedLink: '/custom',
+                expectedLink: '/global/en-GB/custom',
                 expectedImageSrc: '/custom.jpg',
                 expectedImageAlt: 'Custom Alt',
                 hasSubtitle: true,
@@ -170,14 +180,10 @@ describe('Hero Component', () => {
         });
 
         test('subtitle is conditionally rendered', () => {
-            const { rerender } = renderHero();
+            renderHero();
             expect(screen.queryByText(/subtitle/i)).not.toBeInTheDocument();
 
-            rerender(
-                <MemoryRouter>
-                    <Hero subtitle="Now with subtitle" />
-                </MemoryRouter>
-            );
+            renderHero({ subtitle: 'Now with subtitle' });
             expect(screen.getByText('Now with subtitle')).toBeInTheDocument();
         });
     });

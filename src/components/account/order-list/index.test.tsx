@@ -19,18 +19,14 @@ import { vi, describe, test, expect } from 'vitest';
 import { CurrencyWrapper } from '@/test-utils/context-provider';
 import { OrderList, OrderListHeader, OrderListBody, type Order } from './index';
 
-// Mock react-router
-vi.mock('react-router', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('react-router')>();
-    return {
-        ...actual,
-        Link: ({ children, to, onClick }: { children: React.ReactNode; to: string; onClick?: () => void }) => (
-            <a href={to} onClick={onClick}>
-                {children}
-            </a>
-        ),
-    };
-});
+// Mock the Link component from @/components/link
+vi.mock('@/components/link', () => ({
+    Link: ({ children, to, onClick }: { children: React.ReactNode; to: string; onClick?: () => void }) => (
+        <a href={to} onClick={onClick}>
+            {children}
+        </a>
+    ),
+}));
 
 const testOrders: Order[] = [
     {

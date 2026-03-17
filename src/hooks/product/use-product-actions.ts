@@ -17,7 +17,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useFetcher, useLocation, useNavigate } from 'react-router';
+import { useFetcher, useLocation } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { useTranslation } from 'react-i18next';
 import type { ShopperProducts, ShopperBasketsV2 } from '@salesforce/storefront-next-runtime/scapi';
 import { useToast } from '@/components/toast';

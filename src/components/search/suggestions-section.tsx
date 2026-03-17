@@ -15,7 +15,7 @@
  */
 'use client';
 
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 import SuggestionsList from './suggestions-list';
 import SuggestionsGrid from './suggestions-grid';
 import { searchUrlBuilder } from '@/lib/url';

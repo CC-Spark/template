@@ -721,7 +721,7 @@ describe('root.tsx', () => {
             expect(result).toHaveProperty('getI18next');
             expect(typeof result.clientAuth).toBe('object');
             expect(typeof result.getI18next).toBe('function');
-            expect(result.locale).toBe('en-US');
+            expect(result.locale).toEqual({ id: 'en-GB', preferredCurrency: 'GBP' });
         });
 
         it('should return clientAuth with non-sensitive session data', async () => {
@@ -765,7 +765,7 @@ describe('root.tsx', () => {
             expect(result.clientAuth).not.toHaveProperty('accessToken');
             expect(result.clientAuth).not.toHaveProperty('refreshToken');
             expect(result.appConfig).toBeDefined();
-            expect(result.locale).toBe('en-US');
+            expect(result.locale).toEqual({ id: 'en-GB', preferredCurrency: 'GBP' });
             expect(typeof result.getI18next).toBe('function');
         });
 

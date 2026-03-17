@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 import { type LoaderFunctionArgs, redirect } from 'react-router';
+import { buildUrlFromContext } from '@/lib/url.server';
 
 // TODO: This is right now just a naive shell to make client-side auth flow at least work. This requires attention.
-export function loader({ request }: LoaderFunctionArgs) {
+export function loader({ request, context }: LoaderFunctionArgs) {
     const { searchParams } = new URL(request.url);
 
     // SLAS sends different parameter names than direct OAuth
@@ -25,5 +26,5 @@ export function loader({ request }: LoaderFunctionArgs) {
     if (code && usid) {
         return new Response(null, { status: 200 });
     }
-    return redirect('/login');
+    return redirect(buildUrlFromContext('/login', context));
 }

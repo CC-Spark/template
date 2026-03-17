@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import { Suspense, type ReactElement } from 'react';
-import { Await, Link } from 'react-router';
+import { Await } from 'react-router';
+import { Link } from '@/components/link';
 import { SiFacebook, SiInstagram, SiX, SiYoutube } from '@icons-pack/react-simple-icons';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import Signup from './signup';

@@ -16,7 +16,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Swatch } from '../swatch';
 import { expect, within, userEvent } from 'storybook/test';
-import { waitForStorybookReady } from '@storybook/test-utils';
+import { waitForStorybookReady, SITE_PREFIX } from '@storybook/test-utils';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 
@@ -226,10 +226,10 @@ export const WithHref: Story = {
         await waitForStorybookReady(canvasElement);
 
         // NavLink renders as <a> tag, find it by href attribute
-        const link = canvasElement.querySelector('a[href="/products/1"]');
+        const link = canvasElement.querySelector(`a[href="${SITE_PREFIX}/products/1"]`);
         await expect(link).toBeInTheDocument();
         if (link) {
-            await expect(link).toHaveAttribute('href', '/products/1');
+            await expect(link).toHaveAttribute('href', `${SITE_PREFIX}/products/1`);
         }
     },
 };

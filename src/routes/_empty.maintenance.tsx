@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type LoaderFunctionArgs, useLoaderData, useSearchParams, Link } from 'react-router';
+import { type LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router';
 import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import type { AppConfig } from '@/types/config';
+import { Link } from '@/components/link';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export async function loader(args: LoaderFunctionArgs) {

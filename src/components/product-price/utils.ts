@@ -20,6 +20,8 @@ import type {
     ShopperSearch,
 } from '@salesforce/storefront-next-runtime/scapi';
 
+type ProductType = ShopperProducts.schemas['ProductType'];
+
 type Product =
     | ShopperProducts.schemas['Product']
     | (ShopperBasketsV2.schemas['ProductItem'] & Partial<ShopperProducts.schemas['Product']>)
@@ -83,7 +85,7 @@ export const findLowestPrice = (product: Product): LowestPriceResult | undefined
 
     // Look at all of the variants, only if it's a master product.
     // i.e. when a shopper has narrowed down to a variant, do not look into other variants
-    const isMaster = product.hitType === 'master' || !!product.type?.master;
+    const isMaster = product.hitType === 'master' || !!(product.type as ProductType | undefined)?.master;
     if (isMaster && !product.variants) {
         // eslint-disable-next-line no-console
         console.warn(
@@ -94,7 +96,7 @@ export const findLowestPrice = (product: Product): LowestPriceResult | undefined
 
     const res = array.reduce(
         (prev, data) => {
-            const promotions = data.productPromotions || [];
+            const promotions = (data as { productPromotions?: ProductPromotion[] }).productPromotions || [];
             const [smallestPromotionalPrice, promo] = getSmallestValByProperty(promotions, 'promotionalPrice');
 
             const dataPrice = data.price || 0;
@@ -103,7 +105,7 @@ export const findLowestPrice = (product: Product): LowestPriceResult | undefined
 
             if (smallestPromotionalPrice !== Infinity && smallestPromotionalPrice < dataPrice) {
                 salePrice = smallestPromotionalPrice;
-                promotion = promo as ProductPromotion | null;
+                promotion = promo;
             }
 
             return salePrice < prev.minPrice ? { minPrice: salePrice, promotion, data } : prev;
@@ -123,7 +125,7 @@ export const findLowestPrice = (product: Product): LowestPriceResult | undefined
  * Used to display price range (min–max) when product.priceMax is not in the response.
  */
 function findHighestPrice(product: Product): number | undefined {
-    const isMaster = product?.hitType === 'master' || !!product?.type?.master;
+    const isMaster = product?.hitType === 'master' || !!(product?.type as ProductType | undefined)?.master;
     if (!isMaster || !product?.variants?.length) return undefined;
     const array = product.variants;
     let max = -Infinity;
@@ -185,8 +187,9 @@ export const getPriceData = (product: Product, opts: { quantity?: number } = {})
         };
     }
 
-    const isASet = product?.hitType === 'set' || !!product?.type?.set;
-    const isMaster = product?.hitType === 'master' || !!product?.type?.master;
+    const productType = product?.type as ProductType | undefined;
+    const isASet = product?.hitType === 'set' || !!productType?.set;
+    const isMaster = product?.hitType === 'master' || !!productType?.master;
     let currentPrice: number;
     let variantWithLowestPrice: LowestPriceResult | null = null;
 

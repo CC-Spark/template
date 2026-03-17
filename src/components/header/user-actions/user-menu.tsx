@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 import { type ReactElement, useState, useRef, useEffect } from 'react';
-import { Link, Form } from 'react-router';
-import { House, Heart, ShoppingBag, User, MapPin, CreditCard, Building, LogOut } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
+import { Form } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { House, Heart, ShoppingBag, User, MapPin, CreditCard, Building, LogOut } from 'lucide-react';
+
+// Runtime SDK
+import { buildUrl } from '@salesforce/storefront-next-runtime/multi-site';
+
+// Components
+import { Link } from '@/components/link';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+// hooks
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import { useCurrentSiteAndLocaleRef } from '@/hooks/use-current-site-and-locale-ref';
+
+// Lib
 import { cn } from '@/lib/utils';
+import type { AppConfig } from '@/types/config';
 
 interface UserMenuProps {
     isAuthenticated: boolean;
@@ -39,6 +52,8 @@ export function UserMenu({ isAuthenticated, trigger }: UserMenuProps): ReactElem
     const openedViaMouseRef = useRef(false);
     const { t } = useTranslation('header');
     const { t: tAccount } = useTranslation('account');
+    const config = useConfig<AppConfig>();
+    const { siteRef, localeRef } = useCurrentSiteAndLocaleRef();
 
     // Clear timeout on unmount
     useEffect(() => {
@@ -190,7 +205,14 @@ export function UserMenu({ isAuthenticated, trigger }: UserMenuProps): ReactElem
 
                         {/* Logout */}
                         <div className="px-4 py-2">
-                            <Form method="post" action="/logout" className="w-full">
+                            <Form
+                                method="post"
+                                action={buildUrl({
+                                    to: '/logout',
+                                    urlConfig: config.url,
+                                    params: { siteId: siteRef, localeId: localeRef },
+                                })}
+                                className="w-full">
                                 <button
                                     type="submit"
                                     className={cn(menuItemClassName, 'w-full text-left cursor-pointer')}

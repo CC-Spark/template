@@ -15,14 +15,23 @@
  */
 import { useMemo, type ReactElement } from 'react';
 import { Outlet, type LoaderFunctionArgs, redirect, type ShouldRevalidateFunctionArgs } from 'react-router';
-import { House, User, Heart, ShoppingBag, MapPin, CreditCard, Building, LogOut } from 'lucide-react';
-import { getAuth as getAuthServer } from '@/middlewares/auth.server';
-import { getCustomer } from '@/lib/api/customer';
-import { getSubscriptions } from '@/lib/api/consent';
-import { Card, CardContent } from '@/components/ui/card';
-import { AccountNavList, type AccountNavItemData } from '@/components/account-navigation';
-import type { ShopperCustomers, ShopperConsents } from '@salesforce/storefront-next-runtime/scapi';
 import { useTranslation } from 'react-i18next';
+import { House, User, Heart, ShoppingBag, MapPin, CreditCard, Building, LogOut } from 'lucide-react';
+
+// Runtime SDK
+import type { ShopperCustomers, ShopperConsents } from '@salesforce/storefront-next-runtime/scapi';
+
+// Components
+import { AccountNavList, type AccountNavItemData } from '@/components/account-navigation';
+import { Card, CardContent } from '@/components/ui/card';
+
+// Lib
+import { getSubscriptions } from '@/lib/api/consent';
+import { getCustomer } from '@/lib/api/customer';
+import { buildUrlFromContext } from '@/lib/url.server';
+
+// middleware
+import { getAuth as getAuthServer } from '@/middlewares/auth.server';
 
 /**
  * Type definition for the account page loader data
@@ -51,7 +60,7 @@ export function loader(args: LoaderFunctionArgs) {
         userType !== 'registered' ||
         !customerId
     ) {
-        throw redirect('/login');
+        throw redirect(buildUrlFromContext('/login', args.context));
     }
 
     const customer = getCustomer(args.context, customerId);

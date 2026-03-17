@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ReactElement, PropsWithChildren } from 'react';
-import { Link, useLocation } from 'react-router';
+import { type ReactElement, type ReactNode, type PropsWithChildren, useRef, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router';
+import { Link } from '@/components/link';
 import Search from './search';
 import CartBadge from './cart-badge';
 import UserActions from './user-actions/user-actions';
@@ -28,16 +29,38 @@ import { launchChat } from '@/components/shopper-agent';
 import { validateShopperAgentConfig } from '@/components/shopper-agent/shopper-agent.utils';
 import { UITarget } from '@/targets/ui-target';
 
-export default function Header({ children }: PropsWithChildren): ReactElement {
+interface HeaderProps extends PropsWithChildren {
+    beforeHeader?: ReactNode;
+}
+
+export default function Header({ children, beforeHeader }: HeaderProps): ReactElement {
     const { t } = useTranslation('header');
     const location = useLocation();
+    const headerRef = useRef<HTMLElement>(null);
     const config = useConfig<AppConfig>();
     const showChat =
         (config.commerceAgent?.enabled === 'true' || config.commerceAgent?.enabled === true) &&
         validateShopperAgentConfig(config.commerceAgent);
+    const updateHeaderHeight = useCallback(() => {
+        if (headerRef.current) {
+            headerRef.current.style.setProperty('--header-height', `${headerRef.current.offsetHeight}px`);
+        }
+    }, []);
+
+    useEffect(() => {
+        const el = headerRef.current;
+        if (!el) return;
+        updateHeaderHeight();
+        const observer = new ResizeObserver(updateHeaderHeight);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [updateHeaderHeight]);
 
     return (
-        <header className="bg-header-background text-header-foreground border-b border-border sticky top-0 z-50 relative [--header-height:theme(spacing.16)]">
+        <header
+            ref={headerRef}
+            className="bg-header-background text-header-foreground border-b border-border sticky top-0 z-50">
+            <div className="flex justify-end px-4 lg:px-9">{beforeHeader}</div>
             <div className="px-4 lg:px-9">
                 {/* Top row: Logo left, Icons right */}
                 <div className="flex items-center gap-x-4 lg:gap-x-6 h-16">

@@ -16,12 +16,12 @@
 import { type ReactElement } from 'react';
 import {
     redirect,
-    Link,
     useActionData,
     type LoaderFunctionArgs,
     type ActionFunctionArgs,
     // type ClientActionFunctionArgs,
 } from 'react-router';
+import { Link } from '@/components/link';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import StandardLoginForm from '@/components/login/standard-login-form';

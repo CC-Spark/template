@@ -17,10 +17,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CurrencyWrapper } from '@/test-utils/context-provider';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 import { OrderListItem, type OrderListItemData } from './index';
 
-const renderWithProviders = (ui: React.ReactElement) => render(ui, { wrapper: CurrencyWrapper });
+const renderWithProviders = (ui: React.ReactElement) => render(ui, { wrapper: AllProvidersWrapper });
 
 // Mock react-router
 vi.mock('react-router', async (importOriginal) => {
@@ -301,7 +301,7 @@ describe('OrderListItem', () => {
             renderWithProviders(<OrderListItem order={mockOrder} />);
 
             const link = screen.getByText('View Order Details');
-            expect(link.closest('a')).toHaveAttribute('href', '/account/orders/ORD-001-2024');
+            expect(link.closest('a')).toHaveAttribute('href', '/global/en-GB/account/orders/ORD-001-2024');
         });
 
         it('uses translated label when statusLabel is not provided', () => {

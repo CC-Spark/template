@@ -92,7 +92,7 @@ describe('createApiClients', () => {
 
     beforeEach(async () => {
         vi.clearAllMocks();
-        mockContextProvider = createTestContext();
+        mockContextProvider = createTestContext() as unknown as RouterContextProvider;
 
         // Get mocked functions
         const utilsModule = await import('@/lib/utils');
@@ -190,6 +190,9 @@ describe('createApiClients', () => {
         });
 
         it('should fall back to config siteId when multi-site context is not set', () => {
+            // Explicitly clear multi-site context to simulate no multi-site middleware
+            mockContextProvider.set(multiSiteContext, null);
+
             createApiClients(mockContextProvider);
 
             expect(mockCreateCommerceApiClients).toHaveBeenCalledWith(

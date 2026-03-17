@@ -22,9 +22,9 @@ module.exports = {
             startServerReadyTimeout: 30000,
             url: [
                 'http://localhost:3001/',
-                // 'http://localhost:3001/category/womens-clothing-tops',
-                'http://localhost:3001/product/25591227M?color=JJ9DFXX',
-                'http://localhost:3001/cart',
+                // 'http://localhost:3001/RefArchGlobal/en-GB/category/womens-clothing-tops',
+                'http://localhost:3001/RefArchGlobal/en-GB/product/25591227M?color=JJ9DFXX',
+                'http://localhost:3001/RefArchGlobal/en-GB/cart',
             ],
             settings: {
                 formFactor: 'mobile',

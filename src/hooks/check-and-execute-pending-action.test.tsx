@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, waitFor } from '@testing-library/react';
-// eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
-import * as ReactRouter from 'react-router';
 import { createMemoryRouter, RouterProvider } from 'react-router';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 import { useCheckAndExecutePendingAction } from './check-and-execute-pending-action';
 
-// Mock useNavigate
 const mockNavigate = vi.fn();
+vi.mock('@/hooks/use-navigate', () => ({
+    useNavigate: () => mockNavigate,
+}));
 
 describe('useCheckAndExecutePendingAction', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Use vi.spyOn to mock useNavigate while keeping real router exports
-        vi.spyOn(ReactRouter, 'useNavigate').mockReturnValue(mockNavigate);
-    });
-
-    afterEach(() => {
-        vi.restoreAllMocks();
     });
 
     // Test component that uses the hook
@@ -58,7 +53,7 @@ describe('useCheckAndExecutePendingAction', () => {
             [
                 {
                     path: '*',
-                    element: component,
+                    element: <AllProvidersWrapper>{component}</AllProvidersWrapper>,
                 },
             ],
             {

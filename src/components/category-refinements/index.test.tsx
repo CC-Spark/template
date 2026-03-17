@@ -17,6 +17,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
+import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
+import { mockConfig } from '@/test-utils/config';
 import CategoryRefinements from './index';
 
 vi.mock('@/extensions/bopis/components/refine-inventory', () => ({
@@ -54,7 +56,11 @@ const renderComponent = ({
         [
             {
                 path: '/',
-                element: <CategoryRefinements result={result} refine={refine} />,
+                element: (
+                    <ConfigProvider config={mockConfig}>
+                        <CategoryRefinements result={result} refine={refine} />
+                    </ConfigProvider>
+                ),
             },
         ],
         {

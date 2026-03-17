@@ -18,7 +18,7 @@ import PdButton from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within } from 'storybook/test';
-import { waitForStorybookReady } from '@storybook/test-utils';
+import { waitForStorybookReady, SITE_PREFIX } from '@storybook/test-utils';
 
 function PdButtonStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -140,7 +140,7 @@ Button rendered as a link for navigation.
         await waitForStorybookReady(canvasElement);
         const link = await canvas.findByRole('link', { name: /go to category/i }, { timeout: 5000 });
         await expect(link).toBeInTheDocument();
-        await expect(link).toHaveAttribute('href', '/category/featured');
+        await expect(link).toHaveAttribute('href', `${SITE_PREFIX}/category/featured`);
     },
 };
 

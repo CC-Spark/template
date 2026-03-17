@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import { createContext, type PropsWithChildren, useCallback, useContext, useSyncExternalStore } from 'react';
-import { type NavigateFunction, useNavigate } from 'react-router';
+import type { NavigateFunction } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import defaultTheme from 'tailwindcss/defaultTheme';

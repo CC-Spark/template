@@ -47,6 +47,9 @@ vi.mock('@/lib/api/basket');
 vi.mock('@/lib/api/customer');
 vi.mock('@/lib/customer-profile-utils');
 vi.mock('@/lib/error-handler');
+vi.mock('@/lib/url.server', () => ({
+    buildUrlFromContext: vi.fn((to: string) => to),
+}));
 
 async function parsePlaceOrderResponse(
     response: Response

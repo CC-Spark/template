@@ -185,6 +185,7 @@ export type AppConfig = {
         prefetch?: string[];
         prefetchDns?: string[];
     };
+    localeAliasMap?: Record<string, string>;
     localeDetectionConfig?: DetectionConfig;
     pages: {
         home: {

@@ -15,7 +15,8 @@
  */
 import { type ReactElement, Suspense, useEffect } from 'react';
 import AddressDisplay from '@/components/address-display';
-import { Await, Link, type LoaderFunctionArgs } from 'react-router';
+import { Await, type LoaderFunctionArgs } from 'react-router';
+import { Link } from '@/components/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

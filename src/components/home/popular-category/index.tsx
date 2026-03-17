@@ -17,7 +17,7 @@ import type { ComponentProps } from 'react';
 import type { ShopperProducts, ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
 import type { ComponentType } from '@/components/region';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 import { Component } from '@/lib/decorators/component';
 import { AttributeDefinition } from '@/lib/decorators/attribute-definition';
 import { DynamicImage } from '@/components/dynamic-image';

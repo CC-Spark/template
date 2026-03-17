@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { createContext, useContext, type PropsWithChildren } from 'react';
-import type { Site } from '../config/types';
+import type { Site } from './types';
 
 const SiteContext = createContext<Site | undefined>(undefined);
 

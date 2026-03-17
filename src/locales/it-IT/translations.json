@@ -1018,6 +1018,7 @@
             "account": "Account",
             "ourCompany": "La nostra azienda",
             "switchThemes": "Cambia tema",
+            "switchSite": "Regione",
             "switchLanguage": "Lingua",
             "switchCurrency": "Valuta",
             "shop": "Negozio",
@@ -1164,6 +1165,7 @@
         "ariaLabel": "Selettore lingua",
         "locales": {
             "en-GB": "Inglese (Regno Unito)",
+            "en-US": "Inglese (Stati Uniti)",
             "it-IT": "Italiano (Italia)"
         },
         "validation": {
@@ -1233,5 +1235,15 @@
         },
         "minCharactersHint": "Minimo {{count}} caratteri.",
         "maxCharactersHint": "Massimo {{count}} caratteri."
+    },
+    "sitePicker": {
+        "title": "Scegli il tuo sito",
+        "description": "Seleziona il tuo negozio preferito per vedere prodotti e prezzi pertinenti.",
+        "ariaLabel": "Seleziona sito",
+        "placeholder": "Seleziona un sito...",
+        "sites": {
+            "RefArchGlobal": "Globale (UK)",
+            "RefArch": "Stati Uniti"
+        }
     }
 }

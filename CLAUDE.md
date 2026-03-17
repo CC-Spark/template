@@ -298,6 +298,7 @@ See `src/extensions/README.md` for details.
 - [docs/README-DATA.md](./docs/README-DATA.md) - Data fetching with adapters
 - [docs/README-AUTH.md](./docs/README-AUTH.md) - Authentication patterns
 - [docs/README-I18N.md](./docs/README-I18N.md) - Internationalization
+- [docs/README-MULTI-SITE.md](./docs/README-MULTI-SITE.md) - Multi-site & locale URL routing
 - [docs/README-TESTS.md](./docs/README-TESTS.md) - Testing strategy
 - [docs/README-UI-STYLING.md](./docs/README-UI-STYLING.md) - UI and styling (Tailwind, shadcn, design tokens)
 - [docs/README-ADAPTER-PATTERN-GUIDE.md](./docs/README-ADAPTER-PATTERN-GUIDE.md) - Adapter implementation guide

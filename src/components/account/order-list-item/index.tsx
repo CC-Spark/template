@@ -15,7 +15,7 @@
  */
 
 import type { ReactElement } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Typography } from '@/components/typography';

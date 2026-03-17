@@ -17,7 +17,7 @@ import { type ReactElement } from 'react';
 
 // Third-party
 import { ShoppingCart, Lock } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperOrders, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';

@@ -15,7 +15,7 @@
  */
 // React & Router
 import { forwardRef, type ComponentProps, useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 
 // Types
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
@@ -466,7 +466,7 @@ const ProductTile = forwardRef<HTMLDivElement, ProductTileProps>(
                     <ProductPrice
                         type="unit"
                         product={product}
-                        currency={currency ?? config.commerce.sites?.[0]?.defaultCurrency ?? ''}
+                        currency={currency as string}
                         labelForA11y={(product?.productName ?? product?.productId) || ''}
                         currentPriceProps={{
                             className: 'text-card-foreground font-semibold text-sm leading-none',

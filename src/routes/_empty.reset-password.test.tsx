@@ -22,6 +22,7 @@ import ResetPassword, { loader, action } from './_empty.reset-password';
 import { resetPasswordWithToken } from '@/middlewares/auth.server';
 import { isPasswordValid } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 const { t } = getTranslation();
 
@@ -44,6 +45,11 @@ vi.mock('@/components/password-requirements', () => ({
     PasswordRequirement: () => null,
 }));
 
+// Mock buildUrlFromContext to pass-through (avoids needing full context setup)
+vi.mock('@/lib/url.server', () => ({
+    buildUrlFromContext: vi.fn((to: string) => to),
+}));
+
 // Helper to render with createRoutesStub (provides full data router context for Form/Link components)
 const renderWithRoutesStub = (loaderData: { token: string; email: string }) => {
     // Wrap the component to pass loaderData as a prop
@@ -54,7 +60,11 @@ const renderWithRoutesStub = (loaderData: { token: string; email: string }) => {
             Component: WrappedComponent,
         },
     ]);
-    return render(<Stub initialEntries={['/']} />);
+    return render(
+        <AllProvidersWrapper>
+            <Stub initialEntries={['/']} />
+        </AllProvidersWrapper>
+    );
 };
 
 // Helper to render with createRoutesStub and real action for full-flow tests
@@ -68,7 +78,11 @@ const renderWithAction = (loaderData: { token: string; email: string }) => {
                 action(createActionArgs(request, mockContext, { unstable_pattern: '/reset-password' })),
         },
     ]);
-    return render(<Stub initialEntries={['/']} />);
+    return render(
+        <AllProvidersWrapper>
+            <Stub initialEntries={['/']} />
+        </AllProvidersWrapper>
+    );
 };
 
 const mockContext = {
@@ -293,7 +307,7 @@ describe('reset-password route', () => {
         describe('successful password reset', () => {
             it('should redirect to login on successful password reset', async () => {
                 mockIsPasswordValid.mockReturnValue(true);
-                mockResetPasswordWithToken.mockResolvedValue(undefined);
+                mockResetPasswordWithToken.mockResolvedValue({ data: undefined, response: new Response() });
 
                 const formData = new URLSearchParams();
                 formData.append('token', 'abc123');

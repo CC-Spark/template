@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { type FC, type MouseEvent, type ReactNode, type TouchEvent, useCallback } from 'react';
-import { NavLink } from 'react-router';
+import { NavLink } from '@/components/link';
 import { cn } from '@/lib/utils';
 import { swatchVariants } from './swatch-variants';
 import type { VariantProps } from 'class-variance-authority';

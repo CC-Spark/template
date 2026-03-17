@@ -20,9 +20,10 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { ConfigProvider } from '@salesforce/storefront-next-runtime/config';
-import { mockConfig } from '@/test-utils/config';
+import { mockConfig, SITE_PREFIX } from '@/test-utils/config';
 import { CurrencyProvider } from '@/providers/currency';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
+import { SiteProvider, type Site } from '@salesforce/storefront-next-runtime/multi-site';
 import Footer from './index';
 
 // Mock categories data
@@ -36,6 +37,17 @@ const mockCategories: ShopperProducts.schemas['Category'] = {
     ],
 };
 
+const mockSite: Site = {
+    id: 'RefArchGlobal',
+    defaultLocale: 'en-GB',
+    defaultCurrency: 'GBP',
+    supportedLocales: [
+        { id: 'en-GB', preferredCurrency: 'GBP' },
+        { id: 'it-IT', preferredCurrency: 'EUR' },
+    ],
+    supportedCurrencies: ['EUR', 'GBP'],
+};
+
 // Helper function to render component with router context
 const renderWithRouter = (component: React.ReactElement, currency: string = 'USD') => {
     const router = createMemoryRouter(
@@ -44,7 +56,9 @@ const renderWithRouter = (component: React.ReactElement, currency: string = 'USD
                 path: '/',
                 element: (
                     <ConfigProvider config={mockConfig}>
-                        <CurrencyProvider value={currency}>{component}</CurrencyProvider>
+                        <SiteProvider value={mockSite}>
+                            <CurrencyProvider value={currency}>{component}</CurrencyProvider>
+                        </SiteProvider>
                     </ConfigProvider>
                 ),
             },
@@ -73,15 +87,15 @@ describe('Footer', () => {
         // Wait for categories to load
         const mensLink = await screen.findByRole('link', { name: "Men's" });
         expect(mensLink).toBeInTheDocument();
-        expect(mensLink).toHaveAttribute('href', '/category/mens');
+        expect(mensLink).toHaveAttribute('href', `${SITE_PREFIX}/category/mens`);
 
         const womensLink = screen.getByRole('link', { name: "Women's" });
         expect(womensLink).toBeInTheDocument();
-        expect(womensLink).toHaveAttribute('href', '/category/womens');
+        expect(womensLink).toHaveAttribute('href', `${SITE_PREFIX}/category/womens`);
 
         const electronicsLink = screen.getByRole('link', { name: 'Electronics' });
         expect(electronicsLink).toBeInTheDocument();
-        expect(electronicsLink).toHaveAttribute('href', '/category/electronics');
+        expect(electronicsLink).toHaveAttribute('href', `${SITE_PREFIX}/category/electronics`);
     });
 
     test('renders Help section links', () => {
@@ -90,19 +104,20 @@ describe('Footer', () => {
         // Help section now includes Contact Us, Shipping, Order Status, and Sign in
         const contactLink = screen.getByRole('link', { name: t('footer:links.contactUs') });
         expect(contactLink).toBeInTheDocument();
-        expect(contactLink).toHaveAttribute('href', '/contact');
+        expect(contactLink).toHaveAttribute('href', `${SITE_PREFIX}/contact`);
 
         const shippingLink = screen.getByRole('link', { name: t('footer:links.shipping') });
         expect(shippingLink).toBeInTheDocument();
-        expect(shippingLink).toHaveAttribute('href', '/shipping');
+        expect(shippingLink).toHaveAttribute('href', `${SITE_PREFIX}/shipping`);
+        expect(shippingLink).toHaveAttribute('href', `${SITE_PREFIX}/shipping`);
 
         const orderStatusLink = screen.getByRole('link', { name: t('footer:links.orderStatus') });
         expect(orderStatusLink).toBeInTheDocument();
-        expect(orderStatusLink).toHaveAttribute('href', '/orders');
+        expect(orderStatusLink).toHaveAttribute('href', `${SITE_PREFIX}/orders`);
 
         const signInLink = screen.getByRole('link', { name: t('footer:links.signInOrCreateAccount') });
         expect(signInLink).toBeInTheDocument();
-        expect(signInLink).toHaveAttribute('href', '/login');
+        expect(signInLink).toHaveAttribute('href', `${SITE_PREFIX}/login`);
     });
 
     test('renders Our Company section links', () => {
@@ -110,7 +125,7 @@ describe('Footer', () => {
 
         const aboutUsLink = screen.getByRole('link', { name: t('footer:links.aboutUs') });
         expect(aboutUsLink).toBeInTheDocument();
-        expect(aboutUsLink).toHaveAttribute('href', '/about-us');
+        expect(aboutUsLink).toHaveAttribute('href', `${SITE_PREFIX}/about-us`);
     });
 
     test('renders social media links with correct aria-labels and hrefs', () => {

@@ -30,7 +30,6 @@ exports[`Contact stories snapshot > Default story renders and matches snapshot 1
             <a
               class="text-primary underline"
               href="tel:180080606453"
-              to="tel:180080606453"
             >
               1-800-8060-6453
             </a>
@@ -198,7 +197,6 @@ exports[`Contact stories snapshot > FormValidationAndSubmission story renders an
             <a
               class="text-primary underline"
               href="tel:180080606453"
-              to="tel:180080606453"
             >
               1-800-8060-6453
             </a>

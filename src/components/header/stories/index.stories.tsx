@@ -17,7 +17,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
 import { action } from 'storybook/actions';
 import { expect, within } from 'storybook/test';
-import { waitForStorybookReady } from '@storybook/test-utils';
+import { waitForStorybookReady, SITE_PREFIX } from '@storybook/test-utils';
 import Header from '../index';
 import AuthProvider from '@/providers/auth';
 import type { SessionData } from '@/lib/api/types';
@@ -243,7 +243,7 @@ export const Authenticated: Story = {
         const accountLink = canvas.queryByRole('link', { name: /my account/i });
         if (accountLink) {
             await expect(accountLink).toBeInTheDocument();
-            await expect(accountLink).toHaveAttribute('href', '/account/overview');
+            await expect(accountLink).toHaveAttribute('href', `${SITE_PREFIX}/account/overview`);
         }
         const searchDesktop = canvas.queryByTestId('header-search-desktop');
         if (searchDesktop) {
@@ -389,7 +389,7 @@ export const WithNavigationAuthenticated: Story = {
         const accountLink = canvas.queryByRole('link', { name: /my account/i });
         if (accountLink) {
             await expect(accountLink).toBeInTheDocument();
-            await expect(accountLink).toHaveAttribute('href', '/account/overview');
+            await expect(accountLink).toHaveAttribute('href', `${SITE_PREFIX}/account/overview`);
         }
         const searchDesktop = canvas.queryByTestId('header-search-desktop');
         if (searchDesktop) {
@@ -463,7 +463,9 @@ export const MobileMenuInteraction: Story = {
                 <Header>
                     <ResponsiveNavigationMenu
                         resolve={Promise.resolve(rootCategory)}
-                        defer={Promise.resolve(categoriesList.flatMap((cat) => cat.categories || []))}
+                        defer={Promise.resolve(
+                            categoriesList.flatMap((cat: { categories?: unknown[] }) => cat.categories || [])
+                        )}
                     />
                 </Header>
             </AuthProvider>

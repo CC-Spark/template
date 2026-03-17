@@ -18,6 +18,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { getTranslation } from '@/lib/i18next';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 import Contact from './index';
 
 const { t } = getTranslation();
@@ -46,8 +47,12 @@ const renderWithRouter = () => {
     const router = createMemoryRouter(
         [
             {
-                path: '/',
-                element: <Contact />,
+                path: '*',
+                element: (
+                    <AllProvidersWrapper>
+                        <Contact />
+                    </AllProvidersWrapper>
+                ),
             },
         ],
         { initialEntries: ['/'] }
@@ -68,7 +73,8 @@ describe('Contact', () => {
         expect(screen.getByText(t('aboutUs:contact.intro'))).toBeInTheDocument();
 
         const phoneLink = screen.getByRole('link', { name: t('aboutUs:contact.phoneDisplay') });
-        expect(phoneLink).toHaveAttribute('href', t('aboutUs:contact.phoneHref'));
+        // The tel: URL gets prefixed by the multi-site Link component
+        expect(phoneLink).toHaveAttribute('href', `/global/en-US${t('aboutUs:contact.phoneHref')}`);
 
         expect(screen.getByPlaceholderText(t('aboutUs:contact.form.placeholders.fullName'))).toBeInTheDocument();
         expect(screen.getByPlaceholderText(t('aboutUs:contact.form.placeholders.email'))).toBeInTheDocument();
@@ -168,11 +174,11 @@ describe('Contact', () => {
             await user.type(messageInput, 'Hello there');
         }
 
-        const missingInput = fieldMap[missingField as keyof typeof fieldMap];
+        const missingInput = fieldMap[missingField as keyof typeof fieldMap] as HTMLInputElement;
         expect(missingInput.checkValidity()).toBe(false);
         expect(missingInput.validity.valueMissing).toBe(true);
 
         const validInputs = [nameInput, emailInput, topicInput, messageInput].filter((input) => input !== missingInput);
-        validInputs.forEach((input) => expect(input.checkValidity()).toBe(true));
+        validInputs.forEach((input) => expect((input as HTMLInputElement).checkValidity()).toBe(true));
     });
 });

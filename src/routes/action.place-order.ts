@@ -35,6 +35,7 @@ import {
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
 import { createErrorResponse } from '@/lib/error-handler';
 import { getTranslation } from '@/lib/i18next';
+import { buildUrlFromContext } from '@/lib/url.server';
 // @sfdc-extension-line SFDC_EXT_MULTISHIP
 import { resolveEmptyShipments } from '@/extensions/multiship/lib/api/basket';
 
@@ -374,9 +375,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
         destroyBasket(context);
 
         // Redirect to order confirmation page on success
-        // This uses React Router's redirect utility for proper navigation
         // Include account creation and auto-login status as query parameters if account was created
-        let orderConfirmationUrl = `/order-confirmation/${order.orderNo}`;
+        let orderConfirmationUrl = buildUrlFromContext(`/order-confirmation/${order.orderNo}`, context);
 
         if (shouldCreateAccount && order.customerInfo?.email) {
             const params = new URLSearchParams({

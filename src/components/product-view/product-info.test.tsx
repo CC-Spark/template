@@ -111,25 +111,25 @@ describe('ProductInfo', () => {
             // Find color swatches - only Charcoal available
             const charcoalSwatch = screen.getByLabelText('Charcoal');
             expect(charcoalSwatch).toBeInTheDocument();
-            expect(charcoalSwatch).toHaveAttribute('href', '/product/test-product?color=CHARCWL');
+            expect(charcoalSwatch).toHaveAttribute('href', '/global/en-GB/product/test-product?color=CHARCWL');
 
             // Find size swatches
             const size36Swatch = screen.getByLabelText('36');
             expect(size36Swatch).toBeInTheDocument();
-            expect(size36Swatch).toHaveAttribute('href', '/product/test-product?size=036');
+            expect(size36Swatch).toHaveAttribute('href', '/global/en-GB/product/test-product?size=036');
 
             const size38Swatch = screen.getByLabelText('38');
             expect(size38Swatch).toBeInTheDocument();
-            expect(size38Swatch).toHaveAttribute('href', '/product/test-product?size=038');
+            expect(size38Swatch).toHaveAttribute('href', '/global/en-GB/product/test-product?size=038');
 
             // Find width swatches
             const shortSwatch = screen.getByLabelText('Short');
             expect(shortSwatch).toBeInTheDocument();
-            expect(shortSwatch).toHaveAttribute('href', '/product/test-product?width=S');
+            expect(shortSwatch).toHaveAttribute('href', '/global/en-GB/product/test-product?width=S');
 
             const regularSwatch = screen.getByLabelText('Regular');
             expect(regularSwatch).toBeInTheDocument();
-            expect(regularSwatch).toHaveAttribute('href', '/product/test-product?width=V');
+            expect(regularSwatch).toHaveAttribute('href', '/global/en-GB/product/test-product?width=V');
         });
 
         test('should update URL when swatch is clicked', async () => {
@@ -138,7 +138,7 @@ describe('ProductInfo', () => {
 
             // Click on size 38 swatch
             const size38Swatch = screen.getByLabelText('38');
-            expect(size38Swatch).toHaveAttribute('href', '/product/test-product?size=038');
+            expect(size38Swatch).toHaveAttribute('href', '/global/en-GB/product/test-product?size=038');
 
             await user.click(size38Swatch);
 

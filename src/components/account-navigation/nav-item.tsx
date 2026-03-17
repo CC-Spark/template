@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 import type { ReactElement } from 'react';
-import { NavLink, Form } from 'react-router';
+import { Form } from 'react-router';
 import type { LucideIcon } from 'lucide-react';
+
+// Runtime SDK
+import { buildUrl } from '@salesforce/storefront-next-runtime/multi-site';
+
+// Components
+import { NavLink } from '@/components/link';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import { useCurrentSiteAndLocaleRef } from '@/hooks/use-current-site-and-locale-ref';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
+import type { AppConfig } from '@/types/config';
 
 interface AccountNavItemProps {
     item: {
@@ -25,6 +34,7 @@ interface AccountNavItemProps {
         icon: LucideIcon;
         label: string;
         disabled?: boolean;
+        end?: boolean;
         action?: string;
         method?: 'post' | 'get';
     };
@@ -32,6 +42,8 @@ interface AccountNavItemProps {
 }
 
 export function AccountNavItem({ item, isMobile = false }: AccountNavItemProps): ReactElement {
+    const config = useConfig<AppConfig>();
+    const { siteRef, localeRef } = useCurrentSiteAndLocaleRef();
     const Icon = item.icon;
     const baseClasses = 'w-full px-3 py-2 text-left text-sm font-medium rounded-md flex items-center gap-2';
     const mobileClasses = `${baseClasses} border`;
@@ -55,9 +67,13 @@ export function AccountNavItem({ item, isMobile = false }: AccountNavItemProps):
         const activeClasses = isMobile
             ? 'bg-transparent text-foreground hover:text-foreground'
             : 'text-foreground hover:text-foreground hover:bg-muted/30';
-
+        const action = buildUrl({
+            to: item.action,
+            urlConfig: config.url,
+            params: { siteId: siteRef, localeId: localeRef },
+        });
         return (
-            <Form method={item.method || 'post'} action={item.action} className="w-full">
+            <Form method={item.method || 'post'} action={action} className="w-full">
                 <button
                     type="submit"
                     className={cn(isMobile ? mobileClasses : baseClasses, activeClasses, 'cursor-pointer')}>

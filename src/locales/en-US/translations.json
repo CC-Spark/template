@@ -1104,6 +1104,7 @@
             "account": "Account",
             "ourCompany": "Our Company",
             "switchThemes": "Switch Themes",
+            "switchSite": "Region",
             "switchLanguage": "Language",
             "switchCurrency": "Currency",
             "shop": "Shop",
@@ -1307,6 +1308,7 @@
         "ariaLabel": "Language selector",
         "locales": {
             "en-GB": "English (UK)",
+            "en-US": "English (US)",
             "it-IT": "Italian (Italy)"
         },
         "validation": {
@@ -1377,5 +1379,15 @@
         },
         "minCharactersHint": "Minimum {{count}} characters.",
         "maxCharactersHint": "Maximum {{count}} characters."
+    },
+    "sitePicker": {
+        "title": "Choose your site",
+        "description": "Select your preferred store to see relevant products and pricing.",
+        "ariaLabel": "Select site",
+        "placeholder": "Select a site...",
+        "sites": {
+            "RefArchGlobal": "Global (UK)",
+            "RefArch": "United States"
+        }
     }
 }

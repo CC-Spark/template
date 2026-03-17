@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 import { data, type ActionFunction } from 'react-router';
-import { getConfig } from '@salesforce/storefront-next-runtime/config';
-import type { AppConfig } from '@/types/config';
 import { updateCurrency } from '@/middlewares/currency.server';
+import { multiSiteContext, type MultiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
 
 /**
  * Server action to set the currency cookie
@@ -36,9 +35,7 @@ export const action: ActionFunction = async ({ request, context }) => {
         throw new Response('Currency is required', { status: 400 });
     }
 
-    const config = getConfig<AppConfig>(context);
-    // this will change when multi site implementation starts, for now we use first site in the list
-    const currentSite = config.commerce.sites[0];
+    const currentSite = (context.get(multiSiteContext) as MultiSiteContext).site;
     // Validate currency
     if (!currentSite.supportedCurrencies.includes(currency)) {
         throw new Response(`Currency "${currency}" is not supported`, { status: 400 });

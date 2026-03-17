@@ -17,7 +17,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 
 interface CheckAndExecutePendingActionOptions {
     /** The action name to match (e.g., 'addToCart', 'updateQuantity', 'removeItem') */

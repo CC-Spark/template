@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 import type { ReactElement } from 'react';
-import { redirect, Link, useActionData, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ForgotPasswordForm } from '@/components/forgot-password-form';
-// services
-import { getAuth, getPasswordResetToken } from '@/middlewares/auth.server';
-import { getTranslation } from '@/lib/i18next';
+import { redirect, useActionData, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { getPasswordResetErrorMessageKey, extractErrorMessage } from '@/lib/auth-error-handler';
+
+// Components
+import { Link } from '@/components/link';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ForgotPasswordForm } from '@/components/forgot-password-form';
+
+// Lib
+import { getTranslation } from '@/lib/i18next';
+import { buildUrlFromContext } from '@/lib/url.server';
+
+// Middleware
+import { getAuth, getPasswordResetToken } from '@/middlewares/auth.server';
 
 type ForgotPasswordActionData = {
     error?: string;
@@ -35,7 +42,7 @@ export function loader({ context }: LoaderFunctionArgs): Response | void {
     // If user is already logged in as registered user, redirect to login page
     const session = getAuth(context);
     if (session.userType === 'registered') {
-        return redirect('/login');
+        return redirect(buildUrlFromContext('/login', context));
     }
 }
 

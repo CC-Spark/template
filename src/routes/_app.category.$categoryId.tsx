@@ -21,6 +21,7 @@ import { fetchSearchProducts } from '@/lib/api/search';
 import { getAllQueryParams, getQueryParam, PRODUCT_SEARCH_QUERY_PARAMS } from '@/lib/query-params';
 import { getConfig, useConfig } from '@salesforce/storefront-next-runtime/config';
 import type { AppConfig } from '@/types/config';
+import { multiSiteContext, type MultiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
 import { currencyContext } from '@/lib/currency';
 import CategoryBreadcrumbs from '@/components/category-breadcrumbs';
 import CategoryPagination from '@/components/category-pagination';
@@ -96,9 +97,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<CategoryPageData
     // Get currency and locale for cache-busting the page key
     const config = getConfig<AppConfig>(context);
     const currency = context.get(currencyContext) as string;
-    // TODO: replace this with locale detection when multi site implementation starts
-    const currentSite = config.commerce.sites[0];
-    const locale = currentSite.defaultLocale;
+    const locale = (context.get(multiSiteContext) as MultiSiteContext).locale.id;
     const limit = config.search.products.hits.limit;
 
     let categoryData: ShopperProducts.schemas['Category'] | undefined;

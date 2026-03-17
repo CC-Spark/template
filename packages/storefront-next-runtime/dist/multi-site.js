@@ -391,5 +391,5 @@ function createMultiSiteMiddleware(config) {
 }
 
 //#endregion
-export { SiteProvider, applyUrlConfig, buildUrl, createMultiSiteMiddleware, getMultiSiteCookies, multiSiteContext, requestToLocaleMap, useSite };
+export { SiteProvider, applyUrlConfig, buildUrl, createMultiSiteMiddleware, getMultiSiteCookies, multiSiteContext, requestToLocaleMap, resolvePrefix, sanitizePrefix, useSite };
 //# sourceMappingURL=multi-site.js.map

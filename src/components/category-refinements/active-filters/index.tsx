@@ -16,7 +16,9 @@
 'use client';
 
 import { useCallback, useMemo, type JSX } from 'react';
-import { useLocation, useNavigate, useNavigation } from 'react-router';
+import { useLocation, useNavigation } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
+
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { Button } from '@/components/ui/button';
 import { X as Close } from 'lucide-react';

@@ -24,8 +24,7 @@ import { getTranslation } from '@/lib/i18next';
 const { t } = getTranslation();
 import { ProductTile } from './index';
 import { type ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
-import { ConfigWrapper } from '@/test-utils/config';
-import { CurrencyProvider } from '@/providers/currency';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 vi.mock('@/lib/product-utils', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/lib/product-utils')>();
@@ -123,19 +122,14 @@ const mockProduct: ShopperSearch.schemas['ProductSearchHit'] = {
 };
 
 const renderComponent = (props = {}) => {
-    // Using createMemoryRouter in framework mode is fine
-    // because both framework and data routers share the same underlying architecture, so it provides a valid navigation context for hooks and <Link>.
-    // Even though it's listed under "data routers," it fully supports testing non-route components that rely on router behavior.
     const router = createMemoryRouter(
         [
             {
                 path: '/test',
                 element: (
-                    <ConfigWrapper>
-                        <CurrencyProvider value="USD">
-                            <ProductTile product={mockProduct} {...props} />
-                        </CurrencyProvider>
-                    </ConfigWrapper>
+                    <AllProvidersWrapper>
+                        <ProductTile product={mockProduct} {...props} />
+                    </AllProvidersWrapper>
                 ),
             },
             {
@@ -187,7 +181,7 @@ describe('ProductTile', () => {
         await user.click(productLink);
 
         // Link should have correct href
-        expect(productLink).toHaveAttribute('href', '/product/test-product');
+        expect(productLink).toHaveAttribute('href', '/global/en-GB/product/test-product');
     });
 
     test('navigates to PDP with selected attribute when clicking More Options', async () => {
@@ -211,7 +205,7 @@ describe('ProductTile', () => {
         const moreOptionsButton = screen.getByText(t('product:moreOptions'));
         await user.click(moreOptionsButton);
 
-        expect(mockNavigate).toHaveBeenCalledWith('/product/test-product');
+        expect(mockNavigate).toHaveBeenCalledWith('/global/en-GB/product/test-product', undefined);
     });
 
     test('applies custom className', () => {

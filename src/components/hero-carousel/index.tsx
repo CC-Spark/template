@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import React, { type ReactElement, useState, useEffect, useMemo, useCallback } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';

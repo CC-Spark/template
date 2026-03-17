@@ -20,6 +20,7 @@ import { fetchCategory } from '@/lib/api/categories';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import ResponsiveNavigationMenu from '@/components/navigation-menu-mega';
+import SiteSwitcher from '@/components/site-switcher';
 
 type LoaderData = {
     root: Promise<ShopperProducts.schemas['Category']>;
@@ -98,7 +99,12 @@ export default function DefaultLayout({ loaderData: { root, subs } }: { loaderDa
 
     return (
         <>
-            <Header>
+            <Header
+                beforeHeader={
+                    <div className="py-2">
+                        <SiteSwitcher />
+                    </div>
+                }>
                 <ResponsiveNavigationMenu resolve={refRoot.current} defer={refSubs.current} />
             </Header>
             <main className="grow pt-8">

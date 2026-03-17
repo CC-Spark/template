@@ -15,13 +15,14 @@
  */
 import type { ReactElement } from 'react';
 import { redirect, useActionData, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { ResetPasswordForm } from '@/components/reset-password-form';
-import { resetPasswordWithToken } from '@/middlewares/auth.server';
-import { isPasswordValid } from '@/lib/utils';
 import { getTranslation } from '@/lib/i18next';
-import { useTranslation } from 'react-i18next';
 import { getPasswordResetErrorMessageKey, extractErrorMessage } from '@/lib/auth-error-handler';
+import { buildUrlFromContext } from '@/lib/url.server';
+import { isPasswordValid } from '@/lib/utils';
+import { resetPasswordWithToken } from '@/middlewares/auth.server';
 
 type ResetPasswordLoaderData = {
     token: string;
@@ -33,13 +34,13 @@ type ResetPasswordActionData = {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function loader({ request }: LoaderFunctionArgs): ResetPasswordLoaderData | Response {
+export function loader({ request, context }: LoaderFunctionArgs): ResetPasswordLoaderData | Response {
     const url = new URL(request.url);
     const token = url.searchParams.get('token');
     const email = url.searchParams.get('email');
 
     if (!token || !email) {
-        return redirect('/forgot-password');
+        return redirect(buildUrlFromContext('/forgot-password', context));
     }
 
     return {
@@ -61,7 +62,7 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
 
     // Separate validation for token - critical security field
     if (!token) {
-        return redirect('/forgot-password');
+        return redirect(buildUrlFromContext('/forgot-password', context));
     }
 
     if (!email || !newPassword || !confirmPassword) {
@@ -85,7 +86,7 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
         });
 
         // Password reset successful - redirect to login
-        return redirect('/login');
+        return redirect(buildUrlFromContext('/login', context));
     } catch (error) {
         const errorMessage = extractErrorMessage(error);
         const errorKey = getPasswordResetErrorMessageKey(errorMessage);

@@ -21,7 +21,7 @@ import { fetchCustomerOrders } from '@/lib/api/order';
 import { getAuth } from '@/middlewares/auth.server';
 import type { Order } from '@/components/account/order-list';
 import { createTestContext } from '@/lib/test-utils';
-import { CurrencyWrapper } from '@/test-utils/context-provider';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 vi.mock('@/lib/api/order', () => ({
     fetchCustomerOrders: vi.fn(),
@@ -113,9 +113,9 @@ describe('AccountOrders Page', () => {
         );
 
         const result = render(
-            <CurrencyWrapper>
+            <AllProvidersWrapper>
                 <RouterProvider router={router} />
-            </CurrencyWrapper>
+            </AllProvidersWrapper>
         );
 
         // Wait for the Await promise to resolve and actual content to render.
@@ -190,9 +190,9 @@ describe('AccountOrders Page', () => {
             const orderLinks = screen.getAllByRole('link');
             const orderHrefs = orderLinks.map((link) => link.getAttribute('href'));
 
-            expect(orderHrefs).toContain('/account/orders/ORD-2024-001');
-            expect(orderHrefs).toContain('/account/orders/ORD-2024-002');
-            expect(orderHrefs).toContain('/account/orders/ORD-2024-003');
+            expect(orderHrefs).toContain('/global/en-GB/account/orders/ORD-2024-001');
+            expect(orderHrefs).toContain('/global/en-GB/account/orders/ORD-2024-002');
+            expect(orderHrefs).toContain('/global/en-GB/account/orders/ORD-2024-003');
         });
 
         test('renders View Details buttons', async () => {
@@ -264,9 +264,9 @@ describe('AccountOrders Page', () => {
             );
 
             render(
-                <CurrencyWrapper>
+                <AllProvidersWrapper>
                     <RouterProvider router={router} />
-                </CurrencyWrapper>
+                </AllProvidersWrapper>
             );
 
             // Wait for skeleton to appear (router needs a tick to render)
@@ -301,9 +301,9 @@ describe('AccountOrders Page', () => {
             );
 
             render(
-                <CurrencyWrapper>
+                <AllProvidersWrapper>
                     <RouterProvider router={router} />
-                </CurrencyWrapper>
+                </AllProvidersWrapper>
             );
 
             await waitFor(() => {

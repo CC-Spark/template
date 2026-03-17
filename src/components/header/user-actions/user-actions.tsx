@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { type ReactElement, useMemo } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 import { User, LogIn } from 'lucide-react';
 import { useAuth } from '@/providers/auth';
 import { Button } from '@/components/ui/button';

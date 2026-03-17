@@ -16,7 +16,7 @@
 'use client';
 
 import { createContext, useContext, useState, type ComponentPropsWithoutRef, type ReactElement } from 'react';
-import { NavLink } from 'react-router';
+import { NavLink } from '@/components/link';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import CategoryNavigationMenu, { WithCategoryNavigationMenu } from '@/components/navigation-menu';
 import { Button } from '@/components/ui/button';

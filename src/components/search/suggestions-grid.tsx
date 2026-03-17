@@ -16,8 +16,8 @@
 'use client';
 
 import type React from 'react';
-import { Link } from 'react-router';
 import { ImageOff } from 'lucide-react';
+import { Link } from '@/components/link';
 import { DynamicImage } from '@/components/dynamic-image';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { toImageUrl } from '@/lib/dynamic-image';

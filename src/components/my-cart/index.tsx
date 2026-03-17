@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { useMemo, type ReactElement } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts, ShopperPromotions } from '@salesforce/storefront-next-runtime/scapi';

@@ -185,7 +185,7 @@ exports[`CartContent stories snapshot > CartWithItems story renders and matches 
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -504,7 +504,7 @@ exports[`CartContent stories snapshot > CartWithItems story renders and matches 
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25518795M"
+                                    href="/global/en-GB/product/25518795M"
                                     title="Button Front Jacket"
                                   >
                                     Button Front Jacket
@@ -880,7 +880,7 @@ exports[`CartContent stories snapshot > CartWithItems story renders and matches 
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg
@@ -1288,7 +1288,7 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -1607,7 +1607,7 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25752218M"
+                                    href="/global/en-GB/product/25752218M"
                                     title="Solid Silk Tie"
                                   >
                                     Solid Silk Tie
@@ -1900,7 +1900,7 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25591227M"
+                                    href="/global/en-GB/product/25591227M"
                                     title="Floral Ruffle Top"
                                   >
                                     Floral Ruffle Top
@@ -2285,7 +2285,7 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg
@@ -2693,7 +2693,7 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -3012,7 +3012,7 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25752218M"
+                                    href="/global/en-GB/product/25752218M"
                                     title="Solid Silk Tie"
                                   >
                                     Solid Silk Tie
@@ -3305,7 +3305,7 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25591227M"
+                                    href="/global/en-GB/product/25591227M"
                                     title="Floral Ruffle Top"
                                   >
                                     Floral Ruffle Top
@@ -3690,7 +3690,7 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg
@@ -4149,7 +4149,7 @@ exports[`CartContent stories snapshot > HighQuantityItem story renders and match
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -4468,7 +4468,7 @@ exports[`CartContent stories snapshot > HighQuantityItem story renders and match
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25518795M"
+                                    href="/global/en-GB/product/25518795M"
                                     title="Button Front Jacket"
                                   >
                                     Button Front Jacket
@@ -4850,7 +4850,7 @@ exports[`CartContent stories snapshot > HighQuantityItem story renders and match
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg
@@ -5258,7 +5258,7 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -5577,7 +5577,7 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25752218M"
+                                    href="/global/en-GB/product/25752218M"
                                     title="Solid Silk Tie"
                                   >
                                     Solid Silk Tie
@@ -5870,7 +5870,7 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25591227M"
+                                    href="/global/en-GB/product/25591227M"
                                     title="Floral Ruffle Top"
                                   >
                                     Floral Ruffle Top
@@ -6255,7 +6255,7 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg
@@ -6663,7 +6663,7 @@ exports[`CartContent stories snapshot > LongProductNames story renders and match
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -7319,7 +7319,7 @@ exports[`CartContent stories snapshot > LongProductNames story renders and match
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg
@@ -7727,7 +7727,7 @@ exports[`CartContent stories snapshot > MissingProductImage story renders and ma
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -8383,7 +8383,7 @@ exports[`CartContent stories snapshot > MissingProductImage story renders and ma
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg
@@ -8791,7 +8791,7 @@ exports[`CartContent stories snapshot > MobileLayout story renders and matches s
                   data-size="default"
                   data-slot="button"
                   data-variant="default"
-                  href="/checkout"
+                  href="/global/en-GB/checkout"
                 >
                   Proceed to Checkout
                   <svg
@@ -9110,7 +9110,7 @@ exports[`CartContent stories snapshot > MobileLayout story renders and matches s
                                 >
                                   <a
                                     class="text-foreground hover:text-primary block break-words"
-                                    href="/product/25518795M"
+                                    href="/global/en-GB/product/25518795M"
                                     title="Button Front Jacket"
                                   >
                                     Button Front Jacket
@@ -9486,7 +9486,7 @@ exports[`CartContent stories snapshot > MobileLayout story renders and matches s
                     data-size="default"
                     data-slot="button"
                     data-variant="default"
-                    href="/checkout"
+                    href="/global/en-GB/checkout"
                   >
                     Proceed to Checkout
                     <svg

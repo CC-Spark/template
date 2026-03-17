@@ -329,8 +329,13 @@ describe('Order Confirmation Route', () => {
     describe('ErrorBoundary component', () => {
         test('should render error message for order not found', async () => {
             const { ErrorBoundary } = await import('./_app.order-confirmation.$orderNo');
+            const { AllProvidersWrapper } = await import('@/test-utils/context-provider');
 
-            render(<ErrorBoundary />);
+            render(
+                <AllProvidersWrapper>
+                    <ErrorBoundary />
+                </AllProvidersWrapper>
+            );
 
             expect(screen.getByText(t('checkout:confirmation.orderNotFound'))).toBeInTheDocument();
             expect(screen.getByText(t('checkout:confirmation.orderNotFoundDescription'))).toBeInTheDocument();
@@ -339,8 +344,13 @@ describe('Order Confirmation Route', () => {
 
         test('should render action buttons', async () => {
             const { ErrorBoundary } = await import('./_app.order-confirmation.$orderNo');
+            const { AllProvidersWrapper } = await import('@/test-utils/context-provider');
 
-            render(<ErrorBoundary />);
+            render(
+                <AllProvidersWrapper>
+                    <ErrorBoundary />
+                </AllProvidersWrapper>
+            );
 
             const continueShoppingLink = screen.getByText('Continue Shopping').closest('a');
             expect(continueShoppingLink).toHaveAttribute('href', '/');

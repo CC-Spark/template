@@ -20,7 +20,6 @@ exports[`OrderList stories snapshot > BodyEmpty story renders and matches snapsh
         </h4>
         <a
           class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3"
-          data-discover="true"
           data-size="default"
           data-slot="button"
           data-variant="default"
@@ -64,7 +63,6 @@ exports[`OrderList stories snapshot > BodyWithCustomEmptyMessage story renders a
         </h4>
         <a
           class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3"
-          data-discover="true"
           data-size="default"
           data-slot="button"
           data-variant="default"
@@ -96,7 +94,6 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
     >
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV001"
       >
         <div
@@ -316,7 +313,6 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV002"
       >
         <div
@@ -453,7 +449,6 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV003"
       >
         <div
@@ -644,7 +639,6 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV004"
       >
         <div
@@ -821,7 +815,6 @@ exports[`OrderList stories snapshot > BodyWithOrders story renders and matches s
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV005"
       >
         <div
@@ -1201,7 +1194,6 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
     >
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV001"
       >
         <div
@@ -1421,7 +1413,6 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV002"
       >
         <div
@@ -1558,7 +1549,6 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV003"
       >
         <div
@@ -1749,7 +1739,6 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV004"
       >
         <div
@@ -1926,7 +1915,6 @@ exports[`OrderList stories snapshot > Default story renders and matches snapshot
       </a>
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV005"
       >
         <div
@@ -2319,7 +2307,6 @@ exports[`OrderList stories snapshot > EmptyState story renders and matches snaps
           </h4>
           <a
             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3"
-            data-discover="true"
             data-size="default"
             data-slot="button"
             data-variant="default"
@@ -2422,7 +2409,6 @@ exports[`OrderList stories snapshot > WithManyProducts story renders and matches
     >
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV005"
       >
         <div
@@ -2802,7 +2788,6 @@ exports[`OrderList stories snapshot > WithPickupLocation story renders and match
     >
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV001"
       >
         <div
@@ -3066,7 +3051,6 @@ exports[`OrderList stories snapshot > WithProductImages story renders and matche
     >
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV010"
       >
         <div
@@ -3272,7 +3256,6 @@ exports[`OrderList stories snapshot > WithoutProductImages story renders and mat
     >
       <a
         class="block transition-opacity hover:opacity-95 m-0"
-        data-discover="true"
         href="/account/orders/INV011"
       >
         <div

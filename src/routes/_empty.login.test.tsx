@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createRoutesStub } from 'react-router';
+import { createRoutesStub, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
 import { createActionArgs, createLoaderArgs } from '@/lib/test-utils/loader-action-args';
 import Login, { loader, action } from './_empty.login';
 import { render, screen, waitFor } from '@testing-library/react';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 import userEvent from '@testing-library/user-event';
 import { getAuth, authorizePasswordless, getPasswordLessAccessToken, updateAuth } from '@/middlewares/auth.server';
 import { loginRegisteredUser } from '@/lib/api/auth/standard-login';
@@ -69,30 +70,34 @@ vi.mock('@/components/buttons/social-login-buttons', () => ({
     SocialLoginButtons: () => <div data-testid="social-buttons" />,
 }));
 
-vi.mock('@salesforce/storefront-next-runtime/config', () => ({
-    getConfig: vi.fn(() => ({
-        auth: {
-            otpLength: 8,
-        },
-        features: {
-            passwordlessLogin: {
-                enabled: true,
-                landingUri: '/passwordless-login-landing',
-                callbackUri: '/passwordless-login-callback',
+vi.mock('@salesforce/storefront-next-runtime/config', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@salesforce/storefront-next-runtime/config')>();
+    return {
+        ...actual,
+        getConfig: vi.fn(() => ({
+            auth: {
+                otpLength: 8,
             },
-            socialLogin: {
-                enabled: true,
-                callbackUri: '/social-callback',
-                providers: ['Apple', 'Google'],
+            features: {
+                passwordlessLogin: {
+                    enabled: true,
+                    landingUri: '/passwordless-login-landing',
+                    callbackUri: '/passwordless-login-callback',
+                },
+                socialLogin: {
+                    enabled: true,
+                    callbackUri: '/social-callback',
+                    providers: ['Apple', 'Google'],
+                },
             },
-        },
-        commerce: {
-            api: {
-                privateKeyEnabled: false,
+            commerce: {
+                api: {
+                    privateKeyEnabled: false,
+                },
             },
-        },
-    })),
-}));
+        })),
+    };
+});
 
 vi.mock('@/lib/i18next', () => ({
     getTranslation: vi.fn(() => ({
@@ -811,7 +816,11 @@ describe('Login Route', () => {
                         action({ request, params: {}, context: actionContext, unstable_pattern: '/login' } as any),
                 },
             ]);
-            return render(<Stub initialEntries={['/']} />);
+            return render(
+                <AllProvidersWrapper>
+                    <Stub initialEntries={['/']} />
+                </AllProvidersWrapper>
+            );
         };
 
         it('renders standard login form with all required elements', () => {

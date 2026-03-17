@@ -18,6 +18,7 @@ import type { AppConfig } from '@/types/config';
 import type { RouterContextProvider } from 'react-router';
 import { COOKIE_TRACKING_CONSENT, COOKIE_DWSID } from '@/middlewares/auth.utils';
 import { modeDetectionContext } from '@/middlewares/mode-detection';
+import { multiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
 
 /**
  * List of cookie names that should NOT be namespaced.
@@ -180,8 +181,8 @@ export const getCookieConfig = <T extends object = CookieConfig>(
     // Get config using getConfig() - handles both server (with context) and client (without)
     const config = getConfig<AppConfig>(context);
 
-    // this will change when multi site implementation starts, for now we use first site in the list
-    const currentSite = config.commerce.sites[0];
+    // context is optional in this function, so we add fallback for site here
+    const currentSite = context?.get(multiSiteContext)?.site ?? config.commerce.sites[0];
     const cookieDomain = currentSite?.cookies?.domain;
     if (cookieDomain) {
         cookieConfigOverrides.domain = cookieDomain;

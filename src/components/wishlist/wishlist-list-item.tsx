@@ -16,7 +16,8 @@
 'use client';
 
 import { type ReactElement, useEffect, useRef } from 'react';
-import { Link, useFetcher } from 'react-router';
+import { useFetcher } from 'react-router';
+import { Link } from '@/components/link';
 import type { ShopperCustomers, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '@salesforce/storefront-next-runtime/config';

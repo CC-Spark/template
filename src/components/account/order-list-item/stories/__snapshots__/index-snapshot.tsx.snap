@@ -3,7 +3,6 @@
 exports[`OrderListItem stories snapshot > Cancelled story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-004"
 >
   <div
@@ -183,7 +182,6 @@ exports[`OrderListItem stories snapshot > Cancelled story renders and matches sn
 exports[`OrderListItem stories snapshot > Default story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-001"
 >
   <div
@@ -337,7 +335,6 @@ exports[`OrderListItem stories snapshot > Default story renders and matches snap
 exports[`OrderListItem stories snapshot > Delivered story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-003"
 >
   <div
@@ -659,7 +656,6 @@ exports[`OrderListItem stories snapshot > Delivered story renders and matches sn
 exports[`OrderListItem stories snapshot > InTransit story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-002"
 >
   <div
@@ -799,7 +795,6 @@ exports[`OrderListItem stories snapshot > InTransit story renders and matches sn
 exports[`OrderListItem stories snapshot > MixedImages story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-008"
 >
   <div
@@ -984,7 +979,6 @@ exports[`OrderListItem stories snapshot > OrdersList story renders and matches s
 >
   <a
     class="block transition-opacity hover:opacity-95 m-0"
-    data-discover="true"
     href="/account/orders/ORD-2024-001"
   >
     <div
@@ -1204,7 +1198,6 @@ exports[`OrderListItem stories snapshot > OrdersList story renders and matches s
   </a>
   <a
     class="block transition-opacity hover:opacity-95 m-0"
-    data-discover="true"
     href="/account/orders/ORD-2024-002"
   >
     <div
@@ -1341,7 +1334,6 @@ exports[`OrderListItem stories snapshot > OrdersList story renders and matches s
   </a>
   <a
     class="block transition-opacity hover:opacity-95 m-0"
-    data-discover="true"
     href="/account/orders/ORD-2024-003"
   >
     <div
@@ -1664,7 +1656,6 @@ exports[`OrderListItem stories snapshot > OrdersList story renders and matches s
 exports[`OrderListItem stories snapshot > PartiallyDelivered story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-005"
 >
   <div
@@ -1858,7 +1849,6 @@ exports[`OrderListItem stories snapshot > PartiallyDelivered story renders and m
 exports[`OrderListItem stories snapshot > WithImageAlt story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-007"
 >
   <div
@@ -2012,7 +2002,6 @@ exports[`OrderListItem stories snapshot > WithImageAlt story renders and matches
 exports[`OrderListItem stories snapshot > WithPickupLocation story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-001"
 >
   <div
@@ -2235,7 +2224,6 @@ exports[`OrderListItem stories snapshot > WithPickupLocation story renders and m
 exports[`OrderListItem stories snapshot > WithoutImages story renders and matches snapshot 1`] = `
 <a
   class="block transition-opacity hover:opacity-95 m-0"
-  data-discover="true"
   href="/account/orders/ORD-2024-006"
 >
   <div

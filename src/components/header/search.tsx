@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { type FormEvent, type ReactElement, useCallback, useRef, useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import debounce from 'lodash.debounce';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

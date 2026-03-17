@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import { type ReactElement, Suspense } from 'react';
-import { Await, Link, type LoaderFunctionArgs, redirect, useLoaderData } from 'react-router';
+import { Await, type LoaderFunctionArgs, redirect, useLoaderData } from 'react-router';
+import { Link } from '@/components/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/typography';
@@ -23,6 +24,7 @@ import OrderSkeleton from '@/components/order-skeleton';
 import { useTranslation } from 'react-i18next';
 import type { ShopperOrders } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchOrderWithProducts } from '@/lib/api/order';
+import { buildUrlFromContext } from '@/lib/url.server';
 
 type OrderDetailsLoaderData = {
     order: ShopperOrders.schemas['Order'];
@@ -38,7 +40,7 @@ type OrderDetailsPageLoaderData = {
 export function loader({ context, params }: LoaderFunctionArgs): OrderDetailsPageLoaderData {
     const { orderNo } = params;
     if (!orderNo) {
-        throw redirect('/account/orders');
+        throw redirect(buildUrlFromContext('/account/orders', context));
     }
 
     const { orderDataPromise } = fetchOrderWithProducts(context, orderNo);

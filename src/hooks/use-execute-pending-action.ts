@@ -17,7 +17,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useLocation, useFetcher, useNavigation, useNavigate } from 'react-router';
+import { useLocation, useFetcher, useNavigation } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { useAuth } from '@/providers/auth';
 import { useToast } from '@/components/toast';
 import type { ActionHandler, ActionResponse } from './action-registry';

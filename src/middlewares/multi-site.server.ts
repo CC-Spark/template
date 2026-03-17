@@ -29,6 +29,7 @@ export const multiSiteMiddleware: MiddlewareFunction<Response> = async (args, ne
     const sites = config.commerce.sites;
     const defaultSiteId = config.defaultSiteId;
     const siteAliasMap = config.siteAliasMap;
+    const localeAliasMap = config.localeAliasMap;
     const defaultSite = sites.find((site) => site.id === defaultSiteId);
     if (!defaultSite?.defaultLocale) {
         throw new Error(`Site "${config.defaultSiteId}" must have a defaultLocale configured. `);
@@ -40,6 +41,10 @@ export const multiSiteMiddleware: MiddlewareFunction<Response> = async (args, ne
             ...site,
             alias: siteAliasMap?.[site.id],
             name: site.id,
+            supportedLocales: site.supportedLocales.map((locale) => ({
+                ...locale,
+                alias: localeAliasMap?.[locale.id],
+            })),
         })),
         defaultSiteId,
         defaultLocale: defaultSite.defaultLocale,
@@ -47,7 +52,9 @@ export const multiSiteMiddleware: MiddlewareFunction<Response> = async (args, ne
         localeDetectionConfig: config.localeDetectionConfig,
     };
 
-    // Create and invoke the multi-site middleware
+    // Create and invoke the multi-site middleware.
+    // Wrap next() so we can intercept after site/locale resolution but BEFORE downstream
+    // loaders/rendering execute — this avoids wasted rendering when we redirect.
     const middleware = createMultiSiteMiddleware(multiSiteConfig);
     return middleware(args, next);
 };

@@ -16,7 +16,7 @@
 import type { ReactElement } from 'react';
 
 // React Router
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 
 // UI Components
 import { Button } from '@/components/ui/button';

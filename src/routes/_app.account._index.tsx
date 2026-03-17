@@ -32,6 +32,10 @@ import CustomerPreferencesProvider from '@/providers/customer-preferences';
 import { useTranslation } from 'react-i18next';
 import { formatDateForLocale } from '@/lib/date-utils';
 import { FETCHER_STATES } from '@/lib/fetcher-states';
+import { buildUrl } from '@salesforce/storefront-next-runtime/multi-site';
+import { useConfig } from '@salesforce/storefront-next-runtime/config';
+import { useCurrentSiteAndLocaleRef } from '@/hooks/use-current-site-and-locale-ref';
+import type { AppConfig } from '@/types/config';
 
 type Customer = ShopperCustomers.schemas['Customer'];
 
@@ -66,6 +70,8 @@ function AccountDetailsContent({
     const revalidator = useRevalidator();
     const auth = useAuth();
     const { t, i18n } = useTranslation('account');
+    const config = useConfig<AppConfig>();
+    const { siteRef, localeRef } = useCurrentSiteAndLocaleRef();
     const customerId = auth?.customerId;
 
     const updateProfileFetcher = useScapiFetcher('shopperCustomers', 'updateCustomer', {
@@ -215,6 +221,11 @@ function AccountDetailsContent({
         // Get email from customer data (userInfo) and password from formData
         if (userInfo.email && formData.password) {
             // Submit login request with the new password
+            const loginAction = buildUrl({
+                to: '/login',
+                urlConfig: config.url,
+                params: { siteId: siteRef, localeId: localeRef },
+            });
             void loginFetcher.submit(
                 {
                     email: userInfo.email,
@@ -223,7 +234,7 @@ function AccountDetailsContent({
                 },
                 {
                     method: 'POST',
-                    action: '/login',
+                    action: loginAction,
                 }
             );
         } else {

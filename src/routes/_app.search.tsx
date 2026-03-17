@@ -19,6 +19,8 @@ import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { getConfig, useConfig } from '@salesforce/storefront-next-runtime/config';
 import type { AppConfig } from '@/types/config';
+import { multiSiteContext, type MultiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
+
 import { currencyContext } from '@/lib/currency';
 import CategoryPagination from '@/components/category-pagination';
 import ActiveFilters from '@/components/category-refinements/active-filters';
@@ -86,9 +88,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<SearchPageData> 
     const currency = context.get(currencyContext) as string;
 
     const config = getConfig<AppConfig>(context);
-    // TODO: replace this with locale detection when multi site implementation starts
-    const currentSite = config.commerce.sites[0];
-    const locale = currentSite.defaultLocale;
+    const locale = (context.get(multiSiteContext) as MultiSiteContext).locale.id;
 
     const limit = config.search.products.hits.limit;
 

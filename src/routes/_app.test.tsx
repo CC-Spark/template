@@ -19,6 +19,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { createRoutesStub } from 'react-router';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import DefaultLayout, { loader, shouldRevalidate } from './_app';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 vi.mock('@/lib/api/categories', () => ({
     fetchCategory: vi.fn(),
@@ -75,7 +76,11 @@ describe('_app.tsx - Default Layout Route', () => {
                 },
             ]);
 
-            render(<Stub initialEntries={['/']} />);
+            render(
+                <AllProvidersWrapper>
+                    <Stub initialEntries={['/']} />
+                </AllProvidersWrapper>
+            );
 
             await waitFor(() => {
                 // Verify layout structure
@@ -107,7 +112,11 @@ describe('_app.tsx - Default Layout Route', () => {
                 },
             ]);
 
-            render(<Stub initialEntries={['/']} />);
+            render(
+                <AllProvidersWrapper>
+                    <Stub initialEntries={['/']} />
+                </AllProvidersWrapper>
+            );
 
             await waitFor(() => {
                 const main = screen.getByRole('main');
@@ -135,7 +144,11 @@ describe('_app.tsx - Default Layout Route', () => {
                 },
             ]);
 
-            render(<Stub initialEntries={['/']} />);
+            render(
+                <AllProvidersWrapper>
+                    <Stub initialEntries={['/']} />
+                </AllProvidersWrapper>
+            );
 
             await waitFor(() => {
                 const nav = screen.getByTestId('navigation-menu-mega');
@@ -162,7 +175,11 @@ describe('_app.tsx - Default Layout Route', () => {
                 },
             ]);
 
-            render(<Stub initialEntries={['/']} />);
+            render(
+                <AllProvidersWrapper>
+                    <Stub initialEntries={['/']} />
+                </AllProvidersWrapper>
+            );
 
             await waitFor(() => {
                 // Layout should still render
@@ -196,7 +213,11 @@ describe('_app.tsx - Default Layout Route', () => {
                 },
             ]);
 
-            const { rerender } = render(<Stub initialEntries={['/']} />);
+            const { rerender } = render(
+                <AllProvidersWrapper>
+                    <Stub initialEntries={['/']} />
+                </AllProvidersWrapper>
+            );
 
             await waitFor(() => {
                 // First render should have data
@@ -204,7 +225,11 @@ describe('_app.tsx - Default Layout Route', () => {
             });
 
             // Re-render should preserve the refs
-            rerender(<Stub initialEntries={['/']} />);
+            rerender(
+                <AllProvidersWrapper>
+                    <Stub initialEntries={['/']} />
+                </AllProvidersWrapper>
+            );
             await waitFor(() => {
                 expect(screen.getByTestId('navigation-menu-mega')).toHaveAttribute('data-has-resolve', 'true');
             });

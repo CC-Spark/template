@@ -133,6 +133,21 @@ const baseConfig = defineConfig([
             },
         },
         rules: {
+            // Enforce multi-site-aware navigation imports
+            'no-restricted-imports': [
+                'warn',
+                {
+                    paths: [
+                        {
+                            name: 'react-router',
+                            importNames: ['Link', 'NavLink', 'useNavigate'],
+                            message:
+                                'Import Link/NavLink from "@/components/link" and useNavigate from "@/hooks/use-navigate" for multi-site URL prefixing.',
+                        },
+                    ],
+                },
+            ],
+
             // Override/extend rules from recommended configs
             '@typescript-eslint/consistent-type-exports': 'error',
             '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
@@ -231,6 +246,13 @@ const baseConfig = defineConfig([
         },
     },
     {
+        // Multi-site navigation wrappers — these legitimately import from react-router
+        files: ['**/src/components/link/index.tsx', '**/src/hooks/use-navigate.ts'],
+        rules: {
+            'no-restricted-imports': 'off',
+        },
+    },
+    {
         // Build/tooling files
         files: ['**/*.config.{js,ts}', '**/scripts/**/*.{js,ts}'],
         languageOptions: {
@@ -256,6 +278,7 @@ const baseConfig = defineConfig([
             '@typescript-eslint/no-explicit-any': 'off',
             'no-console': 'off',
             'max-len': 'off',
+            'no-restricted-imports': 'off',
         },
     },
     {

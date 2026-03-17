@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { RouterContextProvider } from 'react-router';
+import { RouterContextProvider, type Cookie } from 'react-router';
 import { authContext } from '@/middlewares/auth.utils';
 import { type PerformanceTimer, performanceTimerContext } from '@/middlewares/performance-metrics';
 import type { SessionData } from '@/lib/api/types';
@@ -23,6 +23,7 @@ import config from '@/config/server';
 import { i18nextContext } from '@/lib/i18next';
 import { currencyContext } from '@/lib/currency';
 import { createMaintenance, maintenanceContext } from '@/lib/maintenance';
+import { multiSiteContext } from '@salesforce/storefront-next-runtime/multi-site';
 import i18next from 'i18next';
 
 /**
@@ -149,6 +150,19 @@ export function createTestContext(testConfig: TestContextConfig = {}): Readonly<
 
     // Set up currency context
     contextProvider.set(currencyContext, currency);
+
+    // Set up multi-site context
+    const site = config.app.commerce.sites[0];
+    const localeObj = site.supportedLocales.find((l: { id: string }) => l.id === locale) ?? {
+        id: locale,
+        preferredCurrency: currency,
+    };
+    contextProvider.set(multiSiteContext, {
+        site: { ...site, alias: 'global', name: site.id, supportedLocales: site.supportedLocales },
+        locale: { ...localeObj },
+        siteCookie: { name: 'site_id' } as unknown as Cookie,
+        localeCookie: { name: 'locale_id' } as unknown as Cookie,
+    });
 
     // Set up maintenance context
     const maintenance = createMaintenance();

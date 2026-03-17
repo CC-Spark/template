@@ -16,7 +16,8 @@
 
 import { type ReactElement, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Await, useNavigate, useLoaderData, type LoaderFunctionArgs, redirect } from 'react-router';
+import { Await, useLoaderData, type LoaderFunctionArgs, redirect } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
 import { OrderListHeader, OrderListBody } from '@/components/account/order-list';
 import {
     fetchCustomerOrders,
@@ -26,6 +27,7 @@ import {
 } from '@/lib/api/order';
 import { Card, CardContent } from '@/components/ui/card';
 import { Typography } from '@/components/typography';
+import { buildUrlFromContext } from '@/lib/url.server';
 import { getAuth } from '@/middlewares/auth.server';
 
 type OrderListLoaderData = {
@@ -41,7 +43,7 @@ export function loader({ context, request }: LoaderFunctionArgs): OrderListLoade
     // Get customer ID from auth session
     const session = getAuth(context);
     if (!session.customerId) {
-        throw redirect('/login');
+        throw redirect(buildUrlFromContext('/login', context));
     }
 
     const { searchParams } = new URL(request.url);

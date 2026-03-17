@@ -15,7 +15,8 @@
  */
 import { render, screen } from '@testing-library/react';
 import { vi, describe, test, expect, beforeEach } from 'vitest';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 // Mock decorators (minimal mocking to avoid testing them)
 vi.mock('@/lib/decorators/component', () => ({
@@ -39,11 +40,20 @@ describe('PdButton Component', () => {
     });
 
     const renderPdButton = (props = {}) => {
-        return render(
-            <MemoryRouter>
-                <PdButton {...props} />
-            </MemoryRouter>
+        const router = createMemoryRouter(
+            [
+                {
+                    path: '*',
+                    element: (
+                        <AllProvidersWrapper>
+                            <PdButton {...props} />
+                        </AllProvidersWrapper>
+                    ),
+                },
+            ],
+            { initialEntries: ['/'] }
         );
+        return render(<RouterProvider router={router} />);
     };
 
     describe('Basic Rendering', () => {
@@ -61,7 +71,7 @@ describe('PdButton Component', () => {
             renderPdButton({ text: 'Link Button', link: '/test-link' });
             const link = screen.getByRole('link');
             expect(link).toHaveTextContent('Link Button');
-            expect(link).toHaveAttribute('href', '/test-link');
+            expect(link).toHaveAttribute('href', '/global/en-GB/test-link');
         });
 
         test('renders as button when no link prop', () => {

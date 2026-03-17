@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import type { ReactElement } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/typography';
 import {

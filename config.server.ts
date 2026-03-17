@@ -139,25 +139,8 @@ export default defineConfig<Config>(
                         defaultCurrency: 'GBP',
                         supportedLocales: [
                             {
-                                id: 'da-DK',
-                                preferredCurrency: 'EUR',
-                            },
-                            {
-                                id: 'de-DE',
-                                preferredCurrency: 'EUR',
-                            },
-                            {
                                 id: 'en-GB',
                                 preferredCurrency: 'GBP',
-                            },
-                            {
-                                id: 'es-MX',
-                                // there is not MXN support on BM, so we use USD
-                                preferredCurrency: 'USD',
-                            },
-                            {
-                                id: 'fi-FI',
-                                preferredCurrency: 'EUR',
                             },
                             {
                                 id: 'fr-FR',
@@ -172,39 +155,23 @@ export default defineConfig<Config>(
                                 preferredCurrency: 'JPY',
                             },
                             {
-                                id: 'ko-KR',
-                                preferredCurrency: 'KRW',
-                            },
-                            {
-                                id: 'nl-NL',
-                                preferredCurrency: 'EUR',
-                            },
-                            {
-                                id: 'no-NO',
-                                preferredCurrency: 'EUR',
-                            },
-                            {
-                                id: 'pl-PL',
-                                preferredCurrency: 'EUR',
-                            },
-                            {
-                                id: 'pt-BR',
-                                preferredCurrency: 'BRL',
-                            },
-                            {
-                                id: 'sv-SE',
-                                preferredCurrency: 'EUR',
-                            },
-                            {
                                 id: 'zh-CN',
                                 preferredCurrency: 'CNY',
                             },
-                            {
-                                id: 'zh-TW',
-                                preferredCurrency: 'TWD',
-                            },
                         ],
                         supportedCurrencies: ['EUR', 'GBP'],
+                    },
+                    {
+                        id: 'RefArch',
+                        defaultLocale: 'en-US',
+                        defaultCurrency: 'USD',
+                        supportedLocales: [
+                            {
+                                id: 'en-US',
+                                preferredCurrency: 'USD',
+                            },
+                        ],
+                        supportedCurrencies: ['USD'],
                     },
                 ],
             },
@@ -212,6 +179,7 @@ export default defineConfig<Config>(
             // See CONFIG-OPTIONS.md#defaultSiteId for detailed documentation
             defaultSiteId: 'RefArchGlobal',
             siteAliasMap: {
+                RefArch: 'us',
                 RefArchGlobal: 'global',
             },
             // Hybrid mode configuration
@@ -480,8 +448,7 @@ export default defineConfig<Config>(
                 conversationContext: [],
             },
             url: {
-                // Note: will change when multi-site implementation is integrated into the template
-                prefix: '/',
+                prefix: '/:siteId/:localeId',
                 excludeRoutes: ['/resource/**', '/action/**'],
             },
         },

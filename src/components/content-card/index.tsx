@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { forwardRef, type ComponentProps } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 import type { ComponentDesignMetadata } from '@salesforce/storefront-next-runtime/design/react';
 import { cn, resolveAssetUrl } from '@/lib/utils';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';

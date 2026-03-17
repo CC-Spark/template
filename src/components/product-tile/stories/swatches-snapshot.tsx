@@ -20,13 +20,17 @@ import { expect, test, describe, afterEach, vi } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import { ConfigWrapper } from '@/test-utils/config';
 
-vi.mock('react-router', () => ({
-    NavLink: ({ to, children, ...props }: { to: string; children: React.ReactNode; [key: string]: unknown }) => (
-        <a href={to} {...props}>
-            {children}
-        </a>
-    ),
-}));
+vi.mock('react-router', async (importOriginal) => {
+    const original = (await importOriginal()) as Record<string, unknown>;
+    return {
+        ...original,
+        NavLink: ({ to, children, ...props }: { to: string; children: React.ReactNode; [key: string]: unknown }) => (
+            <a href={to} {...props}>
+                {children}
+            </a>
+        ),
+    };
+});
 
 const composed = composeStories(SwatchesStories);
 

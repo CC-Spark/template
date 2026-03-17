@@ -18,6 +18,7 @@ import CartSheet from '../cart-sheet';
 import { action } from 'storybook/actions';
 import { useEffect, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
+import { SITE_PREFIX } from '@storybook/test-utils';
 import { Button } from '@/components/ui/button';
 import BasketProvider from '@/providers/basket';
 import emptyBasket from '@/components/__mocks__/empty-basket';
@@ -342,6 +343,6 @@ Cart sheet with View Cart button enabled via configuration.
         // Check for View Cart button (ghost variant Button component wrapping a Link)
         const viewCartButton = await documentBody.findByRole('link', { name: /view cart/i }, { timeout: 5000 });
         await expect(viewCartButton).toBeInTheDocument();
-        await expect(viewCartButton).toHaveAttribute('href', '/cart');
+        await expect(viewCartButton).toHaveAttribute('href', `${SITE_PREFIX}/cart`);
     },
 };

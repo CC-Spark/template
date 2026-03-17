@@ -30,6 +30,7 @@ import { bundleProd } from '@/components/__mocks__/bundle-product';
 import { setProduct } from '@/components/__mocks__/set-product';
 import { mockBuildConfig } from '@/test-utils/config';
 import { createAppConfig } from '@salesforce/storefront-next-runtime/config';
+import type { AppConfig } from '@/types/config';
 
 // Mock useToast
 const mockAddToast = vi.fn();
@@ -481,7 +482,7 @@ describe('ProductView', () => {
                         socialShare: { enabled: false, providers: ['Twitter', 'Facebook', 'LinkedIn', 'Email'] },
                     },
                 },
-            });
+            }) as AppConfig;
 
             const user = userEvent.setup();
             const router = createMemoryRouter(
@@ -523,7 +524,7 @@ describe('ProductView', () => {
                         socialShare: { enabled: true, providers: ['Email'] },
                     },
                 },
-            });
+            }) as AppConfig;
 
             const user = userEvent.setup();
             const router = createMemoryRouter(

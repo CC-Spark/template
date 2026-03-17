@@ -23,11 +23,17 @@ import { getTranslation } from '@/lib/i18next';
 const { t } = getTranslation();
 import ForgotPassword, { loader, action } from './_empty.forgot-password';
 import { getAuth, getPasswordResetToken } from '@/middlewares/auth.server';
+import { AllProvidersWrapper } from '@/test-utils/context-provider';
 
 // Mock dependencies
 vi.mock('@/middlewares/auth.server', () => ({
     getAuth: vi.fn(),
     getPasswordResetToken: vi.fn(),
+}));
+
+// Mock buildUrlFromContext to pass-through (avoids needing full context setup)
+vi.mock('@/lib/url.server', () => ({
+    buildUrlFromContext: vi.fn((to: string) => to),
 }));
 
 // Mock the form component
@@ -43,7 +49,11 @@ vi.mock('@/components/forgot-password-form', () => ({
 
 // Helper to render with router
 const renderWithRouter = (component: React.ReactElement) => {
-    return render(<MemoryRouter>{component}</MemoryRouter>);
+    return render(
+        <AllProvidersWrapper>
+            <MemoryRouter>{component}</MemoryRouter>
+        </AllProvidersWrapper>
+    );
 };
 
 describe('forgot-password route', () => {
@@ -498,7 +508,7 @@ describe('forgot-password route', () => {
 
                 // Button should be wrapped in a Link to /login
                 const linkElement = backButton.closest('a');
-                expect(linkElement).toHaveAttribute('href', '/login');
+                expect(linkElement).toHaveAttribute('href', '/global/en-GB/login');
             });
 
             it('should not display the form on success', () => {

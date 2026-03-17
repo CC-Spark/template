@@ -19,8 +19,7 @@ import { type ReactElement, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFetcher } from 'react-router';
 import { NativeSelect } from '@/components/ui/native-select';
-import { useConfig } from '@salesforce/storefront-next-runtime/config';
-import type { AppConfig } from '@/types/config';
+import { useSite, type Site } from '@salesforce/storefront-next-runtime/multi-site';
 import { useCurrency } from '@/providers/currency';
 import { useToast } from '@/components/toast';
 
@@ -35,11 +34,9 @@ export default function CurrencySwitcher(): ReactElement {
     const id = useId();
     const { t } = useTranslation('currencySwitcher');
     const fetcher = useFetcher();
-    const config = useConfig<AppConfig>();
     const currentCurrency = useCurrency();
     const { addToast } = useToast();
-    //TODO: will change when multi site implementation starts
-    const currentSite = config.commerce.sites[0];
+    const currentSite = useSite() as Site;
 
     const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newCurrency = e.target.value;

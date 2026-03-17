@@ -16,7 +16,9 @@
 'use client';
 
 import { type PropsWithChildren, type ReactElement, useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { Link, useFetcher, useNavigate } from 'react-router';
+import { useFetcher } from 'react-router';
+import { useNavigate } from '@/hooks/use-navigate';
+import { Link } from '@/components/link';
 import { useBasket } from '@/providers/basket';
 import { useConfig } from '@salesforce/storefront-next-runtime/config';
 import type { AppConfig } from '@/types/config';

@@ -93,6 +93,13 @@ export const mockBuildConfig: Config = {
                     ],
                     supportedCurrencies: ['EUR', 'GBP'],
                 },
+                {
+                    id: 'RefArch',
+                    defaultLocale: 'en-US',
+                    defaultCurrency: 'USD',
+                    supportedLocales: [{ id: 'en-US', preferredCurrency: 'USD' }],
+                    supportedCurrencies: ['USD'],
+                },
             ],
         },
         defaultSiteId: 'RefArchGlobal',
@@ -290,6 +297,10 @@ export const mockBuildConfig: Config = {
         siteAliasMap: {
             RefArchGlobal: 'global',
         },
+        url: {
+            prefix: '/:siteId/:localeId',
+            excludeRoutes: ['/resource/**', '/action/**'],
+        },
     },
 };
 
@@ -297,6 +308,19 @@ export const mockBuildConfig: Config = {
  * Pre-created mock config for convenience
  */
 export const mockConfig = createAppConfig(mockBuildConfig);
+
+/**
+ * The default URL prefix applied by multi-site routing in tests.
+ * Derived from the first configured site and its default locale.
+ *
+ * Use in test assertions where links are expected to include the site/locale prefix:
+ * @example
+ * ```ts
+ * expect(link).toHaveAttribute('href', `${SITE_PREFIX}/product/123`);
+ * ```
+ */
+const defaultSite = mockBuildConfig.app.commerce.sites[0];
+export const SITE_PREFIX = `/${defaultSite.id}/${defaultSite.defaultLocale}`;
 
 /**
  * React Testing Library wrapper component that provides ConfigProvider context

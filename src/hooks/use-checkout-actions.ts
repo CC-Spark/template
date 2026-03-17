@@ -25,8 +25,7 @@ import {
     type CheckoutStep,
 } from '@/components/checkout/utils/checkout-context-types';
 
-// Action route - all checkout actions go through the checkout route
-const checkoutActionRoute = '/checkout';
+// Place order uses a dedicated action route (excluded from multi-site prefix via /action/**)
 const placeOrderActionRoute = '/action/place-order';
 
 /**
@@ -187,7 +186,6 @@ export function useCheckoutActions(options?: {
 
         void contactFetcher.submit(formData, {
             method: 'post',
-            action: checkoutActionRoute,
         });
     };
 
@@ -210,7 +208,6 @@ export function useCheckoutActions(options?: {
 
         void shippingAddressFetcher.submit(formData, {
             method: 'post',
-            action: checkoutActionRoute,
         });
     };
 
@@ -233,7 +230,6 @@ export function useCheckoutActions(options?: {
 
         void shippingOptionsFetcher.submit(formData, {
             method: 'post',
-            action: checkoutActionRoute,
         });
     };
 
@@ -281,7 +277,6 @@ export function useCheckoutActions(options?: {
         // Submit payment form data
         void paymentFetcher.submit(formData, {
             method: 'post',
-            action: checkoutActionRoute,
         });
     };
 

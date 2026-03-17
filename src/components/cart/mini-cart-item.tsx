@@ -20,7 +20,7 @@
 import { type ReactElement, useMemo } from 'react';
 
 // React Router
-import { Link } from 'react-router';
+import { Link } from '@/components/link';
 
 // Commerce SDK
 import type { ShopperBasketsV2, ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';

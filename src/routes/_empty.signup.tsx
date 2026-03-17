@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import type { ReactElement } from 'react';
-import { redirect, Link, Form, useActionData, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import { redirect, Form, useActionData, type LoaderFunctionArgs, type ActionFunctionArgs } from 'react-router';
+import { Link } from '@/components/link';
 import { Card } from '@/components/ui/card';
 // services
 import { registerCustomer } from '@/lib/api/auth/register';
