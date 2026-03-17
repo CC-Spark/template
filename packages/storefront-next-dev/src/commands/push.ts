@@ -27,7 +27,6 @@ import {
 } from '../config';
 import { getDefaultBuildDir, getDefaultMessage } from '../utils';
 import { generateMetadata } from '../cartridge-services/generate-cartridge';
-import { resolveConfig } from '@salesforce/b2c-tooling-sdk/config';
 import { uploadCartridges, type CartridgeMapping } from '@salesforce/b2c-tooling-sdk/operations/code';
 import { uploadBundle, waitForEnv } from '@salesforce/b2c-tooling-sdk/operations/mrt';
 import { createMrtClient, DEFAULT_MRT_ORIGIN } from '@salesforce/b2c-tooling-sdk/clients';
@@ -204,20 +203,17 @@ export default class Push extends MrtCommand<typeof Push> {
 
             this.log('Deploying cartridge to Commerce Cloud...');
 
-            // Resolve B2C instance config (separate from MRT config)
-            const b2cConfig = resolveConfig({}, { workingDirectory: projectDirectory });
-
-            if (!b2cConfig.hasB2CInstanceConfig()) {
+            if (!this.resolvedConfig.hasB2CInstanceConfig()) {
                 this.warn('B2C instance not configured, skipping cartridge deployment');
                 return;
             }
 
-            if (!b2cConfig.values.codeVersion) {
+            if (!this.resolvedConfig.values.codeVersion) {
                 this.warn('Code version not configured, skipping cartridge deployment');
                 return;
             }
 
-            const instance = b2cConfig.createB2CInstance();
+            const instance = this.resolvedConfig.createB2CInstance();
             const cartridgeSrc = path.join(projectDirectory, CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_NAME);
             const cartridges: CartridgeMapping[] = [
                 {

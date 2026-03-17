@@ -28,7 +28,6 @@ const {
     mockRequireMrtCredentials,
     mockGenerateMetadata,
     mockUploadCartridges,
-    mockResolveConfig,
 } = vi.hoisted(() => ({
     mockCreateBundle: vi.fn(() => Promise.resolve({ data: 'test-bundle' })),
     mockUploadBundle: vi.fn(() =>
@@ -44,13 +43,6 @@ const {
     mockRequireMrtCredentials: vi.fn(),
     mockGenerateMetadata: vi.fn(() => Promise.resolve()),
     mockUploadCartridges: vi.fn(() => Promise.resolve()),
-    mockResolveConfig: vi.fn(
-        () =>
-            ({
-                hasB2CInstanceConfig: () => false,
-                values: {},
-            }) as any
-    ),
 }));
 
 // Mock dependencies
@@ -81,10 +73,6 @@ vi.mock('../cartridge-services/generate-cartridge', () => ({
 
 vi.mock('@salesforce/b2c-tooling-sdk/operations/code', () => ({
     uploadCartridges: mockUploadCartridges,
-}));
-
-vi.mock('@salesforce/b2c-tooling-sdk/config', () => ({
-    resolveConfig: mockResolveConfig,
 }));
 
 vi.mock('@salesforce/b2c-tooling-sdk/cli', () => {
@@ -457,10 +445,10 @@ describe('push command', () => {
         const warnSpy = vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
         vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
 
-        mockResolveConfig.mockReturnValue({
+        (cmd as any).resolvedConfig = {
             hasB2CInstanceConfig: () => false,
             values: {},
-        });
+        };
 
         await (cmd as any).generateAndDeployCartridge('/test/project');
 
@@ -473,13 +461,13 @@ describe('push command', () => {
         const warnSpy = vi.spyOn(cmd as any, 'warn').mockImplementation(() => {});
         vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
 
-        mockResolveConfig.mockReturnValue({
+        (cmd as any).resolvedConfig = {
             hasB2CInstanceConfig: () => true,
             values: {
                 codeVersion: undefined,
             },
             createB2CInstance: vi.fn(() => ({})),
-        });
+        };
 
         await (cmd as any).generateAndDeployCartridge('/test/project');
 
@@ -493,13 +481,13 @@ describe('push command', () => {
         vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
 
         const instance = { id: 'instance' };
-        mockResolveConfig.mockReturnValue({
+        (cmd as any).resolvedConfig = {
             hasB2CInstanceConfig: () => true,
             values: {
                 codeVersion: 'test-version',
             },
             createB2CInstance: vi.fn(() => instance),
-        });
+        };
 
         await (cmd as any).generateAndDeployCartridge('/test/project');
 
@@ -522,10 +510,10 @@ describe('push command', () => {
         vi.spyOn(cmd as any, 'log').mockImplementation(() => {});
 
         (fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValueOnce(false);
-        mockResolveConfig.mockReturnValue({
+        (cmd as any).resolvedConfig = {
             hasB2CInstanceConfig: () => false,
             values: {},
-        });
+        };
 
         await (cmd as any).generateAndDeployCartridge('/test/project');
 

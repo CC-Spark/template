@@ -7,7 +7,6 @@ import { Flags } from "@oclif/core";
 import path from "path";
 import fs from "fs-extra";
 import { MrtCommand } from "@salesforce/b2c-tooling-sdk/cli";
-import { resolveConfig } from "@salesforce/b2c-tooling-sdk/config";
 import { uploadCartridges } from "@salesforce/b2c-tooling-sdk/operations/code";
 import { uploadBundle, waitForEnv } from "@salesforce/b2c-tooling-sdk/operations/mrt";
 import { DEFAULT_MRT_ORIGIN, createMrtClient } from "@salesforce/b2c-tooling-sdk/clients";
@@ -114,16 +113,15 @@ var Push = class Push extends MrtCommand {
 			await generateMetadata(projectDirectory, metadataDir);
 			this.log("Cartridge metadata generated successfully!");
 			this.log("Deploying cartridge to Commerce Cloud...");
-			const b2cConfig = resolveConfig({}, { workingDirectory: projectDirectory });
-			if (!b2cConfig.hasB2CInstanceConfig()) {
+			if (!this.resolvedConfig.hasB2CInstanceConfig()) {
 				this.warn("B2C instance not configured, skipping cartridge deployment");
 				return;
 			}
-			if (!b2cConfig.values.codeVersion) {
+			if (!this.resolvedConfig.values.codeVersion) {
 				this.warn("Code version not configured, skipping cartridge deployment");
 				return;
 			}
-			await uploadCartridges(b2cConfig.createB2CInstance(), [{
+			await uploadCartridges(this.resolvedConfig.createB2CInstance(), [{
 				name: SFNEXT_BASE_CARTRIDGE_NAME,
 				src: path.join(projectDirectory, CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_NAME),
 				dest: SFNEXT_BASE_CARTRIDGE_NAME

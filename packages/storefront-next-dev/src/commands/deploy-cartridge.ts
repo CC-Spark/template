@@ -14,38 +14,57 @@
  * limitations under the License.
  */
 
-import { InstanceCommand } from '@salesforce/b2c-tooling-sdk/cli';
-import { uploadCartridges, type CartridgeMapping } from '@salesforce/b2c-tooling-sdk/operations/code';
+import { Flags } from '@oclif/core';
+import { CartridgeCommand } from '@salesforce/b2c-tooling-sdk/cli';
+import {
+    uploadCartridges,
+    deleteCartridges,
+    getActiveCodeVersion,
+    reloadCodeVersion,
+} from '@salesforce/b2c-tooling-sdk/operations/code';
 import path from 'path';
 import fs from 'fs-extra';
-import { CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_NAME, SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR } from '../config';
+import { CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR } from '../config';
 
 /**
- * Deploy cartridge command - deploys the Page Designer metadata cartridge to a B2C instance.
+ * Deploy cartridge command - deploys cartridges to a B2C instance.
  *
- * Inherits all B2C instance flags from InstanceCommand:
- * - --server/-s: B2C instance hostname (env: SFCC_SERVER)
- * - --code-version/-v: Code version (env: SFCC_CODE_VERSION)
- * - --username/-u: Basic auth username (env: SFCC_USERNAME)
- * - --password/-p: Basic auth password (env: SFCC_PASSWORD)
- * - --client-id: OAuth client ID (env: SFCC_CLIENT_ID)
- * - --client-secret: OAuth client secret (env: SFCC_CLIENT_SECRET)
- * - --webdav-server: Separate WebDAV hostname (env: SFCC_WEBDAV_SERVER)
- * - --config: Path to dw.json config file (env: SFCC_CONFIG)
- * - --instance/-i: Named instance from config (env: SFCC_INSTANCE)
+ * Extends CartridgeCommand which provides:
+ * - All B2C instance flags (--server, --code-version, --username, --password, etc.)
+ * - Cartridge filtering flags (-c/--cartridge, -x/--exclude-cartridge)
+ * - Cartridge discovery with plugin provider support
+ * - Config-driven cartridge filtering via dw.json `cartridges` option
+ *
+ * Additional flags:
+ * - --delete: Delete existing cartridges before upload
+ * - --reload/-r: Reload (re-activate) code version after deploy (requires OAuth)
  */
-export default class Deploy extends InstanceCommand<typeof Deploy> {
-    static description = 'Deploy cartridge to B2C Commerce Cloud instance';
+export default class Deploy extends CartridgeCommand<typeof Deploy> {
+    static description = 'Deploy cartridges to B2C Commerce Cloud instance';
 
     static examples = [
         '<%= config.bin %> <%= command.id %>',
         '<%= config.bin %> <%= command.id %> --project-directory ./my-project',
         '<%= config.bin %> <%= command.id %> -s my-sandbox.dx.commercecloud.salesforce.com',
         '<%= config.bin %> <%= command.id %> --code-version staging',
+        '<%= config.bin %> <%= command.id %> --delete',
+        '<%= config.bin %> <%= command.id %> --delete --reload',
+        '<%= config.bin %> <%= command.id %> -c app_storefrontnext_base',
+        '<%= config.bin %> <%= command.id %> -x test_cartridge',
     ];
 
     static flags = {
-        ...InstanceCommand.baseFlags,
+        ...CartridgeCommand.baseFlags,
+        ...CartridgeCommand.cartridgeFlags,
+        reload: Flags.boolean({
+            char: 'r',
+            description: 'Reload (re-activate) code version after deploy',
+            default: false,
+        }),
+        delete: Flags.boolean({
+            description: 'Delete existing cartridges before upload',
+            default: false,
+        }),
     };
 
     async run(): Promise<void> {
@@ -58,6 +77,7 @@ export default class Deploy extends InstanceCommand<typeof Deploy> {
         }
 
         // Build cartridge paths
+        const cartridgesDir = path.join(projectDirectory, CARTRIDGES_BASE_DIR);
         const metadataDir = path.join(projectDirectory, CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_OUTPUT_DIR);
 
         // Verify metadata directory exists within cartridge base
@@ -67,26 +87,72 @@ export default class Deploy extends InstanceCommand<typeof Deploy> {
 
         // Validate required configuration
         this.requireServer();
-        this.requireCodeVersion();
         this.requireWebDavCredentials();
 
-        // Create cartridge mapping for the generated metadata cartridge
-        const cartridgeSrc = path.join(projectDirectory, CARTRIDGES_BASE_DIR, SFNEXT_BASE_CARTRIDGE_NAME);
-        const cartridges: CartridgeMapping[] = [
-            {
-                name: SFNEXT_BASE_CARTRIDGE_NAME,
-                src: cartridgeSrc,
-                dest: SFNEXT_BASE_CARTRIDGE_NAME,
-            },
-        ];
+        let version = this.resolvedConfig.values.codeVersion;
 
-        this.log(
-            `Deploying cartridge "${SFNEXT_BASE_CARTRIDGE_NAME}" to code version "${this.resolvedConfig.values.codeVersion}"...`
-        );
+        // OAuth is only required if:
+        // 1. No code version specified (need to auto-discover via OCAPI)
+        // 2. --reload flag is set (need to call OCAPI to reload)
+        const needsOAuth = !version || flags.reload;
+        if (needsOAuth && !this.hasOAuthCredentials()) {
+            const reason = version
+                ? 'The --reload flag requires OAuth credentials to reload the code version via OCAPI.'
+                : 'No code version specified. OAuth credentials are required to auto-discover the active code version.';
+            this.error(
+                `${reason}\n\nProvide --code-version to use basic auth only, or configure OAuth credentials (--client-id and --client-secret).`
+            );
+        }
+
+        // If no code version specified, discover the active one
+        if (!version) {
+            this.warn('No code version specified, discovering active code version...');
+            let activeVersion;
+            try {
+                activeVersion = await getActiveCodeVersion(this.instance);
+            } catch (error) {
+                this.error(
+                    `Failed to discover active code version: ${error instanceof Error ? error.message : String(error)}\n\nSpecify one explicitly with --code-version or in your dw.json config.`
+                );
+            }
+            if (!activeVersion?.id) {
+                this.error('No active code version found. Specify one with --code-version or in your dw.json config.');
+            }
+            version = activeVersion.id;
+            this.instance.config.codeVersion = version;
+        }
+
+        // Discover cartridges in the cartridges directory
+        const cartridges = await this.findCartridgesWithProviders(cartridgesDir);
+
+        if (cartridges.length === 0) {
+            this.error(`No cartridges found in ${cartridgesDir}`);
+        }
+
+        this.log(`Deploying to code version "${version}"...`);
+        for (const c of cartridges) {
+            this.log(`  ${c.name} (${c.src})`);
+        }
+
+        // Optionally delete existing cartridges first
+        if (flags.delete) {
+            this.log('Deleting existing cartridges...');
+            await deleteCartridges(this.instance, cartridges);
+        }
 
         // Deploy using SDK - this.instance is provided by InstanceCommand
         await uploadCartridges(this.instance, cartridges);
 
-        this.log(`Code deployed to version "${this.resolvedConfig.values.codeVersion}" successfully!`);
+        // Optionally reload code version
+        if (flags.reload) {
+            try {
+                await reloadCodeVersion(this.instance, version);
+                this.log('Code version reloaded.');
+            } catch (error) {
+                this.warn(`Could not reload code version: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+
+        this.log(`Deployed ${cartridges.length} cartridge(s) to version "${version}" successfully!`);
     }
 }

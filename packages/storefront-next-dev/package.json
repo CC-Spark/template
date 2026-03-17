@@ -169,7 +169,7 @@
     "@oclif/plugin-not-found": "^3.2.73",
     "@oclif/plugin-plugins": "^5",
     "@react-router/express": "7.12.0",
-    "@salesforce/b2c-tooling-sdk": "^0.5.4",
+    "@salesforce/b2c-tooling-sdk": "^0.9.0",
     "archiver": "^7.0.1",
     "chalk": "^5.3.0",
     "compressible": "2.0.18",
