@@ -84,4 +84,18 @@ describe('FiltersButton', () => {
         const button = screen.getByRole('button', { name: 'Filters' });
         expect(button).toHaveAttribute('aria-label', 'Filters');
     });
+
+    test('renders selected filters badge when count is greater than 0', () => {
+        render(<FiltersButton onClick={() => {}} selectedFiltersCount={3} />);
+
+        expect(screen.getByText('3')).toBeInTheDocument();
+        const button = screen.getByRole('button', { name: /filters, 3 selected/i });
+        expect(button).toHaveAttribute('aria-label', 'Filters, 3 selected');
+    });
+
+    test('does not render selected filters badge when count is 0', () => {
+        render(<FiltersButton onClick={() => {}} selectedFiltersCount={0} />);
+
+        expect(screen.queryByText('0')).not.toBeInTheDocument();
+    });
 });

@@ -17,6 +17,7 @@
 
 import { Funnel } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,8 @@ export interface FiltersButtonProps {
     onClick: () => void;
     /** Whether the filters panel is currently shown */
     isActive?: boolean;
+    /** Number of selected filters currently applied */
+    selectedFiltersCount?: number;
     /** Additional CSS classes */
     className?: string;
 }
@@ -32,19 +35,37 @@ export interface FiltersButtonProps {
 /**
  * Button component that toggles the filters panel.
  */
-export default function FiltersButton({ onClick, isActive = false, className }: FiltersButtonProps) {
+export default function FiltersButton({
+    onClick,
+    isActive = false,
+    selectedFiltersCount = 0,
+    className,
+}: FiltersButtonProps) {
     const { t } = useTranslation();
     const filtersLabel = t('categoryRefinements:filtersButtonLabel');
+    const normalizedSelectedFiltersCount = Math.max(0, Math.floor(selectedFiltersCount));
+    const hasSelectedFilters = normalizedSelectedFiltersCount > 0;
+    const filtersAriaLabel = hasSelectedFilters
+        ? t('categoryRefinements:filtersButtonLabelWithCount', {
+              label: filtersLabel,
+              count: normalizedSelectedFiltersCount,
+          })
+        : filtersLabel;
 
     return (
         <Button
             variant={isActive ? 'default' : 'outline'}
             onClick={onClick}
             className={cn(className)}
-            aria-label={filtersLabel}
+            aria-label={filtersAriaLabel}
             aria-pressed={isActive}>
             <Funnel className="size-4 mr-2" />
             {filtersLabel}
+            {hasSelectedFilters && (
+                <Badge className="ml-2 min-w-5 px-1.5 rounded-none" aria-hidden>
+                    {normalizedSelectedFiltersCount}
+                </Badge>
+            )}
         </Button>
     );
 }

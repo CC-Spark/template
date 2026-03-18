@@ -16,6 +16,7 @@
 
 import 'reflect-metadata';
 import { render, screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { type LoaderFunctionArgs, MemoryRouter } from 'react-router';
 import {
@@ -24,7 +25,7 @@ import {
     type ShopperProducts,
     type ShopperSearch,
 } from '@salesforce/storefront-next-runtime/scapi';
-import CategoryPage, { loader, ProductListingPageMetadata } from './_app.category.$categoryId';
+import CategoryPage, { loader, ProductListingPageMetadata, shouldRevalidate } from './_app.category.$categoryId';
 import { createTestContext } from '@/lib/test-utils';
 import { fetchCategory } from '@/lib/api/categories';
 import { fetchSearchProducts } from '@/lib/api/search';
@@ -112,15 +113,20 @@ vi.mock('@/components/region', () => ({
 
 // Mock ProductGrid component
 vi.mock('@/components/product-grid', () => ({
-    default: ({ critical, handleProductClick }: any) => (
-        <div data-testid="product-grid">
-            {critical?.map((product: any) => (
-                <div key={product.productId} data-testid="product-item" onClick={() => handleProductClick?.(product)}>
-                    {product.productName}
-                </div>
-            ))}
-        </div>
-    ),
+    default: function ProductGridMock({ critical, handleProductClick }: any) {
+        return (
+            <div data-testid="product-grid">
+                {critical?.map((product: any) => (
+                    <div
+                        key={product.productId}
+                        data-testid="product-item"
+                        onClick={() => handleProductClick?.(product)}>
+                        {product.productName}
+                    </div>
+                ))}
+            </div>
+        );
+    },
 }));
 
 // Mock other components
@@ -145,7 +151,11 @@ vi.mock('@/components/category-refinements/active-filters', () => ({
 }));
 
 vi.mock('@/components/category-refinements/filters-button', () => ({
-    default: () => <button data-testid="filters-button">Filters</button>,
+    default: ({ onClick }: any) => (
+        <button data-testid="filters-button" onClick={onClick}>
+            Filters
+        </button>
+    ),
 }));
 
 vi.mock('@/components/category-sorting', () => ({
@@ -367,6 +377,27 @@ describe('CategoryPage', () => {
             const result = await loader(args);
 
             expect(result.refine).toEqual(['cgid=electronics']);
+        });
+
+        test('should parse filters query param into initialFiltersOpen', async () => {
+            const openArgs: LoaderFunctionArgs = {
+                request: new Request('https://example.com/category/electronics?filters=open'),
+                context: mockContext,
+                params: { categoryId: 'electronics' },
+                unstable_pattern: '/category/:categoryId',
+            };
+            const closedArgs: LoaderFunctionArgs = {
+                request: new Request('https://example.com/category/electronics?filters=closed'),
+                context: mockContext,
+                params: { categoryId: 'electronics' },
+                unstable_pattern: '/category/:categoryId',
+            };
+
+            const openResult = await loader(openArgs);
+            const closedResult = await loader(closedArgs);
+
+            expect(openResult.initialFiltersOpen).toBe(true);
+            expect(closedResult.initialFiltersOpen).toBe(false);
         });
 
         test('should throw 404 when category fetch fails with ApiError 404', async () => {
@@ -706,6 +737,88 @@ describe('CategoryPage', () => {
     });
 
     describe('CategoryPage Component', () => {
+        test('should apply initialFiltersOpen from loader data', async () => {
+            const openLoaderData: CategoryPageData = {
+                category: mockCategory,
+                searchResultCritical: mockSearchResult,
+                searchResultNonCritical: Promise.resolve(mockSearchResult),
+                page: Promise.resolve({ ...createMockPage(), componentData: {} }),
+                categoryId: 'electronics',
+                refine: ['cgid=electronics'],
+                currency: 'USD',
+                locale: 'en-US',
+                initialFiltersOpen: true,
+                categorySchema: Promise.resolve(null),
+            };
+
+            const closedLoaderData: CategoryPageData = {
+                ...openLoaderData,
+                initialFiltersOpen: false,
+            };
+
+            const { unmount } = render(
+                <MemoryRouter initialEntries={['/category/electronics?filters=open']}>
+                    <ConfigWrapper>
+                        <CategoryPage loaderData={openLoaderData} />
+                    </ConfigWrapper>
+                </MemoryRouter>
+            );
+
+            await waitFor(() => {
+                expect(screen.getByTestId('category-refinements')).toBeInTheDocument();
+            });
+
+            unmount();
+
+            render(
+                <MemoryRouter initialEntries={['/category/electronics?filters=closed']}>
+                    <ConfigWrapper>
+                        <CategoryPage loaderData={closedLoaderData} />
+                    </ConfigWrapper>
+                </MemoryRouter>
+            );
+
+            await waitFor(() => {
+                expect(screen.queryByTestId('category-refinements')).not.toBeInTheDocument();
+            });
+        });
+
+        test('should not remount ProductGrid when only filters query param changes', async () => {
+            const user = userEvent.setup();
+            const loaderData: CategoryPageData = {
+                category: mockCategory,
+                searchResultCritical: mockSearchResult,
+                searchResultNonCritical: Promise.resolve(mockSearchResult),
+                page: Promise.resolve({ ...createMockPage(), componentData: {} }),
+                categoryId: 'electronics',
+                refine: ['cgid=electronics'],
+                currency: 'USD',
+                locale: 'en-US',
+                initialFiltersOpen: false,
+                categorySchema: Promise.resolve(null),
+            };
+
+            render(
+                <MemoryRouter initialEntries={['/category/electronics?filters=closed']}>
+                    <ConfigWrapper>
+                        <CategoryPage loaderData={loaderData} />
+                    </ConfigWrapper>
+                </MemoryRouter>
+            );
+
+            await waitFor(() => {
+                expect(screen.getByTestId('product-grid')).toBeInTheDocument();
+            });
+            const productGridBefore = screen.getByTestId('product-grid');
+
+            await user.click(screen.getAllByTestId('filters-button')[0]);
+
+            await waitFor(() => {
+                expect(screen.getByTestId('category-refinements')).toBeInTheDocument();
+            });
+            expect(screen.getByTestId('product-grid')).toBe(productGridBefore);
+        });
+
         test('should render category page with all elements', async () => {
             const loaderData: CategoryPageData = {
                 category: mockCategory,
@@ -1023,5 +1136,39 @@ describe('CategoryPage', () => {
                 expect(screen.getByText('Electronics (25)')).toBeInTheDocument();
             });
         });
+    });
+});
+
+describe('CategoryPage shouldRevalidate', () => {
+    test('returns false when only filters query param changes', () => {
+        const result = shouldRevalidate({
+            currentUrl: new URL('http://localhost/electronics?filters=closed&refine=cgid:electronics'),
+            nextUrl: new URL('http://localhost/electronics?filters=open&refine=cgid:electronics'),
+            defaultShouldRevalidate: true,
+            actionStatus: 200,
+            formAction: undefined,
+            formData: undefined,
+            formEncType: 'application/x-www-form-urlencoded',
+            formMethod: 'GET',
+            actionResult: undefined,
+        } as any);
+
+        expect(result).toBe(false);
+    });
+
+    test('uses default behavior when non-filters query params change', () => {
+        const result = shouldRevalidate({
+            currentUrl: new URL('http://localhost/electronics?filters=closed&sort=best-matches'),
+            nextUrl: new URL('http://localhost/electronics?filters=closed&sort=price-low-to-high'),
+            defaultShouldRevalidate: true,
+            actionStatus: 200,
+            formAction: undefined,
+            formData: undefined,
+            formEncType: 'application/x-www-form-urlencoded',
+            formMethod: 'GET',
+            actionResult: undefined,
+        } as any);
+
+        expect(result).toBe(true);
     });
 });

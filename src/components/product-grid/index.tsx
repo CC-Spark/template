@@ -22,15 +22,26 @@ import { ProductTileSkeleton } from '@/components/category-skeleton';
 
 type ProductSearchHit = ShopperSearch.schemas['ProductSearchHit'];
 
-// Responsive size of the product images in the product grid. The values are based on the grid column configuration and
-// the width of the refinement panel (w-64 + gap-8 --> 256px + 32px = 288px).
-const responsiveImageWidths = [
+// Responsive size of the product images in the product grid when the refinement panel is visible.
+// Values are based on the grid column configuration and refinement panel width
+// (w-64 + gap-8 --> 256px + 32px = 288px).
+const responsiveImageWidthsWithRefinements = [
     '40vw', // base: 2 grid columns, no refinement panel, ~(100vw - col padding) / 2 ≈ 40% of vw
     '25vw', // sm:   3 grid columns, no refinement panel, ~(100vw - col padding) / 3 ≈ 25% of vw
     '18vw', // md:   4 grid columns, no refinement panel, ~(100vw - col padding) / 4 ≈ 18% of vw
     '14vw', // lg:   4 grid columns, refinement panel, ~(100vw − 288px − col padding) / 4 ≈ 14% of vw
     '16vw', // xl:   4 grid columns, refinement panel, ~(100vw − 288px − col padding) / 4 ≈ 16% of vw
     '16vw', // 2xl:  4 grid columns, refinement panel, ~(100vw − 288px − col padding) / 4 ≈ 16% of vw
+];
+
+// Responsive size of product images when refinements panel is collapsed.
+const responsiveImageWidthsWithoutRefinements = [
+    '40vw', // base: 2 grid columns, no refinement panel, ~(100vw - col padding) / 2 ≈ 40% of vw
+    '25vw', // sm:   3 grid columns, no refinement panel, ~(100vw - col padding) / 3 ≈ 25% of vw
+    '18vw', // md:   4 grid columns, no refinement panel, ~(100vw - col padding) / 4 ≈ 18% of vw
+    '18vw', // lg:   4 grid columns, no refinement panel, ~(100vw - col padding) / 4 ≈ 18% of vw
+    '20vw', // xl:   4 grid columns, no refinement panel, ~(100vw - col padding) / 4 ≈ 20% of vw
+    '20vw', // 2xl:  4 grid columns, no refinement panel, ~(100vw - col padding) / 4 ≈ 20% of vw
 ];
 
 function NoProductsMessage({ criticalSize, nonCriticalSize }: { criticalSize: number; nonCriticalSize: number }) {
@@ -49,10 +60,12 @@ function NoProductsMessage({ criticalSize, nonCriticalSize }: { criticalSize: nu
 function NonCriticalContent({
     nonCritical,
     criticalSize,
+    responsiveImageWidths,
     handleProductClick,
 }: {
     nonCritical: Promise<ProductSearchHit[]>;
     criticalSize: number;
+    responsiveImageWidths: string[];
     handleProductClick?: (product: ProductSearchHit) => void;
 }) {
     const products = use(nonCritical);
@@ -84,15 +97,20 @@ export default function ProductGrid({
     critical,
     nonCritical,
     nonCriticalCount = 0,
+    hasRefinementsPanel = true,
     handleProductClick,
 }: {
     critical?: ProductSearchHit[];
     nonCritical?: Promise<ProductSearchHit[]>;
     nonCriticalCount?: number;
+    hasRefinementsPanel?: boolean;
     handleProductClick?: (product: ProductSearchHit) => void;
 }): ReactElement {
     const criticalData = critical ?? [];
     const l = criticalData.length;
+    const responsiveImageWidths = hasRefinementsPanel
+        ? responsiveImageWidthsWithRefinements
+        : responsiveImageWidthsWithoutRefinements;
 
     // Initialize the `<DynamicImageProvider/>` behavior for the scope of this grid.
     // Out-of-the-box we make sure that the product images of all products considered critical (displayed inside a
@@ -122,6 +140,7 @@ export default function ProductGrid({
                         <NonCriticalContent
                             nonCritical={nonCritical}
                             criticalSize={l}
+                            responsiveImageWidths={responsiveImageWidths}
                             handleProductClick={handleProductClick}
                         />
                     </Suspense>

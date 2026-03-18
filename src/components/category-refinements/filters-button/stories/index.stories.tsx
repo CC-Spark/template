@@ -34,6 +34,7 @@ A button component that toggles the filters panel.
 
 - **Filter Icon**: Displays a funnel icon to indicate filtering
 - **Active State**: Uses filled/default styling when filters panel is open
+- **Selected Count Badge**: Shows the number of currently selected filters
 - **Accessible**: Proper ARIA labels and keyboard support
 - **Responsive**: Works on all screen sizes
 - **Composable**: Supports custom class names
@@ -50,6 +51,7 @@ function ProductListingPage() {
     <FiltersButton
       onClick={() => setFiltersOpen((prev) => !prev)}
       isActive={filtersOpen}
+      selectedFiltersCount={2}
     />
   );
 }
@@ -61,12 +63,14 @@ function ProductListingPage() {
 |------|------|-------------|
 | \`onClick\` | \`() => void\` | Callback when button is clicked |
 | \`isActive\` | \`boolean\` | Whether filter section is currently shown |
+| \`selectedFiltersCount\` | \`number\` | Number of selected filters to display in badge |
 | \`className\` | \`string\` | Additional CSS classes |
 
 ## Behavior
 
 - **Inactive**: Uses outline variant
 - **Active**: Uses default variant
+- **Badge**: Shows count when one or more filters are selected
 - **Click**: Calls onClick handler to open filters panel
                 `,
             },
@@ -115,6 +119,7 @@ The default Filters Button when filters panel is closed:
 export const Active: Story = {
     args: {
         isActive: true,
+        selectedFiltersCount: 3,
     },
     parameters: {
         docs: {
@@ -143,6 +148,7 @@ Filters Button when filters panel is open:
         await expect(button).toBeInTheDocument();
 
         await expect(button).toHaveAttribute('aria-pressed', 'true');
+        await expect(canvas.getByText('3')).toBeInTheDocument();
     },
 };
 

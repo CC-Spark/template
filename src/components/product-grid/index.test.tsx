@@ -24,6 +24,7 @@ import ProductGrid from './index';
 
 const addSourceSpy = vi.fn();
 const hasSourceSpy = vi.fn();
+const widthsSpy = vi.fn();
 
 vi.mock('@/providers/dynamic-image', async (importOriginal) => {
     const original = await importOriginal<typeof import('@/providers/dynamic-image')>();
@@ -44,6 +45,7 @@ vi.mock('@/providers/dynamic-image', async (importOriginal) => {
                     return false;
                 },
                 hasSource: (src: string) => {
+                    widthsSpy(originalContext?.widths);
                     if (typeof originalContext?.hasSource === 'function') {
                         const result = originalContext?.hasSource(src);
                         hasSourceSpy(src, result);
@@ -151,6 +153,7 @@ const renderComponent = (
         critical?: ShopperSearch.schemas['ProductSearchHit'][];
         nonCritical?: Promise<ShopperSearch.schemas['ProductSearchHit'][]>;
         nonCriticalCount?: number;
+        hasRefinementsPanel?: boolean;
         handleProductClick?: (product: ShopperSearch.schemas['ProductSearchHit']) => void;
     } = {}
 ) => {
@@ -165,6 +168,7 @@ const renderComponent = (
                                 critical={props.critical ?? (!props.nonCritical ? mockProductsExtended : [])}
                                 nonCritical={props.nonCritical}
                                 nonCriticalCount={props.nonCriticalCount}
+                                hasRefinementsPanel={props.hasRefinementsPanel}
                                 handleProductClick={props.handleProductClick}
                             />
                         </CurrencyProvider>
@@ -217,6 +221,16 @@ describe('ProductGrid', () => {
         await user.click(productLink);
 
         expect(handleProductClick).toHaveBeenCalledWith(mockProducts[0]);
+    });
+
+    test('uses different responsive image widths based on refinements panel visibility', async () => {
+        await act(() => renderComponent({ critical: mockProducts.slice(0, 1), hasRefinementsPanel: true }));
+        expect(widthsSpy).toHaveBeenCalledWith(['40vw', '25vw', '18vw', '14vw', '16vw', '16vw']);
+
+        widthsSpy.mockClear();
+
+        await act(() => renderComponent({ critical: mockProducts.slice(0, 1), hasRefinementsPanel: false }));
+        expect(widthsSpy).toHaveBeenCalledWith(['40vw', '25vw', '18vw', '18vw', '20vw', '20vw']);
     });
 });
 

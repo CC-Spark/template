@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { type LoaderFunctionArgs, useLocation } from 'react-router';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useTransition } from 'react';
+import { type LoaderFunctionArgs, type ShouldRevalidateFunctionArgs, useLocation } from 'react-router';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchSearchProducts } from '@/lib/api/search';
 import { getConfig, useConfig } from '@salesforce/storefront-next-runtime/config';
@@ -34,6 +34,11 @@ import { PageType } from '@/lib/decorators/page-type';
 import { RegionDefinition } from '@/lib/decorators/region-definition';
 import { Region } from '@/components/region';
 import { fetchPageWithComponentData, type PageWithComponentData } from '@/lib/util/pageLoader';
+import {
+    getInitialFiltersOpen,
+    getSearchWithoutFiltersParam,
+    useFiltersPanelState,
+} from '@/hooks/use-filters-panel-state';
 
 @PageType({
     name: 'Search Results Page',
@@ -70,6 +75,7 @@ export type SearchPageData = {
     refine: string[];
     currency: string;
     locale: string;
+    initialFiltersOpen?: boolean;
 };
 
 /**
@@ -85,6 +91,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<SearchPageData> 
     const q = searchParams.get('q') ?? '';
     const sort = searchParams.get('sort') ?? '';
     const refine = searchParams.getAll('refine');
+    const initialFiltersOpen = getInitialFiltersOpen(searchParams);
     const currency = context.get(currencyContext) as string;
 
     const config = getConfig<AppConfig>(context);
@@ -120,11 +127,35 @@ export async function loader(args: LoaderFunctionArgs): Promise<SearchPageData> 
         refine,
         currency,
         locale,
+        initialFiltersOpen,
     };
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
+export function shouldRevalidate({ currentUrl, nextUrl, defaultShouldRevalidate }: ShouldRevalidateFunctionArgs) {
+    const filtersOnlyChanged =
+        currentUrl.pathname === nextUrl.pathname &&
+        currentUrl.search !== nextUrl.search &&
+        getSearchWithoutFiltersParam(currentUrl.search) === getSearchWithoutFiltersParam(nextUrl.search);
+
+    if (filtersOnlyChanged) {
+        return false;
+    }
+
+    return defaultShouldRevalidate;
+}
+
 export default function SearchPage({
-    loaderData: { searchTerm, searchResultCritical, searchResultNonCritical, page, refine, currency, locale },
+    loaderData: {
+        searchTerm,
+        searchResultCritical,
+        searchResultNonCritical,
+        page,
+        refine,
+        currency,
+        locale,
+        initialFiltersOpen,
+    },
 }: {
     loaderData: SearchPageData;
 }) {
@@ -132,8 +163,7 @@ export default function SearchPage({
     const config = useConfig<AppConfig>();
     const limit = config.search.products.hits.limit;
 
-    // State for mobile filters panel
-    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [filtersOpen, toggleFiltersOpen] = useFiltersPanelState(initialFiltersOpen);
 
     // Determine the maximum number of skeletons to display in the product grid
     // Out-of-the-box the idea is to not display more than 8 skeletons, i.e., two rows on a desktop device.
@@ -145,7 +175,14 @@ export default function SearchPage({
     const lastTrackedSearchRef = useRef<string | null>(null);
 
     const location = useLocation();
-    const pageKey = `${currency}-${locale}-${location.search}-${location.hash}`;
+    const searchWithoutFiltersParam = useMemo(() => getSearchWithoutFiltersParam(location.search), [location.search]);
+    const pageIdentity = `${currency}-${locale}`;
+    const analyticsKey = `${pageIdentity}-${searchWithoutFiltersParam}-${location.hash}`;
+    const productGridDataKey = `${pageIdentity}-${searchWithoutFiltersParam}`;
+    const selectedFiltersCount = useMemo(
+        () => new URLSearchParams(location.search).getAll('refine').length,
+        [location.search]
+    );
 
     const nonCriticalPromise = useMemo(
         () => searchResultNonCritical.then((r) => r.hits ?? []),
@@ -168,8 +205,8 @@ export default function SearchPage({
 
     useEffect(() => {
         // Only track if we haven't already tracked this search
-        if (pageKey !== lastTrackedSearchRef.current) {
-            lastTrackedSearchRef.current = pageKey;
+        if (analyticsKey !== lastTrackedSearchRef.current) {
+            lastTrackedSearchRef.current = analyticsKey;
 
             startTransition(() => {
                 void nonCriticalPromise
@@ -190,10 +227,10 @@ export default function SearchPage({
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [analytics, searchTerm, pageKey, nonCriticalPromise]);
+    }, [analytics, searchTerm, analyticsKey, nonCriticalPromise]);
 
     return (
-        <Fragment key={pageKey}>
+        <Fragment>
             <div className="pb-16">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -216,12 +253,16 @@ export default function SearchPage({
                     <div className="flex flex-col lg:flex-row gap-8">
                         {/* Filters toggle button - mobile only (above panel) */}
                         <div className="lg:hidden">
-                            <FiltersButton onClick={() => setFiltersOpen(!filtersOpen)} isActive={filtersOpen} />
+                            <FiltersButton
+                                onClick={toggleFiltersOpen}
+                                isActive={filtersOpen}
+                                selectedFiltersCount={selectedFiltersCount}
+                            />
                         </div>
 
                         {/* Category Refinements - toggles visibility on left side */}
                         {filtersOpen && (
-                            <div className="w-64 flex-shrink-0">
+                            <div className="w-full lg:w-64 lg:flex-shrink-0">
                                 <CategoryRefinements result={searchResultCritical} refine={refine} />
                             </div>
                         )}
@@ -229,7 +270,11 @@ export default function SearchPage({
                         <div className="flex-grow">
                             {/* Filters toggle button - desktop only (inside content area) */}
                             <div className="mb-4 hidden lg:block">
-                                <FiltersButton onClick={() => setFiltersOpen(!filtersOpen)} isActive={filtersOpen} />
+                                <FiltersButton
+                                    onClick={toggleFiltersOpen}
+                                    isActive={filtersOpen}
+                                    selectedFiltersCount={selectedFiltersCount}
+                                />
                             </div>
 
                             <ActiveFilters result={searchResultCritical} />
@@ -238,9 +283,11 @@ export default function SearchPage({
                             <Region className="mb-8" page={page} regionId="searchTopContent" />
 
                             <ProductGrid
+                                key={productGridDataKey}
                                 critical={searchResultCritical.hits ?? []}
                                 nonCritical={nonCriticalPromise}
                                 nonCriticalCount={nonCriticalCount}
+                                hasRefinementsPanel={filtersOpen}
                                 handleProductClick={handleProductClick}
                             />
 

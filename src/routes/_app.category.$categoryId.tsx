@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Suspense, use, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { type LoaderFunctionArgs, useLocation } from 'react-router';
+import { Fragment, Suspense, use, useCallback, useEffect, useMemo, useRef, useTransition } from 'react';
+import { type LoaderFunctionArgs, type ShouldRevalidateFunctionArgs, useLocation } from 'react-router';
 import { ApiError, type ShopperProducts, type ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchCategory } from '@/lib/api/categories';
 import { fetchSearchProducts } from '@/lib/api/search';
@@ -37,6 +37,11 @@ import { Region } from '@/components/region';
 import { fetchPageWithComponentData, type PageWithComponentData } from '@/lib/util/pageLoader';
 import { JsonLd } from '@/components/json-ld';
 import { generateCategorySchema } from '@/utils/category-schema';
+import {
+    getInitialFiltersOpen,
+    getSearchWithoutFiltersParam,
+    useFiltersPanelState,
+} from '@/hooks/use-filters-panel-state';
 
 @PageType({
     name: 'Product Listing Page',
@@ -74,6 +79,7 @@ type CategoryPageData = {
     refine: string[];
     currency: string;
     locale: string;
+    initialFiltersOpen?: boolean;
     categorySchema: Promise<ReturnType<typeof generateCategorySchema> | null>;
 };
 
@@ -93,6 +99,7 @@ export async function loader(args: LoaderFunctionArgs): Promise<CategoryPageData
     const offset = parseInt(getQueryParam(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.OFFSET) || '0', 10);
     const sort = getQueryParam(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.SORT);
     const refine = getAllQueryParams(searchParams, PRODUCT_SEARCH_QUERY_PARAMS.REFINE);
+    const initialFiltersOpen = getInitialFiltersOpen(searchParams);
 
     // Get currency and locale for cache-busting the page key
     const config = getConfig<AppConfig>(context);
@@ -180,8 +187,23 @@ export async function loader(args: LoaderFunctionArgs): Promise<CategoryPageData
         refine: effectiveRefine,
         currency,
         locale,
+        initialFiltersOpen,
         categorySchema: categorySchemaPromise,
     };
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function shouldRevalidate({ currentUrl, nextUrl, defaultShouldRevalidate }: ShouldRevalidateFunctionArgs) {
+    const filtersOnlyChanged =
+        currentUrl.pathname === nextUrl.pathname &&
+        currentUrl.search !== nextUrl.search &&
+        getSearchWithoutFiltersParam(currentUrl.search) === getSearchWithoutFiltersParam(nextUrl.search);
+
+    if (filtersOnlyChanged) {
+        return false;
+    }
+
+    return defaultShouldRevalidate;
 }
 
 /**
@@ -212,6 +234,7 @@ export default function CategoryPage({
         refine,
         locale,
         currency,
+        initialFiltersOpen,
         categorySchema,
     },
 }: {
@@ -219,8 +242,7 @@ export default function CategoryPage({
 }) {
     const config = useConfig<AppConfig>();
 
-    // State for mobile filters panel
-    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [filtersOpen, toggleFiltersOpen] = useFiltersPanelState(initialFiltersOpen);
     const limit = config.search.products.hits.limit;
 
     // Determine the maximum number of skeletons to display in the product grid
@@ -232,10 +254,15 @@ export default function CategoryPage({
     const analytics = useAnalytics();
     const lastTrackedDataRef = useRef<string | null>(null);
 
-    // Force remount when currency/locale/search params change to update Suspense boundaries with
-    // new data without manually refresh the page on new selected currency/locale/filters (incl. pagination, sort, refinements)
     const location = useLocation();
-    const pageKey = `${categoryId}-${currency}-${locale}-${location.search}-${location.hash}`;
+    const searchWithoutFiltersParam = useMemo(() => getSearchWithoutFiltersParam(location.search), [location.search]);
+    const pageIdentity = `${categoryId}-${currency}-${locale}`;
+    const analyticsKey = `${pageIdentity}-${searchWithoutFiltersParam}-${location.hash}`;
+    const productGridDataKey = `${pageIdentity}-${searchWithoutFiltersParam}`;
+    const selectedFiltersCount = useMemo(
+        () => new URLSearchParams(location.search).getAll('refine').length,
+        [location.search]
+    );
 
     const nonCriticalPromise = useMemo(
         () => searchResultNonCritical.then((r) => r.hits ?? []),
@@ -246,8 +273,8 @@ export default function CategoryPage({
 
     useEffect(() => {
         // Only track if we haven't already tracked this specific data combination
-        if (pageKey !== lastTrackedDataRef.current) {
-            lastTrackedDataRef.current = pageKey;
+        if (analyticsKey !== lastTrackedDataRef.current) {
+            lastTrackedDataRef.current = analyticsKey;
 
             startTransition(() => {
                 void nonCriticalPromise
@@ -270,7 +297,7 @@ export default function CategoryPage({
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [analytics, category, pageKey, nonCriticalPromise]);
+    }, [analytics, category, analyticsKey, nonCriticalPromise]);
 
     const handleProductClick = useCallback(
         (product: ShopperSearch.schemas['ProductSearchHit']) => {
@@ -285,7 +312,7 @@ export default function CategoryPage({
     );
 
     return (
-        <Fragment key={pageKey}>
+        <Fragment>
             <div className="pb-16">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
@@ -309,12 +336,16 @@ export default function CategoryPage({
                     <div className="flex flex-col lg:flex-row gap-8">
                         {/* Filters toggle button - mobile only (above panel) */}
                         <div className="lg:hidden">
-                            <FiltersButton onClick={() => setFiltersOpen(!filtersOpen)} isActive={filtersOpen} />
+                            <FiltersButton
+                                onClick={toggleFiltersOpen}
+                                isActive={filtersOpen}
+                                selectedFiltersCount={selectedFiltersCount}
+                            />
                         </div>
 
                         {/* Category Refinements - toggles visibility on left side */}
                         {filtersOpen && (
-                            <div className="w-64 flex-shrink-0">
+                            <div className="w-full lg:w-64 lg:flex-shrink-0">
                                 <CategoryRefinements result={searchResultCritical} refine={refine} />
                             </div>
                         )}
@@ -322,7 +353,11 @@ export default function CategoryPage({
                         <div className="flex-grow">
                             {/* Filters toggle button - desktop only (inside content area) */}
                             <div className="mb-4 hidden lg:block">
-                                <FiltersButton onClick={() => setFiltersOpen(!filtersOpen)} isActive={filtersOpen} />
+                                <FiltersButton
+                                    onClick={toggleFiltersOpen}
+                                    isActive={filtersOpen}
+                                    selectedFiltersCount={selectedFiltersCount}
+                                />
                             </div>
 
                             <ActiveFilters result={searchResultCritical} />
@@ -331,9 +366,11 @@ export default function CategoryPage({
                             <Region className="mb-8" page={page} regionId="plpTopContent" />
 
                             <ProductGrid
+                                key={productGridDataKey}
                                 critical={searchResultCritical.hits ?? []}
                                 nonCritical={nonCriticalPromise}
                                 nonCriticalCount={nonCriticalCount}
+                                hasRefinementsPanel={filtersOpen}
                                 handleProductClick={handleProductClick}
                             />
 

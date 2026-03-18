@@ -7,6 +7,7 @@
         "appliedFilters": "Filtri attivi:",
         "clearAll": "Cancella tutto",
         "filtersButtonLabel": "Filtri",
+        "filtersButtonLabelWithCount": "{{label}}, {{count}} selezionati",
         "noFilterOptionsAvailable": "Nessuna opzione di filtro disponibile."
     },
     "common": {
