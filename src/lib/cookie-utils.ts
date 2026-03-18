@@ -101,27 +101,22 @@ export const getCookieNameWithSiteId = (name: string, context?: Readonly<RouterC
  * 3. Default values (path, sameSite, secure)
  *
  * @param cookieOptions - Optional cookie options to merge with defaults and environment config
- * @param context - Optional router context (server loaders/actions only, omit for client-side)
+ * @param context - Router context provider (required, server-only)
  * @returns Final cookie attributes with proper precedence applied
  *
  * @example
- * // Client-side - uses getConfig() automatically
- * const cookieConfig = getCookieConfig();
- * // Result: { path: '/', sameSite: 'lax', secure: true, domain: '<from env>' }
- *
- * @example
- * // Server-side - pass context
+ * // Pass context from middleware/loader/action
  * const cookieConfig = getCookieConfig({ httpOnly: false }, context);
  * // Result includes domain from config if set
  *
  * @example
  * // Provided options override defaults, but .env takes precedence over both
- * const cookieConfig = getCookieConfig({ path: '/custom', domain: '.code.com' });
+ * const cookieConfig = getCookieConfig({ path: '/custom', domain: '.code.com' }, context);
  * // If PUBLIC_COOKIE_DOMAIN=.env.com is set:
  * // Result: { path: '/custom', sameSite: 'lax', secure: true, domain: '.env.com' }
  *
  * @example
- * // Use with createCookie (server-side)
+ * // Use with createCookie
  * const authCookie = createCookie('auth', getCookieConfig({ httpOnly: false }, context), context);
  */
 
@@ -153,10 +148,10 @@ export const parseAllCookies = (cookieHeader: string | null): Record<string, str
 };
 
 export const getCookieConfig = <T extends object = CookieConfig>(
-    cookieOptions?: T,
-    context?: Readonly<RouterContextProvider>
+    cookieOptions: T | undefined,
+    context: Readonly<RouterContextProvider>
 ): T & CookieConfig => {
-    const modeDetection = context?.get(modeDetectionContext);
+    const modeDetection = context.get(modeDetectionContext);
 
     // 3. Start with defaults (lowest priority)
     const defaults: CookieConfig = {
@@ -178,11 +173,7 @@ export const getCookieConfig = <T extends object = CookieConfig>(
     // 1. Apply app config cookie overrides (highest priority)
     const cookieConfigOverrides: CookieConfig = {};
 
-    // Get config using getConfig() - handles both server (with context) and client (without)
-    const config = getConfig<AppConfig>(context);
-
-    // context is optional in this function, so we add fallback for site here
-    const currentSite = context?.get(multiSiteContext)?.site ?? config.commerce.sites[0];
+    const currentSite = context.get(multiSiteContext)?.site;
     const cookieDomain = currentSite?.cookies?.domain;
     if (cookieDomain) {
         cookieConfigOverrides.domain = cookieDomain;
@@ -218,7 +209,7 @@ export interface Cookie<T = unknown> {
 export const createCookie = <T = unknown>(
     name: string,
     defaultConfig: CookieConfig,
-    context?: Readonly<RouterContextProvider>
+    context: Readonly<RouterContextProvider>
 ): Cookie<T> => {
     const namespacedName = getCookieNameWithSiteId(name, context);
 

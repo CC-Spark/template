@@ -41,8 +41,7 @@ import { fetchPageWithComponentData, type PageWithComponentData } from '@/lib/ut
 import { JsonLd } from '@/components/json-ld';
 import { generateProductSchema } from '@/utils/product-schema';
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
-import { getCookieFromRequestAs, getSelectedStoreInfoCookieName } from '@/extensions/store-locator/utils';
-import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
+import { selectedStoreContext } from '@/extensions/store-locator/middlewares/selected-store.server';
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
@@ -87,8 +86,7 @@ export function loader(args: LoaderFunctionArgs): ProductPageData {
     const { searchParams } = new URL(request.url);
 
     // @sfdc-extension-block-start SFDC_EXT_BOPIS
-    const cookieName = getSelectedStoreInfoCookieName();
-    const selectedStoreInfo = getCookieFromRequestAs<SelectedStoreInfo>(request, cookieName);
+    const selectedStoreInfo = context.get(selectedStoreContext);
     // @sfdc-extension-block-end SFDC_EXT_BOPIS
 
     // Get currency from context for product pricing

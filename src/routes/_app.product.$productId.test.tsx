@@ -118,10 +118,8 @@ vi.mock('@/components/json-ld', () => ({
 }));
 
 // @sfdc-extension-block-start SFDC_EXT_BOPIS
-vi.mock('@/extensions/store-locator/utils', () => ({
-    getCookieFromRequestAs: vi.fn(),
-    getCookieFromDocumentAs: vi.fn(),
-    getSelectedStoreInfoCookieName: vi.fn(() => 'selectedStoreInfo_test'),
+vi.mock('@/extensions/store-locator/middlewares/selected-store.server', () => ({
+    selectedStoreContext: { id: 'selectedStoreContext' },
 }));
 
 vi.mock('@/extensions/bopis/context/pickup-context', () => ({

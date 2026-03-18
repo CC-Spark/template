@@ -19,8 +19,7 @@ import StorePreferences from '@/components/store-preferences';
 import { getTranslation } from '@/lib/i18next';
 // @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
 import { createApiClients } from '@/lib/api-clients';
-import { getCookieFromRequestAs, getSelectedStoreInfoCookieName } from '@/extensions/store-locator/utils';
-import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
+import { selectedStoreContext } from '@/extensions/store-locator/middlewares/selected-store.server';
 // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
 
 /**
@@ -30,12 +29,11 @@ import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-
  * selectedStoreInfo cookie and fetches full store details from SCAPI.
  */
 // eslint-disable-next-line react-refresh/only-export-components -- Loader exports are required by React Router
-export async function loader({ request, context }: LoaderFunctionArgs) {
+export async function loader({ context }: LoaderFunctionArgs) {
     const { t } = getTranslation(context);
 
     // @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
-    const cookieName = getSelectedStoreInfoCookieName();
-    const selectedStoreInfo = getCookieFromRequestAs<SelectedStoreInfo>(request, cookieName);
+    const selectedStoreInfo = context.get(selectedStoreContext);
 
     if (selectedStoreInfo?.id) {
         try {

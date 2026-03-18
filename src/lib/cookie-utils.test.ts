@@ -127,6 +127,10 @@ describe('cookie-utils', () => {
     });
 
     describe('getCookieConfig', () => {
+        const defaultMockContext = {
+            get: vi.fn(() => undefined),
+        } as any;
+
         beforeEach(() => {
             vi.mocked(getConfig).mockReturnValue(mockAppConfig);
         });
@@ -136,7 +140,7 @@ describe('cookie-utils', () => {
         });
 
         it('should return defaults when no options provided', () => {
-            const config = getCookieConfig();
+            const config = getCookieConfig(undefined, defaultMockContext);
 
             expect(config).toEqual({
                 path: '/',
@@ -146,10 +150,13 @@ describe('cookie-utils', () => {
         });
 
         it('should merge provided options with defaults', () => {
-            const config = getCookieConfig({
-                httpOnly: true,
-                maxAge: 3600,
-            });
+            const config = getCookieConfig(
+                {
+                    httpOnly: true,
+                    maxAge: 3600,
+                },
+                defaultMockContext
+            );
 
             expect(config).toEqual({
                 path: '/',
@@ -161,11 +168,14 @@ describe('cookie-utils', () => {
         });
 
         it('should allow overriding default values', () => {
-            const config = getCookieConfig({
-                path: '/custom',
-                sameSite: 'strict',
-                secure: false,
-            });
+            const config = getCookieConfig(
+                {
+                    path: '/custom',
+                    sameSite: 'strict',
+                    secure: false,
+                },
+                defaultMockContext
+            );
 
             expect(config).toEqual({
                 path: '/custom',
@@ -174,20 +184,12 @@ describe('cookie-utils', () => {
             });
         });
 
-        it('should apply domain from appConfig (highest priority)', () => {
-            vi.mocked(getConfig).mockReturnValue({
-                commerce: {
-                    sites: [
-                        {
-                            cookies: {
-                                domain: '.example.com',
-                            },
-                        },
-                    ],
-                },
-            } as AppConfig);
+        it('should apply domain from site context (highest priority)', () => {
+            const contextWithSite = {
+                get: vi.fn(() => ({ site: { cookies: { domain: '.example.com' } } })),
+            } as any;
 
-            const config = getCookieConfig({});
+            const config = getCookieConfig({}, contextWithSite);
 
             expect(config).toEqual({
                 path: '/',
@@ -197,29 +199,24 @@ describe('cookie-utils', () => {
             });
         });
 
-        it('should override provided domain with appConfig domain', () => {
-            vi.mocked(getConfig).mockReturnValue({
-                commerce: {
-                    sites: [
-                        {
-                            cookies: {
-                                domain: '.env-domain.com',
-                            },
-                        },
-                    ],
-                },
-            } as AppConfig);
+        it('should override provided domain with site context domain', () => {
+            const contextWithSite = {
+                get: vi.fn(() => ({ site: { cookies: { domain: '.env-domain.com' } } })),
+            } as any;
 
-            const config = getCookieConfig({
-                domain: '.code-domain.com',
-                path: '/custom',
-            });
+            const config = getCookieConfig(
+                {
+                    domain: '.code-domain.com',
+                    path: '/custom',
+                },
+                contextWithSite
+            );
 
             expect(config).toEqual({
                 path: '/custom',
                 sameSite: 'lax',
                 secure: true,
-                domain: '.env-domain.com', // appConfig wins
+                domain: '.env-domain.com', // site context wins
             });
         });
 
@@ -234,7 +231,7 @@ describe('cookie-utils', () => {
                 },
             } as AppConfig);
 
-            const config = getCookieConfig({ domain: '.test.com' });
+            const config = getCookieConfig({ domain: '.test.com' }, defaultMockContext);
 
             expect(config).toEqual({
                 path: '/',
@@ -257,7 +254,7 @@ describe('cookie-utils', () => {
                 },
             } as AppConfig);
 
-            const config = getCookieConfig({ domain: '.test.com' });
+            const config = getCookieConfig({ domain: '.test.com' }, defaultMockContext);
 
             // Empty string is falsy, so it doesn't override
             expect(config).toEqual({
@@ -275,7 +272,7 @@ describe('cookie-utils', () => {
                 },
             } as any);
 
-            const config = getCookieConfig({ httpOnly: true });
+            const config = getCookieConfig({ httpOnly: true }, defaultMockContext);
 
             expect(config).toEqual({
                 path: '/',
@@ -287,36 +284,34 @@ describe('cookie-utils', () => {
 
         it('should preserve Date objects for expires', () => {
             const expiryDate = new Date('2025-12-31');
-            const config = getCookieConfig({
-                expires: expiryDate,
-            });
+            const config = getCookieConfig(
+                {
+                    expires: expiryDate,
+                },
+                defaultMockContext
+            );
 
             expect(config.expires).toBe(expiryDate);
             expect(config.expires).toBeInstanceOf(Date);
         });
 
         it('should handle all cookie attributes', () => {
-            vi.mocked(getConfig).mockReturnValue({
-                commerce: {
-                    sites: [
-                        {
-                            cookies: {
-                                domain: '.example.com',
-                            },
-                        },
-                    ],
-                },
-            } as AppConfig);
+            const contextWithSite = {
+                get: vi.fn(() => ({ site: { cookies: { domain: '.example.com' } } })),
+            } as any;
 
             const expiryDate = new Date('2025-12-31');
-            const config = getCookieConfig({
-                path: '/api',
-                secure: false,
-                sameSite: 'none',
-                expires: expiryDate,
-                maxAge: 7200,
-                httpOnly: true,
-            });
+            const config = getCookieConfig(
+                {
+                    path: '/api',
+                    secure: false,
+                    sameSite: 'none',
+                    expires: expiryDate,
+                    maxAge: 7200,
+                    httpOnly: true,
+                },
+                contextWithSite
+            );
 
             expect(config).toEqual({
                 path: '/api',
@@ -325,12 +320,12 @@ describe('cookie-utils', () => {
                 expires: expiryDate,
                 maxAge: 7200,
                 httpOnly: true,
-                domain: '.example.com', // from appConfig
+                domain: '.example.com', // from site context
             });
         });
 
         it('should work with undefined options', () => {
-            const config = getCookieConfig(undefined);
+            const config = getCookieConfig(undefined, defaultMockContext);
 
             expect(config).toEqual({
                 path: '/',
@@ -340,10 +335,13 @@ describe('cookie-utils', () => {
         });
 
         it('should preserve custom properties from provided options', () => {
-            const config = getCookieConfig({
-                path: '/',
-                customProp: 'customValue',
-            } as any);
+            const config = getCookieConfig(
+                {
+                    path: '/',
+                    customProp: 'customValue',
+                } as any,
+                defaultMockContext
+            );
 
             expect(config).toMatchObject({
                 path: '/',
@@ -358,35 +356,33 @@ describe('cookie-utils', () => {
             ['lax', 'lax' as const],
             ['none', 'none' as const],
         ])('should handle sameSite: %s', (_, sameSiteValue) => {
-            const config = getCookieConfig({
-                sameSite: sameSiteValue,
-            });
+            const config = getCookieConfig(
+                {
+                    sameSite: sameSiteValue,
+                },
+                defaultMockContext
+            );
 
             expect(config.sameSite).toBe(sameSiteValue);
         });
 
-        it('should verify precedence order: appConfig > options > defaults', () => {
-            vi.mocked(getConfig).mockReturnValue({
-                commerce: {
-                    sites: [
-                        {
-                            cookies: {
-                                domain: '.appconfig.com',
-                            },
-                        },
-                    ],
-                },
-            } as AppConfig);
+        it('should verify precedence order: site context > options > defaults', () => {
+            const contextWithSite = {
+                get: vi.fn(() => ({ site: { cookies: { domain: '.sitecontext.com' } } })),
+            } as any;
 
             // Test all three levels of precedence
-            const config = getCookieConfig({
-                domain: '.options.com', // Will be overridden by appConfig
-                path: '/options', // Will override default
-                // secure not provided, will use default
-            });
+            const config = getCookieConfig(
+                {
+                    domain: '.options.com', // Will be overridden by site context
+                    path: '/options', // Will override default
+                    // secure not provided, will use default
+                },
+                contextWithSite
+            );
 
             expect(config).toEqual({
-                domain: '.appconfig.com', // HIGHEST: from appConfig
+                domain: '.sitecontext.com', // HIGHEST: from site context
                 path: '/options', // MIDDLE: from options
                 secure: true, // LOWEST: from defaults
                 sameSite: 'lax', // LOWEST: from defaults
@@ -426,8 +422,8 @@ describe('cookie-utils', () => {
                 });
             });
 
-            it('should use normal defaults when context is not provided', () => {
-                const config = getCookieConfig({});
+            it('should use normal defaults when context has no mode detection', () => {
+                const config = getCookieConfig({}, defaultMockContext);
 
                 expect(config).toEqual({
                     path: '/',
@@ -547,6 +543,10 @@ describe('cookie-utils', () => {
     });
 
     describe('createCookie', () => {
+        const mockContext = {
+            get: vi.fn(() => undefined),
+        } as any;
+
         beforeEach(() => {
             vi.mocked(getConfig).mockReturnValue(mockAppConfig);
         });
@@ -556,25 +556,25 @@ describe('cookie-utils', () => {
         });
 
         it('should parse a cookie value from a Cookie header', async () => {
-            const cookie = createCookie<string>('token', { path: '/' });
+            const cookie = createCookie<string>('token', { path: '/' }, mockContext);
             const value = await cookie.parse('token_RefArch=abc123; other=value');
             expect(value).toBe('abc123');
         });
 
         it('should return null when cookie is not found', async () => {
-            const cookie = createCookie<string>('token', { path: '/' });
+            const cookie = createCookie<string>('token', { path: '/' }, mockContext);
             const value = await cookie.parse('other=value');
             expect(value).toBeNull();
         });
 
         it('should return null for null cookie header', async () => {
-            const cookie = createCookie<string>('token', { path: '/' });
+            const cookie = createCookie<string>('token', { path: '/' }, mockContext);
             const value = await cookie.parse(null);
             expect(value).toBeNull();
         });
 
         it('should serialize a cookie value to Set-Cookie header', async () => {
-            const cookie = createCookie<string>('token', { path: '/', secure: true, sameSite: 'lax' });
+            const cookie = createCookie<string>('token', { path: '/', secure: true, sameSite: 'lax' }, mockContext);
             const header = await cookie.serialize('abc123');
             expect(header).toContain('token_RefArch=abc123');
             expect(header).toContain('Path=/');
@@ -583,20 +583,20 @@ describe('cookie-utils', () => {
         });
 
         it('should serialize empty value for cookie deletion', async () => {
-            const cookie = createCookie<string>('token', { path: '/' });
+            const cookie = createCookie<string>('token', { path: '/' }, mockContext);
             const header = await cookie.serialize('');
             expect(header).toContain('token_RefArch=');
         });
 
         it('should store values as-is without encoding', async () => {
             const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.signature';
-            const cookie = createCookie<string>('cc-at', { path: '/' });
+            const cookie = createCookie<string>('cc-at', { path: '/' }, mockContext);
             const header = await cookie.serialize(jwt);
             expect(header).toContain(`cc-at_RefArch=${jwt}`);
         });
 
         it('should handle cookie values with equals signs', async () => {
-            const cookie = createCookie<string>('token', { path: '/' });
+            const cookie = createCookie<string>('token', { path: '/' }, mockContext);
             const value = await cookie.parse('token_RefArch=base64value==; other=x');
             expect(value).toBe('base64value==');
         });

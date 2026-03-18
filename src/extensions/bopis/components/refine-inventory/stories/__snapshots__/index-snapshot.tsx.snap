@@ -133,54 +133,29 @@ exports[`RefineInventory stories snapshot > DesktopLayout story renders and matc
         class="flex items-start space-x-2 p-2 rounded-md"
       >
         <button
-          aria-checked="true"
-          aria-label="Filter Products by Store Availability at Downtown Store"
+          aria-checked="false"
+          aria-label="Filter Products by Store Availability at Select Store"
           class="peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 size-4"
           data-slot="checkbox"
-          data-state="checked"
+          data-state="unchecked"
           data-testid="sf-store-inventory-filter-checkbox"
           id="inventory-filter"
           role="checkbox"
           type="button"
           value="on"
-        >
-          <span
-            class="grid place-content-center text-current transition-none"
-            data-slot="checkbox-indicator"
-            data-state="checked"
-            style="pointer-events: none;"
-          >
-            <svg
-              aria-hidden="true"
-              class="lucide lucide-check size-3.5"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M20 6 9 17l-5-5"
-              />
-            </svg>
-          </span>
-        </button>
+        />
         <label
           class="text-sm font-medium leading-none cursor-pointer"
           for="inventory-filter"
         >
           In stock at  
           <span
-            aria-label="Change Store"
+            aria-label="Select Store"
             class="underline cursor-pointer hover:opacity-70"
             role="button"
             tabindex="0"
           >
-            Downtown Store
+            Select Store
           </span>
         </label>
       </div>
@@ -350,7 +325,7 @@ exports[`RefineInventory stories snapshot > MobileLayout story renders and match
       >
         <button
           aria-checked="false"
-          aria-label="Filter Products by Store Availability at Downtown Store"
+          aria-label="Filter Products by Store Availability at Select Store"
           class="peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 size-4"
           data-slot="checkbox"
           data-state="unchecked"
@@ -366,12 +341,12 @@ exports[`RefineInventory stories snapshot > MobileLayout story renders and match
         >
           In stock at  
           <span
-            aria-label="Change Store"
+            aria-label="Select Store"
             class="underline cursor-pointer hover:opacity-70"
             role="button"
             tabindex="0"
           >
-            Downtown Store
+            Select Store
           </span>
         </label>
       </div>

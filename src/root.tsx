@@ -59,6 +59,13 @@ import type { AppConfig } from '@/types/config';
 import { multiSiteMiddleware } from '@/middlewares/multi-site.server';
 import { i18nextMiddleware } from '@/middlewares/i18next.server';
 import { currencyMiddleware } from '@/middlewares/currency.server';
+// @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
+import {
+    selectedStoreMiddleware,
+    selectedStoreContext,
+} from '@/extensions/store-locator/middlewares/selected-store.server';
+import type { SelectedStoreInfo } from '@/extensions/store-locator/stores/store-locator-store';
+// @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
 import { correlationMiddleware } from '@/middlewares/correlation.server';
 import { modeDetectionMiddlewareServer, modeDetectionMiddlewareClient } from '@/middlewares/mode-detection';
 import { maintenanceMiddleware } from '@/middlewares/maintenance.server';
@@ -101,6 +108,9 @@ import appStylesHref from './app.css?url';
 
 // Extensions
 import { TargetProviders } from '@/targets/target-providers';
+// @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
+import StoreLocatorProvider from '@/extensions/store-locator/providers/store-locator';
+// @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
 import { type Maintenance, maintenanceContext } from '@/lib/maintenance';
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -124,6 +134,7 @@ export const middleware: MiddlewareFunction<Response>[] = [
     multiSiteMiddleware, // Must run after appConfig, before i18next and currency
     i18nextMiddleware,
     currencyMiddleware,
+    selectedStoreMiddleware /** @sfdc-extension-line SFDC_EXT_STORE_LOCATOR */,
     performanceMetricsMiddlewareServer,
     maintenanceMiddleware,
     authMiddlewareServer,
@@ -160,6 +171,7 @@ export const loader = ({
     locale: Locale;
     site: Site;
     currency: string;
+    selectedStoreInfo: SelectedStoreInfo | null /** @sfdc-extension-line SFDC_EXT_STORE_LOCATOR */;
     correlationId: string;
     pageDesignerMode: 'EDIT' | 'PREVIEW' | undefined;
     // Pre-computed in the loader (server-only) so seo.ts stays out of the client bundle
@@ -185,6 +197,10 @@ export const loader = ({
 
     // Currency is already resolved by middleware
     const currency = context.get(currencyContext) as string;
+
+    // @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
+    const selectedStoreInfo = context.get(selectedStoreContext) ?? null;
+    // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
 
     // Get resolved site from multi-site middleware
     const multiSite = context.get(multiSiteContext);
@@ -224,6 +240,7 @@ export const loader = ({
         locale,
         site,
         currency,
+        selectedStoreInfo /** @sfdc-extension-line SFDC_EXT_STORE_LOCATOR */,
         correlationId,
         maintenance,
         clientAuth,
@@ -379,7 +396,18 @@ export function ErrorBoundary({ error }: { error: unknown }) {
 }
 
 export default function App({
-    loaderData: { clientAuth, basketSnapshot, getI18next, currency, correlationId, pageDesignerMode, site },
+    loaderData: {
+        clientAuth,
+        basketSnapshot,
+        getI18next,
+        currency,
+        correlationId,
+        pageDesignerMode,
+        site,
+        // @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
+        selectedStoreInfo,
+        // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
+    },
 }: {
     loaderData: LoaderData;
 }) {
@@ -419,8 +447,22 @@ export default function App({
                 [BasketProvider, { snapshot: basketSnapshot }],
                 [RecommendersProvider, { adapterName: EINSTEIN_ADAPTER_NAME }],
                 [CorrelationProvider, { value: correlationId }],
+                // @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
+                [StoreLocatorProvider, { selectedStoreInfo }],
+                // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
             ] as const,
-        [correlationId, i18next, appConfig, currency, clientAuth, basketSnapshot, site]
+        [
+            correlationId,
+            i18next,
+            appConfig,
+            currency,
+            clientAuth,
+            basketSnapshot,
+            site,
+            // @sfdc-extension-block-start SFDC_EXT_STORE_LOCATOR
+            selectedStoreInfo,
+            // @sfdc-extension-block-end SFDC_EXT_STORE_LOCATOR
+        ]
     );
 
     const hybridEnabled = Boolean(appConfig?.hybrid?.enabled);
