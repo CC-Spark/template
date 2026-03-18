@@ -164,6 +164,7 @@ export function ProductRatingSummary(): ReactElement | null {
                     sideOffset={4}
                     className="min-w-[280px] max-w-[304px] p-4 bg-card text-card-foreground"
                     aria-label="Star rating distribution"
+                    onCloseAutoFocus={(e) => e.preventDefault()}
                     onMouseEnter={clearCloseTimeout}
                     onMouseLeave={scheduleClose}>
                     <Suspense fallback={null}>

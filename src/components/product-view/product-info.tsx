@@ -160,6 +160,9 @@ export default function ProductInfo({
                     currentPriceProps={{
                         className: 'text-xl font-bold text-foreground',
                     }}
+                    promoCalloutProps={{
+                        className: 'text-sm [&_span]:mx-0 [&_span]:text-status-positive',
+                    }}
                     hidePromo={isCompactStyle}
                     currentPriceOnly={isCompactStyle}
                 />
@@ -171,6 +174,7 @@ export default function ProductInfo({
                     product={product}
                     currentVariant={currentVariant}
                     lowStockThreshold={config.global.inventory.lowStockThreshold}
+                    maxStockDisplay={config.global.inventory.maxStockDisplay}
                 />
             )}
 

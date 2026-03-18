@@ -243,7 +243,7 @@ export default defineConfig<Config>(
                 productListing: {
                     defaultProductTileImgAspectRatio: 1,
                 },
-                inventory: { lowStockThreshold: 5 },
+                inventory: { lowStockThreshold: 5, maxStockDisplay: 99 },
                 carousel: { defaultItemCount: 4 },
                 badges: [
                     { propertyName: 'c_isNew', label: 'New', color: 'green', priority: 1 },

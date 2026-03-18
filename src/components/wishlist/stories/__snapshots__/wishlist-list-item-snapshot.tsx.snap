@@ -59,12 +59,12 @@ exports[`WishlistListItem stories snapshot > Default renders and matches snapsho
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
-            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
           />
           <p
-            class="text-sm font-medium text-[var(--inventory-in-stock)]"
+            class="text-sm font-medium text-status-positive"
           >
-            In Stock (996 units) ready to be shipped
+            In Stock (99+ units) ready to be shipped
           </p>
         </div>
         <button
@@ -114,7 +114,7 @@ exports[`WishlistListItem stories snapshot > Default renders and matches snapsho
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium mx-2"
           >
             50% off for Salesforce employees
           </span>
@@ -190,12 +190,12 @@ exports[`WishlistListItem stories snapshot > MasterProduct renders and matches s
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
-            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
           />
           <p
-            class="text-sm font-medium text-[var(--inventory-in-stock)]"
+            class="text-sm font-medium text-status-positive"
           >
-            In Stock (996 units) ready to be shipped
+            In Stock (99+ units) ready to be shipped
           </p>
         </div>
         <button
@@ -245,7 +245,7 @@ exports[`WishlistListItem stories snapshot > MasterProduct renders and matches s
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium mx-2"
           >
             50% off for Salesforce employees
           </span>
@@ -294,10 +294,10 @@ exports[`WishlistListItem stories snapshot > MinimalData renders and matches sna
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
-            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
           />
           <p
-            class="text-sm font-medium text-[var(--inventory-in-stock)]"
+            class="text-sm font-medium text-status-positive"
           >
             In Stock (5 units) ready to be shipped
           </p>
@@ -378,10 +378,10 @@ exports[`WishlistListItem stories snapshot > OnSale renders and matches snapshot
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
-            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-back-order)]"
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-warning"
           />
           <p
-            class="text-sm font-medium text-[var(--inventory-back-order)]"
+            class="text-sm font-medium text-status-warning"
           >
             Available for back order
           </p>
@@ -433,7 +433,7 @@ exports[`WishlistListItem stories snapshot > OnSale renders and matches snapshot
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium mx-2"
           >
             50% off for Salesforce employees
           </span>
@@ -484,10 +484,10 @@ exports[`WishlistListItem stories snapshot > OutOfStock renders and matches snap
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
-            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-out-of-stock)]"
+            class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-critical"
           />
           <p
-            class="text-sm font-medium text-[var(--inventory-out-of-stock)]"
+            class="text-sm font-medium text-status-critical"
           >
             Out of stock
           </p>
@@ -539,7 +539,7 @@ exports[`WishlistListItem stories snapshot > OutOfStock renders and matches snap
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium mx-2"
           >
             50% off for Salesforce employees
           </span>

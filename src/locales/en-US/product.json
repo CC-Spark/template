@@ -21,7 +21,7 @@
     "inStock": "In stock",
     "inStockCount": "In Stock ({{count}} units) ready to be shipped",
     "lowStock": "Low stock",
-    "lowStockCount": "Low Stock - Only {{count}} left ({{count}} units) ready to be shipped",
+    "lowStockCount": "Low stock - Only {{count}} left",
     "preOrder": "Available for pre-order",
     "backOrder": "Available for back order",
     "outOfStockLabel": "Out of stock",

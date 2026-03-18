@@ -76,12 +76,17 @@ export default function CustomerReviewsSection(): ReactElement {
 
     useEffect(() => {
         registerExpand(() => {
+            if (prevAccordionOpenRef.current) {
+                // Already open — defer scroll to after the popover close re-render
+                requestAnimationFrame(() => triggerOnExpanded());
+                return;
+            }
             setAccordionValue((prev) =>
                 prev.includes(CUSTOMER_REVIEWS_ACCORDION_VALUE) ? prev : [...prev, CUSTOMER_REVIEWS_ACCORDION_VALUE]
             );
         });
         return () => registerExpand(null);
-    }, [registerExpand]);
+    }, [registerExpand, triggerOnExpanded]);
 
     // Use full list when loaded, otherwise summary for header and expanded content
     const aggregateRating = useMemo(() => {

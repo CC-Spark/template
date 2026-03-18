@@ -279,10 +279,10 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
             class="flex items-center gap-2"
           >
             <span
-              class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+              class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
             />
             <p
-              class="text-sm font-medium text-[var(--inventory-in-stock)]"
+              class="text-sm font-medium text-status-positive"
             >
               In Stock (98 units) ready to be shipped
             </p>
@@ -955,10 +955,10 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
             class="flex items-center gap-2"
           >
             <span
-              class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-[var(--inventory-in-stock)]"
+              class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
             />
             <p
-              class="text-sm font-medium text-[var(--inventory-in-stock)]"
+              class="text-sm font-medium text-status-positive"
             >
               In Stock (98 units) ready to be shipped
             </p>

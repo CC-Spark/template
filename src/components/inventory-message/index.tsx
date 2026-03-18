@@ -40,6 +40,11 @@ interface InventoryMessageProps {
      */
     lowStockThreshold?: number;
     /**
+     * Maximum stock level to display. Stock counts above this value will be capped.
+     * For example, if maxStockDisplay is 99 and actual stock is 150, it will display 99.
+     */
+    maxStockDisplay?: number;
+    /**
      * Whether to show unknown inventory status messages. Defaults to false.
      * When false, unknown status messages are visually hidden.
      */
@@ -97,35 +102,34 @@ function getInventoryStatus(
 /**
  * Gets the appropriate message and styling for inventory status.
  *
- * Uses inventory-specific CSS custom properties (--inventory-*) so that themes
- * can colour stock indicators independently of the global semantic tokens.
+ * Uses semantic status tokens for consistent theming.
  */
-function getInventoryMessage(status: InventoryStatusType, t: TFunction, stockLevel?: number) {
+function getInventoryMessage(status: InventoryStatusType, t: TFunction, stockLevel?: number | string) {
     switch (status) {
         case InventoryStatus.IN_STOCK:
             return {
                 message: stockLevel != null ? t('inStockCount', { count: stockLevel }) : t('inStock'),
-                className: 'text-[var(--inventory-in-stock)]',
+                className: 'text-status-positive',
             };
         case InventoryStatus.LOW_STOCK:
             return {
                 message: stockLevel != null ? t('lowStockCount', { count: stockLevel }) : t('lowStock'),
-                className: 'text-[var(--inventory-low-stock)]',
+                className: 'text-status-warning',
             };
         case InventoryStatus.PRE_ORDER:
             return {
                 message: t('preOrder'),
-                className: 'text-[var(--inventory-pre-order)]',
+                className: 'text-status-info',
             };
         case InventoryStatus.BACK_ORDER:
             return {
                 message: t('backOrder'),
-                className: 'text-[var(--inventory-back-order)]',
+                className: 'text-status-warning',
             };
         case InventoryStatus.OUT_OF_STOCK:
             return {
                 message: t('outOfStockLabel'),
-                className: 'text-[var(--inventory-out-of-stock)]',
+                className: 'text-status-critical',
             };
         case InventoryStatus.UNKNOWN:
         default:
@@ -150,17 +154,19 @@ export default function InventoryMessage({
     currentVariant,
     className,
     lowStockThreshold = 0,
+    maxStockDisplay = 99,
     showUnknownStatus = false,
     getInventoryStatus: customGetInventoryStatus,
 }: InventoryMessageProps): ReactElement {
     const { t } = useTranslation('product');
     const inventory = currentVariant?.inventory || product.inventory;
     const stockLevel = inventory?.ats;
+    const displayStock = stockLevel != null && stockLevel > maxStockDisplay ? `${maxStockDisplay}+` : stockLevel;
     const status = customGetInventoryStatus
         ? customGetInventoryStatus(product, currentVariant)
         : getInventoryStatus(product, currentVariant, lowStockThreshold);
 
-    const statusInfo = getInventoryMessage(status, t, stockLevel);
+    const statusInfo = getInventoryMessage(status, t, displayStock);
     const isUnknown = status === InventoryStatus.UNKNOWN;
 
     return (

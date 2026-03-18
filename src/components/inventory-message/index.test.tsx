@@ -182,7 +182,7 @@ describe('InventoryMessage', () => {
 
             render(<InventoryMessage product={lowStockProduct} lowStockThreshold={5} />);
 
-            expect(screen.getByText('Low Stock - Only 3 left (3 units) ready to be shipped')).toBeInTheDocument();
+            expect(screen.getByText('Low stock - Only 3 left')).toBeInTheDocument();
         });
 
         it('renders low-stock message at exact threshold', () => {
@@ -199,7 +199,7 @@ describe('InventoryMessage', () => {
 
             render(<InventoryMessage product={lowStockProduct} lowStockThreshold={5} />);
 
-            expect(screen.getByText('Low Stock - Only 5 left (5 units) ready to be shipped')).toBeInTheDocument();
+            expect(screen.getByText('Low stock - Only 5 left')).toBeInTheDocument();
         });
 
         it('renders in-stock message when stock is above threshold', () => {

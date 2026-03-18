@@ -899,7 +899,7 @@ exports[`OrderSummary stories snapshot > ItemsExpanded story renders and matches
                               class="items-center gap-2 text-sm"
                             >
                               <span
-                                class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+                                class="line-clamp-2 text-[inherit] font-medium mx-2"
                               >
                                 Buy one Long Center Seam Skirt and get 2 tops
                               </span>

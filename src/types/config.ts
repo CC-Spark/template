@@ -120,6 +120,7 @@ export type AppConfig = {
         };
         inventory: {
             lowStockThreshold: number;
+            maxStockDisplay: number;
         };
         carousel: {
             defaultItemCount: number;

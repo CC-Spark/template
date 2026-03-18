@@ -803,7 +803,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
@@ -1125,7 +1125,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               25% off.
             </span>
@@ -1891,7 +1891,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
@@ -2213,7 +2213,7 @@ exports[`ProductGrid stories snapshot > DefaultGrid story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               25% off.
             </span>
@@ -3041,7 +3041,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
@@ -3363,7 +3363,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               25% off.
             </span>
@@ -4129,7 +4129,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
@@ -4451,7 +4451,7 @@ exports[`ProductGrid stories snapshot > DesktopView story renders and matches sn
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               25% off.
             </span>
@@ -10662,7 +10662,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
@@ -10984,7 +10984,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               25% off.
             </span>
@@ -11750,7 +11750,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               Buy one Long Center Seam Skirt and get 2 tops
             </span>
@@ -12072,7 +12072,7 @@ exports[`ProductGrid stories snapshot > MobileView story renders and matches sna
             class="items-center gap-2 text-xs text-green-600 mt-1"
           >
             <span
-              class="line-clamp-2 text-[inherit] text-success font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium mx-2"
             >
               25% off.
             </span>

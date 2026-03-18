@@ -1228,9 +1228,10 @@
     },
     "writeReview": {
         "validation": {
+            "pleaseFixFollowing": "Correggi quanto segue:",
             "ratingRequired": "Seleziona una valutazione",
             "reviewRequired": "Compila questo campo.",
-            "reviewMinLength": "Inserisci almeno {{count}} caratteri.",
+            "reviewMinLength": "La recensione deve contenere almeno {{count}} caratteri",
             "reviewMaxLength": "Inserisci al massimo {{count}} caratteri.",
             "titleMaxLength": "Inserisci al massimo {{count}} caratteri."
         },

@@ -1389,9 +1389,10 @@
     },
     "writeReview": {
         "validation": {
+            "pleaseFixFollowing": "Please fix the following:",
             "ratingRequired": "Please select a rating",
             "reviewRequired": "Please fill out this field.",
-            "reviewMinLength": "Please enter at least {{count}} characters.",
+            "reviewMinLength": "Your review must be at least {{count}} characters",
             "reviewMaxLength": "Please enter no more than {{count}} characters.",
             "titleMaxLength": "Please enter no more than {{count}} characters."
         },
