@@ -453,5 +453,5 @@ export default defineConfig<Config>(
             },
         },
     },
-    { protectedPaths: ['app__engagement'] }
+    { protectedPaths: ['app__engagement', 'app__url__prefix', 'app__url__excludeRoutes'] }
 );
