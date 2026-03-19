@@ -30,6 +30,10 @@
     },
     "search": {
         "results": "Search Results for",
+        "personalAssistant": {
+            "title": "Shop with your Personal Assistant",
+            "description": "I can help you find the perfect piece for your space. Shop with me."
+        },
         "suggestions": {
             "didYouMean": "Did you mean",
             "categories": "Categories",

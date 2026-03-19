@@ -435,6 +435,10 @@ export default function App({
 
     const i18next = (typeof window === 'undefined' ? getI18next?.() : i18nextOnClient) as i18n;
 
+    const sites = appConfig.commerce.sites as AppConfig['commerce']['sites'];
+    const defaultSite = sites.find((s) => s.id === appConfig.defaultSiteId) ?? sites[0];
+    const shopperAgentLocale = i18next?.language ?? defaultSite?.defaultLocale ?? appConfig.i18n.fallbackLng;
+
     // Memoize the providers array to prevent unnecessary remounting of providers on render
     const providers = useMemo(
         () =>
@@ -486,7 +490,7 @@ export default function App({
             {(appConfig.commerceAgent?.enabled === 'true' || appConfig.commerceAgent?.enabled === true) && (
                 <ShopperAgent
                     commerceAgentConfiguration={appConfig.commerceAgent}
-                    locale={i18next?.language ?? 'en-GB'}
+                    locale={shopperAgentLocale}
                     currency={currency}
                     userId={clientAuth?.customerId}
                 />

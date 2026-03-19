@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AiReviewSummary } from '../ai-review-summary';
+import { AiInsightCard } from '../ai-insight-card';
 
-const meta: Meta<typeof AiReviewSummary> = {
-    title: 'Components/AiReviewSummary',
-    component: AiReviewSummary,
+const meta: Meta<typeof AiInsightCard> = {
+    title: 'Components/AiInsightCard',
+    component: AiInsightCard,
     tags: ['autodocs'],
     parameters: {
         layout: 'centered',
         docs: {
             description: {
                 component: `
-AI Review Summary displays an AI-generated summary of customer reviews with rating and badge.
-Used inside the Customer Reviews accordion on the product page.
+AiInsightCard has two variants: variant="review" for AI review summary (with rating) in the Customer Reviews section;
+variant="shoppingAssistant" for the personal assistant card on the search page (dark card, optional onActionClick).
                 `,
             },
         },
     },
     argTypes: {
+        variant: { control: 'select', options: ['review', 'shoppingAssistant'] },
         title: { control: 'text' },
         badgeText: { control: 'text' },
         description: { control: 'text' },
@@ -42,10 +43,11 @@ Used inside the Customer Reviews accordion on the product page.
 
 export default meta;
 
-type Story = StoryObj<typeof AiReviewSummary>;
+type Story = StoryObj<typeof AiInsightCard>;
 
-export const Default: Story = {
+export const ReviewDefault: Story = {
     args: {
+        variant: 'review',
         title: 'AI Review Summary',
         badgeText: 'Beta',
         description:
@@ -55,8 +57,9 @@ export const Default: Story = {
     },
 };
 
-export const ShortSummary: Story = {
+export const ReviewShortSummary: Story = {
     args: {
+        variant: 'review',
         title: 'AI Review Summary',
         badgeText: 'Beta',
         description: 'Highly rated for comfort and durability.',
@@ -65,11 +68,29 @@ export const ShortSummary: Story = {
     },
 };
 
-export const NoBadge: Story = {
+export const ReviewNoBadge: Story = {
     args: {
+        variant: 'review',
         title: 'AI Review Summary',
         description: 'Summary without a badge.',
         rating: 4,
         reviewCount: 10,
+    },
+};
+
+export const ShoppingAssistant: Story = {
+    args: {
+        variant: 'shoppingAssistant',
+        title: 'Shop with your Personal Assistant',
+        description: 'I can help you find the perfect piece for your space. Shop with me.',
+        onActionClick: () => {},
+    },
+};
+
+export const ShoppingAssistantNonClickable: Story = {
+    args: {
+        variant: 'shoppingAssistant',
+        title: 'Shop with your Personal Assistant',
+        description: 'I can help you find the perfect piece for your space. Shop with me.',
     },
 };

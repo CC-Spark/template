@@ -26,6 +26,8 @@ import { useTransformSearchSuggestions } from '@/hooks/use-transform-search-sugg
 import { useConfig } from '@salesforce/storefront-next-runtime/config';
 import type { AppConfig } from '@/types/config';
 import { getSessionJSONItem, setSessionJSONItem, clearSessionJSONItem } from '@/lib/utils';
+import { launchChat } from '@/components/shopper-agent';
+import { validateShopperAgentConfig } from '@/components/shopper-agent/shopper-agent.utils';
 
 const RECENT_SEARCH_LIMIT = 5;
 const RECENT_SEARCH_KEY = 'recent-search-key';
@@ -148,6 +150,19 @@ export default function SearchBar(): ReactElement {
         setShowSuggestions(false);
     }, []);
 
+    const showPersonalAssistant =
+        (config.commerceAgent?.enabled === 'true' || config.commerceAgent?.enabled === true) &&
+        validateShopperAgentConfig(config.commerceAgent);
+
+    const onPersonalAssistantClick = useCallback(() => {
+        setShowSuggestions(false);
+        setQuery('');
+        if (inputRef.current) {
+            inputRef.current.value = '';
+        }
+        launchChat();
+    }, []);
+
     useEffect(() => {
         shouldOpenPopover();
     }, [query, suggestions, shouldOpenPopover]);
@@ -177,7 +192,7 @@ export default function SearchBar(): ReactElement {
                 </div>
             </form>
             <PopoverContent
-                className="w-screen p-0 border shadow-[0px_1px_12px_rgba(0,0,0,0.25)] max-h-80 overflow-y-auto"
+                className="w-screen p-0 border shadow-[0px_1px_12px_rgba(0,0,0,0.25)] max-h-[min(70vh,32rem)] overflow-y-auto"
                 align="start"
                 side="bottom"
                 sideOffset={POPOVER_CONTENT_OFFSET}
@@ -189,6 +204,8 @@ export default function SearchBar(): ReactElement {
                     recentSearches={getSessionJSONItem<string[]>(RECENT_SEARCH_KEY) || []}
                     closeAndNavigate={closeAndNavigate}
                     clearRecentSearches={clearRecentSearches}
+                    showPersonalAssistant={showPersonalAssistant}
+                    onPersonalAssistantClick={onPersonalAssistantClick}
                 />
             </PopoverContent>
         </Popover>

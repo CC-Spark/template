@@ -15,15 +15,21 @@
  */
 'use client';
 
+import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import RecentSearches from './recent-searches';
 import SuggestionSection from './suggestions-section';
 import type { SearchSuggestions } from './types';
+
+const AiInsightCard = lazy(() => import('@/components/ai-insight-card').then((m) => ({ default: m.AiInsightCard })));
 
 interface SuggestionsProps {
     searchSuggestions: SearchSuggestions | null;
     recentSearches: string[];
     closeAndNavigate: (link: string) => void;
     clearRecentSearches: () => void;
+    showPersonalAssistant?: boolean;
+    onPersonalAssistantClick?: () => void;
 }
 
 export default function Suggestions({
@@ -31,7 +37,10 @@ export default function Suggestions({
     recentSearches,
     closeAndNavigate,
     clearRecentSearches,
+    showPersonalAssistant = false,
+    onPersonalAssistantClick,
 }: SuggestionsProps) {
+    const { t } = useTranslation('search');
     const hasCategories = Boolean(searchSuggestions?.categorySuggestions?.length);
     const hasProducts = Boolean(searchSuggestions?.productSuggestions?.length);
     const hasPopularSearches = Boolean(searchSuggestions?.popularSearchSuggestions?.length);
@@ -47,6 +56,21 @@ export default function Suggestions({
                     closeAndNavigate={closeAndNavigate}
                     clearRecentSearches={clearRecentSearches}
                 />
+            )}
+            {showPersonalAssistant && onPersonalAssistantClick && (
+                <div
+                    className="w-full min-w-0 border-t border-border shrink-0 overflow-visible pt-3 pb-3 pl-[4.5rem] pr-8"
+                    data-testid="search-personal-assistant">
+                    <Suspense fallback={null}>
+                        <AiInsightCard
+                            variant="shoppingAssistant"
+                            compact
+                            title={t('personalAssistant.title')}
+                            description={t('personalAssistant.description')}
+                            onActionClick={onPersonalAssistantClick}
+                        />
+                    </Suspense>
+                </div>
             )}
         </div>
     );

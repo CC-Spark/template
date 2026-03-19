@@ -13,25 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AiReviewSummary } from '..';
 
-const meta: Meta<typeof AiReviewSummary> = {
-    title: 'Components/AiReviewSummary/Index',
-    component: AiReviewSummary,
-    tags: ['autodocs'],
-    parameters: { layout: 'centered' },
-};
-
-export default meta;
-
-type Story = StoryObj<typeof AiReviewSummary>;
-
-export const Default: Story = {
-    args: {
-        title: 'AI Review Summary',
-        description: 'Customers love the quality and comfort of this product.',
-        rating: 4.5,
-        reviewCount: 100,
-    },
-};
+export { AiInsightCard, type AiInsightCardProps, type AiInsightCardVariant } from './ai-insight-card';

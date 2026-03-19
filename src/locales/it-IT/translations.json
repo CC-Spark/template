@@ -23,6 +23,10 @@
     },
     "search": {
         "results": "Risultati di ricerca per",
+        "personalAssistant": {
+            "title": "Acquista con il tuo assistente personale",
+            "description": "Posso aiutarti a trovare il pezzo perfetto per il tuo spazio. Fai acquisti con me."
+        },
         "suggestions": {
             "didYouMean": "Forse cercavi",
             "categories": "Categorie",
