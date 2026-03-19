@@ -183,6 +183,15 @@ export interface ProductDescriptionData {
     features: HtmlContent[];
 }
 
+// --- Ask assistant FAQ (PDP collapsible) ---
+
+/**
+ * FAQ questions for the "Ask assistant" collapsible section on PDP.
+ */
+export interface FaqQuestionsData {
+    questions: string[];
+}
+
 // --- Collapsible PDP content (Ingredients, Usage, Care, Tech Specs) ---
 
 /**

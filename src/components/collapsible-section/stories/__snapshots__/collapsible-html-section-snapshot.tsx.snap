@@ -8,7 +8,11 @@ exports[`CollapsibleHtmlSection stories snapshot > BulletedList story renders an
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Features:
+    <span
+      class="flex items-center gap-2"
+    >
+      Features:
+    </span>
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -58,7 +62,11 @@ exports[`CollapsibleHtmlSection stories snapshot > OpenByDefault story renders a
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Details:
+    <span
+      class="flex items-center gap-2"
+    >
+      Details:
+    </span>
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -98,7 +106,11 @@ exports[`CollapsibleHtmlSection stories snapshot > PlainText story renders and m
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Description:
+    <span
+      class="flex items-center gap-2"
+    >
+      Description:
+    </span>
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -138,7 +150,11 @@ exports[`CollapsibleHtmlSection stories snapshot > Table2Column story renders an
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Specifications:
+    <span
+      class="flex items-center gap-2"
+    >
+      Specifications:
+    </span>
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -196,7 +212,11 @@ exports[`CollapsibleHtmlSection stories snapshot > ToggleInteraction story rende
   <summary
     class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
   >
-    Click to expand:
+    <span
+      class="flex items-center gap-2"
+    >
+      Click to expand:
+    </span>
     <svg
       aria-hidden="true"
       class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"

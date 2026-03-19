@@ -20,6 +20,7 @@ import type {
     BuyNowPayLaterMessageData,
     CareInstructionsData,
     EstimatedDeliveryData,
+    FaqQuestionsData,
     IngredientsData,
     ProductDescriptionData,
     RatingDistribution,
@@ -272,6 +273,17 @@ const MOCK_CARE_INSTRUCTIONS_DATA: CareInstructionsData = {
 const MOCK_TECH_SPECS_DATA: TechSpecsData = {
     html: '<table><tr><td>Heel Height</td><td>1.5 inches</td></tr><tr><td>Material</td><td>Full-grain leather</td></tr><tr><td>Sole</td><td>Rubber</td></tr><tr><td>Closure</td><td>Lace-up with side zip</td></tr></table>',
     contentType: 'table-2-column',
+};
+
+/**
+ * Mock FAQ questions for "Ask assistant" collapsible section on PDP.
+ */
+const MOCK_FAQ_QUESTIONS: FaqQuestionsData = {
+    questions: [
+        'What sizes does this come in?',
+        'Which color would work best for a minimalist space?',
+        'Will this work in a minimalist living room?',
+    ],
 };
 
 /**
@@ -541,6 +553,10 @@ export function createProductContentMockAdapter(config: ProductContentMockAdapte
         getTechSpecs: async (_productId?: string): Promise<TechSpecsData> => {
             await simulateDelay(mockDelay);
             return MOCK_TECH_SPECS_DATA;
+        },
+        getFaqQuestions: async (_productId?: string): Promise<FaqQuestionsData> => {
+            await simulateDelay(mockDelay);
+            return MOCK_FAQ_QUESTIONS;
         },
         getReviewsSummary: async (productId?: string): Promise<ReviewsSummaryData> => {
             await simulateDelay(mockDelay);

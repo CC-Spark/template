@@ -23,6 +23,8 @@ import { CollapsibleLoadingContext } from './collapsible-loading-context';
 export interface CollapsibleSectionProps {
     /** The label rendered inside the summary row */
     label: string;
+    /** Optional content rendered after the label (e.g. AI badge) */
+    labelSupplement?: ReactNode;
     /** Content revealed when the section is open */
     children: ReactNode;
     /** Whether the section starts open. Defaults to false. */
@@ -50,6 +52,7 @@ export interface CollapsibleSectionProps {
  */
 export default function CollapsibleSection({
     label,
+    labelSupplement,
     children,
     defaultOpen = false,
     className,
@@ -107,7 +110,10 @@ export default function CollapsibleSection({
                 <summary
                     className="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
                     onClick={handleSummaryClick}>
-                    {label}
+                    <span className="flex items-center gap-2">
+                        {label}
+                        {labelSupplement}
+                    </span>
                     {isLoading || pendingOpen ? (
                         <Spinner size="sm" />
                     ) : (

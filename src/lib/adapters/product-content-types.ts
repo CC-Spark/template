@@ -18,6 +18,7 @@ import type {
     BuyNowPayLaterMessageData,
     CareInstructionsData,
     EstimatedDeliveryData,
+    FaqQuestionsData,
     HtmlContent,
     IngredientsData,
     ProductDescriptionData,
@@ -100,6 +101,11 @@ export interface ProductContentAdapter {
      * Get tech specs for collapsible content on PDP
      */
     getTechSpecs?(productId?: string): Promise<TechSpecsData>;
+
+    /**
+     * Get FAQ questions for the "Ask assistant" collapsible section on PDP
+     */
+    getFaqQuestions?(productId?: string): Promise<FaqQuestionsData>;
 
     /**
      * Get lightweight reviews summary for accordion header (count, rating, distribution, AI summary).

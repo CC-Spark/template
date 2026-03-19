@@ -96,7 +96,11 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
           <summary
             class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
           >
-            Description:
+            <span
+              class="flex items-center gap-2"
+            >
+              Description:
+            </span>
             <svg
               aria-hidden="true"
               class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -612,7 +616,11 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Materials
+              <span
+                class="flex items-center gap-2"
+              >
+                Materials
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -641,7 +649,11 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Usage Instructions
+              <span
+                class="flex items-center gap-2"
+              >
+                Usage Instructions
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -670,7 +682,11 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Care Instructions
+              <span
+                class="flex items-center gap-2"
+              >
+                Care Instructions
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -699,7 +715,11 @@ exports[`ProductView stories snapshot > Default story renders and matches snapsh
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Specifications
+              <span
+                class="flex items-center gap-2"
+              >
+                Specifications
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -779,7 +799,11 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
           <summary
             class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
           >
-            Description:
+            <span
+              class="flex items-center gap-2"
+            >
+              Description:
+            </span>
             <svg
               aria-hidden="true"
               class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -1295,7 +1319,11 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Materials
+              <span
+                class="flex items-center gap-2"
+              >
+                Materials
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -1324,7 +1352,11 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Usage Instructions
+              <span
+                class="flex items-center gap-2"
+              >
+                Usage Instructions
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -1353,7 +1385,11 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Care Instructions
+              <span
+                class="flex items-center gap-2"
+              >
+                Care Instructions
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
@@ -1382,7 +1418,11 @@ exports[`ProductView stories snapshot > WithoutBreadcrumbs story renders and mat
             <summary
               class="flex items-center justify-between gap-4 py-4 text-base font-medium text-foreground cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground transition-colors"
             >
-              Specifications
+              <span
+                class="flex items-center gap-2"
+              >
+                Specifications
+              </span>
               <svg
                 aria-hidden="true"
                 class="lucide lucide-chevron-down text-muted-foreground pointer-events-none size-5 shrink-0 translate-y-0.5 transition-transform duration-200 group-open:rotate-180"
