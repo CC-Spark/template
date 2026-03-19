@@ -515,8 +515,14 @@ describe('CheckoutFormPage', () => {
             });
             window.sessionStorage.getItem = mockGetItem;
 
+            mockUseCheckoutContext.mockReturnValue(
+                buildCheckoutContext({
+                    step: defaultSteps.REVIEW_ORDER,
+                })
+            );
+
             await renderCheckoutPage();
-            expect(screen.getByTestId('register-customer-checkbox')).toBeInTheDocument();
+            expect(await screen.findByTestId('register-customer-checkbox')).toBeInTheDocument();
         });
 
         test('shows create account checkbox when no customer ID or lookup data', async () => {
@@ -530,8 +536,14 @@ describe('CheckoutFormPage', () => {
             const mockGetItem = vi.fn(() => null);
             window.sessionStorage.getItem = mockGetItem;
 
+            mockUseCheckoutContext.mockReturnValue(
+                buildCheckoutContext({
+                    step: defaultSteps.REVIEW_ORDER,
+                })
+            );
+
             await renderCheckoutPage();
-            expect(screen.getByTestId('register-customer-checkbox')).toBeInTheDocument();
+            expect(await screen.findByTestId('register-customer-checkbox')).toBeInTheDocument();
         });
 
         test('hides create account checkbox for guest users with returning recommendation', async () => {
@@ -572,8 +584,14 @@ describe('CheckoutFormPage', () => {
                 customerInfo: null,
             });
 
+            mockUseCheckoutContext.mockReturnValue(
+                buildCheckoutContext({
+                    step: defaultSteps.REVIEW_ORDER,
+                })
+            );
+
             await renderCheckoutPage();
-            expect(screen.getByTestId('register-customer-checkbox')).toBeInTheDocument();
+            expect(await screen.findByTestId('register-customer-checkbox')).toBeInTheDocument();
         });
 
         test('prioritizes customer profile over session storage recommendation', async () => {

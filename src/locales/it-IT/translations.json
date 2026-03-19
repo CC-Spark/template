@@ -110,7 +110,7 @@
         "otpCodeLabel": "Codice di verifica",
         "redirecting": "Accesso in corso...",
         "otpModalTitle": "Inserisca il codice di verifica",
-        "otpModalDescription": "Abbiamo inviato un codice a 8 cifre a {{email}}",
+        "otpModalDescription": "Abbiamo inviato un codice a {{otpLength}} cifre a {{email}}",
         "otpRequired": "Il codice di verifica è obbligatorio",
         "otpInvalidFormat": "Inserisca un codice valido a 8 cifre",
         "verifying": "Verifica in corso...",

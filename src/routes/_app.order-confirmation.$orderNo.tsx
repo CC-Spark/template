@@ -239,7 +239,7 @@ function OrderConfirmationContent({
     }, [resetBasket]);
 
     return (
-        <div className="min-h-screen bg-muted/30">
+        <div data-testid="order-confirmation-container" className="min-h-screen bg-muted/30">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
                 {/* Thank You and Order Confirmation section */}
                 <Card className="border border-border/70 shadow-sm">
@@ -259,7 +259,10 @@ function OrderConfirmationContent({
                             <div className="text-left md:text-right space-y-1">
                                 <p className="text-lg font-semibold text-foreground">
                                     {t('confirmation.orderNumber')}
-                                    <span className="text-primary"> {order.orderNo}</span>
+                                    <span data-testid="order-number" className="text-primary">
+                                        {' '}
+                                        {order.orderNo}
+                                    </span>
                                 </p>
                             </div>
                         </div>

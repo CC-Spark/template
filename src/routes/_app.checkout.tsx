@@ -22,6 +22,7 @@ import CheckoutProvider from '@/components/checkout/utils/checkout-context';
 import { CheckoutErrorBoundary } from '@/components/checkout-error-boundary';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBasketUpdater } from '@/providers/basket';
+import { useToast } from '@/components/toast';
 // @sfdc-extension-line SFDC_EXT_BOPIS
 import PickupProvider from '@/extensions/bopis/context/pickup-context';
 import GoogleCloudApiProvider from '@/providers/google-cloud-api';
@@ -101,6 +102,7 @@ function CheckoutView({
     // Imperatively update root BasketProvider with loader basket
     // This ensures cart badge and other components see the updated basket
     const updateBasket = useBasketUpdater();
+    const { addToast } = useToast();
     useLayoutEffect(() => {
         if (basket?.basketId) {
             updateBasket(basket);
@@ -123,6 +125,7 @@ function CheckoutView({
                 shippingMethodsMap={shippingMethodsMapData}
                 productMapPromise={productMap}
                 promotionsPromise={promotions}
+                showToast={addToast}
             />
         </CheckoutProvider>
     );

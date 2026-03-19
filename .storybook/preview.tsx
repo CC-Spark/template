@@ -102,6 +102,12 @@ const RouterWrapper = ({ Story }: { Story: ComponentType }) => {
                         action: () => ({ success: true }),
                     },
                     {
+                        // Mock action route for checkout registration
+                        // Used by RegisterCustomerSelection component via fetcher.submit()
+                        path: '/action/initiate-checkout-registration',
+                        action: () => ({ success: true, email: 'test@example.com' }),
+                    },
+                    {
                         // Mock action route for adding items to cart
                         // Used by useProductActions hook via fetcher.submit()
                         path: '/action/cart-item-add',

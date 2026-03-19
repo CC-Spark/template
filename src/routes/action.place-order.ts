@@ -26,10 +26,8 @@ import {
 import {
     savePaymentMethodToCustomer,
     type PaymentInstrumentForSave,
-    registerGuestUser,
     saveShippingAddressToCustomer,
     saveBillingAddressToCustomer,
-    updateCustomerContactInfo,
     getCustomerProfileForCheckout,
 } from '@/lib/api/customer';
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
@@ -276,96 +274,72 @@ export async function action({ request, context }: ActionFunctionArgs) {
             );
         }
 
-        // Create account for guest user if shopper opted for registration
-        let registrationResult = undefined;
-        if (shouldCreateAccount && order.customerInfo?.email) {
-            try {
-                registrationResult = await registerGuestUser(context, order.customerInfo.email, {
-                    orderNo: order.orderNo,
-                    customerInfo: order.customerInfo,
-                    shippingAddress: order.shipments?.[0]?.shippingAddress,
-                });
+        // Check if user registered via email verification during checkout (passwordless flow)
+        const auth = getAuth(context);
+        const registeredViaCheckout = auth.userType === 'registered' && auth.customerId && shouldCreateAccount;
 
-                if (registrationResult.success) {
-                    // Save customer information to the newly created account if auto-login succeeded
-                    if (registrationResult.customerId && registrationResult.autoLoggedIn) {
-                        const savePromises = [];
+        // Save checkout information to customer profile
+        if (auth.customerId) {
+            const savePromises: Promise<unknown>[] = [];
 
-                        // Save payment method
-                        if (order.paymentInstruments?.[0]) {
-                            savePromises.push(
-                                savePaymentMethodToCustomer(
-                                    context,
-                                    registrationResult.customerId,
-                                    order.paymentInstruments[0] as PaymentInstrumentForSave
-                                ).catch((error) => {
-                                    // eslint-disable-next-line no-console -- log payment save failure for new account
-                                    console.error('Failed to save payment method for new account:', error);
-                                })
-                            );
-                        }
-
-                        // Save shipping address
-                        if (order.shipments?.[0]?.shippingAddress) {
-                            savePromises.push(
-                                saveShippingAddressToCustomer(
-                                    context,
-                                    registrationResult.customerId,
-                                    order.shipments[0].shippingAddress
-                                )
-                            );
-                        }
-
-                        // Save billing address (always save if exists)
-                        if (order.billingAddress) {
-                            savePromises.push(
-                                saveBillingAddressToCustomer(
-                                    context,
-                                    registrationResult.customerId,
-                                    order.billingAddress
-                                )
-                            );
-                        }
-
-                        // Update customer contact information (phone, etc.)
-                        const contactInfo = {
-                            phone: order.shipments?.[0]?.shippingAddress?.phone || order.billingAddress?.phone,
-                            email: order.customerInfo?.email,
-                            firstName: order.customerInfo?.firstName,
-                            lastName: order.customerInfo?.lastName,
-                        };
-
-                        if (contactInfo.phone || contactInfo.firstName || contactInfo.lastName) {
-                            savePromises.push(
-                                updateCustomerContactInfo(context, registrationResult.customerId, contactInfo)
-                            );
-                        }
-
-                        // Execute all save operations in parallel
-                        // Don't wait for them to complete to avoid delaying the order confirmation
-                        void Promise.all(savePromises);
-                    }
-                } else {
-                    // Don't fail the order if account creation fails
-                    // TODO: Need to discuss error handling in UX requirements. Show we show a toast type message?
+            // For newly registered customers (via OTP), save all their checkout info
+            if (registeredViaCheckout) {
+                // Save payment method if opted in
+                if (savePaymentToProfile && order.paymentInstruments?.[0]) {
+                    savePromises.push(
+                        savePaymentMethodToCustomer(
+                            context,
+                            auth.customerId,
+                            order.paymentInstruments[0] as PaymentInstrumentForSave
+                        ).catch((error) => {
+                            // eslint-disable-next-line no-console
+                            console.error('Failed to save payment method for new customer:', error);
+                        })
+                    );
                 }
-            } catch {
-                // Don't fail the order if account creation fails
-            }
-        }
 
-        // Save payment method to existing registered customer if they opted in at checkout
-        if (savePaymentToProfile && order.paymentInstruments?.[0]) {
-            const auth = getAuth(context);
-            if (auth.customerId) {
-                savePaymentMethodToCustomer(
-                    context,
-                    auth.customerId,
-                    order.paymentInstruments[0] as PaymentInstrumentForSave
-                ).catch((error) => {
-                    // eslint-disable-next-line no-console -- log payment save failure; order still succeeds
-                    console.error('Failed to save payment method:', error);
-                });
+                // Save shipping address (includes phone number)
+                if (order.shipments?.[0]?.shippingAddress) {
+                    savePromises.push(
+                        saveShippingAddressToCustomer(
+                            context,
+                            auth.customerId,
+                            order.shipments[0].shippingAddress
+                        ).catch((error) => {
+                            // eslint-disable-next-line no-console
+                            console.error('Failed to save shipping address for new customer:', error);
+                        })
+                    );
+                }
+
+                // Save billing address
+                if (order.billingAddress) {
+                    savePromises.push(
+                        saveBillingAddressToCustomer(context, auth.customerId, order.billingAddress).catch((error) => {
+                            // eslint-disable-next-line no-console
+                            console.error('Failed to save billing address for new customer:', error);
+                        })
+                    );
+                }
+            }
+            // For existing registered customers, only save payment if opted in
+            // Do not automatically save addresses to avoid creating duplicates.
+            else if (savePaymentToProfile && order.paymentInstruments?.[0]) {
+                savePromises.push(
+                    savePaymentMethodToCustomer(
+                        context,
+                        auth.customerId,
+                        order.paymentInstruments[0] as PaymentInstrumentForSave
+                    ).catch((error) => {
+                        // eslint-disable-next-line no-console
+                        console.error('Failed to save payment method:', error);
+                    })
+                );
+            }
+
+            // Execute all save operations in parallel (don't block order confirmation)
+            if (savePromises.length > 0) {
+                void Promise.all(savePromises);
             }
         }
 
@@ -378,16 +352,13 @@ export async function action({ request, context }: ActionFunctionArgs) {
         // Include account creation and auto-login status as query parameters if account was created
         let orderConfirmationUrl = buildUrlFromContext(`/order-confirmation/${order.orderNo}`, context);
 
-        if (shouldCreateAccount && order.customerInfo?.email) {
+        if (registeredViaCheckout && order.customerInfo?.email) {
+            // User registered during checkout - include this in query params for order confirmation
             const params = new URLSearchParams({
                 accountCreated: 'true',
                 email: order.customerInfo.email,
+                autoLoggedIn: 'true',
             });
-
-            // Add auto-login status if available (only set if we actually attempted registration)
-            if (typeof registrationResult !== 'undefined') {
-                params.set('autoLoggedIn', registrationResult.autoLoggedIn ? 'true' : 'false');
-            }
 
             orderConfirmationUrl += `?${params.toString()}`;
         }

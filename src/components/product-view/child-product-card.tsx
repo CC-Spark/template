@@ -303,6 +303,7 @@ export default function ChildProductCard({
                 {/* Individual Add to Cart Button */}
                 {isParentProductASet && (
                     <Button
+                        data-testid="add-to-cart"
                         onClick={() => void handleAddChildToCart()}
                         disabled={!canAddChildToCart || isAddingChildOrUpdatingToCart}
                         size="sm"

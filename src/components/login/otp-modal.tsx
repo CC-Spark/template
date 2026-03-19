@@ -47,7 +47,7 @@ interface OtpModalProps {
     initialError?: string;
 }
 
-const createOtpSchema = (t: (key: string) => string, otpLength: number) => {
+const createOtpSchema = (t: (key: string, options?: object) => string, otpLength: number) => {
     return z.object({
         otpCode: z
             .string()
@@ -55,10 +55,10 @@ const createOtpSchema = (t: (key: string) => string, otpLength: number) => {
                 message: t('login:otpRequired'),
             })
             .max(otpLength, {
-                message: t('login:otpInvalidFormat'),
+                message: t('login:otpInvalidFormat', { otpLength }),
             })
             .regex(new RegExp(`^\\d{${otpLength}}$`), {
-                message: t('login:otpInvalidFormat'),
+                message: t('login:otpInvalidFormat', { otpLength }),
             }),
     });
 };
@@ -204,10 +204,10 @@ export default function OtpModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-lg [&>button]:cursor-pointer">
+            <DialogContent data-testid="otp-modal" className="sm:max-w-lg [&>button]:cursor-pointer">
                 <DialogHeader>
                     <DialogTitle>{t('otpModalTitle')}</DialogTitle>
-                    <DialogDescription>{t('otpModalDescription', { email })}</DialogDescription>
+                    <DialogDescription>{t('otpModalDescription', { email, otpLength })}</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-6 flex flex-col items-center w-full">
                     <div

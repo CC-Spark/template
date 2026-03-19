@@ -186,6 +186,7 @@ export default function ProductCartActions({
                 {/* Standard layout: single Add to Cart / Update button */}
                 {!isCompactAddMode && !isProductASet && !isProductABundle && (
                     <Button
+                        data-testid="add-to-cart"
                         onClick={() => void onAddOrUpdateToCart()}
                         disabled={!canAddToCart || isAddingToOrUpdatingCart}
                         className="w-full"

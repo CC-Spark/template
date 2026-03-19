@@ -18,6 +18,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
+import { useCheckoutContext } from '@/hooks/use-checkout';
 import CheckoutFormPage from './checkout-form-page';
 
 // Mock component prop interfaces
@@ -291,31 +292,33 @@ vi.mock('@/providers/basket', () => ({
     }),
 }));
 
+const defaultCheckoutContext = {
+    step: 1,
+    computedStep: 1,
+    STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, REVIEW_ORDER: 5 },
+    goToStep: vi.fn(),
+    goToNextStep: vi.fn(),
+    exitEditMode: vi.fn(),
+    editingStep: null,
+    customerProfile: undefined,
+    shippingDefaultSet: Promise.resolve(undefined),
+    shipmentDistribution: {
+        hasUnaddressedDeliveryItems: false,
+        hasEmptyShipments: false,
+        deliveryShipments: [],
+        hasDeliveryItems: true,
+        hasPickupItems: false,
+        enableMultiAddress: false,
+        hasMultipleDeliveryAddresses: false,
+        isDeliveryProductItem: () => true,
+    },
+    savedAddresses: [],
+    setSavedAddresses: vi.fn(),
+} as any;
+
 // Mock hooks
 vi.mock('@/hooks/use-checkout', () => ({
-    useCheckoutContext: () => ({
-        step: 1,
-        computedStep: 1,
-        STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, REVIEW_ORDER: 5 },
-        goToStep: vi.fn(),
-        goToNextStep: vi.fn(),
-        exitEditMode: vi.fn(),
-        editingStep: null,
-        customerProfile: undefined,
-        shippingDefaultSet: Promise.resolve(undefined),
-        shipmentDistribution: {
-            hasUnaddressedDeliveryItems: false,
-            hasEmptyShipments: false,
-            deliveryShipments: [],
-            hasDeliveryItems: true,
-            hasPickupItems: false,
-            enableMultiAddress: false,
-            hasMultipleDeliveryAddresses: false,
-            isDeliveryProductItem: () => true,
-        },
-        savedAddresses: [],
-        setSavedAddresses: vi.fn(),
-    }),
+    useCheckoutContext: vi.fn(() => defaultCheckoutContext),
 }));
 
 vi.mock('@/hooks/checkout/use-customer-profile', () => ({
@@ -497,6 +500,10 @@ vi.mock('@/components/my-cart', () => ({
 }));
 
 describe('Checkout Flow Integration Tests', () => {
+    beforeEach(() => {
+        vi.mocked(useCheckoutContext).mockReturnValue(defaultCheckoutContext);
+    });
+
     // Default test props for CheckoutFormPage
     const defaultProps = {
         productMapPromise: Promise.resolve({}),
@@ -756,6 +763,11 @@ describe('Checkout Flow Integration Tests', () => {
         });
 
         test('displays correct form field labels', async () => {
+            vi.mocked(useCheckoutContext).mockReturnValue({
+                ...defaultCheckoutContext,
+                step: 4,
+                computedStep: 4,
+            });
             sessionStorage.setItem(
                 'customerLookupResult',
                 JSON.stringify({ recommendation: 'guest', message: 'Continue as guest.' })
@@ -792,6 +804,11 @@ describe('Checkout Flow Integration Tests', () => {
         });
 
         test('account creation checkbox toggles state correctly', async () => {
+            vi.mocked(useCheckoutContext).mockReturnValue({
+                ...defaultCheckoutContext,
+                step: 4,
+                computedStep: 4,
+            });
             const user = userEvent.setup();
             await act(async () => {
                 render(<CheckoutFormPage {...defaultProps} />);
@@ -1195,6 +1212,11 @@ describe('Checkout Flow Integration Tests', () => {
 
     describe('Account Creation and Saved Payment Methods', () => {
         test('handles account creation preference checkbox interaction', async () => {
+            vi.mocked(useCheckoutContext).mockReturnValue({
+                ...defaultCheckoutContext,
+                step: 4,
+                computedStep: 4,
+            });
             const user = userEvent.setup();
 
             await act(async () => {

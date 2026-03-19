@@ -69,12 +69,25 @@ interface GuestAccountCreationProps {
     cart: ShopperBasketsV2.schemas['Basket'];
     customerProfile: ReturnType<typeof useCustomerProfile>;
     onSaved: (shouldCreate: boolean) => void;
+    savePaymentToProfile?: boolean;
+    showToast?: (message: string, type: 'success' | 'error', options?: { duration?: number }) => void;
 }
 
-function GuestAccountCreation({ cart: _cart, customerProfile, onSaved }: GuestAccountCreationProps) {
+function GuestAccountCreation({
+    cart: _cart,
+    customerProfile,
+    onSaved,
+    savePaymentToProfile,
+    showToast,
+}: GuestAccountCreationProps) {
     const isRegisteredUser = Boolean(customerProfile?.customer?.customerId);
 
-    if (isRegisteredUser) {
+    // Check if user just registered during this checkout session
+    const justRegistered =
+        typeof sessionStorage !== 'undefined' && sessionStorage.getItem('registeredViaCheckout') === 'true';
+
+    // If user was already registered before checkout, don't show
+    if (isRegisteredUser && !justRegistered) {
         return null;
     }
 
@@ -88,22 +101,31 @@ function GuestAccountCreation({ cart: _cart, customerProfile, onSaved }: GuestAc
         // Failed to parse customer lookup result
     }
 
-    // Show registration option for guest users
+    // Show registration option for guest users OR users who just registered
     // Note: cart.customerInfo.customerId may be populated by populateCustomerDetails hook for guest users,
     // so we rely on customerProfile.customer.customerId (checked above) to determine registered vs guest status
-    const shouldShow = !customerLookupResult || customerLookupResult?.recommendation === 'guest';
+    const shouldShow = justRegistered || !customerLookupResult || customerLookupResult?.recommendation === 'guest';
 
     if (!shouldShow) {
         return null;
     }
 
-    return <RegisterCustomerSelection onSaved={onSaved} />;
+    return (
+        <Suspense fallback={null}>
+            <RegisterCustomerSelection
+                onSaved={onSaved}
+                savePaymentToProfile={savePaymentToProfile}
+                showToast={showToast}
+            />
+        </Suspense>
+    );
 }
 
 interface CheckoutFormPageProps {
     shippingMethodsMap: Record<string, ShopperBasketsV2.schemas['ShippingMethodResult']>;
     productMapPromise: Promise<Record<string, ShopperProducts.schemas['Product']>>;
     promotionsPromise?: Promise<Record<string, ShopperPromotions.schemas['Promotion']>>;
+    showToast?: (message: string, type: 'success' | 'error', options?: { duration?: number }) => void;
 }
 
 /**
@@ -128,6 +150,7 @@ export default function CheckoutFormPage({
     shippingMethodsMap: shippingMethodsMapFromLoader,
     productMapPromise,
     promotionsPromise,
+    showToast,
 }: CheckoutFormPageProps) {
     const { t } = useTranslation('checkout');
 
@@ -507,20 +530,27 @@ export default function CheckoutFormPage({
                             <UITarget targetId="checkout.payment.after" />
                         </Suspense>
 
-                        {/* Create Account Option - Show for guest users after payment */}
-                        <UITarget targetId="checkout.createAccount.before" />
-                        <UITarget targetId="checkout.createAccount">
-                            <GuestAccountCreation
-                                cart={cart}
-                                customerProfile={customerProfile}
-                                onSaved={handleCreateAccountPreferenceChange}
-                            />
-                        </UITarget>
-                        <UITarget targetId="checkout.createAccount.after" />
-
                         {/* Place Order Section */}
                         {step >= STEPS.PAYMENT && (
                             <div className="flex flex-col items-end gap-4 w-full lg:w-auto">
+                                {/* Create Account Option - Show for guest users after reaching payment step (all previous steps completed) */}
+                                {step >= STEPS.PAYMENT && (
+                                    <div className="w-full">
+                                        <UITarget targetId="checkout.createAccount.before" />
+                                        <UITarget targetId="checkout.createAccount">
+                                            <GuestAccountCreation
+                                                cart={cart}
+                                                customerProfile={customerProfile}
+                                                onSaved={handleCreateAccountPreferenceChange}
+                                                savePaymentToProfile={
+                                                    paymentSubmissionRef.current.options?.savePaymentToProfile
+                                                }
+                                                showToast={showToast}
+                                            />
+                                        </UITarget>
+                                        <UITarget targetId="checkout.createAccount.after" />
+                                    </div>
+                                )}
                                 {placeOrderFetcher.data &&
                                     !placeOrderFetcher.data.success &&
                                     placeOrderFetcher.data.error && (

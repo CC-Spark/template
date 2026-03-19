@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 // eslint-disable-next-line import/no-namespace -- vi.spyOn requires namespace import
 import * as ReactRouter from 'react-router';
@@ -326,11 +326,14 @@ describe('ProductTile — swatch rendering', () => {
         vi.restoreAllMocks();
     });
 
-    test('renders color swatches inside an aria-hidden container', () => {
+    test('renders color swatches inside an aria-hidden container', async () => {
         const { container } = renderTile();
         // Swatches are visual/mouse-only; their container is aria-hidden so AT ignores them
-        const swatchWrapper = container.querySelector('[aria-hidden="true"] [aria-label="Available colors"]');
-        expect(swatchWrapper).toBeInTheDocument();
+        // LazySwatches loads async; wait for it to render
+        await waitFor(() => {
+            const swatchWrapper = container.querySelector('[aria-hidden="true"] [aria-label="Available colors"]');
+            expect(swatchWrapper).toBeInTheDocument();
+        });
     });
 
     test('does not render swatch container when getDecoratedVariationAttributes returns empty', async () => {
