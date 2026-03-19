@@ -24,6 +24,13 @@ type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
 type Product = ShopperProducts.schemas['Product'];
 
+/** Shared response shape returned by wishlist action routes and consumed by the useWishlist hook. */
+export type WishlistActionResponse = {
+    success: boolean;
+    error?: string;
+    alreadyInWishlist?: boolean;
+};
+
 // TODO: for later refactoring, there are similar product-fetch functions for Cart and Checkout.
 /**
  * Fetch product details for wishlist items

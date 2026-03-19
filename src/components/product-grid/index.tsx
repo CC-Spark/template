@@ -15,6 +15,8 @@
  */
 import { type ReactElement, Suspense, use, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+// @sfdc-extension-line SFDC_EXT_BOPIS
+import { useShowPickupAvailable } from './use-pickup-filter';
 import type { ShopperSearch } from '@salesforce/storefront-next-runtime/scapi';
 import DynamicImageProvider from '@/providers/dynamic-image';
 import { ProductTile, ProductTileProvider } from '@/components/product-tile';
@@ -62,11 +64,17 @@ function NonCriticalContent({
     criticalSize,
     responsiveImageWidths,
     handleProductClick,
+    topCategoryName,
+    // @sfdc-extension-line SFDC_EXT_BOPIS
+    showPickupAvailable,
 }: {
     nonCritical: Promise<ProductSearchHit[]>;
     criticalSize: number;
     responsiveImageWidths: string[];
     handleProductClick?: (product: ProductSearchHit) => void;
+    topCategoryName?: string;
+    // @sfdc-extension-line SFDC_EXT_BOPIS
+    showPickupAvailable?: boolean;
 }) {
     const products = use(nonCritical);
     return (
@@ -77,6 +85,9 @@ function NonCriticalContent({
                     product={product}
                     handleProductClick={handleProductClick}
                     showNavigationArrows
+                    topCategoryName={topCategoryName}
+                    // @sfdc-extension-line SFDC_EXT_BOPIS
+                    showPickupAvailable={showPickupAvailable}
                 />
             ))}
             <NoProductsMessage criticalSize={criticalSize} nonCriticalSize={products.length} />
@@ -99,12 +110,18 @@ export default function ProductGrid({
     nonCriticalCount = 0,
     hasRefinementsPanel = true,
     handleProductClick,
+    topCategoryName,
+    // @sfdc-extension-line SFDC_EXT_BOPIS
+    showPickupAvailable: showPickupAvailableProp,
 }: {
     critical?: ProductSearchHit[];
     nonCritical?: Promise<ProductSearchHit[]>;
     nonCriticalCount?: number;
     hasRefinementsPanel?: boolean;
     handleProductClick?: (product: ProductSearchHit) => void;
+    topCategoryName?: string;
+    // @sfdc-extension-line SFDC_EXT_BOPIS
+    showPickupAvailable?: boolean;
 }): ReactElement {
     const criticalData = critical ?? [];
     const l = criticalData.length;
@@ -117,6 +134,11 @@ export default function ProductGrid({
     // `<DynamicImage/>` component) should be loaded eagerly with high priority.
     const hasSource = useCallback(() => true, []);
 
+    // @sfdc-extension-block-start SFDC_EXT_BOPIS
+    const pickupFromUrl = useShowPickupAvailable();
+    const showPickupAvailable = showPickupAvailableProp ?? pickupFromUrl;
+    // @sfdc-extension-block-end SFDC_EXT_BOPIS
+
     return (
         <ProductTileProvider>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-8">
@@ -128,6 +150,9 @@ export default function ProductGrid({
                                 product={product}
                                 handleProductClick={handleProductClick}
                                 showNavigationArrows
+                                topCategoryName={topCategoryName}
+                                // @sfdc-extension-line SFDC_EXT_BOPIS
+                                showPickupAvailable={showPickupAvailable}
                             />
                         ))}
                     </DynamicImageProvider>
@@ -142,6 +167,9 @@ export default function ProductGrid({
                             criticalSize={l}
                             responsiveImageWidths={responsiveImageWidths}
                             handleProductClick={handleProductClick}
+                            topCategoryName={topCategoryName}
+                            // @sfdc-extension-line SFDC_EXT_BOPIS
+                            showPickupAvailable={showPickupAvailable}
                         />
                     </Suspense>
                 ) : (

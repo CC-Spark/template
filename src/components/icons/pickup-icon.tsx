@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { HeartIcon } from './heart-icon';
-export { PickupIcon } from './pickup-icon';
-export { SparklesIcon } from './sparkles-icon';
-export { default as VisaIcon } from './visa-icon';
-export { default as MastercardIcon } from './mastercard-icon';
-export { default as AmexIcon } from './amex-icon';
-export { default as DiscoverIcon } from './discover-icon';
-export { default as GenericCardIcon } from './generic-card-icon';
-export { default as CreditCardOptionIcon } from './credit-card-option-icon';
+interface PickupIconProps {
+    className?: string;
+}
+
+export function PickupIcon({ className }: PickupIconProps) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            />
+        </svg>
+    );
+}

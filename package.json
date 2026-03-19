@@ -215,6 +215,11 @@
                 "comment": "Child products component includes Radix UI menu and dropdown dependencies for variant selection"
             },
             {
+                "name": "assets/\\(components\\)-\\(cart-item-modal\\)-index.*.js",
+                "limit": "85 kB",
+                "comment": "Cart item modal bundles full product editing UI: image gallery, swatches, cart actions (incl. ShareButton → @radix-ui/react-dropdown-menu), and ChildProducts"
+            },
+            {
                 "name": "assets/\\(locales\\)-*-index.*.js",
                 "limit": "62 kB",
                 "comment": "Locales chunks (all locale translations)"

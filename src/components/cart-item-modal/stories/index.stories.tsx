@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CartItemEditModal } from '../index';
+import { CartItemModal } from '../index';
 import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { createMemoryRouter, RouterProvider, useInRouterContext } from 'react-router';
@@ -91,7 +91,6 @@ const MODAL_HARNESS_ATTR = 'data-edit-modal-harness';
 function EditModalStoryHarness({ children }: { children: ReactNode }): ReactElement {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const logModalOpen = useMemo(() => action('edit-modal-opened'), []);
-    const logVariantChange = useMemo(() => action('variant-changed'), []);
     const logQuantityChange = useMemo(() => action('quantity-changed'), []);
     const logUpdate = useMemo(() => action('cart-item-updated'), []);
     const logHover = useMemo(() => action('edit-modal-hovered'), []);
@@ -167,7 +166,7 @@ function EditModalStoryHarness({ children }: { children: ReactNode }): ReactElem
             document.removeEventListener('change', handleChange, true);
             document.removeEventListener('mouseover', handleMouseOver, true);
         };
-    }, [logModalOpen, logVariantChange, logQuantityChange, logUpdate, logHover]);
+    }, [logModalOpen, logQuantityChange, logUpdate, logHover]);
 
     return (
         <div ref={containerRef} {...{ [MODAL_HARNESS_ATTR]: 'true' }}>
@@ -176,9 +175,9 @@ function EditModalStoryHarness({ children }: { children: ReactNode }): ReactElem
     );
 }
 
-const meta: Meta<typeof CartItemEditModal> = {
-    title: 'CART/Cart Item Edit Modal',
-    component: CartItemEditModal,
+const meta: Meta<typeof CartItemModal> = {
+    title: 'CART/Cart Item Modal',
+    component: CartItemModal,
     tags: ['autodocs', 'interaction'],
     parameters: {
         layout: 'centered',
@@ -201,7 +200,7 @@ A modal dialog component for editing cart items. Allows shoppers to change produ
 ## Usage
 
 \`\`\`tsx
-import { CartItemEditModal } from '../cart-item-edit-modal';
+import { CartItemModal } from '../cart-item-modal';
 
 function CartItem({ product, itemId, quantity }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -209,7 +208,7 @@ function CartItem({ product, itemId, quantity }) {
   return (
     <>
       <button onClick={() => setIsOpen(true)}>Edit</button>
-      <CartItemEditModal
+      <CartItemModal
         open={isOpen}
         onOpenChange={setIsOpen}
         product={product}
@@ -327,7 +326,7 @@ export const WithHighQuantity: Story = {
         docs: {
             description: {
                 story: `
-CartItemEditModal with a size-only product and high initial quantity. Demonstrates the simplified edit experience for products with a single variation attribute.
+CartItemModal with a size-only product and high initial quantity. Demonstrates the simplified edit experience for products with a single variation attribute.
 
 ### Features:
 - **Brand header**: Organisation name in uppercase grey text
@@ -367,7 +366,7 @@ export const WithVariants: Story = {
         docs: {
             description: {
                 story: `
-CartItemEditModal with multiple product variants and a large image gallery. Demonstrates the full edit experience with all variation attributes and scrollable thumbnails.
+CartItemModal with multiple product variants and a large image gallery. Demonstrates the full edit experience with all variation attributes and scrollable thumbnails.
 
 ### Features:
 - **Brand header**: Organisation name in uppercase grey text
@@ -408,7 +407,7 @@ export const Closed: Story = {
         docs: {
             description: {
                 story: `
-CartItemEditModal in its closed (default) state. The modal is not rendered in the DOM until opened.
+CartItemModal in its closed (default) state. The modal is not rendered in the DOM until opened.
 
 ### Features:
 - **Modal hidden**: Dialog is not visible or rendered

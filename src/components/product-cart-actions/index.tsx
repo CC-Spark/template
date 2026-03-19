@@ -44,6 +44,13 @@ interface ProductCartActionsProps {
     onAddToWishlistSuccess?: () => void;
     /** Called if add to wishlist operation fails */
     onAddToWishlistError?: (error: unknown) => void;
+    /**
+     * When provided in add mode, renders a compact two-button layout:
+     * "Add to Cart" + "Buy it Now" side by side. Express payments, BNPL,
+     * wishlist, and share buttons are hidden in this layout.
+     * Typically navigates to the PDP for the full purchase flow.
+     */
+    onBuyNow?: () => void;
 }
 
 export default function ProductCartActions({
@@ -54,6 +61,7 @@ export default function ProductCartActions({
     onBeforeAddToWishlist,
     onAddToWishlistSuccess,
     onAddToWishlistError,
+    onBuyNow,
 }: ProductCartActionsProps): ReactElement {
     const { t } = useTranslation('product');
     const isProductASet = isProductSet(product);
@@ -74,6 +82,9 @@ export default function ProductCartActions({
     } = useProductView();
 
     const isEditMode = mode === 'edit';
+    // Compact layout: shown in add mode when a "Buy it Now" handler is provided (e.g. Quick Add modal).
+    // Hides express payments, BNPL, wishlist, and share — shopper goes to PDP for those.
+    const isCompactAddMode = !isEditMode && !!onBuyNow;
 
     // Get product ID for pending action matching
     const productToCheck = isMasterOrVariantProduct ? currentVariant : product;
@@ -151,7 +162,29 @@ export default function ProductCartActions({
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
-                {!isProductASet && !isProductABundle && (
+                {/* Compact layout (Quick Add modal): Add to Cart + Buy it Now side by side */}
+                {isCompactAddMode && !isProductASet && !isProductABundle && (
+                    <div className="grid grid-cols-2 gap-3">
+                        <Button
+                            onClick={() => void onAddOrUpdateToCart()}
+                            disabled={!canAddToCart || isAddingToOrUpdatingCart}
+                            className="w-full"
+                            size="lg">
+                            {isAddingToOrUpdatingCart ? t('addingToCart') : t('addToCart')}
+                        </Button>
+                        <Button
+                            onClick={onBuyNow}
+                            disabled={!canAddToCart}
+                            variant="outline"
+                            className="w-full"
+                            size="lg">
+                            {t('buyItNow')}
+                        </Button>
+                    </div>
+                )}
+
+                {/* Standard layout: single Add to Cart / Update button */}
+                {!isCompactAddMode && !isProductASet && !isProductABundle && (
                     <Button
                         onClick={() => void onAddOrUpdateToCart()}
                         disabled={!canAddToCart || isAddingToOrUpdatingCart}
@@ -160,23 +193,31 @@ export default function ProductCartActions({
                         {isEditMode ? t('updateCart') : isAddingToOrUpdatingCart ? t('addingToCart') : t('addToCart')}
                     </Button>
                 )}
-                {/* Express Payments - Vertical layout for PDP */}
-                {!isProductASet && !isProductABundle && !isEditMode && shouldLoadExpressPayments && (
-                    <Suspense fallback={null}>
-                        <ExpressPayments
-                            layout="vertical"
-                            separatorPosition="top"
-                            separatorText={t('expressPayments.separatorBuyWith')}
-                            disabled={!canAddToCart}
-                        />
-                    </Suspense>
-                )}
+
+                {/* Express Payments — standard layout only, vertical for PDP */}
+                {!isCompactAddMode &&
+                    !isProductASet &&
+                    !isProductABundle &&
+                    !isEditMode &&
+                    shouldLoadExpressPayments && (
+                        <Suspense fallback={null}>
+                            <ExpressPayments
+                                layout="vertical"
+                                separatorPosition="top"
+                                separatorText={t('expressPayments.separatorBuyWith')}
+                                disabled={!canAddToCart}
+                            />
+                        </Suspense>
+                    )}
 
                 <UITarget targetId="pdp.after.addToCart">
-                    {!isEditMode && currentProductId && <BuyNowPayLater productId={String(currentProductId)} />}
+                    {!isCompactAddMode && !isEditMode && currentProductId && (
+                        <BuyNowPayLater productId={String(currentProductId)} />
+                    )}
                 </UITarget>
 
-                {!isEditMode && (
+                {/* Wishlist + Share — standard layout, add mode only */}
+                {!isCompactAddMode && !isEditMode && (
                     <div className="grid grid-cols-2 gap-3">
                         <Button
                             onClick={() => void onAddToWishlist()}

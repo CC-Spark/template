@@ -21,14 +21,15 @@ import { render, cleanup } from '@testing-library/react';
 import { ConfigWrapper } from '@/test-utils/config';
 
 vi.mock('react-router', async (importOriginal) => {
-    const original = (await importOriginal()) as Record<string, unknown>;
+    const actual = await importOriginal<typeof import('react-router')>();
     return {
-        ...original,
-        NavLink: ({ to, children, ...props }: { to: string; children: React.ReactNode; [key: string]: unknown }) => (
-            <a href={to} {...props}>
-                {children}
-            </a>
-        ),
+        ...actual,
+        useNavigate: () => vi.fn(),
+        useLocation: () => ({ pathname: '/', search: '', hash: '', state: null, key: 'test' }),
+        useResolvedPath: () => ({ pathname: '/', search: '', hash: '' }),
+        useHref: () => '/',
+        Link: (props: any) => <a href={props.to} {...props}>{props.children}</a>,
+        NavLink: (props: any) => <a href={props.to} {...props}>{props.children}</a>,
     };
 });
 

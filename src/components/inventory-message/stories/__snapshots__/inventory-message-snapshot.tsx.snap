@@ -12,6 +12,7 @@ exports[`InventoryMessage stories snapshot > AllVariants story renders and match
         class="flex items-center gap-2"
       >
         <span
+          aria-hidden="true"
           class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
         />
         <p
@@ -24,6 +25,7 @@ exports[`InventoryMessage stories snapshot > AllVariants story renders and match
         class="flex items-center gap-2"
       >
         <span
+          aria-hidden="true"
           class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-info"
         />
         <p
@@ -36,6 +38,7 @@ exports[`InventoryMessage stories snapshot > AllVariants story renders and match
         class="flex items-center gap-2"
       >
         <span
+          aria-hidden="true"
           class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-warning"
         />
         <p
@@ -48,6 +51,7 @@ exports[`InventoryMessage stories snapshot > AllVariants story renders and match
         class="flex items-center gap-2"
       >
         <span
+          aria-hidden="true"
           class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-critical"
         />
         <p
@@ -60,6 +64,7 @@ exports[`InventoryMessage stories snapshot > AllVariants story renders and match
         class="flex items-center gap-2"
       >
         <span
+          aria-hidden="true"
           class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-muted-foreground"
         />
         <p

@@ -17,7 +17,8 @@
 import { type ReactElement } from 'react';
 import type { ShopperProducts } from '@salesforce/storefront-next-runtime/scapi';
 import { cn } from '@/lib/utils';
-import { useTranslation, type TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 export const InventoryStatus = {
     IN_STOCK: 'in-stock',
@@ -32,7 +33,7 @@ export type InventoryStatusType = (typeof InventoryStatus)[keyof typeof Inventor
 
 interface InventoryMessageProps {
     product: ShopperProducts.schemas['Product'];
-    currentVariant?: ShopperProducts.schemas['Variant'] | null;
+    currentVariant?: VariantWithInventory | null;
     className?: string;
     /**
      * Stock level at or below which the item is considered "low stock".
@@ -63,9 +64,13 @@ interface InventoryMessageProps {
 /**
  * Gets the inventory status based on product/variant data
  */
+type VariantWithInventory = ShopperProducts.schemas['Variant'] & {
+    inventory?: ShopperProducts.schemas['Inventory'];
+};
+
 function getInventoryStatus(
     product: ShopperProducts.schemas['Product'],
-    currentVariant?: ShopperProducts.schemas['Variant'] | null,
+    currentVariant?: VariantWithInventory | null,
     lowStockThreshold = 0
 ): InventoryStatusType {
     // Use variant inventory if available, otherwise use product inventory
@@ -173,7 +178,10 @@ export default function InventoryMessage({
         <div
             className={cn('flex items-center gap-2', className, isUnknown && !showUnknownStatus && 'hidden')}
             {...(isUnknown && !showUnknownStatus && { 'aria-hidden': true })}>
-            <span className={cn('h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current', statusInfo.className)} />
+            <span
+                aria-hidden="true"
+                className={cn('h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current', statusInfo.className)}
+            />
             <p className={cn('text-sm font-medium', statusInfo.className)}>{statusInfo.message}</p>
         </div>
     );

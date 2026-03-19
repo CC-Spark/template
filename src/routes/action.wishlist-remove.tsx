@@ -20,7 +20,7 @@ import { extractStatusCode } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { isRegisteredCustomer } from '@/lib/api/customer';
 import { getTranslation } from '@/lib/i18next';
-import { getWishlist } from '@/lib/api/wishlist';
+import { getWishlist, type WishlistActionResponse } from '@/lib/api/wishlist';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
@@ -41,11 +41,7 @@ async function removeFromWishlist(
     context: ActionFunctionArgs['context'],
     itemId?: string,
     productId?: string
-): Promise<{
-    success: boolean;
-    productList?: CustomerProductList;
-    error?: string;
-}> {
+): Promise<WishlistActionResponse & { productList?: CustomerProductList }> {
     const { t } = getTranslation();
 
     // TODO: revisit the error messages returned from this function

@@ -376,6 +376,53 @@ describe('ProductCartActions', () => {
         });
     });
 
+    describe('compact add mode (onBuyNow prop)', () => {
+        test('renders "Add to Cart" and "Buy it Now" buttons side by side when onBuyNow is provided', () => {
+            const onBuyNow = vi.fn();
+            renderProductCartActions({ product: standardProd, onBuyNow });
+
+            expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: t('product:buyItNow') })).toBeInTheDocument();
+        });
+
+        test('hides wishlist and share buttons in compact add mode', () => {
+            const onBuyNow = vi.fn();
+            renderProductCartActions({ product: standardProd, onBuyNow });
+
+            expect(screen.queryByRole('button', { name: /wishlist/i })).not.toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: /share/i })).not.toBeInTheDocument();
+        });
+
+        test('calls onBuyNow when "Buy it Now" is clicked', async () => {
+            const user = userEvent.setup();
+            const onBuyNow = vi.fn();
+            renderProductCartActions({ product: standardProd, onBuyNow });
+
+            await user.click(screen.getByRole('button', { name: t('product:buyItNow') }));
+
+            expect(onBuyNow).toHaveBeenCalledOnce();
+        });
+
+        test('"Buy it Now" button is disabled when product cannot be added to cart', () => {
+            const outOfStockProduct = {
+                ...standardProd,
+                inventory: { ats: 0, orderable: false, id: 'test-inventory' },
+            };
+            const onBuyNow = vi.fn();
+            renderProductCartActions({ product: outOfStockProduct, onBuyNow });
+
+            expect(screen.getByRole('button', { name: t('product:buyItNow') })).toBeDisabled();
+        });
+
+        test('standard add mode still shows wishlist and share when onBuyNow is not provided', () => {
+            renderProductCartActions({ product: standardProd });
+
+            expect(screen.getByRole('button', { name: /add to wishlist/i })).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: /share/i })).toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: t('product:buyItNow') })).not.toBeInTheDocument();
+        });
+    });
+
     describe('pending action execution', () => {
         test('executes pending wishlist action when URL has matching params', async () => {
             const mockOnBeforeAddToWishlist = vi.fn();

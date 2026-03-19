@@ -89,17 +89,17 @@ vi.mock('@/hooks/use-scapi-fetcher', () => ({
 
 import { composeStories } from '@storybook/react-vite';
 
-import * as CartItemEditModalStories from './index.stories';
+import * as CartItemModalStories from './index.stories';
 import { render, cleanup } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 
-const composed = composeStories(CartItemEditModalStories);
+const composed = composeStories(CartItemModalStories);
 
 afterEach(() => {
     cleanup();
 });
 
-describe('CartItemEditModal stories snapshot', () => {
+describe('CartItemModal stories snapshot', () => {
     for (const [storyName, Story] of Object.entries(composed)) {
         test(`${storyName} story renders and matches snapshot`, () => {
             const router = createMemoryRouter(

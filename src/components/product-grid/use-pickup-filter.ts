@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { HeartIcon } from './heart-icon';
-export { PickupIcon } from './pickup-icon';
-export { SparklesIcon } from './sparkles-icon';
-export { default as VisaIcon } from './visa-icon';
-export { default as MastercardIcon } from './mastercard-icon';
-export { default as AmexIcon } from './amex-icon';
-export { default as DiscoverIcon } from './discover-icon';
-export { default as GenericCardIcon } from './generic-card-icon';
-export { default as CreditCardOptionIcon } from './credit-card-option-icon';
+import { useSearchParams } from 'react-router';
+
+/**
+ * When the store inventory filter (ilids) is active, every product in the
+ * result set is guaranteed to be available for pickup at the selected store —
+ * no extra API calls needed.
+ */
+export function useShowPickupAvailable(): boolean {
+    const [searchParams] = useSearchParams();
+    return searchParams.has('ilids');
+}

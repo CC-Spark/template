@@ -59,6 +59,7 @@ exports[`WishlistListItem stories snapshot > Default renders and matches snapsho
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
+            aria-hidden="true"
             class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
           />
           <p
@@ -114,7 +115,7 @@ exports[`WishlistListItem stories snapshot > Default renders and matches snapsho
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium"
           >
             50% off for Salesforce employees
           </span>
@@ -190,6 +191,7 @@ exports[`WishlistListItem stories snapshot > MasterProduct renders and matches s
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
+            aria-hidden="true"
             class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
           />
           <p
@@ -245,7 +247,7 @@ exports[`WishlistListItem stories snapshot > MasterProduct renders and matches s
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium"
           >
             50% off for Salesforce employees
           </span>
@@ -294,6 +296,7 @@ exports[`WishlistListItem stories snapshot > MinimalData renders and matches sna
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
+            aria-hidden="true"
             class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-positive"
           />
           <p
@@ -378,6 +381,7 @@ exports[`WishlistListItem stories snapshot > OnSale renders and matches snapshot
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
+            aria-hidden="true"
             class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-warning"
           />
           <p
@@ -433,7 +437,7 @@ exports[`WishlistListItem stories snapshot > OnSale renders and matches snapshot
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium"
           >
             50% off for Salesforce employees
           </span>
@@ -484,6 +488,7 @@ exports[`WishlistListItem stories snapshot > OutOfStock renders and matches snap
           class="flex items-center gap-2 text-xs px-2 py-0.5"
         >
           <span
+            aria-hidden="true"
             class="h-2 w-2 shrink-0 rounded-[var(--radius)] bg-current text-status-critical"
           />
           <p
@@ -539,7 +544,7 @@ exports[`WishlistListItem stories snapshot > OutOfStock renders and matches snap
           class="items-center gap-2"
         >
           <span
-            class="line-clamp-2 text-[inherit] font-medium mx-2"
+            class="line-clamp-2 text-[inherit] font-medium"
           >
             50% off for Salesforce employees
           </span>

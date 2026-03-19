@@ -372,6 +372,9 @@ export default function CategoryPage({
                                 nonCriticalCount={nonCriticalCount}
                                 hasRefinementsPanel={filtersOpen}
                                 handleProductClick={handleProductClick}
+                                topCategoryName={
+                                    category.parentCategoryTree?.find((p) => p.id !== 'root')?.name ?? category.name
+                                }
                             />
 
                             {searchResultCritical.total > 1 && (

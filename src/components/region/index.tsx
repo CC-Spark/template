@@ -38,7 +38,7 @@ type PageWithDesignMetadata = PageDecoratorProps<ShopperExperience.schemas['Page
 
 // Props when rendering a page-level region
 interface PageRegionProps extends HTMLAttributes<HTMLDivElement> {
-    page: Promise<PageWithDesignMetadata> | PageWithDesignMetadata;
+    page: Promise<PageWithDesignMetadata | null> | PageWithDesignMetadata | null;
     component?: never;
     regionId: string;
     fallbackElement?: ReactNode;
@@ -146,7 +146,11 @@ export function Region(props: RegionProps) {
         <Suspense fallback={fallbackElement}>
             <Await resolve={pagePromise} errorElement={errorElement}>
                 {(resolvedPage) => {
-                    const region = resolvedPage?.regions?.find((r) => r.id === regionId);
+                    if (!resolvedPage) {
+                        return errorElement ?? null;
+                    }
+
+                    const region = resolvedPage.regions?.find((r) => r.id === regionId);
                     if (!region) {
                         return errorElement ?? null;
                     }

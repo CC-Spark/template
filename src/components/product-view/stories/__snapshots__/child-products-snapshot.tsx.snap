@@ -665,7 +665,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             class="items-center gap-2"
           >
             <span
-              class="line-clamp-2 text-[inherit] font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium"
             >
               $10 off product set
             </span>
@@ -1100,7 +1100,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             class="items-center gap-2"
           >
             <span
-              class="line-clamp-2 text-[inherit] font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium"
             >
               $10 off product set
             </span>
@@ -1554,7 +1554,7 @@ exports[`ChildProducts stories snapshot > ProductSet story renders and matches s
             class="items-center gap-2"
           >
             <span
-              class="line-clamp-2 text-[inherit] font-medium mx-2"
+              class="line-clamp-2 text-[inherit] font-medium"
             >
               $10 off product set
             </span>

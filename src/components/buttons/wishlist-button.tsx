@@ -25,24 +25,26 @@ interface WishlistButtonProps {
     variant?: ShopperSearch.schemas['ProductSearchHit'];
     size?: 'sm' | 'md' | 'lg';
     className?: string;
+    tabIndex?: number;
 }
 
-const WishlistButton = ({ product, variant, size = 'md', className }: WishlistButtonProps) => {
+const WishlistButton = ({ product, variant, size = 'md', className, tabIndex }: WishlistButtonProps) => {
     const { isItemInWishlist, toggleWishlist, isLoading } = useWishlist();
 
     const isInWishlist = useMemo(() => isItemInWishlist(product, variant), [isItemInWishlist, product, variant]);
 
-    const handleWishlistToggle = useCallback(async () => {
-        await toggleWishlist(product, variant);
+    const handleWishlistToggle = useCallback(() => {
+        void toggleWishlist(product, variant);
     }, [product, variant, toggleWishlist]);
 
     return (
         <HeartIcon
             isFilled={isInWishlist}
             disabled={isLoading}
-            onClick={() => void handleWishlistToggle()}
+            onClick={handleWishlistToggle}
             size={size}
             className={className}
+            tabIndex={tabIndex}
         />
     );
 };

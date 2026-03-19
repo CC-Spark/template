@@ -63,7 +63,11 @@
         "removeItemAriaLabel": "Sì, rimuovi articolo - Rimuovi questo articolo dal carrello"
     },
     "editItem": {
-        "title": "Modifica articolo del carrello"
+        "title": "Modifica articolo del carrello",
+        "quickAddTitle": "Aggiunta rapida",
+        "loadError": "Impossibile caricare i dettagli del prodotto. Riprova.",
+        "retry": "Riprova",
+        "loadingProduct": "Caricamento..."
     },
     "header": {
         "logoAlt": "Home",

@@ -70,7 +70,11 @@
         "removeItemAriaLabel": "Yes, remove item - Remove this item from your cart"
     },
     "editItem": {
-        "title": "Edit Cart Item"
+        "title": "Edit Cart Item",
+        "quickAddTitle": "Quick Add",
+        "loadError": "Failed to load product details. Please try again.",
+        "retry": "Retry",
+        "loadingProduct": "Loading..."
     },
     "header": {
         "logoAlt": "Home",

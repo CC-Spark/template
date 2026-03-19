@@ -15,7 +15,7 @@
  */
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { LoaderFunctionArgs } from 'react-router';
-import type { ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
+import { ApiError, type ShopperExperience } from '@salesforce/storefront-next-runtime/scapi';
 import { fetchPageFromLoader, fetchPageWithComponentData } from './pageLoader';
 import { fetchPage } from '@/lib/api/page';
 import { registry } from '@/lib/registry';
@@ -193,6 +193,7 @@ describe('pageLoader', () => {
             mockedFetchPage.mockResolvedValue(mockPage);
 
             const result = await fetchPageWithComponentData(args, { pageId: MOCK_PAGE_ID });
+            if (!result) throw new Error('Expected non-null result');
 
             expect(result).toHaveProperty('id', 'mock-page');
             expect(result).toHaveProperty('componentData');
@@ -212,6 +213,7 @@ describe('pageLoader', () => {
             mockedFetchPage.mockResolvedValue(mockPage);
 
             const result = await fetchPageWithComponentData(args, { pageId: MOCK_PAGE_ID });
+            if (!result) throw new Error('Expected non-null result');
             const componentData = await result.componentData?.['hero-1'];
 
             // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -237,6 +239,7 @@ describe('pageLoader', () => {
             mockedFetchPage.mockResolvedValue(mockPage);
 
             const result = await fetchPageWithComponentData(args, { pageId: MOCK_PAGE_ID });
+            if (!result) throw new Error('Expected non-null result');
 
             await expect(result.componentData?.['failing-component']).rejects.toThrow('Server loader failed');
         });
@@ -251,6 +254,7 @@ describe('pageLoader', () => {
             mockedFetchPage.mockResolvedValue(mockPage);
 
             const result = await fetchPageWithComponentData(args, { pageId: MOCK_PAGE_ID });
+            if (!result) throw new Error('Expected non-null result');
 
             expect(result.componentData).toEqual({});
             // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -284,6 +288,7 @@ describe('pageLoader', () => {
             mockedFetchPage.mockResolvedValue(mockPage);
 
             const result = await fetchPageWithComponentData(args, { pageId: MOCK_PAGE_ID });
+            if (!result) throw new Error('Expected non-null result');
 
             const componentData = result.componentData as Record<string, Promise<unknown>>;
             expect(Object.keys(componentData)).toEqual(['hero-1', 'banner-1', 'footer-1']);
@@ -319,6 +324,49 @@ describe('pageLoader', () => {
             await expect(
                 fetchPageWithComponentData(createLoaderArgs(BASE_URL), { pageId: MOCK_PAGE_ID })
             ).rejects.toThrow('API Error');
+        });
+
+        test('returns null when fetchPage throws a 404 ApiError', async () => {
+            const notFoundError = new ApiError({
+                status: 404,
+                statusText: 'Not Found',
+                headers: new Headers(),
+                body: { type: '', title: 'Not Found', detail: 'Page not found' },
+                rawBody: '',
+                url: BASE_URL,
+                method: 'GET',
+            });
+            mockedFetchPage.mockRejectedValueOnce(notFoundError);
+
+            const result = await fetchPageWithComponentData(createLoaderArgs(BASE_URL), { pageId: MOCK_PAGE_ID });
+
+            expect(result).toBeNull();
+        });
+
+        test('re-throws non-404 ApiErrors', async () => {
+            const serverError = new ApiError({
+                status: 500,
+                statusText: 'Internal Server Error',
+                headers: new Headers(),
+                body: { type: '', title: 'Server Error', detail: 'Something went wrong' },
+                rawBody: '',
+                url: BASE_URL,
+                method: 'GET',
+            });
+            mockedFetchPage.mockRejectedValueOnce(serverError);
+
+            await expect(
+                fetchPageWithComponentData(createLoaderArgs(BASE_URL), { pageId: MOCK_PAGE_ID })
+            ).rejects.toThrow('500');
+        });
+
+        test('re-throws non-ApiError errors even when they have a status-like property', async () => {
+            const genericError = Object.assign(new Error('Network failure'), { status: 404 });
+            mockedFetchPage.mockRejectedValueOnce(genericError);
+
+            await expect(
+                fetchPageWithComponentData(createLoaderArgs(BASE_URL), { pageId: MOCK_PAGE_ID })
+            ).rejects.toThrow('Network failure');
         });
     });
 });

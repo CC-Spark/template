@@ -135,7 +135,11 @@ export default function ProductInfo({
             {/* Product Title, SKU, Description */}
             {!isCompactStyle && (
                 <div>
-                    <h1 className="text-2xl lg:text-3xl font-medium text-foreground tracking-tight">{product.name}</h1>
+                    <h1
+                        data-testid="product-title"
+                        className="text-2xl lg:text-3xl font-medium text-foreground tracking-tight">
+                        {product.name}
+                    </h1>
                     {product.id && (
                         <p className="mt-2 text-xs text-muted-foreground">
                             {t('sku')} {product.id}

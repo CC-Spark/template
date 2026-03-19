@@ -20,7 +20,7 @@ import { extractStatusCode } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { isRegisteredCustomer } from '@/lib/api/customer';
 import { getTranslation } from '@/lib/i18next';
-import { getWishlist } from '@/lib/api/wishlist';
+import { getWishlist, type WishlistActionResponse } from '@/lib/api/wishlist';
 
 type CustomerProductList = ShopperCustomers.schemas['CustomerProductList'];
 type CustomerProductListItem = ShopperCustomers.schemas['CustomerProductListItem'];
@@ -111,12 +111,7 @@ async function getOrCreateWishlist(
 async function addToWishlist(
     context: ActionFunctionArgs['context'],
     productId: string
-): Promise<{
-    success: boolean;
-    productList?: CustomerProductList;
-    error?: string;
-    alreadyInWishlist?: boolean;
-}> {
+): Promise<WishlistActionResponse & { productList?: CustomerProductList }> {
     const { t } = getTranslation();
 
     // Check if user is authenticated as registered customer

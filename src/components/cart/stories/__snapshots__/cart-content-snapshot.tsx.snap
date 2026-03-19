@@ -2024,7 +2024,7 @@ exports[`CartContent stories snapshot > CartWithPromotions story renders and mat
                                       class="flex-row md:flex-col items-baseline md:items-end gap-2 md:gap-0 bg-muted text-foreground border-0 text-xs font-medium rounded-pill inline-block mt-3 mx-0"
                                     >
                                       <span
-                                        class="line-clamp-2 text-[inherit] font-medium mx-2"
+                                        class="line-clamp-2 text-[inherit] font-medium"
                                       >
                                         Buy one Long Center Seam Skirt and get 2 tops
                                       </span>
@@ -3429,7 +3429,7 @@ exports[`CartContent stories snapshot > DesktopLayout story renders and matches 
                                       class="flex-row md:flex-col items-baseline md:items-end gap-2 md:gap-0 bg-muted text-foreground border-0 text-xs font-medium rounded-pill inline-block mt-3 mx-0"
                                     >
                                       <span
-                                        class="line-clamp-2 text-[inherit] font-medium mx-2"
+                                        class="line-clamp-2 text-[inherit] font-medium"
                                       >
                                         Buy one Long Center Seam Skirt and get 2 tops
                                       </span>
@@ -5994,7 +5994,7 @@ exports[`CartContent stories snapshot > LargeOrder story renders and matches sna
                                       class="flex-row md:flex-col items-baseline md:items-end gap-2 md:gap-0 bg-muted text-foreground border-0 text-xs font-medium rounded-pill inline-block mt-3 mx-0"
                                     >
                                       <span
-                                        class="line-clamp-2 text-[inherit] font-medium mx-2"
+                                        class="line-clamp-2 text-[inherit] font-medium"
                                       >
                                         Buy one Long Center Seam Skirt and get 2 tops
                                       </span>
