@@ -3725,7 +3725,7 @@ exports[`CheckoutFormPage stories snapshot > PaymentStep story renders and match
 </div>
 `;
 
-exports[`CheckoutFormPage stories snapshot > ReviewOrderStep story renders and matches snapshot 1`] = `
+exports[`CheckoutFormPage stories snapshot > PlaceOrderStep story renders and matches snapshot 1`] = `
 <div>
   <div
     class="min-h-screen bg-muted"

@@ -295,7 +295,7 @@ vi.mock('@/providers/basket', () => ({
 const defaultCheckoutContext = {
     step: 1,
     computedStep: 1,
-    STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, REVIEW_ORDER: 5 },
+    STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, PLACE_ORDER: 5 },
     goToStep: vi.fn(),
     goToNextStep: vi.fn(),
     exitEditMode: vi.fn(),
@@ -765,7 +765,7 @@ describe('Checkout Flow Integration Tests', () => {
         test('displays correct form field labels', async () => {
             vi.mocked(useCheckoutContext).mockReturnValue({
                 ...defaultCheckoutContext,
-                step: 4,
+                step: 4, // PAYMENT - create account checkbox shows when Place Order section is visible
                 computedStep: 4,
             });
             sessionStorage.setItem(
@@ -806,7 +806,7 @@ describe('Checkout Flow Integration Tests', () => {
         test('account creation checkbox toggles state correctly', async () => {
             vi.mocked(useCheckoutContext).mockReturnValue({
                 ...defaultCheckoutContext,
-                step: 4,
+                step: 4, // PAYMENT - create account checkbox shows when Place Order section is visible
                 computedStep: 4,
             });
             const user = userEvent.setup();
@@ -1214,7 +1214,7 @@ describe('Checkout Flow Integration Tests', () => {
         test('handles account creation preference checkbox interaction', async () => {
             vi.mocked(useCheckoutContext).mockReturnValue({
                 ...defaultCheckoutContext,
-                step: 4,
+                step: 4, // PAYMENT - create account checkbox shows when Place Order section is visible
                 computedStep: 4,
             });
             const user = userEvent.setup();

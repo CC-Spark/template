@@ -38,7 +38,7 @@ function CheckoutContextConsumer() {
         [STEPS.SHIPPING_ADDRESS]: 'Shipping Address',
         [STEPS.SHIPPING_OPTIONS]: 'Shipping Options',
         [STEPS.PAYMENT]: 'Payment',
-        [STEPS.REVIEW_ORDER]: 'Review Order',
+        [STEPS.PLACE_ORDER]: 'Place Order',
     };
 
     return (

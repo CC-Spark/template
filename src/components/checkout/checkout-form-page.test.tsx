@@ -158,7 +158,7 @@ const defaultSteps = {
     SHIPPING_ADDRESS: 2,
     SHIPPING_OPTIONS: 3,
     PAYMENT: 4,
-    REVIEW_ORDER: 5,
+    PLACE_ORDER: 5,
 } as const;
 
 const buildCheckoutContext = (overrides?: Record<string, unknown>) => ({
@@ -517,7 +517,7 @@ describe('CheckoutFormPage', () => {
 
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
 
@@ -538,7 +538,7 @@ describe('CheckoutFormPage', () => {
 
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
 
@@ -586,7 +586,7 @@ describe('CheckoutFormPage', () => {
 
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
 
@@ -663,10 +663,10 @@ describe('CheckoutFormPage', () => {
             ).toBeInTheDocument();
         });
 
-        test('renders place order button when step is review order (returning shopper)', async () => {
+        test('renders place order button when step is place order (returning shopper)', async () => {
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
 
@@ -683,7 +683,7 @@ describe('CheckoutFormPage', () => {
             mockShouldCreateAccount = true;
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
 
@@ -698,7 +698,7 @@ describe('CheckoutFormPage', () => {
         test('disables place order button and shows processing text while submitting', async () => {
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
             mockPlaceOrderFetcherState = 'submitting';
@@ -716,7 +716,7 @@ describe('CheckoutFormPage', () => {
 
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
             mockPlaceOrderFetcherData = {
@@ -736,7 +736,7 @@ describe('CheckoutFormPage', () => {
         test('does not display error banner when place order succeeds', async () => {
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
             mockPlaceOrderFetcherData = {
@@ -850,7 +850,7 @@ describe('CheckoutFormPage', () => {
 
             mockUseCheckoutContext.mockReturnValue(
                 buildCheckoutContext({
-                    step: defaultSteps.REVIEW_ORDER,
+                    step: defaultSteps.PLACE_ORDER,
                 })
             );
             mockPlaceOrderFetcherData = {

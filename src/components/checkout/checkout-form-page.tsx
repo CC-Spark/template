@@ -266,7 +266,7 @@ export default function CheckoutFormPage({
         // Sync basket with current payment selection before placing order so the chosen payment
         // (saved card or new) is applied. Always submit payment when we have form data so returning
         // shoppers who changed from the default to another saved card or new payment get their
-        // selection applied (step may be REVIEW_ORDER when Place Order is visible).
+        // selection applied (step may be PLACE_ORDER when Place Order is visible).
         const paymentData = paymentSubmissionRef.current.formDataGetter?.();
         if (paymentData) {
             paymentSubmissionRef.current.shouldPlaceOrderAfterPayment = true;
@@ -533,7 +533,7 @@ export default function CheckoutFormPage({
                         {/* Place Order Section */}
                         {step >= STEPS.PAYMENT && (
                             <div className="flex flex-col items-end gap-4 w-full lg:w-auto">
-                                {/* Create Account Option - Show for guest users after reaching payment step (all previous steps completed) */}
+                                {/* Create Account Option - Show for guest users when Place Order is visible (step >= PAYMENT) */}
                                 {step >= STEPS.PAYMENT && (
                                     <div className="w-full">
                                         <UITarget targetId="checkout.createAccount.before" />

@@ -284,6 +284,7 @@ export default function ShippingAddress({
                                 form={form}
                                 showPhone={true}
                                 autoFocus={isEditing}
+                                autoFocusField="firstName"
                                 countryCode={DEFAULT_COUNTRY_CODE}
                             />
                             <div className="flex justify-end pt-4">

@@ -96,7 +96,7 @@ vi.mock('@/hooks/use-checkout', () => ({
     useCheckoutContext: () => ({
         step: 1,
         computedStep: 1,
-        STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, REVIEW_ORDER: 5 },
+        STEPS: { CONTACT_INFO: 1, PICKUP: 1.5, SHIPPING_ADDRESS: 2, SHIPPING_OPTIONS: 3, PAYMENT: 4, PLACE_ORDER: 5 },
         goToStep: vi.fn(),
         goToNextStep: vi.fn(),
         exitEditMode: vi.fn(),

@@ -165,7 +165,7 @@ const defaultSteps = {
     SHIPPING_ADDRESS: 2,
     SHIPPING_OPTIONS: 3,
     PAYMENT: 4,
-    REVIEW_ORDER: 5,
+    PLACE_ORDER: 5,
 } as const;
 
 const buildCheckoutContext = (overrides?: Record<string, unknown>) => ({

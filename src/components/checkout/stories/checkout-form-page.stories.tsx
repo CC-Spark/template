@@ -144,7 +144,7 @@ function MockCheckoutFormPage({
         SHIPPING_ADDRESS: 1,
         SHIPPING_OPTIONS: 2,
         PAYMENT: 3,
-        REVIEW_ORDER: 4,
+        PLACE_ORDER: 4,
     };
 
     // Type guard to safely access checkoutData properties
@@ -670,7 +670,7 @@ function MockCheckoutFormPage({
                         )}
 
                         {/* Place Order */}
-                        {(step === STEPS.PAYMENT || step >= STEPS.REVIEW_ORDER) && (
+                        {(step === STEPS.PAYMENT || step >= STEPS.PLACE_ORDER) && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>
@@ -1059,7 +1059,7 @@ Fourth step showing payment information form. This demonstrates:
     },
 };
 
-export const ReviewOrderStep: Story = {
+export const PlaceOrderStep: Story = {
     args: {
         step: 4,
         checkoutData: checkoutWithOneItem,
