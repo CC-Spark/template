@@ -778,6 +778,64 @@ export default function MyComponent({
 4. **Don't wrap nested Regions in Suspense** - Component mode is synchronous
 5. **Don't pass Promises to component-mode Regions** - Use synchronous values
 
+### Design Metadata
+
+Every Page Designer component receives a `designMetadata` prop containing information used by the Page Designer editor for selection, editing, and management.
+
+#### ComponentDesignMetadata Interface
+
+```typescript
+interface ComponentDesignMetadata {
+    /** Component identifier */
+    id: string;
+
+    /**
+     * Content Link UUID - uniquely identifies this component instance.
+     * When the same component/fragment appears multiple times on a page,
+     * this UUID allows Page Designer to uniquely identify and manage each instance.
+     */
+    contentLinkUuid?: string;
+
+    /** Whether this is a fragment (reusable component) */
+    isFragment: boolean;
+
+    /** Whether the component is visible (based on visibility rules) */
+    isVisible: boolean;
+
+    /** Whether the component has been localized for the current locale */
+    isLocalized: boolean;
+
+    /** Component name from Business Manager */
+    name?: string;
+
+    /** Region definitions if the component has nested regions */
+    regionDefinitions?: RegionDesignMetadata[];
+}
+```
+
+#### Content Link UUID
+
+The `contentLinkUuid` field uniquely identifies each component instance on a page. This is especially important for:
+
+- **Multiple instances of the same component** - When a fragment or component appears multiple times on a page, the UUID ensures each can be individually selected and managed
+- **Component selection in Page Designer** - The editor uses this UUID to target the correct instance for editing or deletion
+- **React key generation** - The UUID is used as the React key to ensure proper reconciliation
+
+**SCAPI Response Structure:**
+
+The UUID comes from the SCAPI `getPage` response at the component level:
+
+```typescript
+{
+  "id": "component-123",
+  "typeId": "commerce_assets.hero",
+  "contentLinkUuid": "uuid-12345-abcde-67890",
+  "data": { "title": "Welcome" }
+}
+```
+
+This UUID is automatically extracted and provided in the `designMetadata` prop by StorefrontNext.
+
 ---
 
 ## Performance Best Practices

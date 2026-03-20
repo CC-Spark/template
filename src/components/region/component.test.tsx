@@ -129,6 +129,7 @@ describe('Component', () => {
                 isFragment: false,
                 isVisible: true,
                 isLocalized: true,
+                contentLinkUuid: undefined,
             });
         });
 
@@ -192,6 +193,7 @@ describe('Component', () => {
                 isFragment: false,
                 isVisible: false,
                 isLocalized: false,
+                contentLinkUuid: undefined,
             });
         });
 
@@ -225,6 +227,7 @@ describe('Component', () => {
                 isFragment: false,
                 isVisible: false,
                 isLocalized: false,
+                contentLinkUuid: undefined,
             });
         });
 
@@ -462,6 +465,7 @@ describe('Component', () => {
                 isFragment: false,
                 isVisible: true,
                 isLocalized: true,
+                contentLinkUuid: undefined,
             });
         });
 
@@ -491,7 +495,71 @@ describe('Component', () => {
                 isFragment: false,
                 isVisible: false,
                 isLocalized: false,
+                contentLinkUuid: undefined,
             });
+        });
+
+        test('extracts contentLinkUuid from component', async () => {
+            (registry.getFallback as any).mockReturnValue(undefined);
+
+            let capturedMetadata: any;
+            const Dynamic: FC<any> = (props) => {
+                capturedMetadata = props.designMetadata;
+                return <div data-testid="content-link-test" />;
+            };
+            (registry.getComponent as any).mockReturnValue(Dynamic);
+
+            const component: ComponentType = {
+                id: 'fragment-comp',
+                typeId: 'hero',
+                fragment: true,
+                contentLinkUuid: 'uuid-12345-abcde',
+                designMetadata: {
+                    id: 'fragment-comp',
+                    name: 'Reusable Hero',
+                    isFragment: true,
+                    isVisible: true,
+                    isLocalized: false,
+                },
+                visible: true,
+            };
+
+            mockUseComponentDataById.mockReturnValue(undefined);
+
+            render(<Component component={component} regionId="main" />);
+
+            expect(await screen.findByTestId('content-link-test')).toBeInTheDocument();
+            expect(capturedMetadata).toEqual({
+                id: 'fragment-comp',
+                name: 'Reusable Hero',
+                isFragment: true,
+                isVisible: true,
+                isLocalized: false,
+                contentLinkUuid: 'uuid-12345-abcde',
+            });
+        });
+
+        test('handles missing contentLinkUuid', async () => {
+            (registry.getFallback as any).mockReturnValue(undefined);
+
+            let capturedMetadata: any;
+            const Dynamic: FC<any> = (props) => {
+                capturedMetadata = props.designMetadata;
+                return <div data-testid="no-uuid-test" />;
+            };
+            (registry.getComponent as any).mockReturnValue(Dynamic);
+
+            const component: ComponentType = {
+                id: 'regular-comp',
+                typeId: 'banner',
+            };
+
+            mockUseComponentDataById.mockReturnValue(undefined);
+
+            render(<Component component={component} regionId="main" />);
+
+            expect(await screen.findByTestId('no-uuid-test')).toBeInTheDocument();
+            expect(capturedMetadata.contentLinkUuid).toBeUndefined();
         });
     });
 });

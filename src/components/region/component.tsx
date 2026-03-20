@@ -62,10 +62,11 @@ export const Component = memo(function Component({ component, className, regionI
 
     const designMetadata: ComponentDesignMetadata = {
         name: component.designMetadata?.name,
-        isFragment: false,
+        isFragment: Boolean(component.fragment),
         isVisible: Boolean(component.visible),
         isLocalized: Boolean(component.localized),
         id: component.id,
+        contentLinkUuid: component.contentLinkUuid,
     };
 
     return (

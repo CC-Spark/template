@@ -45,7 +45,10 @@ interface PageRegionProps extends HTMLAttributes<HTMLDivElement> {
     errorElement?: ReactNode;
 }
 
-export type ComponentType = ComponentDecoratorProps<ShopperExperience.schemas['Component']>;
+export type ComponentType = ComponentDecoratorProps<ShopperExperience.schemas['Component']> & {
+    contentLinkUuid?: string;
+    fragment?: boolean;
+};
 
 // Props when rendering a component-level region (nested)
 interface ComponentRegionProps extends HTMLAttributes<HTMLDivElement> {
@@ -82,9 +85,11 @@ function renderRegionContent(
             designMetadata={getDesignMetadata(regionId, metadata)}
             className={className}
             {...rest}>
-            {region.components?.map(
-                (comp) => comp.id && <Component key={comp.id} component={comp as ComponentType} regionId={region.id} />
-            )}
+            {region.components?.map((comp) => {
+                const typedComp = comp as ComponentType;
+                const key = typedComp.contentLinkUuid ?? typedComp.id;
+                return typedComp.id && <Component key={key} component={typedComp} regionId={region.id} />;
+            })}
         </RegionWrapper>
     );
 }

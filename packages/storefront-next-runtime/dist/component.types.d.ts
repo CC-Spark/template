@@ -54,6 +54,11 @@ interface ComponentDesignMetadata {
    */
   id: string;
   /**
+   * The unique identifier for the content link between this component
+   * and its parent.
+   */
+  contentLinkUuid?: string;
+  /**
    * Whether the component is a fragment.
    */
   isFragment: boolean;
