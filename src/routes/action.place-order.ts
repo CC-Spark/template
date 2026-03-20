@@ -37,6 +37,10 @@ import { buildUrlFromContext } from '@/lib/url.server';
 // @sfdc-extension-line SFDC_EXT_MULTISHIP
 import { resolveEmptyShipments } from '@/extensions/multiship/lib/api/basket';
 
+function placeOrderErrorResponse(body: { success: false; error: string; step: string }) {
+    return Response.json(body, { status: 400 });
+}
+
 /**
  * Server action for placing an order.
  */
@@ -54,26 +58,20 @@ export async function action({ request, context }: ActionFunctionArgs) {
         const basket = basketResource.current;
 
         if (!basket || !basket.basketId) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('errors:checkout.noActiveBasket'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+            return placeOrderErrorResponse({
+                success: false,
+                error: t('errors:checkout.noActiveBasket'),
+                step: 'placeOrder',
+            });
         }
 
         // Validate that basket has all required information
         if (!basket.customerInfo?.email) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('checkout:contactInfo.emailRequired'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+            return placeOrderErrorResponse({
+                success: false,
+                error: t('checkout:contactInfo.emailRequired'),
+                step: 'placeOrder',
+            });
         }
 
         // Build a map of shipmentId -> item count for efficient lookups
@@ -95,25 +93,19 @@ export async function action({ request, context }: ActionFunctionArgs) {
         // Check that all non-empty shipments have shipping address and method
         for (const shipment of nonEmptyShipments) {
             if (!shipment.shippingAddress) {
-                return Response.json(
-                    {
-                        success: false,
-                        error: t('errors:api.shippingAddressRequired'),
-                        step: 'placeOrder',
-                    },
-                    { status: 400 }
-                );
+                return placeOrderErrorResponse({
+                    success: false,
+                    error: t('errors:api.shippingAddressRequired'),
+                    step: 'placeOrder',
+                });
             }
 
             if (!shipment.shippingMethod) {
-                return Response.json(
-                    {
-                        success: false,
-                        error: t('errors:checkout.shippingMethodRequired'),
-                        step: 'placeOrder',
-                    },
-                    { status: 400 }
-                );
+                return placeOrderErrorResponse({
+                    success: false,
+                    error: t('errors:checkout.shippingMethodRequired'),
+                    step: 'placeOrder',
+                });
             }
         }
 
@@ -126,14 +118,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
                 try {
                     const customerProfile = await getCustomerProfileForCheckout(context, customerId);
                     if (!customerProfile) {
-                        return Response.json(
-                            {
-                                success: false,
-                                error: t('errors:api.unableToLoadCustomerProfile'),
-                                step: 'placeOrder',
-                            },
-                            { status: 400 }
-                        );
+                        return placeOrderErrorResponse({
+                            success: false,
+                            error: t('errors:api.unableToLoadCustomerProfile'),
+                            step: 'placeOrder',
+                        });
                     }
                     const savedPaymentMethods = getPaymentMethodsFromCustomer(customerProfile);
 
@@ -180,44 +169,32 @@ export async function action({ request, context }: ActionFunctionArgs) {
                             };
                             updateBasketResource(context, preservedBasket);
                         } else {
-                            return Response.json(
-                                {
-                                    success: false,
-                                    error: t('errors:api.billingAddressRequired'),
-                                    step: 'placeOrder',
-                                },
-                                { status: 400 }
-                            );
+                            return placeOrderErrorResponse({
+                                success: false,
+                                error: t('errors:api.billingAddressRequired'),
+                                step: 'placeOrder',
+                            });
                         }
                     } else {
-                        return Response.json(
-                            {
-                                success: false,
-                                error: t('errors:api.paymentInformationRequired'),
-                                step: 'placeOrder',
-                            },
-                            { status: 400 }
-                        );
-                    }
-                } catch {
-                    return Response.json(
-                        {
+                        return placeOrderErrorResponse({
                             success: false,
                             error: t('errors:api.paymentInformationRequired'),
                             step: 'placeOrder',
-                        },
-                        { status: 400 }
-                    );
-                }
-            } else {
-                return Response.json(
-                    {
+                        });
+                    }
+                } catch {
+                    return placeOrderErrorResponse({
                         success: false,
                         error: t('errors:api.paymentInformationRequired'),
                         step: 'placeOrder',
-                    },
-                    { status: 400 }
-                );
+                    });
+                }
+            } else {
+                return placeOrderErrorResponse({
+                    success: false,
+                    error: t('errors:api.paymentInformationRequired'),
+                    step: 'placeOrder',
+                });
             }
         }
 
@@ -225,14 +202,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
         const updatedBasket = (await getBasket(context)).current;
 
         if (!updatedBasket?.billingAddress) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('errors:api.billingAddressRequired'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+            return placeOrderErrorResponse({
+                success: false,
+                error: t('errors:api.billingAddressRequired'),
+                step: 'placeOrder',
+            });
         }
 
         // @sfdc-extension-line SFDC_EXT_MULTISHIP
@@ -241,14 +215,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
         const currency = getBasketCurrency(context, updatedBasket);
 
         if (!updatedBasket?.basketId) {
-            return Response.json(
-                {
-                    success: false,
-                    error: t('errors:api.basketNotFound'),
-                    step: 'placeOrder',
-                },
-                { status: 400 }
-            );
+            return placeOrderErrorResponse({
+                success: false,
+                error: t('errors:api.basketNotFound'),
+                step: 'placeOrder',
+            });
         }
 
         const calculatedBasket = await calculateBasket(context, updatedBasket.basketId, currency);

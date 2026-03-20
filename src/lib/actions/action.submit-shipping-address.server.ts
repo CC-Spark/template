@@ -23,7 +23,7 @@ import { createShippingAddressSchema, parseShippingAddressFromFormData } from '@
 import { getTranslation } from '@/lib/i18next';
 import { fetchShippingMethodsMapForBasket } from '@/lib/checkout-loaders';
 import { saveShippingAddressToCustomer, getCurrentCustomer } from '@/lib/api/customer';
-import { getAddressKey } from '@/lib/address-utils';
+import { getAddressKey, isAddressEmpty, isAddressEqual, isOrderBillingAddressIncomplete } from '@/lib/address-utils';
 // @sfdc-extension-block-start SFDC_EXT_MULTISHIP
 import { handleMultiShipShippingAddress } from '@/extensions/multiship/lib/actions/checkout-submit-multi-address';
 import { assignProductsToDefaultShipment } from '@/extensions/multiship/lib/api/basket';
@@ -84,6 +84,21 @@ export async function action(formData: FormData, context: RouterContextProvider)
         countryCode: formData.get('countryCode')?.toString() || 'US',
     };
 
+    const basketBeforeShippingUpdate = (await getBasket(context)).current;
+    const existingBilling = basketBeforeShippingUpdate?.billingAddress;
+    const previousShipmentShipping = basketBeforeShippingUpdate?.shipments?.[0]?.shippingAddress;
+
+    const billingComplete = Boolean(existingBilling && !isOrderBillingAddressIncomplete(existingBilling));
+    // If billing already differs from shipment shipping, the shopper set a separate billing address — do not replace it when they edit shipping.
+    const shopperHasDistinctBillingVersusShipmentShipping =
+        billingComplete &&
+        Boolean(
+            previousShipmentShipping &&
+                !isAddressEmpty(previousShipmentShipping) &&
+                !isAddressEqual(existingBilling, previousShipmentShipping)
+        );
+    const useAsBilling = !shopperHasDistinctBillingVersusShipmentShipping;
+
     let updatedBasket;
     try {
         const clients = createApiClients(context);
@@ -94,7 +109,8 @@ export async function action(formData: FormData, context: RouterContextProvider)
                     shipmentId: 'me',
                 },
                 query: {
-                    useAsBilling: false,
+                    // Copy shipping to billing when billing is missing, incomplete, or still aligned with shipment shipping.
+                    useAsBilling,
                 },
             },
             body: {
@@ -141,6 +157,40 @@ export async function action(formData: FormData, context: RouterContextProvider)
 
     // Update local basket state with API response
     updateBasketResource(context, updatedBasket);
+
+    // Fallback: copy shipping to billing when still incomplete (e.g. API did not apply useAsBilling).
+    const shippingAddr = updatedBasket.shipments?.[0]?.shippingAddress;
+    if (
+        isOrderBillingAddressIncomplete(updatedBasket.billingAddress) &&
+        shippingAddr &&
+        !isAddressEmpty(shippingAddr)
+    ) {
+        try {
+            const syncClients = createApiClients(context);
+            const { data: billingSyncedBasket } = await syncClients.shopperBasketsV2.updateBillingAddressForBasket({
+                params: {
+                    path: {
+                        basketId,
+                    },
+                },
+                body: {
+                    firstName: shippingAddr.firstName,
+                    lastName: shippingAddr.lastName,
+                    address1: shippingAddr.address1,
+                    address2: shippingAddr.address2,
+                    city: shippingAddr.city,
+                    stateCode: shippingAddr.stateCode,
+                    postalCode: shippingAddr.postalCode,
+                    countryCode: shippingAddr.countryCode,
+                    phone: shippingAddr.phone,
+                },
+            });
+            updatedBasket = billingSyncedBasket;
+            updateBasketResource(context, updatedBasket);
+        } catch {
+            // Non-blocking: payment step can still set billing
+        }
+    }
 
     // Save address to customer profile for registered users (if address is new) — best-effort
     try {

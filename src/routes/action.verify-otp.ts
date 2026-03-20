@@ -96,16 +96,17 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
             message: t('checkout:passwordlessLogin.loginSuccess'),
             tokenResponse,
         };
-    } catch (error) {
-        let errorMessage = t('checkout:passwordlessLogin.invalidOtp');
+    } catch (error: unknown) {
+        let errorMessage: string = t('checkout:passwordlessLogin.invalidOtp');
 
         // Try to extract the actual error message from the API response
         if (error && typeof error === 'object') {
             // Check if it's an ApiError with rawBody (priority check)
-            if ('rawBody' in error && typeof error.rawBody === 'string') {
+            if ('rawBody' in error && typeof (error as { rawBody?: unknown }).rawBody === 'string') {
                 try {
-                    const parsed = JSON.parse(error.rawBody);
-                    if (parsed.message && typeof parsed.message === 'string') {
+                    const rawBody = (error as { rawBody: string }).rawBody;
+                    const parsed = JSON.parse(rawBody) as { message?: unknown };
+                    if (typeof parsed.message === 'string') {
                         errorMessage = parsed.message;
                     }
                 } catch (parseError) {
@@ -114,13 +115,13 @@ export async function action({ request, context }: ActionFunctionArgs): Promise<
                 }
             }
             // Only check message if we didn't find rawBody
-            else if ('message' in error && typeof error.message === 'string') {
-                const msg = error.message;
+            else if ('message' in error && typeof (error as { message?: unknown }).message === 'string') {
+                const msg = (error as { message: string }).message;
 
                 // Try to parse message as JSON
                 try {
-                    const parsed = JSON.parse(msg);
-                    if (parsed.message && typeof parsed.message === 'string') {
+                    const parsed = JSON.parse(msg) as { message?: unknown };
+                    if (typeof parsed.message === 'string') {
                         errorMessage = parsed.message;
                     }
                 } catch {

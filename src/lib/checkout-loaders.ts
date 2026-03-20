@@ -44,7 +44,7 @@ import { setAddressAndMethodForPickup } from '@/extensions/bopis/lib/api/shipmen
 import { fetchStoresForBasket } from '@/extensions/bopis/lib/api/stores';
 import { isPickupAddressSet } from '@/extensions/bopis/lib/store-utils';
 // @sfdc-extension-block-end SFDC_EXT_BOPIS
-import { isAddressEmpty } from '@/lib/address-utils';
+import { isAddressEmpty, isOrderBillingAddressIncomplete } from '@/lib/address-utils';
 
 /**
  * Checkout page data type
@@ -318,6 +318,8 @@ function shouldPrefillBasket(
     const profileCustomerId = customerProfile.customer.customerId;
     const customerMismatch = !basketCustomerId || basketCustomerId !== profileCustomerId;
     const missingShippingAddress = isAddressEmpty(basket?.shipments?.[0]?.shippingAddress);
+    const hasShippingAddressNoMethod =
+        !missingShippingAddress && basket?.shipments?.[0]?.shippingAddress && !basket?.shipments?.[0]?.shippingMethod;
     const missingPaymentInstrument = !basket?.paymentInstruments?.[0];
     const hasAddresses = !!customerProfile.addresses?.length;
 
@@ -330,6 +332,9 @@ function shouldPrefillBasket(
         return true;
     }
     if (missingShippingAddress && hasAddresses) {
+        return true;
+    }
+    if (hasShippingAddressNoMethod) {
         return true;
     }
     if (missingPaymentInstrument) {
@@ -420,45 +425,49 @@ export async function initializeBasketForReturningCustomer(
             }
         }
 
-        // Set billing address if missing
-        if (!updatedBasket.billingAddress && hasUpdates) {
-            const shippingAddr = updatedBasket.shipments?.[0]?.shippingAddress;
-            if (shippingAddr) {
-                try {
-                    const { data } = await clients.shopperBasketsV2.updateBillingAddressForBasket({
-                        params: {
-                            path: {
-                                basketId,
-                            },
+        // Set billing address if missing or only a stub (e.g. phone-only patch from contact step)
+        const shippingAddrForBilling = updatedBasket.shipments?.[0]?.shippingAddress;
+        if (
+            (!updatedBasket.billingAddress || isOrderBillingAddressIncomplete(updatedBasket.billingAddress)) &&
+            hasUpdates &&
+            shippingAddrForBilling &&
+            !isAddressEmpty(shippingAddrForBilling)
+        ) {
+            try {
+                const { data } = await clients.shopperBasketsV2.updateBillingAddressForBasket({
+                    params: {
+                        path: {
+                            basketId,
                         },
-                        body: {
-                            firstName: shippingAddr.firstName,
-                            lastName: shippingAddr.lastName,
-                            address1: shippingAddr.address1,
-                            address2: shippingAddr.address2,
-                            city: shippingAddr.city,
-                            stateCode: shippingAddr.stateCode,
-                            postalCode: shippingAddr.postalCode,
-                            countryCode: shippingAddr.countryCode,
-                            phone: shippingAddr.phone,
-                        },
-                    });
-                    updatedBasket = data;
-                    updateBasketResource(context, updatedBasket);
-                } catch {
-                    // Billing address update failed - continue without it
-                }
+                    },
+                    body: {
+                        firstName: shippingAddrForBilling.firstName,
+                        lastName: shippingAddrForBilling.lastName,
+                        address1: shippingAddrForBilling.address1,
+                        address2: shippingAddrForBilling.address2,
+                        city: shippingAddrForBilling.city,
+                        stateCode: shippingAddrForBilling.stateCode,
+                        postalCode: shippingAddrForBilling.postalCode,
+                        countryCode: shippingAddrForBilling.countryCode,
+                        phone: shippingAddrForBilling.phone,
+                    },
+                });
+                updatedBasket = data;
+                updateBasketResource(context, updatedBasket);
+            } catch {
+                // Billing address update failed - continue without it
             }
         }
 
-        // Set default shipping method if missing
-        if (
-            hasUpdates &&
-            updatedBasket.shipments?.[0]?.shippingAddress &&
-            !updatedBasket.shipments?.[0]?.shippingMethod
-        ) {
+        // Set default shipping method when shipment has address but no method (e.g. after prefill or address-only update)
+        if (updatedBasket.shipments?.[0]?.shippingAddress && !updatedBasket.shipments?.[0]?.shippingMethod) {
             try {
-                const shippingMethods = await getShippingMethodsForShipment(context, updatedBasket.basketId as string);
+                const shipmentId = updatedBasket.shipments[0].shipmentId ?? 'me';
+                const shippingMethods = await getShippingMethodsForShipment(
+                    context,
+                    updatedBasket.basketId as string,
+                    shipmentId
+                );
                 if (
                     Array.isArray(shippingMethods?.applicableShippingMethods) &&
                     shippingMethods?.applicableShippingMethods?.length > 0
@@ -476,8 +485,12 @@ export async function initializeBasketForReturningCustomer(
                     updatedBasket = data;
                     updateBasketResource(context, updatedBasket);
                 }
-            } catch {
-                // Shipping method update failed - continue without it
+            } catch (err) {
+                // eslint-disable-next-line no-console -- server-side log to debug missing shipping method in prefill
+                console.warn('Prefill: could not set default shipping method on basket', {
+                    basketId,
+                    error: err instanceof Error ? err.message : String(err),
+                });
             }
         }
 

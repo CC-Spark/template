@@ -90,6 +90,23 @@ export function isAddressEmpty(address: ShopperBasketsV2.schemas['OrderAddress']
     );
 }
 
+/**
+ * True when billing cannot satisfy SFCC order placement (e.g. phone-only stub set from contact step).
+ * Used so checkout can copy a full shipping address onto billing when this returns true.
+ */
+export function isOrderBillingAddressIncomplete(
+    address: ShopperBasketsV2.schemas['OrderAddress'] | undefined | null
+): boolean {
+    if (!address || isAddressEmpty(address)) {
+        return true;
+    }
+    const address1 = normalize(address.address1);
+    const city = normalize(address.city);
+    const postalCode = normalize(address.postalCode);
+    const countryCode = normalize(address.countryCode);
+    return address1 === '' || city === '' || postalCode === '' || countryCode === '';
+}
+
 type FormattedAddress = {
     /** Full name line (firstName + lastName). */
     nameLine: string;

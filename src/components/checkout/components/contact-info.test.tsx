@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import React from 'react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import ContactInfo from './contact-info';
 
 // Use real react-hook-form for integration tests
@@ -50,6 +52,11 @@ const buildCheckoutContext = (overrides?: Record<string, unknown>) => ({
         hasUnaddressedDeliveryItems: false,
         hasEmptyShipments: false,
         deliveryShipments: [],
+        hasPickupItems: false,
+        hasDeliveryItems: true,
+        isDeliveryProductItem: () => true,
+        enableMultiAddress: false,
+        hasMultipleDeliveryAddresses: false,
     },
     savedAddresses: [],
     setSavedAddresses: vi.fn(),
@@ -85,6 +92,8 @@ const createMockBasket = (overrides = {}) => ({
     ...overrides,
 });
 
+const otpFlowActiveRef = { current: false };
+
 const createDefaultProps = (overrides = {}) => ({
     onSubmit: vi.fn(),
     isLoading: false,
@@ -93,8 +102,26 @@ const createDefaultProps = (overrides = {}) => ({
     isEditing: true,
     onEdit: vi.fn(),
     onRegisteredUserChoseGuest: vi.fn(),
+    otpFlowActiveRef,
     ...overrides,
 });
+
+function renderWithRouter(ui: React.ReactElement) {
+    const router = createMemoryRouter(
+        [
+            {
+                path: '/',
+                element: ui,
+            },
+            {
+                path: '/action/authorize-passwordless-email',
+                action: () => ({ success: false }), // avoid opening OTP modal so form interactions work
+            },
+        ],
+        { initialEntries: ['/'], initialIndex: 0 }
+    );
+    return render(<RouterProvider router={router} />);
+}
 
 describe('ContactInfo Integration Tests', () => {
     let useBasket: ReturnType<typeof vi.fn>;
@@ -125,7 +152,7 @@ describe('ContactInfo Integration Tests', () => {
 
     describe('Basic Rendering', () => {
         test('renders contact info form in editing mode', async () => {
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 expect(screen.getByText('Contact Information')).toBeInTheDocument();
@@ -134,7 +161,7 @@ describe('ContactInfo Integration Tests', () => {
         });
 
         test('displays form in summary mode when not editing', async () => {
-            render(<ContactInfo {...createDefaultProps({ isEditing: false, isCompleted: true })} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps({ isEditing: false, isCompleted: true })} />);
 
             await waitFor(() => {
                 expect(screen.queryByPlaceholderText(/email address/i)).not.toBeInTheDocument();
@@ -144,7 +171,7 @@ describe('ContactInfo Integration Tests', () => {
 
     describe('Email Input', () => {
         test('renders email label', async () => {
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 expect(screen.getByText(/email address/i)).toBeInTheDocument();
@@ -152,7 +179,7 @@ describe('ContactInfo Integration Tests', () => {
         });
 
         test('email input is accessible via label', async () => {
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 const emailInput = screen.getByLabelText(/email address/i);
@@ -163,7 +190,7 @@ describe('ContactInfo Integration Tests', () => {
 
         test('accepts email input', async () => {
             const user = userEvent.setup();
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             const emailInput = screen.getByPlaceholderText(/email address/i);
             await user.clear(emailInput);
@@ -179,7 +206,7 @@ describe('ContactInfo Integration Tests', () => {
                 })
             );
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 const emailInput = screen.getByPlaceholderText(/email address/i);
@@ -206,7 +233,7 @@ describe('ContactInfo Integration Tests', () => {
                 })
             );
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             const emailInput = await screen.findByPlaceholderText(/email address/i);
             expect(emailInput).toHaveValue('profile@example.com');
@@ -219,7 +246,7 @@ describe('ContactInfo Integration Tests', () => {
             ]);
             useCustomerProfile.mockReturnValue(null);
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             const select = await screen.findByLabelText(/^code$/i);
             expect(select).toBeInTheDocument();
@@ -232,7 +259,7 @@ describe('ContactInfo Integration Tests', () => {
             useBasket.mockReturnValue(createMockBasket({ customerInfo: { customerId: null } }));
             useCustomerProfile.mockReturnValue(null);
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 expect(screen.getByLabelText(/^code$/i)).toBeInTheDocument();
@@ -240,21 +267,23 @@ describe('ContactInfo Integration Tests', () => {
             expect(screen.getByPlaceholderText('(000) 000-0000')).toBeInTheDocument();
         });
 
-        test('shows phone fields for logged-in users', async () => {
+        test('hides phone fields for logged-in users', async () => {
             useCustomerProfile.mockReturnValue({
                 customerId: 'customer-123',
                 email: 'user@example.com',
             });
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
-                expect(screen.getByPlaceholderText('(000) 000-0000')).toBeInTheDocument();
+                expect(screen.getByPlaceholderText(/email address/i)).toBeInTheDocument();
             });
+            expect(screen.queryByPlaceholderText('(000) 000-0000')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText(/^code$/i)).not.toBeInTheDocument();
         });
 
         test('renders country code select', async () => {
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 const countryCodeSelect = screen.getByLabelText(/^code$/i);
@@ -264,7 +293,7 @@ describe('ContactInfo Integration Tests', () => {
 
         test('allows entering phone number', async () => {
             const user = userEvent.setup();
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             const phoneInput = screen.getByPlaceholderText('(000) 000-0000');
             await user.type(phoneInput, '5551234567');
@@ -282,7 +311,7 @@ describe('ContactInfo Integration Tests', () => {
             );
             useCustomerProfile.mockReturnValue(null);
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 expect(screen.getByPlaceholderText(/email address/i)).toBeInTheDocument();
@@ -290,7 +319,7 @@ describe('ContactInfo Integration Tests', () => {
             expect(screen.getByPlaceholderText('(000) 000-0000')).toBeInTheDocument();
         });
 
-        test('handles logged-in user flow', async () => {
+        test('handles logged-in user flow (email only; phone hidden)', async () => {
             useBasket.mockReturnValue(
                 createMockBasket({
                     customerInfo: { email: 'user@example.com', customerId: 'customer-123' },
@@ -301,12 +330,12 @@ describe('ContactInfo Integration Tests', () => {
                 email: 'user@example.com',
             });
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 expect(screen.getByPlaceholderText(/email address/i)).toBeInTheDocument();
             });
-            expect(screen.getByPlaceholderText('(000) 000-0000')).toBeInTheDocument();
+            expect(screen.queryByPlaceholderText('(000) 000-0000')).not.toBeInTheDocument();
         });
     });
 
@@ -317,7 +346,7 @@ describe('ContactInfo Integration Tests', () => {
                 isCurrentUser: false,
             });
 
-            render(<ContactInfo {...createDefaultProps({ isEditing: false, isCompleted: true })} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps({ isEditing: false, isCompleted: true })} />);
 
             await waitFor(() => {
                 expect(screen.getByText(/have an account/i)).toBeInTheDocument();
@@ -330,7 +359,7 @@ describe('ContactInfo Integration Tests', () => {
                 isCurrentUser: false,
             });
 
-            render(<ContactInfo {...createDefaultProps({ isEditing: false, isCompleted: true })} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps({ isEditing: false, isCompleted: true })} />);
 
             await waitFor(() => {
                 expect(screen.queryByText(/have an account/i)).not.toBeInTheDocument();
@@ -340,7 +369,7 @@ describe('ContactInfo Integration Tests', () => {
 
     describe('Form Interaction', () => {
         test('renders submit button', async () => {
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 expect(screen.getByRole('button', { name: /continue to shipping/i })).toBeInTheDocument();
@@ -348,7 +377,7 @@ describe('ContactInfo Integration Tests', () => {
         });
 
         test('shows loading state when submitting', async () => {
-            render(<ContactInfo {...createDefaultProps({ isLoading: true })} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps({ isLoading: true })} />);
 
             await waitFor(() => {
                 const submitButton = screen.getByRole('button', { name: /saving/i });
@@ -368,7 +397,7 @@ describe('ContactInfo Integration Tests', () => {
                 })
             );
 
-            const { container } = render(<ContactInfo {...createDefaultProps({ onSubmit: handleSubmit })} />);
+            const { container } = renderWithRouter(<ContactInfo {...createDefaultProps({ onSubmit: handleSubmit })} />);
 
             const emailInput = await screen.findByPlaceholderText(/email address/i);
             await user.clear(emailInput);
@@ -399,7 +428,7 @@ describe('ContactInfo Integration Tests', () => {
 
     describe('Error Display', () => {
         test('displays form error from action data', async () => {
-            render(
+            renderWithRouter(
                 <ContactInfo
                     {...createDefaultProps({
                         actionData: {
@@ -417,7 +446,7 @@ describe('ContactInfo Integration Tests', () => {
         });
 
         test('does not display error from other steps', async () => {
-            render(
+            renderWithRouter(
                 <ContactInfo
                     {...createDefaultProps({
                         actionData: {
@@ -439,7 +468,7 @@ describe('ContactInfo Integration Tests', () => {
         test('calls onEdit when edit button is clicked', async () => {
             const user = userEvent.setup();
             const handleEdit = vi.fn();
-            render(<ContactInfo {...createDefaultProps({ isEditing: false, onEdit: handleEdit })} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps({ isEditing: false, onEdit: handleEdit })} />);
 
             const editButton = screen.getByRole('button', { name: /edit/i });
             await user.click(editButton);
@@ -460,7 +489,7 @@ describe('ContactInfo Integration Tests', () => {
             };
             useBasket.mockReturnValue(basketWithPhone);
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             // Tests the phone autofill branch - just verify component renders
             await waitFor(() => {
@@ -487,7 +516,7 @@ describe('ContactInfo Integration Tests', () => {
             };
             useCustomerProfile.mockReturnValue(currentUserProfile);
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 expect(screen.queryByText(/have an account/i)).not.toBeInTheDocument();
@@ -506,7 +535,7 @@ describe('ContactInfo Integration Tests', () => {
             // No profile (guest user) - so isCurrentUser will be false, shouldSuggestLogin true
             useCustomerProfile.mockReturnValue(null);
 
-            render(<ContactInfo {...createDefaultProps()} />);
+            renderWithRouter(<ContactInfo {...createDefaultProps()} />);
 
             await waitFor(() => {
                 // This ensures the component renders and processes login suggestion logic

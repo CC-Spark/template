@@ -77,6 +77,27 @@ export default function ShippingOptions({
     const { t } = useTranslation('checkout');
 
     const selectedMethod = cart?.shipments?.[0]?.shippingMethod;
+    // Basket may only have shippingMethod.id after prefill; resolve name/price from applicable methods for summary
+    const summaryMethod: ShippingMethod | undefined = useMemo(() => {
+        if (!selectedMethod?.id) return undefined;
+        const fromList = availableShippingMethods.find((m) => m.id === selectedMethod.id);
+        if (fromList) return fromList;
+        return {
+            id: selectedMethod.id,
+            name: selectedMethod.name ?? selectedMethod.id,
+            description: selectedMethod.description,
+            price: typeof selectedMethod.price === 'number' ? selectedMethod.price : 0,
+            estimatedArrivalTime: selectedMethod.estimatedArrivalTime ?? selectedMethod.c_estimatedArrivalTime,
+        };
+    }, [
+        selectedMethod?.id,
+        selectedMethod?.name,
+        selectedMethod?.price,
+        selectedMethod?.estimatedArrivalTime,
+        selectedMethod?.c_estimatedArrivalTime,
+        selectedMethod?.description,
+        availableShippingMethods,
+    ]);
     const summaryArrivalTime = (selectedMethod?.estimatedArrivalTime ?? selectedMethod?.c_estimatedArrivalTime) as
         | string
         | undefined;
@@ -241,7 +262,7 @@ export default function ShippingOptions({
 
             <ToggleCardSummary>
                 <div className="space-y-2">
-                    {selectedMethod ? (
+                    {summaryMethod ? (
                         <div className="space-y-2">
                             {summaryArrivalTime && (
                                 <Typography variant="small" className="text-muted-foreground">
@@ -253,10 +274,10 @@ export default function ShippingOptions({
                             <Typography variant="small" className="text-muted-foreground">
                                 {t('shippingOptions.priceAndMethod', {
                                     price:
-                                        selectedMethod.price === 0
+                                        summaryMethod.price === 0
                                             ? t('shippingOptions.free')
-                                            : `$${(selectedMethod.price ?? 0).toFixed(2)}`,
-                                    methodName: selectedMethod.name || '',
+                                            : `$${(summaryMethod.price ?? 0).toFixed(2)}`,
+                                    methodName: summaryMethod.name || summaryMethod.id,
                                 })}
                             </Typography>
                         </div>

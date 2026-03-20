@@ -19,6 +19,7 @@ import {
     getAddressKey,
     isAddressEqual,
     isAddressEmpty,
+    isOrderBillingAddressIncomplete,
     orderAddressToCustomerAddress,
     customerAddressToOrderAddress,
     formatAddress,
@@ -485,6 +486,47 @@ describe('address-utils', () => {
             } as ShopperBasketsV2.schemas['OrderAddress'];
 
             expect(isAddressEmpty(address)).toBe(false);
+        });
+    });
+
+    describe('isOrderBillingAddressIncomplete', () => {
+        it('returns true for null/undefined', () => {
+            expect(isOrderBillingAddressIncomplete(null)).toBe(true);
+            expect(isOrderBillingAddressIncomplete(undefined)).toBe(true);
+        });
+
+        it('returns true for phone-only stub (contact step)', () => {
+            expect(
+                isOrderBillingAddressIncomplete({
+                    phone: '+1 (555) 123-4567',
+                } as ShopperBasketsV2.schemas['OrderAddress'])
+            ).toBe(true);
+        });
+
+        it('returns true when a core field is missing', () => {
+            expect(
+                isOrderBillingAddressIncomplete({
+                    address1: '1 Main',
+                    city: 'Austin',
+                    postalCode: '',
+                    countryCode: 'US',
+                } as ShopperBasketsV2.schemas['OrderAddress'])
+            ).toBe(true);
+        });
+
+        it('returns false for a typical complete billing address', () => {
+            expect(
+                isOrderBillingAddressIncomplete({
+                    firstName: 'Jane',
+                    lastName: 'Doe',
+                    address1: '10 Oak',
+                    city: 'Austin',
+                    stateCode: 'TX',
+                    postalCode: '78701',
+                    countryCode: 'US',
+                    phone: '555-0100',
+                })
+            ).toBe(false);
         });
     });
 

@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 import type { RouterContextProvider } from 'react-router';
+import { getConfig } from '@salesforce/storefront-next-runtime/config';
 import { ensureBasketId, updateBasketResource } from '@/middlewares/basket.server';
+import { authorizePasswordless } from '@/middlewares/auth.server';
 import { extractResponseError } from '@/lib/utils';
 import { createApiClients } from '@/lib/api-clients';
 import { ApiError } from '@salesforce/storefront-next-runtime/scapi';
 import { createContactInfoSchema, parseContactInfoFromFormData } from '@/lib/checkout-schemas';
 import { customerLookup } from '@/lib/api/customer';
 import { updateBillingAddressForBasket } from '@/lib/api/basket';
+import { isOrderBillingAddressIncomplete } from '@/lib/address-utils';
 import { getTranslation } from '@/lib/i18next';
+import type { AppConfig } from '@/types/config';
 
 /**
  * Server action for submitting checkout contact information.
@@ -129,19 +133,31 @@ export async function action(formData: FormData, context: RouterContextProvider)
         );
     }
 
-    // Save phone to billing address so it persists for payment step
+    // Save phone on billing only when billing already has a full street address. Patching phone alone creates a
+    // stub that blocks shipping→billing sync and can make createOrder fail with an invalid billing address.
     if (fullPhone && updatedBasket) {
         try {
-            const existingBilling = updatedBasket.billingAddress ?? {};
-            const billingWithPhone = { ...existingBilling, phone: fullPhone };
-            const billingBasket = await updateBillingAddressForBasket(context, basketId, billingWithPhone);
-            updatedBasket = { ...updatedBasket, billingAddress: billingBasket.billingAddress };
-            updateBasketResource(context, updatedBasket);
+            const existingBilling = updatedBasket.billingAddress;
+            if (existingBilling && !isOrderBillingAddressIncomplete(existingBilling)) {
+                const billingWithPhone = { ...existingBilling, phone: fullPhone };
+                const billingBasket = await updateBillingAddressForBasket(context, basketId, billingWithPhone);
+                updatedBasket = { ...updatedBasket, billingAddress: billingBasket.billingAddress };
+                updateBasketResource(context, updatedBasket);
+            }
         } catch {
             // Non-blocking: phone on billing is supplemental
         }
     }
 
+    // Send OTP for passwordless login when shopper enters email (mode=email). Non-blocking.
+    const appConfig = getConfig<AppConfig>(context);
+    if (appConfig.features?.passwordlessLogin?.enabled && email?.trim()) {
+        try {
+            await authorizePasswordless(context, { userid: email.trim() });
+        } catch {
+            // Do not fail contact step if OTP send fails (e.g. SLAS error, config)
+        }
+    }
     return Response.json({
         success: true,
         step: 'contactInfo',

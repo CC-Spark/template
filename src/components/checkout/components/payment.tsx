@@ -25,6 +25,7 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { useBasket } from '@/providers/basket';
 import { createPaymentSchema, getPaymentDefaultValues, type PaymentData } from '@/lib/checkout-schemas';
 import { getCardTypeDisplay, getLastFourDigits } from '@/lib/payment-utils';
+import { getAddressKey, isOrderBillingAddressIncomplete } from '@/lib/address-utils';
 import { getCardIcon } from '@/lib/card-icon-utils';
 import { useCustomerProfile } from '@/hooks/checkout/use-customer-profile';
 import { getPaymentMethodsFromCustomer } from '@/lib/customer-profile-utils';
@@ -187,13 +188,38 @@ export default function Payment({
         });
 
         const isUsingSavedPayment = paymentRadioValue !== 'new' && savedPaymentMethods.length > 0;
+
+        // Default "same as shipping" ON for delivery checkout, but OFF when the basket already has a complete
+        // billing address that differs from shipping — avoids submitting with true and overwriting that address.
+        const basketHasDistinctBilling = Boolean(
+            showBillingSameAsShipping &&
+                billingAddress &&
+                !isOrderBillingAddressIncomplete(billingAddress) &&
+                shippingAddress &&
+                !isBillingSameAsShipping(billingAddress, shippingAddress)
+        );
+        const defaultBillingSameAsShipping = showBillingSameAsShipping ? !basketHasDistinctBilling : false;
+
         const computedDefaults = {
             ...baseDefaults,
             // Do not pre-fill cardholder name; user enters it when adding a new card.
             cardholderName: '',
             useSavedPaymentMethod: isUsingSavedPayment,
             selectedSavedPaymentMethod: isUsingSavedPayment ? paymentRadioValue : undefined,
-            billingSameAsShipping: showBillingSameAsShipping ? baseDefaults.billingSameAsShipping : false,
+            billingSameAsShipping: defaultBillingSameAsShipping,
+            ...(basketHasDistinctBilling && billingAddress
+                ? {
+                      billingFirstName: billingAddress.firstName ?? '',
+                      billingLastName: billingAddress.lastName ?? '',
+                      billingAddress1: billingAddress.address1 ?? '',
+                      billingAddress2: billingAddress.address2 ?? '',
+                      billingCity: billingAddress.city ?? '',
+                      billingStateCode: billingAddress.stateCode ?? '',
+                      billingPostalCode: billingAddress.postalCode ?? '',
+                      billingPhone: billingAddress.phone ?? '',
+                      billingCountryCode: billingAddress.countryCode ?? 'US',
+                  }
+                : {}),
             // @sfdc-extension-block-start SFDC_EXT_BOPIS
             // For BOPIS orders, don't pre-fill billing address or cardholder name from shipping (which is the store address)
             ...(!showBillingSameAsShipping && {
@@ -212,7 +238,14 @@ export default function Payment({
         };
 
         return computedDefaults;
-    }, [paymentRadioValue, shippingAddress, paymentMethod, savedPaymentMethods.length, showBillingSameAsShipping]);
+    }, [
+        paymentRadioValue,
+        shippingAddress,
+        paymentMethod,
+        savedPaymentMethods.length,
+        showBillingSameAsShipping,
+        billingAddress,
+    ]);
 
     const schema = useMemo(() => createPaymentSchema(t), [t]);
 
@@ -221,6 +254,27 @@ export default function Payment({
         defaultValues,
         mode: 'onSubmit', // Only validate on submit, not on change/blur
     });
+
+    const shippingAddressSyncKey = useMemo(
+        () => (shippingAddress ? getAddressKey(shippingAddress) : ''),
+        [shippingAddress]
+    );
+
+    // Keep billing fields aligned with cart shipping while "same as shipping" is checked (e.g. after OTP / loader prefill).
+    const billingSameAsShippingWatched = form.watch('billingSameAsShipping');
+    useEffect(() => {
+        if (!showBillingSameAsShipping || !shippingAddress || !shippingAddressSyncKey) return;
+        if (!billingSameAsShippingWatched) return;
+        form.setValue('billingFirstName', shippingAddress.firstName ?? '');
+        form.setValue('billingLastName', shippingAddress.lastName ?? '');
+        form.setValue('billingAddress1', shippingAddress.address1 ?? '');
+        form.setValue('billingAddress2', shippingAddress.address2 ?? '');
+        form.setValue('billingCity', shippingAddress.city ?? '');
+        form.setValue('billingStateCode', shippingAddress.stateCode ?? '');
+        form.setValue('billingPostalCode', shippingAddress.postalCode ?? '');
+        form.setValue('billingPhone', shippingAddress.phone ?? '');
+        form.setValue('billingCountryCode', shippingAddress.countryCode ?? 'US');
+    }, [showBillingSameAsShipping, shippingAddress, shippingAddressSyncKey, billingSameAsShippingWatched, form]);
 
     // Update form values when selected payment method changes
     useEffect(() => {

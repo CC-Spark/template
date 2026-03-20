@@ -165,6 +165,7 @@ export default function CheckoutFormPage({
         shouldPlaceOrderAfterPayment: false,
         options: null,
     });
+    const otpFlowActiveRef = useRef(false);
 
     // Checkout actions hook with all fetchers and submission handlers
     const {
@@ -180,7 +181,7 @@ export default function CheckoutFormPage({
         placeOrderFetcher,
         isSubmitting,
         handleCreateAccountPreferenceChange,
-    } = useCheckoutActions({ paymentSubmissionRef });
+    } = useCheckoutActions({ paymentSubmissionRef, otpFlowActiveRef });
 
     let showAddressAndOptions = true;
 
@@ -268,7 +269,13 @@ export default function CheckoutFormPage({
         // shoppers who changed from the default to another saved card or new payment get their
         // selection applied (step may be PLACE_ORDER when Place Order is visible).
         const paymentData = paymentSubmissionRef.current.formDataGetter?.();
-        if (paymentData) {
+        const basketAlreadyHasPayment = Boolean(cart?.paymentInstruments?.[0]);
+        // Only POST payment before place order when the basket still has no instrument and the user is
+        // in the payment step flow. If the basket already has an instrument, place order directly — avoids
+        // re-submitting when `editingStep` is still PAYMENT after a successful sync (duplicate POST / 400).
+        const inPaymentStepFlow = editingStep === STEPS.PAYMENT || step === STEPS.PAYMENT;
+
+        if (paymentData && !basketAlreadyHasPayment && inPaymentStepFlow) {
             paymentSubmissionRef.current.shouldPlaceOrderAfterPayment = true;
             paymentSubmissionRef.current.options = { savePaymentToProfile: paymentData.savePaymentToProfile ?? false };
             submitPayment(paymentData);
@@ -363,7 +370,7 @@ export default function CheckoutFormPage({
             {...shippingAddressState}
         />
     );
-    const defaultShipmentId = 'me';
+    const defaultShipmentId = cart?.shipments?.[0]?.shipmentId ?? 'me';
     let shippingOptionsComponent = (
         <ShippingOptions
             onSubmit={handleShippingOptionsSubmit}
@@ -471,6 +478,7 @@ export default function CheckoutFormPage({
                                         onSubmit={handleContactSubmit}
                                         isLoading={isSubmitting('contact')}
                                         actionData={contactFetcher.data}
+                                        otpFlowActiveRef={otpFlowActiveRef}
                                         {...contactInfoState}
                                     />
                                 )}

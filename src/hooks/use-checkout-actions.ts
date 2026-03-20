@@ -84,9 +84,14 @@ export type PaymentSubmissionRef = MutableRefObject<{
  * @returns paymentFetcher - React Router fetcher for payment requests
  * @returns isSubmitting - Function to check if a specific step is submitting
  */
+/** When true, contact step should not advance (e.g. OTP modal is open or authorize in flight). */
+export type OtpFlowActiveRef = MutableRefObject<boolean>;
+
 export function useCheckoutActions(options?: {
     paymentSubmissionRef?: PaymentSubmissionRef;
     placeOrderOptionsRef?: PlaceOrderOptionsRef;
+    /** When .current is true, do not advance from contact step after submit (OTP modal flow). */
+    otpFlowActiveRef?: OtpFlowActiveRef;
 }) {
     const { exitEditMode, editingStep } = useCheckoutContext();
     const updateBasket = useBasketUpdater();
@@ -156,6 +161,11 @@ export function useCheckoutActions(options?: {
 
         const fetcher = fetcherMap[step];
         if (!fetcher?.data?.success) {
+            return;
+        }
+
+        // Do not advance from contact step when OTP modal is open or authorize is in flight
+        if (step === CHECKOUT_STEPS.CONTACT_INFO && options?.otpFlowActiveRef?.current) {
             return;
         }
 
