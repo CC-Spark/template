@@ -47,18 +47,23 @@ const meta: Meta<typeof CartSkeleton> = {
         docs: {
             description: {
                 component: `
-Skeleton component for the empty cart state. Provides loading placeholders that mirror the CartEmpty component layout.
+Skeleton loading state for the CartContent component. Mirrors the cart page layout with placeholder elements while data is being fetched.
 
 ## Features
 
-- **Header Placeholder**: Skeleton for the cart page title
-- **Item Skeletons**: Product image, details, and quantity controls
-- **Summary Skeletons**: Order summary with promo and totals
-- **Responsive Design**: Matches the cart layout across breakpoints
+- **Breadcrumb Placeholder**: Skeleton for Home > Cart breadcrumb navigation
+- **Product Item Skeletons**: Flex-based layout matching ProductItem — image thumbnail, name, variation attributes, delivery badge, price, quantity picker, and action row (gift checkbox + Edit/Remove/Add to Wishlist)
+- **Order Summary Skeleton**: Card matching OrderSummary layout — summary rows, separator, estimated total, promo code accordion, checkout button, and payment method icons
+- **Responsive Design**: Desktop shows grid (66% items + 33% summary); mobile shows stacked layout
+- **Empty State**: Shows CartEmptySkeleton with icon, message, and action button placeholders
 
-## Usage
+## Layout Matching
 
-Used as a loading fallback when the cart page is hydrating and the cart is empty.
+The skeleton mirrors the CartContent composed layout:
+- **Desktop**: Breadcrumb → Grid with product items card (left) and OrderSummary card (right, sticky)
+- **Mobile**: Breadcrumb → Product items card (OrderSummary hidden on mobile in skeleton)
+- **Product Item**: Image (24×24 mobile, 28×28 desktop) + details column + desktop right column (delivery badge, price, quantity)
+- **Actions Row**: Gift checkbox skeleton + Edit/Remove/Add to Wishlist link skeletons
                 `,
             },
         },
@@ -102,13 +107,13 @@ export const Default: Story = {
         docs: {
             description: {
                 story: `
-Default skeleton state for guest users. Shows:
+Default skeleton state with 1 product item. Shows:
 
-- Cart page title placeholder
-- Product item skeletons with image and controls
-- Order summary skeleton layout
+- Breadcrumb placeholder (Home > Cart)
+- Product item skeleton with flex layout (image, details, delivery badge, price, quantity, actions)
+- Order summary skeleton card with totals, promo code, checkout button, and payment icons
 
-This is the loading state shown before the actual empty cart content loads.
+This is the loading state shown before the cart data loads.
                 `,
             },
         },
@@ -129,11 +134,11 @@ export const GuestUser: Story = {
         docs: {
             description: {
                 story: `
-Skeleton state for guest users. Demonstrates:
+Skeleton state for guest users with 1 product item. Verifies:
 
-- Cart page title placeholder
-- Product item skeletons with image and controls
-- Order summary skeleton layout
+- Breadcrumb, product item, and order summary skeletons render
+- Product image skeleton has rounded-lg class
+- Order summary checkout button skeleton is present
                 `,
             },
         },
@@ -144,12 +149,12 @@ Skeleton state for guest users. Demonstrates:
         await expect(container).toBeInTheDocument();
 
         if (args.productItemCount && args.productItemCount > 0) {
-            const titleSkeleton = canvasElement.querySelector('.h-8.w-48');
-            await expect(titleSkeleton).toBeInTheDocument();
+            // Breadcrumb skeleton
+            const breadcrumb = canvasElement.querySelector('.my-6');
+            await expect(breadcrumb).toBeInTheDocument();
+            // Product image skeleton
             const imageSkeleton = canvasElement.querySelector('.aspect-square');
             await expect(imageSkeleton).toBeInTheDocument();
-            const summaryTitle = canvasElement.querySelector('.h-7.w-28');
-            await expect(summaryTitle).toBeInTheDocument();
         } else {
             const emptyCard = canvasElement.querySelector('.max-w-md.mx-auto');
             await expect(emptyCard).toBeInTheDocument();
@@ -166,11 +171,10 @@ export const RegisteredUser: Story = {
         docs: {
             description: {
                 story: `
-Skeleton state for registered/logged-in users. Shows:
+Skeleton state for registered/logged-in users with 1 product item. Shows:
 
-- Cart page title placeholder
-- Product item skeletons with image and controls
-- Order summary skeleton layout
+- Breadcrumb, product item, and order summary skeletons
+- Same layout as guest user (registration only affects empty cart state)
                 `,
             },
         },
@@ -181,12 +185,10 @@ Skeleton state for registered/logged-in users. Shows:
         await expect(container).toBeInTheDocument();
 
         if (args.productItemCount && args.productItemCount > 0) {
-            const titleSkeleton = canvasElement.querySelector('.h-8.w-48');
-            await expect(titleSkeleton).toBeInTheDocument();
+            const breadcrumb = canvasElement.querySelector('.my-6');
+            await expect(breadcrumb).toBeInTheDocument();
             const imageSkeleton = canvasElement.querySelector('.aspect-square');
             await expect(imageSkeleton).toBeInTheDocument();
-            const promoButton = canvasElement.querySelector('.h-9.w-full');
-            await expect(promoButton).toBeInTheDocument();
         } else {
             const emptyCard = canvasElement.querySelector('.max-w-md.mx-auto');
             await expect(emptyCard).toBeInTheDocument();
@@ -252,6 +254,34 @@ Empty cart skeleton for registered/logged-in users. Shows:
     },
 };
 
+export const MultipleItems: Story = {
+    args: {
+        isRegistered: false,
+        productItemCount: 3,
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: `
+Skeleton with 3 product items. Demonstrates:
+
+- Multiple product item skeletons stacked in the items card
+- Each item has the full flex layout (image, details, delivery badge, price, quantity, actions)
+- Order summary skeleton remains the same regardless of item count
+                `,
+            },
+        },
+    },
+    play: async ({ canvasElement }) => {
+        await waitForStorybookReady(canvasElement);
+        const container = canvasElement.querySelector('[data-testid="sf-cart-skeleton"]');
+        await expect(container).toBeInTheDocument();
+        // Should have 3 product image skeletons
+        const imageSkeletons = canvasElement.querySelectorAll('.aspect-square');
+        await expect(imageSkeletons.length).toBe(3);
+    },
+};
+
 export const MobileView: Story = {
     args: {
         isRegistered: false,
@@ -261,11 +291,11 @@ export const MobileView: Story = {
         docs: {
             description: {
                 story: `
-Skeleton state on mobile devices. Demonstrates:
+Skeleton on mobile viewport. Demonstrates:
 
-- Responsive card layout on small screens
-- Proper spacing for mobile display
-- Full-width button placeholders
+- Stacked layout with breadcrumb and product card
+- Mobile product item skeleton with inline delivery badge, price, and quantity
+- Order summary hidden on mobile (matches CartContent mobile behavior)
                 `,
             },
         },
@@ -289,11 +319,10 @@ export const TabletView: Story = {
         docs: {
             description: {
                 story: `
-Skeleton state on tablet devices. Shows:
+Skeleton on tablet viewport. Shows:
 
-- Medium screen layout optimization
-- Balanced spacing and sizing
-- Proper card proportions for tablet screens
+- Medium screen layout with product card and order summary side by side
+- Tablet-optimized spacing and proportions
                 `,
             },
         },
@@ -317,11 +346,11 @@ export const DesktopView: Story = {
         docs: {
             description: {
                 story: `
-Skeleton state on desktop devices. Demonstrates:
+Skeleton on desktop viewport. Demonstrates:
 
-- Large screen layout with centered card
-- Optimal spacing and proportions
-- Full desktop skeleton experience
+- Full grid layout with product items card (66%) and sticky order summary card (33%)
+- Desktop product item skeleton with right column (delivery badge, price, quantity)
+- Breadcrumb and all sections visible
                 `,
             },
         },
