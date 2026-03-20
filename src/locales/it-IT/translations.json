@@ -404,6 +404,8 @@
         "addressModal": {
             "title": "Aggiungi indirizzo",
             "editTitle": "Modifica indirizzo",
+            "description": "Inserisci il tuo indirizzo di spedizione nel modulo sottostante.",
+            "editDescription": "Aggiorna il tuo indirizzo di spedizione nel modulo sottostante.",
             "cancel": "Annulla",
             "save": "Salva",
             "saving": "Salvataggio..."

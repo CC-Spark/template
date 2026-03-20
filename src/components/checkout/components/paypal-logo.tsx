@@ -22,12 +22,21 @@ import { useTranslation } from 'react-i18next';
  * Official PayPal wordmark logo matching SDK button appearance
  * Uses local PayPal SVG file from public/images
  */
-export default function PayPalLogo({ className }: { className?: string }) {
+export default function PayPalLogo({
+    className,
+    decorative = false,
+}: {
+    className?: string;
+    /** When true, image is hidden from the accessibility tree (use inside a button that has aria-label). */
+    decorative?: boolean;
+}) {
     const { t } = useTranslation('checkout');
+    const label = t('expressPayments.payPalLabel') || 'PayPal';
     return (
         <img
             src={paypalLogo}
-            alt={t('expressPayments.payPalLabel') || 'PayPal'}
+            alt={decorative ? '' : label}
+            {...(decorative ? { 'aria-hidden': true } : {})}
             className={`${className || ''} h-4 w-auto`}
             style={{ objectFit: 'contain' }}
         />

@@ -140,9 +140,17 @@ describe('AddressModal', () => {
     test('has accessible dialog with aria-labelledby and aria-describedby', () => {
         render(<AddressModal open={true} onOpenChange={vi.fn()} />);
         const dialog = screen.getByRole('dialog');
-        expect(dialog).toHaveAttribute('aria-labelledby', 'address-modal-title');
-        expect(dialog).toHaveAttribute('aria-describedby', 'address-modal-desc');
-        expect(screen.getByRole('heading', { name: 'Add Address' })).toHaveAttribute('id', 'address-modal-title');
+        const labelledBy = dialog.getAttribute('aria-labelledby');
+        const describedBy = dialog.getAttribute('aria-describedby');
+        expect(labelledBy).toBeTruthy();
+        expect(describedBy).toBeTruthy();
+        const titleEl = labelledBy ? document.getElementById(labelledBy) : null;
+        const descEl = describedBy ? document.getElementById(describedBy) : null;
+        expect(titleEl).not.toBeNull();
+        expect(titleEl).toHaveTextContent('Add Address');
+        expect(descEl).not.toBeNull();
+        expect(descEl).toHaveTextContent(/shipping address/i);
+        expect(screen.getByRole('heading', { name: 'Add Address' })).toBeInTheDocument();
     });
 
     test('shows addressId field when showAddressId is true', () => {

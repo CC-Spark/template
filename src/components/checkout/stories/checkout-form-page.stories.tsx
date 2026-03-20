@@ -31,6 +31,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { checkoutStrictA11yParameters } from '@/components/checkout/storybook/checkout-strict-a11y-parameters';
 
 // import { cn } from '@/lib/utils';
 // Create a mock checkout form page component that matches the exact production look
@@ -759,6 +760,7 @@ const meta: Meta<typeof MockCheckoutFormPage> = {
     component: MockCheckoutFormPage,
     tags: ['autodocs', 'interaction'],
     parameters: {
+        ...checkoutStrictA11yParameters,
         layout: 'fullscreen',
         docs: {
             description: {

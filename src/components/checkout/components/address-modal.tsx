@@ -21,11 +21,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { AddressFormFields } from '@/components/address-form-fields';
+import { AddressModalFormFields } from './address-modal-form-fields';
 import { createShippingAddressSchema } from '@/lib/checkout-schemas';
 import { usPostalCodeRegex, canadianPostalCodeRegex } from '@/components/customer-address-form/constants';
 import type { ShopperCustomers } from '@salesforce/storefront-next-runtime/scapi';
@@ -111,7 +118,7 @@ export interface AddressModalProps {
  * Address modal for adding a new shipping address during checkout.
  *
  * Supports both single-address checkout and multi-address (multiship) scenarios
- * through configurable props. Uses the shared AddressFormFields component for
+ * through configurable props. Uses checkout-local AddressModalFormFields for
  * consistent address entry with Google Maps autocomplete support.
  */
 export function AddressModal({
@@ -212,21 +219,21 @@ export function AddressModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
+            {/* Radix Content uses an internal titleId for aria-labelledby; setting id on DialogTitle overrides the DOM id only, so we align labelledby for E2E and AT. */}
             <DialogContent
                 className="w-full max-w-[calc(100%-2rem)] sm:min-w-[32rem] sm:max-w-2xl border border-border rounded-lg bg-card shadow-lg gap-0 p-0 overflow-hidden"
                 showCloseButton
-                aria-labelledby="address-modal-title"
-                aria-describedby="address-modal-desc">
+                aria-labelledby="address-modal-title">
                 <DialogHeader className="pt-6 px-6 pb-0 gap-1.5 text-left">
                     <DialogTitle
                         id="address-modal-title"
                         className="text-lg font-semibold leading-[1.2] tracking-tight text-card-foreground">
                         {isEditMode ? t('addressModal.editTitle') : t('addressModal.title')}
                     </DialogTitle>
+                    <DialogDescription className="sr-only">
+                        {isEditMode ? t('addressModal.editDescription') : t('addressModal.description')}
+                    </DialogDescription>
                 </DialogHeader>
-                <p id="address-modal-desc" className="sr-only">
-                    {isEditMode ? t('addressModal.editTitle') : t('addressModal.title')}
-                </p>
                 <Form {...form}>
                     <form
                         id="address-modal-form"
@@ -253,7 +260,7 @@ export function AddressModal({
                                     )}
                                 />
                             )}
-                            <AddressFormFields<Partial<ShopperCustomers.schemas['CustomerAddress']>>
+                            <AddressModalFormFields<Partial<ShopperCustomers.schemas['CustomerAddress']>>
                                 form={form}
                                 showPhone={showPhone}
                                 showCountry={showCountry}

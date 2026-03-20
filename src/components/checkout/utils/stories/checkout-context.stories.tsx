@@ -21,6 +21,7 @@ import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { CheckoutContext, type CustomerProfile } from '../checkout-context-types';
 import { Button } from '@/components/ui/button';
+import { checkoutStrictA11yParameters } from '@/components/checkout/storybook/checkout-strict-a11y-parameters';
 
 // Consumer component to demonstrate context usage
 function CheckoutContextConsumer() {
@@ -128,6 +129,7 @@ const meta: Meta<typeof CheckoutProvider> = {
     component: CheckoutProvider,
     tags: ['autodocs', 'interaction'],
     parameters: {
+        ...checkoutStrictA11yParameters,
         layout: 'padded',
         docs: {
             description: {

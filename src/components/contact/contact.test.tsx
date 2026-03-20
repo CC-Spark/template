@@ -22,7 +22,10 @@ import { AllProvidersWrapper } from '@/test-utils/context-provider';
 import Contact from './index';
 
 const { t } = getTranslation();
-const mockAddToast = vi.fn();
+
+const { mockToastSuccess } = vi.hoisted(() => ({
+    mockToastSuccess: vi.fn(),
+}));
 
 vi.mock('react-i18next', () => ({
     useTranslation: (namespace?: string | string[]) => ({
@@ -37,9 +40,10 @@ vi.mock('react-i18next', () => ({
     }),
 }));
 
-vi.mock('@/components/toast', () => ({
-    useToast: () => ({
-        addToast: mockAddToast,
+vi.mock('sonner', () => ({
+    toast: Object.assign(vi.fn(), {
+        success: mockToastSuccess,
+        dismiss: vi.fn(),
     }),
 }));
 
@@ -115,7 +119,17 @@ describe('Contact', () => {
         await user.type(messageInput, 'Hello there');
 
         await user.click(screen.getByRole('button', { name: t('aboutUs:contact.form.submit') })); // Submit the form
-        expect(mockAddToast).toHaveBeenCalledWith(t('aboutUs:contact.toast.success'), 'success');
+        expect(mockToastSuccess).toHaveBeenCalledWith(
+            t('aboutUs:contact.toast.success'),
+            expect.objectContaining({
+                duration: 5000,
+                unstyled: true,
+                classNames: expect.any(Object) as unknown,
+                action: expect.objectContaining({
+                    label: 'Close',
+                }) as unknown,
+            })
+        );
     });
 
     test('clears the form after submit', async () => {

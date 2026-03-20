@@ -19,11 +19,13 @@ import { action } from 'storybook/actions';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { useState } from 'react';
 import { AddressModal } from '../address-modal';
+import { checkoutStrictA11yParameters } from '@/components/checkout/storybook/checkout-strict-a11y-parameters';
 
 const meta: Meta<typeof AddressModal> = {
     title: 'CHECKOUT/AddressModal',
     component: AddressModal,
     parameters: {
+        ...checkoutStrictA11yParameters,
         layout: 'padded',
         docs: {
             description: {

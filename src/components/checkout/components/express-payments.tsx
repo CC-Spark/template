@@ -187,7 +187,9 @@ export default function ExpressPayments({
             {/* Left line */}
             <div className="flex-1 h-[2px] bg-separator" />
             {/* Text */}
-            <span className="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap">
+            <span
+                className="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+                data-express-payments-separator-label="">
                 {separatorText}
             </span>
             {/* Right line */}
@@ -209,7 +211,7 @@ export default function ExpressPayments({
                     className="w-full h-12 bg-foreground hover:bg-foreground/90 text-background border-0 rounded-lg flex items-center justify-center transition-colors"
                     size="lg"
                     aria-label={applePayLabel}>
-                    <ApplePayLogo className="flex-shrink-0" />
+                    <ApplePayLogo className="flex-shrink-0" decorative />
                 </Button>
 
                 {/* Google Pay Button */}
@@ -219,7 +221,7 @@ export default function ExpressPayments({
                     className="w-full h-12 bg-background hover:bg-muted text-foreground border-2 border-border hover:border-primary transition-colors rounded-lg flex items-center justify-center"
                     size="lg"
                     aria-label={googlePayLabel}>
-                    <GooglePayLogo className="flex-shrink-0" />
+                    <GooglePayLogo className="flex-shrink-0" decorative />
                 </Button>
 
                 {/* Amazon Pay Button - Official Amazon Pay styling per iOS documentation */}
@@ -232,9 +234,10 @@ export default function ExpressPayments({
                     {/* Amazon Pay Official Logo from https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg */}
                     <img
                         src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
-                        alt={amazonPayLabel}
+                        alt=""
                         width="62"
                         height="20"
+                        aria-hidden
                         className="h-5"
                         style={{ objectFit: 'contain' }}
                     />

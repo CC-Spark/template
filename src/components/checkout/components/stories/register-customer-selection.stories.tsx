@@ -19,6 +19,7 @@ import { action } from 'storybook/actions';
 import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'react';
 import { expect, within, userEvent } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
+import { checkoutStrictA11yParameters } from '@/components/checkout/storybook/checkout-strict-a11y-parameters';
 
 const REGISTER_HARNESS_ATTR = 'data-register-harness';
 
@@ -58,6 +59,7 @@ const meta: Meta<typeof RegisterCustomerSelection> = {
     component: RegisterCustomerSelection,
     tags: ['autodocs', 'interaction'],
     parameters: {
+        ...checkoutStrictA11yParameters,
         layout: 'padded',
         docs: {
             description: {

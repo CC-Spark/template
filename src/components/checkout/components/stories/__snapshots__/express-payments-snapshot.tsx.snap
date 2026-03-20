@@ -17,7 +17,8 @@ exports[`ExpressPayments stories snapshot > CustomSeparatorText story renders an
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -33,7 +34,8 @@ exports[`ExpressPayments stories snapshot > CustomSeparatorText story renders an
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -49,7 +51,8 @@ exports[`ExpressPayments stories snapshot > CustomSeparatorText story renders an
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -65,7 +68,8 @@ exports[`ExpressPayments stories snapshot > CustomSeparatorText story renders an
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -79,7 +83,8 @@ exports[`ExpressPayments stories snapshot > CustomSeparatorText story renders an
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -93,7 +98,8 @@ exports[`ExpressPayments stories snapshot > CustomSeparatorText story renders an
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or continue with card
       </span>
@@ -122,7 +128,8 @@ exports[`ExpressPayments stories snapshot > Default story renders and matches sn
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -138,7 +145,8 @@ exports[`ExpressPayments stories snapshot > Default story renders and matches sn
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -154,7 +162,8 @@ exports[`ExpressPayments stories snapshot > Default story renders and matches sn
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -170,7 +179,8 @@ exports[`ExpressPayments stories snapshot > Default story renders and matches sn
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -184,7 +194,8 @@ exports[`ExpressPayments stories snapshot > Default story renders and matches sn
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -198,7 +209,8 @@ exports[`ExpressPayments stories snapshot > Default story renders and matches sn
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or
       </span>
@@ -228,7 +240,8 @@ exports[`ExpressPayments stories snapshot > Disabled story renders and matches s
         disabled=""
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -245,7 +258,8 @@ exports[`ExpressPayments stories snapshot > Disabled story renders and matches s
         disabled=""
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -262,7 +276,8 @@ exports[`ExpressPayments stories snapshot > Disabled story renders and matches s
         disabled=""
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -279,7 +294,8 @@ exports[`ExpressPayments stories snapshot > Disabled story renders and matches s
         disabled=""
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -294,7 +310,8 @@ exports[`ExpressPayments stories snapshot > Disabled story renders and matches s
         disabled=""
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -308,7 +325,8 @@ exports[`ExpressPayments stories snapshot > Disabled story renders and matches s
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or
       </span>
@@ -333,7 +351,8 @@ exports[`ExpressPayments stories snapshot > SeparatorAtTop story renders and mat
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or
       </span>
@@ -352,7 +371,8 @@ exports[`ExpressPayments stories snapshot > SeparatorAtTop story renders and mat
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -368,7 +388,8 @@ exports[`ExpressPayments stories snapshot > SeparatorAtTop story renders and mat
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -384,7 +405,8 @@ exports[`ExpressPayments stories snapshot > SeparatorAtTop story renders and mat
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -400,7 +422,8 @@ exports[`ExpressPayments stories snapshot > SeparatorAtTop story renders and mat
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -414,7 +437,8 @@ exports[`ExpressPayments stories snapshot > SeparatorAtTop story renders and mat
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -442,7 +466,8 @@ exports[`ExpressPayments stories snapshot > VenmoEligibility story renders and m
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -458,7 +483,8 @@ exports[`ExpressPayments stories snapshot > VenmoEligibility story renders and m
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -474,7 +500,8 @@ exports[`ExpressPayments stories snapshot > VenmoEligibility story renders and m
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -490,7 +517,8 @@ exports[`ExpressPayments stories snapshot > VenmoEligibility story renders and m
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -504,7 +532,8 @@ exports[`ExpressPayments stories snapshot > VenmoEligibility story renders and m
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -518,7 +547,8 @@ exports[`ExpressPayments stories snapshot > VenmoEligibility story renders and m
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or
       </span>
@@ -547,7 +577,8 @@ exports[`ExpressPayments stories snapshot > VerticalLayout story renders and mat
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -563,7 +594,8 @@ exports[`ExpressPayments stories snapshot > VerticalLayout story renders and mat
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -579,7 +611,8 @@ exports[`ExpressPayments stories snapshot > VerticalLayout story renders and mat
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -595,7 +628,8 @@ exports[`ExpressPayments stories snapshot > VerticalLayout story renders and mat
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -609,7 +643,8 @@ exports[`ExpressPayments stories snapshot > VerticalLayout story renders and mat
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -623,7 +658,8 @@ exports[`ExpressPayments stories snapshot > VerticalLayout story renders and mat
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or
       </span>
@@ -648,7 +684,8 @@ exports[`ExpressPayments stories snapshot > VerticalWithTopSeparator story rende
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Express checkout
       </span>
@@ -667,7 +704,8 @@ exports[`ExpressPayments stories snapshot > VerticalWithTopSeparator story rende
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -683,7 +721,8 @@ exports[`ExpressPayments stories snapshot > VerticalWithTopSeparator story rende
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -699,7 +738,8 @@ exports[`ExpressPayments stories snapshot > VerticalWithTopSeparator story rende
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -715,7 +755,8 @@ exports[`ExpressPayments stories snapshot > VerticalWithTopSeparator story rende
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -729,7 +770,8 @@ exports[`ExpressPayments stories snapshot > VerticalWithTopSeparator story rende
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -757,7 +799,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKError story renders and
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -773,7 +816,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKError story renders and
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -789,7 +833,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKError story renders and
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -805,7 +850,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKError story renders and
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -819,7 +865,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKError story renders and
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -833,7 +880,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKError story renders and
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or
       </span>
@@ -862,7 +910,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKLoading story renders a
         data-variant="default"
       >
         <img
-          alt="Apple Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -878,7 +927,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKLoading story renders a
         data-variant="default"
       >
         <img
-          alt="Google Pay"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           height="16"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
@@ -894,7 +944,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKLoading story renders a
         data-variant="default"
       >
         <img
-          alt="Amazon Pay"
+          alt=""
+          aria-hidden="true"
           class="h-5"
           height="20"
           src="https://m.media-amazon.com/images/G/01/AmazonPay/ux/squid_ink_pwa.svg"
@@ -910,7 +961,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKLoading story renders a
         data-variant="default"
       >
         <img
-          alt="PayPal"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-4 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain;"
@@ -924,7 +976,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKLoading story renders a
         data-variant="default"
       >
         <img
-          alt="Venmo"
+          alt=""
+          aria-hidden="true"
           class="flex-shrink-0 h-3 w-auto"
           src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48L3N2Zz4="
           style="object-fit: contain; filter: brightness(0) invert(1);"
@@ -938,7 +991,8 @@ exports[`ExpressPayments stories snapshot > WithPayPalSDKLoading story renders a
         class="flex-1 h-[2px] bg-separator"
       />
       <span
-        class="px-4 text-separator-foreground font-medium uppercase text-sm whitespace-nowrap"
+        class="px-4 !text-foreground font-medium uppercase text-sm whitespace-nowrap"
+        data-express-payments-separator-label=""
       >
         Or
       </span>

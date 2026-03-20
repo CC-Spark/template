@@ -20,6 +20,7 @@ import { useEffect, useMemo, useRef, type ReactNode, type ReactElement } from 'r
 import { expect, within } from 'storybook/test';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { CHECKOUT_STEPS } from '../utils/checkout-context-types';
+import { checkoutStrictA11yParameters } from '@/components/checkout/storybook/checkout-strict-a11y-parameters';
 
 const PROGRESS_HARNESS_ATTR = 'data-progress-harness';
 
@@ -78,6 +79,7 @@ const meta: Meta<typeof CheckoutProgress> = {
     component: CheckoutProgress,
     tags: ['autodocs', 'interaction'],
     parameters: {
+        ...checkoutStrictA11yParameters,
         layout: 'padded',
         docs: {
             description: {

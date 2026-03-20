@@ -423,6 +423,8 @@
         "addressModal": {
             "title": "Add Address",
             "editTitle": "Edit Address",
+            "description": "Enter your shipping address in the form below.",
+            "editDescription": "Update your shipping address in the form below.",
             "cancel": "Cancel",
             "save": "Save",
             "saving": "Saving..."

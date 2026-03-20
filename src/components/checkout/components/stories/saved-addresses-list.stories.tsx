@@ -19,6 +19,7 @@ import { action } from 'storybook/actions';
 import { waitForStorybookReady } from '@storybook/test-utils';
 import { SavedAddressesList } from '../saved-addresses-list';
 import type { AddressBookItem } from '@/lib/customer-profile-utils';
+import { checkoutStrictA11yParameters } from '@/components/checkout/storybook/checkout-strict-a11y-parameters';
 
 const addresses: AddressBookItem[] = [
     {
@@ -83,6 +84,7 @@ const meta: Meta<typeof SavedAddressesList> = {
     title: 'CHECKOUT/SavedAddressesList',
     component: SavedAddressesList,
     parameters: {
+        ...checkoutStrictA11yParameters,
         layout: 'padded',
         docs: {
             description: {
