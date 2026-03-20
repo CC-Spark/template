@@ -26,6 +26,7 @@ import { useStoreLocator } from '@/extensions/store-locator/providers/store-loca
 
 interface RefineInventoryProps {
     isFilterSelected: (attributeId: string, value: string) => boolean;
+    hasActiveFilter: (attributeId: string) => boolean;
     toggleFilter: (attributeId: string, value: string) => void;
 }
 
@@ -35,47 +36,65 @@ interface RefineInventoryProps {
  * Displays a "Shop by Availability" filter that allows users to filter products
  * by availability at a selected store. Integrates with the store locator feature.
  *
+ * When an `ilids` refine is already active, its value stays in sync with the globally
+ * selected store no matter where the store locator was opened. Opening the locator from
+ * this row (checkbox with no store, or store name) turns the refine on after the next
+ * store selection; if the refine was already off and the locator was opened elsewhere,
+ * changing the store does not enable the refine.
+ *
  * @param isFilterSelected - Function to check if a filter is currently selected
+ * @param hasActiveFilter - Whether any refine is active for an attribute (from parent `effectiveRefines`)
  * @param toggleFilter - Function to toggle a filter on/off
  * @returns ReactElement
  */
-export default function RefineInventory({ isFilterSelected, toggleFilter }: RefineInventoryProps) {
+export default function RefineInventory({ isFilterSelected, hasActiveFilter, toggleFilter }: RefineInventoryProps) {
     const { t } = useTranslation('extBopis');
 
     // Get selected store info to display name and use inventoryId for filtering
     const selectedStoreInfo = useStoreLocator((s) => s.selectedStoreInfo);
     const openStoreLocator = useStoreLocator((state) => state.open);
-    const openedFromHereRef = useRef(false);
+    const isStoreLocatorOpen = useStoreLocator((state) => state.isOpen);
+    const enableInventoryFilterOnNextStorePickRef = useRef(false);
 
     const inventoryId = selectedStoreInfo?.inventoryId || '';
     const inventoryIdRef = useRef<string>(inventoryId);
     // Use inventoryId directly for checked state, not the ref (ref is for tracking changes)
     const isChecked = isFilterSelected('ilids', inventoryId);
+    const hadIlidsRefine = hasActiveFilter('ilids');
 
-    // Update the inventory filter when the selected store changes
     useEffect(() => {
-        const storeChanged = inventoryIdRef.current !== inventoryId;
-        if (isChecked && storeChanged) {
-            toggleFilter('ilids', inventoryId);
+        if (!isStoreLocatorOpen) {
+            enableInventoryFilterOnNextStorePickRef.current = false;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [inventoryId]);
+    }, [isStoreLocatorOpen]);
 
-    // Auto-apply filter when store locator closes after being opened from this component
-    // Only apply if the store has actually changed
+    // Keep ilids= aligned with the globally selected store whenever the filter is already on (any locator entry).
+    // If the locator was opened from this component's checkbox (no store) or store link, the next store pick
+    // also turns the filter on even when it was off.
     useEffect(() => {
-        // If modal was opened from here and is now closed
-        if (openedFromHereRef.current) {
-            openedFromHereRef.current = false;
+        const prevInv = inventoryIdRef.current;
+        const storeChanged = prevInv !== inventoryId;
 
-            // Only apply filter if store changed and a store is selected
-            const storeChanged = inventoryIdRef.current !== inventoryId;
-            if (inventoryId && !isChecked && storeChanged) {
+        if (!inventoryId) {
+            inventoryIdRef.current = inventoryId;
+            return;
+        }
+
+        if (enableInventoryFilterOnNextStorePickRef.current && storeChanged) {
+            enableInventoryFilterOnNextStorePickRef.current = false;
+            if (!isChecked) {
                 toggleFilter('ilids', inventoryId);
             }
+            inventoryIdRef.current = inventoryId;
+            return;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [inventoryId]);
+
+        if (storeChanged && hadIlidsRefine && !isChecked) {
+            toggleFilter('ilids', inventoryId);
+        }
+
+        inventoryIdRef.current = inventoryId;
+    }, [inventoryId, toggleFilter, hadIlidsRefine, isChecked]);
 
     const handleCheckboxChange = () => {
         if (inventoryId) {
@@ -83,7 +102,7 @@ export default function RefineInventory({ isFilterSelected, toggleFilter }: Refi
             toggleFilter('ilids', inventoryId);
         } else {
             // No store selected, open the store locator
-            openedFromHereRef.current = true;
+            enableInventoryFilterOnNextStorePickRef.current = true;
             openStoreLocator();
         }
     };
@@ -91,7 +110,7 @@ export default function RefineInventory({ isFilterSelected, toggleFilter }: Refi
     const handleStoreNameClick = (e: React.MouseEvent | React.KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        openedFromHereRef.current = true;
+        enableInventoryFilterOnNextStorePickRef.current = true;
         openStoreLocator();
     };
 

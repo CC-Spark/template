@@ -166,8 +166,13 @@ export default function CategoryRefinements({
 
     return (
         <div className={isPending ? 'pointer-events-none opacity-50 transition-opacity' : ''}>
-            {/*  @sfdc-extension-line SFDC_EXT_BOPIS */}
-            <RefineInventory isFilterSelected={isFilterSelected} toggleFilter={toggleFilter} />
+            {/*  @sfdc-extension-block-start SFDC_EXT_BOPIS */}
+            <RefineInventory
+                isFilterSelected={isFilterSelected}
+                hasActiveFilter={hasActiveFilter}
+                toggleFilter={toggleFilter}
+            />
+            {/*  @sfdc-extension-block-end SFDC_EXT_BOPIS */}
 
             {/* Individual collapsible sections for each refinement category */}
             {refinements.map((refinement) => {
