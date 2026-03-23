@@ -756,7 +756,16 @@ describe('CheckoutFormPage', () => {
             await waitFor(() => {
                 expect(mockAnalytics.trackCheckoutStart).toHaveBeenCalledTimes(1);
                 expect(mockAnalytics.trackCheckoutStart).toHaveBeenCalledWith({
-                    basket: expect.objectContaining({ basketId: 'test-basket' }),
+                    basket: expect.objectContaining({
+                        basketId: 'test-basket',
+                        productItems: expect.arrayContaining([
+                            expect.objectContaining({
+                                itemId: 'item1',
+                                productId: 'product1',
+                                quantity: 1,
+                            }),
+                        ]),
+                    }),
                 });
             });
         });

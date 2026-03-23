@@ -280,6 +280,7 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
                     extractEinsteinItemInfoFromCartItem(item)
                 ),
                 amount: event.basket.productSubTotal ?? 0,
+                checkoutType: 'one-click',
             };
 
         case 'checkout_step':
@@ -288,6 +289,7 @@ function convertEventToEinsteinActivity(event: AnalyticsEvent, realm: string, is
                 stepName: event.stepName,
                 stepNumber: event.stepNumber,
                 basketId: event.basket.basketId,
+                checkoutType: 'one-click',
             };
 
         case 'view_page':
